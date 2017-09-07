@@ -6,7 +6,7 @@ class Renderer
 {
 public:
 	virtual void CreateRenderObject(/*Entity, renderObjectInfo)*/) = 0;
-
+	virtual void DestroyRenderObject() = 0;
 private:
 	Renderer();
 	Renderer(const Renderer& other) = delete;
