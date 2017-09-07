@@ -1,5 +1,9 @@
 int main()
 {
-	int* a;
-	*a = 0;
+	int b = 1;
+	if (b = 1)
+	{
+		return 1;
+	}
+	return 0;
 }
