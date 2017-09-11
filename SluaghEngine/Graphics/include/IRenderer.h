@@ -1,5 +1,6 @@
 #ifndef _IRENDERER_H_
 #define _IRENDERER_H_
+#include <Utilz/GUID.h>
 #include <cstdint>
 namespace SE
 {
@@ -8,9 +9,9 @@ namespace SE
 		class Entity;
 		struct RenderObjectInfo
 		{
-			int32_t meshGUID;
-			int32_t* textureGUIDPtr;
-			int32_t textureGUIDCount;
+			Utilz::GUID meshGUID = 0;
+			Utilz::GUID* textureGUIDPtr = nullptr;
+			uint32_t textureGUIDCount = 0;
 		};
 		class IRenderer
 		{
