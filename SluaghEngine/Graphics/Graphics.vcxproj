@@ -26,6 +26,7 @@
   <ItemGroup>
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
+    <ClInclude Include="include\IRenderer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

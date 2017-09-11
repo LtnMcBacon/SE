@@ -32,5 +32,8 @@
     <ClCompile Include="LiveObjectReporter.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClInclude Include="include\IRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
