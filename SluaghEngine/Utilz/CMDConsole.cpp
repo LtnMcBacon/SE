@@ -2,6 +2,7 @@
 #include "..\includes\Utilz\CMDConsole.h"
 #include <Windows.h>
 #include <cstdarg>
+#include <iostream>
 
 SE::Utilz::CMDConsole::CMDConsole()
 {
@@ -48,9 +49,14 @@ void SE::Utilz::CMDConsole::Print(const char * line, ...)
 
 void SE::Utilz::CMDConsole::Getline(std::string * string)
 {
+	std::getline(std::cin, *string);
 }
 
 size_t SE::Utilz::CMDConsole::Getline(const char * buffer, size_t size)
 {
-	return size_t();
+	std::string in;
+	std::getline(std::cin, in);
+	_ASSERT(in.size() <= size);
+	memcpy((void*)buffer, in.c_str(), in.size());
+	return in.size();
 }

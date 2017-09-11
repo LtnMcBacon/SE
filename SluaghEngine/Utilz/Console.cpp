@@ -26,7 +26,7 @@ void SE::Utilz::Console::InterpretCommand(char * command)
 
 	if (argc > 0)
 	{
-		uint32_t hash = std::hash<std::string>{}(argv[0]);
+		uint32_t hash = (uint32_t)std::hash<std::string>{}(argv[0]);
 
 		auto find = commands.find(hash);
 		if (find != commands.end()) 
@@ -98,7 +98,9 @@ int SE::Utilz::Console::Initialize(IConsoleBackend * backend)
 
 	Console::console = new Console;
 	Console::console->backend = backend;
-	Console::console->thread = std::thread(&Console::Run);
+	Console::console->thread = std::thread(&Console::Run, Console::console);
+
+	return 0;
 }
 
 void SE::Utilz::Console::Shutdown()
@@ -123,6 +125,7 @@ void SE::Utilz::Console::Hide()
 /*Hash the identifier and add the command*/
 int SE::Utilz::Console::AddCommand(const DevConsole_Command& commandFunction, char * name, char * description)
 {
-		uint32_t hash = std::hash<std::string>{}(name);			
+		uint32_t hash = (uint32_t)std::hash<std::string>{}(name);			
 		Console::console->commands[hash] = { commandFunction, name ,description };
+		return 0;
 }
