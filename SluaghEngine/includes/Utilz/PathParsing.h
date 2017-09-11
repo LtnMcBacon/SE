@@ -7,7 +7,7 @@ namespace SE
 {
 	namespace Utilz
 	{
-		std::string getExtension(const std::string& path)
+		inline std::string getExtension(const std::string& path)
 		{
 			const size_t period_idx = path.find_last_of('.');
 			if (std::string::npos != period_idx)
@@ -15,7 +15,7 @@ namespace SE
 				return path.substr(period_idx + 1);
 			}
 		}
-		std::string getFilename(std::string const& path)
+		inline std::string getFilename(std::string const& path)
 		{
 			const size_t last_slash_idx = path.find_last_of("\\/");
 			if (std::string::npos != last_slash_idx)
