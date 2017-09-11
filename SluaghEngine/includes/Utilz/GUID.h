@@ -10,7 +10,7 @@ namespace SE
 		public:
 			struct Compare
 			{
-				bool operator() (const GUID& lhs, const GUID& rhs) const
+				inline bool operator() (const GUID& lhs, const GUID& rhs) const
 				{
 					return lhs.id < rhs.id;
 				}

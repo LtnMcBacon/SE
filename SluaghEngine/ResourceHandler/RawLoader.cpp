@@ -1,6 +1,8 @@
 #include "RawLoader.h"
 #include <fstream>
 #include <string>
+#include <Profiler.h>
+
 using namespace std;
 
 SE::ResourceHandler::RawLoader::RawLoader()
@@ -16,26 +18,28 @@ SE::ResourceHandler::RawLoader::~RawLoader()
 
 int SE::ResourceHandler::RawLoader::Initialize()
 {
+	StartProfile;
 	ifstream in("rawLoaderEntries.txt", ios::in);
 	if (!in.is_open())
-		return -1;
+		ProfileReturnConst(-1);
 	std::string s;
 	while (getline(in, s))
 	{
 		resourceEntires[Utilz::GUID(hash<string>{}(s))] = s;
 	}
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data, size_t * size)const
 {
+	StartProfile;
 	auto find = resourceEntires.find(guid);
 	if (find == resourceEntires.end())
-		return -1;
+		ProfileReturnConst( -1);
 
 	ifstream file(find->second, ios::in | ios::ate);
 	if (!file.is_open())
-		return -2;
+		ProfileReturnConst( -2);
 
 	*size = file.tellg();
 	*data = new char[*size];
@@ -44,15 +48,17 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 
 	file.close();
 
-	return 0;
+	ProfileReturnConst( 0);
 
 }
 
 bool SE::ResourceHandler::RawLoader::Exist(const Utilz::GUID & guid)const
 {
+	StartProfile;
 	auto find = resourceEntires.find(guid);
 	if (find == resourceEntires.end())
-		return false;
+		ProfileReturnConst(false);
 
-	return true;
+
+	ProfileReturnConst(true);
 }
