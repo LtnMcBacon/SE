@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{5A50FC13-4F39-45C7-BF82-72A5D9290B69}</ProjectGuid>
-    <RootNamespace>ResourceManager</RootNamespace>
+    <ProjectGuid>{8B8CF55D-04F3-4DEC-BC78-D0134DB8CD02}</ProjectGuid>
+    <RootNamespace>ResourceHandler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -74,14 +74,14 @@
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -89,24 +89,24 @@
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -140,6 +140,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h" />
+    <ClInclude Include="IAssetLoader.h" />
+    <ClInclude Include="RawLoader.h" />
+    <ClInclude Include="ResourceHandler.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RawLoader.cpp" />
+    <ClCompile Include="ResourceHandler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
