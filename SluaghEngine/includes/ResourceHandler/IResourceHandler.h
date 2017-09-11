@@ -11,6 +11,9 @@ namespace SE
 		public:
 			virtual ~IResourceHandler() = 0;
 
+
+			virtual int Initialize() = 0;
+
 			virtual void LoadResource(const Utilz::GUID& guid, const std::function<void(void* data, size_t size)>& callback) = 0;
 
 		protected:

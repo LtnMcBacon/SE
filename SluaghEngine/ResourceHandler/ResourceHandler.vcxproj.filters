@@ -24,9 +24,15 @@
     <ClInclude Include="IAssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RawLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

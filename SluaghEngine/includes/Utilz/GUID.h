@@ -17,12 +17,12 @@ namespace SE
 			};
 
 
-			GUID(uint64_t id) : id(id) {}
+			GUID(uint32_t id) : id(id) {}
 			GUID(const GUID& other) : id(other.id) {}
 			GUID(const GUID&& other) : id(other.id) {}
 			GUID& operator=(const GUID& other) { this->id = other.id; }
 		private:
-			uint64_t id;
+			uint32_t id;
 
 			
 		};

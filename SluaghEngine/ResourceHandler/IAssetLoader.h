@@ -11,8 +11,10 @@ namespace SE
 			virtual ~IAssetLoader() = 0;
 
 
-			virtual void LoadResource(const Utilz::GUID& guid, void** data, size_t* size) = 0;
-			virtual bool Exist(const Utilz::GUID& guid) = 0;
+			virtual int Initialize() = 0;
+
+			virtual int LoadResource(const Utilz::GUID& guid, void** data, size_t* size)const = 0;
+			virtual bool Exist(const Utilz::GUID& guid)const = 0;
 		protected:
 			IAssetLoader() {};
 			IAssetLoader(const IAssetLoader& other) = delete;

@@ -142,9 +142,11 @@
   <ItemGroup>
     <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h" />
     <ClInclude Include="IAssetLoader.h" />
+    <ClInclude Include="RawLoader.h" />
     <ClInclude Include="ResourceHandler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="RawLoader.cpp" />
     <ClCompile Include="ResourceHandler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

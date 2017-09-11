@@ -15,6 +15,8 @@ namespace SE
 			ResourceHandler();
 			~ResourceHandler();
 
+			int Initialize();
+
 			void LoadResource(const Utilz::GUID& guid, const std::function<void(void* data, size_t size)>& callback);
 
 		private:
