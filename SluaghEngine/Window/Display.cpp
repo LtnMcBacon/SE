@@ -1,8 +1,9 @@
 #include "Display.h"
-
+#include "Input.h"
+static SE::Window::Input* input;
 namespace SE {
 	namespace Window {
-		LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT CALLBACK Display::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			// sort through and find what code to run for the message given
 			switch (message)
@@ -14,7 +15,12 @@ namespace SE {
 				PostQuitMessage(0);
 				return 0;
 			} break;
+			default:
+			{
+				return 1;// input.handleMSG();		//tell input to handle msg
 			}
+			}
+			
 
 			// Handle any messages the switch statement didn't
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -30,8 +36,9 @@ namespace SE {
 
 		}
 
-		bool Display::InitDisplay()
+		bool Display::InitDisplay(void* p_inputClass)
 		{
+			input = (Input*)p_inputClass;
 			//returns a handle to the file used to create it (.exe file)
 			HINSTANCE l_hInstance = GetModuleHandle(NULL);
 
@@ -76,7 +83,7 @@ namespace SE {
 			return true;
 		}
 
-		const HWND& Display::GethWnd()
+		const void* Display::GethWnd()
 		{
 			return m_hWnd;
 		}

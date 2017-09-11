@@ -1,8 +1,6 @@
 #pragma once
 #ifndef SE_WINDOW_INTERFACE_H
 #define SE_WINDOW_INTERFACE_H
-#include <Windows.h>
-#include <windowsx.h>
 
 namespace SE {
 	namespace Window {
@@ -11,9 +9,9 @@ namespace SE {
 		public:
 			InterfaceWindow() {};
 			~InterfaceWindow() {};
-			virtual bool InitDisplay() = 0;
-			virtual const HWND& GethWnd() = 0;
+			virtual bool Initialise() = 0;
+			virtual const void* GethWnd() = 0;
 		};
-	}
-}
+	}	//namespace Window
+}	//namespace SE
 #endif	//SE_WINDOW_INTERFACE_H
