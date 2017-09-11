@@ -1,11 +1,17 @@
 #ifndef _IRENDERER_H_
 #define _IRENDERER_H_
+#include <cstdint>
 namespace SE
 {
 	namespace Graphics
 	{
 		class Entity;
-		class RenderObjectInfo;
+		struct RenderObjectInfo
+		{
+			int32_t meshGUID;
+			int32_t* textureGUIDPtr;
+			int32_t textureGUIDCount;
+		};
 		class IRenderer
 		{
 		public:
