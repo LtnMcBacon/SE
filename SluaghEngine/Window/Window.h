@@ -23,7 +23,10 @@ namespace SE {
 			*
 			*/
 			bool Initialise();
+			void HandleMSG(const MSG & 	msg) { m_input.HandleMSG(msg); };
 			inline const void* GethWnd() { return m_display.GethWnd(); };
+			bool MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey);
+			bool MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton);
 
 		private:
 			SE::Window::Display m_display;

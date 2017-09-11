@@ -4,18 +4,36 @@
 #define SE_WINDOW_INPUT_H
 
 
+#if defined(DEBUG)
+#pragma comment (lib, "GainputD.lib")
+#else
+#pragma comment (lib, "Gainput.lib")
+#endif
+
+#include "gainput\gainput.h"
+
 
 namespace SE {
+	
 	namespace Window {
+		
 
 		class Input
 		{
 		public:
-			Input() {};
+			Input();
 			~Input() {};
-
+			bool InitInput();
+			void HandleMSG(const MSG & 	msg);
+			bool MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey);
+			bool MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton);
 		private:
-
+			int m_width = 640;
+			int m_height = 480;
+			gainput::InputManager m_manager;
+			gainput::DeviceId m_keyboardId;
+			gainput::DeviceId m_mouseId;
+			gainput::InputMap* m_map;
 		};
 	}	//namespace Window
 }	//namespace SE

@@ -18,16 +18,15 @@ namespace SE {
 			*
 			* @details	Gets application handle from the GetModuleHandle function and uses that to set up a display.
 			*
-			* @param[in] p_inputClass A referens to the input class
-			*
 			* @retval return_value_1 Tells if display creation was sucessful
 			*
 			*/
-			bool InitDisplay(void* p_inputClass);
+			bool InitDisplay();
 			const void* GethWnd();
 
 		private:
-			int m_width = 640, m_height = 480;
+			int m_width = 640; 
+			int m_height = 480;
 			HWND m_hWnd;
 			static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 		};

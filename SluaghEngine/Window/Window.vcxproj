@@ -81,34 +81,34 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\</OutDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Buildlib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\</OutDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Buildlib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\lib\</OutDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Buildlib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\lib\</OutDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Buildlib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

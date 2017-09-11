@@ -1,6 +1,5 @@
 #include "Display.h"
 #include "Input.h"
-static SE::Window::Input* input;
 namespace SE {
 	namespace Window {
 		LRESULT CALLBACK Display::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -15,10 +14,6 @@ namespace SE {
 				PostQuitMessage(0);
 				return 0;
 			} break;
-			default:
-			{
-				return 1;// input.handleMSG();		//tell input to handle msg
-			}
 			}
 			
 
@@ -36,11 +31,14 @@ namespace SE {
 
 		}
 
-		bool Display::InitDisplay(void* p_inputClass)
+		bool Display::InitDisplay()
 		{
-			input = (Input*)p_inputClass;
 			//returns a handle to the file used to create it (.exe file)
 			HINSTANCE l_hInstance = GetModuleHandle(NULL);
+
+			// If GetModuleHandle fails, there is no application handle for us to use returns false
+			if (l_hInstance == NULL)
+				return false;
 
 			// this struct holds information for the window class
 			WNDCLASSEX l_wc;
@@ -78,7 +76,7 @@ namespace SE {
 				l_hInstance,    // application handle
 				NULL);    // used with multiple windows, NULL
 
-			ShowWindow(m_hWnd, 1);
+			ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 			ShowCursor(true);
 			return true;
 		}
