@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(Solution)\Build\lib</OutDir>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
     <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
@@ -78,14 +78,14 @@
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(Solution)\Build\lib</OutDir>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
     <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(Solution)\Build\lib</OutDir>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
     <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
@@ -93,7 +93,7 @@
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(Solution)\Build\lib</OutDir>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
     <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
@@ -140,7 +140,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\EntityManager.h" />
+    <ClCompile Include="EntityManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\EntityManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
