@@ -14,14 +14,14 @@ namespace SE {
 			return l_initS;
 		}
 
-		bool Window::MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey)
+		void Window::MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey)
 		{
-			return m_input.MapKeyToKeyboard(p_actionKey, p_keyboardKey);
+			m_input.MapKeyToKeyboard(p_actionKey, p_keyboardKey);
 		}
 
-		bool Window::MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton)
+		void Window::MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton)
 		{
-			return m_input.MapKeyToMouse(p_actionKey, p_mouseButton);
+			m_input.MapKeyToMouse(p_actionKey, p_mouseButton);
 		}
 
 	}	//namespace Window

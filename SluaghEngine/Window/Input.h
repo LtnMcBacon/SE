@@ -23,10 +23,10 @@ namespace SE {
 		public:
 			Input();
 			~Input() {};
-			bool InitInput();
+			void InitInput();
 			void HandleMSG(const MSG & 	msg);
-			bool MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey);
-			bool MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton);
+			void MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey);
+			void MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton);
 		private:
 			int m_width = 640;
 			int m_height = 480;

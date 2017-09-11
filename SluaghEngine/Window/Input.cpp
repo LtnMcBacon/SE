@@ -8,7 +8,7 @@ namespace SE {
 
 		}
 
-		bool Input::InitInput()
+		void Input::InitInput()
 		{
 			// Set display size
 			m_manager.SetDisplaySize(m_width, m_height);
@@ -25,12 +25,12 @@ namespace SE {
 			return m_manager.HandleMessage(msg);
 		}
 
-		bool Input::MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey)
+		void Input::MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey)
 		{
 			m_map->MapBool(p_actionKey, m_keyboardId, p_keyboardKey);
 		}
 
-		bool Input::MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton)
+		void Input::MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton)
 		{
 			m_map->MapBool(p_actionKey, m_mouseId, p_mouseButton);
 		}
