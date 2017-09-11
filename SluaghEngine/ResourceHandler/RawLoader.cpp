@@ -25,7 +25,7 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	std::string s;
 	while (getline(in, s))
 	{
-		resourceEntires[Utilz::GUID(hash<string>{}(s))] = s;
+		resourceEntires[Utilz::GUID((uint32_t)hash<string>{}(s))] = s;
 	}
 	ProfileReturnConst(0);
 }

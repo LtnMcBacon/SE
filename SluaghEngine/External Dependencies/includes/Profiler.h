@@ -109,13 +109,13 @@ private:
 	Data* _profile = nullptr;
 	Data* _current = nullptr;
 public:
-	static Profiler& GetInstance()
+	inline static Profiler& GetInstance()
 	{
 		static thread_local Profiler inst;
 		return inst;
 	}
 	template<uint64_t functionHash>
-	const void StartProfileF(const char * funcName)
+	inline const void StartProfileF(const char * funcName)
 	{
 		if (!_profile)
 			_profile = _current = new Data(nullptr, funcName);
@@ -132,7 +132,7 @@ public:
 		_current->timesCalled++;
 		_current->timeStart = std::chrono::high_resolution_clock::now();
 	}
-	const void StopProfileF(uint32_t threadid)
+	inline const void StopProfileF(uint32_t threadid)
 	{
 		std::chrono::high_resolution_clock::time_point time = std::chrono::high_resolution_clock::now();
 		//std::chrono::duration<double> diff = time - currentFunc->timeStart;
@@ -146,7 +146,7 @@ private:
 
 	const void _dumpToFile()
 	{
-		ofstream out;
+		std::ofstream out;
 
 		auto end = std::chrono::system_clock::now();
 		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
@@ -157,7 +157,7 @@ private:
 		std::stringstream ss;
 
 
-		ss << "digraph \"" << this_thread::get_id() << "\" { node[shape = \"record\"];\n";
+		ss << "digraph \"" << std::this_thread::get_id() << "\" { node[shape = \"record\"];\n";
 		ss << "graph [ rankdir = \"LR\"];\n";
 
 		auto& p = _profile;
