@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <Profiler.h>
-
+#include <Utilz\PathParsing.h>
 using namespace std;
 
 SE::ResourceHandler::RawLoader::RawLoader()
@@ -25,7 +25,9 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	std::string s;
 	while (getline(in, s))
 	{
-		resourceEntires[Utilz::GUID((uint32_t)hash<string>{}(s))] = s;
+		auto& name = Utilz::getFilename(s);
+		auto& ext = Utilz::getExtension(s);
+		resourceEntires[Utilz::GUID((uint32_t)hash<string>{}(name))] = s;
 	}
 	ProfileReturnConst(0);
 }
