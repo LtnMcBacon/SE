@@ -4,11 +4,8 @@ namespace SE {
 	namespace Window {
 		bool Window::Initialise()
 		{		
-			bool l_initS = m_input.InitInput();
-			if (l_initS == false)
-				return l_initS;
-			return l_initS;
-			l_initS = m_display.InitDisplay();
+			m_input.InitInput();
+			bool l_initS = m_display.InitDisplay();
 			if (l_initS == false)
 				return l_initS;
 			return l_initS;
