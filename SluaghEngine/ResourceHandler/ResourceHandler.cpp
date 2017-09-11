@@ -21,8 +21,19 @@ int SE::ResourceHandler::ResourceHandler::Initialize()
 void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const std::function<void(void* data, size_t size)>& callback)
 {
 	StartProfile;
-	ResourceInfo resourceInfo;
-	diskLoader->LoadResource(guid, &resourceInfo.data, &resourceInfo.size);
 
+	auto find = resourceMap.find(guid);
+	if (find == resourceMap.end())
+	{
+		auto& resourceInfo = resourceMap[guid];
+		callback(resourceInfo.data, resourceInfo.size);
+	}
+	else
+	{
+		auto& resourceInfo = resourceMap[guid];
+		diskLoader->LoadResource(guid, &resourceInfo.data, &resourceInfo.size);
+		callback(resourceInfo.data, resourceInfo.size);
+	}
+	
 	StopProfile;
 }
