@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h" />
+    <ClInclude Include="IAssetLoader.h" />
     <ClInclude Include="ResourceHandler.h" />
   </ItemGroup>
   <ItemGroup>
