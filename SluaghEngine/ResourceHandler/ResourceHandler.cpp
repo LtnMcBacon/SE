@@ -1,6 +1,7 @@
 #include "ResourceHandler.h"
 using namespace SE::ResourceHandler;
 #include <Profiler.h>
+#include "RawLoader.h"
 
 ResourceHandler::ResourceHandler() : diskLoader(nullptr)
 {
@@ -14,7 +15,8 @@ ResourceHandler::~ResourceHandler()
 int SE::ResourceHandler::ResourceHandler::Initialize()
 {
 	StartProfile;
-
+	diskLoader = new RawLoader;
+	diskLoader->Initialize();
 	ProfileReturnConst(0);
 }
 
