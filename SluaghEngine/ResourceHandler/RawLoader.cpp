@@ -27,7 +27,7 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	{
 		auto& name = Utilz::getFilename(s);
 		auto& ext = Utilz::getExtension(s);
-		resourceEntires[Utilz::GUID((uint32_t)hash<string>{}(name))] = s;
+		resourceEntires[Utilz::GUID(name)] = s;
 	}
 	ProfileReturnConst(0);
 }

@@ -1,104 +1,80 @@
-//#include <Core/EntityManager.h>
-//#include <iostream>
-//
-//#ifdef _DEBUG
-//#pragma comment(lib, "coreD.lib")
-//#else
-//#pragma comment(lib, "core.lib")
-//#endif
+#include <Utilz\Console.h>
+#include <Utilz\CMDConsole.h>
+#include <Utilz\GUID.h>
+#include "Test.h"
+#include "EntityManagerTest.h"
+#include <map>
 
-//using namespace SE::Core;
-//int main(int argc, char** argv)
-//{
-//
-//	EntityManager em;
-//
-//
-//	Entity e[2048];
-//
-//	for (int i = 0; i < 2048; i++)
-//	{
-//		e[i] = em.Create();
-//	}
-//
-//	for (int i = 0; i < 1024; i++)
-//	{
-//		em.Destroy(e[i]);
-//	}
-//	for (int i = 0; i < 1024; i++)
-//	{
-//		if (em.Alive(e[i]))
-//			std::cout << i << ": " << e[i].id << "\n";
-//	}
-//	for (int i = 1024; i < 2048; i++)
-//	{
-//		if (!em.Alive(e[i]))
-//			std::cout << "Dead: " << e[i].id << "\n";
-//	}
-//	for (int i = 0; i < 1024; i++)
-//	{
-//		e[i] = em.Create();
-//	}
-//
-//	for (int i = 0; i < 2048; i++)
-//	{
-//		if (!em.Alive(e[i]))
-//			std::cout << "Is dead: " << i << "\n";
-//	}
-//	for (int x = 0; x < 120; x++)
-//	{
-//		for (int i = 0; i < 2048; i++)
-//		{
-//			em.Destroy(e[i]);
-//		}
-//		for (int i = 0; i < 2048; i++)
-//		{
-//			e[i] = em.Create();
-//		}
-//	}
-//
-//	for (int i = 0; i < 2048; i++)
-//	{
-//		for (int j = i + 1; j < 2048; j++)
-//		{
-//			if (e[i].id == e[j].id)
-//				std::cout << "Duplicate detected\n";
-//		}
-//	}
-//
-//
-//
-//	std::cin.get();
-//
-//	return 0;
-//
-//}
-
-
-//////////  Window Test
-#include <Window/InterfaceWindow.h>
-#include <Window/Window.h>
 
 #ifdef _DEBUG
-#pragma comment(lib, "WindowD.lib")
+#pragma comment(lib, "UtilzD.lib")
 #else
-#pragma comment(lib, "Window.lib")
+#pragma comment(lib, "Utilz.lib")
 #endif
 
-using namespace SE::Window;
+
+#define AddTest(x) {tests[GUID(#x)] = { #x, new x };}
+
+using namespace SE::Utilz;
+using namespace SE::Test;
 int main(int argc, char** argv)
 {
-	InterfaceWindow* window = new Window();
-
-	bool windowOpen = window->Initialise();
-	if (windowOpen == true)
+	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
+	AddTest(EntityManagerTest);
+	bool running = true;
+	Console::Initialize(new CMDConsole);
+	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
-		window->MapKeyToKeyboard(0, KeyQ);
+		running = false;
+	},
+		"exit",
+		"exit the application");
 
-		while (window->HandleMSG() == true && window->GetActionKeyState(0) == key_up)
+	Console::AddCommand([&tests](IConsoleBackend* backend, int argc, char** argv)
+	{
+		if (argc == 1 || std::string(argv[1]) == "-h")
 		{
+			backend->Print("\nStart a test: runtest [name of test]\n");
+			backend->Print("\t -Available Tests");
 
+			for(auto& t : tests)
+				backend->Print("\t\t %s\n", std::get<0>(t.second));
 		}
+		else
+		{
+			auto& find = tests.find(GUID(argv[1]));
+			if (find != tests.end())
+			{
+				bool result = std::get<1>(find->second)->Run(backend);
+				backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed");
+			}
+				
+			else
+			{
+				backend->Print("Test not found, %s\n\n", argv[1]);
+			}
+		}
+			
+	},
+		"runtest",
+		"Start a test");
+	
 
-	}
+
+
+
+
+
+
+
+
+	Console::Show();
+
+	
+
+
+	while (running);
+
+	return 0;
+
 }
