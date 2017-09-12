@@ -31,5 +31,10 @@ namespace SE {
 			input.HandleMSG(msg); 
 		}
 
+		int Window::GetActionKeyState(int actionKey)
+		{
+			return input.GetActionKeyState(actionKey);
+		}
+
 	}	//namespace Window
 }	//namespace SE

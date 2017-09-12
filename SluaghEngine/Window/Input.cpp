@@ -34,5 +34,25 @@ namespace SE {
 		{
 			inputMap->MapBool(actionKey, mouseId, mouseButton);
 		}
+		
+		int Input::GetActionKeyState(int actionKey)
+		{
+			if (inputMap->GetBool(actionKey) == false)
+			{
+				return key_up;
+			}
+			else
+			{
+				if (inputMap->GetBoolIsNew(actionKey) == true)
+				{
+					return key_pressed;
+				}
+				else if (inputMap->GetBoolPrevious(actionKey) == true)
+				{
+					return key_down;
+				}
+			}
+			return key_up;
+		}
 	}	//namespace Window
 }	//namespace SE
