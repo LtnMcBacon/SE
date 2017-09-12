@@ -1,8 +1,6 @@
 #ifndef SE_UTILZ_CRC_TABLE_H
 #define SE_UTILZ_CRC_TABLE_H
-#include <iostream>
-#include <string>
-#include <vector>
+
 namespace SE
 {
 	namespace Utilz

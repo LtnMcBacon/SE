@@ -127,10 +127,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EntityManagerTest.cpp" />
+    <ClCompile Include="ResouceHandlerTest.cpp" />
     <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h" />
+    <ClInclude Include="ResouceHandlerTest.h" />
     <ClInclude Include="Test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

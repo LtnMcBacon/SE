@@ -3,6 +3,7 @@
 #include <Utilz\GUID.h>
 #include "Test.h"
 #include "EntityManagerTest.h"
+#include "ResouceHandlerTest.h"
 #include <map>
 
 
@@ -21,6 +22,7 @@ int main(int argc, char** argv)
 {
 	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
 	AddTest(EntityManagerTest);
+	AddTest(ResouceHandlerTest);
 	bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
@@ -35,7 +37,7 @@ int main(int argc, char** argv)
 		if (argc == 1 || std::string(argv[1]) == "-h")
 		{
 			backend->Print("\nStart a test: runtest [name of test]\n");
-			backend->Print("\t -Available Tests");
+			backend->Print("\t -Available Tests\n");
 
 			for(auto& t : tests)
 				backend->Print("\t\t %s\n", std::get<0>(t.second));
