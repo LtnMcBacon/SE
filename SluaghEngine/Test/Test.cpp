@@ -1,23 +1,15 @@
 #include <Core/EntityManager.h>
 #include <iostream>
-#include <Window/InterfaceWindow.h>
-#include <Utilz/Console.h>
-#include <Utilz/CMDConsole.h>
+
 #pragma comment(lib, "core.lib")
-#pragma comment(lib, "window.lib")
-#pragma comment(lib, "utilz.lib")
 
 using namespace SE::Core;
-using namespace  SE::Window;
-using namespace SE::Utilz;
 int main(int argc, char** argv)
 {
 
 	EntityManager em;
 
-	Console::Initialize(new CMDConsole);
-	Console::Show();
-	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv) {backend->Print("Afafa"); }, "kaka", "kakaka");
+
 	Entity e[2048];
 
 	for (int i = 0; i < 2048; i++)
@@ -35,7 +27,6 @@ int main(int argc, char** argv)
 			std::cout << i << ": " << e[i].id << "\n";
 	}
 	for (int i = 1024; i < 2048; i++)
-
 	{
 		if (!em.Alive(e[i]))
 			std::cout << "Dead: " << e[i].id << "\n";
@@ -70,6 +61,7 @@ int main(int argc, char** argv)
 				std::cout << "Duplicate detected\n";
 		}
 	}
+
 
 
 	std::cin.get();
