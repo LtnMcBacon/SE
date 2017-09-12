@@ -16,7 +16,7 @@ namespace SE
 		class IResourceHandler
 		{
 		public:
-			virtual ~IResourceHandler() = 0;
+			virtual ~IResourceHandler() {};
 
 			/**
 			* @brief	Initialize the resource handler

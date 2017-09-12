@@ -139,13 +139,16 @@
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
+    <ClInclude Include="..\includes\Utilz\crc_table.h" />
     <ClInclude Include="..\includes\Utilz\Delegator.h" />
     <ClInclude Include="..\includes\Utilz\Event.h" />
     <ClInclude Include="..\includes\Utilz\GUID.h" />
     <ClInclude Include="..\includes\Utilz\IConsoleBackend.h" />
     <ClInclude Include="..\includes\Utilz\PathParsing.h" />
+    <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
   </ItemGroup>
