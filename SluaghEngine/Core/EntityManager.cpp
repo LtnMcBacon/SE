@@ -1,4 +1,4 @@
-#include "includes/EntityManager.h"
+#include "EntityManager.h"
 #include <algorithm>
 
 SE::Core::Entity::Entity(uint32_t id)
