@@ -1,7 +1,11 @@
 #include <Core/EntityManager.h>
 #include <iostream>
 
+#ifdef _DEBUG
+#pragma comment(lib, "coreD.lib")
+#else
 #pragma comment(lib, "core.lib")
+#endif
 
 using namespace SE::Core;
 int main(int argc, char** argv)
