@@ -70,10 +70,6 @@ namespace SE
 		{
 			return 0xFFFFFFFF;
 		}
-
-		// This don't take into account the nul char
-#define COMPILE_TIME_CRC32_STR(x) (crc32<sizeof(x) - 2>(x) ^ 0xFFFFFFFF)
-
 	}
 }
 
