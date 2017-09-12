@@ -26,12 +26,14 @@ namespace SE {
 			*/
 			bool Initialise();
 			/**
-			* @brief	Passes down windows message to input
+			* @brief	Loops through all messages
 			*
-			* @param[in] msg Windows message 
+			* @retval true All messages have been read
+			*
+			* @retval false Message is WM_QUIT
 			*
 			*/
-			void HandleMSG(const MSG & 	msg);
+			bool HandleMSG();
 			const void* GethWnd();
 			/**
 			* @brief	Passes actionKey and keyboardKey for mapping to input
@@ -40,8 +42,12 @@ namespace SE {
 			*
 			* @param[in] keyboardKey Value of the declared keyboardKey
 			*
+			* @retval true Returns true if mapping suceded
+			*
+			* @retval false Returns false if mapping failed
+			*
 			*/
-			void MapKeyToKeyboard(int actionKey, gainput::Key keyboardKey);
+			bool MapKeyToKeyboard(int actionKey, Key keyboardKey);
 			/**
 			* @brief	Passes actionKey and mouseButton for mapping to input
 			*
@@ -49,8 +55,12 @@ namespace SE {
 			*
 			* @param[in] keyboardKey Value of the declared mouseButton
 			*
+			* @retval true Returns true if mapping suceded
+			*
+			* @retval false Returns false if mapping failed
+			*
 			*/
-			void MapKeyToMouse(int actionKey, gainput::MouseButton mouseButton);
+			bool MapKeyToMouse(int actionKey, MouseButton mouseButton);
 			/**
 			* @brief	Passes actionKey to get it's state
 			*
@@ -67,6 +77,7 @@ namespace SE {
 		private:
 			SE::Window::Display display;
 			SE::Window::Input input;
+			MSG windowMessage;
 		};
 	}	//namespace Window
 }	//namespace SE
