@@ -1,6 +1,7 @@
 #ifndef SE_UTILZ_GUID_H_
 #define SE_UTILZ_GUID_H_
 #include <stdint.h>
+#include "CompileTimeStringHasher.h"
 namespace SE
 {
 	namespace Utilz
@@ -16,7 +17,7 @@ namespace SE
 				}
 			};
 
-
+			constexpr GUID(const char* str) : id(COMPILE_TIME_CRC32_STR(str)) {};
 			GUID(uint32_t id) : id(id) {}
 			GUID(const GUID& other) : id(other.id) {}
 			GUID(const GUID&& other) : id(other.id) {}
