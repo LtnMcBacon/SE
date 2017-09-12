@@ -18,10 +18,25 @@
     <ClInclude Include="..\includes\Utilz\IConsoleBackend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Utilz\CMDConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\includes\Utilz\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Utilz\CMDConsole.h">
+    <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\Delegator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\GUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\PathParsing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
