@@ -18,20 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\includes\Graphics\Renderer.h" />
-    <ClInclude Include="DeviceManager.h" />
-    <ClInclude Include="LiveObjectReporter.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DeviceManager.cpp" />
-    <ClCompile Include="LiveObjectReporter.cpp" />
-    <ClInclude Include="include\IRenderer.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{98A5895B-DA4E-43AD-8AD4-BC0916460BE1}</ProjectGuid>
-    <RootNamespace>Graphics</RootNamespace>
+    <ProjectGuid>{C4A1A015-422E-4F10-9300-26905EAC3EC3}</ProjectGuid>
+    <RootNamespace>Core</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -80,41 +70,43 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\lib</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -147,6 +139,12 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="EntityManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\EntityManager.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

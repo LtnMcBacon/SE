@@ -14,6 +14,7 @@ namespace SE
 			{
 				return path.substr(period_idx + 1);
 			}
+			return path;
 		}
 		inline std::string getFilename(std::string const& path)
 		{
@@ -22,6 +23,7 @@ namespace SE
 			{
 				return path.substr(last_slash_idx + 1);
 			}
+			return path;
 		}
 
 	}
