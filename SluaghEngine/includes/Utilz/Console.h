@@ -1,6 +1,6 @@
 #ifndef SE_UTILZ_CONSOLE_H_
 #define SE_UTILZ_CONSOLE_H_
-#include <IConsoleBackend.h>
+#include "IConsoleBackend.h"
 #include <mutex>
 #include <thread>
 #include <map>
@@ -20,8 +20,8 @@ namespace SE
 
 			static int Initialize(IConsoleBackend* backend);
 			static void Shutdown();
-			inline static void Show();
-			inline static void Hide();
+			static void Show();
+			static void Hide();
 
 
 			static int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description);
