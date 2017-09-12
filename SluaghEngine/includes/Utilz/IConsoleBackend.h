@@ -9,7 +9,7 @@ namespace SE
 		class IConsoleBackend
 		{
 		public:
-			virtual ~IConsoleBackend() = 0;
+			virtual ~IConsoleBackend() {};
 
 			/**
 			* @brief	Initialize the console backend
