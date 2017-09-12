@@ -242,8 +242,8 @@ namespace SE {
 			virtual bool Initialise() = 0;
 			virtual const void* GethWnd() = 0;
 			virtual void HandleMSG(void* msg) = 0;
-			virtual void MapKeyToKeyboard(int p_actionKey, Key p_keyboardKey) = 0;
-			virtual void MapKeyToMouse(int p_actionKey, MouseButton p_mouseButton) = 0;
+			virtual void MapKeyToKeyboard(int actionKey, Key keyboardKey) = 0;
+			virtual void MapKeyToMouse(int actionKey, MouseButton mouseButton) = 0;
 		};
 
 	}	//namespace Window

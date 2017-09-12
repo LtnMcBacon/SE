@@ -25,9 +25,9 @@ namespace SE {
 			const void* GethWnd();
 
 		private:
-			int m_width = 640; 
-			int m_height = 480;
-			HWND m_hWnd;
+			int width = 640; 
+			int height = 480;
+			HWND hWnd;
 			static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 		};
 	}	//namespace Window

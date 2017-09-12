@@ -23,17 +23,45 @@ namespace SE {
 		public:
 			Input();
 			~Input() {};
+			/**
+			* @brief	Initiates the input
+			*
+			* @details	Set window height and width to the inputManager, recives input id for keyboard and mouse. 
+			*
+			*/
 			void InitInput();
+			/**
+			* @brief	Uses inputManager to handle windows message
+			*
+			* @param[in] msg Windows message 
+			*
+			*/
 			void HandleMSG(const MSG & 	msg);
-			void MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey);
-			void MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton);
+			/**
+			* @brief	Maps keyboardKey to actionKey
+			*
+			* @param[in] actionKey Value of the actionKey
+			*
+			* @param[in] keyboardKey Value of the declared mouseButton
+			*
+			*/
+			void MapKeyToKeyboard(int actionKey, gainput::Key keyboardKey);
+			/**
+			* @brief	Maps mouseButton to actionKey
+			*
+			* @param[in] actionKey Value of the actionKey
+			*
+			* @param[in] keyboardKey Value of the declared mouseButton
+			*
+			*/
+			void MapKeyToMouse(int actionKey, gainput::MouseButton mouseButton);
 		private:
-			int m_width = 640;
-			int m_height = 480;
-			gainput::InputManager m_manager;
-			gainput::DeviceId m_keyboardId;
-			gainput::DeviceId m_mouseId;
-			gainput::InputMap* m_map;
+			int width = 640;
+			int height = 480;
+			gainput::InputManager inputManager;
+			gainput::DeviceId keyboardId;
+			gainput::DeviceId mouseId;
+			gainput::InputMap* inputMap;
 		};
 	}	//namespace Window
 }	//namespace SE

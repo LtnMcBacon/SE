@@ -4,21 +4,31 @@ namespace SE {
 	namespace Window {
 		bool Window::Initialise()
 		{		
-			m_input.InitInput();
-			bool l_initS = m_display.InitDisplay();
-			if (l_initS == false)
-				return l_initS;
-			return l_initS;
+			input.InitInput();
+			bool initS = display.InitDisplay();
+			if (initS == false)
+				return initS;
+			return initS;
 		}
 
-		void Window::MapKeyToKeyboard(int p_actionKey, gainput::Key p_keyboardKey)
+		void Window::MapKeyToKeyboard(int actionKey, gainput::Key keyboardKey)
 		{
-			m_input.MapKeyToKeyboard(p_actionKey, p_keyboardKey);
+			input.MapKeyToKeyboard(actionKey, keyboardKey);
 		}
 
-		void Window::MapKeyToMouse(int p_actionKey, gainput::MouseButton p_mouseButton)
+		void Window::MapKeyToMouse(int actionKey, gainput::MouseButton mouseButton)
 		{
-			m_input.MapKeyToMouse(p_actionKey, p_mouseButton);
+			input.MapKeyToMouse(actionKey, mouseButton);
+		}
+
+		const void* Window::GethWnd()
+		{ 
+			return display.GethWnd(); 
+		}
+
+		void Window::HandleMSG(const MSG & 	msg)
+		{ 
+			input.HandleMSG(msg); 
 		}
 
 	}	//namespace Window
