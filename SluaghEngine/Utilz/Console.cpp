@@ -13,7 +13,7 @@ void SE::Utilz::Console::Run()
 		backend->Getline(buffer, 256);
 		InterpretCommand(buffer);
 
-		Sleep(500);
+		Sleep(100);
 	}
 }
 
@@ -29,10 +29,10 @@ void SE::Utilz::Console::InterpretCommand(char * command)
 		uint32_t hash = (uint32_t)std::hash<std::string>{}(argv[0]);
 
 		auto find = commands.find(hash);
-		if (find != commands.end()) 
+		if (find != commands.end())
 			find->second.commandFunction(backend, argc, argv);
 		else
-			commands[0].commandFunction(backend, argc, argv);
+			backend->Print("Unknown command not found, %s\n\n", argv[0]);
 	}
 
 }
@@ -51,7 +51,7 @@ void SE::Utilz::Console::ParseCommandString(char * command, int * argc, char ** 
 			c = command[i];
 		}
 		argv[*argc] = &command[j];
-		argc++;
+		(*argc)++;
 		if (command[i] != '\0')
 		{
 			command[i] = '\0';
@@ -71,13 +71,18 @@ void SE::Utilz::Console::ParseCommandString(char * command, int * argc, char ** 
 
 SE::Utilz::Console::Console()
 {
-	commands[0] =
+	commands[std::hash<std::string>{}("commands")] =
 	{
-		[this](IConsoleBackend* backend, int argc, char** argv) {
+		[this](IConsoleBackend* backend, int argc, char** argv) 
+	{
+		
+		backend->Print("\n\n");
 		for (auto& c : commands)
 		{
-			backend->Print("%s \t-\t %s\n", c.second.name, c.second.description);
+			
+			backend->Print("%s\t-\t%s\n", c.second.name, c.second.description);
 		}
+		backend->Print("\n");
 	},
 		"commands",
 		"Lists all available commands"

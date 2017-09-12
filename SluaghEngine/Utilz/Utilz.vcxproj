@@ -74,6 +74,7 @@
     <IntDir>$(ProjectDir)Intermediate</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;</IncludePath>
     <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
@@ -86,6 +87,7 @@
     <IntDir>$(ProjectDir)Intermediate</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;</IncludePath>
     <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>

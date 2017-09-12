@@ -29,9 +29,10 @@ void SE::Utilz::CMDConsole::Show()
 		freopen("conin$", "r", stdin);
 		freopen("conout$", "w", stdout);
 		freopen("conout$", "w", stderr);
-
-		printf("<----||Console Initialized||---->\n\n");
 	}
+
+	Print("<----||Console Initialized||---->\n\n");
+
 }
 
 void SE::Utilz::CMDConsole::Hide()
@@ -56,7 +57,8 @@ size_t SE::Utilz::CMDConsole::Getline(const char * buffer, size_t size)
 {
 	std::string in;
 	std::getline(std::cin, in);
-	_ASSERT(in.size() <= size);
+	_ASSERT(in.size() + 1 <= size);
 	memcpy((void*)buffer, in.c_str(), in.size());
+	memcpy((void*)(buffer + in.size()), "\0", 1);
 	return in.size();
 }

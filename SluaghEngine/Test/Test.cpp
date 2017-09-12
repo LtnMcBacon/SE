@@ -1,74 +1,79 @@
-#include <Core/EntityManager.h>
-#include <iostream>
+#include <Utilz\Console.h>
+#include <Utilz\CMDConsole.h>
+#include <Utilz\GUID.h>
+#include "Test.h"
+#include "EntityManagerTest.h"
+#include <map>
+
 
 #ifdef _DEBUG
-#pragma comment(lib, "coreD.lib")
+#pragma comment(lib, "UtilzD.lib")
 #else
-#pragma comment(lib, "core.lib")
+#pragma comment(lib, "Utilz.lib")
 #endif
 
-using namespace SE::Core;
+
+#define AddTest(x) {tests[GUID(#x)] = { #x, new x };}
+
+using namespace SE::Utilz;
+using namespace SE::Test;
 int main(int argc, char** argv)
 {
+	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
+	AddTest(EntityManagerTest);
+	bool running = true;
+	Console::Initialize(new CMDConsole);
+	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
+	{
+		running = false;
+	},
+		"exit",
+		"exit the application");
 
-	EntityManager em;
-
-
-	Entity e[2048];
-
-	for (int i = 0; i < 2048; i++)
+	Console::AddCommand([&tests](IConsoleBackend* backend, int argc, char** argv)
 	{
-		e[i] = em.Create();
-	}
-
-	for (int i = 0; i < 1024; i++)
-	{
-		em.Destroy(e[i]);
-	}
-	for (int i = 0; i < 1024; i++)
-	{
-		if (em.Alive(e[i]))
-			std::cout << i << ": " << e[i].id << "\n";
-	}
-	for (int i = 1024; i < 2048; i++)
-	{
-		if (!em.Alive(e[i]))
-			std::cout << "Dead: " << e[i].id << "\n";
-	}
-	for (int i = 0; i < 1024; i++)
-	{
-		e[i] = em.Create();
-	}
-
-	for (int i = 0; i < 2048; i++)
-	{
-		if (!em.Alive(e[i]))
-			std::cout << "Is dead: " << i << "\n";
-	}
-	for (int x = 0; x < 120; x++)
-	{
-		for (int i = 0; i < 2048; i++)
+		if (argc == 1 || std::string(argv[1]) == "-h")
 		{
-			em.Destroy(e[i]);
+			backend->Print("\nStart a test: runtest [name of test]\n");
+			backend->Print("\t -Available Tests");
+
+			for(auto& t : tests)
+				backend->Print("\t\t %s\n", std::get<0>(t.second));
 		}
-		for (int i = 0; i < 2048; i++)
+		else
 		{
-			e[i] = em.Create();
+			auto& find = tests.find(GUID(argv[1]));
+			if (find != tests.end())
+			{
+				bool result = std::get<1>(find->second)->Run(backend);
+				backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed");
+			}
+				
+			else
+			{
+				backend->Print("Test not found, %s\n\n", argv[1]);
+			}
 		}
-	}
-
-	for (int i = 0; i < 2048; i++)
-	{
-		for (int j = i + 1; j < 2048; j++)
-		{
-			if (e[i].id == e[j].id)
-				std::cout << "Duplicate detected\n";
-		}
-	}
+			
+	},
+		"runtest",
+		"Start a test");
+	
 
 
 
-	std::cin.get();
+
+
+
+
+
+
+	Console::Show();
+
+	
+
+
+	while (running);
 
 	return 0;
 
