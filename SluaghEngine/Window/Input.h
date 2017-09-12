@@ -11,7 +11,7 @@
 #endif
 
 #include "gainput\gainput.h"
-
+#include "KeyState.h"
 
 namespace SE {
 	
@@ -21,11 +21,6 @@ namespace SE {
 		class Input
 		{
 		public:
-			enum {
-				key_up,
-				key_pressed,
-				key_down
-			};
 
 			Input();
 			~Input();
@@ -73,7 +68,7 @@ namespace SE {
 			* @retval key_down Returns if key have been pressed since last frame
 			*
 			*/
-			int GetActionKeyState(int actionKey);
+			keyState GetActionKeyState(int actionKey);
 		private:
 			int width = 640;
 			int height = 480;

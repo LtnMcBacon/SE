@@ -1,9 +1,11 @@
 #pragma once
 #ifndef SE_WINDOW_INTERFACE_H
 #define SE_WINDOW_INTERFACE_H
+#include "KeyState.h"
 
 namespace SE {
 	namespace Window {
+
 		enum Key
 		{
 			KeyEscape,
@@ -244,7 +246,7 @@ namespace SE {
 			virtual void HandleMSG(void* msg) = 0;
 			virtual void MapKeyToKeyboard(int actionKey, Key keyboardKey) = 0;
 			virtual void MapKeyToMouse(int actionKey, MouseButton mouseButton) = 0;
-			virtual int GetActionKeyState(int actionKey) = 0;
+			virtual keyState GetActionKeyState(int actionKey) = 0;
 		};
 
 	}	//namespace Window

@@ -23,6 +23,7 @@
     <ClInclude Include="..\includes\Window\Window.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="KeyState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Display.cpp" />

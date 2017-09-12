@@ -63,7 +63,7 @@ namespace SE {
 			* @retval key_down Returns if key have been pressed since last frame
 			*
 			*/
-			int GetActionKeyState(int actionKey);
+			keyState GetActionKeyState(int actionKey);
 		private:
 			SE::Window::Display display;
 			SE::Window::Input input;

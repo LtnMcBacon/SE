@@ -40,7 +40,7 @@ namespace SE {
 			inputMap->MapBool(actionKey, mouseId, mouseButton);
 		}
 		
-		int Input::GetActionKeyState(int actionKey)
+		keyState Input::GetActionKeyState(int actionKey)
 		{
 			if (inputMap->GetBool(actionKey) == false)
 			{
