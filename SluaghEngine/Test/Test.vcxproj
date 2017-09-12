@@ -127,11 +127,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EntityManagerTest.cpp" />
+    <ClCompile Include="ResouceHandlerTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h" />
+    <ClInclude Include="ResouceHandlerTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="WindowTest.h" />
   </ItemGroup>

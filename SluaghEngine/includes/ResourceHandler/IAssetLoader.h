@@ -18,7 +18,7 @@ namespace SE
 		class IAssetLoader
 		{
 		public:
-			virtual ~IAssetLoader() = 0;
+			virtual ~IAssetLoader() {};
 
 			/**
 			* @brief	Initialize the asset loader.
