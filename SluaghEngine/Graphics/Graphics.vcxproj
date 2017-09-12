@@ -20,6 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
+    <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="LiveObjectReporter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DeviceManager.cpp" />
+    <ClCompile Include="LiveObjectReporter.cpp" />
     <ClInclude Include="include\IRenderer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
