@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Window\InterfaceWindow.h" />
+    <ClInclude Include="..\includes\Window\Window.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Display.cpp" />

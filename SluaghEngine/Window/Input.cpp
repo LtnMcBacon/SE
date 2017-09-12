@@ -8,6 +8,11 @@ namespace SE {
 
 		}
 
+		Input::~Input()
+		{
+			delete inputMap;
+		}
+
 		void Input::InitInput()
 		{
 			// Set display size

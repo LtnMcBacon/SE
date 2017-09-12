@@ -28,7 +28,7 @@ namespace SE {
 			};
 
 			Input();
-			~Input() {};
+			~Input();
 			/**
 			* @brief	Initiates the input
 			*
