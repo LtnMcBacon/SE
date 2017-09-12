@@ -1,15 +1,31 @@
 #include <Core/EntityManager.h>
+#include <Utilz\Console.h>
+#include <Utilz\CMDConsole.h>
 #include <iostream>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
+#pragma comment(lib, "UtilzD.lib")
 #else
 #pragma comment(lib, "core.lib")
+#pragma comment(lib, "Utilz.lib")
 #endif
 
 using namespace SE::Core;
+using namespace SE::Utilz;
 int main(int argc, char** argv)
 {
+	bool running = true;
+	Console::Initialize(new CMDConsole);
+	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
+	{
+		running = false;
+	
+	},
+		"exit",
+		"exit the application");
+
+	//Console::Show();
 
 	EntityManager em;
 
@@ -68,7 +84,7 @@ int main(int argc, char** argv)
 
 
 
-	std::cin.get();
+	while (running);
 
 	return 0;
 
