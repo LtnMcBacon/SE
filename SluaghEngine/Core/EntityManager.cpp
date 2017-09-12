@@ -41,7 +41,7 @@ SE::Core::EntityManager::~EntityManager()
 
 SE::Core::Entity SE::Core::EntityManager::Create()
 {
-	if(_reusableIndicesCount > _minimumFreeIndices)
+	if(_reusableIndicesCount >= _minimumFreeIndices)
 	{
 		const uint32_t index = _reusableIndices[0];
 		_reusableIndices[0] = _reusableIndices[--_reusableIndicesCount];

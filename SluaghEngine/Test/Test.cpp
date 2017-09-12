@@ -16,7 +16,8 @@ int main(int argc, char** argv)
 	EntityManager em;
 
 	Console::Initialize(new CMDConsole);
-
+	Console::Show();
+	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv) {backend->Print("Afafa"); }, "kaka", "kakaka");
 	Entity e[2048];
 
 	for (int i = 0; i < 2048; i++)
@@ -69,7 +70,6 @@ int main(int argc, char** argv)
 				std::cout << "Duplicate detected\n";
 		}
 	}
-
 
 
 	std::cin.get();

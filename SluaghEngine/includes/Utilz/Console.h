@@ -28,8 +28,8 @@ namespace SE
 			*/
 			static int Initialize(IConsoleBackend* backend);
 			static void Shutdown();
-			inline static void Show();
-			inline static void Hide();
+			static void Show();
+			static void Hide();
 
 			/**
 			* @brief Add a command to the console.
