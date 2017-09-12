@@ -1,5 +1,5 @@
 #include "CMDConsole.h"
-#include "..\includes\Utilz\CMDConsole.h"
+#include <Utilz/CMDConsole.h>
 #include <Windows.h>
 #include <cstdarg>
 #include <iostream>
