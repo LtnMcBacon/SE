@@ -1,5 +1,5 @@
-#include "Console.h"
-#include <Utilz\IConsoleBackend.h>
+#include <Console.h>
+#include <IConsoleBackend.h>
 #include <Windows.h>
 
 SE::Utilz::Console* SE::Utilz::Console::console = nullptr;

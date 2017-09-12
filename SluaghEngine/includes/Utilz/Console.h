@@ -18,32 +18,11 @@ namespace SE
 
 			~Console();
 
-			/**
-			* @brief	Initialize the console
-			*
-			* @param[in] backend A pointer to a IConsoleBackend object.
-			*
-			* @retval 0 On success
-			* 
-			*/
 			static int Initialize(IConsoleBackend* backend);
 			static void Shutdown();
 			static void Show();
 			static void Hide();
 
-			/**
-			* @brief Add a command to the console.
-			*
-			* @details	Here you can add a command that can be used in the console
-			* A command is a lambda with a name and description.
-			*
-			* @param[in] commandFunction The lambda.
-			* @param[in] name Name of the command.
-			* @param[in] description A short description of the command.
-			*
-			* @retval 0 On success
-			*
-			*/
 
 			static int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description);
 		private:
