@@ -21,7 +21,11 @@ EntityManagerTest::~EntityManagerTest()
 bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	Engine& engine = Engine::GetInstance();
+	Engine::InitializationInfo info;
+
+	engine.Init(info);
 	EntityManager& em = engine.GetEntityManager();
+	
 
 
 	Entity e[2048];
@@ -79,6 +83,6 @@ bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 				
 		}
 	}
-
+	engine.Release();
 	return true;
 }
