@@ -27,6 +27,15 @@ int SE::ResourceHandler::ResourceHandler::Initialize()
 	ProfileReturnConst(0);
 }
 
+void SE::ResourceHandler::ResourceHandler::Shutdown()
+{
+	for (auto& r : resourceMap)
+	{
+		delete r.second.data;
+	}
+	delete diskLoader;
+}
+
 void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const std::function<void(void* data, size_t size)>& callback)
 {
 	StartProfile;

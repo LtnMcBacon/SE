@@ -33,6 +33,8 @@ namespace SE
 			*/
 			virtual int Initialize() = 0;
 
+			virtual void Shutdown() = 0;
+
 			/**
 			* @brief	Load the given resource
 			*
