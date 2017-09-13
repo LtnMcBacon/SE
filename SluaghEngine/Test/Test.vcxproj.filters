@@ -21,10 +21,10 @@
     <ClCompile Include="EntityManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowTest.cpp">
+    <ClCompile Include="ResouceHandlerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResouceHandlerTest.cpp">
+    <ClCompile Include="WindowTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

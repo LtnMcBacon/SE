@@ -104,5 +104,6 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 			console->Print("You are holding right mouse button \n");
 		}
 	}
+	delete window;
 	return true;
 }
