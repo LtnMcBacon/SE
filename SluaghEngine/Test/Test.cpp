@@ -5,6 +5,7 @@
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
+#include "WindowTest.h"
 #include <map>
 
 
@@ -15,17 +16,18 @@
 #endif
 
 
-#define AddTest(x) {tests[GUID(#x)] = { #x, new x };}
+#define AddTest(x) {tests[SE::Utilz::GUID(#x)] = { #x, new x };}
 
 using namespace SE::Utilz;
 using namespace SE::Test;
 int main(int argc, char** argv)
 {
-	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
+	std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
+	AddTest(WindowTest);
+	volatile bool running = true;
 	AddTest(InitGraphicsTest);
-	bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
@@ -46,7 +48,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			auto& find = tests.find(GUID(argv[1]));
+			auto& find = tests.find(SE::Utilz::GUID(argv[1]));
 			if (find != tests.end())
 			{
 				bool result = std::get<1>(find->second)->Run(backend);

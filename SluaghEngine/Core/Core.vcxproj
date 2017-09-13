@@ -140,9 +140,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EntityManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
