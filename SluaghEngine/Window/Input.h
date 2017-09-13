@@ -5,7 +5,7 @@
 #include "Windows.h"
 #include "Windowsx.h"
 
-#if defined(DEBUG)
+#if defined(_DEBUG)
 #pragma comment (lib, "GainputD.lib")
 #else
 #pragma comment (lib, "Gainput.lib")

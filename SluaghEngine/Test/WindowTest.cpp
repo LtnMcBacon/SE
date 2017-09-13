@@ -1,5 +1,6 @@
 #include "WindowTest.h"
-
+#include <window/Window.h>
+#include <window/InterfaceWindow.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
@@ -37,8 +38,8 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	//bind mouse
 	window->MapKeyToMouse(5, SE::Window::MouseButtonLeft);
-	window->MapKeyToMouse(5, SE::Window::MouseButtonMiddle);
-	window->MapKeyToMouse(5, SE::Window::MouseButtonRight);
+	window->MapKeyToMouse(6, SE::Window::MouseButtonMiddle);
+	window->MapKeyToMouse(7, SE::Window::MouseButtonRight);
 
 	//set gameloop
 	while (window->HandleMSG() == true && window->GetActionKeyState(0) == SE::Window::key_up)
@@ -46,61 +47,62 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 		//check keys
 		if (window->GetActionKeyState(1) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed w" << std::endl;
+			console->Print("You pressed w \n");
 		}
-		else if(window->GetActionKeyState(1) == SE::Window::key_down)
+		else if (window->GetActionKeyState(1) == SE::Window::key_down)
 		{
-			std::cout << "You are holding w" << std::endl;
+			console->Print("You are holding w \n");
 		}
 		if (window->GetActionKeyState(2) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed a" << std::endl;
+			console->Print("You pressed a \n");
 		}
 		else if (window->GetActionKeyState(2) == SE::Window::key_down)
 		{
-			std::cout << "You are holding a" << std::endl;
+			console->Print("You are holding a \n");
 		}
 		if (window->GetActionKeyState(3) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed d" << std::endl;
+			console->Print("You pressed d \n");
 		}
 		else if (window->GetActionKeyState(3) == SE::Window::key_down)
 		{
-			std::cout << "You are holding d" << std::endl;
+			console->Print("You are holding d \n");
 		}
 		if (window->GetActionKeyState(4) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed s" << std::endl;
+			console->Print("You pressed s \n");
 		}
 		else if (window->GetActionKeyState(4) == SE::Window::key_down)
 		{
-			std::cout << "You are holding s" << std::endl;
+			console->Print("You are holding s \n");
 		}
 
 		//check mouse
 		if (window->GetActionKeyState(5) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed left mouse button" << std::endl;
+			console->Print("You pressed left mouse button \n");
 		}
 		else if (window->GetActionKeyState(5) == SE::Window::key_down)
 		{
-			std::cout << "You are holding left mouse button" << std::endl;
+			console->Print("You are holding left mouse button \n");
 		}
 		if (window->GetActionKeyState(6) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed middle mouse button" << std::endl;
+			console->Print("You pressed middle mouse button \n");
 		}
 		else if (window->GetActionKeyState(6) == SE::Window::key_down)
 		{
-			std::cout << "You are holding middle mouse button" << std::endl;
+			console->Print("You are holding middle mouse button \n");
 		}
 		if (window->GetActionKeyState(7) == SE::Window::key_pressed)
 		{
-			std::cout << "You pressed right mouse button" << std::endl;
+			console->Print("You pressed right mouse button \n");
 		}
 		else if (window->GetActionKeyState(7) == SE::Window::key_down)
 		{
-			std::cout << "You are holding right mouse button" << std::endl;
+			console->Print("You are holding right mouse button \n");
 		}
 	}
+	return true;
 }

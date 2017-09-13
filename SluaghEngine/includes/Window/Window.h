@@ -3,11 +3,12 @@
 #ifndef SE_WINDOW_WINDOW_H
 #define SE_WINDOW_WINDOW_H
 #include "InterfaceWindow.h"
-#include "Display.h"
-#include "Input.h"
+
 
 namespace SE {
 	namespace Window {
+		class Input;
+		class Display;
 
 		class Window : public InterfaceWindow
 		{
@@ -75,9 +76,8 @@ namespace SE {
 			*/
 			keyState GetActionKeyState(int actionKey);
 		private:
-			SE::Window::Display display;
-			SE::Window::Input input;
-			MSG windowMessage;
+			SE::Window::Display* display;
+			SE::Window::Input* input;
 		};
 	}	//namespace Window
 }	//namespace SE

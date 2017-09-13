@@ -45,26 +45,19 @@ namespace SE {
 		
 		keyState Input::GetActionKeyState(int actionKey)
 		{
-			if (inputMap->GetBoolPrevious(actionKey) == false)
+			if (inputMap->GetBool(actionKey) == false)
 			{
-				if (inputMap->GetBoolIsNew(actionKey) == false)
-				{
-					return key_up;
-				}
-				else
-				{
-					return key_pressed;
-				}
+				return key_up;
 			}
 			else
 			{
-				if (inputMap->GetBool(actionKey) == true)
+				if (inputMap->GetBoolIsNew(actionKey) == false)
 				{
 					return key_down;
 				}
 				else
 				{
-					return key_up;
+					return key_pressed;
 				}
 			}
 			return key_up;

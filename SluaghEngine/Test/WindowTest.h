@@ -2,9 +2,7 @@
 #ifndef SE_TEST_Window_TEST_H_
 #define SE_TEST_Window_TEST_H_
 #include "Test.h"
-#include <window/Window.h>
-#include <window/InterfaceWindow.h>
-#include <iostream>
+
 
 
 namespace SE
