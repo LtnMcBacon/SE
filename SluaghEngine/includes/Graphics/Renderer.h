@@ -86,6 +86,7 @@ namespace SE
 
 
 			DeviceManager* device;
+
 		};
 
 	}

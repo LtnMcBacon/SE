@@ -10,9 +10,6 @@
 
 #include "LiveObjectReporter.h"
 
-
-
-
 namespace SE {
 
 	namespace Graphics {
@@ -35,7 +32,7 @@ namespace SE {
 			DeviceManager();
 			~DeviceManager();
 
-			HRESULT Initialize(HWND windowHandle);
+			HRESULT Init(HWND windowHandle);
 			void Shutdown();
 
 			/**

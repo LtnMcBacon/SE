@@ -23,10 +23,12 @@
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="LiveObjectReporter.h" />
+    <ClInclude Include="MaterialHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
+    <ClCompile Include="MaterialHandler.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

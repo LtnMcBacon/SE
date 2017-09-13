@@ -17,7 +17,7 @@ DeviceManager::~DeviceManager() {
 
 }
 
-HRESULT DeviceManager::Initialize(HWND windowHandle) {
+HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	HRESULT hr = S_OK;
 
@@ -25,57 +25,33 @@ HRESULT DeviceManager::Initialize(HWND windowHandle) {
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Device resources could not be initialized\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Device resources could not be initialized");
 	}
 
 	hr = CreateSwapChain(windowHandle);
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Swap chain could not be initialized\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Swap chain could not be initialized");
 	}
 
 	hr = CreateBackBufferRTV();
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Back buffer render target view could not be created\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Back buffer render target view could not be created");
 	}
 
 	hr = CreateDepthStencil();
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Depth stencil view could not be created\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Depth stencil view could not be created");
 	}
 
 	SetViewport();
 
-	return 0;
+	return hr;
 }
 
 void DeviceManager::Shutdown() {
