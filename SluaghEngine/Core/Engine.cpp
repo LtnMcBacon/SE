@@ -7,7 +7,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 	return instance;
 }
 
-SE::Core::EntityManager& SE::Core::Engine::GetEntityManager()
+SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
 {
 	return *_entityManager;
 }

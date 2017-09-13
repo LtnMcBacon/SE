@@ -10,7 +10,9 @@ namespace SE
 		public:
 			static Engine& GetInstance();
 
-			EntityManager& GetEntityManager();
+			
+
+			EntityManager& GetEntityManager() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
