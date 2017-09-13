@@ -3,6 +3,7 @@
 #include <Utilz\GUID.h>
 #include "Test.h"
 #include "EntityManagerTest.h"
+#include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
 #include "WindowTest.h"
 #include <map>
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
 	volatile bool running = true;
+	AddTest(InitGraphicsTest);
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

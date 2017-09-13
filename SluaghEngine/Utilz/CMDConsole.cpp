@@ -45,7 +45,14 @@ void SE::Utilz::CMDConsole::Print(const char * line, ...)
 	va_list args;
 	va_start(args, line);
 	vprintf(line, args);
+	fflush(stdout);
 	va_end(args);
+}
+
+void SE::Utilz::CMDConsole::Print(const char * line, va_list args)
+{
+	vprintf(line, args);
+	fflush(stdout);
 }
 
 void SE::Utilz::CMDConsole::Getline(std::string * string)

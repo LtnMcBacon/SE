@@ -24,7 +24,7 @@ namespace SE {
 			*
 			*/
 			bool InitDisplay();
-			const void* GethWnd();
+			void* GethWnd();
 
 		private:
 			int width = 640; 

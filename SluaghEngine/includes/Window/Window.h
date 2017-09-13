@@ -34,8 +34,10 @@ namespace SE {
 			* @retval false Message is WM_QUIT
 			*
 			*/
+			void Shutdown();
+
 			bool HandleMSG();
-			const void* GethWnd();
+			void* GethWnd();
 			/**
 			* @brief	Passes actionKey and keyboardKey for mapping to input
 			*

@@ -1,13 +1,15 @@
 
 #include "DeviceManager.h"
 
+
+#pragma comment(lib, "d3d11.lib")
+
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-DeviceManager::DeviceManager(HWND windowHandle) {
+DeviceManager::DeviceManager() {
 
-	Initialize(windowHandle);
 }
 
 DeviceManager::~DeviceManager() {
@@ -15,7 +17,7 @@ DeviceManager::~DeviceManager() {
 
 }
 
-void DeviceManager::Initialize(HWND windowHandle) {
+HRESULT DeviceManager::Initialize(HWND windowHandle) {
 
 	HRESULT hr = S_OK;
 
@@ -73,6 +75,7 @@ void DeviceManager::Initialize(HWND windowHandle) {
 
 	SetViewport();
 
+	return 0;
 }
 
 void DeviceManager::Shutdown() {
@@ -110,7 +113,6 @@ HRESULT DeviceManager::CreateDeviceResources() {
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
 #endif
-
 	hr = D3D11CreateDevice(
 
 		nullptr,
@@ -167,9 +169,10 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	IDXGIFactory* dxgiFactory = 0;
 	hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)& dxgiFactory);
 	if (FAILED(hr)) {
-
-		dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, &gSwapChain);
+		return S_FALSE;	
 	}
+
+	dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, &gSwapChain);
 
 	dxgiFactory->Release();
 	dxgiAdapter->Release();
@@ -182,7 +185,6 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	HRESULT hr = S_OK;
-
 	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
 
 	setDebugName(gBackBuffer.Get(), "STANDARD_BACK_BUFFER_TEXTURE2D");

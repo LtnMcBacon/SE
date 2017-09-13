@@ -28,7 +28,9 @@ namespace SE {
 
 		Display::~Display()
 		{
-
+			ShowWindow(hWnd, SW_HIDE);
+			DestroyWindow(hWnd);
+			
 		}
 
 		bool Display::InitDisplay()
@@ -81,7 +83,7 @@ namespace SE {
 			return true;
 		}
 
-		const void* Display::GethWnd()
+		void* Display::GethWnd()
 		{
 			return hWnd;
 		}
