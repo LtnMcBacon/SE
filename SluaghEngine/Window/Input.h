@@ -2,16 +2,17 @@
 #pragma once
 #ifndef SE_WINDOW_INPUT_H
 #define SE_WINDOW_INPUT_H
+#include "Windows.h"
+#include "Windowsx.h"
 
-
-#if defined(DEBUG)
+#ifdef _DEBUG
 #pragma comment (lib, "GainputD.lib")
 #else
 #pragma comment (lib, "Gainput.lib")
 #endif
 
 #include "gainput\gainput.h"
-
+#include "KeyState.h"
 
 namespace SE {
 	
@@ -21,8 +22,9 @@ namespace SE {
 		class Input
 		{
 		public:
+
 			Input();
-			~Input() {};
+			~Input();
 			/**
 			* @brief	Initiates the input
 			*
@@ -36,7 +38,7 @@ namespace SE {
 			* @param[in] msg Windows message 
 			*
 			*/
-			void HandleMSG(const MSG & 	msg);
+			void HandleMSG(MSG msg);
 			/**
 			* @brief	Maps keyboardKey to actionKey
 			*
@@ -44,8 +46,12 @@ namespace SE {
 			*
 			* @param[in] keyboardKey Value of the declared mouseButton
 			*
+			* @retval true Returns true if mapping suceded
+			*
+			* @retval false Returns false if mapping failed
+			*
 			*/
-			void MapKeyToKeyboard(int actionKey, gainput::Key keyboardKey);
+			bool MapKeyToKeyboard(int actionKey, Key keyboardKey);
 			/**
 			* @brief	Maps mouseButton to actionKey
 			*
@@ -53,15 +59,37 @@ namespace SE {
 			*
 			* @param[in] keyboardKey Value of the declared mouseButton
 			*
+			* @retval true Returns true if mapping suceded
+			*
+			* @retval false Returns false if mapping failed
+			*
 			*/
-			void MapKeyToMouse(int actionKey, gainput::MouseButton mouseButton);
+			bool MapKeyToMouse(int actionKey, MouseButton mouseButton);
+			/**
+			* @brief	Passes actionKey to get it's state
+			*
+			* @param[in] actionKey The game key which state we need
+			*
+			* @retval key_up Returns if key ain't pressed
+			*
+			* @retval key_pressed Returns if key has been pressed since last frame
+			*
+			* @retval key_down Returns if key have been pressed since last frame
+			*
+			*/
+			keyState GetActionKeyState(int actionKey);
+			/**
+			* @brief	Updates the inputManager
+			*
+			*/
+			void Update();
 		private:
 			int width = 640;
 			int height = 480;
 			gainput::InputManager inputManager;
 			gainput::DeviceId keyboardId;
 			gainput::DeviceId mouseId;
-			gainput::InputMap* inputMap;
+			gainput::InputMap* inputMap = nullptr;
 		};
 	}	//namespace Window
 }	//namespace SE

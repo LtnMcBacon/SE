@@ -1,34 +1,75 @@
 #include "Window.h"
+#include "Display.h"
+#include "Input.h"
 
 namespace SE {
 	namespace Window {
+		Window::Window()
+		{
+			display = new SE::Window::Display();
+			input = new SE::Window::Input();
+		}
+
+		Window::~Window()
+		{
+			delete display;
+			delete input;
+		}
+
 		bool Window::Initialise()
 		{		
-			input.InitInput();
-			bool initS = display.InitDisplay();
+			input->InitInput();
+			bool initS = display->InitDisplay();
 			if (initS == false)
 				return initS;
 			return initS;
 		}
 
-		void Window::MapKeyToKeyboard(int actionKey, gainput::Key keyboardKey)
+		bool Window::MapKeyToKeyboard(int actionKey, Key keyboardKey)
 		{
-			input.MapKeyToKeyboard(actionKey, keyboardKey);
+			return input->MapKeyToKeyboard(actionKey, keyboardKey);
 		}
 
-		void Window::MapKeyToMouse(int actionKey, gainput::MouseButton mouseButton)
+		bool Window::MapKeyToMouse(int actionKey, MouseButton mouseButton)
 		{
-			input.MapKeyToMouse(actionKey, mouseButton);
+			return input->MapKeyToMouse(actionKey, mouseButton);
 		}
 
 		const void* Window::GethWnd()
 		{ 
-			return display.GethWnd(); 
+			return display->GethWnd(); 
 		}
 
-		void Window::HandleMSG(const MSG & 	msg)
+		bool Window::HandleMSG()
 		{ 
-			input.HandleMSG(msg); 
+			MSG windowMessage;
+			windowMessage.message = WM_NULL;
+			while (windowMessage.message != WM_QUIT)
+			{
+
+				// Call every frame
+				input->Update();
+
+				if (PeekMessage(&windowMessage, NULL, NULL, NULL, PM_REMOVE)) {
+
+					TranslateMessage(&windowMessage);
+					DispatchMessage(&windowMessage);
+
+					input->HandleMSG(windowMessage);
+				}
+
+				// If there are no messages to handle, the application will continue by running a frame
+				else 
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		keyState Window::GetActionKeyState(int actionKey)
+		{
+			return input->GetActionKeyState(actionKey);
 		}
 
 	}	//namespace Window
