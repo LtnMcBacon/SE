@@ -1,10 +1,12 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
+#include "Core/EntityManager.h"
+#include "Core/TransformManager.h"
+
 namespace SE
 {
 	namespace Core
 	{
-		class EntityManager;
 		/**
 		* @brief A singleton containing an instance of the engine. All interaction with the engine happens through this instance.
 		* @details The singleton is instanciated with the first call to GetInstance and initialized with a call to Initialize.
@@ -71,6 +73,13 @@ namespace SE
 			* @sa EntityManager
 			*/
 			EntityManager& GetEntityManager() const;
+
+			/**
+			* @brief    Returns a reference to the transform manager
+			* @retval return_value_0 Returns a reference to the transform manager.
+			* @sa TransformManager
+			*/
+			TransformManager& GetTransformManager() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -78,8 +87,11 @@ namespace SE
 			Engine& operator=(const Engine& rhs) = delete;
 			~Engine();
 
-			EntityManager* _entityManager;
+			EntityManager* entityManager;
+			TransformManager* transformManager;
+			
 
+			
 
 		};
 

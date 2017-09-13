@@ -1,5 +1,4 @@
 #include "Core/Engine.h"
-#include "Core/EntityManager.h"
 
 SE::Core::Engine& SE::Core::Engine::GetInstance()
 {
@@ -9,24 +8,34 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
-	_entityManager = new EntityManager;
+	entityManager = new EntityManager;
+	transformManager = new TransformManager(entityManager);
+
 	return 0;
 }
 
 int SE::Core::Engine::Release()
 {
-	delete _entityManager;
+	delete transformManager;
+	delete entityManager;
+	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
 
 SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
 {
-	return *_entityManager;
+	return *entityManager;
+}
+
+SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
+{
+	return *transformManager;
 }
 
 SE::Core::Engine::Engine()
 {
-	
+	entityManager = nullptr;
+	transformManager = nullptr;
 }
 
 SE::Core::Engine::~Engine()
