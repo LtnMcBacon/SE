@@ -1,5 +1,5 @@
 #include "EntityManagerTest.h"
-
+#include <Core/Engine.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -20,7 +20,8 @@ EntityManagerTest::~EntityManagerTest()
 
 bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 {
-	EntityManager em;
+	Engine& engine = Engine::GetInstance();
+	EntityManager& em = engine.GetEntityManager();
 
 
 	Entity e[2048];
