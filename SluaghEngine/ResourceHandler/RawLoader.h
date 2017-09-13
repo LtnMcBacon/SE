@@ -50,7 +50,7 @@ namespace SE
 			*	loader->LoadResource(guid, &data, &size);
 			* @endcode
 			*/
-			int LoadResource(const Utilz::GUID& guid, void** data, size_t* size)const;
+			int LoadResource(const Utilz::GUID& guid, void** data, size_t* size, Utilz::GUID* ext)const;
 
 			/**
 			* @brief	Check if the asset can be loaded from this loader.
@@ -66,7 +66,7 @@ namespace SE
 			*/
 			bool Exist(const Utilz::GUID& guid)const;
 		private:
-			std::map<Utilz::GUID, std::string, Utilz::GUID::Compare> resourceEntires;
+			std::map<Utilz::GUID, std::tuple<Utilz::GUID, std::string>, Utilz::GUID::Compare> resourceEntires;
 		};
 	}
 }

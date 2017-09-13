@@ -24,16 +24,19 @@
     <ClInclude Include="LiveObjectReporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DeviceManager.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LiveObjectReporter.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClInclude Include="include\IRenderer.h">
+    <ClInclude Include="..\includes\Graphics\IRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LiveObjectReporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

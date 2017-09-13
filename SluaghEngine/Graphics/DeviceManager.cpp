@@ -1,13 +1,15 @@
 
 #include "DeviceManager.h"
 
+
+#pragma comment(lib, "d3d11.lib")
+
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-DeviceManager::DeviceManager(HWND windowHandle) {
+DeviceManager::DeviceManager() {
 
-	Initialize(windowHandle);
 }
 
 DeviceManager::~DeviceManager() {
@@ -15,7 +17,7 @@ DeviceManager::~DeviceManager() {
 
 }
 
-void DeviceManager::Initialize(HWND windowHandle) {
+HRESULT DeviceManager::Initialize(HWND windowHandle) {
 
 	HRESULT hr = S_OK;
 
@@ -73,6 +75,7 @@ void DeviceManager::Initialize(HWND windowHandle) {
 
 	SetViewport();
 
+	return 0;
 }
 
 void DeviceManager::Shutdown() {
@@ -110,7 +113,6 @@ HRESULT DeviceManager::CreateDeviceResources() {
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
 #endif
-
 	hr = D3D11CreateDevice(
 
 		nullptr,

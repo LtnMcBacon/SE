@@ -6,6 +6,8 @@
 #include <DirectXMath.h>
 #include <string>
 
+
+
 namespace SE {
 
 	namespace Graphics {

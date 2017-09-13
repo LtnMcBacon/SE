@@ -51,7 +51,7 @@ namespace SE
 			*	loader->LoadResource(guid, &data, &size);
 			* @endcode
 			*/
-			virtual int LoadResource(const Utilz::GUID& guid, void** data, size_t* size)const = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, void** data, size_t* size, Utilz::GUID* ext)const = 0;
 
 			/**
 			* @brief	Check if the asset can be loaded from this loader.

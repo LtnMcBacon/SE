@@ -3,6 +3,7 @@
 #include <Utilz\GUID.h>
 #include "Test.h"
 #include "EntityManagerTest.h"
+#include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
 #include <map>
 
@@ -23,6 +24,7 @@ int main(int argc, char** argv)
 	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
+	AddTest(InitGraphicsTest);
 	bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
