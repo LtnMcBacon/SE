@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	std::map<GUID, std::tuple<const char*,Test*>, GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
-	bool running = true;
+	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
