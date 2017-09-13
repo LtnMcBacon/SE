@@ -8,9 +8,14 @@ namespace SE
 		class Engine
 		{
 		public:
+			struct InitializationInfo
+			{
+				bool placeholder; //Rewrite this later
+			};
 			static Engine& GetInstance();
 
-			
+			int Init(const InitializationInfo& info);
+			int Release();
 
 			EntityManager& GetEntityManager() const;
 		private:

@@ -7,6 +7,18 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 	return instance;
 }
 
+int SE::Core::Engine::Init(const InitializationInfo& info)
+{
+	_entityManager = new EntityManager;
+	return 0;
+}
+
+int SE::Core::Engine::Release()
+{
+	delete _entityManager;
+	return 0;
+}
+
 SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
 {
 	return *_entityManager;
@@ -14,10 +26,10 @@ SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
 
 SE::Core::Engine::Engine()
 {
-	_entityManager = new EntityManager;
+	
 }
 
 SE::Core::Engine::~Engine()
 {
-	delete _entityManager;
+
 }
