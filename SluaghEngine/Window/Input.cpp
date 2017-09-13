@@ -11,6 +11,7 @@ namespace SE {
 
 		Input::~Input()
 		{
+			if(inputMap != nullptr)
 			delete inputMap;
 		}
 

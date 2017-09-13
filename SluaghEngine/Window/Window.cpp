@@ -4,10 +4,20 @@
 
 namespace SE {
 	namespace Window {
-		bool Window::Initialise()
-		{		
+		Window::Window()
+		{
 			display = new SE::Window::Display();
 			input = new SE::Window::Input();
+		}
+
+		Window::~Window()
+		{
+			delete display;
+			delete input;
+		}
+
+		bool Window::Initialise()
+		{		
 			input->InitInput();
 			bool initS = display->InitDisplay();
 			if (initS == false)

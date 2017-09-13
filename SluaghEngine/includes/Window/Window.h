@@ -13,8 +13,8 @@ namespace SE {
 		class Window : public InterfaceWindow
 		{
 		public:
-			Window() {};
-			~Window() {};
+			Window();
+			~Window();
 			/**
 			* @brief	Calls init functions in display and input
 			*

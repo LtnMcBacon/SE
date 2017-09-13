@@ -89,7 +89,7 @@ namespace SE {
 			gainput::InputManager inputManager;
 			gainput::DeviceId keyboardId;
 			gainput::DeviceId mouseId;
-			gainput::InputMap* inputMap;
+			gainput::InputMap* inputMap = nullptr;
 		};
 	}	//namespace Window
 }	//namespace SE
