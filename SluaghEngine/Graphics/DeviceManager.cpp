@@ -169,9 +169,10 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	IDXGIFactory* dxgiFactory = 0;
 	hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)& dxgiFactory);
 	if (FAILED(hr)) {
-
-		dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, &gSwapChain);
+		return S_FALSE;	
 	}
+
+	dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, &gSwapChain);
 
 	dxgiFactory->Release();
 	dxgiAdapter->Release();
@@ -184,7 +185,6 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	HRESULT hr = S_OK;
-
 	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
 
 	setDebugName(gBackBuffer.Get(), "STANDARD_BACK_BUFFER_TEXTURE2D");

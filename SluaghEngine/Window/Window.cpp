@@ -6,18 +6,19 @@ namespace SE {
 	namespace Window {
 		Window::Window()
 		{
-			display = new SE::Window::Display();
-			input = new SE::Window::Input();
+			
 		}
 
 		Window::~Window()
 		{
-			delete display;
-			delete input;
+			
 		}
 
 		bool Window::Initialise()
 		{		
+			display = new SE::Window::Display();
+			input = new SE::Window::Input();
+
 			input->InitInput();
 			bool initS = display->InitDisplay();
 			if (initS == false)
@@ -35,9 +36,15 @@ namespace SE {
 			return input->MapKeyToMouse(actionKey, mouseButton);
 		}
 
-		const void* Window::GethWnd()
+		void* Window::GethWnd()
 		{ 
 			return display->GethWnd(); 
+		}
+
+		void Window::Shutdown()
+		{
+			delete display;
+			delete input;
 		}
 
 		bool Window::HandleMSG()

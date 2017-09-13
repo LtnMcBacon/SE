@@ -22,6 +22,8 @@ namespace SE {
 			*
 			*/
 			virtual bool Initialise() = 0;
+			virtual void Shutdown() = 0;
+
 			/**
 			* @brief	Loops through all messages
 			*
@@ -31,7 +33,7 @@ namespace SE {
 			*
 			*/
 			virtual bool HandleMSG() = 0;
-			virtual const void* GethWnd() = 0;
+			virtual void* GethWnd() = 0;
 			/**
 			* @brief	Passes actionKey and keyboardKey for mapping to input
 			*
