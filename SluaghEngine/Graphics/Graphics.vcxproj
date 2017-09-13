@@ -23,11 +23,13 @@
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="LiveObjectReporter.h" />
+    <ClInclude Include="StaticCreateVertexBufferHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="StaticCreateVertexBufferHandler.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
