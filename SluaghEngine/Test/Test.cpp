@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
-	bool running = true;
+	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
