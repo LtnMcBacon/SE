@@ -6,7 +6,10 @@
 #include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
 #include "WindowTest.h"
+#include "TransformManagerTest.h"
 #include <map>
+
+#include <crtdbg.h>
 
 
 #ifdef _DEBUG
@@ -22,12 +25,14 @@ using namespace SE::Utilz;
 using namespace SE::Test;
 int main(int argc, char** argv)
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
+	AddTest(TransformManagerTest);
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

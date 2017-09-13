@@ -29,7 +29,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	if (transformCount == transformCapacity)
 		ExpandTransforms();
 
-	const uint32_t index = transformCount;
+	const uint32_t index = transformCount++;
 	entityToIndex[e] = index;
 	positions[index] = pos;
 	rotations[index] = rotation;
