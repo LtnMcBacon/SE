@@ -1,7 +1,7 @@
 #include <Console.h>
 #include <IConsoleBackend.h>
 #include <Windows.h>
-
+#include <cstdarg>
 SE::Utilz::Console* SE::Utilz::Console::console = nullptr;
 
 
@@ -133,4 +133,12 @@ int SE::Utilz::Console::AddCommand(const DevConsole_Command& commandFunction, ch
 		uint32_t hash = (uint32_t)std::hash<std::string>{}(name);			
 		Console::console->commands[hash] = { commandFunction, name ,description };
 		return 0;
+}
+
+void SE::Utilz::Console::Print(const char * str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	Console::console->backend->Print(str, args);
+	va_end(args);
 }

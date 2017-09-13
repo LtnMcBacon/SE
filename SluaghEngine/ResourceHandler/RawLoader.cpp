@@ -27,19 +27,19 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	{
 		auto& name = Utilz::getFilename(s);
 		auto& ext = Utilz::getExtension(s);
-		resourceEntires[Utilz::GUID(name)] = s;
+		resourceEntires[Utilz::GUID(name)] = { ext, s };
 	}
 	ProfileReturnConst(0);
 }
 
-int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data, size_t * size)const
+int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data, size_t * size, Utilz::GUID* ext)const
 {
 	StartProfile;
 	auto find = resourceEntires.find(guid);
 	if (find == resourceEntires.end())
 		ProfileReturnConst( -1);
 
-	ifstream file(find->second, ios::in | ios::ate);
+	ifstream file(std::get<1>(find->second), ios::in | ios::ate);
 	if (!file.is_open())
 		ProfileReturnConst( -2);
 
@@ -47,8 +47,8 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 	*data = new char[*size];
 	file.seekg(0);
 	file.read((char*)*data, *size);
-
 	file.close();
+	*ext = std::get<0>(find->second);
 
 	ProfileReturnConst( 0);
 

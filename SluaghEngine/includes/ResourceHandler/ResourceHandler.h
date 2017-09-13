@@ -29,14 +29,18 @@ namespace SE
 		private:
 			struct ResourceInfo
 			{
+				ResourceInfo() : data(nullptr), size(0), refCount(0), extension() {}
 				void* data;
 				size_t size;
+				unsigned refCount;
+				Utilz::GUID extension;
 			};
 
 
 			IAssetLoader* diskLoader;
 
 			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> resourceMap;
+			std::map<Utilz::GUID, std::function<int(void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize)>, Utilz::GUID::Compare> parsers;
 		};
 	}
 }

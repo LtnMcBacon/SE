@@ -78,6 +78,9 @@ namespace SE
 			* @endcode
 			*/
 			static int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description);
+
+			static void Print(const char* str, ...);
+
 		private:
 			struct Command_Structure
 			{

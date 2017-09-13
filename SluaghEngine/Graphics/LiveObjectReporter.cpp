@@ -1,9 +1,11 @@
-
 #include "LiveObjectReporter.h"
 
-using namespace SE::Graphics;
 
-void reportLiveObjects(ID3D11Device* gDevice) {
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxguid.lib")
+
+
+void SE::Graphics::reportLiveObjects(ID3D11Device* gDevice) {
 
 	ID3D11Debug* DebugDevice = nullptr;
 	HRESULT result = gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
@@ -13,7 +15,7 @@ void reportLiveObjects(ID3D11Device* gDevice) {
 	DebugDevice->Release();
 }
 
-void setDebugName(ID3D11DeviceChild* child, const std::string &name) {
+void SE::Graphics::setDebugName(ID3D11DeviceChild* child, const std::string &name) {
 
 	if (child != nullptr) {
 

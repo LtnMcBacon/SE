@@ -24,15 +24,17 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	r->Initialize();
 	Utilz::GUID guid = Utilz::GUID("test.txt");
-	r->LoadResource(Utilz::GUID("test.txt"), [backend](void* data, size_t size) 
+	bool result = false;
+	r->LoadResource(Utilz::GUID("test.txt"), [backend, &result](void* data, size_t size)
 	{
 		backend->Print("Content: %s\n", data);
-		if (std::string((char*)data) != "1337")
+		std::string r = (char*)data;
+		if (r.substr(0, size) == "1337")
 		{
-			return false;
+			result = true;
 		}
 	});
 
 
-	return true;
+	return result;
 }
