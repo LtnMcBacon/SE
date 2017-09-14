@@ -22,6 +22,8 @@ MaterialHandler::~MaterialHandler() {
 
 HRESULT MaterialHandler::Init() {
 
+	StartProfile;
+
 	HRESULT hr = S_OK;
 
 	hr = InitializeDefaultShaders(this->gDevice);
@@ -31,10 +33,12 @@ HRESULT MaterialHandler::Init() {
 		throw std::exception("CRITICAL ERROR: Default shaders in MaterialHandler could not be created");
 	}
 
-	return hr;
+	ProfileReturnConst();
 }
 
 HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -161,10 +165,12 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 
 	psBlob->Release();
 
-	return hr;
+	ProfileReturnConst();
 }
 
 void MaterialHandler::UnbindShaders() {
+
+	StartProfile;
 
 	// Define null pointers for each type
 	ID3D11InputLayout* nullInputLayout = nullptr;
@@ -179,6 +185,8 @@ void MaterialHandler::UnbindShaders() {
 	gDeviceContext->VSSetShader(nullVS, nullptr, 0);
 	gDeviceContext->GSSetShader(nullGS, nullptr, 0);
 	gDeviceContext->PSSetShader(nullPS, nullptr, 0);
+
+	StopProfile;
 }
 
 void MaterialHandler::SetMaterial() {
