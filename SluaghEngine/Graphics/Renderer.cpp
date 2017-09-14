@@ -18,18 +18,22 @@ long SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
-	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-	hr = materialHandler->Init();
-	if (FAILED(hr))
-		return -1;
+	//materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
+//	hr = materialHandler->Init();
+	//if (FAILED(hr))
+	//	return -1;
 
 	return 0;
 }
 
 void SE::Graphics::Renderer::Shutdown()
 {
-	materialHandler->Shutdown();
+//	materialHandler->Shutdown();
 	device->Shutdown();
+	
+	
+	//delete materialHandler;
+	delete device;
 }
 
 int SE::Graphics::Renderer::CreateRenderObject(const Entity & entity, const RenderObjectInfo & info)

@@ -55,7 +55,6 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 void DeviceManager::Shutdown() {
 
-	gDeviceContext.Reset();
 	gSwapChain.Reset();
 
 	gBackBuffer.Reset();
@@ -64,6 +63,7 @@ void DeviceManager::Shutdown() {
 	gDepthStencil.Reset();
 	gDepthStencilView.Reset();
 
+	gDeviceContext.Reset();
 #ifdef _DEBUG
 	reportLiveObjects(gDevice.Get());
 #endif
