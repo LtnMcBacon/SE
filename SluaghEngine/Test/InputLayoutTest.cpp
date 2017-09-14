@@ -1,5 +1,4 @@
 #include "InputLayoutTest.h"
-#include <Graphics\
 #include <Graphics\Renderer.h>
 #include <Window\Window.h>
 

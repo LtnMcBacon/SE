@@ -7,10 +7,9 @@ using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
+MaterialHandler::MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice) {
 
-MaterialHandler::MaterialHandler() {
-
-	
+	this->gDevice = gDevice;
 }
 
 MaterialHandler::~MaterialHandler() {
@@ -18,11 +17,11 @@ MaterialHandler::~MaterialHandler() {
 
 }
 
-HRESULT MaterialHandler::Init(ID3D11Device* device) {
+HRESULT MaterialHandler::Init() {
 
 	HRESULT hr = S_OK;
 
-	hr = InitializeDefaultShaders(device);
+	hr = InitializeDefaultShaders(this->gDevice);
 
 	if (FAILED(hr)) {
 
@@ -32,7 +31,7 @@ HRESULT MaterialHandler::Init(ID3D11Device* device) {
 	return hr;
 }
 
-HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
+HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11Device> gDevice) {
 
 	HRESULT hr = S_OK;
 
@@ -167,4 +166,6 @@ void MaterialHandler::Shutdown() {
 	d_vertexShader.Reset();
 	d_pixelShader.Reset();
 	d_layout.Reset();
+
+
 }

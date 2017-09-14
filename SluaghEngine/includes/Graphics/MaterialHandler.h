@@ -17,16 +17,18 @@ namespace SE {
 
 		public:
 
-			MaterialHandler();
+			MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice);
 			~MaterialHandler();
 
-			HRESULT Init(ID3D11Device* device);
+			HRESULT Init();
 
-			HRESULT InitializeDefaultShaders(ID3D11Device* gDevice);
+			HRESULT InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11Device> gDevice);
 
 			void Shutdown();
 
 		private:
+
+			Microsoft::WRL::ComPtr<ID3D11Device> gDevice;
 
 			Microsoft::WRL::ComPtr<ID3D11VertexShader>d_vertexShader;
 			Microsoft::WRL::ComPtr<ID3D11PixelShader>d_pixelShader;

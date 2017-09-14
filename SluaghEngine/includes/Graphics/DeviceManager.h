@@ -156,21 +156,23 @@ namespace SE {
 
 			void Present();
 
+			inline Microsoft::WRL::ComPtr<ID3D11Device>           GetDevice() { return gDevice; };
+
 		private:
 
-			Microsoft::WRL::ComPtr<ID3D11Device> gDevice;
-			Microsoft::WRL::ComPtr<ID3D11DeviceContext> gDeviceContext;
-			Microsoft::WRL::ComPtr<IDXGISwapChain> gSwapChain;
+			Microsoft::WRL::ComPtr<ID3D11Device>			gDevice;
+			Microsoft::WRL::ComPtr<ID3D11DeviceContext>		gDeviceContext;
+			Microsoft::WRL::ComPtr<IDXGISwapChain>			gSwapChain;
 			
-			Microsoft::WRL::ComPtr<ID3D11Texture2D> gBackBuffer;
-			Microsoft::WRL::ComPtr<ID3D11RenderTargetView> gBackbufferRTV;
+			Microsoft::WRL::ComPtr<ID3D11Texture2D>			gBackBuffer;
+			Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	gBackbufferRTV;
 			
-			Microsoft::WRL::ComPtr<ID3D11Texture2D> gDepthStencil;
-			Microsoft::WRL::ComPtr<ID3D11DepthStencilView> gDepthStencilView;
+			Microsoft::WRL::ComPtr<ID3D11Texture2D>			gDepthStencil;
+			Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	gDepthStencilView;
 
-			D3D11_TEXTURE2D_DESC gBB_Desc;
-			D3D_FEATURE_LEVEL gFeatureLevel;
-			D3D11_VIEWPORT gViewportDefault;
+			D3D11_TEXTURE2D_DESC	gBB_Desc;
+			D3D_FEATURE_LEVEL		gFeatureLevel;
+			D3D11_VIEWPORT			gViewportDefault;
 
 		};
 	}

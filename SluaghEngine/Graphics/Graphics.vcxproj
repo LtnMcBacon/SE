@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\DeviceManager.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
+    <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
+    <ClInclude Include="..\includes\Graphics\MaterialHandler.h" />
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
-    <ClInclude Include="DeviceManager.h" />
-    <ClInclude Include="LiveObjectReporter.h" />
-    <ClInclude Include="MaterialHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceManager.cpp" />
