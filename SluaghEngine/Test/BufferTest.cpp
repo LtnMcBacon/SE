@@ -89,6 +89,8 @@ namespace SE
 			cBufferHandle->RemoveConstantBuffer(ID[0]);
 			cBufferHandle->RemoveConstantBuffer(ID[1]);
 			cBufferHandle->RemoveConstantBuffer(ID[2]);
+
+			delete cBufferHandle;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
@@ -153,11 +155,16 @@ namespace SE
 				vertexBuffer->RemoveVertexBuffer(vertexID[1]);
 				vertexBuffer->RemoveVertexBuffer(vertexID[2]);
 
+				delete vertexBuffer;
+
 				result = true;
 			});
 		#pragma endregion objLoad
 			e.Release();
+			deviceManager->Shutdown();
+			delete deviceManager;
 			window->Shutdown();
+			delete window;
 			return true;
 		}
 	}
