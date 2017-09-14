@@ -8,6 +8,7 @@
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "InputLayoutTest.h"
+#include "BufferTest.h"
 #include <map>
 
 
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	AddTest(InputLayoutTest);
 	AddTest(ObjLoaderTest);
+	AddTest(BufferTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	Console::Initialize(new CMDConsole);

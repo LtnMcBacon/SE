@@ -31,8 +31,6 @@ namespace SE
 			/**
 			* @brief	Adds a constant buffer
 			*
-			* @param[in] device The ID3D11Device to allow us to create the buffer
-			*
 			* @param[in] size The size to be given to the buffer
 			*
 			* @param[in] target A bool array to that holds the info for which shaders to bind the buffer to
@@ -49,8 +47,6 @@ namespace SE
 			HRESULT AddConstantBuffer(int size, TargetOffset& targetOffset, int *constBufferID);
 			/**
 			* @brief	Set constant buffer to shader
-			*
-			* @param[in] deviceContext The ID3D11DeviceContext to allow us to bind the buffer
 			*
 			* @param[in] inData The data to be place in the buffer
 			*

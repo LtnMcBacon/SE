@@ -42,19 +42,18 @@ namespace SE
 				return hr;
 			}
 
-			TargetOffset tempTargetOffset;
-			tempTargetOffset = inTargetOffset;
+			int hej = freeBufferLocations.size();
 
-			if (freeBufferLocations.size() > 0)
+			if (freeBufferLocations.size() == 0)
 			{
 				constBuffer.push_back(tempConstSize);
-				targetOffset.push_back(tempTargetOffset);
-				*constBufferID = constBuffer.size();
+				targetOffset.push_back(inTargetOffset);
+				*constBufferID = constBuffer.size() - 1;
 			}
 			else
 			{
 				constBuffer.at(freeBufferLocations.top()) = tempConstSize;
-				targetOffset.at(freeBufferLocations.top()) = tempTargetOffset;
+				targetOffset.at(freeBufferLocations.top()) = inTargetOffset;
 				*constBufferID = freeBufferLocations.top();
 				freeBufferLocations.pop();
 			}
@@ -64,10 +63,10 @@ namespace SE
 		void ConstantBufferHandler::SetConstantBuffer(void* inData, int constBufferID)
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
-
 			HRESULT hr = deviceContext->Map(constBuffer.at(constBufferID)->constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			memcpy(constBuffer.at(constBufferID)->constBuffer, inData, constBuffer.at(constBufferID)->size);
+			memcpy(mappedResource.pData, inData, constBuffer.at(constBufferID)->size);
 			deviceContext->Unmap(constBuffer.at(constBufferID)->constBuffer, 0);
+
 
 			if (targetOffset.at(constBufferID).shaderTarget[0] == true)
 			{
