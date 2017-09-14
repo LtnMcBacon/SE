@@ -39,14 +39,14 @@ namespace SE {
 			
 		}
 
-		bool Display::InitDisplay()
+		int Display::InitDisplay()
 		{
 			//returns a handle to the file used to create it (.exe file)
 			HINSTANCE hInstance = GetModuleHandle(NULL);
 
 			// If GetModuleHandle fails, there is no application handle for us to use returns false
 			if (hInstance == NULL)
-				return false;
+				return -1;
 
 			// this struct holds information for the window class
 			WNDCLASSEX wc;
@@ -87,7 +87,7 @@ namespace SE {
 
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
 			ShowCursor(true);
-			return true;
+			return 0;
 		}
 
 		void* Display::GethWnd()

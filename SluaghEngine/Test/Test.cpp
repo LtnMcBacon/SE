@@ -7,8 +7,13 @@
 #include "ResouceHandlerTest.h"
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
-#include "InputLayoutTest.h"
+#include "TransformManagerTest.h"
+#include "MaterialTest.h"
+#include "BufferTest.h"
 #include <map>
+#include <ctime>
+
+#include <crtdbg.h>
 
 
 #ifdef _DEBUG
@@ -24,14 +29,18 @@ using namespace SE::Utilz;
 using namespace SE::Test;
 int main(int argc, char** argv)
 {
+	srand(time(NULL));
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
-	AddTest(InputLayoutTest);
+	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
+	AddTest(BufferTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
+	AddTest(TransformManagerTest);
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
@@ -84,6 +93,11 @@ int main(int argc, char** argv)
 
 
 	while (running);
+
+	for (auto& test : tests)
+		delete std::get<1>(test.second);
+	Console::Hide();
+	Console::Shutdown();
 
 	return 0;
 

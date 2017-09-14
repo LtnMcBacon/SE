@@ -1,16 +1,17 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
+#include "Core/EntityManager.h"
+#include "Core/TransformManager.h"
+
 #include <Graphics\IRenderer.h>
 #include <Window\InterfaceWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
-#include "EntityManager.h"
 #include "RenderableManager.h"
 
 namespace SE
 {
 	namespace Core
 	{
-	
 		/**
 		* @brief A singleton containing an instance of the engine. All interaction with the engine happens through this instance.
 		* @details The singleton is instanciated with the first call to GetInstance and initialized with a call to Initialize.
@@ -106,6 +107,12 @@ namespace SE
 			*/
 			ResourceHandler::IResourceHandler* GetResourceHandler() const;
 
+			/**
+			* @brief    Returns a reference to the transform manager
+			* @retval return_value_0 Returns a reference to the transform manager.
+			* @sa TransformManager
+			*/
+			TransformManager& GetTransformManager() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -117,6 +124,7 @@ namespace SE
 			Graphics::IRenderer* renderer;
 			Window::InterfaceWindow* window;
 			ResourceHandler::IResourceHandler* resourceHandler;
+			TransformManager* transformManager;
 			RenderableManager* renderableManager;
 		};
 

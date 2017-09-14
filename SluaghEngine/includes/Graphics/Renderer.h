@@ -21,7 +21,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			long Initialize(void* window);
+			int Initialize(void* window);
 
 			/**
 			* @brief Shutdown the renderer
@@ -80,6 +80,13 @@ namespace SE
 			* @endcode
 			*/
 			int UpdateView(float* viewMatrix);
+
+			/**
+			* @brief Renders the scene
+			* @retval return_value_0 Returns 0 On success.
+			* @endcode
+			*/
+			int Render();
 
 
 			int CreateVertexBuffer(void*data, size_t size);

@@ -14,14 +14,14 @@ namespace SE {
 			
 		}
 
-		bool Window::Initialise()
+		int Window::Initialise()
 		{		
 			display = new SE::Window::Display();
 			input = new SE::Window::Input();
 
 			input->InitInput();
-			bool initS = display->InitDisplay();
-			if (initS == false)
+			int initS = display->InitDisplay();
+			if (initS)
 				return initS;
 			return initS;
 		}

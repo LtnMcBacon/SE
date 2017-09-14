@@ -1,4 +1,5 @@
 #include <Renderer.h>
+#include <Profiler.h>
 
 using namespace SE;
 
@@ -10,7 +11,7 @@ SE::Graphics::Renderer::~Renderer()
 {
 }
 
-long SE::Graphics::Renderer::Initialize(void * window)
+int SE::Graphics::Renderer::Initialize(void * window)
 {
 	_ASSERT(window);
 	device = new DeviceManager();
@@ -18,21 +19,20 @@ long SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
-	//materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-//	hr = materialHandler->Init();
-	//if (FAILED(hr))
-	//	return -1;
+	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
+	hr = materialHandler->Init();
+	if (FAILED(hr))
+		return -1;
 
 	return 0;
 }
 
 void SE::Graphics::Renderer::Shutdown()
 {
-//	materialHandler->Shutdown();
+	materialHandler->Shutdown();
 	device->Shutdown();
 	
-	
-	//delete materialHandler;
+	delete materialHandler;
 	delete device;
 }
 
@@ -63,6 +63,28 @@ int SE::Graphics::Renderer::UpdateTranslation(const Entity & entity, float * tra
 
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
+	return 0;
+}
+
+int SE::Graphics::Renderer::Render() {
+
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
+
+	// Clear the primary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(
+	device->GetRTV(), 
+	clearColor);
+
+	// Clear the standard depth stencil view
+	device->GetDeviceContext()->ClearDepthStencilView(
+	device->GetDepthStencil(), 
+	D3D11_CLEAR_DEPTH,  
+	1.0f, 
+	0);
+
+	device->Present();
+
 	return 0;
 }
 

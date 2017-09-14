@@ -45,11 +45,11 @@ void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
+	auto info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
-		console->Print("Could not init Core, Error: %d.", re);
+		console->Print("Could not init Core, Error: %d.\n", re);
 		return false;
 	}
 

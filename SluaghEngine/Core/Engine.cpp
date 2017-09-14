@@ -31,12 +31,14 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	auto r = resourceHandler->Initialize();
 	if (r)
 		return r;
-	bool br = window->Initialise();
-	if (!br)
-		return -2;
+	r = window->Initialise();
+	if (r)
+		return r;
 	r = renderer->Initialize(window->GethWnd());
 	if (r)
 		return r;
+
+	transformManager = new TransformManager(entityManager);
 
 	return 0;
 }
@@ -52,6 +54,8 @@ int SE::Core::Engine::Release()
 	delete window;
 	delete resourceHandler;
 	delete entityManager;
+	delete transformManager;
+	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
 
@@ -80,9 +84,15 @@ SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() c
 	return resourceHandler;
 }
 
+SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
+{
+	return *transformManager;
+}
+
 SE::Core::Engine::Engine()
 {
-	
+	entityManager = nullptr;
+	transformManager = nullptr;
 }
 
 SE::Core::Engine::~Engine()

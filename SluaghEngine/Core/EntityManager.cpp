@@ -21,6 +21,16 @@ uint32_t SE::Core::Entity::Index() const
 	return (this->id & ENTITY_INDEX_MASK);
 }
 
+bool SE::Core::Entity::operator==(const Entity& rhs) const
+{
+	return this->id == rhs.id;
+}
+
+size_t SE::Core::EntityHasher::operator()(const Entity& e) const
+{
+	return std::hash<uint32_t>()(e.id);
+}
+
 SE::Core::EntityManager::EntityManager()
 {
 	_generationCapacity = _generationCapacityIncrement;

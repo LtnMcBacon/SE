@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Core\TransformManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
+    <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

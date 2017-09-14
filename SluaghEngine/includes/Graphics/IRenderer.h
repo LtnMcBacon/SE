@@ -25,7 +25,7 @@ namespace SE
 			* @retval other See HRESULT
 			* @endcode
 			*/
-			virtual long Initialize(void* window) = 0;
+			virtual int Initialize(void* window) = 0;
 
 			/**
 			* @brief Shutdown the renderer
@@ -84,6 +84,13 @@ namespace SE
 			* @endcode
 			*/
 			virtual int UpdateView(float* viewMatrix) = 0;
+
+			/**
+			* @brief Renders the scene
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int Render() = 0;
 
 
 			virtual int CreateVertexBuffer(void*data, size_t size) = 0;

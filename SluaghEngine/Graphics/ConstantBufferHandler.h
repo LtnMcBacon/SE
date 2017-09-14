@@ -28,10 +28,9 @@ namespace SE
 			ConstantBufferHandler();
 			ConstantBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext);
 			~ConstantBufferHandler();
+			void Shutdown();
 			/**
 			* @brief	Adds a constant buffer
-			*
-			* @param[in] device The ID3D11Device to allow us to create the buffer
 			*
 			* @param[in] size The size to be given to the buffer
 			*
@@ -50,8 +49,6 @@ namespace SE
 			/**
 			* @brief	Set constant buffer to shader
 			*
-			* @param[in] deviceContext The ID3D11DeviceContext to allow us to bind the buffer
-			*
 			* @param[in] inData The data to be place in the buffer
 			*
 			* @param[in] constBufferID Tells which constant buffer to use
@@ -66,7 +63,7 @@ namespace SE
 			*/
 			void RemoveConstantBuffer(int constBufferID);
 		private:
-			std::vector<constSize*> constBuffer;
+			std::vector<constSize*> constSizeBuffer;
 			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeBufferLocations;
 			ID3D11Device* device;

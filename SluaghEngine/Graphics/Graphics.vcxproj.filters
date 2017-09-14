@@ -30,14 +30,12 @@
     <ClInclude Include="..\includes\Graphics\DeviceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="StaticVertexBufferHandler.h">
       <Filter>Header Files</Filter>
-     </ClInclude>
-
+    </ClInclude>
     <ClInclude Include="ConstantBufferHandler.h">
       <Filter>Header Files</Filter>
-     </ClInclude>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renderer.cpp">
@@ -49,11 +47,9 @@
     <ClCompile Include="LiveObjectReporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="StaticVertexBufferHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="ConstantBufferHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
