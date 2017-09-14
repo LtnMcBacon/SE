@@ -14,7 +14,7 @@ namespace SE
 		{
 		public:
 			StaticVertexBufferHandler();
-			StaticVertexBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext);
+			StaticVertexBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext);
 			~StaticVertexBufferHandler();
 			/**
 			* @brief	Creates a vertexbuffer with the inputData
@@ -44,8 +44,8 @@ namespace SE
 		private:
 			std::vector<ID3D11Buffer*> vertexBuffer;
 			std::stack<int> stackID;
-			Microsoft::WRL::ComPtr<ID3D11Device> device;
-			Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
+			ID3D11Device* device;
+			ID3D11DeviceContext* deviceContext;
 		};
 
 	}	//namespace Graphics

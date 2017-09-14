@@ -26,7 +26,7 @@ namespace SE
 		{
 		public:
 			ConstantBufferHandler();
-			ConstantBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext);
+			ConstantBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext);
 			~ConstantBufferHandler();
 			/**
 			* @brief	Adds a constant buffer
@@ -69,8 +69,8 @@ namespace SE
 			std::vector<constSize*> constBuffer;
 			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeBufferLocations;
-			Microsoft::WRL::ComPtr<ID3D11Device> device;
-			Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
+			ID3D11Device* device;
+			ID3D11DeviceContext* deviceContext;
 		};
 
 	}

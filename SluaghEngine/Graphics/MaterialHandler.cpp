@@ -201,5 +201,4 @@ void MaterialHandler::Shutdown() {
 	d_pixelShader->Release();
 	d_layout->Release();
 
-
 }
