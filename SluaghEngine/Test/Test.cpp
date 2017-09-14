@@ -9,6 +9,7 @@
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
 #include "MaterialTest.h"
+#include "BufferTest.h"
 #include <map>
 #include <ctime>
 
@@ -36,6 +37,7 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
+	AddTest(BufferTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);

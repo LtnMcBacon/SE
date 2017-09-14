@@ -126,6 +126,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialTest.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialTest.h" />
