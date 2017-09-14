@@ -21,7 +21,7 @@ namespace SE
 
 		}
 
-		HRESULT ConstantBufferHandler::AddConstantBuffer(int size, bool* target, int* offset, int *constBufferID)
+		HRESULT ConstantBufferHandler::AddConstantBuffer(int size, TargetOffset& inTargetOffset, int *constBufferID)
 		{			
 			D3D11_BUFFER_DESC bufferDesc;
 			ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -42,13 +42,8 @@ namespace SE
 				return hr;
 			}
 
-			TargetOffset *tempTargetOffset = new TargetOffset();
-			tempTargetOffset->offset[0] = offset[0];
-			tempTargetOffset->offset[1] = offset[1];
-			tempTargetOffset->offset[2] = offset[2];
-			tempTargetOffset->shaderTarget[0] = target[0];
-			tempTargetOffset->shaderTarget[1] = target[1];
-			tempTargetOffset->shaderTarget[2] = target[2];
+			TargetOffset tempTargetOffset;
+			tempTargetOffset = inTargetOffset;
 
 			if (freeBufferLocations.size() > 0)
 			{
@@ -74,17 +69,17 @@ namespace SE
 			memcpy(constBuffer.at(constBufferID)->constBuffer, inData, constBuffer.at(constBufferID)->size);
 			deviceContext->Unmap(constBuffer.at(constBufferID)->constBuffer, 0);
 
-			if (targetOffset.at(constBufferID)->shaderTarget[0] == true)
+			if (targetOffset.at(constBufferID).shaderTarget[0] == true)
 			{
-				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID)->offset[0], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &constBuffer.at(constBufferID)->constBuffer);
 			}
-			if (targetOffset.at(constBufferID)->shaderTarget[1] == true)
+			if (targetOffset.at(constBufferID).shaderTarget[1] == true)
 			{
-				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID)->offset[1], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &constBuffer.at(constBufferID)->constBuffer);
 			}
-			if (targetOffset.at(constBufferID)->shaderTarget[2] == true)
+			if (targetOffset.at(constBufferID).shaderTarget[2] == true)
 			{
-				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID)->offset[2], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &constBuffer.at(constBufferID)->constBuffer);
 			}
 		}
 
@@ -92,9 +87,6 @@ namespace SE
 		{
 			constBuffer.at(constBufferID)->constBuffer->Release();
 			delete constBuffer.at(constBufferID);
-			delete[] targetOffset.at(constBufferID)->offset;
-			delete[] targetOffset.at(constBufferID)->shaderTarget;
-			delete targetOffset.at(constBufferID);
 			freeBufferLocations.push(constBufferID);
 		}
 	}

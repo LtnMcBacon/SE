@@ -46,7 +46,7 @@ namespace SE
 			* @retval nonZero Creation failed
 			*
 			*/
-			HRESULT AddConstantBuffer(int size, bool* target, int* offset, int *constBufferID);
+			HRESULT AddConstantBuffer(int size, TargetOffset& targetOffset, int *constBufferID);
 			/**
 			* @brief	Set constant buffer to shader
 			*
@@ -67,7 +67,7 @@ namespace SE
 			void RemoveConstantBuffer(int constBufferID);
 		private:
 			std::vector<constSize*> constBuffer;
-			std::vector<TargetOffset*> targetOffset;
+			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeBufferLocations;
 			Microsoft::WRL::ComPtr<ID3D11Device> device;
 			Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
