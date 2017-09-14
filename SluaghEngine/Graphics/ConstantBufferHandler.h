@@ -1,18 +1,32 @@
 #pragma once
 #ifndef SE_GRAPHICS_CONSTANTBUFFERHANDLER_H_
 #define SE_GRAPHICS_CONSTANTBUFFERHANDLER_H_
-#include "ConstantBuffer.h"
 #include <vector>
 #include <stack>
+#include <wrl.h>
+#include <d3d11.h>
 
 namespace SE
 {
 	namespace Graphics
 	{
+		struct constSize
+		{
+			ID3D11Buffer* constBuffer;
+			int size;
+		};
+
+		struct TargetOffset
+		{
+			bool shaderTarget[3] = { false, false, false };
+			int offset[3] = { 0, 0, 0 };
+		};
+
 		class ConstantBufferHandler
 		{
 		public:
 			ConstantBufferHandler();
+			ConstantBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext);
 			~ConstantBufferHandler();
 			/**
 			* @brief	Adds a constant buffer
@@ -32,7 +46,7 @@ namespace SE
 			* @retval nonZero Creation failed
 			*
 			*/
-			HRESULT AddConstantBuffer(ID3D11Device* device, int size, bool* target, int* offset, int &constBufferID);
+			HRESULT AddConstantBuffer(int size, bool* target, int* offset, int *constBufferID);
 			/**
 			* @brief	Set constant buffer to shader
 			*
@@ -43,7 +57,7 @@ namespace SE
 			* @param[in] constBufferID Tells which constant buffer to use
 			*
 			*/
-			void SetConstantBuffer(ID3D11DeviceContext* deviceContext, void* inData, int constBufferID);
+			void SetConstantBuffer(void* inData, int constBufferID);
 			/**
 			* @brief	Removes a constant buffer
 			*
@@ -52,9 +66,11 @@ namespace SE
 			*/
 			void RemoveConstantBuffer(int constBufferID);
 		private:
-			std::vector<ConstantBuffer*> constBuffer;
+			std::vector<constSize*> constBuffer;
 			std::vector<TargetOffset*> targetOffset;
 			std::stack<int> freeBufferLocations;
+			Microsoft::WRL::ComPtr<ID3D11Device> device;
+			Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 		};
 
 	}

@@ -21,13 +21,11 @@
   <ItemGroup>
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
-    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferHandler.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="LiveObjectReporter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ConstantBufferHandler.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
