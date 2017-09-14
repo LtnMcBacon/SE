@@ -18,7 +18,26 @@ namespace SE
 
 		ConstantBufferHandler::~ConstantBufferHandler()
 		{
+			for (auto &cb : constSizeBuffer)
+			{
+				if (cb->constBuffer)
+				{
+					cb->constBuffer->Release();
+				}
+				delete cb;
+			}
+		}
 
+		void ConstantBufferHandler::Shutdown()
+		{
+			for (auto &cb : constSizeBuffer)
+			{
+				if (cb->constBuffer)
+				{
+					cb->constBuffer->Release();
+				}
+				delete cb;
+			}
 		}
 
 		HRESULT ConstantBufferHandler::AddConstantBuffer(int size, TargetOffset& inTargetOffset, int *constBufferID)
@@ -46,13 +65,14 @@ namespace SE
 
 			if (freeBufferLocations.size() == 0)
 			{
-				constBuffer.push_back(tempConstSize);
+				constSizeBuffer.push_back(tempConstSize);
 				targetOffset.push_back(inTargetOffset);
-				*constBufferID = constBuffer.size() - 1;
+				*constBufferID = constSizeBuffer.size() - 1;
 			}
 			else
 			{
-				constBuffer.at(freeBufferLocations.top()) = tempConstSize;
+				delete constSizeBuffer.at(freeBufferLocations.top());
+				constSizeBuffer.at(freeBufferLocations.top()) = tempConstSize;
 				targetOffset.at(freeBufferLocations.top()) = inTargetOffset;
 				*constBufferID = freeBufferLocations.top();
 				freeBufferLocations.pop();
@@ -63,29 +83,29 @@ namespace SE
 		void ConstantBufferHandler::SetConstantBuffer(void* inData, int constBufferID)
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
-			HRESULT hr = deviceContext->Map(constBuffer.at(constBufferID)->constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			memcpy(mappedResource.pData, inData, constBuffer.at(constBufferID)->size);
-			deviceContext->Unmap(constBuffer.at(constBufferID)->constBuffer, 0);
+			HRESULT hr = deviceContext->Map(constSizeBuffer.at(constBufferID)->constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			memcpy(mappedResource.pData, inData, constSizeBuffer.at(constBufferID)->size);
+			deviceContext->Unmap(constSizeBuffer.at(constBufferID)->constBuffer, 0);
 
 
 			if (targetOffset.at(constBufferID).shaderTarget[0] == true)
 			{
-				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
 			}
 			if (targetOffset.at(constBufferID).shaderTarget[1] == true)
 			{
-				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
 			}
 			if (targetOffset.at(constBufferID).shaderTarget[2] == true)
 			{
-				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &constBuffer.at(constBufferID)->constBuffer);
+				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
 			}
 		}
 
 		void ConstantBufferHandler::RemoveConstantBuffer(int constBufferID)
 		{
-			constBuffer.at(constBufferID)->constBuffer->Release();
-			delete constBuffer.at(constBufferID);
+			constSizeBuffer.at(constBufferID)->constBuffer->Release();
+			constSizeBuffer.at(constBufferID)->constBuffer = nullptr;
 			freeBufferLocations.push(constBufferID);
 		}
 	}

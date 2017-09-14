@@ -16,6 +16,7 @@ namespace SE
 			StaticVertexBufferHandler();
 			StaticVertexBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext);
 			~StaticVertexBufferHandler();
+			void Shutdown();
 			/**
 			* @brief	Creates a vertexbuffer with the inputData
 			*

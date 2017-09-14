@@ -90,7 +90,7 @@ namespace SE
 			cBufferHandle->RemoveConstantBuffer(ID[1]);
 			cBufferHandle->RemoveConstantBuffer(ID[2]);
 
-			delete cBufferHandle;
+			cBufferHandle->Shutdown();;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
@@ -155,7 +155,7 @@ namespace SE
 				vertexBuffer->RemoveVertexBuffer(vertexID[1]);
 				vertexBuffer->RemoveVertexBuffer(vertexID[2]);
 
-				delete vertexBuffer;
+				vertexBuffer->Shutdown();
 
 				result = true;
 			});

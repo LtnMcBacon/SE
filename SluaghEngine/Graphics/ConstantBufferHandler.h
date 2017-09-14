@@ -28,6 +28,7 @@ namespace SE
 			ConstantBufferHandler();
 			ConstantBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext);
 			~ConstantBufferHandler();
+			void Shutdown();
 			/**
 			* @brief	Adds a constant buffer
 			*
@@ -62,7 +63,7 @@ namespace SE
 			*/
 			void RemoveConstantBuffer(int constBufferID);
 		private:
-			std::vector<constSize*> constBuffer;
+			std::vector<constSize*> constSizeBuffer;
 			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeBufferLocations;
 			ID3D11Device* device;
