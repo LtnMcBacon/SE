@@ -32,6 +32,11 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 	long lr = r->Initialize(w->GethWnd());
 	if (lr)
 		return false;
+
+	for (UINT i = 0; i < 200; i++) {
+		r->Render();
+	}
+
 	r->Shutdown();
 
 	w->Shutdown();

@@ -33,7 +33,7 @@ HRESULT MaterialHandler::Init() {
 		throw std::exception("CRITICAL ERROR: Default shaders in MaterialHandler could not be created");
 	}
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
@@ -165,7 +165,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 
 	psBlob->Release();
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 void MaterialHandler::UnbindShaders() {

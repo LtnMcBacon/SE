@@ -19,21 +19,20 @@ long SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
-	//materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-//	hr = materialHandler->Init();
-	//if (FAILED(hr))
-	//	return -1;
+	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
+	hr = materialHandler->Init();
+	if (FAILED(hr))
+		return -1;
 
 	return 0;
 }
 
 void SE::Graphics::Renderer::Shutdown()
 {
-//	materialHandler->Shutdown();
+	materialHandler->Shutdown();
 	device->Shutdown();
 	
-	
-	//delete materialHandler;
+	delete materialHandler;
 	delete device;
 }
 
@@ -78,10 +77,14 @@ int SE::Graphics::Renderer::Render() {
 	clearColor);
 
 	// Clear the standard depth stencil view
-	device->GetDeviceContext->ClearDepthStencilView(
+	device->GetDeviceContext()->ClearDepthStencilView(
 	device->GetDepthStencil(), 
 	D3D11_CLEAR_DEPTH,  
 	1.0f, 
 	0);
+
+	device->Present();
+
+	return 0;
 }
 

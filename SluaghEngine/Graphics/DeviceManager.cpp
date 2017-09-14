@@ -52,7 +52,7 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	SetViewport();
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::Shutdown() {
@@ -69,7 +69,7 @@ void DeviceManager::Shutdown() {
 
 	gDeviceContext->Release();
 #ifdef _DEBUG
-	reportLiveObjects(gDevice);
+	/*reportLiveObjects(gDevice);*/
 #endif
 	gDevice->Release();;
 
@@ -118,7 +118,7 @@ HRESULT DeviceManager::CreateDeviceResources() {
 		return S_FALSE;
 	}
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
@@ -164,7 +164,7 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	dxgiAdapter->Release();
 	dxgiDevice->Release();
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 
 }
 
@@ -193,7 +193,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateDepthStencil() {
@@ -245,7 +245,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
 
-	ProfileReturnConst();
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::SetViewport() {
