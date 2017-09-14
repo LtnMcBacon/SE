@@ -6,36 +6,6 @@ namespace SE
 {
 	namespace Graphics
 	{
-		namespace MeshData
-		{
-			struct Position
-			{
-				float x, y, z;
-			};
-
-			struct TexCoord
-			{
-				float u, v;
-			};
-
-			struct Normal
-			{
-				float x, y, z;
-			};
-
-			struct Vertex
-			{
-				Position pos;
-				Normal norm;
-				TexCoord tex;
-			};
-
-			struct MeshData
-			{
-				uint32_t NumVertices;
-				Vertex* vertices;
-			};
-		}
 		class DeviceManager;
 
 		class Renderer : public IRenderer
@@ -109,9 +79,6 @@ namespace SE
 			* @endcode
 			*/
 			int UpdateView(float* viewMatrix);
-
-			void CreateBuffers(MeshData::MeshData& meshData);
-
 
 		private:
 			Renderer(const Renderer& other) = delete;

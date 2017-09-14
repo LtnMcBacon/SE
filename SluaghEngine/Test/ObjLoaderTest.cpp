@@ -39,7 +39,6 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 	auto r = e.GetResourceHandler();
 	bool result = false;
 
-
 	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 	{
 		ArfData::Data arfData;
@@ -47,45 +46,10 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
 		if (r)
 			return r;
-
-		*parsedSize = sizeof(Graphics::MeshData::MeshData) + sizeof(Graphics::MeshData::Vertex)*(arfData.NumFace * 3);
-		*parsedData = operator new (*parsedSize);
-		auto meshData = (Graphics::MeshData::MeshData*)*parsedData;
-		meshData->NumVertices = arfData.NumFace * 3;
-		meshData->vertices = ((Graphics::MeshData::Vertex*)(meshData + 1));
-		auto& vertices = meshData->vertices;
-		uint32_t index = 0;
-		for (uint32_t i = 0; i < arfData.NumSubMesh; i++)
-		{
-			for (uint32_t j = arfp.subMesh[i].faceStart; j < arfp.subMesh[i].faceCount; j++)
-			{
-				auto& face = arfp.faces[j];
-
-				for (uint8_t r = 0; r < face.indexCount; r++)
-				{
-					auto& ind = face.indices[r];
-					// Positions
-					memcpy(&vertices[index].pos, &arfp.positions[ind.index[0]], sizeof(Graphics::MeshData::Position));
-					vertices[index].pos.z = -vertices[index].pos.z;
-					// Normals
-					//memcpy(&vertices[index].norm, &arfp.normals[ind.index[2]], sizeof(Graphics::MeshData::Normal));
-					//// TexCoords
-					//if (ind.index[1] == UINT32_MAX)
-					//{
-					//	memcpy(&vertices[index].tex, &arfp.texCoords[0], sizeof(Graphics::MeshData::TexCoord));
-					//	vertices[index].tex.v = 1 - vertices[index].tex.v;
-					//}
-					//else
-					//{
-					//	memcpy(&vertices[index].tex, &arfp.texCoords[ind.index[1]], sizeof(Graphics::MeshData::TexCoord));
-					//	vertices[index].tex.v = 1 - vertices[index].tex.v;
-					//}
-					index++;
-
-				}
-			}
-		}
-		return 0;
+		auto data = (Arf::Mesh::Data**)parsedData;
+		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
+		if (r)
+			return r;
 	});
 
 
@@ -93,15 +57,16 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 
 	r->LoadResource(Utilz::GUID("test.objtest"), [&result](void* data, size_t size) 
 	{
-		auto& mD = *(Graphics::MeshData::MeshData*)data;
+		auto& mD = *(Arf::Mesh::Data*)data;
+		auto verts = (Arf::Mesh::Position*)mD.vertices;
 		result = true;
 		for (int i = 0; i < mD.NumVertices; i++)
 		{
-			if (mD.vertices[i].pos.x != (float)i + 1)
+			if (verts[i].x != (float)i + 1)
 				result = false;
-			if (mD.vertices[i].pos.y != (float)i + 1)
+			if (verts[i].y != (float)i + 1)
 				result = false;
-			if (-mD.vertices[i].pos.z != (float)i + 1)
+			if (-verts[i].z != (float)i + 1)
 				result = false;
 		}
 	});
