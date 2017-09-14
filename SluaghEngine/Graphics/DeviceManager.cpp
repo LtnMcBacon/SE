@@ -1,5 +1,5 @@
-
 #include "DeviceManager.h"
+#include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
 

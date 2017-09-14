@@ -1,4 +1,5 @@
 #include <Renderer.h>
+#include <Profiler.h>
 
 using namespace SE;
 
