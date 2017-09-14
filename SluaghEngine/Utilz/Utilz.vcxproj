@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Utilz\Camera.h" />
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
@@ -146,11 +147,14 @@
     <ClInclude Include="..\includes\Utilz\IConsoleBackend.h" />
     <ClInclude Include="..\includes\Utilz\PathParsing.h" />
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
+    <ClInclude Include="..\includes\Utilz\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

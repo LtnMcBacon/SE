@@ -10,6 +10,11 @@ namespace SE
 {
 	namespace Graphics
 	{
+		struct VertexCount
+		{
+			ID3D11Buffer* vertexBuffer;
+			int size;
+		};
 		class StaticVertexBufferHandler
 		{
 		public:
@@ -42,8 +47,9 @@ namespace SE
 			*
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
+			int GetVertexCount(int vertexBufferID);
 		private:
-			std::vector<ID3D11Buffer*> vertexBuffer;
+			std::vector<VertexCount*> vertexCount;
 			std::stack<int> stackID;
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;

@@ -22,11 +22,11 @@ namespace SE
 
 		void StaticVertexBufferHandler::Shutdown()
 		{
-			for (auto &vb : vertexBuffer)
+			for (auto &vb : vertexCount)
 			{
-				if (vb)
+				if (vb->vertexBuffer)
 				{
-					vb->Release();
+					vb->vertexBuffer->Release();
 				}
 				delete vb;
 			}
@@ -59,13 +59,16 @@ namespace SE
 			}
 			if (stackID.size() == 0)
 			{
-				vertexBuffer.push_back(tempBuffer);
-				*vertexBufferID = vertexBuffer.size() - 1;
+				VertexCount* tempVertexCount = new VertexCount();
+				tempVertexCount->vertexBuffer = tempBuffer;
+				tempVertexCount->size = inputSize;
+				vertexCount.push_back(tempVertexCount);
+				*vertexBufferID = vertexCount.size() - 1;
 			}
 			else
 			{
-				delete vertexBuffer.at(stackID.top());
-				vertexBuffer.at(stackID.top()) = tempBuffer;
+				delete vertexCount.at(stackID.top())->vertexBuffer;
+				vertexCount.at(stackID.top())->vertexBuffer = tempBuffer;
 				*vertexBufferID = stackID.top();
 				stackID.pop();
 			}
@@ -76,14 +79,19 @@ namespace SE
 		{
 			UINT32 vertexSize = sizeof(float) * 8;
 			UINT32 offset = 0;
-			deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer.at(vertexBufferID), &vertexSize, &offset);
+			deviceContext->IASetVertexBuffers(0, 1, &vertexCount.at(vertexBufferID)->vertexBuffer, &vertexSize, &offset);
 		}
 
 		void StaticVertexBufferHandler::RemoveVertexBuffer(int vertexBufferID)
 		{
-			vertexBuffer.at(vertexBufferID)->Release();
-			vertexBuffer.at(vertexBufferID) = nullptr;
+			vertexCount.at(vertexBufferID)->vertexBuffer->Release();
+			vertexCount.at(vertexBufferID)->vertexBuffer = nullptr;
 			stackID.push(vertexBufferID);
+		}
+
+		int StaticVertexBufferHandler::GetVertexCount(int vertexBufferID)
+		{
+			return vertexCount.at(vertexBufferID)->size;
 		}
 	}	//namespace Graphics
 }	//namespace SE
