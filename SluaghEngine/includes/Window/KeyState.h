@@ -6,9 +6,10 @@ namespace SE {
 	namespace Window {
 		enum keyState
 		{
-			key_up,
-			key_pressed,
-			key_down
+			key_isUp,
+			key_isPressed,
+			key_isDown,
+			key_isError
 		};
 
 		enum Key
