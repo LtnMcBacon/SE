@@ -6,7 +6,6 @@
 #include <DirectXMath.h>
 #include <Windows.h>
 #include <iostream>
-#include <wrl.h>
 
 #include "LiveObjectReporter.h"
 
