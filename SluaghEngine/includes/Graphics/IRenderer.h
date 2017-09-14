@@ -85,6 +85,8 @@ namespace SE
 			*/
 			virtual int UpdateView(float* viewMatrix) = 0;
 
+
+			virtual int CreateVertexBuffer(void*data, size_t size) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

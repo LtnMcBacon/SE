@@ -66,3 +66,8 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 	return 0;
 }
 
+int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t size)
+{
+	return 0;
+}
+

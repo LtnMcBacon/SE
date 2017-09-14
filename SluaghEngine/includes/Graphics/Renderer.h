@@ -81,6 +81,8 @@ namespace SE
 			*/
 			int UpdateView(float* viewMatrix);
 
+
+			int CreateVertexBuffer(void*data, size_t size);
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

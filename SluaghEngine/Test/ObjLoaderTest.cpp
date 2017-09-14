@@ -25,6 +25,23 @@ SE::Test::ObjLoaderTest::~ObjLoaderTest()
 {
 }
 
+static bool result = false;
+void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+{
+	auto& mD = *(Arf::Mesh::Data*)data;
+	auto verts = (Arf::Mesh::Position*)mD.vertices;
+	result = true;
+	for (int i = 0; i < mD.NumVertices; i++)
+	{
+		if (verts[i].x != (float)i + 1)
+			result = false;
+		if (verts[i].y != (float)i + 1)
+			result = false;
+		if (-verts[i].z != (float)i + 1)
+			result = false;
+	}
+}
+
 bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
@@ -37,7 +54,7 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 	}
 
 	auto r = e.GetResourceHandler();
-	bool result = false;
+	result = false;
 
 	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 	{
@@ -55,21 +72,7 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 
 
 
-	r->LoadResource(Utilz::GUID("test.objtest"), [&result](void* data, size_t size) 
-	{
-		auto& mD = *(Arf::Mesh::Data*)data;
-		auto verts = (Arf::Mesh::Position*)mD.vertices;
-		result = true;
-		for (int i = 0; i < mD.NumVertices; i++)
-		{
-			if (verts[i].x != (float)i + 1)
-				result = false;
-			if (verts[i].y != (float)i + 1)
-				result = false;
-			if (-verts[i].z != (float)i + 1)
-				result = false;
-		}
-	});
+	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
 
 	e.Release();
 

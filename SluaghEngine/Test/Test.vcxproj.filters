@@ -36,6 +36,9 @@
     <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderableManagerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -56,7 +59,10 @@
     <ClInclude Include="InputLayoutTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="ObjLoaderTest.h">
+    <ClInclude Include="ObjLoaderTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableManagerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -67,6 +73,5 @@
     <FxCompile Include="Asset\SimpleVS.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-
   </ItemGroup>
 </Project>

@@ -79,6 +79,10 @@ namespace SE
 				proxy = &ConstMethodProxy<C, Function>;
 			}
 
+			inline R operator()(Args... args)const
+			{
+				return proxy(instance, std::forward<Args>(args)...);
+			}
 			inline R Invoke(Args... args) const
 			{
 				return proxy(instance, std::forward<Args>(args)...);

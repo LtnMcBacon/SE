@@ -2,10 +2,14 @@
 #define SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_
 #include <Utilz\GUID.h>
 #include <functional>
+#include <Utilz\Delegator.h>
+
 namespace SE
 {
 	namespace ResourceHandler
 	{		
+		typedef Utilz::Delegate<void(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+		typedef void(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
 		/**
 		*
 		* @brief Resource Handler Interface
@@ -39,14 +43,15 @@ namespace SE
 			* @brief	Load the given resource
 			*
 			* @param[in] guid The GUID of the resource to be loaded.
-			* @param[out] callback A callback function that is called when the data has been loaded.
+			* @param[out] callback A delegate that is called when the data has been loaded.
 			*
 			* Example code:
 			* @code
-			*	LoadResource("korv", [](void*data, size_t size){ parse_data(data, size);};
+			*	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>()); // Where load is a function
 			* @endcode
+			* @sa LoadResourceDelegate
 			*/
-			virtual void LoadResource(const Utilz::GUID& guid, const std::function<void(void* data, size_t size)>& callback) = 0;
+			virtual void LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback) = 0;
 
 			/**
 			* @brief	Unload the given resource
@@ -57,11 +62,7 @@ namespace SE
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
 			*
-			* Example code:
-			* @code
-			*	LoadResource(guid, [this](void*data, size_t size){ this->do_something(data, size);};
-			* @endcode
-			*/
+			**/
 			virtual void UnloadResource(const Utilz::GUID& guid) = 0;
 
 			/**
