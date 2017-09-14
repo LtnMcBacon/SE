@@ -5,7 +5,7 @@
 #include <vector>
 #include "crc_table.h"
 // This doesn't take into account the nul char
-#define COMPILE_TIME_CRC32_STR(x) (SE::Utilz::crc32<sizeof(x) - 2>(x) ^ 0xFFFFFFFF)
+#define COMPILE_TIME_CRC32_STR(x) (SE::Utilz::crc32<sizeof(x)/sizeof(x[0]) - 2>(x) ^ 0xFFFFFFFF)
 
 namespace SE
 {

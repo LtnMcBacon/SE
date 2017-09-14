@@ -80,6 +80,7 @@ namespace SE
 			* @endcode
 			*/
 			int UpdateView(float* viewMatrix);
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

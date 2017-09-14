@@ -24,7 +24,7 @@ namespace SE
 			virtual void Hide() = 0;
 
 			virtual void Print(const char* line, ...) = 0;
-			virtual void Print(const char* line, va_list args) = 0;
+			virtual void VPrint(const char* line, va_list args) = 0;
 			virtual void Getline(std::string* string) = 0;
 			virtual size_t Getline(const char* buffer, size_t size) = 0;
 		protected:

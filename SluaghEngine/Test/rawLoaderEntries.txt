@@ -1,1 +1,3 @@
 test.txt
+Asset/test.objtest
+Asset/Placeholder_level.obj

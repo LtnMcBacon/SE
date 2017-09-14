@@ -33,6 +33,8 @@ namespace SE
 			*/
 			virtual int Initialize() = 0;
 
+			virtual void Shutdown() = 0;
+
 			/**
 			* @brief	Load the given resource
 			*
@@ -41,7 +43,7 @@ namespace SE
 			*
 			* Example code:
 			* @code
-			*	LoadResource(guid, [](void*data, size_t size){ parse_data(data, size);};
+			*	LoadResource("korv", [](void*data, size_t size){ parse_data(data, size);};
 			* @endcode
 			*/
 			virtual void LoadResource(const Utilz::GUID& guid, const std::function<void(void* data, size_t size)>& callback) = 0;
