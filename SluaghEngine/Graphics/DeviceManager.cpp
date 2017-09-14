@@ -69,7 +69,9 @@ void DeviceManager::Shutdown() {
 
 	gDeviceContext->Release();
 #ifdef _DEBUG
+
 	/*reportLiveObjects(gDevice);*/
+
 #endif
 	gDevice->Release();;
 

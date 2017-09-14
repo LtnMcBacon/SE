@@ -21,7 +21,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			long Initialize(void* window);
+			int Initialize(void* window);
 
 			/**
 			* @brief Shutdown the renderer

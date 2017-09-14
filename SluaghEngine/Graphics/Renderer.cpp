@@ -11,7 +11,7 @@ SE::Graphics::Renderer::~Renderer()
 {
 }
 
-long SE::Graphics::Renderer::Initialize(void * window)
+int SE::Graphics::Renderer::Initialize(void * window)
 {
 	_ASSERT(window);
 	device = new DeviceManager();

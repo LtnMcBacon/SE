@@ -25,7 +25,7 @@ namespace SE
 			* @retval other See HRESULT
 			* @endcode
 			*/
-			virtual long Initialize(void* window) = 0;
+			virtual int Initialize(void* window) = 0;
 
 			/**
 			* @brief Shutdown the renderer

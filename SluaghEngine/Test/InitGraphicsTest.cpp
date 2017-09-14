@@ -23,15 +23,18 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 {
 	Graphics::IRenderer* r = new Graphics::Renderer();
 	Window::InterfaceWindow* w = new Window::Window();
-	bool result = w->Initialise();
-	if (!result)
+	int result = w->Initialise();
+	if (result)
 	{
-		console->Print("Could not initialize window.\n");
+		console->Print("Could not initialize window. Error: %d\n", result);
 		return false;
 	}
-	long lr = r->Initialize(w->GethWnd());
-	if (lr)
+	result = r->Initialize(w->GethWnd());
+	if (result)
+	{
+		console->Print("Could not initialize renderer. Error: %d\n", result);
 		return false;
+  }
 
 	for (UINT i = 0; i < 200; i++) {
 		r->Render();
