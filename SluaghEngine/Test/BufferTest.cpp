@@ -29,8 +29,8 @@ namespace SE
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
 			Window::InterfaceWindow* window = new Window::Window();
-			bool isOK = window->Initialise();
-			if (isOK != true)
+			int isOK = window->Initialise();
+			if (isOK != 0)
 			{
 				return isOK;
 			}
