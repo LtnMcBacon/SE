@@ -32,12 +32,12 @@ namespace SE {
 
 		public:
 
-			MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> gDeviceContext);
+			MaterialHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext);
 			~MaterialHandler();
 
 			HRESULT Init();
 
-			HRESULT InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11Device> gDevice);
+			HRESULT InitializeDefaultShaders(ID3D11Device* gDevice);
 
 			void UnbindShaders();
 			void SetMaterial();
@@ -46,12 +46,12 @@ namespace SE {
 
 		private:
 
-			Microsoft::WRL::ComPtr<ID3D11Device> gDevice;
-			Microsoft::WRL::ComPtr<ID3D11DeviceContext> gDeviceContext;
+			ID3D11Device*			gDevice;
+			ID3D11DeviceContext*	gDeviceContext;
 
-			Microsoft::WRL::ComPtr<ID3D11VertexShader>d_vertexShader;
-			Microsoft::WRL::ComPtr<ID3D11PixelShader>d_pixelShader;
-			Microsoft::WRL::ComPtr<ID3D11InputLayout>d_layout;
+			ID3D11VertexShader*		d_vertexShader;
+			ID3D11PixelShader*		d_pixelShader;
+			ID3D11InputLayout*		d_layout;
 		};
 	}
 }

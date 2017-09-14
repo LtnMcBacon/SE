@@ -9,7 +9,7 @@ using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-MaterialHandler::MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> gDeviceContext) {
+MaterialHandler::MaterialHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext) {
 
 	this->gDevice = gDevice;
 	this->gDeviceContext = gDeviceContext;
@@ -34,7 +34,7 @@ HRESULT MaterialHandler::Init() {
 	return hr;
 }
 
-HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11Device> gDevice) {
+HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 
 	HRESULT hr = S_OK;
 
@@ -80,7 +80,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 		return hr;
 	}
 
-	setDebugName(d_vertexShader.Get(), "DEFAULT_VERTEX_SHADER");
+	setDebugName(d_vertexShader, "DEFAULT_VERTEX_SHADER");
 
 	vertexInputLayout[0].SemanticName = "POSITION";
 	vertexInputLayout[0].SemanticIndex = 0;
@@ -118,7 +118,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 
 	vsBlob->Release();
 
-	setDebugName(d_layout.Get(), "DEFAULT_INPUT_LAYOUT");
+	setDebugName(d_layout, "DEFAULT_INPUT_LAYOUT");
 
 
 	ID3DBlob* psBlob = nullptr;
@@ -157,7 +157,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 		return hr;
 	}
 
-	setDebugName(d_pixelShader.Get(), "DEFAULT_PIXEL_SHADER");
+	setDebugName(d_pixelShader, "DEFAULT_PIXEL_SHADER");
 
 	psBlob->Release();
 
@@ -187,19 +187,18 @@ void MaterialHandler::SetMaterial() {
 	UnbindShaders();
 
 	// Set the input layout
-	gDeviceContext->IASetInputLayout(d_layout.Get());
+	gDeviceContext->IASetInputLayout(d_layout);
 
 	// Set the vertex and pixel shaders
-	gDeviceContext->VSSetShader(d_vertexShader.Get(), nullptr, 0);
-	gDeviceContext->PSSetShader(d_pixelShader.Get(), nullptr, 0);
+	gDeviceContext->VSSetShader(d_vertexShader, nullptr, 0);
+	gDeviceContext->PSSetShader(d_pixelShader, nullptr, 0);
 
 }
 
 void MaterialHandler::Shutdown() {
 
-	d_vertexShader.Reset();
-	d_pixelShader.Reset();
-	d_layout.Reset();
-
+	d_vertexShader->Release();
+	d_pixelShader->Release();
+	d_layout->Release();
 
 }

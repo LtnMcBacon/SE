@@ -14,7 +14,7 @@ namespace SE
 
 		}
 
-		StaticVertexBufferHandler::StaticVertexBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext)
+		StaticVertexBufferHandler::StaticVertexBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext)
 		{
 			device = inDevice;
 			deviceContext = inDeviceContext;
