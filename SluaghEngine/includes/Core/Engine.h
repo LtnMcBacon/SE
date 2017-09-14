@@ -91,8 +91,6 @@ namespace SE
 			TransformManager* transformManager;
 			
 
-			
-
 		};
 
 	}

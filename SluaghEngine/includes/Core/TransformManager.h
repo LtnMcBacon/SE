@@ -28,8 +28,14 @@ namespace SE
 			DirectX::XMFLOAT3 GetRotation(const Entity& e) const;
 			float GetScale(const Entity& e) const;
 
+			
+			int GarbageCollection();
+
+			uint32_t ActiveTransforms() const;
+
 		private:
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
+			std::unordered_map<uint32_t, Entity> indexToEntity;
 			
 			
 			DirectX::XMFLOAT3* positions;
@@ -38,12 +44,14 @@ namespace SE
 
 			uint32_t transformCount;
 			uint32_t transformCapacity;
+			uint32_t garbageCollectionIndex;
 			static const size_t transformCapacityIncrement = 512;
 			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(float);
 
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
-
+			
 			void ExpandTransforms();
+			
 		};
 	}
 }

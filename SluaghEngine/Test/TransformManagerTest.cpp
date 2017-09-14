@@ -1,5 +1,7 @@
 #include "TransformManagerTest.h"
 #include <Core/Engine.h>
+#include <fstream>
+#include <map>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -116,7 +118,76 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 			return false;
 		}
 	}
-	////////////////
+	////////////////Garbage collection///////////////////
+
+	for(int i = 0; i < 2048; i++)
+	{
+		tm.SetPosition(entities[i], { 5.0f,5.0f,5.0f });
+		tm.SetRotation(entities[i], 5.0f, 5.0f, 5.0f);
+		tm.SetScale(entities[i], 5.0f);
+	}
+	const uint32_t toRemove = 128;
+	for(int i = 0; i < 2048; i++)
+	{
+		//Simulate entities being destroyed in arbitrary order
+		std::swap(entities[rand() % 2048], entities[rand() % 2048]);
+	}
+	for(int i = 0; i < toRemove; i++)
+	{
+		tm.SetScale(entities[i], 1.0f);
+		tm.SetPosition(entities[i], { 1.0f,1.0f,1.0f });
+		tm.SetRotation(entities[i], 1.0f, 1.0f, 1.0f);
+		em.Destroy(entities[i]);
+	}
+	uint32_t callsToGC = 0;
+	uint32_t nonEffectiveCalls = 0;
+	struct Hist
+	{
+		uint32_t successes = 0;
+		uint32_t fails = 0;
+	};
+	std::map<uint32_t, Hist> histogram;
+	while(tm.ActiveTransforms() > 2048 - toRemove)
+	{
+		if (tm.GarbageCollection() == 0)
+		{
+			++nonEffectiveCalls;
+			histogram[tm.ActiveTransforms()].fails++;
+		}
+		else
+		{
+			histogram[tm.ActiveTransforms()].successes++;
+		}
+		++callsToGC;
+		
+	}
+	console->Print("%d calls to GarbageCollector to clean up %d entities\n", callsToGC, toRemove);
+	console->Print("%d calls found no garbage.\n", nonEffectiveCalls);
+	console->Print("Remaining transforms: %d\n", tm.ActiveTransforms());
+	console->Print("See transformGarbageHist.txt for histogram.\n");
+	std::ofstream fout("transformGarbageHist.txt");
+
+	fout << "Transforms left, successful garbage collection, no garbage collected\n";
+	for(auto& h : histogram)
+	{
+		fout << h.first << ", " << h.second.successes << ", " << h.second.fails << "\n";
+	}
+	//Make sure the garbage collection didnt mess anything up
+	
+	for(int i = toRemove; i < 2048; i++)
+	{
+		if (!CompareFloat3(tm.GetPosition(entities[i]), { 5.0f,5.0f,5.0f }))
+		{
+			DirectX::XMFLOAT3 p = tm.GetPosition(entities[i]);
+			console->Print("Got %f, %f, %f\n", p.x, p.y, p.z);
+			return false;
+		}
+		if (!CompareFloat3(tm.GetRotation(entities[i]), { 5.0f,5.0f,5.0f }))
+			return false;
+		if (!CompareFloat(tm.GetScale(entities[i]), 5.0f))
+			return false;
+	}
+
 
 	engine.Release();
 	return true;
