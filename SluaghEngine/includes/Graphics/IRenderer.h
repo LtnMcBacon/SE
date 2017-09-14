@@ -85,6 +85,13 @@ namespace SE
 			*/
 			virtual int UpdateView(float* viewMatrix) = 0;
 
+			/**
+			* @brief Renders the scene
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int Render() = 0;
+
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

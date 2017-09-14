@@ -81,6 +81,13 @@ namespace SE
 			*/
 			int UpdateView(float* viewMatrix);
 
+			/**
+			* @brief Renders the scene
+			* @retval return_value_0 Returns 0 On success.
+			* @endcode
+			*/
+			int Render();
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

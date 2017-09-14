@@ -66,3 +66,21 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 	return 0;
 }
 
+int SE::Graphics::Renderer::Render() {
+
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
+
+	// Clear the primary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(
+	device->GetRTV(), 
+	clearColor);
+
+	// Clear the standard depth stencil view
+	device->GetDeviceContext->ClearDepthStencilView(
+	device->GetDepthStencil(), 
+	D3D11_CLEAR_DEPTH,  
+	1.0f, 
+	0);
+}
+
