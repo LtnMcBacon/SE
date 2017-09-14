@@ -29,8 +29,9 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 		console->Print("Could not initialize window.\n");
 		return false;
 	}
-	r->Initialize(w->GethWnd());
-
+	long lr = r->Initialize(w->GethWnd());
+	if (lr)
+		return false;
 	r->Shutdown();
 
 	w->Shutdown();

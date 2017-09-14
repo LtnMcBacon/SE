@@ -5,6 +5,7 @@
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
+#include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "InputLayoutTest.h"
 #include <map>
@@ -28,6 +29,7 @@ int main(int argc, char** argv)
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
 	AddTest(InputLayoutTest);
+	AddTest(ObjLoaderTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	Console::Initialize(new CMDConsole);

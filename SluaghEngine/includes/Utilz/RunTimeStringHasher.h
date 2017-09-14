@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "crc_table.h"
-#define RUN_TIME_CRC32_STR(x) (SE::Utilz::crc32_runtime(x, sizeof(x)-2) ^0xFFFFFFFF)
+#define RUN_TIME_CRC32_STR(x) (SE::Utilz::crc32_runtime(x.c_str(), x.size()-2) ^0xFFFFFFFF)
 
 namespace SE
 {

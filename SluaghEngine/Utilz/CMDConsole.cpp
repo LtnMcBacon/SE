@@ -49,7 +49,7 @@ void SE::Utilz::CMDConsole::Print(const char * line, ...)
 	va_end(args);
 }
 
-void SE::Utilz::CMDConsole::Print(const char * line, va_list args)
+void SE::Utilz::CMDConsole::VPrint(const char * line, va_list args)
 {
 	vprintf(line, args);
 	fflush(stdout);

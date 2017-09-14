@@ -1,10 +1,15 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
+#include <Graphics\IRenderer.h>
+#include <Window\InterfaceWindow.h>
+#include <ResourceHandler\IResourceHandler.h>
+#include "EntityManager.h"
+
 namespace SE
 {
 	namespace Core
 	{
-		class EntityManager;
+	
 		/**
 		* @brief A singleton containing an instance of the engine. All interaction with the engine happens through this instance.
 		* @details The singleton is instanciated with the first call to GetInstance and initialized with a call to Initialize.
@@ -71,6 +76,24 @@ namespace SE
 			* @sa EntityManager
 			*/
 			EntityManager& GetEntityManager() const;
+			/**
+			* @brief    Returns a pointer to the renderer.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			Graphics::IRenderer* GetRenderer() const;
+			/**
+			* @brief    Returns a pointer to the window.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			Window::InterfaceWindow* GetWindow() const;
+			/**
+			* @brief    Returns a pointer to the resource handler.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			ResourceHandler::IResourceHandler* GetResourceHandler() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -78,8 +101,10 @@ namespace SE
 			Engine& operator=(const Engine& rhs) = delete;
 			~Engine();
 
-			EntityManager* _entityManager;
-
+			EntityManager* entityManager;
+			Graphics::IRenderer* renderer;
+			Window::InterfaceWindow* window;
+			ResourceHandler::IResourceHandler* resourceHandler;
 
 		};
 

@@ -23,6 +23,8 @@ namespace SE
 			~ResourceHandler();
 
 			int Initialize();
+			void Shutdown();
+
 			void LoadResource(const Utilz::GUID& guid, const std::function<void(void* data, size_t size)>& callback);
 			void UnloadResource(const Utilz::GUID& guid);
 			void AddParser(const Utilz::GUID& extGUID, const std::function<int(void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize)>& parserFunction);

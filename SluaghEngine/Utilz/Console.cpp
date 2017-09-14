@@ -139,6 +139,6 @@ void SE::Utilz::Console::Print(const char * str, ...)
 {
 	va_list args;
 	va_start(args, str);
-	Console::console->backend->Print(str, args);
+	Console::console->backend->VPrint(str, args);
 	va_end(args);
 }

@@ -1,5 +1,11 @@
 #include "Display.h"
 #include "Input.h"
+#include <Utilz\Console.h>
+#ifdef _DEBUG
+#pragma comment(lib, "UtilzD.lib")
+#else
+#pragma comment(lib, "Utilz.lib")
+#endif
 namespace SE {
 	namespace Window {
 		LRESULT CALLBACK Display::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -59,7 +65,8 @@ namespace SE {
 
 			// register the window class
 			if (!RegisterClassEx(&wc))
-				return false;
+				Utilz::Console::Print("Window Class already registered\n");
+		
 
 			RECT rc = { 0, 0, width, height };
 			AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
