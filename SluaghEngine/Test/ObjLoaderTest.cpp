@@ -32,7 +32,7 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 	auto re = e.Init(info);
 	if (re)
 	{
-		console->Print("Could not init Core, Error: %d.", re);
+		console->Print("Could not init Core, Error: %d.\n", re);
 		return false;
 	}
 

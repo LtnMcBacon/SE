@@ -27,7 +27,7 @@
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Display.h">
+    <ClInclude Include="..\includes\Window\Display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

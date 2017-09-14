@@ -30,9 +30,9 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	auto r = resourceHandler->Initialize();
 	if (r)
 		return r;
-	bool br = window->Initialise();
-	if (!br)
-		return -2;
+	r = window->Initialise();
+	if (r)
+		return r;
 	r = renderer->Initialize(window->GethWnd());
 	if (r)
 		return r;

@@ -7,8 +7,7 @@
 #include "ResouceHandlerTest.h"
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
-#include "InputLayoutTest.h"
-#include "BufferTest.h"
+#include "MaterialTest.h"
 #include <map>
 
 
@@ -29,9 +28,8 @@ int main(int argc, char** argv)
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
-	AddTest(InputLayoutTest);
+	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
-	AddTest(BufferTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	Console::Initialize(new CMDConsole);

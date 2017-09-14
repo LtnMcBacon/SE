@@ -18,12 +18,10 @@ namespace SE {
 			*
 			* @details	Gets application handle from the GetModuleHandle function and uses that to set up a display.
 			*
-			* @retval true Returns if display creation was sucessful
-			*
-			* @retval false Returns if display creation was unsucessful
+			* @retval 0 On success.
 			*
 			*/
-			bool InitDisplay();
+			int InitDisplay();
 			void* GethWnd();
 
 		private:

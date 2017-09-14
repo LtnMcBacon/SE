@@ -30,13 +30,10 @@
     <ClCompile Include="InitGraphicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayoutTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BufferTest.cpp">
+    <ClCompile Include="MaterialTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,13 +53,10 @@
     <ClInclude Include="InitGraphicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayoutTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ObjLoaderTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BufferTest.h">
+    <ClInclude Include="MaterialTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
