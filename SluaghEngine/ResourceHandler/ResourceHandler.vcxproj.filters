@@ -18,13 +18,13 @@
     <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RawLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\ResourceHandler\ResourceHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\ResourceHandler\IAssetLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\ResourceHandler\RawLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

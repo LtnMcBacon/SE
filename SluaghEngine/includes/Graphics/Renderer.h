@@ -1,12 +1,13 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
 #include "IRenderer.h"
+#include "DeviceManager.h"
+#include "MaterialHandler.h"
 
 namespace SE
 {
 	namespace Graphics
 	{
-		class DeviceManager;
 
 		class Renderer : public IRenderer
 		{
@@ -84,8 +85,9 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
-
+			MaterialHandler* materialHandler;
 			DeviceManager* device;
+
 		};
 
 	}

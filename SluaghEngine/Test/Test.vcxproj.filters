@@ -30,7 +30,7 @@
     <ClCompile Include="InitGraphicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BufferTest.cpp">
+    <ClCompile Include="InputLayoutTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,8 +50,16 @@
     <ClInclude Include="InitGraphicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BufferTest.h">
+    <ClInclude Include="InputLayoutTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\SimplePS.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\SimpleVS.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
