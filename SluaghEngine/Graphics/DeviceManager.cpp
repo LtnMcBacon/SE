@@ -55,19 +55,19 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 void DeviceManager::Shutdown() {
 
-	gSwapChain.Reset();
+	gSwapChain->Release();
 
-	gBackBuffer.Reset();
-	gBackbufferRTV.Reset();
+	gBackBuffer->Release();
+	gBackbufferRTV->Release();
 
-	gDepthStencil.Reset();
-	gDepthStencilView.Reset();
+	gDepthStencil->Release();
+	gDepthStencilView->Release();
 
-	gDeviceContext.Reset();
+	gDeviceContext->Release();
 #ifdef _DEBUG
-	reportLiveObjects(gDevice.Get());
+	reportLiveObjects(gDevice);
 #endif
-	gDevice.Reset();
+	gDevice->Release();;
 }
 
 HRESULT DeviceManager::CreateDeviceResources() {
@@ -97,9 +97,9 @@ HRESULT DeviceManager::CreateDeviceResources() {
 		levels,
 		ARRAYSIZE(levels),
 		D3D11_SDK_VERSION,
-		gDevice.GetAddressOf(),
+		&gDevice,
 		&gFeatureLevel,
-		gDeviceContext.GetAddressOf()
+		&gDeviceContext
 
 	);
 
@@ -148,7 +148,7 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 		return S_FALSE;	
 	}
 
-	dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, gSwapChain.GetAddressOf());
+	dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
 
 	dxgiFactory->Release();
 	dxgiAdapter->Release();
@@ -163,7 +163,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	HRESULT hr = S_OK;
 	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
 
-	setDebugName(gBackBuffer.Get(), "STANDARD_BACK_BUFFER_TEXTURE2D");
+	setDebugName(gBackBuffer, "STANDARD_BACK_BUFFER_TEXTURE2D");
 
 	if (FAILED(hr)) {
 
@@ -171,7 +171,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 		return S_FALSE;
 	}
 
-	hr = gDevice->CreateRenderTargetView(gBackBuffer.Get(), nullptr, gBackbufferRTV.GetAddressOf());
+	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
 
@@ -179,7 +179,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 		return S_FALSE;
 	}
 
-	setDebugName(gBackbufferRTV.Get(), "STANDARD_BACK_BUFFER_RTV");
+	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
 
 	return hr;
 }
@@ -202,7 +202,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	hr = gDevice->CreateTexture2D(
 		&depthStencilDesc,
 		nullptr,
-		gDepthStencil.GetAddressOf()
+		&gDepthStencil
 	);
 
 	if (FAILED(hr)) {
@@ -211,15 +211,15 @@ HRESULT DeviceManager::CreateDepthStencil() {
 		return S_FALSE;
 	}
 
-	setDebugName(gDepthStencil.Get(), "STANDARD_DEPTH_STENCIL_TEXTURE2D");
+	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
 
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
 
-		gDepthStencil.Get(),
+		gDepthStencil,
 		&depthStencilViewDesc,
-		gDepthStencilView.GetAddressOf()
+		&gDepthStencilView
 
 	);
 
@@ -229,7 +229,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 		return S_FALSE;
 	}
 
-	setDebugName(gDepthStencilView.Get(), "STANDARD_DEPTH_STENCIL_RTV");
+	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
 
 	return hr;
 }
