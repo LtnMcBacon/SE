@@ -157,20 +157,20 @@ namespace SE {
 
 			void Present();
 
-			inline Microsoft::WRL::ComPtr<ID3D11Device>           GetDevice() { return gDevice; };
-			inline Microsoft::WRL::ComPtr<ID3D11DeviceContext>    GetDeviceContext() { return gDeviceContext; };
+			inline ID3D11Device*          GetDevice() { return gDevice; };
+			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
 
 		private:
 
-			Microsoft::WRL::ComPtr<ID3D11Device>			gDevice;
-			Microsoft::WRL::ComPtr<ID3D11DeviceContext>		gDeviceContext;
-			Microsoft::WRL::ComPtr<IDXGISwapChain>			gSwapChain;
+			ID3D11Device*			gDevice;
+			ID3D11DeviceContext*	gDeviceContext;
+			IDXGISwapChain*			gSwapChain;
 			
-			Microsoft::WRL::ComPtr<ID3D11Texture2D>			gBackBuffer;
-			Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	gBackbufferRTV;
+			ID3D11Texture2D*		gBackBuffer;
+			ID3D11RenderTargetView*	gBackbufferRTV;
 			
-			Microsoft::WRL::ComPtr<ID3D11Texture2D>			gDepthStencil;
-			Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	gDepthStencilView;
+			ID3D11Texture2D*		gDepthStencil;
+			ID3D11DepthStencilView*	gDepthStencilView;
 
 			D3D11_TEXTURE2D_DESC	gBB_Desc;
 			D3D_FEATURE_LEVEL		gFeatureLevel;

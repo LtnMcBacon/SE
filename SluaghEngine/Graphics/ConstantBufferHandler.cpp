@@ -10,7 +10,7 @@ namespace SE
 
 		}
 
-		ConstantBufferHandler::ConstantBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext)
+		ConstantBufferHandler::ConstantBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext)
 		{
 			device = inDevice;
 			deviceContext = inDeviceContext;
