@@ -310,12 +310,12 @@ void Camera::LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3&
 // Get View / Proj matrices
 XMMATRIX Camera::View()const {
 
-	return XMLoadFloat4x4(&mView);
+	return XMMatrixTranspose(XMLoadFloat4x4(&mView));
 }
 
 XMMATRIX Camera::Proj()const {
 
-	return XMLoadFloat4x4(&mProj);
+	return XMMatrixTranspose(XMLoadFloat4x4(&mProj));
 }
 
 XMMATRIX Camera::ViewProj()const {
