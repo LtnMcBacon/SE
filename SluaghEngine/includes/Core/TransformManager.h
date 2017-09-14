@@ -19,12 +19,19 @@ namespace SE
 
 			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, float scale = 1.0f);
 			void Move(const Entity& e, const DirectX::XMFLOAT3& dir);
+			void Rotate(const Entity& e, float roll, float pitch, float yaw);
+			void Scale(const Entity& e, float scale);
+			void SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos);
+			void SetRotation(const Entity& e, float roll, float pitch, float yaw);
+			void SetScale(const Entity& e, float scale);
 			DirectX::XMFLOAT3 GetPosition(const Entity& e) const;
+			DirectX::XMFLOAT3 GetRotation(const Entity& e) const;
+			float GetScale(const Entity& e) const;
 
 		private:
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
 			
-			void* data;/**<All the memory allocated by the transform manager. Other member pointers point to different indices in this array*/
+			
 			DirectX::XMFLOAT3* positions;
 			DirectX::XMFLOAT3* rotations;
 			float* scalings;

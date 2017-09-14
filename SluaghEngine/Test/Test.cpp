@@ -86,6 +86,11 @@ int main(int argc, char** argv)
 
 	while (running);
 
+	for (auto& test : tests)
+		delete std::get<1>(test.second);
+	Console::Hide();
+	Console::Shutdown();
+
 	return 0;
 
 }
