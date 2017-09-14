@@ -1,5 +1,5 @@
-
 #include "DeviceManager.h"
+#include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -17,6 +17,8 @@ DeviceManager::~DeviceManager() {
 }
 
 HRESULT DeviceManager::Init(HWND windowHandle) {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -50,10 +52,12 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	SetViewport();
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::Shutdown() {
+
+	StartProfile;
 
 	gSwapChain->Release();
 
@@ -65,12 +69,18 @@ void DeviceManager::Shutdown() {
 
 	gDeviceContext->Release();
 #ifdef _DEBUG
-	//reportLiveObjects(gDevice);
+
+	/*reportLiveObjects(gDevice);*/
+
 #endif
 	gDevice->Release();;
+
+	StopProfile;
 }
 
 HRESULT DeviceManager::CreateDeviceResources() {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -110,10 +120,12 @@ HRESULT DeviceManager::CreateDeviceResources() {
 		return S_FALSE;
 	}
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -154,11 +166,13 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	dxgiAdapter->Release();
 	dxgiDevice->Release();
 
-	return hr;
+	ProfileReturnConst(hr);
 
 }
 
 HRESULT DeviceManager::CreateBackBufferRTV() {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
@@ -181,10 +195,12 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateDepthStencil() {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -231,7 +247,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::SetViewport() {

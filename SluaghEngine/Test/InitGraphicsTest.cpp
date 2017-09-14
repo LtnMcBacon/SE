@@ -34,7 +34,12 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 	{
 		console->Print("Could not initialize renderer. Error: %d\n", result);
 		return false;
+  }
+
+	for (UINT i = 0; i < 200; i++) {
+		r->Render();
 	}
+
 	r->Shutdown();
 
 	w->Shutdown();

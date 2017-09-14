@@ -32,21 +32,28 @@ namespace SE {
 			DeviceManager();
 			~DeviceManager();
 
+			/**
+			* @brief Init initializes the DeviceManager
+			* @details Calls for all necessary functions for all components to be initialized
+			* @retval return_value_n Returns a HRESULT indicating if the DirectX core was successfully created or not
+			* @endcode
+			*/
 			HRESULT Init(HWND windowHandle);
+
+			/**
+			* @brief Shutdown releases the DirectX components
+			* @details Releases the pointers
+			* @endcode
+			*/
 			void Shutdown();
 
 			/**
-			* @brief	
-			* CreateDeviceResources creates the graphic device and Graphic device context
-			*
+			* @brief CreateDeviceResources creates the graphic device and Graphic device context
 			* @details
 			* CreateDeviceResources first specifies the feature level and setups the graphic device debug flag.
 			* Finally, it calls upon D3D11CreateDevice to create both the graphic device and the graphic device context
-			*
 			* @retval return_value_n Returns a HRESULT indicating if the Graphic Device and Graphic Context was successfully created or not
-			*
 			* @warning Make sure to interpret the HRESULT returned from CreateDeviceResources and stop the application from proceeding if HRESULT is S_FALSE == FAILED(hr)
-			*
 			* Example code:
 			* @code
 			*	HRESULT hr = S_OK;
@@ -64,18 +71,10 @@ namespace SE {
 			/**
 			* @brief	
 			* CreateSwapChain creates the swap chain
-			*
-			* @details
-			* CreateSwapChain first defines a swap chain description
-			* It proceeds to create an adapter that calls upon the parent factory
-			* From the factory, a swap chain is created
-			*
+			* @details CreateSwapChain first defines a swap chain description. It proceeds to create an adapter that calls upon the parent factory. From the factory, a swap chain is created
 			* @param[in] windowHandle A window handle 
-			*
 			* @retval return_value_n Returns a HRESULT indicating if the swap chain was successfully created or not
-			*
 			* @warning Make sure to interpret the HRESULT returned from CreateSwapChain and stop the application from proceeding if HRESULT is S_FALSE == FAILED(hr)
-			*
 			* Example code:
 			* @code
 			*	HRESULT hr = S_OK;
@@ -93,15 +92,10 @@ namespace SE {
 			/**
 			* @brief	
 			* CreateBackBufferRTV creates the back buffer render target view
-			*
 			* @details
-			* CreateBackBufferRTV gets the Texture2D from the swap chain and puts in in gBackBuffer
-			* The texture in gBackBuffer is then used to create the gBackBufferRTV
-			*
+			* CreateBackBufferRTV gets the Texture2D from the swap chain and puts in in gBackBuffer. The texture in gBackBuffer is then used to create the gBackBufferRTV
 			* @retval return_value_n Returns a HRESULT indicating if the render target view was successfully created or not
-			*
 			* @warning Make sure to interpret the HRESULT returned from CreateBackBufferRTV and stop the application from proceeding if HRESULT is S_FALSE == FAILED(hr)
-			*
 			* Example code:
 			* @code
 			*	HRESULT hr = S_OK;
@@ -119,15 +113,10 @@ namespace SE {
 			/**
 			* @brief	
 			* CreateDepthStencil creates the default depth stencil view
-			*
 			* @details
-			* CreateDepthStencil defines a texture 2D description and creates a texture from it
-			* The texture is then used to create the depth stencil view
-			*
+			* CreateDepthStencil defines a texture 2D description and creates a texture from it. The texture is then used to create the depth stencil view
 			* @retval return_value_n Returns a HRESULT indicating if the depth stencil view was successfully created or not
-			*
 			* @warning Make sure to interpret the HRESULT returned from CreateDepthStencil and stop the application from proceeding if HRESULT is S_FALSE == FAILED(hr)
-			*
 			* Example code:
 			* @code
 			*	HRESULT hr = S_OK;
@@ -143,21 +132,29 @@ namespace SE {
 			HRESULT CreateDepthStencil();
 
 			/**
-			* @brief
-			* SetViewport initializes the default viewport
-			*
-			* @details
-			* From the back buffer texture, width and height is used to set the size of the viewport
-			*
+			* @brief SetViewport initializes the default viewport
+			* @details From the back buffer texture, width and height is used to set the size of the viewport
+			* @endcode
 			*/
 			void SetViewport();
 
+			/**
+			* @brief GetAspectRatio returns the aspect ratio
+			* @retval return_value_n Returns the aspect ratio from the window
+			* @endcode
+			*/
 			float GetAspectRatio();
 
+			/**
+			* @brief Present displays the rendered image to the user
+			* @endcode
+			*/
 			void Present();
 
-			inline ID3D11Device*          GetDevice() { return gDevice; };
+			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
+			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
+			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
 
 		private:
 
