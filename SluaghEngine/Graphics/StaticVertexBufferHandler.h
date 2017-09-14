@@ -1,19 +1,21 @@
 #pragma once
-#ifndef SE_GRAPHICS_STATICCREATEVERTEXBUFFERHANDLER_H_
-#define SE_GRAPHICS_STATICCREATEVERTEXBUFFERHANDLER_H_
+#ifndef SE_GRAPHICS_STATICVERTEXBUFFERHANDLER_H_
+#define SE_GRAPHICS_STATICVERTEXBUFFERHANDLER_H_
 #include <vector>
 #include <stack>
 #include <d3d11.h>
+#include <wrl.h>
 
 namespace SE
 {
 	namespace Graphics
 	{
-		class StaticCreateVertexBufferHandler
+		class StaticVertexBufferHandler
 		{
 		public:
-			StaticCreateVertexBufferHandler();
-			~StaticCreateVertexBufferHandler();
+			StaticVertexBufferHandler();
+			StaticVertexBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext);
+			~StaticVertexBufferHandler();
 			/**
 			* @brief	Creates a vertexbuffer with the inputData
 			*
@@ -30,8 +32,8 @@ namespace SE
 			* @retval nonZero Returns if failed
 			*
 			*/
-			HRESULT CreateVertexBuffer(ID3D11Device* device, void* inputData, int inputSize, int &vertexBufferID);
-			ID3D11Buffer* GetVertexBuffer(int vertexBufferID);
+			HRESULT CreateVertexBuffer(void* inputData, int inputSize, int *vertexBufferID);
+			void SetVertexBuffer(int vertexBufferID);
 			/**
 			* @brief	Removes the targeted vertex buffer
 			*
@@ -42,8 +44,10 @@ namespace SE
 		private:
 			std::vector<ID3D11Buffer*> vertexBuffer;
 			std::stack<int> stackID;
+			Microsoft::WRL::ComPtr<ID3D11Device> device;
+			Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 		};
 
 	}	//namespace Graphics
 }	//namespace SE
-#endif //SE_GRAPHICS_STATICCREATEVERTEXBUFFERHANDLER_H_
+#endif //SE_GRAPHICS_STATICVERTEXBUFFERHANDLER_H_

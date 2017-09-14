@@ -1,20 +1,26 @@
-#include "StaticCreateVertexBufferHandler.h"
+#include "StaticVertexBufferHandler.h"
 
 namespace SE
 {
 	namespace Graphics
 	{
-		StaticCreateVertexBufferHandler::StaticCreateVertexBufferHandler()
+		StaticVertexBufferHandler::StaticVertexBufferHandler()
 		{
 
 		}
 
-		StaticCreateVertexBufferHandler::~StaticCreateVertexBufferHandler()
+		StaticVertexBufferHandler::~StaticVertexBufferHandler()
 		{
 
 		}
 
-		HRESULT StaticCreateVertexBufferHandler::CreateVertexBuffer(ID3D11Device* device, void* inputData, int inputSize, int &vertexBufferID)
+		StaticVertexBufferHandler::StaticVertexBufferHandler(Microsoft::WRL::ComPtr<ID3D11Device> inDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> inDeviceContext)
+		{
+			device = inDevice;
+			deviceContext = inDeviceContext;
+		}
+
+		HRESULT StaticVertexBufferHandler::CreateVertexBuffer(void* inputData, int inputSize, int *vertexBufferID)
 		{
 			D3D11_BUFFER_DESC _vertexBufferDesc;
 			// description for vertexbuffer
@@ -42,23 +48,25 @@ namespace SE
 			if (stackID.size() == 0)
 			{
 				vertexBuffer.push_back(tempBuffer);
-				vertexBufferID = vertexBuffer.size() - 1;
+				*vertexBufferID = vertexBuffer.size() - 1;
 			}
 			else
 			{
 				vertexBuffer.at(stackID.top()) = tempBuffer;
-				vertexBufferID = stackID.top();
+				*vertexBufferID = stackID.top();
 				stackID.pop();
 			}
 			return _hr;
 		}
 
-		ID3D11Buffer* StaticCreateVertexBufferHandler::GetVertexBuffer(int vertexBufferID)
+		void StaticVertexBufferHandler::SetVertexBuffer(int vertexBufferID)
 		{
-			return vertexBuffer.at(vertexBufferID);
+			UINT32 vertexSize = sizeof(float) * 8;
+			UINT32 offset = 0;
+			deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer.at(vertexBufferID), &vertexSize, &offset);
 		}
 
-		void StaticCreateVertexBufferHandler::RemoveVertexBuffer(int vertexBufferID)
+		void StaticVertexBufferHandler::RemoveVertexBuffer(int vertexBufferID)
 		{
 			vertexBuffer.at(vertexBufferID)->Release();
 			stackID.push(vertexBufferID);

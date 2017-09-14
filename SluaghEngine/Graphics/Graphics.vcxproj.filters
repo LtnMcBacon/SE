@@ -27,7 +27,7 @@
     <ClInclude Include="..\includes\Graphics\IRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StaticCreateVertexBufferHandler.h">
+    <ClInclude Include="StaticVertexBufferHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="LiveObjectReporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StaticCreateVertexBufferHandler.cpp">
+    <ClCompile Include="StaticVertexBufferHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
