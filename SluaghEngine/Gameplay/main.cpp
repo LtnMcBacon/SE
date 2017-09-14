@@ -1,4 +1,9 @@
 #include <Core\Engine.h>
+#ifdef _DEBUG
+#pragma comment(lib, "CoreD.lib")
+#else
+#pragma comment(lib, "Core.lib")
+#endif
 
 using namespace SE;
 int main()

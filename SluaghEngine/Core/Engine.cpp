@@ -3,6 +3,16 @@
 #include <Graphics\Renderer.h>
 #include <Window\Window.h>
 #include <ResourceHandler\ResourceHandler.h>
+#include <OBJParser\Parsers.h>
+
+
+#ifdef _DEBUG
+#pragma comment(lib, "OBJParserD.lib")
+#else
+#pragma comment(lib, "OBJParser.lib")
+#endif
+
+
 
 SE::Core::Engine& SE::Core::Engine::GetInstance()
 {
@@ -17,9 +27,16 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
 
-	resourceHandler->Initialize();
-	window->Initialise();
-	renderer->Initialize(window->GethWnd());
+	auto r = resourceHandler->Initialize();
+	if (r)
+		return r;
+	bool br = window->Initialise();
+	if (!br)
+		return -2;
+	r = renderer->Initialize(window->GethWnd());
+	if (r)
+		return r;
+
 
 	return 0;
 }

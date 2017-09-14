@@ -54,3 +54,7 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	return 0;
 }
+
+void SE::Graphics::Renderer::CreateBuffers(MeshData::MeshData & meshData)
+{
+}
