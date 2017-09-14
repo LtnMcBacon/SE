@@ -48,7 +48,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 	ID3DBlob* vsErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
-		L"Test\\Asset\\SimpleVS.hlsl",
+		L"Asset\\SimpleVS.hlsl",
 		nullptr,
 		nullptr,
 		"VS_main",
@@ -69,7 +69,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 			vsErrorBlob->Release();
 		}
 
-		hr;
+		return hr;
 	}
 
 	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &d_vertexShader);
@@ -125,7 +125,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 	ID3DBlob* psErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
-		L"Test\\Asset\\SimplePS.hlsl",
+		L"Asset\\SimplePS.hlsl",
 		nullptr,
 		nullptr,
 		"PS_main",
