@@ -48,20 +48,20 @@ namespace SE {
 		{
 			if (inputMap->GetBool(actionKey) == false)
 			{
-				return key_up;
+				return key_isUp;
 			}
 			else
 			{
-				if (inputMap->GetBoolIsNew(actionKey) == false)
+				if (inputMap->GetBoolIsNew(actionKey) == false && inputMap->GetBoolPrevious(actionKey) == true)
 				{
-					return key_down;
+					return key_isDown;
 				}
 				else
 				{
-					return key_pressed;
+					return key_isPressed;
 				}
 			}
-			return key_up;
+			return key_isError;
 		}
 
 		void Input::Update()
