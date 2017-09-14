@@ -27,6 +27,15 @@ int SE::ResourceHandler::ResourceHandler::Initialize()
 	ProfileReturnConst(0);
 }
 
+void SE::ResourceHandler::ResourceHandler::Shutdown()
+{
+	for (auto& r : resourceMap)
+	{
+		delete r.second.data;
+	}
+	delete diskLoader;
+}
+
 void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const std::function<void(void* data, size_t size)>& callback)
 {
 	StartProfile;
@@ -47,7 +56,7 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 			{
 				resourceInfo.data = rawData;
 				resourceInfo.size = rawSize;
-				Utilz::Console::Print("Resource GUID: %u unknown file format Ext: %u, Error: %d. Skipping parsing.\n", guid, resourceInfo.extension, result);
+				Utilz::Console::Print("Resource GUID: %u unknown file format Ext: %u. Skipping parsing.\n", guid, resourceInfo.extension);
 			}
 			else
 			{
@@ -82,11 +91,13 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
 {
+	StartProfile;
 	auto& find = resourceMap.find(guid);
 	if (find == resourceMap.end())
 	{
 		find->second.refCount--;
 	}
+	StopProfile;
 }
 
 void SE::ResourceHandler::ResourceHandler::AddParser(const Utilz::GUID & extGUID, const std::function<int(void*rawData, size_t rawSize, void**parsedData, size_t*parsedSize)>& parserFunction)

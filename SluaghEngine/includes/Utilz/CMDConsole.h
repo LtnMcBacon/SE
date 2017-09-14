@@ -25,7 +25,7 @@ namespace SE
 			virtual void Hide();
 
 			virtual void Print(const char* line, ...);
-			void Print(const char* line, va_list args);
+			void VPrint(const char* line, va_list args);
 			virtual void Getline(std::string* string);
 			virtual size_t Getline(const char* buffer, size_t size);
 		};

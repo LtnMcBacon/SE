@@ -21,11 +21,7 @@ namespace SE
 			const size_t last_slash_idx = path.find_last_of("\\/");
 			if (std::string::npos != last_slash_idx)
 			{
-				std::string& temp = path.substr(last_slash_idx + 1);
-				const size_t period_idx = temp.find_last_of('.');
-
-
-				return temp.substr(0, period_idx);
+				return path.substr(last_slash_idx + 1);
 			}
 			return path;
 		}

@@ -20,12 +20,10 @@ namespace SE {
 			*
 			* @details	Calls and makes sure that both display and input gets initialized
 			*
-			* @retval true Tells that display creation was sucessful
-			*
-			* @retval false Tells that display creation was unsucessful
+			* @retval 0 Tells that display creation was sucessful
 			*
 			*/
-			bool Initialise();
+			int Initialise();
 			/**
 			* @brief	Loops through all messages
 			*

@@ -27,7 +27,9 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	{
 		auto& name = Utilz::getFilename(s);
 		auto& ext = Utilz::getExtension(s);
-		resourceEntires[Utilz::GUID(name)] = { ext, s };
+		auto& nh = Utilz::GUID(name);
+		auto& eh = Utilz::GUID(ext);
+		resourceEntires[nh] = { eh, s };
 	}
 	ProfileReturnConst(0);
 }
@@ -44,7 +46,7 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 		ProfileReturnConst( -2);
 
 	*size = file.tellg();
-	*data = new char[*size];
+	*data = operator new(*size);
 	file.seekg(0);
 	file.read((char*)*data, *size);
 	file.close();

@@ -5,8 +5,10 @@
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
 #include "ResouceHandlerTest.h"
+#include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
+#include "MaterialTest.h"
 #include <map>
 #include <ctime>
 
@@ -32,6 +34,8 @@ int main(int argc, char** argv)
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
+	AddTest(MaterialTest);
+	AddTest(ObjLoaderTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);

@@ -1,12 +1,13 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
 #include "IRenderer.h"
+#include "DeviceManager.h"
+#include "MaterialHandler.h"
 
 namespace SE
 {
 	namespace Graphics
 	{
-		class DeviceManager;
 
 		class Renderer : public IRenderer
 		{
@@ -20,7 +21,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			long Initialize(void* window);
+			int Initialize(void* window);
 
 			/**
 			* @brief Shutdown the renderer
@@ -79,13 +80,22 @@ namespace SE
 			* @endcode
 			*/
 			int UpdateView(float* viewMatrix);
+
+			/**
+			* @brief Renders the scene
+			* @retval return_value_0 Returns 0 On success.
+			* @endcode
+			*/
+			int Render();
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
-
+			MaterialHandler* materialHandler;
 			DeviceManager* device;
+
 		};
 
 	}

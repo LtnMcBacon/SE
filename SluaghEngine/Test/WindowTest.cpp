@@ -42,68 +42,41 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapKeyToMouse(7, SE::Window::MouseButtonRight);
 
 	//set gameloop
-	while (window->HandleMSG() == true && window->GetActionKeyState(0) == SE::Window::key_up)
-	{
-		//check keys
-		if (window->GetActionKeyState(1) == SE::Window::key_pressed)
+	while (window->HandleMSG() == true && window->GetActionKeyState(0) == SE::Window::key_isUp)
+	{	
+		//check key
+		if (window->GetActionKeyState(1) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed w \n");
 		}
-		else if (window->GetActionKeyState(1) == SE::Window::key_down)
-		{
-			console->Print("You are holding w \n");
-		}
-		if (window->GetActionKeyState(2) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(2) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed a \n");
 		}
-		else if (window->GetActionKeyState(2) == SE::Window::key_down)
-		{
-			console->Print("You are holding a \n");
-		}
-		if (window->GetActionKeyState(3) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(3) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed d \n");
 		}
-		else if (window->GetActionKeyState(3) == SE::Window::key_down)
-		{
-			console->Print("You are holding d \n");
-		}
-		if (window->GetActionKeyState(4) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(4) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed s \n");
 		}
-		else if (window->GetActionKeyState(4) == SE::Window::key_down)
-		{
-			console->Print("You are holding s \n");
-		}
 
 		//check mouse
-		if (window->GetActionKeyState(5) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(5) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed left mouse button \n");
 		}
-		else if (window->GetActionKeyState(5) == SE::Window::key_down)
-		{
-			console->Print("You are holding left mouse button \n");
-		}
-		if (window->GetActionKeyState(6) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(6) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed middle mouse button \n");
 		}
-		else if (window->GetActionKeyState(6) == SE::Window::key_down)
-		{
-			console->Print("You are holding middle mouse button \n");
-		}
-		if (window->GetActionKeyState(7) == SE::Window::key_pressed)
+		if (window->GetActionKeyState(7) == SE::Window::key_isPressed)
 		{
 			console->Print("You pressed right mouse button \n");
 		}
-		else if (window->GetActionKeyState(7) == SE::Window::key_down)
-		{
-			console->Print("You are holding right mouse button \n");
-		}
 	}
+	window->Shutdown();
 	delete window;
 	return true;
 }

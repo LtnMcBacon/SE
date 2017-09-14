@@ -1,5 +1,11 @@
 #include "Display.h"
 #include "Input.h"
+#include <Utilz\Console.h>
+#ifdef _DEBUG
+#pragma comment(lib, "UtilzD.lib")
+#else
+#pragma comment(lib, "Utilz.lib")
+#endif
 namespace SE {
 	namespace Window {
 		LRESULT CALLBACK Display::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -33,14 +39,14 @@ namespace SE {
 			
 		}
 
-		bool Display::InitDisplay()
+		int Display::InitDisplay()
 		{
 			//returns a handle to the file used to create it (.exe file)
 			HINSTANCE hInstance = GetModuleHandle(NULL);
 
 			// If GetModuleHandle fails, there is no application handle for us to use returns false
 			if (hInstance == NULL)
-				return false;
+				return -1;
 
 			// this struct holds information for the window class
 			WNDCLASSEX wc;
@@ -59,7 +65,8 @@ namespace SE {
 
 			// register the window class
 			if (!RegisterClassEx(&wc))
-				return false;
+				Utilz::Console::Print("Window Class already registered\n");
+		
 
 			RECT rc = { 0, 0, width, height };
 			AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
@@ -80,7 +87,7 @@ namespace SE {
 
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
 			ShowCursor(true);
-			return true;
+			return 0;
 		}
 
 		void* Display::GethWnd()

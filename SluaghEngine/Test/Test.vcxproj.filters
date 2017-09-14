@@ -30,6 +30,12 @@
     <ClCompile Include="InitGraphicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjLoaderTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TransformManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,8 +56,22 @@
     <ClInclude Include="InitGraphicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjLoaderTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TransformManagerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\SimplePS.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\SimpleVS.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

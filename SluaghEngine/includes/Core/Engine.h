@@ -3,6 +3,10 @@
 #include "Core/EntityManager.h"
 #include "Core/TransformManager.h"
 
+#include <Graphics\IRenderer.h>
+#include <Window\InterfaceWindow.h>
+#include <ResourceHandler\IResourceHandler.h>
+
 namespace SE
 {
 	namespace Core
@@ -73,6 +77,24 @@ namespace SE
 			* @sa EntityManager
 			*/
 			EntityManager& GetEntityManager() const;
+			/**
+			* @brief    Returns a pointer to the renderer.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			Graphics::IRenderer* GetRenderer() const;
+			/**
+			* @brief    Returns a pointer to the window.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			Window::InterfaceWindow* GetWindow() const;
+			/**
+			* @brief    Returns a pointer to the resource handler.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			ResourceHandler::IResourceHandler* GetResourceHandler() const;
 
 			/**
 			* @brief    Returns a reference to the transform manager
@@ -88,6 +110,9 @@ namespace SE
 			~Engine();
 
 			EntityManager* entityManager;
+			Graphics::IRenderer* renderer;
+			Window::InterfaceWindow* window;
+			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
 			
 

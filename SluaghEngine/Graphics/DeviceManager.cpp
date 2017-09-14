@@ -1,6 +1,5 @@
-
 #include "DeviceManager.h"
-
+#include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -17,7 +16,9 @@ DeviceManager::~DeviceManager() {
 
 }
 
-HRESULT DeviceManager::Initialize(HWND windowHandle) {
+HRESULT DeviceManager::Init(HWND windowHandle) {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -25,77 +26,61 @@ HRESULT DeviceManager::Initialize(HWND windowHandle) {
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Device resources could not be initialized\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Device resources could not be initialized");
 	}
 
 	hr = CreateSwapChain(windowHandle);
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Swap chain could not be initialized\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Swap chain could not be initialized");
 	}
 
 	hr = CreateBackBufferRTV();
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Back buffer render target view could not be created\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Back buffer render target view could not be created");
 	}
 
 	hr = CreateDepthStencil();
 
 	if (FAILED(hr)) {
 
-		MessageBox(
-			NULL,
-			"CRITICAL ERROR: Depth stencil view could not be created\nClosing application...",
-			"ERROR",
-			MB_OK);
-
-		PostQuitMessage(0);
+		throw std::exception("CRITICAL ERROR: Depth stencil view could not be created");
 	}
 
 	SetViewport();
 
-	return 0;
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::Shutdown() {
 
-	gDeviceContext.Reset();
-	gSwapChain.Reset();
+	StartProfile;
 
-	gBackBuffer.Reset();
-	gBackbufferRTV.Reset();
+	gSwapChain->Release();
 
-	gDepthStencil.Reset();
-	gDepthStencilView.Reset();
+	gBackBuffer->Release();
+	gBackbufferRTV->Release();
 
+	gDepthStencil->Release();
+	gDepthStencilView->Release();
+
+	gDeviceContext->Release();
 #ifdef _DEBUG
-	reportLiveObjects(gDevice.Get());
+
+	/*reportLiveObjects(gDevice);*/
+
 #endif
-	gDevice.Reset();
+	gDevice->Release();;
+
+	StopProfile;
 }
 
 HRESULT DeviceManager::CreateDeviceResources() {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -128,16 +113,19 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 	);
 
+
 	if (FAILED(hr)) {
 
 		cout << "Device Creation Error: Device, DeviceContext and Swap Chain could not be created" << endl;
 		return S_FALSE;
 	}
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -172,22 +160,24 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 		return S_FALSE;	
 	}
 
-	dxgiFactory->CreateSwapChain(gDevice.Get(), &swChDesc, &gSwapChain);
+	dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
 
 	dxgiFactory->Release();
 	dxgiAdapter->Release();
 	dxgiDevice->Release();
 
-	return hr;
+	ProfileReturnConst(hr);
 
 }
 
 HRESULT DeviceManager::CreateBackBufferRTV() {
 
+	StartProfile;
+
 	HRESULT hr = S_OK;
 	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
 
-	setDebugName(gBackBuffer.Get(), "STANDARD_BACK_BUFFER_TEXTURE2D");
+	setDebugName(gBackBuffer, "STANDARD_BACK_BUFFER_TEXTURE2D");
 
 	if (FAILED(hr)) {
 
@@ -195,7 +185,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 		return S_FALSE;
 	}
 
-	hr = gDevice->CreateRenderTargetView(gBackBuffer.Get(), nullptr, &gBackbufferRTV);
+	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
 
@@ -203,12 +193,14 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 		return S_FALSE;
 	}
 
-	setDebugName(gBackbufferRTV.Get(), "STANDARD_BACK_BUFFER_RTV");
+	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 HRESULT DeviceManager::CreateDepthStencil() {
+
+	StartProfile;
 
 	HRESULT hr = S_OK;
 
@@ -235,13 +227,13 @@ HRESULT DeviceManager::CreateDepthStencil() {
 		return S_FALSE;
 	}
 
-	setDebugName(gDepthStencil.Get(), "STANDARD_DEPTH_STENCIL_TEXTURE2D");
+	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
 
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
 
-		gDepthStencil.Get(),
+		gDepthStencil,
 		&depthStencilViewDesc,
 		&gDepthStencilView
 
@@ -253,9 +245,9 @@ HRESULT DeviceManager::CreateDepthStencil() {
 		return S_FALSE;
 	}
 
-	setDebugName(gDepthStencilView.Get(), "STANDARD_DEPTH_STENCIL_RTV");
+	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
 
-	return hr;
+	ProfileReturnConst(hr);
 }
 
 void DeviceManager::SetViewport() {
