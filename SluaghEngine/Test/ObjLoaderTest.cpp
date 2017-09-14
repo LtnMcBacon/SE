@@ -28,7 +28,7 @@ SE::Test::ObjLoaderTest::~ObjLoaderTest()
 bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
+	auto info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
