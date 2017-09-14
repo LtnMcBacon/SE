@@ -28,6 +28,7 @@ long SE::Graphics::Renderer::Initialize(void * window)
 
 void SE::Graphics::Renderer::Shutdown()
 {
+	materialHandler->Shutdown();
 	device->Shutdown();
 }
 
