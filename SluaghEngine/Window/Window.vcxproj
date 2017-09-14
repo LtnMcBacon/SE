@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Window\Display.h" />
     <ClInclude Include="..\includes\Window\InterfaceWindow.h" />
     <ClInclude Include="..\includes\Window\KeyState.h" />
     <ClInclude Include="..\includes\Window\Window.h" />
-    <ClInclude Include="Display.h" />
     <ClInclude Include="Input.h" />
   </ItemGroup>
   <ItemGroup>

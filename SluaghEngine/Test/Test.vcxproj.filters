@@ -30,10 +30,10 @@
     <ClCompile Include="InitGraphicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayoutTest.cpp">
+    <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjLoaderTest.cpp">
+    <ClCompile Include="MaterialTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,10 +53,10 @@
     <ClInclude Include="InitGraphicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayoutTest.h">
+    <ClInclude Include="ObjLoaderTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="ObjLoaderTest.h">
+    <ClInclude Include="MaterialTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -67,6 +67,5 @@
     <FxCompile Include="Asset\SimpleVS.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-
   </ItemGroup>
 </Project>
