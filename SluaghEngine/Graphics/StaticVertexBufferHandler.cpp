@@ -11,13 +11,25 @@ namespace SE
 
 		StaticVertexBufferHandler::~StaticVertexBufferHandler()
 		{
-
+			
 		}
 
 		StaticVertexBufferHandler::StaticVertexBufferHandler(ID3D11Device* inDevice, ID3D11DeviceContext* inDeviceContext)
 		{
 			device = inDevice;
 			deviceContext = inDeviceContext;
+		}
+
+		void StaticVertexBufferHandler::Shutdown()
+		{
+			for (auto &vb : vertexBuffer)
+			{
+				if (vb)
+				{
+					vb->Release();
+				}
+				delete vb;
+			}
 		}
 
 		HRESULT StaticVertexBufferHandler::CreateVertexBuffer(void* inputData, int inputSize, int *vertexBufferID)
@@ -52,6 +64,7 @@ namespace SE
 			}
 			else
 			{
+				delete vertexBuffer.at(stackID.top());
 				vertexBuffer.at(stackID.top()) = tempBuffer;
 				*vertexBufferID = stackID.top();
 				stackID.pop();
@@ -69,6 +82,7 @@ namespace SE
 		void StaticVertexBufferHandler::RemoveVertexBuffer(int vertexBufferID)
 		{
 			vertexBuffer.at(vertexBufferID)->Release();
+			vertexBuffer.at(vertexBufferID) = nullptr;
 			stackID.push(vertexBufferID);
 		}
 	}	//namespace Graphics
