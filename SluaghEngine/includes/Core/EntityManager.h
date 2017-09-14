@@ -4,7 +4,7 @@
 * http://bitsquid.blogspot.se/2014/08/building-data-oriented-entity-system.html
 */
 #include <cstdint>
-
+#include <functional>
 namespace SE
 {
 	namespace Core
@@ -32,8 +32,17 @@ namespace SE
 			Entity();
 			uint8_t Gen() const;
 			uint32_t Index() const;
-
+			bool operator==(const Entity& rhs) const;
+			
 			uint32_t id;
+		};
+
+		struct EntityHasher
+		{
+			size_t operator()(const Entity& e) const;
+			/*{
+				return std::hash<uint32_t>()(e.id);
+			}*/
 		};
 
 		/**
