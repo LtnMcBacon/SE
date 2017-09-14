@@ -13,6 +13,21 @@ namespace SE {
 
 	namespace Graphics {
 
+		/**
+		*
+		* @brief 
+		* MaterialHandler is responsible for initializng input layouts and shaders
+		*
+		* @details 
+		* The MaterialHandler holds pointers to the graphic device and device context to easily reach them for creating and setting shaders
+		*
+		* @warning 
+		* It only holds a default shader pipeline so far, consisting of an input in the following order: POSITION, NORMAL and TEXCOORD
+		*
+		* @sa ”See Also”, 
+		* Renderer
+		**/
+
 		class MaterialHandler {
 
 		public:

@@ -23,7 +23,8 @@ namespace SE {
 		*
 		* @warning Error handling is taken care of internally from DeviceManager. If any of the core components fail to initialize, the application will be closed
 		*
-		*
+		* @sa ”See Also”,
+		* Renderer
 		**/
 		class DeviceManager {
 
