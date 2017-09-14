@@ -3,6 +3,7 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "MaterialHandler.h"
+#include "StaticVertexBufferHandler.h"
 
 namespace SE
 {
@@ -97,7 +98,7 @@ namespace SE
 
 			MaterialHandler* materialHandler;
 			DeviceManager* device;
-
+			StaticVertexBufferHandler* staticVertexBufferHandler;
 		};
 
 	}

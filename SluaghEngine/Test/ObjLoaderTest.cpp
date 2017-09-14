@@ -26,21 +26,25 @@ SE::Test::ObjLoaderTest::~ObjLoaderTest()
 }
 
 static bool result = false;
-void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+namespace fuck
 {
-	auto& mD = *(Arf::Mesh::Data*)data;
-	auto verts = (Arf::Mesh::Position*)mD.vertices;
-	result = true;
-	for (int i = 0; i < mD.NumVertices; i++)
+	void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 	{
-		if (verts[i].x != (float)i + 1)
-			result = false;
-		if (verts[i].y != (float)i + 1)
-			result = false;
-		if (-verts[i].z != (float)i + 1)
-			result = false;
+		auto& mD = *(Arf::Mesh::Data*)data;
+		auto verts = (Arf::Mesh::Position*)mD.vertices;
+		result = true;
+		for (int i = 0; i < mD.NumVertices; i++)
+		{
+			if (verts[i].x != (float)i + 1)
+				result = false;
+			if (verts[i].y != (float)i + 1)
+				result = false;
+			if (-verts[i].z != (float)i + 1)
+				result = false;
+		}
 	}
 }
+
 
 bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -67,12 +71,13 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
 		if (r)
 			return r;
+		return 0;
 	});
 
 
 
 
-	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
+	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&fuck::Load>());
 
 	e.Release();
 

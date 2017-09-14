@@ -10,6 +10,7 @@
 #include "TransformManagerTest.h"
 #include "MaterialTest.h"
 #include "BufferTest.h"
+#include "RenderableManagerTest.h"
 #include <map>
 #include <ctime>
 
@@ -38,6 +39,7 @@ int main(int argc, char** argv)
 	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
 	AddTest(BufferTest);
+	AddTest(RenderableManagerTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);

@@ -2,6 +2,14 @@
 #include <Profiler.h>
 #include <Utilz\Console.h>
 #include <Utilz\Delegator.h>
+#include <OBJParser\Parsers.h>
+
+
+#ifdef _DEBUG
+#pragma comment(lib, "OBJParserD.lib")
+#else
+#pragma comment(lib, "OBJParser.lib")
+#endif
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -15,7 +23,19 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 	_ASSERT(renderer);
 	_ASSERT(resourceHandler);
 	Allocate(128);
-
+	resourceHandler->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
+	{
+		ArfData::Data arfData;
+		ArfData::DataPointers arfp;
+		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
+		if (r)
+			return r;
+		auto data = (Arf::Mesh::Data**)parsedData;
+		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
+		if (r)
+			return r;
+		return 0;
+	});
 	StopProfile;
 }
 
@@ -23,6 +43,7 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 SE::Core::RenderableManager::~RenderableManager()
 {
 	operator delete(renderableObjectInfo.data);
+
 }
 
 void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, const CreateRenderObjectInfo & info)
@@ -30,7 +51,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end())
+	if (find == entityToRenderableObjectInfoIndex.end())
 	{
 		// Check if the entity is alive
 		if (!entityManager.Alive(entity))

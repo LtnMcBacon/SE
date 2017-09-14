@@ -26,7 +26,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	window = new Window::Window();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
-	renderableManager = new RenderableManager(*entityManager, renderer, resourceHandler);
+	
 
 	auto r = resourceHandler->Initialize();
 	if (r)
@@ -39,6 +39,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		return r;
 
 	transformManager = new TransformManager(entityManager);
+	renderableManager = new RenderableManager(*entityManager, renderer, resourceHandler);
 
 	return 0;
 }

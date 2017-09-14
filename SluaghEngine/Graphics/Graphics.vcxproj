@@ -24,8 +24,6 @@
     <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
     <ClInclude Include="..\includes\Graphics\MaterialHandler.h" />
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
-    <ClInclude Include="ConstantBufferHandler.h" />
-    <ClInclude Include="StaticVertexBufferHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBufferHandler.cpp" />

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <random>
 #include <Graphics\IRenderer.h>
+#include <map>
 #include <ResourceHandler\IResourceHandler.h>
 namespace SE
 {
@@ -96,7 +97,7 @@ namespace SE
 			const EntityManager& entityManager;
 			std::default_random_engine generator;	
 			RenderableObjectData renderableObjectInfo;
-			std::unordered_map<Entity, size_t> entityToRenderableObjectInfoIndex;
+			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
 
@@ -108,7 +109,7 @@ namespace SE
 			};
 
 			std::vector<BufferInfo> bufferInfo;
-			std::unordered_map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
 		};
 	}
 }

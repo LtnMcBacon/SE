@@ -35,6 +35,9 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	eInfo.meshGUID = Utilz::GUID("test.objtest");
 	rm.CreateRenderableObject(entity, eInfo);
 
+	auto& entity2 = em.Create();
+	rm.CreateRenderableObject(entity2, eInfo);
+
 	e.Release();
 	return false;
 }

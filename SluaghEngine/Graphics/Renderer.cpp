@@ -24,14 +24,18 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
+	staticVertexBufferHandler = new StaticVertexBufferHandler(device->GetDevice(), device->GetDeviceContext());
+
 	return 0;
 }
 
 void SE::Graphics::Renderer::Shutdown()
 {
+	staticVertexBufferHandler->Shutdown();
 	materialHandler->Shutdown();
 	device->Shutdown();
 	
+	delete staticVertexBufferHandler;
 	delete materialHandler;
 	delete device;
 }
@@ -67,7 +71,7 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 }
 
 int SE::Graphics::Renderer::Render() {
-
+	StartProfile;
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
 
@@ -85,11 +89,14 @@ int SE::Graphics::Renderer::Render() {
 
 	device->Present();
 
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t size)
 {
-	return 0;
+	StartProfile;
+	int handle = 0;
+	staticVertexBufferHandler->CreateVertexBuffer(data, size, &handle);
+	ProfileReturnConst(handle);
 }
 
