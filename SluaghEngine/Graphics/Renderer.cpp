@@ -1,5 +1,5 @@
 #include <Renderer.h>
-#include "DeviceManager.h"
+
 using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
@@ -14,9 +14,15 @@ long SE::Graphics::Renderer::Initialize(void * window)
 {
 	_ASSERT(window);
 	device = new DeviceManager();
-	HRESULT hr = device->Initialize((HWND)window);
+	HRESULT hr = device->Init((HWND)window);
 	if (FAILED(hr))
 		return -1;
+
+	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
+	hr = materialHandler->Init();
+	if (FAILED(hr))
+		return -1;
+
 	return 0;
 }
 

@@ -18,13 +18,16 @@
     <ClInclude Include="..\includes\Graphics\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DeviceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LiveObjectReporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Graphics\IRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Graphics\MaterialHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Graphics\DeviceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
 
@@ -55,6 +58,9 @@
     </ClCompile>
 
     <ClCompile Include="ConstantBufferHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
       <Filter>Source Files</Filter>
