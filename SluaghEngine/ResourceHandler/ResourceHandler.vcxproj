@@ -142,8 +142,8 @@
   <ItemGroup>
     <ClInclude Include="..\includes\ResourceHandler\IAssetLoader.h" />
     <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h" />
+    <ClInclude Include="..\includes\ResourceHandler\RawLoader.h" />
     <ClInclude Include="..\includes\ResourceHandler\ResourceHandler.h" />
-    <ClInclude Include="RawLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RawLoader.cpp" />
