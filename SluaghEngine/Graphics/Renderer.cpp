@@ -18,7 +18,7 @@ long SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
-	materialHandler = new MaterialHandler(device->GetDevice());
+	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
 	hr = materialHandler->Init();
 	if (FAILED(hr))
 		return -1;

@@ -1,5 +1,6 @@
 
 #include "MaterialHandler.h"
+#include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3Dcompiler.lib")
@@ -8,9 +9,10 @@ using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-MaterialHandler::MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice) {
+MaterialHandler::MaterialHandler(Microsoft::WRL::ComPtr<ID3D11Device> gDevice, Microsoft::WRL::ComPtr<ID3D11DeviceContext> gDeviceContext) {
 
 	this->gDevice = gDevice;
+	this->gDeviceContext = gDeviceContext;
 }
 
 MaterialHandler::~MaterialHandler() {
@@ -160,6 +162,37 @@ HRESULT MaterialHandler::InitializeDefaultShaders(Microsoft::WRL::ComPtr<ID3D11D
 	psBlob->Release();
 
 	return hr;
+}
+
+void MaterialHandler::UnbindShaders() {
+
+	// Define null pointers for each type
+	ID3D11InputLayout* nullInputLayout = nullptr;
+	ID3D11VertexShader* nullVS = nullptr;
+	ID3D11GeometryShader* nullGS = nullptr;
+	ID3D11PixelShader* nullPS = nullptr;
+
+	// Set the null input layout
+	gDeviceContext->IASetInputLayout(nullInputLayout);
+
+	// Set the null vertex and pixel shaders
+	gDeviceContext->VSSetShader(nullVS, nullptr, 0);
+	gDeviceContext->GSSetShader(nullGS, nullptr, 0);
+	gDeviceContext->PSSetShader(nullPS, nullptr, 0);
+}
+
+void MaterialHandler::SetMaterial() {
+
+	// Unbind shaders
+	UnbindShaders();
+
+	// Set the input layout
+	gDeviceContext->IASetInputLayout(d_layout.Get());
+
+	// Set the vertex and pixel shaders
+	gDeviceContext->VSSetShader(d_vertexShader.Get(), nullptr, 0);
+	gDeviceContext->PSSetShader(d_pixelShader.Get(), nullptr, 0);
+
 }
 
 void MaterialHandler::Shutdown() {

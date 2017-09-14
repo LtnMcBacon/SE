@@ -157,6 +157,7 @@ namespace SE {
 			void Present();
 
 			inline Microsoft::WRL::ComPtr<ID3D11Device>           GetDevice() { return gDevice; };
+			inline Microsoft::WRL::ComPtr<ID3D11DeviceContext>    GetDeviceContext() { return gDeviceContext; };
 
 		private:
 
