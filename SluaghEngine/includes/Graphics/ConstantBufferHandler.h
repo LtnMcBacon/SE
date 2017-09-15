@@ -10,10 +10,10 @@ namespace SE
 {
 	namespace Graphics
 	{
-		struct constSize
+		struct ConstantBuffer
 		{
 			ID3D11Buffer* constBuffer;
-			int size;
+			size_t size;
 		};
 
 		struct TargetOffset
@@ -45,7 +45,7 @@ namespace SE
 			* @retval nonZero Creation failed
 			*
 			*/
-			HRESULT AddConstantBuffer(int size, TargetOffset& targetOffset, int *constBufferID);
+			HRESULT AddConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
 			/**
 			* @brief	Set constant buffer to shader
 			*
@@ -63,7 +63,7 @@ namespace SE
 			*/
 			void RemoveConstantBuffer(int constBufferID);
 		private:
-			std::vector<constSize*> constSizeBuffer;
+			std::vector<ConstantBuffer> buffers;
 			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeBufferLocations;
 			ID3D11Device* device;

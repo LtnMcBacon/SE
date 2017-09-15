@@ -23,7 +23,7 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 	_ASSERT(renderer);
 	_ASSERT(resourceHandler);
 	Allocate(128);
-	resourceHandler->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
+	resourceHandler->AddParser(Utilz::GUID("obj"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 	{
 		ArfData::Data arfData;
 		ArfData::DataPointers arfp;
@@ -31,10 +31,14 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 		if (r)
 			return r;
 		auto data = (Arf::Mesh::Data**)parsedData;
-		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
+		r = Arf::Interleave(arfData, arfp, data, parsedSize, ~0u);
 		if (r)
 			return r;
+
+		operator delete(arfp.buffer);
+
 		return 0;
+
 	});
 	StopProfile;
 }
@@ -162,7 +166,8 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::AddResource(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
-	auto bufferHandle = renderer->CreateVertexBuffer(data, size);
+	auto mD = (Arf::Mesh::Data*)data;
+	auto bufferHandle = renderer->CreateVertexBuffer(mD->vertices, mD->NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
 	bufferInfo.push_back({ 0, bufferHandle });
 	guidToBufferInfoIndex[guid] = bufferInfo.size() - 1;
 	StopProfile;

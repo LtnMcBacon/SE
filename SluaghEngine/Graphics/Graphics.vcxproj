@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\ConstantBufferHandler.h" />
     <ClInclude Include="..\includes\Graphics\DeviceManager.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
     <ClInclude Include="..\includes\Graphics\MaterialHandler.h" />
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
+    <ClInclude Include="..\includes\Graphics\StaticVertexBufferHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBufferHandler.cpp" />

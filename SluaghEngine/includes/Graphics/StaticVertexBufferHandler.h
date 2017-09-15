@@ -13,7 +13,8 @@ namespace SE
 		struct VertexCount
 		{
 			ID3D11Buffer* vertexBuffer;
-			int size;
+			size_t vertexCount;
+			size_t stride;
 		};
 		class StaticVertexBufferHandler
 		{
@@ -29,7 +30,9 @@ namespace SE
 			*
 			* @param[in] inputData The data that will be set to the vertexbuffer
 			*
-			* @param[in] inputSize The size of the inputData to be able to create a big enough buffer
+			* @param[in] vertexCount The number of vertices.
+			*
+			* @param[in] stride The size of one vertex.
 			*
 			* @param[in,out] vertexBufferID Variable to save the vertex buffers id in
 			*
@@ -38,7 +41,7 @@ namespace SE
 			* @retval nonZero Returns if failed
 			*
 			*/
-			HRESULT CreateVertexBuffer(void* inputData, int inputSize, int *vertexBufferID);
+			HRESULT CreateVertexBuffer(void* inputData, size_t vertexCount, size_t stride, int *vertexBufferID);
 			void SetVertexBuffer(int vertexBufferID);
 			/**
 			* @brief	Removes the targeted vertex buffer
@@ -47,9 +50,9 @@ namespace SE
 			*
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
-			int GetVertexCount(int vertexBufferID);
+			size_t GetVertexCount(int vertexBufferID) const;
 		private:
-			std::vector<VertexCount*> vertexCount;
+			std::vector<VertexCount> buffers;
 			std::stack<int> stackID;
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;

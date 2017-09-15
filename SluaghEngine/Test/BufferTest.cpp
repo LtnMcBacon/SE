@@ -142,17 +142,17 @@ namespace SE
 			int vertexID[3];
 			Graphics::StaticVertexBufferHandler* vertexBuffer = new Graphics::StaticVertexBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create vertexbuffer
-			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[0]);
+			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[0]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[1]);
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[1]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[2]);
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[2]);
 			if (hr != S_OK)
 			{
 				result = false;

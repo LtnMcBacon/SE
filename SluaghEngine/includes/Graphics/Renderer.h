@@ -4,6 +4,8 @@
 #include "DeviceManager.h"
 #include "MaterialHandler.h"
 #include "StaticVertexBufferHandler.h"
+#include "ConstantBufferHandler.h"
+#include <Utilz\Camera.h>
 
 namespace SE
 {
@@ -90,15 +92,30 @@ namespace SE
 			int Render();
 
 
-			int CreateVertexBuffer(void*data, size_t size);
+			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride);
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+			struct OncePerFrameConstantBuffer
+			{
+				DirectX::XMFLOAT4X4 viewproj;
+			};
+
+			struct OncePerObjectConstantBuffer
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+			int oncePerFrameBufferID;
+			int oncePerObjectBufferID;
+
 			MaterialHandler* materialHandler;
 			DeviceManager* device;
 			StaticVertexBufferHandler* staticVertexBufferHandler;
+			ConstantBufferHandler* constantBufferHandler;
+
+			Utilz::Camera cam;
 		};
 
 	}

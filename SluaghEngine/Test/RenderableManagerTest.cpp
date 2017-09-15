@@ -32,12 +32,18 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& rm = e.GetRenderableManager();
 	auto& entity = em.Create();
 	Core::RenderableManager::CreateRenderObjectInfo eInfo;
-	eInfo.meshGUID = Utilz::GUID("test.objtest");
+	eInfo.meshGUID = Utilz::GUID("Placeholder_level.obj");
 	rm.CreateRenderableObject(entity, eInfo);
 
-	auto& entity2 = em.Create();
-	rm.CreateRenderableObject(entity2, eInfo);
+	auto r = e.GetRenderer();
+
+	while (e.GetWindow()->HandleMSG())
+	{
+		r->Render();
+	}
+	
+
 
 	e.Release();
-	return false;
+	return true;
 }
