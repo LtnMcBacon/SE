@@ -26,6 +26,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	window = new Window::Window();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
+	
 
 	auto r = resourceHandler->Initialize();
 	if (r)
@@ -38,6 +39,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		return r;
 
 	transformManager = new TransformManager(entityManager);
+	renderableManager = new RenderableManager(*entityManager, renderer, resourceHandler);
 
 	return 0;
 }
@@ -48,6 +50,7 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	resourceHandler->Shutdown();
 
+	delete renderableManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
@@ -60,6 +63,11 @@ int SE::Core::Engine::Release()
 SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
 {
 	return *entityManager;
+}
+
+SE::Core::RenderableManager& SE::Core::Engine::GetRenderableManager() const
+{
+	return *renderableManager;
 }
 
 SE::Graphics::IRenderer * SE::Core::Engine::GetRenderer() const

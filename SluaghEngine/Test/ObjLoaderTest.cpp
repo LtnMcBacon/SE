@@ -25,37 +25,10 @@ SE::Test::ObjLoaderTest::~ObjLoaderTest()
 {
 }
 
-bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
+static bool result = false;
+namespace fuck
 {
-	auto& e = Core::Engine::GetInstance();
-	auto info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.\n", re);
-		return false;
-	}
-
-	auto r = e.GetResourceHandler();
-	bool result = false;
-
-	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
-	{
-		ArfData::Data arfData;
-		ArfData::DataPointers arfp;
-		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
-		if (r)
-			return r;
-		auto data = (Arf::Mesh::Data**)parsedData;
-		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
-		if (r)
-			return r;
-	});
-
-
-
-
-	r->LoadResource(Utilz::GUID("test.objtest"), [&result](void* data, size_t size) 
+	void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 	{
 		auto& mD = *(Arf::Mesh::Data*)data;
 		auto verts = (Arf::Mesh::Position*)mD.vertices;
@@ -69,7 +42,42 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 			if (-verts[i].z != (float)i + 1)
 				result = false;
 		}
+	}
+}
+
+
+bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
+{
+	auto& e = Core::Engine::GetInstance();
+	auto info = Core::Engine::InitializationInfo();
+	auto re = e.Init(info);
+	if (re)
+	{
+		console->Print("Could not init Core, Error: %d.\n", re);
+		return false;
+	}
+
+	auto r = e.GetResourceHandler();
+	result = false;
+
+	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
+	{
+		ArfData::Data arfData;
+		ArfData::DataPointers arfp;
+		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
+		if (r)
+			return r;
+		auto data = (Arf::Mesh::Data**)parsedData;
+		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
+		if (r)
+			return r;
+		return 0;
 	});
+
+
+
+
+	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&fuck::Load>());
 
 	e.Release();
 

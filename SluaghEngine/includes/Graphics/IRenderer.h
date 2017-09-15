@@ -92,6 +92,8 @@ namespace SE
 			*/
 			virtual int Render() = 0;
 
+
+			virtual int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

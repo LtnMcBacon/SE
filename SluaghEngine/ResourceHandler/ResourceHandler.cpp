@@ -36,7 +36,7 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	delete diskLoader;
 }
 
-void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const std::function<void(void* data, size_t size)>& callback)
+void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback)
 {
 	StartProfile;
 
@@ -74,7 +74,7 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 
 			}
 			resourceInfo.refCount++;
-			callback(resourceInfo.data, resourceInfo.size);
+			callback(guid, resourceInfo.data, resourceInfo.size);
 
 		}
 			
@@ -83,7 +83,7 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 	{
 		auto& resourceInfo = resourceMap[guid];	
 		resourceInfo.refCount++;
-		callback(resourceInfo.data, resourceInfo.size);
+		callback(guid, resourceInfo.data, resourceInfo.size);
 	}
 	
 	StopProfile;

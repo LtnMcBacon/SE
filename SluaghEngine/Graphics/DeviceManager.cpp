@@ -270,5 +270,6 @@ float DeviceManager::GetAspectRatio() {
 
 void DeviceManager::Present() {
 
-	gSwapChain->Present(1, 0);
+	auto hr = gSwapChain->Present(1, 0);
+	int i = 0;
 }

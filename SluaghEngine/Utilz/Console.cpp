@@ -114,7 +114,8 @@ void SE::Utilz::Console::Shutdown()
 	Console::console->backend->Shutdown();
 	Console::console->running = false;
 	Console::console->thread.join();
-	delete console;
+	delete Console::console->backend;
+	delete Console::console;
 }
 
 void SE::Utilz::Console::Show()

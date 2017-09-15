@@ -1,16 +1,11 @@
-cbuffer worldMatrix : register(b0)
+cbuffer worldMatrix : register(b1)
 {
 	float4x4 World;
 };
 
-cbuffer viewMatrix : register(b1)
+cbuffer viewMatrix : register(b0)
 {
-	float4x4 view;
-};
-
-cbuffer projectionMatrix : register(b2)
-{
-	float4x4 projection;
+	float4x4 viewproj;
 };
 
 struct VS_IN
@@ -32,7 +27,7 @@ VS_OUT VS_main(VS_IN input)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	output.Pos = mul(mul(mul(float4(input.Pos, 1), World), view), projection);
+	output.Pos = mul(mul(float4(input.Pos, 1), World), viewproj);
 	output.PosInW = mul(float4(input.Pos, 1), World);
 	output.NormalInW = normalize(mul(float4(input.Normal, 1), World));
 	output.Tex = input.Tex;

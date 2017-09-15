@@ -18,29 +18,21 @@ namespace SE
 
 		ConstantBufferHandler::~ConstantBufferHandler()
 		{
-			for (auto &cb : constSizeBuffer)
-			{
-				if (cb->constBuffer)
-				{
-					cb->constBuffer->Release();
-				}
-				delete cb;
-			}
+
 		}
 
 		void ConstantBufferHandler::Shutdown()
 		{
-			for (auto &cb : constSizeBuffer)
+			for (auto &cb : buffers)
 			{
-				if (cb->constBuffer)
+				if (cb.constBuffer)
 				{
-					cb->constBuffer->Release();
+					cb.constBuffer->Release();
 				}
-				delete cb;
 			}
 		}
 
-		HRESULT ConstantBufferHandler::AddConstantBuffer(int size, TargetOffset& inTargetOffset, int *constBufferID)
+		HRESULT ConstantBufferHandler::AddConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
 		{			
 			D3D11_BUFFER_DESC bufferDesc;
 			ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -52,29 +44,26 @@ namespace SE
 			bufferDesc.MiscFlags = 0;
 
 			//skapar constant buffer
-			constSize *tempConstSize = new constSize();
-			HRESULT hr = device->CreateBuffer(&bufferDesc, NULL, &tempConstSize->constBuffer);
-			tempConstSize->size = size;
+			ConstantBuffer tempBuffer;
+			HRESULT hr = device->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
+			tempBuffer.size = size;
 
-			if (hr != S_OK)
+			if (FAILED(hr))
 			{
 				return hr;
 			}
-
-			int hej = freeBufferLocations.size();
-
 			if (freeBufferLocations.size() == 0)
 			{
-				constSizeBuffer.push_back(tempConstSize);
+				buffers.push_back(tempBuffer);
 				targetOffset.push_back(inTargetOffset);
-				*constBufferID = constSizeBuffer.size() - 1;
+				*constBufferID = buffers.size() - 1;
 			}
 			else
 			{
-				delete constSizeBuffer.at(freeBufferLocations.top());
-				constSizeBuffer.at(freeBufferLocations.top()) = tempConstSize;
-				targetOffset.at(freeBufferLocations.top()) = inTargetOffset;
-				*constBufferID = freeBufferLocations.top();
+				auto top = freeBufferLocations.top();
+				buffers[top] = tempBuffer;
+				targetOffset[top] = inTargetOffset;
+				*constBufferID = top;
 				freeBufferLocations.pop();
 			}
 			return hr;
@@ -83,29 +72,29 @@ namespace SE
 		void ConstantBufferHandler::SetConstantBuffer(void* inData, int constBufferID)
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
-			HRESULT hr = deviceContext->Map(constSizeBuffer.at(constBufferID)->constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			memcpy(mappedResource.pData, inData, constSizeBuffer.at(constBufferID)->size);
-			deviceContext->Unmap(constSizeBuffer.at(constBufferID)->constBuffer, 0);
+			HRESULT hr = deviceContext->Map(buffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			memcpy(mappedResource.pData, inData, buffers[constBufferID].size);
+			deviceContext->Unmap(buffers[constBufferID].constBuffer, 0);
 
 
 			if (targetOffset.at(constBufferID).shaderTarget[0] == true)
 			{
-				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
+				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &buffers[constBufferID].constBuffer);
 			}
 			if (targetOffset.at(constBufferID).shaderTarget[1] == true)
 			{
-				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
+				deviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &buffers[constBufferID].constBuffer);
 			}
 			if (targetOffset.at(constBufferID).shaderTarget[2] == true)
 			{
-				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &constSizeBuffer.at(constBufferID)->constBuffer);
+				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &buffers[constBufferID].constBuffer);
 			}
 		}
 
 		void ConstantBufferHandler::RemoveConstantBuffer(int constBufferID)
 		{
-			constSizeBuffer.at(constBufferID)->constBuffer->Release();
-			constSizeBuffer.at(constBufferID)->constBuffer = nullptr;
+			buffers[constBufferID].constBuffer->Release();
+			buffers[constBufferID].constBuffer = nullptr;
 			freeBufferLocations.push(constBufferID);
 		}
 	}

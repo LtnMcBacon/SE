@@ -131,6 +131,7 @@
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
+    <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResouceHandlerTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
+    <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResouceHandlerTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />

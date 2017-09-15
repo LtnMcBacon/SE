@@ -2,10 +2,10 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-#include "..\Graphics\ConstantBufferHandler.h"
-#include "..\includes\Graphics\DeviceManager.h"
-#include "..\includes\Window\Window.h"
-#include "..\Graphics\StaticVertexBufferHandler.h"
+#include <Graphics\ConstantBufferHandler.h>
+#include <Graphics\StaticVertexBufferHandler.h>
+#include <Graphics\Renderer.h>
+#include <Window\Window.h>
 
 #include "ObjLoaderTest.h"
 #include <Core\Engine.h>
@@ -25,16 +25,18 @@ namespace SE
 		{
 
 		}
-
+		static Graphics::DeviceManager* deviceManager = nullptr;
+		Window::InterfaceWindow* window = nullptr;
+		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
-			Window::InterfaceWindow* window = new Window::Window();
+			window = new Window::Window();
 			int isOK = window->Initialise();
 			if (isOK != 0)
 			{
 				return isOK;
 			}
-			Graphics::DeviceManager* deviceManager = new Graphics::DeviceManager();
+			deviceManager = new Graphics::DeviceManager();
 			HRESULT hr = deviceManager->Init((HWND)window->GethWnd());
 			if (hr != S_OK)
 			{
@@ -104,7 +106,7 @@ namespace SE
 			}
 
 			auto r = e.GetResourceHandler();
-			bool result = false;
+			result = false;
 
 			r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 			{
@@ -117,48 +119,12 @@ namespace SE
 				r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
 				if (r)
 					return r;
+
+				return 0;
 			});
 
 			
-			r->LoadResource(Utilz::GUID("test.objtest"), [&result, &deviceManager](void* data, size_t size)
-			{
-				auto& mD = *(Arf::Mesh::Data*)data;
-				auto verts = (Arf::Mesh::Position*)mD.vertices;
-				
-				
-				int vertexID[3];
-				Graphics::StaticVertexBufferHandler* vertexBuffer = new Graphics::StaticVertexBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
-				//create vertexbuffer
-				HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[0]);
-				if (hr != S_OK)
-				{
-					result = false;
-				}
-				hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[1]);
-				if (hr != S_OK)
-				{
-					result = false;
-				}
-				hr = vertexBuffer->CreateVertexBuffer(verts, size - sizeof(Arf::Mesh::Data), &vertexID[2]);
-				if (hr != S_OK)
-				{
-					result = false;
-				}
-
-				//set vertexBuffer
-				vertexBuffer->SetVertexBuffer(vertexID[0]);
-				vertexBuffer->SetVertexBuffer(vertexID[1]);
-				vertexBuffer->SetVertexBuffer(vertexID[2]);
-
-				//remove vertexBuffer
-				vertexBuffer->RemoveVertexBuffer(vertexID[0]);
-				vertexBuffer->RemoveVertexBuffer(vertexID[1]);
-				vertexBuffer->RemoveVertexBuffer(vertexID[2]);
-
-				vertexBuffer->Shutdown();
-
-				result = true;
-			});
+			r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<BufferTest, &BufferTest::Load>(this));
 		#pragma endregion objLoad
 			e.Release();
 			deviceManager->Shutdown();
@@ -166,6 +132,45 @@ namespace SE
 			window->Shutdown();
 			delete window;
 			return true;
+		}
+		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
+		{
+			auto& mD = *(Arf::Mesh::Data*)data;
+			auto verts = (Arf::Mesh::Position*)mD.vertices;
+
+
+			int vertexID[3];
+			Graphics::StaticVertexBufferHandler* vertexBuffer = new Graphics::StaticVertexBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
+			//create vertexbuffer
+			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[0]);
+			if (hr != S_OK)
+			{
+				result = false;
+			}
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[1]);
+			if (hr != S_OK)
+			{
+				result = false;
+			}
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[2]);
+			if (hr != S_OK)
+			{
+				result = false;
+			}
+
+			//set vertexBuffer
+			vertexBuffer->SetVertexBuffer(vertexID[0]);
+			vertexBuffer->SetVertexBuffer(vertexID[1]);
+			vertexBuffer->SetVertexBuffer(vertexID[2]);
+
+			//remove vertexBuffer
+			vertexBuffer->RemoveVertexBuffer(vertexID[0]);
+			vertexBuffer->RemoveVertexBuffer(vertexID[1]);
+			vertexBuffer->RemoveVertexBuffer(vertexID[2]);
+
+			vertexBuffer->Shutdown();
+
+			result = true;
 		}
 	}
 }

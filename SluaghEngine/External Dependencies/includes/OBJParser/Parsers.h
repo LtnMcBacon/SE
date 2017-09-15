@@ -56,13 +56,15 @@ namespace Arf
 
 #define PARSER_FILE_NOT_FOUND -1
 #define PARSER_SUCCESS 0
-#define INTERLEAVE 1
+#define INTERLEAVE 1 << 0
+#define FLIPZ 1 << 1
+#define FLIPT 1 << 2
 
 	int ParseObj(const char* filename, ArfData::Data* data, ArfData::DataPointers* dataPointers, uint32_t flags = 0);
 	int ParseObj(const void* rawData, size_t size, ArfData::Data* data, ArfData::DataPointers* dataPointers, uint32_t flags = 0);
 
 	int ParseArf(const char* filename, ArfData::Data* data, ArfData::DataPointers* dataPointers, uint32_t flags = 0);
 
-	int Interleave(ArfData::Data& data, ArfData::DataPointers& dataPointers, Mesh::Data** dataOut, size_t* iSize, uint8_t interleaveOptions = ~0u);
+	int Interleave(ArfData::Data& data, ArfData::DataPointers& dataPointers, Mesh::Data** dataOut, size_t* iSize, uint8_t interleaveOptions = ~0u, uint32_t flags = 0);
 
 }

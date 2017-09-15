@@ -6,6 +6,7 @@
 #include <Graphics\IRenderer.h>
 #include <Window\InterfaceWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include "RenderableManager.h"
 
 namespace SE
 {
@@ -77,18 +78,28 @@ namespace SE
 			* @sa EntityManager
 			*/
 			EntityManager& GetEntityManager() const;
+
+			/**
+			* @brief    Returns a pointer to the renderable manager.
+			* @retval return_value_0 Returns a reference to the entity manager.
+			* @sa EntityManager
+			*/
+			RenderableManager& GetRenderableManager() const;
+
 			/**
 			* @brief    Returns a pointer to the renderer.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
 			Graphics::IRenderer* GetRenderer() const;
+
 			/**
 			* @brief    Returns a pointer to the window.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
 			Window::InterfaceWindow* GetWindow() const;
+
 			/**
 			* @brief    Returns a pointer to the resource handler.
 			* @retval return_value_0 Returns a reference to the entity manager.
@@ -114,8 +125,7 @@ namespace SE
 			Window::InterfaceWindow* window;
 			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
-			
-
+			RenderableManager* renderableManager;
 		};
 
 	}
