@@ -198,22 +198,28 @@ bool SE::Window::WindowSDL::ButtonUp(uint32_t actionButton) const
 
 void SE::Window::WindowSDL::MapActionButton(uint32_t actionButton, KeyCode key)
 {
-	actionMappings[actionButton] = key;
+	actionMappings[actionButton] = keyMapping[key];
+}
+
+void SE::Window::WindowSDL::BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback)
+{
+}
+
+void SE::Window::WindowSDL::BindMouseMotionCallback(const MouseMotionCallBack& callback)
+{
+}
+
+void SE::Window::WindowSDL::BindKeyCallback(uint32_t actionButton, const KeyCallback& callback)
+{
 }
 
 uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 {
 	//Find which KeyCode actionbutton is mapped to
-	const auto ab = actionMappings.find(actionButton);
-	if (ab == actionMappings.end())
+	const auto k = actionMappings.find(actionButton);
+	if (k == actionMappings.end())
 		return 0;
 
-	//Find which SDLKey corresponds to KeyCode
-	const auto k = keyMapping.find(ab->second);
-	if (k == keyMapping.end())
-		return 0;
-
-	//Finally check if the button is down.
 	const auto keyState = keyStates.find(k->second);
 	//Guaranteed to be found as all KeyCodes have a corresponding state set in Initialize
 	return keyState->second;

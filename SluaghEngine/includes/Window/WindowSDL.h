@@ -27,6 +27,11 @@ namespace SE
 			bool ButtonUp(uint32_t actionButton) const override;
 
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
+
+
+			void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback) override;
+			void BindMouseMotionCallback(const MouseMotionCallBack& callback) override;
+			void BindKeyCallback(uint32_t actionButton, const KeyCallback& callback) override;
 		private:
 			/*Window related things*/
 			SDL_Window* window;
@@ -49,8 +54,8 @@ namespace SE
 
 			/**<Maps generic keys defined in IWindow.h to key codes of SDL implementation*/
 			std::map<KeyCode, uint32_t> keyMapping;
-			/**<Maps actionButton -> generic keys*/
-			std::map<uint32_t, KeyCode> actionMappings;
+			/**<Maps actionButton -> SDL_key*/
+			std::map<uint32_t, uint32_t> actionMappings;
 
 			enum KeyState : uint32_t
 			{

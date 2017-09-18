@@ -201,11 +201,15 @@ namespace SE
 			KeyBraceRight,
 			KeySysRq,
 			*/
+			MouseLeft,
+			MouseRight,
 			KeyCount_
 		};
 
 		
-
+		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallBack;
+		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallBack;
+		typedef Utilz::Delegate<void()> KeyCallback;
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
@@ -272,6 +276,11 @@ namespace SE
 			* @sa MapActionButton
 			*/
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
+
+			
+			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback) = 0;
+			virtual void BindMouseMotionCallback(const MouseMotionCallBack& callback) = 0;
+			virtual void BindKeyCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
 
 			/**
 			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key. An action button is any user defined key represented as an unsigned integer.
