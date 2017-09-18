@@ -1,18 +1,14 @@
-#pragma once
-#ifndef SE_WINDOW_KEYSTATE_H
-#define SE_WINDOW_KEYSTATE_H
+#ifndef SE_WINDOW_IWINDOW_H_
+#define SE_WINDOW_IWINDOW_H_
 
-namespace SE {
-	namespace Window {
-		enum keyState
-		{
-			key_isUp,
-			key_isPressed,
-			key_isDown,
-			key_isError
-		};
+#include <cstdint>
+#include <string>
 
-		enum Key
+namespace SE
+{
+	namespace Window
+	{
+		enum KeyCode
 		{
 			KeyEscape,
 			KeyF1,
@@ -39,13 +35,13 @@ namespace SE {
 			KeyBreak,
 
 			KeySpace = 0x0020,
-
+/*
 			KeyApostrophe = 0x0027,
 			KeyComma = 0x002c,
 			KeyMinus = 0x002d,
 			KeyPeriod = 0x002e,
 			KeySlash = 0x002f,
-
+			*/
 			Key0 = 0x0030,
 			Key1 = 0x0031,
 			Key2 = 0x0032,
@@ -56,11 +52,11 @@ namespace SE {
 			Key7 = 0x0037,
 			Key8 = 0x0038,
 			Key9 = 0x0039,
-
+/*
 			KeySemicolon = 0x003b,
 			KeyLess = 0x003c,
 			KeyEqual = 0x003d,
-
+			*/
 			KeyA = 0x0041,
 			KeyB = 0x0042,
 			KeyC = 0x0043,
@@ -87,24 +83,25 @@ namespace SE {
 			KeyX = 0x0058,
 			KeyY = 0x0059,
 			KeyZ = 0x005a,
-
+/*
 			KeyBracketLeft = 0x005b,
 			KeyBackslash = 0x005c,
 			KeyBracketRight = 0x005d,
 
 			KeyGrave = 0x0060,
-
+			*/
 			KeyLeft,
 			KeyRight,
 			KeyUp,
 			KeyDown,
+			/*
 			KeyInsert,
 			KeyHome,
 			KeyDelete,
 			KeyEnd,
 			KeyPageUp,
 			KeyPageDown,
-
+			
 			KeyNumLock,
 			KeyKpEqual,
 			KeyKpDivide,
@@ -123,21 +120,21 @@ namespace SE {
 			KeyKpUp, // 8
 			KeyKpPageUp, // 9
 			KeyKpDelete, // ,
-
+			*/
 			KeyBackSpace,
 			KeyTab,
 			KeyReturn,
 			KeyCapsLock,
 			KeyShiftL,
 			KeyCtrlL,
-			KeySuperL,
+			//KeySuperL,
 			KeyAltL,
 			KeyAltR,
-			KeySuperR,
-			KeyMenu,
+		//	KeySuperR,
+		//	KeyMenu,
 			KeyCtrlR,
 			KeyShiftR,
-
+/*
 			KeyBack,
 			KeySoftLeft,
 			KeySoftRight,
@@ -202,46 +199,44 @@ namespace SE {
 			KeyBraceLeft,
 			KeyBraceRight,
 			KeySysRq,
-
+			*/
 			KeyCount_
 		};
-
-		enum MouseButton
+		class IWindow
 		{
-			MouseButton0 = 0,
-			MouseButtonLeft = MouseButton0,
-			MouseButton1,
-			MouseButtonMiddle = MouseButton1,
-			MouseButton2,
-			MouseButtonRight = MouseButton2,
-			MouseButton3,
-			MouseButtonWheelUp = MouseButton3,
-			MouseButton4,
-			MouseButtonWheelDown = MouseButton4,
-			MouseButton5,
-			MouseButton6,
-			MouseButton7,
-			MouseButton8,
-			MouseButton9,
-			MouseButton10,
-			MouseButton11,
-			MouseButton12,
-			MouseButton13,
-			MouseButton14,
-			MouseButton15,
-			MouseButton16,
-			MouseButton17,
-			MouseButton18,
-			MouseButton19,
-			MouseButton20,
-			MouseButtonMax = MouseButton20,
-			MouseButtonCount,
-			MouseAxisX = MouseButtonCount,
-			MouseAxisY,
-			MouseButtonCount_,
-			MouseAxisCount = MouseButtonCount_ - MouseAxisX
+		public:
+			struct InitializationInfo
+			{
+				std::string windowTitle;
+				bool fullScreen = false;
+				uint32_t width = 1280;
+				uint32_t height = 720;
+			};
+
+			IWindow(){};
+			virtual ~IWindow(){};
+
+			virtual int Initialize(const InitializationInfo& info = InitializationInfo()) = 0;
+			virtual void Shutdown() = 0;
+
+			virtual void Frame() = 0;
+
+			virtual void* GetHWND() = 0;
+
+			virtual bool ButtonDown(uint32_t actionButton) const = 0;
+			virtual bool ButtonPressed(uint32_t actionButton) const = 0;
+			virtual bool ButtonUp(uint32_t actionButton) const = 0;
+
+			virtual void MapActionButton(uint32_t actionButton, KeyCode key) = 0;
+
+		private:
+
 		};
 
-	}	//namespace Window
-}	//namespace SE
-#endif	//SE_WINDOW_KEYSTATE_H
+
+	}
+}
+
+
+#endif
+
