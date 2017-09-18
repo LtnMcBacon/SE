@@ -1,3 +1,4 @@
 test.txt
 Asset/test.objtest
 Asset/Placeholder_level.obj
+Asset/Placeholder_MC.obj
