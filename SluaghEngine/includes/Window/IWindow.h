@@ -216,16 +216,16 @@ namespace SE
 			IWindow(){};
 			virtual ~IWindow(){};
 
-			virtual int Initialize(const InitializationInfo& info) = 0;
+			virtual int Initialize(const InitializationInfo& info = InitializationInfo()) = 0;
 			virtual void Shutdown() = 0;
 
 			virtual void Frame() = 0;
 
 			virtual void* GetHWND() = 0;
 
-			virtual bool KeyDown(uint32_t actionButton) const = 0;
-			virtual bool KeyPressed(uint32_t actionButton) const = 0;
-			virtual bool KeyUp(uint32_t actionButton) const = 0;
+			virtual bool ButtonDown(uint32_t actionButton) const = 0;
+			virtual bool ButtonPressed(uint32_t actionButton) const = 0;
+			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
 			virtual void MapActionButton(uint32_t actionButton, KeyCode key) = 0;
 

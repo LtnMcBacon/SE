@@ -1,7 +1,7 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 #include <ResourceHandler\ResourceHandler.h>
 #include <OBJParser\Parsers.h>
 
@@ -23,7 +23,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
 	entityManager = new EntityManager;
-	window = new Window::Window();
+	window = new Window::WindowSDL();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
 	
@@ -31,10 +31,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	auto r = resourceHandler->Initialize();
 	if (r)
 		return r;
-	r = window->Initialise();
+	r = window->Initialize();
 	if (r)
 		return r;
-	r = renderer->Initialize(window->GethWnd());
+	r = renderer->Initialize(window->GetHWND());
 	if (r)
 		return r;
 
@@ -75,7 +75,7 @@ SE::Graphics::IRenderer * SE::Core::Engine::GetRenderer() const
 	return renderer;
 }
 
-SE::Window::InterfaceWindow * SE::Core::Engine::GetWindow() const
+SE::Window::IWindow * SE::Core::Engine::GetWindow() const
 {
 	return window;
 }

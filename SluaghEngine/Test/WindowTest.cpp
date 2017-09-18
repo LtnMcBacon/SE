@@ -1,6 +1,6 @@
 #include "WindowTest.h"
-#include <window/Window.h>
-#include <window/InterfaceWindow.h>
+#include <window/WindowSDL.h>
+#include <window/IWindow.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
@@ -24,58 +24,31 @@ WindowTest::~WindowTest()
 bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	//create a window pointer
-	SE::Window::InterfaceWindow* window = new SE::Window::Window();
+	SE::Window::IWindow* window = new SE::Window::WindowSDL();
 	
 	//initiate window (display and input)
-	window->Initialise();
+	window->Initialize();
 
 	//bind keys
-	window->MapKeyToKeyboard(0, SE::Window::KeyEscape);
-	window->MapKeyToKeyboard(1, SE::Window::KeyW);
-	window->MapKeyToKeyboard(2, SE::Window::KeyA);
-	window->MapKeyToKeyboard(3, SE::Window::KeyD);
-	window->MapKeyToKeyboard(4, SE::Window::KeyS);
+	window->MapActionButton(0, SE::Window::KeyEscape);
+	window->MapActionButton(1, SE::Window::KeyW);
+	window->MapActionButton(2, SE::Window::KeyA);
+	window->MapActionButton(3, SE::Window::KeyD);
+	window->MapActionButton(4, SE::Window::KeyS);
 
-	//bind mouse
-	window->MapKeyToMouse(5, SE::Window::MouseButtonLeft);
-	window->MapKeyToMouse(6, SE::Window::MouseButtonMiddle);
-	window->MapKeyToMouse(7, SE::Window::MouseButtonRight);
+	bool running = true;
+	while(running)
+	{
+		window->Frame();
 
-	//set gameloop
-	while (window->HandleMSG() == true && window->GetActionKeyState(0) == SE::Window::key_isUp)
-	{	
-		//check key
-		if (window->GetActionKeyState(1) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed w \n");
-		}
-		if (window->GetActionKeyState(2) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed a \n");
-		}
-		if (window->GetActionKeyState(3) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed d \n");
-		}
-		if (window->GetActionKeyState(4) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed s \n");
-		}
-
-		//check mouse
-		if (window->GetActionKeyState(5) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed left mouse button \n");
-		}
-		if (window->GetActionKeyState(6) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed middle mouse button \n");
-		}
-		if (window->GetActionKeyState(7) == SE::Window::key_isPressed)
-		{
-			console->Print("You pressed right mouse button \n");
-		}
+		if (window->ButtonPressed(1))
+			console->Print("Action button %d pressed\n", 1);
+		if (window->ButtonPressed(0))
+			running = false;
 	}
+
+	
+	
 	window->Shutdown();
 	delete window;
 	return true;

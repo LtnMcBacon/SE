@@ -53,7 +53,7 @@ namespace SE
 			{
 				NIL = 0,
 				DOWN = 1 << 1,
-				PRESSED = 2,
+				PRESSED = 3,
 				UP = 4
 			};
 			/**<Maps SDLK to keystate (up, down, pressed)*/

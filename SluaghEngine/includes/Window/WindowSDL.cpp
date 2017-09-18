@@ -62,6 +62,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::KeyT, SDLK_t },
 		{ KeyCode::KeyU, SDLK_u },
 		{ KeyCode::KeyV, SDLK_v },
+		{ KeyCode::KeyW, SDLK_w },
 		{ KeyCode::KeyX, SDLK_x },
 		{ KeyCode::KeyY, SDLK_y },
 		{ KeyCode::KeyEscape, SDLK_ESCAPE},
@@ -145,6 +146,7 @@ void SE::Window::WindowSDL::Frame()
 			}
 		case SDL_MOUSEBUTTONDOWN:
 			{
+				
 			break;
 			}
 		case SDL_MOUSEBUTTONUP:
