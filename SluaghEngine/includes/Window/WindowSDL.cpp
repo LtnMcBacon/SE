@@ -2,7 +2,7 @@
 #include <SDL2/SDL_syswm.h>
 #include <exception>
 
-SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(0), height(0), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
+SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
 
 }
@@ -121,37 +121,52 @@ void SE::Window::WindowSDL::Frame()
 		{
 		case SDL_KEYUP:
 			{
-			auto state = keyStates.find(ev.key.keysym.sym);
-			if (state != keyStates.end())
-				state->second = UP;
-			break;
+				auto state = keyStates.find(ev.key.keysym.sym);
+				if (state != keyStates.end())
+					state->second = UP;
+				break;
 			}
 		case SDL_KEYDOWN:
 			{
-			auto state = keyStates.find(ev.key.keysym.sym);
-			if (state != keyStates.end())
-			{
-				if (!(state->second & DOWN))
-					state->second = PRESSED;
-			}
-			break;
+				auto state = keyStates.find(ev.key.keysym.sym);
+				if (state != keyStates.end())
+				{
+					if (!(state->second & DOWN))
+						state->second = PRESSED;
+				}
+				break;
 			}
 		case SDL_MOUSEMOTION:
 			{
-			curMouseX = ev.motion.x;
-			curMouseY = ev.motion.y;
-			relMouseX = ev.motion.xrel;
-			relMouseY = ev.motion.yrel;
-			break;
+				curMouseX = ev.motion.x;
+				curMouseY = ev.motion.y;
+				relMouseX = ev.motion.xrel;
+				relMouseY = ev.motion.yrel;
+				break;
 			}
 		case SDL_MOUSEBUTTONDOWN:
 			{
-				
-			break;
+				if(ev.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = true;
+				}
+				else if(ev.button.button == SDL_BUTTON_RIGHT)
+				{	
+					mouseRightDown = true;
+				}
+				break;
 			}
 		case SDL_MOUSEBUTTONUP:
 			{
-			break;
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = false;
+				}
+				else if (ev.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = false;
+				}
+				break;
 			}
 		default:
 			{
@@ -163,7 +178,7 @@ void SE::Window::WindowSDL::Frame()
 
 void* SE::Window::WindowSDL::GetHWND()
 {
-	return static_cast<void*>(&hwnd);
+	return static_cast<void*>(hwnd);
 }
 
 bool SE::Window::WindowSDL::ButtonDown(uint32_t actionButton) const

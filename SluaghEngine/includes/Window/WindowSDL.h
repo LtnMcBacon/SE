@@ -22,9 +22,9 @@ namespace SE
 
 			void* GetHWND() override;
 
-			virtual bool ButtonDown(uint32_t actionButton) const;
-			virtual bool ButtonPressed(uint32_t actionButton) const;
-			virtual bool ButtonUp(uint32_t actionButton) const;
+			bool ButtonDown(uint32_t actionButton) const override;
+			bool ButtonPressed(uint32_t actionButton) const override;
+			bool ButtonUp(uint32_t actionButton) const override;
 
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
 		private:
@@ -41,6 +41,9 @@ namespace SE
 			int curMouseY;
 			int relMouseX;
 			int relMouseY;
+
+			bool mouseLeftDown;
+			bool mouseRightDown;
 
 			
 

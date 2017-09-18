@@ -45,6 +45,8 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 			console->Print("Action button %d pressed\n", 1);
 		if (window->ButtonPressed(0))
 			running = false;
+		if (window->ButtonDown(3))
+			console->Print("Action button %d down.\n", 3);
 	}
 
 	
