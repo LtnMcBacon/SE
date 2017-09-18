@@ -135,52 +135,40 @@ namespace SE
 			}
 
 			/**
-			* @brief	Brief description of the function
+			* @brief	Update all the AIs in the room
 			*
-			* @details	Detailed description here.
-			* Continuation of description.
+			* @details	This function is used to update all the AIs in a room. This will be used in two situations;
+			* update the AI's in the current room, and to update the AI's in adjacent rooms. 
 			*
-			* This is how you make a new line in the description.
+			* Not decided: A bool that turns animation updates off, as to make sure that animations in a room that will never be seen isn't done.
 			*
+			* @retval void No return value
 			*
-			* @param[in] parameter_name Parameter description
-			* @param[in,out] parameter_name Parameter description
-			* @param[out] parameter_name Parameter description
-			*
-			* @retval return_value_1 description of return value
-			* @retval return_value_n description of return value
-			*
-			* @warning This is a warning
+			* @warning Due to this function not being implemented (Delta time not defined, bool animations not decided), the param[in] macro
+			* will not work and thus hasn't been documented!
 			*
 			* Example code:
 			* @code
-			*	example usage of the function. Note that links will be automatically generated to documented entities
+			for(int i = 0; i < 4; i++)
+			* {
+			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
+			*	if(adjacentRooms[directionToRoom])
+			* 		adjacentRooms[directionToRoom]->UpdateAIs(...);
+			* }	
 			* @endcode
 			*/
 			void UpdateAIs(/*Delta time*/);
 
 			/**
-			* @brief	Brief description of the function
+			* @brief	Function to gather all "Adjacent rooms" updates in one function.
 			*
-			* @details	Detailed description here.
-			* Continuation of description.
+			* @details	Helperfunction used to gather all updates for adjacent rooms into a single function.
+			* Should be part of the Update() function.
 			*
-			* This is how you make a new line in the description.
+			* @retval void No return value
 			*
+			* @warning Might need to be revisited later; this function might become troublesomely big.
 			*
-			* @param[in] parameter_name Parameter description
-			* @param[in,out] parameter_name Parameter description
-			* @param[out] parameter_name Parameter description
-			*
-			* @retval return_value_1 description of return value
-			* @retval return_value_n description of return value
-			*
-			* @warning This is a warning
-			*
-			* Example code:
-			* @code
-			*	example usage of the function. Note that links will be automatically generated to documented entities
-			* @endcode
 			*/
 			void UpdateAdjacentRooms();
 		public:
@@ -254,7 +242,18 @@ namespace SE
 				return adjacentRooms[int(direction)];
 			}
 
-
+			/**
+			* @brief	Update the room
+			*
+			* @details	Update the room and the adjacent rooms. This includes AIs, Flowfields, and any
+			* logic that needs to be updated.
+			*
+			* @retval void No return value
+			*
+			* @warning Due to this function not being implemented (Delta time not defined), the param[in] macro
+			* will not work and thus hasn't been documented!
+			*/
+			void Update(/*delta time*/);
 
 		};
 
