@@ -37,9 +37,16 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	auto r = e.GetRenderer();
 
-	while (e.GetWindow()->HandleMSG())
+	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+
+	bool running = true;
+	while (running)
 	{
+		e.GetWindow()->Frame();
 		r->Render();
+
+		if (e.GetWindow()->ButtonPressed(0))
+			running = false;
 	}
 	
 
