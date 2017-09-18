@@ -47,8 +47,13 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	rm.ToggleRenderableObject(mainC, true);
 
 
-	while (e.GetWindow()->HandleMSG())
+	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+
+	bool running = true;
+	while (running)
 	{
+		if (e.GetWindow()->ButtonPressed(0))
+			running = false;
 		tm.Move(mainC, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
 		e.Frame();
 	}
