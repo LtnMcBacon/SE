@@ -35,25 +35,154 @@ namespace SE
 		public:
 			/**
 			*
-			* @brief AdjacencyRooms is used to define the direction of an adjacent room in the Room class.
+			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
 			*
-			* @details AdjacencyRooms is used to define the direction of an adjacent room in the Room class.
+			* @details DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
 			*
 			* @warning Note that only four directions are allowed!
 			*
-			* @sa Nothing yet
+			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-			enum class AdjacencyRooms
+			enum class DirectionToAdjacentRoom
 			{
 				
-				ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */ 
-				ADJACENT_ROOM_EAST,		/**<The room lies to the East (1) */ 
-				ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */ 
-				ADJACENT_ROOM_WEST		/**<The room lies to the West (3) */ 
+				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */ 
+				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
+				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
+				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
 			};
 		private:
 
+			/**
+			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
+			*
+			* @details	Update the Flowfield of a certain room (Always the "current" room!), given a point (character position) that should be used
+			* as center of attraction. 
+			*
+			* This function is used once a frame (may be modified!, update this section to reflect that in that case) to make sure that the enemies
+			* can move towards the player.
+			* 
+			*
+			* @retval void No return value
+			*
+			* @warning Due to this function not being implemented ("Cell/Point" not defined), the param[in] macro
+			* will not work and thus hasn't been documented!
+			*
+			* Example code:
+			* @code
+			*	To be written
+			* @endcode
+			*/
+			void UpdateFlowField(/*Cell/Point to point towards*/);
+
+			/**
+			* @brief	Update the Flowfield of a room, given the direction of the exit that should be used as point for the flowfield.
+			*
+			* @details	This function is used to update the flow field of adjacent rooms to the current room. This function should be called
+			* ONCE, when the player enters a new room and this room becomes the new "current". 
+			*
+			* See UpdateFlowField for more information.
+			*
+			* @param[in] DirectionToAdjacentRoom The direction that the room to be UPDATED stores the CURRENT room in (the reverse from current room)
+			*
+			* @retval void No return value
+			*
+			* @warning Please note that the REVERSED direction is used. This is because the exit that will be used as a point for flowfield calculation
+			* exists in the context of the room that the flowfield is calculated in.
+			*
+			* Example code:
+			* @code
+			*	To be written
+			* @endcode
+			*/
+			void UpdateFlowField(DirectionToAdjacentRoom exit);
+
+			/**
+			* @brief	Reverse the direction for the enumerator that defines the connection between two rooms.
+			*
+			* @details	This help function is used to reverse the enumerator that defines the connection between two rooms.
+			* Mainly, this is used when we need to update the flow fields in adjacent rooms; since the connection from
+			* current room -> adjacent room is the reverse of adjacent room -> current room, this function can be called
+			* on the direction the current room has defined for the connection.
+			* 
+			* For instance, if we send in DIRECTION_ADJACENT_ROOM_NORTH to this function, we will get
+			* DIRECTION_ADJACENT_ROOM_SOUTH back.
+			*
+			* @param[in] currentDirection The direction for the connection that we want to know the reverse of.
+			*
+			*
+			* @retval DIRECTION_ADJACENT_ROOM_NORTH The reverse of the inputed direction is North.
+			* @retval DIRECTION_ADJACENT_ROOM_EAST	The reverse of the inputed direction is East.
+			* @retval DIRECTION_ADJACENT_ROOM_SOUTH The reverse of the inputed direction is South.
+			* @retval DIRECTION_ADJACENT_ROOM_WEST	The reverse of the inputed direction is West.
+			*
+			* @warning If the enum "DirectionToAdjacentRoom" is modified, this function will no longer work!
+			*
+			* Example code:
+			* @code
+			* for(int i = 0; i < 4; i++)
+			* {
+			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
+			*	if(adjacentRooms[directionToRoom])
+			* 		adjacentRooms[directionToRoom]->UpdateFlowField(ReverseDirection(directionToRoom));
+			* }	
+			* @endcode
+			*/
+			inline static DirectionToAdjacentRoom ReverseDirection(DirectionToAdjacentRoom currentDirection)
+			{
+				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
+			}
+
+			/**
+			* @brief	Brief description of the function
+			*
+			* @details	Detailed description here.
+			* Continuation of description.
+			*
+			* This is how you make a new line in the description.
+			*
+			*
+			* @param[in] parameter_name Parameter description
+			* @param[in,out] parameter_name Parameter description
+			* @param[out] parameter_name Parameter description
+			*
+			* @retval return_value_1 description of return value
+			* @retval return_value_n description of return value
+			*
+			* @warning This is a warning
+			*
+			* Example code:
+			* @code
+			*	example usage of the function. Note that links will be automatically generated to documented entities
+			* @endcode
+			*/
+			void UpdateAIs(/*Delta time*/);
+
+			/**
+			* @brief	Brief description of the function
+			*
+			* @details	Detailed description here.
+			* Continuation of description.
+			*
+			* This is how you make a new line in the description.
+			*
+			*
+			* @param[in] parameter_name Parameter description
+			* @param[in,out] parameter_name Parameter description
+			* @param[out] parameter_name Parameter description
+			*
+			* @retval return_value_1 description of return value
+			* @retval return_value_n description of return value
+			*
+			* @warning This is a warning
+			*
+			* Example code:
+			* @code
+			*	example usage of the function. Note that links will be automatically generated to documented entities
+			* @endcode
+			*/
+			void UpdateAdjacentRooms();
 		public:
 			Room();
 			~Room();
@@ -70,7 +199,7 @@ namespace SE
 			* Note: If room A is adjacent to room B, then room B is adjacent to room A. This means that A needs to be in B's list, and B be in A's.
 			* 
 			*
-			* @param[in] direction The direction (noted by an AdjacencyRooms enum) to place the new room in.
+			* @param[in] direction The direction (noted by an DirectionToAdjacentRoom enum) to place the new room in.
 			* @param[in] roomToAdd A pointer to the room. This will be placed in the adjacency list.
 			*
 			* @retval void No return value.
@@ -83,11 +212,11 @@ namespace SE
 			*	Room* firstRoom = new Room();
 			*	Room* secondRoom = new Room();
 			*	
-			*	firstRoom->AddAdjacentRoomByDirection(AdjacencyRooms::ADJACENT_ROOM_NORTH, secondRoom);
-			*	secondRoom->AddAdjacentRoomByDirection(AdjacencyRooms::ADJACENT_ROOM_SOUTH, firstRoom);
+			*	firstRoom->AddAdjacentRoomByDirection(DirectionToAdjacentRoom::ADJACENT_ROOM_NORTH, secondRoom);
+			*	secondRoom->AddAdjacentRoomByDirection(DirectionToAdjacentRoom::ADJACENT_ROOM_SOUTH, firstRoom);
 			* @endcode
 			*/
-			inline void AddAdjacentRoomByDirection(AdjacencyRooms direction, Room* roomToAdd)
+			inline void AddAdjacentRoomByDirection(DirectionToAdjacentRoom direction, Room* roomToAdd)
 			{
 				adjacentRooms[int(direction)] = roomToAdd;
 			}
@@ -113,16 +242,19 @@ namespace SE
 			*/
 			bool AddEnemyToRoom(/*EnemyClass *toAdd, bool ignorePowerLevel*/);
 			
-			
+			void UpdateRoom(/*Delta time*/);
+
 			inline const std::vector<std::vector<bool>>& GetMap() const
 			{
 				return map;
 			};
 
-			inline const Room* GetAdjacentRoomByDirection(AdjacencyRooms direction) const
+			inline const Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
 			{
 				return adjacentRooms[int(direction)];
 			}
+
+
 
 		};
 
