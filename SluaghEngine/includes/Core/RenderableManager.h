@@ -7,6 +7,7 @@
 #include <Graphics\IRenderer.h>
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
+
 namespace SE
 {
 	namespace Core
@@ -35,7 +36,7 @@ namespace SE
 				uint32_t textureGUIDCount = 0;
 			};
 
-			RenderableManager(const EntityManager& entityManager, Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler);
+			RenderableManager(const EntityManager& entityManager);
 			~RenderableManager();
 
 			/**
@@ -69,11 +70,15 @@ namespace SE
 			*/
 			void ShowRenderableObject(const Entity& entity);
 
+			/**
+			* @brief	Called each frame, to update the state.
+			*/
+			void Frame();
 		private:
 			/**
 			* @brief	Allocate more memory
 			*/
-			void Allocate(uint32_t size);
+			void Allocate(size_t size);
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -83,23 +88,33 @@ namespace SE
 			*/
 			void GarbageCollection();
 
+			void UpdateDirtyTransforms();
+
+
 			void AddResource(const Utilz::GUID& guid, void* data, size_t size);
+			void SetDirty(const Entity& entity, size_t index);
+			struct DirtyEntityInfo
+			{
+				size_t transformIndex;
+				size_t renderableIndex;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
 
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t);
-				size_t allocated;
-				size_t used;
-				void* data;
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int);
+				size_t allocated = 0;
+				size_t used = 0;
+				void* data = nullptr;
 				Entity* entity;
 				size_t* bufferIndex;
+				int* transformHandle;
 			};
 			const EntityManager& entityManager;
 			std::default_random_engine generator;	
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
-			Graphics::IRenderer* renderer;
-			ResourceHandler::IResourceHandler* resourceHandler;
+
 
 
 			struct BufferInfo

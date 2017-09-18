@@ -30,23 +30,32 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	auto& em = e.GetEntityManager();
 	auto& rm = e.GetRenderableManager();
-	auto& entity = em.Create();
+	auto& tm = e.GetTransformManager();
+	auto& level = em.Create();
+	auto& mainC = em.Create();
+	tm.Create(level);
+	tm.Create(mainC);
+	tm.SetPosition(mainC, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
+
 	Core::RenderableManager::CreateRenderObjectInfo eInfo;
 	eInfo.meshGUID = Utilz::GUID("Placeholder_level.obj");
-	rm.CreateRenderableObject(entity, eInfo);
+	rm.CreateRenderableObject(level, eInfo);
+	rm.ToggleRenderableObject(level, true);
 
-	auto r = e.GetRenderer();
+	eInfo.meshGUID = Utilz::GUID("Placeholder_MC.obj");
+	rm.CreateRenderableObject(mainC, eInfo);
+	rm.ToggleRenderableObject(mainC, true);
+
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
 	while (running)
 	{
-		e.GetWindow()->Frame();
-		r->Render();
-
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
+		tm.Move(mainC, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
+		e.Frame();
 	}
 	
 
