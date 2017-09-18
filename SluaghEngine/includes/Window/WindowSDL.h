@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <Windows.h>
 #include <map>
+#include <vector>
 namespace SE
 {
 	namespace Window
@@ -54,7 +55,8 @@ namespace SE
 			std::map<uint32_t, uint32_t> keyToAction;
 			/**<Maps generic keys defined in IWindow.h to key codes of SDL implementation*/
 			std::map<KeyCode, uint32_t> keyMapping;
-
+			
+			std::map<uint32_t, std::vector<KeyCallback>> actionToCallback;
 
 			enum KeyState : uint32_t
 			{

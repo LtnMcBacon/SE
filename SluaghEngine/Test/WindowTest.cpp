@@ -21,6 +21,8 @@ WindowTest::~WindowTest()
 
 }
 
+
+
 bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	//create a window pointer
@@ -35,7 +37,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(2, SE::Window::KeyA);
 	window->MapActionButton(3, SE::Window::KeyD);
 	window->MapActionButton(1, SE::Window::KeyS);
-
+	window->BindKeyCallback(2, [&console]() {console->Print("Callback called\n"); });
 	bool running = true;
 	while(running)
 	{

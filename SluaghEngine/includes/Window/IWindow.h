@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <Utilz/Delegator.h>
-
+#include <functional>
 namespace SE
 {
 	namespace Window
@@ -209,7 +209,7 @@ namespace SE
 		
 		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallBack;
 		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallBack;
-		typedef Utilz::Delegate<void()> KeyCallback;
+		typedef std::function<void()> KeyCallback;
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.

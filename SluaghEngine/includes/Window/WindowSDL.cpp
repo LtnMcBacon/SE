@@ -130,6 +130,12 @@ void SE::Window::WindowSDL::Frame()
 				{
 					if (!(actionToKeyState[state->second] & DOWN))
 						actionToKeyState[state->second] = PRESSED;
+					auto callbacks = actionToCallback.find(state->second);
+					if(callbacks != actionToCallback.end())
+					{
+						for (auto& cb : callbacks->second)
+							cb();
+					}
 				}
 				break;
 			}
@@ -208,6 +214,7 @@ void SE::Window::WindowSDL::BindMouseMotionCallback(const MouseMotionCallBack& c
 
 void SE::Window::WindowSDL::BindKeyCallback(uint32_t actionButton, const KeyCallback& callback)
 {
+	actionToCallback[actionButton].push_back(callback);
 }
 
 uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
