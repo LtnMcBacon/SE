@@ -18,6 +18,13 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\includes\Window\IWindow.h" />
+    <ClInclude Include="..\includes\Window\WindowSDL.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\includes\Window\WindowSDL.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{F6077506-5FBB-4904-A1A7-A590435B61A0}</ProjectGuid>
