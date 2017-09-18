@@ -18,18 +18,6 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\includes\Window\Display.h" />
-    <ClInclude Include="..\includes\Window\InterfaceWindow.h" />
-    <ClInclude Include="..\includes\Window\KeyState.h" />
-    <ClInclude Include="..\includes\Window\Window.h" />
-    <ClInclude Include="Input.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Display.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Window.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{F6077506-5FBB-4904-A1A7-A590435B61A0}</ProjectGuid>
