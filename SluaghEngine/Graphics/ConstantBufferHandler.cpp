@@ -69,14 +69,8 @@ namespace SE
 			return hr;
 		}
 
-		void ConstantBufferHandler::SetConstantBuffer(void* inData, int constBufferID)
+		void ConstantBufferHandler::BindConstantBuffer(int constBufferID)
 		{
-			D3D11_MAPPED_SUBRESOURCE mappedResource;
-			HRESULT hr = deviceContext->Map(buffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			memcpy(mappedResource.pData, inData, buffers[constBufferID].size);
-			deviceContext->Unmap(buffers[constBufferID].constBuffer, 0);
-
-
 			if (targetOffset.at(constBufferID).shaderTarget[0] == true)
 			{
 				deviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &buffers[constBufferID].constBuffer);
@@ -89,6 +83,15 @@ namespace SE
 			{
 				deviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &buffers[constBufferID].constBuffer);
 			}
+		}
+
+		void ConstantBufferHandler::SetConstantBuffer(void* inData, int constBufferID)
+		{
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			HRESULT hr = deviceContext->Map(buffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			memcpy(mappedResource.pData, inData, buffers[constBufferID].size);
+			deviceContext->Unmap(buffers[constBufferID].constBuffer, 0);
+
 		}
 
 		void ConstantBufferHandler::RemoveConstantBuffer(int constBufferID)
