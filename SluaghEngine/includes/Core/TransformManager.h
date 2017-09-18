@@ -3,6 +3,8 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 #include "EntityManager.h"
+#include <Utilz\Event.h>
+#include <stack>
 
 namespace SE
 {
@@ -18,9 +20,10 @@ namespace SE
 		* @sa EntityManager
 		*
 		**/
-
+	//	class RenderableManager;
 		class TransformManager
-		{
+		{		
+			friend class RenderableManager;
 		public:
 			TransformManager(EntityManager* em);
 			~TransformManager();
@@ -113,23 +116,33 @@ namespace SE
 			*/
 			uint32_t ActiveTransforms() const;
 
+			/**
+			* @brief	Called each frame, to update the state.
+			*/
+			void Frame();
+
 		private:
+			void UpdateTransform(size_t index);
+
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
-			std::unordered_map<uint32_t, Entity> indexToEntity;
-			
-			
+			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
+
+			Entity* entities;
 			DirectX::XMFLOAT3* positions;
 			DirectX::XMFLOAT3* rotations;
 			float* scalings;
+			uint8_t* dirty;
 
 			uint32_t transformCount;
 			uint32_t transformCapacity;
 			uint32_t garbageCollectionIndex;
 			static const size_t transformCapacityIncrement = 512;
-			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(float);
+			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(float) + sizeof(uint8_t) + sizeof(Entity);
 
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
-			
+
+			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
+
 			void ExpandTransforms();
 			
 		};

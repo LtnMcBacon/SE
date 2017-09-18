@@ -44,19 +44,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	{
 		throw "omg";
 	}
-	DirectX::XMFLOAT4X4 vp;
-	DirectX::XMStoreFloat4x4(&vp, cam.ViewProj());
-	constantBufferHandler->SetConstantBuffer(&vp, oncePerFrameBufferID);
 
-
-	off.offset[0] = 1;
-	off.offset[1] = 1;
-	off.offset[2] = 1;
-	hr = constantBufferHandler->AddConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &oncePerObjectBufferID);
-	if (FAILED(hr))
-	{
-		throw "omg2";
-	}
+	constantBufferHandler->BindConstantBuffer(oncePerFrameBufferID);
 
 
 	return 0;
@@ -75,27 +64,13 @@ void SE::Graphics::Renderer::Shutdown()
 	delete device;
 }
 
-int SE::Graphics::Renderer::CreateRenderObject(const Entity & entity, const RenderObjectInfo & info)
+int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
+	renderJobs.push_back(handles);
 	return 0;
 }
 
-int SE::Graphics::Renderer::DestroyRenderObject(const Entity & entity)
-{
-	return 0;
-}
-
-int SE::Graphics::Renderer::EnableRendering(const Entity & entity)
-{
-	return 0;
-}
-
-int SE::Graphics::Renderer::DisableRendering(const Entity & entity)
-{
-	return 0;
-}
-
-int SE::Graphics::Renderer::UpdateTranslation(const Entity & entity, float * transform)
+int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 {
 	return 0;
 }
@@ -127,18 +102,27 @@ int SE::Graphics::Renderer::Render() {
 	D3D11_CLEAR_DEPTH,  
 	1.0f, 
 	0);
+
+
 	DirectX::XMFLOAT4X4 wo;
-	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixIdentity());
-	constantBufferHandler->SetConstantBuffer(&wo, oncePerObjectBufferID);
 
 	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
 	constantBufferHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
 
 	materialHandler->SetMaterial();
-	staticVertexBufferHandler->SetVertexBuffer(0);
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	device->GetDeviceContext()->Draw(staticVertexBufferHandler->GetVertexCount(0), 0);
+
+
+	for (auto& job : renderJobs)
+	{
+		staticVertexBufferHandler->SetVertexBuffer(job.bufferHandle);
+		constantBufferHandler->BindConstantBuffer(job.transformHandle);
+		device->GetDeviceContext()->Draw(staticVertexBufferHandler->GetVertexCount(job.bufferHandle), 0);
+	}
+
+
+
 
 	device->Present();
 
@@ -149,7 +133,47 @@ int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, 
 {
 	StartProfile;
 	int handle = 0;
-	staticVertexBufferHandler->CreateVertexBuffer(data, vertexCount, stride, &handle);
+	auto result = staticVertexBufferHandler->CreateVertexBuffer(data, vertexCount, stride, &handle);
+	if(result)
+		ProfileReturnConst(result);
 	ProfileReturnConst(handle);
+}
+
+void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
+{
+	StartProfile;
+	staticVertexBufferHandler->RemoveVertexBuffer(bufferHandle);
+	StopProfile;
+}
+
+int SE::Graphics::Renderer::CreateTransform()
+{
+	StartProfile;
+	int handle;
+	TargetOffset off;
+	off.shaderTarget[0] = true;
+	off.shaderTarget[1] = true;
+	off.shaderTarget[2] = true;
+	off.offset[0] = 1;
+	off.offset[1] = 1;
+	off.offset[2] = 1;
+	auto hr = constantBufferHandler->AddConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &handle);
+	if (FAILED(hr))
+		ProfileReturnConst(hr);
+	ProfileReturnConst(handle);
+}
+
+void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
+{
+}
+
+int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transform)
+{
+	StartProfile;
+	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
+	constantBufferHandler->SetConstantBuffer(&transposed, transformHandle);
+	ProfileReturnConst(0);
 }
 
