@@ -39,7 +39,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		return r;
 
 	transformManager = new TransformManager(entityManager);
-	renderableManager = new RenderableManager(*entityManager, renderer, resourceHandler);
+	renderableManager = new RenderableManager(*entityManager);
 
 	return 0;
 }
@@ -58,6 +58,13 @@ int SE::Core::Engine::Release()
 	delete transformManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
+}
+
+void SE::Core::Engine::Frame()
+{
+	transformManager->Frame();
+	renderableManager->Frame();
+	renderer->Render();
 }
 
 SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const

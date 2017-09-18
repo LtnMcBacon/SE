@@ -33,48 +33,21 @@ namespace SE
 			void Shutdown();
 
 			/**
-			* @brief    Associates an entity with a renderable object. This function must be called
-			*  before an entity can be rendered. Every call to this must be met with a matching
-			*  DestroyRenderObject
-			* @param[in] entity The entity to bind.
-			* @param[in] info Information about the renderable object that is created.
-			* @retval return_value_0 Returns 0 on success.
+			* @brief    Sets a render job
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @sa RenderObjectInfo
 			* @endcode
 			*/
-			int CreateRenderObject(const Entity& entity, const RenderObjectInfo& info);
+			int EnableRendering(const RenderObjectInfo& handles);
 
 			/**
-			* @brief    Destroys the renderable object that is associated with the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @retval return_value_0 Returns 0 on success.
+			* @brief    Removes a render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
 			* @endcode
 			*/
-			int DestroyRenderObject(const Entity& entity);
-
-			/**
-			* @brief    Enables rendering for the renderable object bound to the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @retval return_value_0 Returns 0 on success.
-			* @endcode
-			*/
-			int EnableRendering(const Entity& entity);
-
-			/**
-			* @brief    Disables rendering for the renderable object bound to the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @retval return_value_0 Returns 0 on success.
-			* @endcode
-			*/
-			int DisableRendering(const Entity& entity);
-
-			/**
-			* @brief Updates the transformation for an entity that is bound to rendering.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
-			* @retval return_value_0 Returns 0 on success.
-			* @endcode
-			*/
-			int UpdateTranslation(const Entity& entity, float* transform);
+			int DisableRendering(const RenderObjectInfo& handles);
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -92,7 +65,46 @@ namespace SE
 			int Render();
 
 
+			/**
+			* @brief Creates a vertex buffer.
+			* @param[in] data The vertex data.
+			* @param[in] vertexCount Number of vertices
+			* @param[in] stride The size of one vertex
+			* @retval BufferHandle Returns a handle to the created buffer.
+			* @retval -1 If something went wrong
+			* @endcode
+			*/
 			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride);
+
+			/**
+			* @brief Destroys a buffer.
+			* @param[in] bufferHandle The handle to the buffer to destroy
+			* @endcode
+			*/
+			void DestroyVertexBuffer(int bufferHandle);
+
+			/**
+			* @brief Create a transform.
+			* @param[in] transform Initial transform.
+			* @retval transformHandle Returns a handle to the created transform.
+			* @retval -1 If something went wrong
+			* @endcode
+			*/
+			int CreateTransform();
+			/**
+			* @brief Destroy a transform
+			* @param[in] transformHandle Handle to the transform to destroy.
+			* @endcode
+			*/
+			void DestroyTransform(int transformHandle);
+			/**
+			* @brief Updates the transformation for an entity that is bound to rendering.
+			* @param[in] transformHandle The transform handle that is bound to the renderable object.
+			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int UpdateTransform(int transformHandle, float* transform);
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -108,7 +120,6 @@ namespace SE
 				DirectX::XMFLOAT4X4 world;
 			};
 			int oncePerFrameBufferID;
-			int oncePerObjectBufferID;
 
 			MaterialHandler* materialHandler;
 			DeviceManager* device;
@@ -116,6 +127,10 @@ namespace SE
 			ConstantBufferHandler* constantBufferHandler;
 
 			Utilz::Camera cam;
+
+			std::vector<RenderObjectInfo> renderJobs;
+
+
 		};
 
 	}

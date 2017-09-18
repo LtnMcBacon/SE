@@ -72,6 +72,12 @@ namespace SE
 			* @sa InitializationInfo, Release
 			*/
 			int Release();
+
+			/**
+			* @brief	Called each frame, to update the state.
+			*/
+			void Frame();
+
 			/**
 			* @brief    Returns a reference to the entity manager.
 			* @retval return_value_0 Returns a reference to the entity manager.
