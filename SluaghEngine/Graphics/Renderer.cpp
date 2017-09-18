@@ -14,6 +14,7 @@ SE::Graphics::Renderer::~Renderer()
 
 int SE::Graphics::Renderer::Initialize(void * window)
 {
+	StartProfile;
 	_ASSERT(window);
 	device = new DeviceManager();
 	HRESULT hr = device->Init((HWND)window);
@@ -59,7 +60,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	}
 
 
-	return 0;
+	ProfileReturnConst( 0);
 }
 
 void SE::Graphics::Renderer::Shutdown()

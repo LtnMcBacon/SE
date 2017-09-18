@@ -4,7 +4,7 @@
 #include <Window\Window.h>
 #include <ResourceHandler\ResourceHandler.h>
 #include <OBJParser\Parsers.h>
-
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -22,6 +22,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+
 	entityManager = new EntityManager;
 	window = new Window::Window();
 	renderer = new Graphics::Renderer();
@@ -44,6 +45,11 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	return 0;
 }
 
+int SE::Core::Engine::Frame(double dt)
+{
+	return 0;
+}
+
 int SE::Core::Engine::Release()
 {
 	renderer->Shutdown();
@@ -58,36 +64,6 @@ int SE::Core::Engine::Release()
 	delete transformManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
-}
-
-SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
-{
-	return *entityManager;
-}
-
-SE::Core::RenderableManager& SE::Core::Engine::GetRenderableManager() const
-{
-	return *renderableManager;
-}
-
-SE::Graphics::IRenderer * SE::Core::Engine::GetRenderer() const
-{
-	return renderer;
-}
-
-SE::Window::InterfaceWindow * SE::Core::Engine::GetWindow() const
-{
-	return window;
-}
-
-SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() const
-{
-	return resourceHandler;
-}
-
-SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
-{
-	return *transformManager;
 }
 
 SE::Core::Engine::Engine()

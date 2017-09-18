@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Display.h"
 #include "Input.h"
+#include <Profiler.h>
 
 namespace SE {
 	namespace Window {
@@ -49,6 +50,7 @@ namespace SE {
 
 		bool Window::HandleMSG()
 		{ 
+			StartProfile;
 			MSG windowMessage;
 			windowMessage.message = WM_NULL;
 			while (windowMessage.message != WM_QUIT)
@@ -68,10 +70,10 @@ namespace SE {
 				// If there are no messages to handle, the application will continue by running a frame
 				else 
 				{
-					return true;
+					ProfileReturnConst(true);
 				}
 			}
-			return false;
+			ProfileReturnConst(false);
 		}
 
 		keyState Window::GetActionKeyState(int actionKey)

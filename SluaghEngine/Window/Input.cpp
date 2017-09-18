@@ -2,6 +2,8 @@
 #include "gainput\GainputInputDeviceMouse.h"
 #include "gainput\GainputInputDeviceKeyboard.h"
 #include "gainput\gainputInputMap.h"
+#include <Profiler.h>
+
 namespace SE {
 	namespace Window {
 		Input::Input()
@@ -66,7 +68,9 @@ namespace SE {
 
 		void Input::Update()
 		{
+			StartProfile;
 			inputManager.Update();
+			StopProfile;
 		}
 	}	//namespace Window
 }	//namespace SE

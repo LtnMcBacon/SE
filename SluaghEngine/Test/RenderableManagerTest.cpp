@@ -1,5 +1,6 @@
 #include "RenderableManagerTest.h"
 #include <Core\Engine.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -19,13 +20,14 @@ SE::Test::RenderableManagerTest::~RenderableManagerTest()
 
 bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 {
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	auto& em = e.GetEntityManager();
@@ -45,5 +47,5 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 
 	e.Release();
-	return true;
+	ProfileReturnConst(true);
 }

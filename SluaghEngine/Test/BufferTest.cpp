@@ -12,6 +12,8 @@
 #include <Graphics\Renderer.h>
 #include <OBJParser\Parsers.h>
 
+#include <Profiler.h>
+
 namespace SE
 {
 	namespace Test
@@ -30,17 +32,18 @@ namespace SE
 		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
+			StartProfile;
 			window = new Window::Window();
 			int isOK = window->Initialise();
 			if (isOK != 0)
 			{
-				return isOK;
+				ProfileReturnConst( isOK);
 			}
 			deviceManager = new Graphics::DeviceManager();
 			HRESULT hr = deviceManager->Init((HWND)window->GethWnd());
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst( false);
 			}
 
 		#pragma region Constbuffer
@@ -69,17 +72,17 @@ namespace SE
 			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[0], &ID[0]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[1], &ID[1]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[2], &ID[2]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 
 			//set Cbuffers
@@ -102,7 +105,7 @@ namespace SE
 			if (re)
 			{
 				console->Print("Could not init Core, Error: %d.", re);
-				return false;
+				ProfileReturnConst(false);
 			}
 
 			auto r = e.GetResourceHandler();
@@ -131,7 +134,7 @@ namespace SE
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
-			return true;
+			ProfileReturnConst(true);;
 		}
 		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
 		{

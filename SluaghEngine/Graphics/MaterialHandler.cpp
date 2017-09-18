@@ -30,6 +30,7 @@ HRESULT MaterialHandler::Init() {
 
 	if (FAILED(hr)) {
 
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Default shaders in MaterialHandler could not be created");
 	}
 
@@ -73,7 +74,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 			vsErrorBlob->Release();
 		}
 
-		return hr;
+		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &d_vertexShader);
@@ -81,7 +82,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 	if (FAILED(hr)) {
 
 		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
-		return hr;
+		ProfileReturnConst( hr);
 	}
 
 	setDebugName(d_vertexShader, "DEFAULT_VERTEX_SHADER");
@@ -117,7 +118,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 
 		cout << "Input Layout Error: Shader Input Layout could not be created" << endl;
 
-		return hr;
+		ProfileReturnConst( hr);
 	}
 
 	vsBlob->Release();
@@ -150,7 +151,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 			psErrorBlob->Release();
 		}
 
-		return hr;
+		ProfileReturnConst( hr);
 	}
 
 	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &d_pixelShader);
@@ -158,7 +159,7 @@ HRESULT MaterialHandler::InitializeDefaultShaders(ID3D11Device* gDevice) {
 	if (FAILED(hr)) {
 
 		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
-		return hr;
+		ProfileReturnConst( hr);
 	}
 
 	setDebugName(d_pixelShader, "DEFAULT_PIXEL_SHADER");

@@ -1,6 +1,7 @@
 #include "TransformManager.h"
 #include <algorithm>
 #include <Profiler.h>
+
 #undef min
 #undef max
 using namespace DirectX;

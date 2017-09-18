@@ -8,6 +8,8 @@
 #pragma comment(lib, "ResourceHandler.lib")
 #endif
 
+#include <Profiler.h>
+
 using namespace SE::Test;
 ResouceHandlerTest::ResouceHandlerTest()
 {
@@ -30,6 +32,7 @@ void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 
 bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 {
+	StartProfile;
 	ResourceHandler::IResourceHandler* r = new ResourceHandler::ResourceHandler();
 
 	r->Initialize();
@@ -38,5 +41,5 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
 
 
-	return result;
+	ProfileReturnConst(result);
 }

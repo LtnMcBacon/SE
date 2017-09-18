@@ -25,28 +25,28 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	hr = CreateDeviceResources();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Device resources could not be initialized");
 	}
 
 	hr = CreateSwapChain(windowHandle);
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Swap chain could not be initialized");
 	}
 
 	hr = CreateBackBufferRTV();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Back buffer render target view could not be created");
 	}
 
 	hr = CreateDepthStencil();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Depth stencil view could not be created");
 	}
 
@@ -117,7 +117,7 @@ HRESULT DeviceManager::CreateDeviceResources() {
 	if (FAILED(hr)) {
 
 		cout << "Device Creation Error: Device, DeviceContext and Swap Chain could not be created" << endl;
-		return S_FALSE;
+		ProfileReturnConst(S_FALSE);
 	}
 
 	ProfileReturnConst(hr);
@@ -144,20 +144,20 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	hr = gDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)& dxgiDevice);
 	if (FAILED(hr)) {
 
-		return S_FALSE;
+		ProfileReturnConst( S_FALSE);
 	}
 
 	IDXGIAdapter* dxgiAdapter = 0;
 	hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)& dxgiAdapter);
 	if (FAILED(hr)) {
 
-		return S_FALSE;
+		ProfileReturnConst( S_FALSE);
 	}
 
 	IDXGIFactory* dxgiFactory = 0;
 	hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)& dxgiFactory);
 	if (FAILED(hr)) {
-		return S_FALSE;	
+		ProfileReturnConst( S_FALSE);
 	}
 
 	dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
@@ -182,7 +182,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	if (FAILED(hr)) {
 
 		cout << "Buffer Error: Back buffer could not be retrieved" << endl;
-		return S_FALSE;
+		ProfileReturnConst( S_FALSE);
 	}
 
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
@@ -190,7 +190,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	if (FAILED(hr)) {
 
 		cout << "Render Target View Error: Render target view could not be created" << endl;
-		return S_FALSE;
+		ProfileReturnConst (S_FALSE);
 	}
 
 	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
@@ -224,7 +224,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	if (FAILED(hr)) {
 
 		cout << "Depth Stencil Error: Depth stencil texture couldn't be created" << endl;
-		return S_FALSE;
+		ProfileReturnConst( S_FALSE);
 	}
 
 	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
@@ -242,7 +242,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	if (FAILED(hr)) {
 
 		cout << "Depth Stencil RTV Error: Depth stencil RTV could not be created" << endl;
-		return S_FALSE;
+		ProfileReturnConst( S_FALSE);
 	}
 
 	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
@@ -271,5 +271,4 @@ float DeviceManager::GetAspectRatio() {
 void DeviceManager::Present() {
 
 	auto hr = gSwapChain->Present(1, 0);
-	int i = 0;
 }

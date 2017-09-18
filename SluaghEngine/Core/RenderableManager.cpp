@@ -4,7 +4,6 @@
 #include <Utilz\Delegator.h>
 #include <OBJParser\Parsers.h>
 
-
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
 #else

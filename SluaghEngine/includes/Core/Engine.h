@@ -54,6 +54,14 @@ namespace SE
 			* @sa InitializationInfo, Release
 			*/
 			int Init(const InitializationInfo& info);
+
+			/**
+			* @brief    Updates the state of the Core, entity cleanup, input, etc.
+			*
+			* @retval 0 On success.
+			*/
+			int Frame(double dt);
+
 			/**
 			* @brief    Releases all resources held by the engine. Call this before exiting your program.
 			* @retval return_value_0 Returns 0 on success and non-zero otherwise.
@@ -77,42 +85,54 @@ namespace SE
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			EntityManager& GetEntityManager() const;
+			inline EntityManager& GetEntityManager() const{
+				return *entityManager;
+			}
 
 			/**
 			* @brief    Returns a pointer to the renderable manager.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			RenderableManager& GetRenderableManager() const;
+			inline RenderableManager& GetRenderableManager() const {
+				return *renderableManager;
+			}
 
 			/**
 			* @brief    Returns a pointer to the renderer.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			Graphics::IRenderer* GetRenderer() const;
+			inline Graphics::IRenderer* GetRenderer() const{
+				return renderer;
+			}
 
 			/**
 			* @brief    Returns a pointer to the window.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			Window::InterfaceWindow* GetWindow() const;
+			inline Window::InterfaceWindow* GetWindow() const {
+				return window;
+			}
 
 			/**
 			* @brief    Returns a pointer to the resource handler.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			ResourceHandler::IResourceHandler* GetResourceHandler() const;
+			inline ResourceHandler::IResourceHandler* GetResourceHandler() const {
+				return resourceHandler;
+			}
 
 			/**
 			* @brief    Returns a reference to the transform manager
 			* @retval return_value_0 Returns a reference to the transform manager.
 			* @sa TransformManager
 			*/
-			TransformManager& GetTransformManager() const;
+			inline TransformManager& GetTransformManager() const {
+				return *transformManager;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;

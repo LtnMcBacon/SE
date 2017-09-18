@@ -1,5 +1,6 @@
 #include "EntityManagerTest.h"
 #include <Core/Engine.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -20,6 +21,7 @@ EntityManagerTest::~EntityManagerTest()
 
 bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	Engine& engine = Engine::GetInstance();
 	Engine::InitializationInfo info;
 
@@ -84,5 +86,5 @@ bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 	}
 	engine.Release();
-	return true;
+	ProfileReturnConst( true);
 }

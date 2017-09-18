@@ -13,7 +13,7 @@ void SE::Utilz::Console::Run()
 		backend->Getline(buffer, 256);
 		InterpretCommand(buffer);
 
-		Sleep(100);
+		Sleep(200);
 	}
 }
 

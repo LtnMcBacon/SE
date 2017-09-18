@@ -1,6 +1,7 @@
 #include "WindowTest.h"
 #include <window/Window.h>
 #include <window/InterfaceWindow.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
@@ -23,6 +24,7 @@ WindowTest::~WindowTest()
 
 bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	//create a window pointer
 	SE::Window::InterfaceWindow* window = new SE::Window::Window();
 	
@@ -78,5 +80,5 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 	window->Shutdown();
 	delete window;
-	return true;
+	ProfileReturnConst(true);
 }

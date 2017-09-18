@@ -2,6 +2,7 @@
 #include <Graphics\DeviceManager.h>
 #include <Graphics\MaterialHandler.h>
 #include <Window\Window.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "GraphicsD.lib")
@@ -25,27 +26,27 @@ SE::Test::MaterialTest::MaterialTest::~MaterialTest() {
 
 bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console) 
 {
-
+	StartProfile;
 	Window::InterfaceWindow* window = new Window::Window;
 	auto r = window->Initialise();
 	if (r)
 	{
 		console->Print("Could not init window, Error: %d.\n", r);
-		return false;
+		ProfileReturnConst(false);
 	}
 	Graphics::DeviceManager* device = new Graphics::DeviceManager();
 	HRESULT hr = device->Init((HWND)window->GethWnd());
 	if (FAILED(hr))
 	{
 		console->Print("Could not init device, Error: %d.\n", hr);
-		return false;
+		ProfileReturnConst(false);
 	}
 	auto mat = new Graphics::MaterialHandler(device->GetDevice(), device->GetDeviceContext());
 	hr = mat->Init();
 	if (r)
 	{
 		console->Print("Could not init material handler, Error: %d.\n", hr);
-		return false;
+		ProfileReturnConst(false);
 	}
 	mat->SetMaterial();
 
@@ -53,5 +54,5 @@ bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console)
 	device->Shutdown();
 	window->Shutdown();
 	
-	return true;
+	ProfileReturnConst(true);
 }
