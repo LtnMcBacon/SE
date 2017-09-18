@@ -116,6 +116,9 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)External Dependencies\lib\$(Platform)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\SDL2.dll" "$(SolutionDir)Build\lib\$(Platform)\SDL2.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -127,6 +130,9 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)External Dependencies\lib\$(Platform)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\SDL2.dll" "$(SolutionDir)Build\lib\$(Platform)\SDL2.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -144,6 +150,9 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)External Dependencies\lib\$(Platform)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\SDL2.dll" "$(SolutionDir)Build\lib\$(Platform)\SDL2.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -161,6 +170,9 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)External Dependencies\lib\$(Platform)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\SDL2.dll" "$(SolutionDir)Build\lib\$(Platform)\SDL2.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
