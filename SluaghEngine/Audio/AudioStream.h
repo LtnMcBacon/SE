@@ -1,6 +1,7 @@
 #pragma once
 #ifndef SE_AUDIO_AUDIOSTREAM_H
 #define SE_AUDIO_AUDIOSTREAM_H
+#include "AudioStructType.h"
 
 
 namespace SE {
@@ -11,18 +12,11 @@ namespace SE {
 		public:
 			AudioStream();
 			~AudioStream();
-			/**
-			* @brief	Calls init functions in stream and sound
-			*
-			* @details	Calls and makes sure that both stream and sound gets initialized
-			*
-			* @retval 0 Tells that display creation was sucessful
-			*
-			*/
 			int Initialise();
+			int StreamSound(SoundIndexName soundType, void* streamData);
 			void Shutdown();
 		private:
-
+			std::vector<PaStream*> stream;
 		};
 	}	//namespace Audio
 }	//namespace SE

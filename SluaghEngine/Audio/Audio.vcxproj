@@ -143,6 +143,7 @@
     <ClInclude Include="AudioManager.h" />
     <ClInclude Include="AudioSound.h" />
     <ClInclude Include="AudioStream.h" />
+    <ClInclude Include="AudioStructType.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioManager.cpp" />

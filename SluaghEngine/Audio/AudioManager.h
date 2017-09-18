@@ -24,13 +24,33 @@ namespace SE {
 			*
 			*/
 			int Initialise();
-			int LoadSound(Utilz::GUID soundFile, SoundIndexName soundType);
+			/**
+			* @brief	Loads the requested sound if not already loaded
+			*
+			* @param[in] soundFile The GUID of the requested soundfile
+			*
+			* @retval 0 Sound is already loaded
+			* @retval 1 Sound is being loaded
+			*
+			*/
+			int LoadSound(Utilz::GUID soundFile);
+			/**
+			* @brief	Plays requsted sound
+			*
+			* @param[in] soundFile The GUID of the requested soundfile
+			* @param[in] soundType The type of sound
+			*
+			* @retval 0 Sound is already loaded
+			* @retval 1 Sound is being loaded
+			*
+			*/
+			int playSound(Utilz::GUID soundFile, SoundIndexName soundType);
 			void Shutdown();
 		private:
 			void retSoundData(const Utilz::GUID& guid, void* data, size_t size);
 			AudioSound* audioSound;
 			AudioStream* audioStream;
-			std::map<Utilz::GUID, int> trackSound;
+			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;
 		};
 	}	//namespace Audio
 }	//namespace SE
