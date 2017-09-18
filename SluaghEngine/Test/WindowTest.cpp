@@ -34,7 +34,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(1, SE::Window::KeyW);
 	window->MapActionButton(2, SE::Window::KeyA);
 	window->MapActionButton(3, SE::Window::KeyD);
-	window->MapActionButton(4, SE::Window::KeyS);
+	window->MapActionButton(1, SE::Window::KeyS);
 
 	bool running = true;
 	while(running)
@@ -47,6 +47,8 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 			running = false;
 		if (window->ButtonDown(3))
 			console->Print("Action button %d down.\n", 3);
+		if (window->ButtonPressed(4))
+			console->Print("Action button %d pressed\n", 4);
 	}
 
 	

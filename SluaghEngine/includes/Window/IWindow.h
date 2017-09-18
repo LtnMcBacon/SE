@@ -283,7 +283,7 @@ namespace SE
 			virtual void BindKeyCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
 
 			/**
-			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key. An action button is any user defined key represented as an unsigned integer.
+			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key but an action button cannot be mapped to several keys. An action button is any user defined key represented as an unsigned integer.
 			* * Example code:
 			* @code
 			*   enum{

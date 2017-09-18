@@ -51,11 +51,10 @@ namespace SE
 			bool mouseRightDown;
 
 			
-
+			std::map<uint32_t, uint32_t> keyToAction;
 			/**<Maps generic keys defined in IWindow.h to key codes of SDL implementation*/
 			std::map<KeyCode, uint32_t> keyMapping;
-			/**<Maps actionButton -> SDL_key*/
-			std::map<uint32_t, uint32_t> actionMappings;
+
 
 			enum KeyState : uint32_t
 			{
@@ -65,7 +64,7 @@ namespace SE
 				UP = 4
 			};
 			/**<Maps SDLK to keystate (up, down, pressed)*/
-			std::map<uint32_t, uint32_t> keyStates;
+			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
 

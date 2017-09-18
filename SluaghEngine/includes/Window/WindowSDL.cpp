@@ -95,10 +95,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::KeyShiftR,   SDLK_RSHIFT}
 	};
 
-	for(auto& k : keyMapping)
-	{
-		keyStates[k.second] = NIL;
-	}
+	
 
 	return 0;
 }
@@ -110,7 +107,7 @@ void SE::Window::WindowSDL::Shutdown()
 
 void SE::Window::WindowSDL::Frame()
 {
-	for(auto& ks : keyStates)
+	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
@@ -121,18 +118,18 @@ void SE::Window::WindowSDL::Frame()
 		{
 		case SDL_KEYUP:
 			{
-				auto state = keyStates.find(ev.key.keysym.sym);
-				if (state != keyStates.end())
-					state->second = UP;
+				auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
 				break;
 			}
 		case SDL_KEYDOWN:
 			{
-				auto state = keyStates.find(ev.key.keysym.sym);
-				if (state != keyStates.end())
+				auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
 				{
-					if (!(state->second & DOWN))
-						state->second = PRESSED;
+					if (!(actionToKeyState[state->second] & DOWN))
+						actionToKeyState[state->second] = PRESSED;
 				}
 				break;
 			}
@@ -198,7 +195,7 @@ bool SE::Window::WindowSDL::ButtonUp(uint32_t actionButton) const
 
 void SE::Window::WindowSDL::MapActionButton(uint32_t actionButton, KeyCode key)
 {
-	actionMappings[actionButton] = keyMapping[key];
+	keyToAction[keyMapping[key]] = actionButton;
 }
 
 void SE::Window::WindowSDL::BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback)
@@ -216,11 +213,8 @@ void SE::Window::WindowSDL::BindKeyCallback(uint32_t actionButton, const KeyCall
 uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 {
 	//Find which KeyCode actionbutton is mapped to
-	const auto k = actionMappings.find(actionButton);
-	if (k == actionMappings.end())
+	const auto k = actionToKeyState.find(actionButton);
+	if (k == actionToKeyState.end())
 		return 0;
-
-	const auto keyState = keyStates.find(k->second);
-	//Guaranteed to be found as all KeyCodes have a corresponding state set in Initialize
-	return keyState->second;
+	return k->second;
 }
