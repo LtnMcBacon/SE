@@ -5,7 +5,7 @@
 #include <Graphics\ConstantBufferHandler.h>
 #include <Graphics\StaticVertexBufferHandler.h>
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 
 #include "ObjLoaderTest.h"
 #include <Core\Engine.h>
@@ -26,18 +26,18 @@ namespace SE
 
 		}
 		static Graphics::DeviceManager* deviceManager = nullptr;
-		Window::InterfaceWindow* window = nullptr;
+		Window::IWindow* window = nullptr;
 		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
-			window = new Window::Window();
-			int isOK = window->Initialise();
+			window = new Window::WindowSDL();
+			int isOK = window->Initialize();
 			if (isOK != 0)
 			{
 				return isOK;
 			}
 			deviceManager = new Graphics::DeviceManager();
-			HRESULT hr = deviceManager->Init((HWND)window->GethWnd());
+			HRESULT hr = deviceManager->Init((HWND)window->GetHWND());
 			if (hr != S_OK)
 			{
 				return false;
