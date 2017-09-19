@@ -6,6 +6,15 @@
 #include <Utilz\GUID.h>
 #include <map>
 
+// basic file operations
+#include <fstream>
+
+#ifdef _DEBUG
+#pragma comment(lib, "audioD.lib")
+#else
+#pragma comment(lib, "audio.lib")
+#endif
+
 namespace SE {
 	namespace Core {
 
@@ -16,8 +25,6 @@ namespace SE {
 			~AudioManager();
 			/**
 			* @brief	Calls init functions in stream and sound
-			*
-			* @details	Calls and makes sure that both stream and sound gets initialized
 			*
 			* @retval 0 Tells that creation was sucessful
 			* @retval -1 Tells that creation was unsucessful
@@ -30,32 +37,40 @@ namespace SE {
 			* @param[in] soundFile The GUID of the requested soundfile
 			*
 			* @retval 0 Sound is already loaded
-			* @retval 1 Sound is being loaded
+			* @retval -1 Sound is being loaded
 			*
 			*/
 			int LoadSound(Utilz::GUID soundFile);
 			/**
-			* @brief	Plays requsted sound
+			* @brief	Create a stream and return it's ID
 			*
 			* @param[in] soundFile The GUID of the requested soundfile
 			* @param[in] soundType The type of sound
 			*
-			* @retval 0 Sound is already loaded
-			* @retval 1 Sound is being loaded
+			* @retval 0+ Stream ID 
+			* @retval -1 Could not find sound/sound not loaded
 			*
 			*/
-			int playSound(Utilz::GUID soundFile, Audio::SoundIndexName soundType);
+			int CreateStream(Utilz::GUID soundFile, Audio::SoundIndexName soundType);
+			/**
+			* @brief	Checks if sound has finished loading
+			*
+			* @param[in] soundFile The GUID of the requested soundfile
+			*
+			* @retval 0 Sound is loaded
+			* @retval -1 Sound is not loaded
+			*
+			*/
 			int CheckIfLoaded(Utilz::GUID soundFile);
+			int PlaySound(int streamID);
+			int StopSound(int streamID);
+			int RemoveSound(int streamID);
 			void Shutdown();
 		private:
 			void retSoundData(const Utilz::GUID& guid, void* data, size_t size);
 			Audio::AudioSound* audioSound;
 			Audio::AudioStream* audioStream;
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;
-
-
-			//temp or something holds audioOut pointers
-			std::vector<Audio::AudioOut*> audioToStream;
 		};
 	}	//namespace Core
 }	//namespace SE

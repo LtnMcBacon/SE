@@ -6,23 +6,25 @@
 #include <vector>
 #include <stack>
 
+
 #ifdef _DEBUG
 #pragma comment (lib, "libsndfile-1.lib")
 #else
 #pragma comment (lib, "libsndfile-1.lib")
 #endif
 
-#ifdef _DEBUG 
-#pragma comment (lib, "portaudio.lib")
+#ifdef _M_IX86 
+#pragma comment (lib, "portaudio_x86.lib")
 #else
-#pragma comment (lib, "portaudio.lib")
+#pragma comment (lib, "portaudio_x64.lib")
 #endif
 
 namespace SE {
 	namespace Audio {
 		enum SoundIndexName { StereoPan, BakgroundSound, Effect };
 
-		struct AudioFile	//only for loading sound
+		//only for loading sound
+		struct AudioFile	
 		{
 			char* soundData;
 			size_t size;
@@ -85,6 +87,47 @@ namespace SE {
 				}
 				data->pData.currentPos = 0;
 				return 0;
+			}
+			return 1;
+		};
+
+		static int effectCallback(const void *inputBuffer,
+			void *outputBuffer,
+			unsigned long framesPerBuffer,
+			const PaStreamCallbackTimeInfo* timeInfo,
+			PaStreamCallbackFlags statusFlags,
+			void *userData)
+		{
+			/* Cast data passed through stream to our structure. */
+			AudioOut *_data = (AudioOut*)userData;
+			float *_out = (float*)outputBuffer;
+
+			unsigned int _i;
+			(void)inputBuffer; /* Prevent unused variable warning. */
+
+			if ((framesPerBuffer * _data->pData.currentPos * _data->sample->info.channels) + framesPerBuffer * _data->sample->info.channels <= _data->sample->info.frames * _data->sample->info.channels)
+			{
+				for (_i = 0; _i<framesPerBuffer; _i++)
+				{
+					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					{
+						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
+					}
+				}
+				_data->pData.currentPos++;
+				return 0;
+			}
+			else
+			{
+				memset(_out, 0, framesPerBuffer * _data->sample->info.channels);
+				for (_i = 0; _i < (framesPerBuffer * (_data->pData.currentPos + 1) * _data->sample->info.channels) - (_data->sample->info.frames * _data->sample->info.channels) - 1; _i++)
+				{
+					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					{
+						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
+					}
+				}
+				return 1;
 			}
 			return 1;
 		};

@@ -1,16 +1,17 @@
 #include <Core\AudioManager.h>
 #include <Core\Engine.h>
 
+
 namespace SE {
 	namespace Core {
 		AudioManager::AudioManager()
 		{
-
+			
 		}
 
 		AudioManager::~AudioManager()
 		{
-
+			
 		}
 
 		int AudioManager::Initialize()
@@ -26,14 +27,18 @@ namespace SE {
 
 		void AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
 		{
-			trackSound[guid] = audioSound->LoadSound(data, size);
+			Audio::AudioFile *sound = new Audio::AudioFile;
+			sound->size = size;
+			sound->soundData = (char*)data;
+			sound->currentPos = 0;
+			trackSound[guid] = audioSound->LoadSound(sound);
 		}
 
 		int AudioManager::LoadSound(Utilz::GUID soundFile)
 		{
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded == trackSound.end())
-			{			
+			{	
 				Core::Engine::GetInstance().GetResourceHandler()->LoadResource(soundFile, ResourceHandler::LoadResourceDelegate::Make<AudioManager, &AudioManager::retSoundData>(this));
 				return 1;
 			}
@@ -43,14 +48,12 @@ namespace SE {
 			}
 		}
 		
-		int AudioManager::playSound(Utilz::GUID soundFile, Audio::SoundIndexName soundType)
+		int AudioManager::CreateStream(Utilz::GUID soundFile, Audio::SoundIndexName soundType)
 		{
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded != trackSound.end())
 			{
-				audioToStream.push_back((Audio::AudioOut*)audioSound->GetSample(trackSound[soundFile], soundType));
-				return audioStream->StreamSound(soundType, audioToStream[audioToStream.size() - 1]);
-				//return audioStream->StreamSound(soundType, audioSound->GetSample(trackSound[soundFile], soundType));
+				return audioStream->CreateStream(soundType, (Audio::AudioOut*)audioSound->GetSample(trackSound[soundFile], soundType));
 			}
 			return -1;
 		}
@@ -60,9 +63,24 @@ namespace SE {
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded != trackSound.end())
 			{
-				return 1;
+				return -1;
 			}
 			return 0;
+		}
+
+		int AudioManager::PlaySound(int streamID)
+		{
+			return audioStream->PlaySound(streamID);
+		}
+
+		int AudioManager::StopSound(int streamID)
+		{
+			return audioStream->StopSound(streamID);
+		}
+
+		int AudioManager::RemoveSound(int streamID)
+		{
+			return audioStream->RemoveSound(streamID);
 		}
 
 		void AudioManager::Shutdown()

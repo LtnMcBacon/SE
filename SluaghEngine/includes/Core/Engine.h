@@ -6,6 +6,7 @@
 #include <Graphics\IRenderer.h>
 #include <Window\InterfaceWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include "AudioManager.h"
 #include "RenderableManager.h"
 
 namespace SE
@@ -113,6 +114,13 @@ namespace SE
 			* @sa TransformManager
 			*/
 			TransformManager& GetTransformManager() const;
+
+			/**
+			* @brief    Returns a reference to the audio manager
+			* @retval return_value_0 Returns a reference to the audio manager.
+			* @sa AudioManager
+			*/
+			AudioManager& GetAudioManager() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -126,6 +134,7 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
+			AudioManager* audioManager;
 		};
 
 	}

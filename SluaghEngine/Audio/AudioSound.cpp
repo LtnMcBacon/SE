@@ -78,7 +78,7 @@ namespace SE {
 			};
 		}
 
-		int AudioSound::LoadSound(void * inputData, size_t inputSize)
+		int AudioSound::LoadSound(AudioFile* sound)
 		{
 			SF_VIRTUAL_IO sfvirtual;
 			sfvirtual.get_filelen = sfvirt::sf_vio_get_filelen1;
@@ -86,29 +86,25 @@ namespace SE {
 			sfvirtual.read = sfvirt::sf_vio_read1;
 			sfvirtual.write = sfvirt::sf_vio_write1;
 			sfvirtual.tell = sfvirt::sf_vio_tell1;
-			AudioFile TestSound;
-			TestSound.soundData = (char*)inputData;
-			TestSound.size = inputSize;
-			TestSound.currentPos = 0;
-			SF_INFO _info;
-			_info.format = SF_FORMAT_WAV;
-			SNDFILE* _music = sf_open_virtual(&sfvirtual, SFM_READ, &_info, &TestSound);
-			int _samples = (_info.channels * _info.frames);
-			float* _sampleData = new float[_samples];
-			sf_read_float(_music, _sampleData, _samples);
-			sf_close(_music);
+			SF_INFO info;
+			info.format = SF_FORMAT_WAV;
+			SNDFILE* music = sf_open_virtual(&sfvirtual, SFM_READ, &info, sound);
+			int samples = (info.channels * info.frames);
+			float* sampleData = new float[samples] {};
+			sf_read_float(music, sampleData, samples);
+			sf_close(music);
 
-			AudioSample _tempAS;
-			_tempAS.info = _info;
-			_tempAS.samples = _sampleData;
+			AudioSample tempAS;
+			tempAS.info = info;
+			tempAS.samples = sampleData;
 
-			soundSample.push_back(_tempAS);
+			soundSample.push_back(tempAS);
 			return soundSample.size() - 1;
 		}
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
-			if (soundType == BakgroundSound)
+			if (soundType == BakgroundSound || Effect)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
@@ -118,11 +114,5 @@ namespace SE {
 			}
 			return nullptr;
 		}
-
-		void AudioSound::Shutdown()
-		{
-
-		}
-
 	}	//namespace Audio
 }	//namespace SE

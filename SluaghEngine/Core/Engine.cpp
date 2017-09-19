@@ -26,7 +26,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	window = new Window::Window();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
-	
+	audioManager = new AudioManager();
 
 	auto r = resourceHandler->Initialize();
 	if (r)
@@ -35,6 +35,9 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	if (r)
 		return r;
 	r = renderer->Initialize(window->GethWnd());
+	if (r)
+		return r;
+	r = audioManager->Initialize();
 	if (r)
 		return r;
 
@@ -49,6 +52,7 @@ int SE::Core::Engine::Release()
 	renderer->Shutdown();
 	window->Shutdown();
 	resourceHandler->Shutdown();
+	audioManager->Shutdown();
 
 	delete renderableManager;
 	delete renderer;
@@ -56,6 +60,7 @@ int SE::Core::Engine::Release()
 	delete resourceHandler;
 	delete entityManager;
 	delete transformManager;
+	delete audioManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
@@ -88,6 +93,11 @@ SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() c
 SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
 {
 	return *transformManager;
+}
+
+SE::Core::AudioManager& SE::Core::Engine::GetAudioManager() const
+{
+	return *audioManager;
 }
 
 SE::Core::Engine::Engine()

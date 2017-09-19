@@ -1,6 +1,8 @@
 #include "AudioTest.h"
 #include <Core\AudioManager.h>
 #include <Core\Engine.h>
+#include <Window\Window.h>
+#include <portaudio\portaudio.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -9,9 +11,9 @@
 #endif
 
 #ifdef _DEBUG
-#pragma comment(lib, "audioD.lib")
+#pragma comment(lib, "windowD.lib")
 #else
-#pragma comment(lib, "audio.lib")
+#pragma comment(lib, "window.lib")
 #endif
 
 namespace SE
@@ -37,40 +39,35 @@ namespace SE
 				console->Print("Could not init Core, Error: %d.", re);
 				return false;
 			}
+			Core::AudioManager& audio = e.GetAudioManager();
 
-			Core::AudioManager* audioManager = new Core::AudioManager();
-
-			if (audioManager->Initialize() != 0)
-			{
-				console->Print("Init failed");
-				return false;
-			}
-
-			if (audioManager->LoadSound(Utilz::GUID("Cout.wav")) == 0)
+			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
 				console->Print("Sound already loaded??????");
 				return false;
 			}
 
-			while (audioManager->CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0)
+			while (audio.CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0)
 			{
 
 			}
 
-			if (audioManager->playSound(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::BakgroundSound) == -1)
+			if (audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect) == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
 				return false;
 			}
-
-			for (int i = 0; 0 < 50000; i++)
+			else
 			{
-				console->Print("playing sound!!!");
+				audio.PlaySound(0);
+				while (e.GetWindow()->HandleMSG() != false)
+				{
+
+				}
+				e.Release();
+				return true;
 			}
-			console->Print("no longer playing sound!!!");
-			getchar();
-			audioManager->Shutdown();
-			return true;
+			return false;
 		}
 	}
 }
