@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <Utilz/Delegator.h>
 
 namespace SE
 {
@@ -202,6 +203,9 @@ namespace SE
 			*/
 			KeyCount_
 		};
+
+		
+
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
