@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="GameUnit.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Room.cpp" />

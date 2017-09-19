@@ -23,7 +23,7 @@ namespace SE
 		{
 		public:
 			GameUnit();
-			~GameUnit();
+			virtual ~GameUnit();
 
 			/**
 			* @brief	Returns if entity is alive or not

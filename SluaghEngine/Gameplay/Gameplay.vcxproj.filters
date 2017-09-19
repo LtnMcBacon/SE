@@ -22,16 +22,22 @@
     <Filter Include="Header Files\GameUnits">
       <UniqueIdentifier>{112f889f-0169-44fb-ba99-17e2c0f4a562}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GameUnits">
+      <UniqueIdentifier>{6d0cb078-a175-4662-8d05-feb82974d0a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameUnit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-	<ClCompile Include="Room.cpp">
+    <ClCompile Include="Room.cpp">
       <Filter>Source Files\Rooms</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,7 +47,6 @@
     <ClInclude Include="EventStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Room.h">
