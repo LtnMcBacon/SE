@@ -25,10 +25,16 @@ namespace SE
 			GameUnit();
 			~GameUnit();
 
+			/**
+			* @brief	Returns if entity is alive or not
+			*
+			* @details	if health is 0 returns false, else returns true
 
+			* @Warning health must be put to 0 else if it is negative entity will be considered alive.
+			*/
 			inline bool IsAlive() const { return !!this->health; };
 
-
+			
 			/**
 			* @brief	Qeueu up damage events in vectors
 			*
