@@ -26,11 +26,24 @@ SE::Test::ObjLoaderTest::~ObjLoaderTest()
 }
 
 static bool result = false;
-namespace fuck
+namespace Parsing
 {
-	void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+	int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 	{
-		auto& mD = *(Arf::Mesh::Data*)data;
+		ArfData::Data arfData;
+		ArfData::DataPointers arfp;
+		auto r = Arf::ParseObj(data, size, &arfData, &arfp);
+		if (r)
+			return r;
+		Arf::Mesh::Data* parsedData;
+		size_t parsedSize;
+		r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
+		if (r)
+			return r;
+
+		delete arfp.buffer;
+
+		auto& mD = *(Arf::Mesh::Data*)parsedData;
 		auto verts = (Arf::Mesh::Position*)mD.vertices;
 		result = true;
 		for (int i = 0; i < mD.NumVertices; i++)
@@ -42,6 +55,8 @@ namespace fuck
 			if (verts[i].z != (float)i + 1)
 				result = false;
 		}
+
+		return 0;
 	}
 }
 
@@ -60,26 +75,11 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 	auto r = e.GetResourceHandler();
 	result = true;
 
-	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
-	{
-		ArfData::Data arfData;
-		ArfData::DataPointers arfp;
-		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
-		if (r)
-			return r;
-		auto data = (Arf::Mesh::Data**)parsedData;
-		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
-		if (r)
-			return r;
-
-		delete arfp.buffer;
-		return 0;
-	});
 
 
 
 
-	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&fuck::Load>());
+	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Parsing::Load>());
 
 	e.Release();
 

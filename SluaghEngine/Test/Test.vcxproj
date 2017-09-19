@@ -137,6 +137,7 @@
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
+    <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="MaterialTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
+    <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="MaterialTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />

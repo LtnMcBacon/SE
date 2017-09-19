@@ -108,20 +108,6 @@ namespace SE
 			auto r = e.GetResourceHandler();
 			result = false;
 
-			r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
-			{
-				ArfData::Data arfData;
-				ArfData::DataPointers arfp;
-				auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
-				if (r)
-					return r;
-				auto data = (Arf::Mesh::Data**)parsedData;
-				r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
-				if (r)
-					return r;
-
-				return 0;
-			});
 
 			
 			r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<BufferTest, &BufferTest::Load>(this));
@@ -133,26 +119,39 @@ namespace SE
 			delete window;
 			return true;
 		}
-		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
+		int BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
 		{
-			auto& mD = *(Arf::Mesh::Data*)data;
+			ArfData::Data arfData;
+			ArfData::DataPointers arfp;
+			auto r = Arf::ParseObj(data, size, &arfData, &arfp);
+			if (r)
+				return r;
+			Arf::Mesh::Data* parsedData;
+			size_t parsedSize;
+			r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
+			if (r)
+				return r;
+
+			delete arfp.buffer;
+
+			auto& mD = *(Arf::Mesh::Data*)parsedData;
 			auto verts = (Arf::Mesh::Position*)mD.vertices;
 
 
 			int vertexID[3];
 			Graphics::StaticVertexBufferHandler* vertexBuffer = new Graphics::StaticVertexBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create vertexbuffer
-			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[0]);
+			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[1]);
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[1]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[2]);
+			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[2]);
 			if (hr != S_OK)
 			{
 				result = false;
@@ -171,6 +170,8 @@ namespace SE
 			vertexBuffer->Shutdown();
 
 			result = true;
+
+			return 0;
 		}
 	}
 }

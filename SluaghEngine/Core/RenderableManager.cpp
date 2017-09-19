@@ -22,23 +22,6 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 	StartProfile;
 
 	Allocate(128);
-	Core::Engine::GetInstance().GetResourceHandler()->AddParser(Utilz::GUID("obj"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
-	{
-		ArfData::Data arfData;
-		ArfData::DataPointers arfp;
-		auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
-		if (r)
-			return r;
-		auto data = (Arf::Mesh::Data**)parsedData;
-		r = Arf::Interleave(arfData, arfp, data, parsedSize, ~0u);
-		if (r)
-			return r;
-
-		operator delete(arfp.buffer);
-
-		return 0;
-
-	});
 	Core::Engine::GetInstance().GetTransformManager().SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
 
 	StopProfile;
@@ -51,7 +34,7 @@ SE::Core::RenderableManager::~RenderableManager()
 
 }
 
-void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, const CreateRenderObjectInfo & info)
+void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID)
 {
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
@@ -65,7 +48,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 
 		// Make sure we have enough memory.
 		if (renderableObjectInfo.used + 1 > renderableObjectInfo.allocated)
-			Allocate(renderableObjectInfo.allocated * 4);
+			Allocate(renderableObjectInfo.allocated * 2);
 
 		// Register the entity
 		size_t newEntry = renderableObjectInfo.used;
@@ -74,12 +57,12 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 
 
 		// Load data
-		auto& findBuffer = guidToBufferInfoIndex.find(info.meshGUID);
+		auto& findBuffer = guidToBufferInfoIndex.find(meshGUID);
 		if (findBuffer == guidToBufferInfoIndex.end())	// If not loaded load it.	
-			engine.GetResourceHandler()->LoadResource(info.meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::AddResource>(this));
+			engine.GetResourceHandler()->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
 	
 		// Increase ref Count
-		auto vBufferIndex = guidToBufferInfoIndex[info.meshGUID];
+		auto vBufferIndex = guidToBufferInfoIndex[meshGUID];
 		bufferInfo[vBufferIndex].refCount++;
 		renderableObjectInfo.bufferIndex[newEntry] = vBufferIndex;
 
@@ -203,14 +186,30 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	dirtyEntites.clear();
 }
 
-void SE::Core::RenderableManager::AddResource(const Utilz::GUID& guid, void* data, size_t size)
+int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
-	auto mD = (Arf::Mesh::Data*)data;
-	auto bufferHandle = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD->vertices, mD->NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	ArfData::Data arfData;
+	ArfData::DataPointers arfp;
+	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
+	if (r)
+		return r;
+	Arf::Mesh::Data* parsedData;
+	size_t parsedSize;
+	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize);
+	if (r)
+		return r;
+
+	delete arfp.buffer;
+
+	auto& mD = *(Arf::Mesh::Data*)parsedData;
+	auto bufferHandle = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	if (bufferHandle == -1)
+		ProfileReturnConst(-1);
 	bufferInfo.push_back({ 0, bufferHandle });
 	guidToBufferInfoIndex[guid] = bufferInfo.size() - 1;
-	StopProfile;
+
+	ProfileReturnConst(0);
 }
 
 void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)

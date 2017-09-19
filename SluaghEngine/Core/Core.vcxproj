@@ -142,12 +142,14 @@
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
+    <ClInclude Include="..\includes\Core\MaterialManager.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
   </ItemGroup>
