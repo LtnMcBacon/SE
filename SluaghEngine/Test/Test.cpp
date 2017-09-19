@@ -11,6 +11,7 @@
 #include "MaterialTest.h"
 #include "BufferTest.h"
 #include "RenderableManagerTest.h"
+#include "AudioTest.h"
 #include <map>
 #include <ctime>
 
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
 	AddTest(ObjLoaderTest);
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
+	AddTest(AudioTest);
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);

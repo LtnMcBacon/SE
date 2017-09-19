@@ -1,8 +1,6 @@
 #include "AudioSound.h"
 
 
-
-
 namespace SE {
 	namespace Audio {
 		AudioSound::AudioSound()
@@ -15,9 +13,9 @@ namespace SE {
 
 		}
 
-		int AudioSound::Initialise()
+		int AudioSound::Initialize()
 		{
-
+			return 0;
 		}
 
 		namespace sfvirt {

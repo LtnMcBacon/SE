@@ -12,9 +12,15 @@ namespace SE {
 
 		}
 
-		int AudioStream::Initialise()
+		int AudioStream::Initialize()
 		{
-
+			PaError err;
+			err = Pa_Initialize();
+			if (err != paNoError)
+			{
+				return -1;
+			}
+			return 0;
 		}
 
 		int AudioStream::StreamSound(SoundIndexName soundType, void* streamData)
@@ -82,7 +88,8 @@ namespace SE {
 
 		void AudioStream::Shutdown()
 		{
-
+			PaError err;
+			err = Pa_Terminate();
 		}
 
 	}	//namespace Audio

@@ -140,15 +140,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AudioManager.h" />
-    <ClInclude Include="AudioSound.h" />
-    <ClInclude Include="AudioStream.h" />
-    <ClInclude Include="AudioStructType.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="AudioSound.cpp" />
     <ClCompile Include="AudioStream.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\includes\Audio\AudioSound.h" />
+    <ClInclude Include="..\includes\Audio\AudioStream.h" />
+    <ClInclude Include="..\includes\Audio\AudioStructType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
