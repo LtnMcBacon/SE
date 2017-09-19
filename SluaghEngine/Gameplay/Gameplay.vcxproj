@@ -21,6 +21,10 @@
   <ItemGroup>
     <ClCompile Include="GameUnit.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Room.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Room.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventStructs.h" />
