@@ -31,6 +31,7 @@ int SE::ResourceHandler::RawLoader::Initialize()
 		auto& eh = Utilz::GUID(ext);
 		resourceEntires[nh] = { eh, s };
 	}
+	in.close();
 	ProfileReturnConst(0);
 }
 

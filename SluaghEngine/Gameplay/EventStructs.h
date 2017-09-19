@@ -30,7 +30,7 @@ namespace SE
 
 		struct HealingEvent
 		{
-			/*Waht is needed?*/
+			/*What is needed?*/
 		};
 
 		struct ConditionEvent
