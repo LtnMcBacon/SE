@@ -1,7 +1,6 @@
 #include <Renderer.h>
 #include <Profiler.h>
 
-
 using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
@@ -145,6 +144,47 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	staticVertexBufferHandler->RemoveVertexBuffer(bufferHandle);
 	StopProfile;
 }
+
+int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+{
+	StartProfile;
+	/*
+
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = description.width;
+	desc.Height = description.height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+
+	ID3D11Texture2D* texture;
+	D3D11_SUBRESOURCE_DATA d;
+	d.pSysMem = data;
+	d.SysMemPitch = description.width * 4;
+	d.SysMemSlicePitch = 0;
+	HRESULT hr = S_OK;
+	hr = device->GetDevice()->CreateTexture2D(&desc, &d, &texture);
+	
+	ID3D11ShaderResourceView* srv;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	hr = device->GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv);
+
+	
+	texture->Release();
+	*/
+
+
+	ProfileReturnConst(0);
+}
+
 
 int SE::Graphics::Renderer::CreateTransform()
 {

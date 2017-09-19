@@ -82,6 +82,15 @@ namespace SE
 			* @endcode
 			*/
 			void DestroyVertexBuffer(int bufferHandle);
+			
+			/**
+			* @brief Creates a texture (SRV)
+			* @param[in] data Raw image data
+			* @param[in] description Texture description
+			* @sa TextureDesc
+			*
+			*/
+			int CreateTexture(void* data, const TextureDesc& description) override;
 
 			/**
 			* @brief Create a transform.

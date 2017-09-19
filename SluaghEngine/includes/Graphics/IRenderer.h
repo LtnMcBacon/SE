@@ -12,6 +12,13 @@ namespace SE
 			int bufferHandle;
 			int transformHandle;
 		};
+
+		struct TextureDesc
+		{
+			uint32_t width;
+			uint32_t height;
+		};
+
 		class IRenderer
 		{
 		public:
@@ -83,6 +90,15 @@ namespace SE
 			* @endcode
 			*/
 			virtual void DestroyVertexBuffer(int bufferHandle) = 0;
+
+			/**
+			* @brief Creates a texture (SRV)
+			* @param[in] data Raw image data
+			* @param[in] description Texture description
+			* @sa TextureDesc
+			* 
+			*/
+			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
 
 			/**
 			* @brief Create a transform.
