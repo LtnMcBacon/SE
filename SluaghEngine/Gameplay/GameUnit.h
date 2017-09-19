@@ -37,8 +37,8 @@ namespace SE
 			/**
 			* @brief	Qeueu up damage events in vectors
 			*
-			* @details	Adds an enum of type DamageEvent for the DamageEventVector
-			*			Check EventStructs.h for enumtypes.
+			* @details	Adds an struct of type DamageEvent to the DamageEventVector
+			*			
 
 			* @param[in] DamageEvent dmg being the desired DamageEvent enum to add to the qeueu
 			*
@@ -52,8 +52,8 @@ namespace SE
 			/**
 			* @brief	Qeueu up Healing events in vectors
 			*
-			* @details	Adds an enum of type HealingEvent for the HealingEventVector
-			*			Check EventStructs.h for enumtypes.
+			* @details	Adds an struct of type HealingEvent to the HealingEventVector
+			*			
 			*
 			* @param[in] HealingEvent healing being the desired HealingEvent enum to add to the qeueu
 			*
@@ -68,8 +68,8 @@ namespace SE
 			/**
 			* @brief	Qeueu up Condition events in vectors
 			*
-			* @details	Adds an enum of type ConditionEvent for the ConditionEventVector
-			*			Check EventStructs.h for enumtypes.
+			* @details	Adds an struct of type ConditionEvent to the ConditionEventVector
+			*			
 			*
 			* @param[in] ConditionEvent condition being the desired ConditionEvent enum to add to the qeueu
 			*
