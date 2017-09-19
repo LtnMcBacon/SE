@@ -169,6 +169,7 @@ namespace SE
 			gResourceHandler->RemoveVertexBuffer(vertexID[2]);
 
 			gResourceHandler->Shutdown();
+			delete gResourceHandler;
 
 			result = true;
 		}
