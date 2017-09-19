@@ -72,21 +72,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformManagerTest.h">
-	 <Filter>Header Files</Filter>
-	 </ClInclude>
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ObjLoaderTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderableManagerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Asset\SimplePS.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\SimpleVS.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
