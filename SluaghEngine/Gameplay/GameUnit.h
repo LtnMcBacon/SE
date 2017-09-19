@@ -1,6 +1,6 @@
 #ifndef _SE_GAMEPLAY_GAME_UNIT_H_
 #define _SE_GAMEPLAY_GAME_UNIT_H_
-#include "Core/EntityManager.h" //<- To be changed when Jim has done an "Entity.h" file.
+#include "Core/Entity.h"
 
 namespace SE
 {
