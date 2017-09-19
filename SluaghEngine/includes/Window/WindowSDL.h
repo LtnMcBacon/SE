@@ -72,7 +72,7 @@ namespace SE
 				PRESSED = 3,
 				UP = 4
 			};
-			/**<Maps SDLK to keystate (up, down, pressed)*/
+			/**<Maps action button to keystate (up, down, pressed)*/
 			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
