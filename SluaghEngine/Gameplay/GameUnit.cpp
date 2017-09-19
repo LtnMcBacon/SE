@@ -19,9 +19,9 @@ void GameUnit::ClearDamageEvents()
 
 	
 	DamageEventVector.clear();
-	for (size_t i = 0; i < NextFrameDamage.size; i++)
+	for (auto &damageEvent : NextFrameDamage)
 	{
-		DamageEventVector.push_back(NextFrameDamage[i]);
+		DamageEventVector.push_back(damageEvent);
 	}
 	NextFrameDamage.clear();
 }
@@ -29,9 +29,9 @@ void GameUnit::ClearHealingEvents()
 {
 	
 	HealingEventVector.clear();
-	for (size_t i = 0; i < NextFrameHealing.size; i++)
+	for (auto &healingEvent : NextFrameHealing)
 	{
-		HealingEventVector.push_back(NextFrameHealing[i]);
+		HealingEventVector.push_back(healingEvent);
 	}
 	NextFrameHealing.clear();
 }
@@ -40,9 +40,9 @@ void GameUnit::ClearConditionEvents()
 
 	ConditionEventVector.clear();
 
-	for (size_t i = 0; i < NextFrameCondition.size; i++)
+	for (auto &conditionEvent : NextFrameCondition)
 	{
-		ConditionEventVector.push_back(NextFrameCondition[i]);
+		ConditionEventVector.push_back(conditionEvent);
 	}
 	NextFrameCondition.clear();
 }
