@@ -9,9 +9,8 @@ namespace SE
 		class Entity;
 		struct RenderObjectInfo
 		{
-			Utilz::GUID meshGUID;
-			Utilz::GUID* textureGUIDPtr = nullptr;
-			uint32_t textureGUIDCount = 0;
+			int bufferHandle;
+			int transformHandle;
 		};
 		class IRenderer
 		{
@@ -34,48 +33,23 @@ namespace SE
 			virtual void Shutdown() = 0;
 
 			/**
-			* @brief    Associates an entity with a renderable object. This function must be called
-			*  before an entity can be rendered. Every call to this must be met with a matching
-			*  DestroyRenderObject
-			* @param[in] entity The entity to bind.
-			* @param[in] info Information about the renderable object that is created.
+			* @brief    Sets a render job
+			* @param[in] handles The handles struct
 			* @retval 0 On success.
+			* @sa RenderObjectInfo
 			* @endcode
 			*/
-			virtual int CreateRenderObject(const Entity& entity, const RenderObjectInfo& info) = 0;
+			virtual int EnableRendering(const RenderObjectInfo& handles) = 0;
 
 			/**
-			* @brief    Destroys the renderable object that is associated with the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
+			* @brief    Removes a render job.
+			* @param[in] handles The handles struct
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int DestroyRenderObject(const Entity& entity) = 0;
+			virtual int DisableRendering(const RenderObjectInfo& handles) = 0;
 
-			/**
-			* @brief    Enables rendering for the renderable object bound to the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @retval 0 On success.
-			* @endcode
-			*/
-			virtual int EnableRendering(const Entity& entity) = 0;
 
-			/**
-			* @brief    Disables rendering for the renderable object bound to the entity.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @retval 0 On success.
-			* @endcode
-			*/
-			virtual int DisableRendering(const Entity& entity) = 0;
-
-			/**
-			* @brief Updates the transformation for an entity that is bound to rendering.
-			* @param[in] entity The entity that is bound to the renderable object.
-			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
-			* @retval 0 On success.
-			* @endcode
-			*/
-			virtual int UpdateTranslation(const Entity& entity, float* transform) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -92,8 +66,45 @@ namespace SE
 			*/
 			virtual int Render() = 0;
 
-
+			/**
+			* @brief Creates a vertex buffer.
+			* @param[in] data The vertex data.
+			* @param[in] vertexCount Number of vertices
+			* @param[in] stride The size of one vertex
+			* @retval BufferHandle Returns a handle to the created buffer.
+			* @retval -1 If something went wrong
+			* @endcode
+			*/
 			virtual int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride) = 0;
+
+			/**
+			* @brief Destroys a buffer.
+			* @param[in] bufferHandle The handle to the buffer to destroy
+			* @endcode
+			*/
+			virtual void DestroyVertexBuffer(int bufferHandle) = 0;
+
+			/**
+			* @brief Create a transform.
+			* @retval transformHandle Returns a handle to the created transform.
+			* @retval -1 If something went wrong
+			* @endcode
+			*/
+			virtual int CreateTransform() = 0;
+			/**
+			* @brief Destroy a transform
+			* @param[in] transformHandle Handle to the transform to destroy.
+			* @endcode
+			*/
+			virtual void DestroyTransform(int transformHandle) = 0;
+			/**
+			* @brief Updates the transformation for an entity that is bound to rendering.
+			* @param[in] transformHandle The transform handle that is bound to the renderable object.
+			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int UpdateTransform(int transformHandle, float* transform) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
