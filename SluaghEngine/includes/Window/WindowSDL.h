@@ -30,9 +30,11 @@ namespace SE
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
 
 
-			void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback) override;
-			void BindMouseMotionCallback(const MouseMotionCallBack& callback) override;
-			void BindKeyCallback(uint32_t actionButton, const KeyCallback& callback) override;
+			void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback) override;
+			void BindMouseMotionCallback(const MouseMotionCallback& callback) override;
+			void BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback) override;
+			void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) override;
+			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 		private:
 			/*Window related things*/
 			SDL_Window* window;
@@ -56,7 +58,11 @@ namespace SE
 			/**<Maps generic keys defined in IWindow.h to key codes of SDL implementation*/
 			std::map<KeyCode, uint32_t> keyMapping;
 			
-			std::map<uint32_t, std::vector<KeyCallback>> actionToCallback;
+			std::map<uint32_t, std::vector<KeyCallback>> actionToKeyPressCallback;
+			std::map<uint32_t, std::vector<KeyCallback>> actionToKeyDownCallback;
+			std::map<uint32_t, std::vector<KeyCallback>> actionToKeyUpCallback;
+			std::map<uint32_t, std::vector<MouseClickCallback>> actionToMouseClickCallback;
+			std::vector<MouseMotionCallback> mouseMotionCallbacks;
 
 			enum KeyState : uint32_t
 			{

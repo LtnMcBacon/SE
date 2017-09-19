@@ -207,9 +207,9 @@ namespace SE
 		};
 
 		
-		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallBack;
-		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallBack;
-		typedef std::function<void()> KeyCallback;
+		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallback;
+		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallback;
+		typedef  Utilz::Delegate<void()> KeyCallback;
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
@@ -278,9 +278,11 @@ namespace SE
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
 			
-			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallBack& callback) = 0;
-			virtual void BindMouseMotionCallback(const MouseMotionCallBack& callback) = 0;
-			virtual void BindKeyCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback) = 0;
+			virtual void BindMouseMotionCallback(const MouseMotionCallback& callback) = 0;
+			virtual void BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			virtual void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			virtual void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
 
 			/**
 			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key but an action button cannot be mapped to several keys. An action button is any user defined key represented as an unsigned integer.
