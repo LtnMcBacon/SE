@@ -1,6 +1,6 @@
 #ifndef _SE_GAMEPLAY_GAME_UNIT_H_
 #define _SE_GAMEPLAY_GAME_UNIT_H_
-#include "Core/Entity.h"
+#include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
 namespace SE
