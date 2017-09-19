@@ -1,0 +1,400 @@
+
+#include "GraphicResourceHandler.h"
+#include <Profiler.h>
+
+using namespace SE::Graphics;
+using namespace std;
+
+GraphicResourceHandler::GraphicResourceHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext) {
+
+	this->gDevice = gDevice;
+	this->gDeviceContext = gDeviceContext;
+}
+
+GraphicResourceHandler::~GraphicResourceHandler() {
+
+
+}
+
+void GraphicResourceHandler::Shutdown() {
+
+	// Remove vertex buffers
+	for (auto &vb : vBuffers)
+	{
+		if (vb.vertexBuffer)
+		{
+			vb.vertexBuffer->Release();
+		}
+	}
+
+	// Remove constant buffers
+	for (auto &cb : cBuffers)
+	{
+		if (cb.constBuffer)
+		{
+			cb.constBuffer->Release();
+		}
+	}
+
+	for (auto &vs : vShaders) {
+
+		if (vs.vertexShader) {
+
+			vs.vertexShader->Release();
+		}
+
+		if (vs.inputLayout) {
+
+			vs.inputLayout->Release();
+		}
+	}
+
+	for (auto &ps : pShaders) {
+
+		if (ps.pixelShader) {
+
+			ps.pixelShader->Release();
+		}
+	}
+}
+
+HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *vertexShaderID) {
+
+	StartProfile;
+
+	ID3D11InputLayout* tempInputLayout = nullptr;
+	ID3D11VertexShader*	tempVertexShader = nullptr;
+
+	HRESULT hr = S_OK;
+
+	// We require three inputs (IN THE FOLLOWING ORDER):
+	// POSITION
+	// NORMAL
+	// TEXCOORD
+	D3D11_INPUT_ELEMENT_DESC vertexInputLayout[3];
+
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Asset\\SimpleVS.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return hr;
+	}
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &tempVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return hr;
+	}
+
+	vertexInputLayout[0].SemanticName = "POSITION";
+	vertexInputLayout[0].SemanticIndex = 0;
+	vertexInputLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexInputLayout[0].InputSlot = 0;
+	vertexInputLayout[0].AlignedByteOffset = 0;
+	vertexInputLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexInputLayout[0].InstanceDataStepRate = 0;
+
+	vertexInputLayout[1].SemanticName = "NORMAL";
+	vertexInputLayout[1].SemanticIndex = 0;
+	vertexInputLayout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexInputLayout[1].InputSlot = 0;
+	vertexInputLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexInputLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexInputLayout[1].InstanceDataStepRate = 0;
+
+	vertexInputLayout[2].SemanticName = "TEXCOORD";
+	vertexInputLayout[2].SemanticIndex = 0;
+	vertexInputLayout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexInputLayout[2].InputSlot = 0;
+	vertexInputLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexInputLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexInputLayout[2].InstanceDataStepRate = 0;
+
+	int inputLayoutSize = sizeof(vertexInputLayout) / sizeof(vertexInputLayout[0]);
+	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &tempInputLayout);
+
+	if (FAILED(hr)) {
+
+		cout << "Input Layout Error: Shader Input Layout could not be created" << endl;
+
+		return hr;
+	}
+
+	vsBlob->Release();
+
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	if (freeVertexShaderLocations.size() == 0)
+	{
+		vShaders.push_back({ tempVertexShader, tempInputLayout });
+		*vertexShaderID = vShaders.size() - 1;
+	}
+	else
+	{
+		auto top = freeVertexShaderLocations.top();
+		vShaders[top].vertexShader = tempVertexShader;
+		vShaders[top].inputLayout = tempInputLayout;
+		*vertexShaderID = top;
+		freeVertexShaderLocations.pop();
+	}
+
+	ProfileReturnConst(hr);
+}
+
+HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pixelShaderID) {
+
+	StartProfile;
+
+	ID3D11PixelShader* tempPixelShader = nullptr;
+
+	HRESULT hr = S_OK;
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Asset\\SimplePS.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Pixel Shader Error: Pixel Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return hr;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &tempPixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return hr;
+	}
+
+	psBlob->Release();
+
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	if (freePixelShaderLocations.size() == 0)
+	{
+		pShaders.push_back({ tempPixelShader });
+		*pixelShaderID = pShaders.size() - 1;
+	}
+	else
+	{
+		auto top = freePixelShaderLocations.top();
+		pShaders[top].pixelShader = tempPixelShader;
+		*pixelShaderID = top;
+		freePixelShaderLocations.pop();
+	}
+
+	ProfileReturnConst(hr);
+}
+
+void GraphicResourceHandler::UnbindShaders() {
+
+	StartProfile;
+
+	// Define null pointers for each type
+	ID3D11InputLayout* nullInputLayout = nullptr;
+	ID3D11VertexShader* nullVS = nullptr;
+	ID3D11GeometryShader* nullGS = nullptr;
+	ID3D11PixelShader* nullPS = nullptr;
+
+	// Set the null input layout
+	gDeviceContext->IASetInputLayout(nullInputLayout);
+
+	// Set the null vertex and pixel shaders
+	gDeviceContext->VSSetShader(nullVS, nullptr, 0);
+	gDeviceContext->GSSetShader(nullGS, nullptr, 0);
+	gDeviceContext->PSSetShader(nullPS, nullptr, 0);
+
+	StopProfile;
+}
+
+void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
+
+	// Unbind shaders
+	UnbindShaders();
+
+	// Set the input layout
+	gDeviceContext->IASetInputLayout(vShaders[vertexID].inputLayout);
+
+	// Set the vertex and pixel shaders
+	gDeviceContext->VSSetShader(vShaders[vertexID].vertexShader, nullptr, 0);
+	gDeviceContext->PSSetShader(pShaders[pixelID].pixelShader, nullptr, 0);
+
+}
+
+HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t vertexCount, size_t stride, int *vertexBufferID)
+{
+	StartProfile;
+	D3D11_BUFFER_DESC _vertexBufferDesc;
+	// description for vertexbuffer
+	_vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	_vertexBufferDesc.ByteWidth = vertexCount * stride;
+	_vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	_vertexBufferDesc.CPUAccessFlags = 0;
+	_vertexBufferDesc.MiscFlags = 0;
+	_vertexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA _vertexData;
+	_vertexData.pSysMem = inputData;
+	_vertexData.SysMemPitch = 0;
+	_vertexData.SysMemSlicePitch = 0;
+
+
+	// Creates vertex buffern
+	ID3D11Buffer* tempBuffer;
+	HRESULT _hr = gDevice->CreateBuffer(&_vertexBufferDesc, &_vertexData, &tempBuffer);
+
+	if (FAILED(_hr))
+	{
+		ProfileReturnConst(_hr);
+	}
+	if (freeVertexBufferLocations.size() == 0)
+	{
+		vBuffers.push_back({ tempBuffer, vertexCount, stride });
+		*vertexBufferID = vBuffers.size() - 1;
+	}
+	else
+	{
+		auto top = freeVertexBufferLocations.top();
+		vBuffers[top].vertexBuffer = tempBuffer;
+		vBuffers[top].vertexCount = vertexCount;
+		vBuffers[top].stride = stride;
+		*vertexBufferID = top;
+		freeVertexBufferLocations.pop();
+	}
+	ProfileReturnConst(_hr);
+}
+
+void GraphicResourceHandler::SetVertexBuffer(int vertexBufferID)
+{
+	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 offset = 0;
+	gDeviceContext->IASetVertexBuffers(0, 1, &vBuffers[vertexBufferID].vertexBuffer, &vertexSize, &offset);
+}
+
+void GraphicResourceHandler::RemoveVertexBuffer(int vertexBufferID)
+{
+	vBuffers[vertexBufferID].vertexBuffer->Release();
+	vBuffers[vertexBufferID].vertexBuffer = nullptr;
+	freeVertexBufferLocations.push(vertexBufferID);
+}
+
+size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
+{
+	return vBuffers[vertexBufferID].vertexCount;
+}
+
+HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
+{
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.ByteWidth = size;
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+
+	//skapar constant buffer
+	ConstantBuffer tempBuffer;
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
+	tempBuffer.size = size;
+
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+	if (freeConstantBufferLocations.size() == 0)
+	{
+		cBuffers.push_back(tempBuffer);
+		targetOffset.push_back(inTargetOffset);
+		*constBufferID = cBuffers.size() - 1;
+	}
+	else
+	{
+		auto top = freeConstantBufferLocations.top();
+		cBuffers[top] = tempBuffer;
+		targetOffset[top] = inTargetOffset;
+		*constBufferID = top;
+		freeConstantBufferLocations.pop();
+	}
+	return hr;
+}
+
+void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
+{
+	if (targetOffset.at(constBufferID).shaderTarget[0] == true)
+	{
+		gDeviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &cBuffers[constBufferID].constBuffer);
+	}
+	if (targetOffset.at(constBufferID).shaderTarget[1] == true)
+	{
+		gDeviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &cBuffers[constBufferID].constBuffer);
+	}
+	if (targetOffset.at(constBufferID).shaderTarget[2] == true)
+	{
+		gDeviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &cBuffers[constBufferID].constBuffer);
+	}
+}
+
+void GraphicResourceHandler::SetConstantBuffer(void* inData, int constBufferID)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	HRESULT hr = gDeviceContext->Map(cBuffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, inData, cBuffers[constBufferID].size);
+	gDeviceContext->Unmap(cBuffers[constBufferID].constBuffer, 0);
+
+}
+
+void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)
+{
+	cBuffers[constBufferID].constBuffer->Release();
+	cBuffers[constBufferID].constBuffer = nullptr;
+	freeConstantBufferLocations.push(constBufferID);
+}
+

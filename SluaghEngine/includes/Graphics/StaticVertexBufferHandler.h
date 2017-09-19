@@ -51,6 +51,7 @@ namespace SE
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
 			size_t GetVertexCount(int vertexBufferID) const;
+
 		private:
 			std::vector<VertexCount> buffers;
 			std::stack<int> stackID;
