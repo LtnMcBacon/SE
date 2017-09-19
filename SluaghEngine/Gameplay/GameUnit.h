@@ -34,17 +34,13 @@ namespace SE
 			*/
 			inline bool IsAlive() const { return !!this->health; };
 
-			
 			/**
 			* @brief	Qeueu up damage events in vectors
 			*
 			* @details	Adds an enum of type DamageEvent for the DamageEventVector
 			*			Check EventStructs.h for enumtypes.
-			*
-			*
-			*
+
 			* @param[in] DamageEvent dmg being the desired DamageEvent enum to add to the qeueu
-			*
 			*
 			* Example code:
 			* @code
@@ -53,14 +49,11 @@ namespace SE
 			*/
 			inline void AddDamageEvent(DamageEvent dmg) { DamageEventVector.push_back(dmg); };
 
-
 			/**
 			* @brief	Qeueu up Healing events in vectors
 			*
 			* @details	Adds an enum of type HealingEvent for the HealingEventVector
 			*			Check EventStructs.h for enumtypes.
-			*
-			*
 			*
 			* @param[in] HealingEvent healing being the desired HealingEvent enum to add to the qeueu
 			*
@@ -72,14 +65,11 @@ namespace SE
 			*/
 			inline void AddHealingEvent(HealingEvent healing) { HealingEventVector.push_back(healing); };
 
-
 			/**
 			* @brief	Qeueu up Condition events in vectors
 			*
 			* @details	Adds an enum of type ConditionEvent for the ConditionEventVector
 			*			Check EventStructs.h for enumtypes.
-			*
-			*
 			*
 			* @param[in] ConditionEvent condition being the desired ConditionEvent enum to add to the qeueu
 			*
@@ -91,13 +81,11 @@ namespace SE
 			*/
 			inline void AddConditionEvent(ConditionEvent condition) { ConditionEventVector.push_back(condition); };
 
-
 			/*
 			* @brief	Clears the Damage Vector
 			*
 			* @details	Calls the .clear(); function for both the
 			*			EventVector and NextFrame Vector
-			*
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
@@ -107,13 +95,11 @@ namespace SE
 			*/
 			void ClearDamageEvents();
 
-
 			/*
 			* @brief	Clears the Healing Vector
 			*
 			* @details	Calls the .clear(); function for both the
 			*			EventVector and NextFrame Vector
-			*
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
@@ -123,13 +109,11 @@ namespace SE
 			*/
 			void ClearHealingEvents();
 
-
 			/*
 			* @brief	Clears the Condition Vector
 			*
 			* @details	Calls the .clear(); function for both the
 			*			EventVector and NextFrame Vector
-			*
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
@@ -139,8 +123,6 @@ namespace SE
 			*/
 			void ClearConditionEvents();
 
-
-
 			inline float GetHealth() const { return health; };
 
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
@@ -148,13 +130,9 @@ namespace SE
 		protected:
 			Core::Entity unitEntity = {};
 
-
-
-
 			//Life. Float needed?
 			float health;
 			
-
 			std::vector<DamageEvent> DamageEventVector;
 			std::vector<HealingEvent> HealingEventVector;
 			std::vector<ConditionEvent> ConditionEventVector;
@@ -163,17 +141,6 @@ namespace SE
 			
 			std::vector<HealingEvent> NextFrameHealing;
 			std::vector<ConditionEvent> NextFrameCondition;
-
-
-			
-			
-			
-			
-			
-			
-
-
-
 
 			//Weapons? Needed here?
 

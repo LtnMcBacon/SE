@@ -2,7 +2,6 @@
 using namespace SE;
 using namespace Gameplay;
 
-
 GameUnit::GameUnit()
 {
 
@@ -13,11 +12,9 @@ GameUnit::~GameUnit()
 
 }
 
-
 void GameUnit::ClearDamageEvents()
 {
 
-	
 	DamageEventVector.clear();
 	for (auto &damageEvent : NextFrameDamage)
 	{
