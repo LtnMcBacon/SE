@@ -92,13 +92,12 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::KeyAltL,	   SDLK_LALT},
 		{ KeyCode::KeyAltR,	   SDLK_RALT},
 		{ KeyCode::KeyCtrlR,	   SDLK_RCTRL},
-		{ KeyCode::KeyShiftR,   SDLK_RSHIFT}
+		{ KeyCode::KeyShiftR,   SDLK_RSHIFT},
+		{ KeyCode::MouseLeft, SDL_BUTTON_LEFT},
+		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	for(auto& k : keyMapping)
-	{
-		keyStates[k.second] = NIL;
-	}
+	
 
 	return 0;
 }
@@ -110,7 +109,7 @@ void SE::Window::WindowSDL::Shutdown()
 
 void SE::Window::WindowSDL::Frame()
 {
-	for(auto& ks : keyStates)
+	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
@@ -121,18 +120,32 @@ void SE::Window::WindowSDL::Frame()
 		{
 		case SDL_KEYUP:
 			{
-				auto state = keyStates.find(ev.key.keysym.sym);
-				if (state != keyStates.end())
-					state->second = UP;
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
 				break;
 			}
 		case SDL_KEYDOWN:
 			{
-				auto state = keyStates.find(ev.key.keysym.sym);
-				if (state != keyStates.end())
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
 				{
-					if (!(state->second & DOWN))
-						state->second = PRESSED;
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+						if(pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(state->second);
+					if(downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
+							cb();
+					}
 				}
 				break;
 			}
@@ -142,12 +155,14 @@ void SE::Window::WindowSDL::Frame()
 				curMouseY = ev.motion.y;
 				relMouseX = ev.motion.xrel;
 				relMouseY = ev.motion.yrel;
+				for (auto& cb : mouseMotionCallbacks)
+					cb(relMouseX, relMouseY, curMouseX, curMouseY);
 				break;
 			}
 		case SDL_MOUSEBUTTONDOWN:
 			{
 				if(ev.button.button == SDL_BUTTON_LEFT)
-				{
+				{	
 					mouseLeftDown = true;
 				}
 				else if(ev.button.button == SDL_BUTTON_RIGHT)
@@ -158,6 +173,16 @@ void SE::Window::WindowSDL::Frame()
 			}
 		case SDL_MOUSEBUTTONUP:
 			{
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+				}
 				if (ev.button.button == SDL_BUTTON_LEFT)
 				{
 					mouseLeftDown = false;
@@ -198,23 +223,49 @@ bool SE::Window::WindowSDL::ButtonUp(uint32_t actionButton) const
 
 void SE::Window::WindowSDL::MapActionButton(uint32_t actionButton, KeyCode key)
 {
-	actionMappings[actionButton] = key;
+	keyToAction[keyMapping[key]] = actionButton;
 }
+
+void SE::Window::WindowSDL::BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback)
+{
+	actionToMouseClickCallback[actionButton].push_back(callback);
+}
+
+void SE::Window::WindowSDL::BindMouseMotionCallback(const MouseMotionCallback& callback)
+{
+	mouseMotionCallbacks.push_back(callback);
+}
+
+void SE::Window::WindowSDL::BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback)
+{
+	actionToKeyPressCallback[actionButton].push_back(callback);
+}
+
+void SE::Window::WindowSDL::BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback)
+{
+	actionToKeyDownCallback[actionButton].push_back(callback);
+}
+
+void SE::Window::WindowSDL::BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback)
+{
+	actionToKeyUpCallback[actionButton].push_back(callback);
+}
+
+void SE::Window::WindowSDL::UnbindCallbacks()
+{
+	actionToKeyPressCallback.clear();
+	actionToKeyDownCallback.clear();
+	actionToKeyUpCallback.clear();
+	actionToMouseClickCallback.clear();
+	mouseMotionCallbacks.clear();
+}
+
 
 uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 {
 	//Find which KeyCode actionbutton is mapped to
-	const auto ab = actionMappings.find(actionButton);
-	if (ab == actionMappings.end())
+	const auto k = actionToKeyState.find(actionButton);
+	if (k == actionToKeyState.end())
 		return 0;
-
-	//Find which SDLKey corresponds to KeyCode
-	const auto k = keyMapping.find(ab->second);
-	if (k == keyMapping.end())
-		return 0;
-
-	//Finally check if the button is down.
-	const auto keyState = keyStates.find(k->second);
-	//Guaranteed to be found as all KeyCodes have a corresponding state set in Initialize
-	return keyState->second;
+	return k->second;
 }
