@@ -93,6 +93,7 @@ namespace SE
 			cBufferHandle->RemoveConstantBuffer(ID[2]);
 
 			cBufferHandle->Shutdown();;
+			delete cBufferHandle;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
@@ -117,6 +118,7 @@ namespace SE
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
+			
 			return true;
 		}
 		int BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
@@ -168,7 +170,7 @@ namespace SE
 			vertexBuffer->RemoveVertexBuffer(vertexID[2]);
 
 			vertexBuffer->Shutdown();
-
+			delete vertexBuffer;
 			result = true;
 
 			return 0;

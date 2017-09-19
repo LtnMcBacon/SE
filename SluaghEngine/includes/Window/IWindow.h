@@ -3,7 +3,8 @@
 
 #include <cstdint>
 #include <string>
-
+#include <Utilz/Delegator.h>
+#include <functional>
 namespace SE
 {
 	namespace Window
@@ -200,8 +201,24 @@ namespace SE
 			KeyBraceRight,
 			KeySysRq,
 			*/
+			MouseLeft,
+			MouseRight,
 			KeyCount_
 		};
+
+		
+		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallback;
+		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallback;
+		typedef  Utilz::Delegate<void()> KeyCallback;
+		/**
+		*
+		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
+		*
+		*
+		*
+		* @sa WindowSDL
+		*
+		**/
 		class IWindow
 		{
 		public:
@@ -216,17 +233,97 @@ namespace SE
 			IWindow(){};
 			virtual ~IWindow(){};
 
+			/**
+			* @brief Initializes the window based on the information in the struct sent to it. If no parameter is sent, default values will be used
+			* @retval return_value_0 Returns 0 on success.
+			* @sa InitializationInfo
+			*/
 			virtual int Initialize(const InitializationInfo& info = InitializationInfo()) = 0;
+
+			/**
+			* @brief Destroys the window
+			*/
 			virtual void Shutdown() = 0;
 
+			/**
+			* @brief Polls for input
+			*/
 			virtual void Frame() = 0;
 
+			/**
+			* @brief Returns a pointer to the window handle
+			*/
 			virtual void* GetHWND() = 0;
 
+			/**
+			* @brief Checks whether or no the bound action button is down or not. An action button must be bound with MapActionButton before this method is called
+			* @retval true Returns true if the button is down
+			* @retval false Returns false if the button is not down.
+			* @sa MapActionButton
+			*/
 			virtual bool ButtonDown(uint32_t actionButton) const = 0;
+			/**
+			* @brief Checks whether or no the bound action button was pressed during this frame or not, i.e. if the button is down this frame but was not down last frame.
+			* @retval true Returns true if the button was pressed.
+			* @retval false Returns false if the button was not pressed.
+			* @sa MapActionButton
+			*/
 			virtual bool ButtonPressed(uint32_t actionButton) const = 0;
+			/**
+			* @brief Checks whether or no the bound action button was lifted this frame
+			* @retval true Returns true if the button was lifted
+			* @retval false Returns false if the button was not lifted
+			* @sa MapActionButton
+			*/
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
+			
+			/**
+			* @brief Binds a callback function that is called when the mouse button bound to actionButton is lifted (a click).
+			* @sa Delegate
+			*/
+			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the mouse is moved.
+			* @sa Delegate
+			*/
+			virtual void BindMouseMotionCallback(const MouseMotionCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is pressed
+			* @sa Delegate
+			*/
+			virtual void BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is down. 
+			* @sa Delegate
+			*/
+			virtual void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is lifted
+			* @sa Delegate
+			*/
+			virtual void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Unbinds all previously bound callbacks
+			* @sa Delegate
+			*/
+			virtual void UnbindCallbacks() = 0;
+
+			/**
+			* @brief Maps an action button to a certain key. An action button can be bound to several keys, but one key can only be bound to one action button. An action button is any user defined key represented as an unsigned integer.
+			* * Example code:
+			* @code
+			*   enum{
+			*       JUMP,
+			*       SHOOT
+			*   };
+			*   
+			*   window.MapActionButton(JUMP, KeySpace);
+			*   window.Frame();
+			*   if(window.ButtonDown(JUMP))
+			*        character.jump();
+			* @endcode
+			*/
 			virtual void MapActionButton(uint32_t actionButton, KeyCode key) = 0;
 
 		private:

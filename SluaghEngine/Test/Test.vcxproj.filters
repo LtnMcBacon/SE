@@ -87,12 +87,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Asset\SimplePS.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\SimpleVS.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-  </ItemGroup>
 </Project>

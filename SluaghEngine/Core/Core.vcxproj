@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Engine.h" />
+    <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
     <ClInclude Include="..\includes\Core\MaterialManager.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
