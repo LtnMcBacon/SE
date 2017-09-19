@@ -4,7 +4,7 @@
 #include "Core/TransformManager.h"
 
 #include <Graphics\IRenderer.h>
-#include <Window\InterfaceWindow.h>
+#include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "AudioManager.h"
 #include "RenderableManager.h"
@@ -73,6 +73,12 @@ namespace SE
 			* @sa InitializationInfo, Release
 			*/
 			int Release();
+
+			/**
+			* @brief	Called each frame, to update the state.
+			*/
+			void Frame();
+
 			/**
 			* @brief    Returns a reference to the entity manager.
 			* @retval return_value_0 Returns a reference to the entity manager.
@@ -99,7 +105,7 @@ namespace SE
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
 			*/
-			Window::InterfaceWindow* GetWindow() const;
+			Window::IWindow* GetWindow() const;
 
 			/**
 			* @brief    Returns a pointer to the resource handler.
@@ -130,7 +136,7 @@ namespace SE
 
 			EntityManager* entityManager;
 			Graphics::IRenderer* renderer;
-			Window::InterfaceWindow* window;
+			Window::IWindow* window;
 			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;

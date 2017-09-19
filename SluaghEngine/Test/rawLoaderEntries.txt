@@ -1,5 +1,4 @@
 test.txt
 Asset/test.objtest
 Asset/Placeholder_level.obj
-Asset/Canary.wav
-Asset/Cout.wav
+Asset/Placeholder_MC.obj

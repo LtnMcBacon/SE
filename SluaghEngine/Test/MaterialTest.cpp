@@ -1,7 +1,7 @@
 #include "MaterialTest.h"
 #include <Graphics\DeviceManager.h>
 #include <Graphics\MaterialHandler.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "GraphicsD.lib")
@@ -26,15 +26,15 @@ SE::Test::MaterialTest::MaterialTest::~MaterialTest() {
 bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console) 
 {
 
-	Window::InterfaceWindow* window = new Window::Window;
-	auto r = window->Initialise();
+	Window::IWindow* window = new Window::WindowSDL;
+	auto r = window->Initialize();
 	if (r)
 	{
 		console->Print("Could not init window, Error: %d.\n", r);
 		return false;
 	}
 	Graphics::DeviceManager* device = new Graphics::DeviceManager();
-	HRESULT hr = device->Init((HWND)window->GethWnd());
+	HRESULT hr = device->Init((HWND)window->GetHWND());
 	if (FAILED(hr))
 	{
 		console->Print("Could not init device, Error: %d.\n", hr);
@@ -52,6 +52,10 @@ bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console)
 	mat->Shutdown();
 	device->Shutdown();
 	window->Shutdown();
+
+	delete window;
+	delete device;
+	delete mat;
 	
 	return true;
 }

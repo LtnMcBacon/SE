@@ -72,18 +72,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -126,7 +134,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
@@ -139,7 +146,6 @@
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
@@ -150,36 +156,6 @@
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="WindowTest.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Asset\SimplePS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Asset\SimpleVS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,6 @@
 #include "InitGraphicsTest.h"
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "GraphicsD.lib")
@@ -22,14 +22,14 @@ SE::Test::InitGraphicsTest::InitGraphicsTest::~InitGraphicsTest()
 bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 {
 	Graphics::IRenderer* r = new Graphics::Renderer();
-	Window::InterfaceWindow* w = new Window::Window();
-	int result = w->Initialise();
+	Window::IWindow* w = new Window::WindowSDL();
+	int result = w->Initialize();
 	if (result)
 	{
 		console->Print("Could not initialize window. Error: %d\n", result);
 		return false;
 	}
-	result = r->Initialize(w->GethWnd());
+	result = r->Initialize(w->GetHWND());
 	if (result)
 	{
 		console->Print("Could not initialize renderer. Error: %d\n", result);
@@ -41,7 +41,10 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 	}
 
 	r->Shutdown();
-
 	w->Shutdown();
+
+	delete r;
+	delete w;
+
 	return true;
 }

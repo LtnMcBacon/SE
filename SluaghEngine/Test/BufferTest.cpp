@@ -5,7 +5,7 @@
 #include <Graphics\ConstantBufferHandler.h>
 #include <Graphics\StaticVertexBufferHandler.h>
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 
 #include "ObjLoaderTest.h"
 #include <Core\Engine.h>
@@ -26,18 +26,18 @@ namespace SE
 
 		}
 		static Graphics::DeviceManager* deviceManager = nullptr;
-		Window::InterfaceWindow* window = nullptr;
+		Window::IWindow* window = nullptr;
 		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
-			window = new Window::Window();
-			int isOK = window->Initialise();
+			window = new Window::WindowSDL();
+			int isOK = window->Initialize();
 			if (isOK != 0)
 			{
 				return isOK;
 			}
 			deviceManager = new Graphics::DeviceManager();
-			HRESULT hr = deviceManager->Init((HWND)window->GethWnd());
+			HRESULT hr = deviceManager->Init((HWND)window->GetHWND());
 			if (hr != S_OK)
 			{
 				return false;
@@ -93,6 +93,7 @@ namespace SE
 			cBufferHandle->RemoveConstantBuffer(ID[2]);
 
 			cBufferHandle->Shutdown();;
+			delete cBufferHandle;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
@@ -119,7 +120,7 @@ namespace SE
 				r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
 				if (r)
 					return r;
-
+				delete arfp.buffer;
 				return 0;
 			});
 
@@ -131,6 +132,7 @@ namespace SE
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
+			
 			return true;
 		}
 		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
@@ -169,7 +171,7 @@ namespace SE
 			vertexBuffer->RemoveVertexBuffer(vertexID[2]);
 
 			vertexBuffer->Shutdown();
-
+			delete vertexBuffer;
 			result = true;
 		}
 	}
