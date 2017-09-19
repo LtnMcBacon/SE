@@ -51,11 +51,13 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(2, SE::Window::KeyA);
 	window->MapActionButton(3, SE::Window::KeyD);
 	window->MapActionButton(1, SE::Window::KeyS);
+	window->MapActionButton(7, Window::KeyCode::KeyU);
 	window->MapActionButton(5, Window::KeyCode::MouseLeft);
 	window->MapActionButton(6, Window::KeyCode::MouseRight);
 	window->BindKeyPressCallback(2, Window::KeyCallback::Make<&KeyCall>());
 	window->BindMouseClickCallback(5, Window::MouseClickCallback::Make<&MouseCall>());
 	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
+
 	bool running = true;
 	while(running)
 	{
@@ -69,6 +71,8 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 			console->Print("Action button %d down.\n", 3);
 		if (window->ButtonPressed(4))
 			console->Print("Action button %d pressed\n", 4);
+		if (window->ButtonPressed(7))
+			window->UnbindCallbacks();
 	}
 
 	

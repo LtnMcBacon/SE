@@ -278,11 +278,36 @@ namespace SE
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
 			
+			/**
+			* @brief Binds a callback function that is called when the mouse button bound to actionButton is lifted (a click).
+			* @sa Delegate
+			*/
 			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the mouse is moved.
+			* @sa Delegate
+			*/
 			virtual void BindMouseMotionCallback(const MouseMotionCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is pressed
+			* @sa Delegate
+			*/
 			virtual void BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is down. 
+			* @sa Delegate
+			*/
 			virtual void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is lifted
+			* @sa Delegate
+			*/
 			virtual void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Unbinds all previously bound callbacks
+			* @sa Delegate
+			*/
+			virtual void UnbindCallbacks() = 0;
 
 			/**
 			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key but an action button cannot be mapped to several keys. An action button is any user defined key represented as an unsigned integer.

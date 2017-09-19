@@ -251,6 +251,14 @@ void SE::Window::WindowSDL::BindKeyUpCallback(uint32_t actionButton, const KeyCa
 	actionToKeyUpCallback[actionButton].push_back(callback);
 }
 
+void SE::Window::WindowSDL::UnbindCallbacks()
+{
+	actionToKeyPressCallback.clear();
+	actionToKeyDownCallback.clear();
+	actionToKeyUpCallback.clear();
+	actionToMouseClickCallback.clear();
+	mouseMotionCallbacks.clear();
+}
 
 
 uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
