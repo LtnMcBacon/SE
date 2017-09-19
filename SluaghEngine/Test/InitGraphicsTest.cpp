@@ -41,7 +41,10 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 	}
 
 	r->Shutdown();
-
 	w->Shutdown();
+
+	delete r;
+	delete w;
+
 	return true;
 }
