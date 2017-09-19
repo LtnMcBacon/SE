@@ -1,8 +1,10 @@
 
-#include "GraphicResourceHandler.h"
+#include <Graphics/GraphicResourceHandler.h>
+#include <Utilz\Console.h>
 #include <Profiler.h>
 
 using namespace SE::Graphics;
+using namespace SE::Utilz;
 using namespace std;
 
 GraphicResourceHandler::GraphicResourceHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext) {
@@ -90,7 +92,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 
 	if (FAILED(hr)) {
 
-		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+		Console::Print("Vertex Shader Error: Vertex Shader could not be compiled or loaded from file");
 
 		if (vsErrorBlob) {
 
@@ -98,15 +100,15 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 			vsErrorBlob->Release();
 		}
 
-		return hr;
+		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
 
-		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
-		return hr;
+		Console::Print("Vertex Shader Error: Vertex Shader could not be created");
+		ProfileReturnConst(hr);
 	}
 
 	vertexInputLayout[0].SemanticName = "POSITION";
@@ -138,9 +140,9 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 
 	if (FAILED(hr)) {
 
-		cout << "Input Layout Error: Shader Input Layout could not be created" << endl;
+		Console::Print("Input Layout Error: Shader Input Layout could not be created");
 
-		return hr;
+		ProfileReturnConst(hr);
 	}
 
 	vsBlob->Release();
@@ -191,7 +193,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pi
 
 	if (FAILED(hr)) {
 
-		cout << "Pixel Shader Error: Pixel Shader could not be compiled or loaded from file" << endl;
+		Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
 
 		if (psErrorBlob) {
 
@@ -199,15 +201,15 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pi
 			psErrorBlob->Release();
 		}
 
-		return hr;
+		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
 
-		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
-		return hr;
+		Console::Print("Pixel Shader Error: Pixel Shader could not be created");
+		ProfileReturnConst(hr);
 	}
 
 	psBlob->Release();
@@ -331,6 +333,7 @@ size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
 
 HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
 {
+	StartProfile;
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
@@ -347,7 +350,7 @@ HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& 
 
 	if (FAILED(hr))
 	{
-		return hr;
+		ProfileReturnConst(hr);
 	}
 	if (freeConstantBufferLocations.size() == 0)
 	{
@@ -363,7 +366,8 @@ HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& 
 		*constBufferID = top;
 		freeConstantBufferLocations.pop();
 	}
-	return hr;
+
+	ProfileReturnConst(hr);
 }
 
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)

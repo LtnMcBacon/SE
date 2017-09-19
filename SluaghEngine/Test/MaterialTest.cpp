@@ -1,6 +1,6 @@
 #include "MaterialTest.h"
 #include <Graphics\DeviceManager.h>
-#include <Graphics\MaterialHandler.h>
+#include <Graphics\GraphicResourceHandler.h>
 #include <Window\WindowSDL.h>
 
 #ifdef _DEBUG
@@ -40,14 +40,25 @@ bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console)
 		console->Print("Could not init device, Error: %d.\n", hr);
 		return false;
 	}
-	auto mat = new Graphics::MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-	hr = mat->Init();
-	if (r)
+	auto mat = new Graphics::GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
+
+	int shaderID[2];
+
+	hr = mat->CreateVertexShader(device->GetDevice(), &shaderID[0]);
+	if (FAILED(hr))
 	{
 		console->Print("Could not init material handler, Error: %d.\n", hr);
 		return false;
 	}
-	mat->SetMaterial();
+
+	hr = mat->CreatePixelShader(device->GetDevice(), &shaderID[1]);
+	if (FAILED(hr))
+	{
+		console->Print("Could not init material handler, Error: %d.\n", hr);
+		return false;
+	}
+
+	mat->SetMaterial(shaderID[0], shaderID[1]);
 
 	mat->Shutdown();
 	device->Shutdown();
