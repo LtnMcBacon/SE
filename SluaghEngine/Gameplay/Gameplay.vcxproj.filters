@@ -32,5 +32,8 @@
     <ClInclude Include="EventStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

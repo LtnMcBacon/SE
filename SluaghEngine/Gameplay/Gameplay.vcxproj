@@ -23,6 +23,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EnemyUnit.h" />
     <ClInclude Include="EventStructs.h" />
     <ClInclude Include="GameUnit.h" />
   </ItemGroup>
