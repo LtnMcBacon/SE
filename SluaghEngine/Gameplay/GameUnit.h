@@ -37,9 +37,8 @@ namespace SE
 			/**
 			* @brief	Qeueu up damage events in vectors
 			*
-			* @details	Adds an struct of type DamageEvent to the DamageEventVector
+			* @details	Adds a struct of type DamageEvent to the DamageEventVector
 			*			
-
 			* @param[in] DamageEvent dmg being the desired DamageEvent enum to add to the qeueu
 			*
 			* Example code:
@@ -52,11 +51,9 @@ namespace SE
 			/**
 			* @brief	Qeueu up Healing events in vectors
 			*
-			* @details	Adds an struct of type HealingEvent to the HealingEventVector
+			* @details	Adds a struct of type HealingEvent to the HealingEventVector
 			*			
-			*
 			* @param[in] HealingEvent healing being the desired HealingEvent enum to add to the qeueu
-			*
 			*
 			* Example code:
 			* @code
@@ -68,11 +65,9 @@ namespace SE
 			/**
 			* @brief	Qeueu up Condition events in vectors
 			*
-			* @details	Adds an struct of type ConditionEvent to the ConditionEventVector
+			* @details	Adds a struct of type ConditionEvent to the ConditionEventVector
 			*			
-			*
 			* @param[in] ConditionEvent condition being the desired ConditionEvent enum to add to the qeueu
-			*
 			*
 			* Example code:
 			* @code
@@ -84,8 +79,7 @@ namespace SE
 			/*
 			* @brief	Clears the Damage Vector
 			*
-			* @details	Calls the .clear(); function for both the
-			*			EventVector and NextFrame Vector
+			* @details	Calls the .clear(); function for the EventVector
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
@@ -98,8 +92,7 @@ namespace SE
 			/*
 			* @brief	Clears the Healing Vector
 			*
-			* @details	Calls the .clear(); function for both the
-			*			EventVector and NextFrame Vector
+			* @details	Calls the .clear(); function for the EventVector
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
@@ -112,8 +105,7 @@ namespace SE
 			/*
 			* @brief	Clears the Condition Vector
 			*
-			* @details	Calls the .clear(); function for both the
-			*			EventVector and NextFrame Vector
+			* @details	Calls the .clear(); function for the EventVector
 			*
 			* @warning Dont call this if you have valuable information stored in the vectors
 			*
