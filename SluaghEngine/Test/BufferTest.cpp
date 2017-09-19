@@ -92,7 +92,8 @@ namespace SE
 			gResourceHandler->RemoveConstantBuffer(ID[1]);
 			gResourceHandler->RemoveConstantBuffer(ID[2]);
 
-			gResourceHandler->Shutdown();;
+			gResourceHandler->Shutdown();
+			delete gResourceHandler;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
