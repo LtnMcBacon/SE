@@ -119,7 +119,7 @@ namespace SE
 				r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
 				if (r)
 					return r;
-
+				delete arfp.buffer;
 				return 0;
 			});
 
@@ -131,6 +131,7 @@ namespace SE
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
+			
 			return true;
 		}
 		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)

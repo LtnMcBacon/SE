@@ -63,6 +63,10 @@ bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console)
 	mat->Shutdown();
 	device->Shutdown();
 	window->Shutdown();
+
+	delete window;
+	delete device;
+	delete mat;
 	
 	return true;
 }
