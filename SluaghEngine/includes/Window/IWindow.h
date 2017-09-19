@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <Utilz/Delegator.h>
-
+#include <functional>
 namespace SE
 {
 	namespace Window
@@ -201,11 +201,15 @@ namespace SE
 			KeyBraceRight,
 			KeySysRq,
 			*/
+			MouseLeft,
+			MouseRight,
 			KeyCount_
 		};
 
 		
-
+		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallback;
+		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallback;
+		typedef  Utilz::Delegate<void()> KeyCallback;
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
@@ -273,8 +277,40 @@ namespace SE
 			*/
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
+			
 			/**
-			* @brief Maps an action button to a certain key. Several action buttons can be mapped to the same key. An action button is any user defined key represented as an unsigned integer.
+			* @brief Binds a callback function that is called when the mouse button bound to actionButton is lifted (a click).
+			* @sa Delegate
+			*/
+			virtual void BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the mouse is moved.
+			* @sa Delegate
+			*/
+			virtual void BindMouseMotionCallback(const MouseMotionCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is pressed
+			* @sa Delegate
+			*/
+			virtual void BindKeyPressCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is down. 
+			* @sa Delegate
+			*/
+			virtual void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Binds a callback function that is called when the key bound to actionButton is lifted
+			* @sa Delegate
+			*/
+			virtual void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) = 0;
+			/**
+			* @brief Unbinds all previously bound callbacks
+			* @sa Delegate
+			*/
+			virtual void UnbindCallbacks() = 0;
+
+			/**
+			* @brief Maps an action button to a certain key. An action button can be bound to several keys, but one key can only be bound to one action button. An action button is any user defined key represented as an unsigned integer.
 			* * Example code:
 			* @code
 			*   enum{
