@@ -140,10 +140,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\Core\TransformManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
+    <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Engine.h" />

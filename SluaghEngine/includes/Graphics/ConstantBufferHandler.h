@@ -46,8 +46,18 @@ namespace SE
 			*
 			*/
 			HRESULT AddConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
+
 			/**
-			* @brief	Set constant buffer to shader
+			* @brief	Bind the constant buffer to the shaders.
+			*
+			* @param[in] inData The data to be place in the buffer
+			*
+			* @param[in] constBufferID Tells which constant buffer to use
+			*
+			*/
+			void BindConstantBuffer(int constBufferID);
+			/**
+			* @brief	Set constant buffer data
 			*
 			* @param[in] inData The data to be place in the buffer
 			*
