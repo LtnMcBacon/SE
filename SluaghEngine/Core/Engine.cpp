@@ -4,7 +4,7 @@
 #include <Window\WindowSDL.h>
 #include <ResourceHandler\ResourceHandler.h>
 #include <OBJParser\Parsers.h>
-
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -22,6 +22,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+
 	entityManager = new EntityManager;
 	window = new Window::WindowSDL();
 	renderer = new Graphics::Renderer();
@@ -42,6 +43,11 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderableManager = new RenderableManager(*entityManager);
 	materialManager = new MaterialManager(*entityManager);
 
+	return 0;
+}
+
+int SE::Core::Engine::Frame(double dt)
+{
 	return 0;
 }
 
@@ -68,41 +74,6 @@ void SE::Core::Engine::Frame()
 	renderableManager->Frame();
 	window->Frame();
 	renderer->Render();
-}
-
-SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
-{
-	return *entityManager;
-}
-
-SE::Core::RenderableManager& SE::Core::Engine::GetRenderableManager() const
-{
-	return *renderableManager;
-}
-
-SE::Graphics::IRenderer * SE::Core::Engine::GetRenderer() const
-{
-	return renderer;
-}
-
-SE::Window::IWindow * SE::Core::Engine::GetWindow() const
-{
-	return window;
-}
-
-SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() const
-{
-	return resourceHandler;
-}
-
-SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
-{
-	return *transformManager;
-}
-
-SE::Core::MaterialManager & SE::Core::Engine::GetMaterialManager() const
-{
-	return *materialManager;
 }
 
 SE::Core::Engine::Engine()
