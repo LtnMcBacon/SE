@@ -59,6 +59,14 @@ void GraphicResourceHandler::Shutdown() {
 			ps.pixelShader->Release();
 		}
 	}
+
+	// Release Samplerstate
+	if (sampleState != nullptr)
+	{
+		sampleState->Release();
+		sampleState = nullptr;
+	}
+}
 	for(auto& srv : shaderResourceViews)
 	{
 		if (srv)
@@ -478,5 +486,29 @@ void GraphicResourceHandler::RemoveShaderResourceView(int id)
 void GraphicResourceHandler::BindShaderResourceView(int id, int slot)
 {
 	gDeviceContext->PSSetShaderResources(slot, 1, &shaderResourceViews[id]);
+}
+
+HRESULT GraphicResourceHandler::CreateSamplerState()
+{
+	StartProfile;
+	D3D11_SAMPLER_DESC samplDesc;
+	ZeroMemory(&samplDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplDesc.MaxAnisotropy = 4;
+	samplDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplDesc.MinLOD = 0;
+	samplDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	HRESULT hr = gDevice->CreateSamplerState(&samplDesc, &sampleState);
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	//Set the sampler state
+	gDeviceContext->PSSetSamplers(0, 1, &sampleState);
+	ProfileReturnConst(hr);
 }
 

@@ -48,6 +48,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
+	graphicResourceHandler->CreateSamplerState();
 
 	return 0;
 }
