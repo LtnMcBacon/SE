@@ -6,7 +6,7 @@ namespace SE
 {
 	namespace Utilz
 	{
-		template<typename T> 
+		template<typename T>
 		class Event;
 
 
@@ -15,7 +15,7 @@ namespace SE
 		* @brief An object to register functions to and event.
 		*
 		* @details An event can register multiple functions.
-		* Create an event with ex: 
+		* Create an event with ex:
 		* Event<int(int)> event;
 		* event.Add<&TestFunc>();
 		* Type t;
@@ -34,7 +34,16 @@ namespace SE
 			inline void operator()(Args... args)
 			{
 				for (auto& deleg : delegates)
-					deleg.Invoke(std::forward<Args>(args)...);		
+					deleg.Invoke(std::forward<Args>(args)...);
+			}
+
+			/**
+			* @brief Registers a lambda.
+			* @sa Event
+			*/
+			inline void Add(const std::function<R(Args...)>& instance)
+			{
+				delegates.push_back(Delegate<R(Args...)>::Make(instance));
 			}
 
 			/**
@@ -67,6 +76,15 @@ namespace SE
 				delegates.push_back(Delegate<R(Args...)>::Make<C, Function>(instance));
 			}
 
+			/**
+			* @brief Removes a lambda.
+			* @sa Event
+			*/
+			template<R(*Function)(Args...)>
+			inline void Remove(const std::function<R(Args...)>& instance)
+			{
+				delegates.remove(Delegate<R(Args...)>::Make(instance));
+			}
 			/**
 			* @brief Removes a function.
 			* @sa Event

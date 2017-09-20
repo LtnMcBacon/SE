@@ -8,7 +8,6 @@
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
-#include "MaterialTest.h"
 #include "BufferTest.h"
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
@@ -38,12 +37,13 @@ int main(int argc, char** argv)
 {
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	//_crtBreakAlloc = 423758;
+
+	//_crtBreakAlloc = 542732;
+
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
-	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);

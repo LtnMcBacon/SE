@@ -59,6 +59,13 @@ void GraphicResourceHandler::Shutdown() {
 			ps.pixelShader->Release();
 		}
 	}
+
+	// Release Samplerstate
+	if (sampleState != nullptr)
+	{
+		sampleState->Release();
+		sampleState = nullptr;
+	}
 	for(auto& srv : shaderResourceViews)
 	{
 		if (srv)
@@ -66,7 +73,7 @@ void GraphicResourceHandler::Shutdown() {
 	}
 }
 
-HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *vertexShaderID) {
+HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID) {
 
 	StartProfile;
 
@@ -81,7 +88,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	// TEXCOORD
 	D3D11_INPUT_ELEMENT_DESC vertexInputLayout[3];
 
-	ID3DBlob* vsBlob = nullptr;
+	/*ID3DBlob* vsBlob = nullptr;
 	ID3DBlob* vsErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
@@ -107,9 +114,9 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 		}
 
 		ProfileReturnConst(hr);
-	}
+	}*/
 
-	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &tempVertexShader);
+	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
 
@@ -142,7 +149,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	vertexInputLayout[2].InstanceDataStepRate = 0;
 
 	int inputLayoutSize = sizeof(vertexInputLayout) / sizeof(vertexInputLayout[0]);
-	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &tempInputLayout);
+	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, data, size, &tempInputLayout);
 
 	if (FAILED(hr)) {
 
@@ -150,8 +157,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 
 		ProfileReturnConst(hr);
 	}
-
-	vsBlob->Release();
 
 	if (FAILED(hr))
 	{
@@ -174,7 +179,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	ProfileReturnConst(hr);
 }
 
-HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pixelShaderID) {
+HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID) {
 
 	StartProfile;
 
@@ -182,43 +187,41 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pi
 
 	HRESULT hr = S_OK;
 
-	ID3DBlob* psBlob = nullptr;
-	ID3DBlob* psErrorBlob = nullptr;
+	//ID3DBlob* psBlob = nullptr;
+	//ID3DBlob* psErrorBlob = nullptr;
 
-	hr = D3DCompileFromFile(
-		L"Asset\\SimplePS.hlsl",
-		nullptr,
-		nullptr,
-		"PS_main",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG,
-		0,
-		&psBlob,
-		&psErrorBlob
-	);
+	//hr = D3DCompileFromFile(
+	//	L"Asset\\SimplePS.hlsl",
+	//	nullptr,
+	//	nullptr,
+	//	"PS_main",
+	//	"ps_5_0",
+	//	D3DCOMPILE_OPTIMIZATION_LEVEL3,
+	//	0,
+	//	&psBlob,
+	//	&psErrorBlob
+	//);
 
-	if (FAILED(hr)) {
+	//if (FAILED(hr)) {
 
-		Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
+	//	Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
 
-		if (psErrorBlob) {
+	//	if (psErrorBlob) {
 
-			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
-			psErrorBlob->Release();
-		}
+	//		OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+	//		psErrorBlob->Release();
+	//	}
 
-		ProfileReturnConst(hr);
-	}
+	//	ProfileReturnConst(hr);
+	//}
 
-	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &tempPixelShader);
+	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
 
 		Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
-
-	psBlob->Release();
 
 	if (FAILED(hr))
 	{
@@ -478,5 +481,29 @@ void GraphicResourceHandler::RemoveShaderResourceView(int id)
 void GraphicResourceHandler::BindShaderResourceView(int id, int slot)
 {
 	gDeviceContext->PSSetShaderResources(slot, 1, &shaderResourceViews[id]);
+}
+
+HRESULT GraphicResourceHandler::CreateSamplerState()
+{
+	StartProfile;
+	D3D11_SAMPLER_DESC samplDesc;
+	ZeroMemory(&samplDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplDesc.MaxAnisotropy = 4;
+	samplDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplDesc.MinLOD = 0;
+	samplDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	HRESULT hr = gDevice->CreateSamplerState(&samplDesc, &sampleState);
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	//Set the sampler state
+	gDeviceContext->PSSetSamplers(0, 1, &sampleState);
+	ProfileReturnConst(hr);
 }
 

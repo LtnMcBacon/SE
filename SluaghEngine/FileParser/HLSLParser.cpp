@@ -41,6 +41,7 @@ void OutputShaderErrorMessage(ID3DBlob* errorMessage,const wchar_t* shaderFilena
 
 HRESULT Parse_Spec(const wchar_t* filename, const char* entry, const char* targetV, ID3DBlob** blob, ID3DBlob** err)
 {
+
 	auto hr = D3DCompileFromFile(
 		filename,
 		nullptr,
@@ -69,7 +70,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 		printf("Wow, %s\n", outfilename);
 		return;
 	}
-
+	printf("Buffer size: %u\n", data->GetBufferSize());
 	outfile.write((const char*)data->GetBufferPointer(), data->GetBufferSize());
 
 	outfile.close();

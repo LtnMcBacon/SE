@@ -100,6 +100,7 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
+			int defaultShader;
 			int defaultMeshHandle;
 
 			struct BufferInfo

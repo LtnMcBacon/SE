@@ -125,6 +125,16 @@ namespace SE
 			* @endcode
 			*/
 			int CreatePixelShader(void* data, size_t size);
+
+			/**
+			* @brief Create a vertex shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateVertexShader(void* data, size_t size);
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
