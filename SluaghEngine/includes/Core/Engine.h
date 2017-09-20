@@ -2,7 +2,7 @@
 #define SE_CORE_ENGINE_H_
 #include "Core/EntityManager.h"
 #include "Core/TransformManager.h"
-
+#include "MaterialManager.h"
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
@@ -119,6 +119,12 @@ namespace SE
 			* @sa TransformManager
 			*/
 			TransformManager& GetTransformManager() const;
+
+			/**
+			* @brief    Returns a reference to the Material Manager
+			* @sa MaterialManager
+			*/
+			MaterialManager& GetMaterialManager() const;
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -132,6 +138,7 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
+			MaterialManager* materialManager;
 		};
 
 	}

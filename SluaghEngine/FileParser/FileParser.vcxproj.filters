@@ -15,36 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Graphics\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\IRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\DeviceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\GraphicResourceHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\TextureDesc.h">
+    <ClInclude Include="HLSLParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Renderer.cpp">
+    <ClCompile Include="HLSLParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DeviceManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LiveObjectReporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicResourceHandler.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

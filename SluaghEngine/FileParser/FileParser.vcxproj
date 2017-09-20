@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{6532BB0E-34A8-4940-B718-89EA03D2DE5C}</ProjectGuid>
-    <RootNamespace>Test</RootNamespace>
+    <ProjectGuid>{956A354F-6B9E-4142-9522-3D19F1C02FD5}</ProjectGuid>
+    <RootNamespace>FileParser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,50 +70,33 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
-    <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -133,31 +116,25 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BufferTest.cpp" />
-    <ClCompile Include="EntityManagerTest.cpp" />
-    <ClCompile Include="INITest.cpp" />
-    <ClCompile Include="InitGraphicsTest.cpp" />
-    <ClCompile Include="MaterialManagerTest.cpp" />
-    <ClCompile Include="ObjLoaderTest.cpp" />
-    <ClCompile Include="RenderableManagerTest.cpp" />
-    <ClCompile Include="ResouceHandlerTest.cpp" />
-    <ClCompile Include="Test.cpp" />
-    <ClCompile Include="TransformManagerTest.cpp" />
-    <ClCompile Include="WindowTest.cpp" />
+    <ClInclude Include="HLSLParser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BufferTest.h" />
-    <ClInclude Include="EntityManagerTest.h" />
-    <ClInclude Include="INITest.h" />
-    <ClInclude Include="InitGraphicsTest.h" />
-    <ClInclude Include="MaterialManagerTest.h" />
-    <ClInclude Include="ObjLoaderTest.h" />
-    <ClInclude Include="RenderableManagerTest.h" />
-    <ClInclude Include="ResouceHandlerTest.h" />
-    <ClInclude Include="Test.h" />
-    <ClInclude Include="TransformManagerTest.h" />
-    <ClInclude Include="WindowTest.h" />
+    <ClCompile Include="HLSLParser.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
