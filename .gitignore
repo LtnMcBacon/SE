@@ -13,7 +13,7 @@
 *.hlsl
 *.exe
 *.jpg
-*.bff
+*.bbf
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
