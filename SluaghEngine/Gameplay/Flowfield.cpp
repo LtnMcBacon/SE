@@ -1,7 +1,9 @@
 #include "FlowField.h"
+#include <Profiler.h>
 
 FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, const pos & initialPullingPosition, float bottomLeftCornerXCoord, float bottomLeftCornerYCoord)
 {
+	StartProfile;
 	this->sideLength = sideLength;
 
 	for (int i = 0; i < MAXSIZE; i++)
@@ -24,6 +26,7 @@ FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, con
 	}
 
 	Update(initialPullingPosition);
+	StopProfile;
 }
 
 FlowField::~FlowField()
@@ -33,14 +36,17 @@ FlowField::~FlowField()
 
 void FlowField::Update(const pos & playerPos)
 {
+	StartProfile;
 	ResetField();
 	data[(int)playerPos.x][(int)playerPos.y].cost = 0;
 	RecursiveLeifUpdate((int)playerPos.x, (int)playerPos.y);
 	SetDirectionsBasedOnCosts();
+	StopProfile;
 }
 
 void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude)
 {
+	StartProfile;
 	int xIndex = (int)enemyPos.x;
 	int yIndex = (int)enemyPos.y;
 
@@ -87,11 +93,12 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 			return;
 
 	}
-
+	StopProfile;
 }
 
 void FlowField::ResetField()
 {
+	StartProfile;
 	for (int i = 0; i < MAXSIZE; i++)
 	{
 		for (int j = 0; j < MAXSIZE; j++)
@@ -99,11 +106,12 @@ void FlowField::ResetField()
 			data[i][j].cost = -1;
 		}
 	}
+	StopProfile;
 }
 
 void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY)
 {
-
+	StartProfile;
 	if (currentX > 0 && data[currentX - 1][currentY].type != Type::BLOCKED && data[currentX - 1][currentY].cost > data[currentX][currentY].cost + 1)
 	{
 		data[currentX - 1][currentY].cost = data[currentX][currentY].cost + 1;
@@ -127,11 +135,12 @@ void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY
 		data[currentX][currentY + 1].cost = data[currentX][currentY].cost + 1;
 		RecursiveLeifUpdate(currentX, currentY + 1);
 	}
-
+	StopProfile;
 }
 
 void FlowField::SetDirectionsBasedOnCosts()
 {
+	StartProfile;
 	unsigned int smallestCost = -1;
 	unsigned int xModifier;
 	unsigned int yModifier;
@@ -217,4 +226,5 @@ void FlowField::SetDirectionsBasedOnCosts()
 			}
 		}
 	}
+	StopProfile;
 }

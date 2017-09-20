@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef SE_GAMEPLAY_FLOWFIELD_H
+#define SE_GAMEPLAY_FLOWFIELD_H
 /**
 * @brief	Struct to simplify positions
 */
@@ -106,3 +106,5 @@ public:
 	void SampleFromMap(const pos& enemyPos, float& xMagnitude, float& yMagnitude);
 
 };
+
+#endif
