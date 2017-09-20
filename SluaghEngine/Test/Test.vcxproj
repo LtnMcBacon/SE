@@ -138,6 +138,7 @@
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="FlowFieldTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
+    <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="MaterialTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="FlowFieldTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
+    <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="MaterialTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />

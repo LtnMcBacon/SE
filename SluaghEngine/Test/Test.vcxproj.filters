@@ -51,6 +51,9 @@
     <ClCompile Include="RenderableManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialManagerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="FlowFieldTest.h">
       <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManagerTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

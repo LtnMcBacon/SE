@@ -1,3 +1,17 @@
+Assets/dummytex.jpg
+Assets/Placeholder_Block.mtl
+Assets/Placeholder_Block.obj
+Assets/Placeholder_Floor.mtl
+Assets/Placeholder_Floor.obj
+Assets/Placeholder_level.mtl
+Assets/Placeholder_level.obj
+Assets/Placeholder_MC.mtl
+Assets/Placeholder_MC.obj
+Assets/SimpleGS.hlsl
+Assets/SimplePS.hlsl
+Assets/SimpleVS.hlsl
+Assets/test.objtest
+Assets/test.txt
 test.txt
 Asset/test.objtest
 Asset/Placeholder_Block.obj

@@ -20,32 +20,32 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{C4A1A015-422E-4F10-9300-26905EAC3EC3}</ProjectGuid>
-    <RootNamespace>Core</RootNamespace>
+    <ProjectGuid>{956A354F-6B9E-4142-9522-3D19F1C02FD5}</ProjectGuid>
+    <RootNamespace>FileParser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -70,34 +70,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
-    <TargetExt>.lib</TargetExt>
-    <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
-    <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
-    <TargetExt>.lib</TargetExt>
-    <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
-    <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -140,20 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityManager.cpp" />
-    <ClCompile Include="MaterialManager.cpp" />
-    <ClCompile Include="RenderableManager.cpp" />
-    <ClCompile Include="TransformManager.cpp" />
+    <ClInclude Include="HLSLParser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Core\Engine.h" />
-    <ClInclude Include="..\includes\Core\Entity.h" />
-    <ClInclude Include="..\includes\Core\EntityManager.h" />
-    <ClInclude Include="..\includes\Core\MaterialManager.h" />
-    <ClInclude Include="..\includes\Core\TransformManager.h" />
-    <ClInclude Include="..\includes\Core\RenderableManager.h" />
+    <ClCompile Include="HLSLParser.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
