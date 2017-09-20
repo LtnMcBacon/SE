@@ -1,55 +1,29 @@
 #include "Timer.h"
 
-Timer::Timer()
+SE::Utilz::Timer::Timer()
 {
-	this->countsPerSecond = 0;
-	this->secondsPerCount = 0;
-
-	this->previousTime = 0;
-	this->currentTime = 0;
-
-	this->deltaTime;
-	this->secondCounter = 0;
+	curTime = std::chrono::high_resolution_clock::now();
+	prevTime = curTime;
 }
 
-Timer::~Timer()
+SE::Utilz::Timer::~Timer()
 {
 }
 
-void Timer::initialize()
-{
-	QueryPerformanceFrequency((LARGE_INTEGER*)&this->countsPerSecond);
-	this->secondsPerCount = 1.0f / this->countsPerSecond;
 
-	QueryPerformanceCounter((LARGE_INTEGER*)&this->previousTime);
+
+void SE::Utilz::Timer::Tick()
+{
+	prevTime = curTime;
+	curTime = std::chrono::high_resolution_clock::now();
 }
 
-float Timer::getDeltaTime()
+float SE::Utilz::Timer::GetDeltaSeconds() const
 {
-	this->currentTime = 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&this->currentTime);
-
-	this->deltaTime = ((this->currentTime - previousTime) * this->secondsPerCount);
-	return this->deltaTime;
+	return std::chrono::duration_cast<std::chrono::duration<float>>(curTime - prevTime).count();
 }
 
-float Timer::getCurrentTime()
+float SE::Utilz::Timer::GetDeltaMilliseconds() const
 {
-	return this->currentTime;
+	return GetDeltaSeconds() * 0.001f;
 }
-
-void Timer::updateCurrentTime()
-{
-	this->previousTime = this->currentTime;
-}
-
-void Timer::resetTimer()
-{
-
-}
-
-float Timer::getCountsPerSecond()
-{
-	return this->countsPerSecond;
-}
-

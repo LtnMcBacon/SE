@@ -27,28 +27,28 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	hr = CreateDeviceResources();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Device resources could not be initialized");
 	}
 
 	hr = CreateSwapChain(windowHandle);
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Swap chain could not be initialized");
 	}
 
 	hr = CreateBackBufferRTV();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Back buffer render target view could not be created");
 	}
 
 	hr = CreateDepthStencil();
 
 	if (FAILED(hr)) {
-
+		StopProfile;
 		throw std::exception("CRITICAL ERROR: Depth stencil view could not be created");
 	}
 
@@ -273,5 +273,4 @@ float DeviceManager::GetAspectRatio() {
 void DeviceManager::Present() {
 
 	auto hr = gSwapChain->Present(1, 0);
-	int i = 0;
 }

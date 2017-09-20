@@ -42,7 +42,7 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 	if (find == resourceEntires.end())
 		ProfileReturnConst( -1);
 
-	ifstream file(std::get<1>(find->second), ios::in | ios::ate);
+	ifstream file(std::get<1>(find->second), ios::in | ios::binary | ios::ate);
 	if (!file.is_open())
 		ProfileReturnConst( -2);
 

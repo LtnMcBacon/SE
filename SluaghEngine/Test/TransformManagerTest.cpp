@@ -2,6 +2,7 @@
 #include <Core/Engine.h>
 #include <fstream>
 #include <map>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -32,7 +33,7 @@ TransformManagerTest::~TransformManagerTest()
 
 bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 {
-	
+	StartProfile;
 
 	Engine& engine = Engine::GetInstance();
 	Engine::InitializationInfo info;
@@ -51,11 +52,11 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	for(int i = 0; i < 2048; i++)
 	{
 		if (!CompareFloat3(tm.GetPosition(entities[i]), { 1.0f,1.0f,1.0f }))
-			return false;
+			ProfileReturnConst(false);
 		if (!CompareFloat3(tm.GetRotation(entities[i]), { 2.0f,2.0f,2.0f }))
-			return false;
+			ProfileReturnConst(false);
 		if (!CompareFloat(tm.GetScale(entities[i]), 2.0f))
-			return false;
+			ProfileReturnConst(false);
 
 	}
 	///////////////// Absolute transforms ////////////////////////
@@ -73,15 +74,15 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if(!CompareFloat3(pos, {(float)i, 1.0f, 1.0f}))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 		if(!CompareFloat3(rot, {1.0f,1.0f,1.0f}))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 		if(!CompareFloat(scale, 2.0f))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 
 	}
@@ -107,15 +108,15 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if (!CompareFloat3(pos, {0.0f,3.0f,0.0f}))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 		if (!CompareFloat3(rot, {3.0f,0.0f,0.0f}))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 		if (!CompareFloat(3.0f, scale))
 		{
-			return false;
+			ProfileReturnConst(false);
 		}
 	}
 	////////////////Garbage collection///////////////////
@@ -180,15 +181,15 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			DirectX::XMFLOAT3 p = tm.GetPosition(entities[i]);
 			console->Print("Got %f, %f, %f\n", p.x, p.y, p.z);
-			return false;
+			ProfileReturnConst(false);
 		}
 		if (!CompareFloat3(tm.GetRotation(entities[i]), { 5.0f,5.0f,5.0f }))
-			return false;
+			ProfileReturnConst(false);
 		if (!CompareFloat(tm.GetScale(entities[i]), 5.0f))
-			return false;
+			ProfileReturnConst(false);
 	}
 
 
 	engine.Release();
-	return true;
+	ProfileReturnConst(true);
 }

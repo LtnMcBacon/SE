@@ -11,6 +11,7 @@ namespace SE
 	{
 		class MaterialManager
 		{
+			friend class RenderableManager;
 		public:
 			struct CreateInfo
 			{
