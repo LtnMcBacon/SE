@@ -7,7 +7,7 @@
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "RenderableManager.h"
-
+#include "MaterialManager.h"
 namespace SE
 {
 	namespace Core
@@ -96,15 +96,6 @@ namespace SE
 			}
 
 			/**
-			* @brief    Returns a pointer to the renderable manager.
-			* @retval return_value_0 Returns a reference to the entity manager.
-			* @sa EntityManager
-			*/
-			inline RenderableManager& GetRenderableManager() const {
-				return *renderableManager;
-			}
-
-			/**
 			* @brief    Returns a pointer to the renderer.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
@@ -138,6 +129,24 @@ namespace SE
 			*/
 			inline TransformManager& GetTransformManager() const {
 				return *transformManager;
+			}
+
+			/**
+			* @brief    Returns a reference to the Renderable manager
+			* @retval return_value_0 Returns a reference to the renderable manager.
+			* @sa TransformManager
+			*/
+			inline RenderableManager& GetRenderableManager() const {
+				return *renderableManager;
+			}
+
+			/**
+			* @brief    Returns a reference to the Material manager
+			* @retval return_value_0 Returns a reference to the Material manager.
+			* @sa TransformManager
+			*/
+			inline MaterialManager& GetMaterialManager() const {
+				return *materialManager;
 			}
 		private:
 			Engine();
