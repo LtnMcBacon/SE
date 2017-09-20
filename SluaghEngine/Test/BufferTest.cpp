@@ -2,8 +2,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-#include <Graphics\ConstantBufferHandler.h>
-#include <Graphics\StaticVertexBufferHandler.h>
+#include <Graphics\GraphicResourceHandler.h>
 #include <Graphics\Renderer.h>
 #include <Window\WindowSDL.h>
 
@@ -64,36 +63,37 @@ namespace SE
 			tarOff[1].offset[1] = 0;
 			tarOff[2].offset[2] = 0;
 			int ID[3];
-			Graphics::ConstantBufferHandler* cBufferHandle = new Graphics::ConstantBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
+
+			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create Cbuffers
-			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[0], &ID[0]);
+			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[0], &ID[0]);
 			if (hr != S_OK)
 			{
 				return false;
 			}
-			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[1], &ID[1]);
+			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[1], &ID[1]);
 			if (hr != S_OK)
 			{
 				return false;
 			}
-			hr = cBufferHandle->AddConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[2], &ID[2]);
+			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[2], &ID[2]);
 			if (hr != S_OK)
 			{
 				return false;
 			}
 
 			//set Cbuffers
-			cBufferHandle->SetConstantBuffer((void*)&world, ID[0]);
-			cBufferHandle->SetConstantBuffer((void*)&view, ID[1]);
-			cBufferHandle->SetConstantBuffer((void*)&projection, ID[2]);
+			gResourceHandler->SetConstantBuffer((void*)&world, ID[0]);
+			gResourceHandler->SetConstantBuffer((void*)&view, ID[1]);
+			gResourceHandler->SetConstantBuffer((void*)&projection, ID[2]);
 
 			//remove buffers
-			cBufferHandle->RemoveConstantBuffer(ID[0]);
-			cBufferHandle->RemoveConstantBuffer(ID[1]);
-			cBufferHandle->RemoveConstantBuffer(ID[2]);
+			gResourceHandler->RemoveConstantBuffer(ID[0]);
+			gResourceHandler->RemoveConstantBuffer(ID[1]);
+			gResourceHandler->RemoveConstantBuffer(ID[2]);
 
-			cBufferHandle->Shutdown();;
-			delete cBufferHandle;
+			gResourceHandler->Shutdown();
+			delete gResourceHandler;
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
@@ -141,7 +141,7 @@ namespace SE
 
 
 			int vertexID[3];
-			Graphics::StaticVertexBufferHandler* vertexBuffer = new Graphics::StaticVertexBufferHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
+			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create vertexbuffer
 			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
 			if (hr != S_OK)
@@ -160,17 +160,18 @@ namespace SE
 			}
 
 			//set vertexBuffer
-			vertexBuffer->SetVertexBuffer(vertexID[0]);
-			vertexBuffer->SetVertexBuffer(vertexID[1]);
-			vertexBuffer->SetVertexBuffer(vertexID[2]);
+			gResourceHandler->SetVertexBuffer(vertexID[0]);
+			gResourceHandler->SetVertexBuffer(vertexID[1]);
+			gResourceHandler->SetVertexBuffer(vertexID[2]);
 
 			//remove vertexBuffer
-			vertexBuffer->RemoveVertexBuffer(vertexID[0]);
-			vertexBuffer->RemoveVertexBuffer(vertexID[1]);
-			vertexBuffer->RemoveVertexBuffer(vertexID[2]);
+			gResourceHandler->RemoveVertexBuffer(vertexID[0]);
+			gResourceHandler->RemoveVertexBuffer(vertexID[1]);
+			gResourceHandler->RemoveVertexBuffer(vertexID[2]);
 
-			vertexBuffer->Shutdown();
-			delete vertexBuffer;
+			gResourceHandler->Shutdown();
+			delete gResourceHandler;
+
 			result = true;
 
 			return 0;
