@@ -171,7 +171,7 @@ namespace SE
 
 			gResourceHandler->Shutdown();
 			delete gResourceHandler;
-
+			delete parsedData;
 			result = true;
 
 			return 0;

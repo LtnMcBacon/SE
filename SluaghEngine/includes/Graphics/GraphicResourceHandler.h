@@ -9,10 +9,12 @@
 #include <stack>
 
 #include "LiveObjectReporter.h"
+#include "TextureDesc.h"
 
 namespace SE {
 
 	namespace Graphics {
+
 
 		struct VertexCount
 		{
@@ -191,6 +193,27 @@ namespace SE {
 			*
 			*/
 			void RemoveConstantBuffer(int constBufferID);
+
+			/**
+			* @brief	Creates a shader resource view from the data in textureData
+			*
+			* @param[in] textureData Raw pixel data in format specified by description
+			* @param[in] description Information about the texture. (Width, height etc.)
+			* @sa TextureDesc
+			*/
+			int CreateShaderResourceView(void* textureData, const TextureDesc& description);
+			/**
+			* @brief	Removes a constant buffer
+			* @param[in] id The ID of the shader resource view to remove
+			*/
+			void RemoveShaderResourceView(int id);
+			/**
+			* @brief	Removes a constant buffer
+			* @param[in] id The ID of the shader resource view to remove
+			* @param[in] slot Which slot to bind the shader resource view to.
+			*/
+			void BindShaderResourceView(int id, int slot);
+
 			/**
 			* @brief	Creates and sets a simple sampler
 			*
@@ -225,6 +248,10 @@ namespace SE {
 			std::vector<ConstantBuffer> cBuffers;
 			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeConstantBufferLocations;
+
+			//Shader resource views
+			std::vector<ID3D11ShaderResourceView*> shaderResourceViews;
+			std::stack<int> freeSRVIndices;
 
 		};
 	}
