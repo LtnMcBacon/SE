@@ -181,10 +181,7 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 	ProfileReturnConst(0);
 }
 
-int SE::Graphics::Renderer::CreateTexture(void * data, size_t size, size_t bytewidth)
-{
-	return 0;
-}
+
 
 int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
 {

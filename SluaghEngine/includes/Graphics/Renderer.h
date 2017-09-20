@@ -114,16 +114,7 @@ namespace SE
 			*/
 			int UpdateTransform(int transformHandle, float* transform);
 
-			/**
-			* @brief Create a shader resource view (texture)
-			* @param[in] data A pointer to the texture data.
-			* @param[in] size The size of the texture.
-			* @param[in] bytewidth The width of the texture
-			* @retval handle On success.
-			* @retval -1 Something went wrong.
-			* @endcode
-			*/
-			int CreateTexture(void*data, size_t size, size_t bytewidth);
+
 
 			/**
 			* @brief Create a pixel shader from raw data
