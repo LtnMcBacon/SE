@@ -52,6 +52,7 @@ namespace SE
 					if (values.size() > 0)
 					{
 						maps[section] = values;
+						values.clear();
 					}
 					section.clear();
 					while (memblock[currentPos] != ']')
@@ -73,7 +74,7 @@ namespace SE
 						currentPos++;
 					}
 				}
-				else if (memblock[currentPos] == '\n')
+				else if (memblock[currentPos] == '\n' || memblock[currentPos] == '\r')
 				{
 					currentPos++;
 				}
@@ -84,7 +85,7 @@ namespace SE
 					{
 						if (memblock[currentPos] != ' ')
 						{
-							section.push_back(memblock[currentPos]);
+							name.push_back(memblock[currentPos]);
 							currentPos++;
 						}
 						else
@@ -93,6 +94,7 @@ namespace SE
 						}
 					}
 					currentPos++;
+					value.clear();
 					while (memblock[currentPos] != '\n')
 					{
 						if (memblock[currentPos] != ' ')
@@ -106,8 +108,10 @@ namespace SE
 						}
 					}
 					values[name] = std::stoi(value);
-				}
+				}	
 			}
+			maps[section] = values;
+			delete[] memblock;
 			ProfileReturnConst(0);
 		}
 
@@ -118,15 +122,14 @@ namespace SE
 			for (auto& mapsPair : maps)
 			{	
 				std::map<std::string, int> values = maps[mapsPair.first];
-				std::string section = '#' + mapsPair.first;
-				memblock.append(section);
+				memblock.append(mapsPair.first);
 				memblock.push_back('\n');
 				for (auto& valuesPair : values)
 				{
 					int outVal = values[valuesPair.first];
 					std::string name = valuesPair.first + " = ";
 					memblock.append(name);
-					memblock.push_back(outVal);
+					memblock.append(std::to_string(outVal));
 					memblock.push_back('\n');
 				}
 				memblock.push_back('\n');
@@ -141,15 +144,6 @@ namespace SE
 				ProfileReturnConst(0);
 			}
 			ProfileReturnConst(-1);
-		}
-
-		std::string INIReader::CreateKey(const std::string& section, const std::string& name)
-		{
-			StartProfile;
-			std::string key = section + "=" + name;
-			// Change all to lowercase
-			std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-			ProfileReturn(key);
 		}
 	}	//namespace SE
 }	//namespace Utilz

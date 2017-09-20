@@ -16,13 +16,31 @@ namespace SE
 			INIReader();
 
 			~INIReader();
-
+			/**
+			* @brief Loads from requested .ini file
+			*
+			* @param[in] filename The name of the .ini file
+			* @param[in] maps Reference to a map holding maps
+			*
+			* @retval 0 On success.
+			* @retval -1 On unsuccessful read.
+			*
+			* @endcode
+			*/
 			int LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps);
-
+			/**
+			* @brief Writes to requested .ini file
+			*
+			* @param[in] filename The name of the .ini file
+			* @param[in] maps Reference to a map holding maps
+			*
+			* @retval 0 On success.
+			* @retval -1 On unsuccessful read.
+			*
+			* @endcode
+			*/
 			int WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps);
 		
-		private:	
-			std::string CreateKey(const std::string& section, const std::string& name);
 		};
 	}	//namespace SE
 }	//namespace Utilz
