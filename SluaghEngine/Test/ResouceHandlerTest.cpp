@@ -40,6 +40,8 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	result = false;
 	r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
 
+	r->Shutdown();
+	delete r;
 
 	ProfileReturnConst(result);
 }

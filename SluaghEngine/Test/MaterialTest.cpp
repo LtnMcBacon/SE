@@ -1,7 +1,7 @@
 #include "MaterialTest.h"
 #include <Graphics\DeviceManager.h>
-#include <Graphics\MaterialHandler.h>
-#include <Window\Window.h>
+#include <Graphics\GraphicResourceHandler.h>
+#include <Window\WindowSDL.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -27,32 +27,49 @@ SE::Test::MaterialTest::MaterialTest::~MaterialTest() {
 bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console) 
 {
 	StartProfile;
-	Window::InterfaceWindow* window = new Window::Window;
-	auto r = window->Initialise();
+
+	Window::IWindow* window = new Window::WindowSDL;
+	auto r = window->Initialize();
 	if (r)
 	{
 		console->Print("Could not init window, Error: %d.\n", r);
 		ProfileReturnConst(false);
 	}
 	Graphics::DeviceManager* device = new Graphics::DeviceManager();
-	HRESULT hr = device->Init((HWND)window->GethWnd());
+	HRESULT hr = device->Init((HWND)window->GetHWND());
 	if (FAILED(hr))
 	{
 		console->Print("Could not init device, Error: %d.\n", hr);
 		ProfileReturnConst(false);
 	}
-	auto mat = new Graphics::MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-	hr = mat->Init();
-	if (r)
+	auto mat = new Graphics::GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
+
+	int shaderID[2];
+
+	hr = mat->CreateVertexShader(device->GetDevice(), &shaderID[0]);
+	if (FAILED(hr))
+	{
+		console->Print("Could not init material handler, Error: %d.\n", hr);
+		return false;
+	}
+
+	hr = mat->CreatePixelShader(device->GetDevice(), &shaderID[1]);
+	if (FAILED(hr))
 	{
 		console->Print("Could not init material handler, Error: %d.\n", hr);
 		ProfileReturnConst(false);
 	}
-	mat->SetMaterial();
+
+	mat->SetMaterial(shaderID[0], shaderID[1]);
 
 	mat->Shutdown();
 	device->Shutdown();
 	window->Shutdown();
 	
+	delete window;
+	delete device;
+	delete mat;
 	ProfileReturnConst(true);
+
+	
 }

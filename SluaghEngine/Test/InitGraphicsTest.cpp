@@ -1,6 +1,6 @@
 #include "InitGraphicsTest.h"
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -24,14 +24,14 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 	Graphics::IRenderer* r = new Graphics::Renderer();
-	Window::InterfaceWindow* w = new Window::Window();
-	int result = w->Initialise();
+	Window::IWindow* w = new Window::WindowSDL();
+	int result = w->Initialize();
 	if (result)
 	{
 		console->Print("Could not initialize window. Error: %d\n", result);
 		ProfileReturnConst( false);
 	}
-	result = r->Initialize(w->GethWnd());
+	result = r->Initialize(w->GetHWND());
 	if (result)
 	{
 		console->Print("Could not initialize renderer. Error: %d\n", result);
@@ -43,7 +43,11 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 	}
 
 	r->Shutdown();
-
 	w->Shutdown();
+
+	delete r;
+	delete w;
+
+
 	ProfileReturnConst(true);
 }

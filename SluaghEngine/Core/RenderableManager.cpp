@@ -3,6 +3,7 @@
 #include <Utilz\Console.h>
 #include <Utilz\Delegator.h>
 #include <OBJParser\Parsers.h>
+#include <Core\Engine.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -16,13 +17,12 @@
 #pragma comment(lib, "Utilz.lib")
 #endif
 
-SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManager, Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler) : entityManager(entityManager), renderer(renderer), resourceHandler(resourceHandler)
+SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManager) : entityManager(entityManager)
 {
 	StartProfile;
-	_ASSERT(renderer);
-	_ASSERT(resourceHandler);
+
 	Allocate(128);
-	resourceHandler->AddParser(Utilz::GUID("obj"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
+	Core::Engine::GetInstance().GetResourceHandler()->AddParser(Utilz::GUID("obj"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 	{
 		ArfData::Data arfData;
 		ArfData::DataPointers arfp;
@@ -39,6 +39,8 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 		return 0;
 
 	});
+	Core::Engine::GetInstance().GetTransformManager().SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
+
 	StopProfile;
 }
 
@@ -56,6 +58,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find == entityToRenderableObjectInfoIndex.end())
 	{
+		auto& engine = Core::Engine::GetInstance();
 		// Check if the entity is alive
 		if (!entityManager.Alive(entity))
 			ProfileReturnVoid;
@@ -66,19 +69,23 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 
 		// Register the entity
 		size_t newEntry = renderableObjectInfo.used;
+		entityToRenderableObjectInfoIndex[entity] = newEntry;
 		renderableObjectInfo.entity[newEntry] = entity;
 
 
 		// Load data
 		auto& findBuffer = guidToBufferInfoIndex.find(info.meshGUID);
 		if (findBuffer == guidToBufferInfoIndex.end())	// If not loaded load it.	
-			resourceHandler->LoadResource(info.meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::AddResource>(this));
-		
+			engine.GetResourceHandler()->LoadResource(info.meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::AddResource>(this));
+	
 		// Increase ref Count
 		auto vBufferIndex = guidToBufferInfoIndex[info.meshGUID];
 		bufferInfo[vBufferIndex].refCount++;
 		renderableObjectInfo.bufferIndex[newEntry] = vBufferIndex;
 
+		// Transform binding
+		renderableObjectInfo.transformHandle[newEntry] = engine.GetRenderer()->CreateTransform();
+	
 		renderableObjectInfo.used++;
 	}
 	StopProfile;
@@ -86,6 +93,16 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity & entity, 
 
 void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, bool visible)
 {
+	auto r = Core::Engine::GetInstance().GetRenderer();
+	// See so that the entity exist
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		Graphics::RenderObjectInfo info;
+		info.bufferHandle = renderableObjectInfo.bufferIndex[find->second];
+		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
+		visible ? r->EnableRendering(info) : r->DisableRendering(info);
+	}
 }
 
 void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
@@ -96,7 +113,13 @@ void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
 {
 }
 
-void SE::Core::RenderableManager::Allocate(uint32_t size)
+void SE::Core::RenderableManager::Frame()
+{
+	GarbageCollection();
+	UpdateDirtyTransforms();
+}
+
+void SE::Core::RenderableManager::Allocate(size_t size)
 {
 	StartProfile;
 	_ASSERT(size > renderableObjectInfo.allocated);
@@ -110,10 +133,12 @@ void SE::Core::RenderableManager::Allocate(uint32_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.bufferIndex = (size_t*)(newData.entity + 1);
+	newData.transformHandle = (int*)(newData.bufferIndex + 1);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.bufferIndex, renderableObjectInfo.bufferIndex, renderableObjectInfo.used * sizeof(size_t));
+	memcpy(newData.transformHandle, renderableObjectInfo.transformHandle, renderableObjectInfo.used * sizeof(int));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -134,6 +159,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
+	renderableObjectInfo.transformHandle[index] = renderableObjectInfo.transformHandle[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;
@@ -162,12 +188,36 @@ void SE::Core::RenderableManager::GarbageCollection()
 	StopProfile;
 }
 
+void SE::Core::RenderableManager::UpdateDirtyTransforms()
+{
+	auto& engine = Core::Engine::GetInstance();
+	auto& tm = engine.GetTransformManager();
+	auto renderer = engine.GetRenderer();
+
+	for (auto& dirty : dirtyEntites)
+	{
+		auto& transform = tm.dirtyTransforms[dirty.transformIndex];
+		renderer->UpdateTransform(renderableObjectInfo.transformHandle[dirty.renderableIndex], (float*)&transform);
+	}
+
+	dirtyEntites.clear();
+}
+
 void SE::Core::RenderableManager::AddResource(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
 	auto mD = (Arf::Mesh::Data*)data;
-	auto bufferHandle = renderer->CreateVertexBuffer(mD->vertices, mD->NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	auto bufferHandle = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD->vertices, mD->NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
 	bufferInfo.push_back({ 0, bufferHandle });
 	guidToBufferInfoIndex[guid] = bufferInfo.size() - 1;
 	StopProfile;
+}
+
+void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		dirtyEntites.push_back({ index, find->second });
+	}
 }

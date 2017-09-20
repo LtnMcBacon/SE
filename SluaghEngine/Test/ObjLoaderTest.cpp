@@ -40,7 +40,7 @@ namespace fuck
 				result = false;
 			if (verts[i].y != (float)i + 1)
 				result = false;
-			if (-verts[i].z != (float)i + 1)
+			if (verts[i].z != (float)i + 1)
 				result = false;
 		}
 	}
@@ -60,7 +60,7 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 	}
 
 	auto r = e.GetResourceHandler();
-	result = false;
+	result = true;
 
 	r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
 	{
@@ -73,6 +73,8 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 		r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
 		if (r)
 			return r;
+
+		delete arfp.buffer;
 		return 0;
 	});
 

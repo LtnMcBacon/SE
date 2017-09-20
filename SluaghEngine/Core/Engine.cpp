@@ -1,7 +1,7 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
 #include <Graphics\Renderer.h>
-#include <Window\Window.h>
+#include <Window\WindowSDL.h>
 #include <ResourceHandler\ResourceHandler.h>
 #include <OBJParser\Parsers.h>
 #include <Profiler.h>
@@ -24,7 +24,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 {
 
 	entityManager = new EntityManager;
-	window = new Window::Window();
+	window = new Window::WindowSDL();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
 	
@@ -32,15 +32,15 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	auto r = resourceHandler->Initialize();
 	if (r)
 		return r;
-	r = window->Initialise();
+	r = window->Initialize();
 	if (r)
 		return r;
-	r = renderer->Initialize(window->GethWnd());
+	r = renderer->Initialize(window->GetHWND());
 	if (r)
 		return r;
 
 	transformManager = new TransformManager(entityManager);
-	renderableManager = new RenderableManager(*entityManager, renderer, resourceHandler);
+	renderableManager = new RenderableManager(*entityManager);
 
 	return 0;
 }
@@ -64,6 +64,14 @@ int SE::Core::Engine::Release()
 	delete transformManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
+}
+
+void SE::Core::Engine::Frame()
+{
+	transformManager->Frame();
+	renderableManager->Frame();
+	window->Frame();
+	renderer->Render();
 }
 
 SE::Core::Engine::Engine()
