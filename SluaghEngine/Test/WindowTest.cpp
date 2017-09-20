@@ -12,6 +12,7 @@
 #pragma comment(lib, "Window.lib")
 #endif
 
+
 //using namespace SE::Window;
 using namespace SE::Test;
 
