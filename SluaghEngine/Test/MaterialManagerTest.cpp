@@ -20,7 +20,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	auto& texture = Utilz::GUID("tex.ttf");
+	auto& texture = Utilz::GUID("dummytex.jpg");
 	auto& shader = Utilz::GUID("SimplePS.hlsl");
 	info.textures = &texture;
 	info.textureCount = 1;
@@ -32,5 +32,5 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	engine.Release();
 
-	return false;
+	return true;
 }

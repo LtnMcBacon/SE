@@ -2,7 +2,10 @@
 #include <fstream>
 #include <d3dcompiler.h>
 #pragma comment(lib, "D3Dcompiler.lib")
-
+#include <filesystem>
+#include <windows.h>
+#include <PathParsing.h>
+namespace fs = std::experimental::filesystem;
 SE::Parsers::HLSLParser::HLSLParser()
 {
 }
@@ -56,9 +59,16 @@ HRESULT Parse_Spec(const wchar_t* filename, const char* entry, const char* targe
 void Write(const char* outfilename, ID3DBlob* data)
 {
 	std::ofstream outfile;
-	outfile.open(outfilename, std::ios::binary | std::ios::trunc);
+	std::string path = outfilename;
+	auto idx = path.find_last_of("\\/");
+	path = path.substr(0, idx);
+	fs::create_directories(path);
+	outfile.open(outfilename, std::ios::binary | std::ios::trunc | std::ios::out);
 	if (!outfile.is_open())
+	{
+		printf("Wow, %s\n", outfilename);
 		return;
+	}
 
 	outfile.write((const char*)data->GetBufferPointer(), data->GetBufferSize());
 
@@ -69,14 +79,6 @@ void Write(const char* outfilename, ID3DBlob* data)
 
 int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)
 {
-	ID3DBlob* gsBlob;
-	ID3DBlob* gsBlobErr;
-	HRESULT gs = Parse_Spec(filename, "GS_main", "gs_5_0", &gsBlob, &gsBlobErr);
-	if (SUCCEEDED(gs))
-	{
-		Write(outFilename, gsBlob);
-		return 0;
-	}
 
 	ID3DBlob* psBlob;
 	ID3DBlob* psBlobErr;
@@ -84,6 +86,16 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 	if (SUCCEEDED(ps))
 	{
 		Write(outFilename, psBlob);
+		return 0;
+	}
+
+
+	ID3DBlob* gsBlob;
+	ID3DBlob* gsBlobErr;
+	HRESULT gs = Parse_Spec(filename, "GS_main", "gs_5_0", &gsBlob, &gsBlobErr);
+	if (SUCCEEDED(gs))
+	{
+		Write(outFilename, gsBlob);
 		return 0;
 	}
 

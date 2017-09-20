@@ -29,13 +29,22 @@ namespace SE
 			return path;
 		}
 
+		inline std::string removeRoot(const std::string& path)
+		{
+			const size_t first_slash_idx = path.find_first_of('\\/');
+			if (std::string::npos != first_slash_idx)
+			{
+				return path.substr(first_slash_idx + 1);
+			}
+			return path;
+		}
 		struct File
 		{
 			std::string name;
 			std::string fullPath;
 		};
 
-		void get_all_files_names_within_folder(std::string folder, std::vector<File>& files)
+		inline void get_all_files_names_within_folder(std::string folder, std::vector<File>& files)
 		{
 			std::string search_path = folder + "/*";
 			WIN32_FIND_DATA fd;
@@ -60,13 +69,13 @@ namespace SE
 
 		}
 
-		std::wstring utf8ToUtf16(const std::string& utf8Str)
+		inline std::wstring utf8ToUtf16(const std::string& utf8Str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 			return conv.from_bytes(utf8Str);
 		}
 
-		std::string utf16ToUtf8(const std::wstring& utf16Str)
+		inline std::string utf16ToUtf8(const std::wstring& utf16Str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 			return conv.to_bytes(utf16Str);

@@ -6,6 +6,11 @@ SE::Core::MaterialManager::MaterialManager(const EntityManager& entityManager) :
 {
 	Allocate(128);
 	defaultTextureHandle = 0;
+
+	auto r = Core::Engine::GetInstance().GetResourceHandler();
+
+
+
 }
 
 
@@ -162,6 +167,8 @@ int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data
 		return -1;
 	auto index = guidToTextureInfo[guid];
 	textureInfo[index].textureHandle = handle;
+
+	return 0;
 }
 
 int SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
@@ -171,4 +178,6 @@ int SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data,
 		return -1;
 	auto index = guidToShaderInfo[guid];
 	shaderInfo[index].shaderHandle = handle;
+
+	return 0;
 }
