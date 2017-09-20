@@ -4,7 +4,7 @@
 #include <Graphics/Renderer.h>
 #include "Utilz/Console.h"
 #include <Profiler.h>
-#include "Graphics/GraphicResourceHandler.h"
+#include <Graphics\GraphicResourceHandler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
