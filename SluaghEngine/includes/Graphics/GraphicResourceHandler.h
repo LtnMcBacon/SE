@@ -191,12 +191,23 @@ namespace SE {
 			*
 			*/
 			void RemoveConstantBuffer(int constBufferID);
-
+			/**
+			* @brief	Creates and sets a simple sampler
+			*
+			* @retval S_OK Buffer creation succeded
+			*
+			* @retval nonZero Creation failed
+			*
+			*/
+			HRESULT CreateSamplerState();
 		private:
 
 			// Device and device context references
 			ID3D11Device* gDevice;
 			ID3D11DeviceContext* gDeviceContext;
+
+			// Samplerstate
+			ID3D11SamplerState* sampleState = nullptr;
 
 			// Vertex shader specific data
 			std::vector<VertexShaderData>vShaders;
