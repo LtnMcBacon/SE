@@ -167,5 +167,6 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		delete enemies[i];
 
 	e.Release();
+
 	return true;
 }
