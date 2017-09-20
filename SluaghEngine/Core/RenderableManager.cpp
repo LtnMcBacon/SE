@@ -23,7 +23,7 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 
 	Allocate(128);
 	Core::Engine::GetInstance().GetTransformManager().SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
-
+	defaultMeshHandle = 0;
 	StopProfile;
 }
 
@@ -56,15 +56,21 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.entity[newEntry] = entity;
 
 
-		// Load data
-		auto& findBuffer = guidToBufferInfoIndex.find(meshGUID);
-		if (findBuffer == guidToBufferInfoIndex.end())	// If not loaded load it.	
-			engine.GetResourceHandler()->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
 	
-		// Increase ref Count
-		auto vBufferIndex = guidToBufferInfoIndex[meshGUID];
-		bufferInfo[vBufferIndex].refCount++;
-		renderableObjectInfo.bufferIndex[newEntry] = vBufferIndex;
+		{
+			// Load model
+			auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
+			auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
+			if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
+			{
+				bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
+				bufferIndex = bufferInfo.size() - 1;
+				engine.GetResourceHandler()->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
+			}
+			// Increase ref Count and save the index to the material info.
+			bufferInfo[bufferIndex].refCount++;
+			renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
+		}
 
 		// Transform binding
 		renderableObjectInfo.transformHandle[newEntry] = engine.GetRenderer()->CreateTransform();
@@ -82,7 +88,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		Graphics::RenderObjectInfo info;
-		info.bufferHandle = renderableObjectInfo.bufferIndex[find->second];
+		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
+		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		visible ? r->EnableRendering(info) : r->DisableRendering(info);
 	}
@@ -115,8 +122,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.bufferIndex = (size_t*)(newData.entity + 1);
-	newData.transformHandle = (int*)(newData.bufferIndex + 1);
+	newData.bufferIndex = (size_t*)(newData.entity + newData.allocated);
+	newData.transformHandle = (int*)(newData.bufferIndex + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
@@ -206,8 +213,9 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	auto bufferHandle = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
 	if (bufferHandle == -1)
 		ProfileReturnConst(-1);
-	bufferInfo.push_back({ 0, bufferHandle });
-	guidToBufferInfoIndex[guid] = bufferInfo.size() - 1;
+
+	auto index = guidToBufferInfoIndex[guid];
+	bufferInfo[index].bufferHandle = bufferHandle;
 
 	delete parsedData;
 

@@ -99,8 +99,8 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.textureIndex = (size_t*)(newData.entity + 1);
-	newData.shaderIndex = (size_t*)(newData.textureIndex + 1);
+	newData.textureIndex = (size_t*)(newData.entity + newData.allocated);
+	newData.shaderIndex = (size_t*)(newData.textureIndex + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));

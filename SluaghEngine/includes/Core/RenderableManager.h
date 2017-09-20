@@ -100,12 +100,12 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-
+			int defaultMeshHandle;
 
 			struct BufferInfo
 			{
-				uint32_t refCount;
 				int bufferHandle;
+				uint32_t refCount;		
 			};
 
 			std::vector<BufferInfo> bufferInfo;
