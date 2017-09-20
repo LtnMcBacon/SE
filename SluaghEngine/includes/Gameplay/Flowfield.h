@@ -21,7 +21,7 @@ class FlowField
 {
 private:
 
-	const static int MAXSIZE = 32;
+	const static int MAXSIZE = 25;
 
 	/**
 	* @brief	Enum over if tiles in the map/flowfield are blocked or walkable

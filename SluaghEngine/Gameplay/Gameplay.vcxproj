@@ -26,13 +26,11 @@
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Flowfield.h" />
-    <ClInclude Include="Room.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="EnemyUnit.h" />
-    <ClInclude Include="EventStructs.h" />
-    <ClInclude Include="GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
+    <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
+    <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\Room.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

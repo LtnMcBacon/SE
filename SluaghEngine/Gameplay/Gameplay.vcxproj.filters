@@ -50,22 +50,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameUnit.h">
-      <Filter>Header Files\GameUnits</Filter>
-    </ClInclude>
-    <ClInclude Include="EventStructs.h">
+    <ClInclude Include="..\includes\Gameplay\EventStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Flowfield.h">
-      <Filter>Header Files\Flowfield</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Room.h">
+    <ClInclude Include="..\includes\Gameplay\Room.h">
       <Filter>Header Files\Rooms</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyUnit.h">
+    <ClInclude Include="..\includes\Gameplay\EnemyUnit.h">
       <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Flowfield.h">
+      <Filter>Header Files\Flowfield</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

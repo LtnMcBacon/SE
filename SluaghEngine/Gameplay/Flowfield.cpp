@@ -10,11 +10,11 @@ FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, con
 	{
 		for (int j = 0; j < MAXSIZE; j++)
 		{
-			if (mapData[i][j] == '0')
+			if (mapData[i][j] == 0)
 			{
 				data[i][j].type = Type::WALKABLE;
 			}
-			else if (mapData[i][j] == '1')
+			else if (mapData[i][j] == 1)
 			{
 				data[i][j].type = Type::BLOCKED;
 			}
@@ -50,46 +50,56 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 	int xIndex = (int)enemyPos.x;
 	int yIndex = (int)enemyPos.y;
 
+
+
 	switch (data[xIndex][yIndex].dir)
 	{
 		case Direction::UP: 
 			xMagnitude = 0.0f;
 			yMagnitude = 1.0f;
+			StopProfile;
 			return;
 		
 		case Direction::UP_LEFT: 
 			xMagnitude = -0.707f;
 			yMagnitude = 0.707f;
+			StopProfile;
 			return;
 
 		case Direction::LEFT: 
 			xMagnitude = -1.0f;
 			yMagnitude = 0.0f;
+			StopProfile;
 			return;
 
 		case Direction::DOWN_LEFT: 
 			xMagnitude = -0.707f;
 			yMagnitude = -0.707f;
+			StopProfile;
 			return;
 
 		case Direction::DOWN: 
 			xMagnitude = 0.0f;
 			yMagnitude = -1.0f;
+			StopProfile;
 			return;
 
 		case Direction::DOWN_RIGHT: 
 			xMagnitude = 0.707f;
 			yMagnitude = -0.707f;
+			StopProfile;
 			return;
 
 		case Direction::RIGHT: 
 			xMagnitude = 1.0f;
 			yMagnitude = 0.0f;
+			StopProfile;
 			return;
 
 		case Direction::UP_RIGHT: 
 			xMagnitude = 0.707f;
 			yMagnitude = 0.707f;
+			StopProfile;
 			return;
 
 	}
@@ -142,8 +152,8 @@ void FlowField::SetDirectionsBasedOnCosts()
 {
 	StartProfile;
 	unsigned int smallestCost = -1;
-	unsigned int xModifier;
-	unsigned int yModifier;
+	int xModifier;
+	int yModifier;
 
 	for (int i = 1; i < MAXSIZE - 1; i++)
 	{
@@ -222,6 +232,7 @@ void FlowField::SetDirectionsBasedOnCosts()
 							data[i][j].dir = Direction::DOWN;
 						}
 					}
+					smallestCost = data[i + xModifier][j + yModifier].cost;
 				}
 			}
 		}
