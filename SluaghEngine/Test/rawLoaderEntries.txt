@@ -1,4 +1,6 @@
 test.txt
 Asset/test.objtest
+Asset/Placeholder_Block.obj
+Asset/Placeholder_Floor.obj
 Asset/Placeholder_level.obj
 Asset/Placeholder_MC.obj

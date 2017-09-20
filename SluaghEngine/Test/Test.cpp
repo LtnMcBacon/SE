@@ -11,6 +11,7 @@
 #include "MaterialTest.h"
 #include "BufferTest.h"
 #include "RenderableManagerTest.h"
+#include "FlowFieldTest.h"
 #include <map>
 #include <ctime>
 
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
 	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
+	AddTest(FlowFieldTest);
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

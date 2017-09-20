@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Gameplay Tests">
+      <UniqueIdentifier>{51c70d89-9e44-45d3-ab9f-9a4b59ab8fda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameplayTests">
+      <UniqueIdentifier>{880c0fd5-2281-45c9-9378-38aa4e705cef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -44,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="RenderableManagerTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowFieldTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="RenderableManagerTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlowFieldTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
