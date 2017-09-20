@@ -1,7 +1,6 @@
 #include <Renderer.h>
 #include <Profiler.h>
 
-
 using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
@@ -23,14 +22,14 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 
-	int shaderID[2];
+	/*int shaderID[2];
 	hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(), &shaderID[0]);
 	if (FAILED(hr))
-		return -1;
+		return -1;*/
 
-	hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
-	if (FAILED(hr))
-		return -1;
+	//hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
+	//if (FAILED(hr))
+	//	return -1;
 	
 	cam.SetPosition(0.0f, 1.0f, -2.0f);
 	cam.Update(0.01f);
@@ -109,13 +108,13 @@ int SE::Graphics::Renderer::Render() {
 	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
 	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
 
-	graphicResourceHandler->SetMaterial(0, 0);
-
+	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 	for (auto& job : renderJobs)
 	{
+		graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
 		graphicResourceHandler->BindConstantBuffer(job.transformHandle);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
@@ -145,6 +144,13 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	graphicResourceHandler->RemoveVertexBuffer(bufferHandle);
 	StopProfile;
 }
+
+int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
+}
+
 
 int SE::Graphics::Renderer::CreateTransform()
 {
@@ -177,13 +183,24 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 	ProfileReturnConst(0);
 }
 
-int SE::Graphics::Renderer::CreateTexture(void * data, size_t size, size_t bytewidth)
-{
-	return 0;
-}
+
 
 int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
 {
-	return 0;
+	int handle;
+	auto hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(),data, size, &handle);
+	if (FAILED(hr))
+		return hr;
+
+	return handle;
+}
+
+int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
+{
+	int handle;
+	auto hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(),data, size, &handle);
+	if (hr)
+		return hr;
+	return handle;
 }
 

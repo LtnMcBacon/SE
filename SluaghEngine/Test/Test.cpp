@@ -8,10 +8,10 @@
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
-#include "MaterialTest.h"
 #include "BufferTest.h"
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
+#include "ImageLoadTest.h"
 #include <map>
 #include <ctime>
 
@@ -37,19 +37,23 @@ int main(int argc, char** argv)
 {
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-//	_crtBreakAlloc = 418612;
+
+	//_crtBreakAlloc = 542732;
+
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResouceHandlerTest);
 	AddTest(WindowTest);
-	AddTest(MaterialTest);
 	AddTest(ObjLoaderTest);
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
 	AddTest(MaterialManagerTest);
-	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
+	AddTest(ImageLoadTest);
+
+	volatile bool running = true;
+	
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

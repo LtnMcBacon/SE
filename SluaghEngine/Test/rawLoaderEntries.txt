@@ -7,8 +7,13 @@ Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
+Assets/purewhite.png
+Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
+Assets/SimpleTexPS.txt
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
+Assets/testimg.png
+Assets/testimg.rawimg

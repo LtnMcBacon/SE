@@ -7,8 +7,16 @@ SE::Core::MaterialManager::MaterialManager(const EntityManager& entityManager) :
 	Allocate(128);
 	defaultTextureHandle = 0;
 
-	auto r = Core::Engine::GetInstance().GetResourceHandler();
+	auto rh = Core::Engine::GetInstance().GetResourceHandler();
 
+	auto res = rh->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make([this](const Utilz::GUID& guid, void*data, size_t size) -> int {
+		defaultShaderHandle = Core::Engine::GetInstance().GetRenderer()->CreatePixelShader(data, size);
+		if (defaultShaderHandle == -1)
+			return -1;
+		return 0;
+	}), true);
+	if (res)
+		throw std::exception("Could not load default pixel shader.");
 
 
 }
@@ -66,7 +74,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			{
 				shaderInfo.push_back({ defaultShaderHandle , 0 }); // Init the texture to default texture.
 				shaderIndex = shaderInfo.size() - 1;
-				engine.GetResourceHandler()->LoadResource(info.textures[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+				engine.GetResourceHandler()->LoadResource(info.shader[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
 			}
 				
 			// Increase refCount
@@ -162,7 +170,13 @@ void SE::Core::MaterialManager::GarbageCollection()
 
 int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
 {
-	auto handle = Core::Engine::GetInstance().GetRenderer()->CreateTexture(data, size, 1);
+	Graphics::TextureDesc td;
+	memcpy(&td, data, sizeof(td));
+	/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+	if (td.width * td.height * 4 != size - sizeof(td))
+		return -1;
+	void* rawTextureData = ((char*)data) + sizeof(td);
+	auto handle = Core::Engine::GetInstance().GetRenderer()->CreateTexture(rawTextureData, td);
 	if (handle == -1)
 		return -1;
 	auto index = guidToTextureInfo[guid];

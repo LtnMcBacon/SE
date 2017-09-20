@@ -81,6 +81,15 @@ namespace SE
 			* @endcode
 			*/
 			void DestroyVertexBuffer(int bufferHandle);
+			
+			/**
+			* @brief Creates a texture (SRV)
+			* @param[in] data Raw image data
+			* @param[in] description Texture description
+			* @sa TextureDesc
+			*
+			*/
+			int CreateTexture(void* data, const TextureDesc& description) override;
 
 			/**
 			* @brief Create a transform.
@@ -105,16 +114,7 @@ namespace SE
 			*/
 			int UpdateTransform(int transformHandle, float* transform);
 
-			/**
-			* @brief Create a shader resource view (texture)
-			* @param[in] data A pointer to the texture data.
-			* @param[in] size The size of the texture.
-			* @param[in] bytewidth The width of the texture
-			* @retval handle On success.
-			* @retval -1 Something went wrong.
-			* @endcode
-			*/
-			int CreateTexture(void*data, size_t size, size_t bytewidth);
+
 
 			/**
 			* @brief Create a pixel shader from raw data
@@ -125,6 +125,16 @@ namespace SE
 			* @endcode
 			*/
 			int CreatePixelShader(void* data, size_t size);
+
+			/**
+			* @brief Create a vertex shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateVertexShader(void* data, size_t size);
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

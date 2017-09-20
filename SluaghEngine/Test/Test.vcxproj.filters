@@ -33,9 +33,6 @@
     <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BufferTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManagerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoadTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +68,6 @@
     <ClInclude Include="ObjLoaderTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BufferTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManagerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoadTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

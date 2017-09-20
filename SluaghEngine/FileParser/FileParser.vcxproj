@@ -72,22 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -42,16 +42,16 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(level, true);
 
-	rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
-	rm.ToggleRenderableObject(mainC, true);
-	for (int i = 0; i < 10; i++)
-	{
-		auto& en = em.Create();
-		tm.Create(en);
-		tm.SetPosition(en, DirectX::XMFLOAT3(rand() % 20, rand() % 20, rand() % 20));
-		rm.CreateRenderableObject(en, Utilz::GUID("Placeholder_MC.obj"));
-		rm.ToggleRenderableObject(en, true);
-	}
+	//rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
+	//rm.ToggleRenderableObject(mainC, true);
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	auto& en = em.Create();
+	//	tm.Create(en);
+	//	tm.SetPosition(en, DirectX::XMFLOAT3(rand() % 20, rand() % 20, rand() % 20));
+	//	rm.CreateRenderableObject(en, Utilz::GUID("Placeholder_MC.obj"));
+	//	rm.ToggleRenderableObject(en, true);
+	//}
 
 
 

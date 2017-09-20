@@ -2,33 +2,28 @@
 #include <windows.h>
 #include <time.h>
 #include <chrono>
-#include <iostream>
-using namespace std;
-using namespace chrono;
-
-class Timer
+namespace SE
 {
-private:
-	__int64 countsPerSecond;
-	float secondsPerCount;
+	namespace Utilz
+	{
+		class Timer
+		{
 
-	__int64 previousTime;
-	__int64 currentTime;
 
-	float deltaTime;
-	float secondCounter;
+		public:
+			Timer();
+			~Timer();
+			void Tick();
+			float GetDeltaSeconds() const;
+			float GetDeltaMilliseconds() const;
+			
+		private:
+			std::chrono::high_resolution_clock::time_point curTime;
+			std::chrono::high_resolution_clock::time_point prevTime;
 
-	
-public:
-	Timer();
-	~Timer();
- 
-	void initialize();
-	float getDeltaTime();
-	float getCurrentTime();
-	void updateCurrentTime();
-	void resetTimer();
-	int getFrameCount();
-	float getCountsPerSecond();
-};
+
+		};
+	}
+}
+
 
