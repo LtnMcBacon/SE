@@ -19,14 +19,16 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
-	materialHandler = new MaterialHandler(device->GetDevice(), device->GetDeviceContext());
-	hr = materialHandler->Init();
+	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
+
+	int shaderID[2];
+	hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(), &shaderID[0]);
 	if (FAILED(hr))
 		return -1;
 
-	staticVertexBufferHandler = new StaticVertexBufferHandler(device->GetDevice(), device->GetDeviceContext());
-	constantBufferHandler = new ConstantBufferHandler(device->GetDevice(), device->GetDeviceContext());
-
+	hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
+	if (FAILED(hr))
+		return -1;
 	
 	cam.SetPosition(0.0f, 1.0f, -2.0f);
 	cam.Update(0.01f);
@@ -38,13 +40,13 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	off.offset[1] = 0;
 	off.offset[2] = 0;
 
-	hr = constantBufferHandler->AddConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
 	if (FAILED(hr))
 	{
 		throw "omg";
 	}
 
-	constantBufferHandler->BindConstantBuffer(oncePerFrameBufferID);
+	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
 
 	return 0;
@@ -52,14 +54,10 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 void SE::Graphics::Renderer::Shutdown()
 {
-	constantBufferHandler->Shutdown();
-	staticVertexBufferHandler->Shutdown();
-	materialHandler->Shutdown();
+	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 	
-	delete constantBufferHandler;
-	delete staticVertexBufferHandler;
-	delete materialHandler;
+	delete graphicResourceHandler;
 	delete device;
 }
 
@@ -106,18 +104,18 @@ int SE::Graphics::Renderer::Render() {
 	DirectX::XMFLOAT4X4 wo;
 
 	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
-	constantBufferHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
+	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
 
-	materialHandler->SetMaterial();
+	graphicResourceHandler->SetMaterial(0, 0);
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 	for (auto& job : renderJobs)
 	{
-		staticVertexBufferHandler->SetVertexBuffer(job.bufferHandle);
-		constantBufferHandler->BindConstantBuffer(job.transformHandle);
-		device->GetDeviceContext()->Draw(staticVertexBufferHandler->GetVertexCount(job.bufferHandle), 0);
+		graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
+		graphicResourceHandler->BindConstantBuffer(job.transformHandle);
+		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 	}
 
 
@@ -132,7 +130,7 @@ int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, 
 {
 	StartProfile;
 	int handle = 0;
-	auto result = staticVertexBufferHandler->CreateVertexBuffer(data, vertexCount, stride, &handle);
+	auto result = graphicResourceHandler->CreateVertexBuffer(data, vertexCount, stride, &handle);
 	if(result)
 		ProfileReturnConst(result);
 	ProfileReturnConst(handle);
@@ -141,7 +139,7 @@ int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, 
 void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 {
 	StartProfile;
-	staticVertexBufferHandler->RemoveVertexBuffer(bufferHandle);
+	graphicResourceHandler->RemoveVertexBuffer(bufferHandle);
 	StopProfile;
 }
 
@@ -197,7 +195,7 @@ int SE::Graphics::Renderer::CreateTransform()
 	off.offset[0] = 1;
 	off.offset[1] = 1;
 	off.offset[2] = 1;
-	auto hr = constantBufferHandler->AddConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &handle);
+	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &handle);
 	if (FAILED(hr))
 		ProfileReturnConst(hr);
 	ProfileReturnConst(handle);
@@ -213,7 +211,7 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
-	constantBufferHandler->SetConstantBuffer(&transposed, transformHandle);
+	graphicResourceHandler->SetConstantBuffer(&transposed, transformHandle);
 	ProfileReturnConst(0);
 }
 

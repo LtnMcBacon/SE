@@ -1,4 +1,5 @@
 #include "DeviceManager.h"
+#include <Utilz\Console.h>
 #include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -6,6 +7,7 @@
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
+using namespace SE::Utilz;
 
 DeviceManager::DeviceManager() {
 
@@ -116,8 +118,8 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 	if (FAILED(hr)) {
 
-		cout << "Device Creation Error: Device, DeviceContext and Swap Chain could not be created" << endl;
-		return S_FALSE;
+		Console::Print("Device Creation Error: Device, DeviceContext and Swap Chain could not be created");
+		ProfileReturnConst(hr);
 	}
 
 	ProfileReturnConst(hr);
@@ -144,20 +146,20 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	hr = gDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)& dxgiDevice);
 	if (FAILED(hr)) {
 
-		return S_FALSE;
+		ProfileReturnConst(hr);
 	}
 
 	IDXGIAdapter* dxgiAdapter = 0;
 	hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)& dxgiAdapter);
 	if (FAILED(hr)) {
 
-		return S_FALSE;
+		ProfileReturnConst(hr);
 	}
 
 	IDXGIFactory* dxgiFactory = 0;
 	hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)& dxgiFactory);
 	if (FAILED(hr)) {
-		return S_FALSE;	
+		ProfileReturnConst(hr);
 	}
 
 	dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
@@ -181,16 +183,16 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	if (FAILED(hr)) {
 
-		cout << "Buffer Error: Back buffer could not be retrieved" << endl;
-		return S_FALSE;
+		Console::Print("Buffer Error: Back buffer could not be retrieved");
+		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
 
-		cout << "Render Target View Error: Render target view could not be created" << endl;
-		return S_FALSE;
+		Console::Print("Render Target View Error: Render target view could not be created");
+		ProfileReturnConst(hr);
 	}
 
 	setDebugName(gBackbufferRTV, "STANDARD_BACK_BUFFER_RTV");
@@ -223,8 +225,8 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	if (FAILED(hr)) {
 
-		cout << "Depth Stencil Error: Depth stencil texture couldn't be created" << endl;
-		return S_FALSE;
+		Console::Print("Depth Stencil Error: Depth stencil texture couldn't be created");
+		ProfileReturnConst(hr);
 	}
 
 	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
@@ -241,8 +243,8 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	if (FAILED(hr)) {
 
-		cout << "Depth Stencil RTV Error: Depth stencil RTV could not be created" << endl;
-		return S_FALSE;
+		Console::Print("Depth Stencil RTV Error: Depth stencil RTV could not be created");
+		ProfileReturnConst(hr);
 	}
 
 	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
