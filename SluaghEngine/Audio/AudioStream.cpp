@@ -1,6 +1,7 @@
 #include "AudioStream.h"
 #include <fstream>
 #include <iostream>
+#include <Profiler.h>
 
 namespace SE {
 	namespace Audio {
@@ -11,6 +12,7 @@ namespace SE {
 
 		AudioStream::~AudioStream()
 		{
+			StartProfile;
 			for (auto &st : stream)
 			{
 				if (st)
@@ -26,20 +28,22 @@ namespace SE {
 				}
 			}
 			Pa_Terminate();
+			StopProfile;
 		}
 
 		int AudioStream::Initialize()
 		{
+			StartProfile;
 			PaError err;
 			err = Pa_Initialize();
 			if (err != paNoError)
-				return -1;
-			int hej = Pa_GetDeviceCount();
-			return 0;
+				ProfileReturnConst(-1);
+			ProfileReturnConst(0);
 		}
 
 		int AudioStream::CreateStream(SoundIndexName soundType, void* streamData)
 		{
+			StartProfile;
 			PaStream *tempStream = nullptr;
 			PaError err;
 			AudioOut *inSample = (AudioOut*)streamData;
@@ -85,7 +89,7 @@ namespace SE {
 			}
 			if (err != paNoError)
 			{
-				return -1;
+				ProfileReturnConst(-1);
 			}
 			else
 			{
@@ -93,50 +97,52 @@ namespace SE {
 				{
 					stream.push_back(tempStream);
 					sampleOut.push_back(inSample);
-					return stream.size() - 1;
+					ProfileReturn(stream.size() - 1);
 				}
 				else
 				{
 					stream[freeStreamID.top()] = tempStream;
 					sampleOut[freeStreamID.top()] = inSample;
 					freeStreamID.pop();
-					return stream.size() - 1;
+					ProfileReturn(stream.size() - 1);
 				}
-			}
-				
-			return -1;
+			}		
+			ProfileReturnConst(-1);
 		}
 	
-		int AudioStream::PlaySound(int streamID)
+		int AudioStream::StreamSound(int streamID)
 		{
+			StartProfile;
 			PaError err;
 			err = Pa_StartStream(stream[streamID]);
 			if (err != paNoError)
-				return -1;
-			return 0;
+				ProfileReturnConst(-1);
+			ProfileReturnConst(0);
 		}
 
 		int AudioStream::StopSound(int streamID)
 		{
+			StartProfile;
 			PaError err;
 			err = Pa_StopStream(stream[streamID]);
 			if (err != paNoError)
-				return -1;
+				ProfileReturnConst(-1);
 			sampleOut[streamID]->pData.currentPos = 0;
-			return 0;
+			ProfileReturnConst(0);
 		}
 
 		int AudioStream::RemoveSound(int streamID)
 		{
+			StartProfile;
 			PaError err;
 			err = Pa_CloseStream(stream[streamID]);
 			if (err != paNoError)
-				return -1;
+				ProfileReturnConst(-1);
 			stream[streamID] = nullptr;
 			delete sampleOut[streamID];
 			sampleOut[streamID] = nullptr;
 			freeStreamID.push(streamID);
-			return 0;
+			ProfileReturnConst(0);
 		}
 	}	//namespace Audio
 }	//namespace SE

@@ -40,7 +40,7 @@ namespace SE {
 			* @retval -1 Tells that streamstart was unsucessful
 			*
 			*/
-			int PlaySound(int streamID);
+			int StreamSound(int streamID);
 			/**
 			* @brief Stops the stream with the given ID
 			*

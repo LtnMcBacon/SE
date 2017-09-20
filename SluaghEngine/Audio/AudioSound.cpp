@@ -1,5 +1,5 @@
 #include "AudioSound.h"
-
+#include <Profiler.h>
 
 namespace SE {
 	namespace Audio {
@@ -10,6 +10,7 @@ namespace SE {
 
 		AudioSound::~AudioSound()
 		{
+			StartProfile;
 			for (auto &ss : soundSample)
 			{
 				if (ss.samples)
@@ -17,11 +18,13 @@ namespace SE {
 					delete ss.samples;
 				}
 			}
+			StopProfile;
 		}
 
 		int AudioSound::Initialize()
 		{
-			return 0;
+			StartProfile;
+			ProfileReturnConst(0);
 		}
 
 		namespace sfvirt {
@@ -86,6 +89,7 @@ namespace SE {
 
 		int AudioSound::LoadSound(AudioFile* sound)
 		{
+			StartProfile;
 			SF_VIRTUAL_IO sfvirtual;
 			sfvirtual.get_filelen = sfvirt::sf_vio_get_filelen1;
 			sfvirtual.seek = sfvirt::sf_vio_seek1;
@@ -105,18 +109,19 @@ namespace SE {
 			tempAS.samples = sampleData;
 
 			soundSample.push_back(tempAS);
-			return soundSample.size() - 1;
+			ProfileReturn(soundSample.size() - 1);
 		}
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
+			StartProfile;
 			if (soundType == BakgroundSound)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
 				outData->pData.volume = masterVol * bakgroundVol;
-				return (void*)outData;
+				ProfileReturn((void*)outData);
 			}
 			else if (soundType == Effect)
 			{
@@ -124,9 +129,9 @@ namespace SE {
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
 				outData->pData.volume = masterVol * effectVol;
-				return (void*)outData;
+				ProfileReturn((void*)outData);
 			}
-			return nullptr;
+			ProfileReturnConst(nullptr);
 		}
 	}	//namespace Audio
 }	//namespace SE

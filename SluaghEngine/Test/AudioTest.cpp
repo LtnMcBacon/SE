@@ -60,7 +60,7 @@ namespace SE
 			else
 			{
 				streamID[0] = 0;
-				audio.PlaySound(streamID[0]);
+				audio.StreamSound(streamID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
@@ -75,7 +75,7 @@ namespace SE
 							if (streamID[i] == -1)
 							{
 								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect);
-								audio.PlaySound(streamID[i]);
+								audio.StreamSound(streamID[i]);
 								i = 11;
 							}
 						}
@@ -100,7 +100,7 @@ namespace SE
 							if (streamID[i] != -1)
 							{
 								audio.StopSound(streamID[i]);
-								audio.PlaySound(streamID[i]);
+								audio.StreamSound(streamID[i]);
 								i = 11;
 							}
 						}

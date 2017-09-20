@@ -37,7 +37,7 @@ namespace SE {
 			* @param[in] soundFile The GUID of the requested soundfile
 			*
 			* @retval 0 Sound is already loaded
-			* @retval -1 Sound is being loaded
+			* @retval 1 Sound is being loaded
 			*
 			*/
 			int LoadSound(Utilz::GUID soundFile);
@@ -71,7 +71,7 @@ namespace SE {
 			* @retval -1 Tells that streamstart was unsucessful
 			*
 			*/
-			int PlaySound(int streamID);
+			int StreamSound(int streamID);
 			/**
 			* @brief Stops the stream with the given ID
 			*
