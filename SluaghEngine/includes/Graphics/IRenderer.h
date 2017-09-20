@@ -12,6 +12,8 @@ namespace SE
 		{
 			int bufferHandle;
 			int transformHandle;
+			int pixelShader;
+			int vertexShader;
 		};
 
 
@@ -132,6 +134,16 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreatePixelShader(void* data, size_t size) = 0;
+
+			/**
+			* @brief Create a vertex shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateVertexShader(void* data, size_t size) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
