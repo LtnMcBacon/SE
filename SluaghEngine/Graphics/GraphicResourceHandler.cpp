@@ -66,7 +66,6 @@ void GraphicResourceHandler::Shutdown() {
 		sampleState->Release();
 		sampleState = nullptr;
 	}
-}
 	for(auto& srv : shaderResourceViews)
 	{
 		if (srv)
