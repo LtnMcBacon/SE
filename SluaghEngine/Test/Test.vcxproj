@@ -136,7 +136,7 @@
   <ItemGroup>
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
-    <ClCompile Include="INITest.cpp" />
+    <ClCompile Include="ImageLoadTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
-    <ClInclude Include="INITest.h" />
+    <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />

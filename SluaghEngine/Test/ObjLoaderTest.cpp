@@ -2,6 +2,7 @@
 #include <Core\Engine.h>
 #include <Graphics\Renderer.h>
 #include <OBJParser\Parsers.h>
+#include <Profiler.h>
 
 
 #ifdef _DEBUG
@@ -65,13 +66,14 @@ namespace Parsing
 
 bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 {
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.\n", re);
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	auto r = e.GetResourceHandler();
@@ -85,5 +87,5 @@ bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
 
 	e.Release();
 
-	return result;
+	ProfileReturnConst(result);
 }
