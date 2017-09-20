@@ -162,7 +162,13 @@ void SE::Core::MaterialManager::GarbageCollection()
 
 int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
 {
-	auto handle = Core::Engine::GetInstance().GetRenderer()->CreateTexture(data, size, 1);
+	Graphics::TextureDesc td;
+	memcpy(&td, data, sizeof(td));
+	/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+	if (td.width * td.height * 4 != size - sizeof(td))
+		return -1;
+	void* rawTextureData = ((char*)data) + sizeof(td);
+	auto handle = Core::Engine::GetInstance().GetRenderer()->CreateTexture(rawTextureData, td);
 	if (handle == -1)
 		return -1;
 	auto index = guidToTextureInfo[guid];

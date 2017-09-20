@@ -2,6 +2,7 @@
 #define _IRENDERER_H_
 #include <Utilz/GUID.h>
 #include <cstdint>
+#include "TextureDesc.h"
 namespace SE
 {
 	namespace Graphics
@@ -12,6 +13,9 @@ namespace SE
 			int bufferHandle;
 			int transformHandle;
 		};
+
+
+
 		class IRenderer
 		{
 		public:
@@ -85,6 +89,17 @@ namespace SE
 			virtual void DestroyVertexBuffer(int bufferHandle) = 0;
 
 			/**
+			* @brief Creates a texture (SRV)
+			* @param[in] data Raw image data
+			* @param[in] description Texture description
+			* @retval handle on success
+			* @retval -1 on failure.
+			* @sa TextureDesc
+			* 
+			*/
+			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
+
+			/**
 			* @brief Create a transform.
 			* @retval transformHandle Returns a handle to the created transform.
 			* @retval -1 If something went wrong
@@ -106,16 +121,7 @@ namespace SE
 			*/
 			virtual int UpdateTransform(int transformHandle, float* transform) = 0;
 
-			/**
-			* @brief Create a shader resource view (texture)
-			* @param[in] data A pointer to the texture data.
-			* @param[in] size The size of the texture.
-			* @param[in] bytewidth The width of the texture
-			* @retval handle On success.
-			* @retval -1 Something went wrong.
-			* @endcode
-			*/
-			virtual int CreateTexture(void*data, size_t size, size_t bytewidth) = 0;
+
 
 			/**
 			* @brief Create a pixel shader from raw data

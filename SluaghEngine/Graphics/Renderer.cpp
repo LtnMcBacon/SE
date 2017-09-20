@@ -1,7 +1,6 @@
 #include <Renderer.h>
 #include <Profiler.h>
 
-
 using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
@@ -146,6 +145,13 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	StopProfile;
 }
 
+int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
+}
+
+
 int SE::Graphics::Renderer::CreateTransform()
 {
 	StartProfile;
@@ -177,10 +183,7 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 	ProfileReturnConst(0);
 }
 
-int SE::Graphics::Renderer::CreateTexture(void * data, size_t size, size_t bytewidth)
-{
-	return 0;
-}
+
 
 int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
 {
