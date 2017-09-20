@@ -143,17 +143,17 @@ namespace SE
 			int vertexID[3];
 			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create vertexbuffer
-			HRESULT hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
+			HRESULT hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[1]);
+			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[1]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = vertexBuffer->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[2]);
+			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[2]);
 			if (hr != S_OK)
 			{
 				result = false;

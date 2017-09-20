@@ -7,3 +7,4 @@ Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleVS.hlsl
 Assets/test.objtest
+Assets/test.txt
