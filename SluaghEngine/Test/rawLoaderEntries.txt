@@ -1,4 +1,6 @@
 Assets/dummytex.jpg
+Assets/Placeholder_Arrow.mtl
+Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
 Assets/Placeholder_Floor.mtl
@@ -12,9 +14,3 @@ Assets/SimplePS.hlsl
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
-test.txt
-Asset/test.objtest
-Asset/Placeholder_Block.obj
-Asset/Placeholder_Floor.obj
-Asset/Placeholder_level.obj
-Asset/Placeholder_MC.obj
