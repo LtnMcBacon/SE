@@ -25,9 +25,9 @@ namespace SE
 			int Initialize();
 			void Shutdown();
 
-			void LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback);
+			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback);
 			void UnloadResource(const Utilz::GUID& guid);
-			void AddParser(const Utilz::GUID& extGUID, const std::function<int(void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize)>& parserFunction);
+		
 		private:
 			struct ResourceInfo
 			{
@@ -42,7 +42,6 @@ namespace SE
 			IAssetLoader* diskLoader;
 
 			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> resourceMap;
-			std::map<Utilz::GUID, std::function<int(void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize)>, Utilz::GUID::Compare> parsers;
 		};
 	}
 }

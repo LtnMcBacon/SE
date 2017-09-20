@@ -105,6 +105,27 @@ namespace SE
 			* @endcode
 			*/
 			virtual int UpdateTransform(int transformHandle, float* transform) = 0;
+
+			/**
+			* @brief Create a shader resource view (texture)
+			* @param[in] data A pointer to the texture data.
+			* @param[in] size The size of the texture.
+			* @param[in] bytewidth The width of the texture
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateTexture(void*data, size_t size, size_t bytewidth) = 0;
+
+			/**
+			* @brief Create a pixel shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreatePixelShader(void* data, size_t size) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
