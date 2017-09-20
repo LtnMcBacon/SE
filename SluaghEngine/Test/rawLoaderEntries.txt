@@ -1,4 +1,6 @@
 Assets/dummytex.jpg
+Assets/Placeholder_Arrow.mtl
+Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
 Assets/Placeholder_Floor.mtl
@@ -11,9 +13,9 @@ Assets/purewhite.png
 Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
-Assets/SimpleTexPS.txt
+Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
+Assets/temp - Copy.ini
+Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
-Assets/testimg.png
-Assets/testimg.rawimg
