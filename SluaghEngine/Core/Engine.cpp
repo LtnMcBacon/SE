@@ -40,6 +40,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	transformManager = new TransformManager(entityManager);
 	renderableManager = new RenderableManager(*entityManager);
+	materialManager = new MaterialManager(*entityManager);
 
 	return 0;
 }
@@ -50,6 +51,7 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	resourceHandler->Shutdown();
 
+	delete materialManager;
 	delete renderableManager;
 	delete renderer;
 	delete window;
@@ -96,6 +98,11 @@ SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() c
 SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
 {
 	return *transformManager;
+}
+
+SE::Core::MaterialManager & SE::Core::Engine::GetMaterialManager() const
+{
+	return *materialManager;
 }
 
 SE::Core::Engine::Engine()

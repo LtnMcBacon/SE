@@ -67,7 +67,7 @@ namespace SE
 			};
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(size_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;

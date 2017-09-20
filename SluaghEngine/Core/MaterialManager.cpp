@@ -4,12 +4,14 @@
 
 SE::Core::MaterialManager::MaterialManager(const EntityManager& entityManager) : entityManager(entityManager)
 {
+	Allocate(128);
 	defaultTextureHandle = 0;
 }
 
 
 SE::Core::MaterialManager::~MaterialManager()
 {
+	delete materialInfo.data;
 }
 
 void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
@@ -93,10 +95,13 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.textureIndex = (size_t*)(newData.entity + 1);
+	newData.shaderIndex = (size_t*)(newData.textureIndex + 1);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));
 	memcpy(newData.textureIndex, materialInfo.textureIndex, materialInfo.used * sizeof(size_t));
+	memcpy(newData.shaderIndex, materialInfo.shaderIndex, materialInfo.used * sizeof(size_t));
+
 
 	// Delete old data;
 	operator delete(materialInfo.data);
@@ -116,7 +121,12 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 
 	// Copy the data
 	materialInfo.entity[index] = last_entity;
+
+	textureInfo[materialInfo.textureIndex[index]].refCount--;
 	materialInfo.textureIndex[index] = materialInfo.textureIndex[last];
+
+	shaderInfo[materialInfo.shaderIndex[index]].refCount--;
+	materialInfo.shaderIndex[index] = materialInfo.shaderIndex[last];
 
 	// Replace the index for the last_entity 
 	entityToMaterialInfo[last_entity] = index;

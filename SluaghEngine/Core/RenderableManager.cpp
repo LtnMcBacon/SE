@@ -209,6 +209,8 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	bufferInfo.push_back({ 0, bufferHandle });
 	guidToBufferInfoIndex[guid] = bufferInfo.size() - 1;
 
+	delete parsedData;
+
 	ProfileReturnConst(0);
 }
 

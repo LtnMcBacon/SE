@@ -56,6 +56,8 @@ namespace Parsing
 				result = false;
 		}
 
+		delete parsedData;
+
 		return 0;
 	}
 }
