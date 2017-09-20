@@ -33,7 +33,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	tm.Create(entity);
 
-	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_level.obj"));
+	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_levsel.obj"));
 	rm.ToggleRenderableObject(entity, true);
 
 	engine.GetWindow()->MapActionButton(0, Window::KeyEscape);

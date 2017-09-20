@@ -25,7 +25,7 @@ namespace SE
 			int Initialize();
 			void Shutdown();
 
-			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback);
+			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool wait = false);
 			void UnloadResource(const Utilz::GUID& guid);
 		
 		private:

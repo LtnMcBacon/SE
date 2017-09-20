@@ -87,16 +87,20 @@ namespace SE {
 			* @brief CreateVertexShader initializes a vertex shader with default input layout
 			* @details It requires the graphic device to create the shader and input layout
 			* @param[in] gDevice The ID3D11Device pointer
+			* @param[in] data Pointer to the blob
+			* @param[in] size Size of the blob
 			* @param[in] int The vertex shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader and input layout were successfully created or not
 			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
-			HRESULT CreateVertexShader(ID3D11Device* gDevice, int *vertexShaderID);
+			HRESULT CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID);
 
 			/**
 			* @brief CreatePixelShader initializes a pixel shader
 			* @details It requires the graphic device to create the shader and and index to the 
 			* @param[in] gDevice The ID3D11Device pointer
+			* @param[in] data Pointer to the blob
+			* @param[in] size Size of the blob
 			* @param[in] int The pixel shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
 			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function

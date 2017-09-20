@@ -22,10 +22,10 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 
-	int shaderID[2];
+	/*int shaderID[2];
 	hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(), &shaderID[0]);
 	if (FAILED(hr))
-		return -1;
+		return -1;*/
 
 	//hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
 	//if (FAILED(hr))
@@ -187,6 +187,15 @@ int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
 	if (FAILED(hr))
 		return hr;
 
+	return handle;
+}
+
+int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
+{
+	int handle;
+	auto hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(),data, size, &handle);
+	if (hr)
+		return hr;
 	return handle;
 }
 

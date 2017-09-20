@@ -36,7 +36,7 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	delete diskLoader;
 }
 
-int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback)
+int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool wait)
 {
 	StartProfile;
 
@@ -44,13 +44,11 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	if (find == resourceMap.end())
 	{
 		auto& resourceInfo = resourceMap[guid];
-		void* rawData;
-		size_t rawSize;
 		auto result = diskLoader->LoadResource(guid, &resourceInfo.data, &resourceInfo.size, &resourceInfo.extension);
 		if (result)
 		{
 			Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
-			return result;
+			ProfileReturnConst(result);
 		}	
 		else
 		{
@@ -59,7 +57,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			if (ret)
 			{
 				Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
-				return ret;
+				ProfileReturnConst( ret);
 			}
 			resourceInfo.refCount++;
 		}
@@ -69,10 +67,10 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	{
 		auto& resourceInfo = resourceMap[guid];	
 		resourceInfo.refCount++;
-		callback(guid, resourceInfo.data, resourceInfo.size);
+		ProfileReturn(callback(guid, resourceInfo.data, resourceInfo.size));
 	}
-	
-	StopProfile;
+
+	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)

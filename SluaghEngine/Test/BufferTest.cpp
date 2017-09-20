@@ -173,7 +173,7 @@ namespace SE
 			delete gResourceHandler;
 
 			result = true;
-
+			delete parsedData;
 			return 0;
 		}
 	}

@@ -7,8 +7,16 @@ SE::Core::MaterialManager::MaterialManager(const EntityManager& entityManager) :
 	Allocate(128);
 	defaultTextureHandle = 0;
 
-	auto r = Core::Engine::GetInstance().GetResourceHandler();
+	auto rh = Core::Engine::GetInstance().GetResourceHandler();
 
+	auto res = rh->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make([this](const Utilz::GUID& guid, void*data, size_t size) -> int {
+		defaultShaderHandle = Core::Engine::GetInstance().GetRenderer()->CreatePixelShader(data, size);
+		if (defaultShaderHandle == -1)
+			return -1;
+		return 0;
+	}), true);
+	if (res)
+		throw std::exception("Could not load default pixel shader.");
 
 
 }

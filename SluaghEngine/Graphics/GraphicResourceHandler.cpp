@@ -60,7 +60,7 @@ void GraphicResourceHandler::Shutdown() {
 	}
 }
 
-HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *vertexShaderID) {
+HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID) {
 
 	StartProfile;
 
@@ -75,7 +75,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	// TEXCOORD
 	D3D11_INPUT_ELEMENT_DESC vertexInputLayout[3];
 
-	ID3DBlob* vsBlob = nullptr;
+	/*ID3DBlob* vsBlob = nullptr;
 	ID3DBlob* vsErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
@@ -101,9 +101,9 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 		}
 
 		ProfileReturnConst(hr);
-	}
+	}*/
 
-	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &tempVertexShader);
+	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
 
@@ -136,7 +136,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	vertexInputLayout[2].InstanceDataStepRate = 0;
 
 	int inputLayoutSize = sizeof(vertexInputLayout) / sizeof(vertexInputLayout[0]);
-	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &tempInputLayout);
+	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, data, size, &tempInputLayout);
 
 	if (FAILED(hr)) {
 
@@ -144,8 +144,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 
 		ProfileReturnConst(hr);
 	}
-
-	vsBlob->Release();
 
 	if (FAILED(hr))
 	{
