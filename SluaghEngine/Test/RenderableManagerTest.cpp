@@ -39,14 +39,21 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(mainC);
 	tm.SetPosition(mainC, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
 
-	Core::RenderableManager::CreateRenderObjectInfo eInfo;
-	eInfo.meshGUID = Utilz::GUID("Placeholder_level.obj");
-	rm.CreateRenderableObject(level, eInfo);
+	rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(level, true);
 
-	eInfo.meshGUID = Utilz::GUID("Placeholder_MC.obj");
-	rm.CreateRenderableObject(mainC, eInfo);
+	rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
 	rm.ToggleRenderableObject(mainC, true);
+	for (int i = 0; i < 10; i++)
+	{
+		auto& en = em.Create();
+		tm.Create(en);
+		tm.SetPosition(en, DirectX::XMFLOAT3(rand() % 20, rand() % 20, rand() % 20));
+		rm.CreateRenderableObject(en, Utilz::GUID("Placeholder_MC.obj"));
+		rm.ToggleRenderableObject(en, true);
+	}
+
+
 
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);

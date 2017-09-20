@@ -50,6 +50,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
+	graphicResourceHandler->CreateSamplerState();
 
 	ProfileReturnConst( 0);
 }
@@ -174,5 +175,15 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
 	graphicResourceHandler->SetConstantBuffer(&transposed, transformHandle);
 	ProfileReturnConst(0);
+}
+
+int SE::Graphics::Renderer::CreateTexture(void * data, size_t size, size_t bytewidth)
+{
+	return 0;
+}
+
+int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
+{
+	return 0;
 }
 

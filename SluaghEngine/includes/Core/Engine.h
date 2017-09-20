@@ -2,7 +2,7 @@
 #define SE_CORE_ENGINE_H_
 #include "Core/EntityManager.h"
 #include "Core/TransformManager.h"
-
+#include "MaterialManager.h"
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
@@ -152,6 +152,7 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
+			MaterialManager* materialManager;
 		};
 
 	}
