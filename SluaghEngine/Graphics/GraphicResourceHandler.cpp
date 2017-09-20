@@ -1,5 +1,6 @@
 
 #include <Graphics/GraphicResourceHandler.h>
+
 #include <Utilz\Console.h>
 #include <Profiler.h>
 
@@ -57,6 +58,11 @@ void GraphicResourceHandler::Shutdown() {
 
 			ps.pixelShader->Release();
 		}
+	}
+	for(auto& srv : shaderResourceViews)
+	{
+		if (srv)
+			srv->Release();
 	}
 }
 
@@ -400,5 +406,77 @@ void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)
 	cBuffers[constBufferID].constBuffer->Release();
 	cBuffers[constBufferID].constBuffer = nullptr;
 	freeConstantBufferLocations.push(constBufferID);
+}
+
+int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const TextureDesc& description)
+{
+	
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = description.width;
+	desc.Height = description.height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	ID3D11Texture2D* texture;
+	D3D11_SUBRESOURCE_DATA d;
+	d.pSysMem = textureData;
+	d.SysMemPitch = description.width * 4;
+	d.SysMemSlicePitch = 0;
+	HRESULT hr = S_OK;
+	hr = gDevice->CreateTexture2D(&desc, &d, &texture);
+	if (FAILED(hr))
+	{
+		Utilz::Console::Print("Failed to create texture from data.\n");
+		return -1;
+	}
+
+	ID3D11ShaderResourceView* srv;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	hr = gDevice->CreateShaderResourceView(texture, &srvDesc, &srv);
+	if(FAILED(hr))
+	{
+		Utilz::Console::Print("Failed to create shader resource view from texture.\n");
+		return -1;
+	}
+	texture->Release();
+
+	int index = -1;
+	if (freeSRVIndices.size() > 0)
+	{
+		index = freeSRVIndices.top();
+		freeSRVIndices.pop();
+		shaderResourceViews[index] = srv;
+	}
+	else
+	{
+		index = shaderResourceViews.size();
+		shaderResourceViews.push_back(srv);
+	}
+
+	return index;
+}
+
+void GraphicResourceHandler::RemoveShaderResourceView(int id)
+{
+	shaderResourceViews[id]->Release();
+	shaderResourceViews[id] = nullptr;
+	freeSRVIndices.push(id);
+
+}
+
+void GraphicResourceHandler::BindShaderResourceView(int id, int slot)
+{
+	gDeviceContext->PSSetShaderResources(slot, 1, &shaderResourceViews[id]);
 }
 

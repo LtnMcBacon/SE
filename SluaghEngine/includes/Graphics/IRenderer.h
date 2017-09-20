@@ -2,6 +2,7 @@
 #define _IRENDERER_H_
 #include <Utilz/GUID.h>
 #include <cstdint>
+#include "TextureDesc.h"
 namespace SE
 {
 	namespace Graphics
@@ -13,11 +14,7 @@ namespace SE
 			int transformHandle;
 		};
 
-		struct TextureDesc
-		{
-			uint32_t width;
-			uint32_t height;
-		};
+
 
 		class IRenderer
 		{
