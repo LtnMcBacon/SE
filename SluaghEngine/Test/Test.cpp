@@ -17,6 +17,7 @@
 #include <ctime>
 
 #include <crtdbg.h>
+#include "EnemyMovementTest.h"
 
 
 #ifdef _DEBUG
@@ -52,6 +53,7 @@ int main(int argc, char** argv)
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(FlowFieldTest);
+	AddTest(EnemyMovementTest);
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

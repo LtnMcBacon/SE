@@ -1,6 +1,9 @@
 #include "FlowField.h"
 #include <Profiler.h>
 
+using namespace SE;
+using namespace Gameplay;
+
 FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, const pos & initialPullingPosition, float bottomLeftCornerXCoord, float bottomLeftCornerYCoord)
 {
 	StartProfile;
@@ -54,6 +57,12 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 
 	switch (data[xIndex][yIndex].dir)
 	{
+		case Direction::NONE:
+			xMagnitude = 0.0f;
+			yMagnitude = 0.0f;
+			StopProfile;
+			return;
+		
 		case Direction::UP: 
 			xMagnitude = 0.0f;
 			yMagnitude = 1.0f;

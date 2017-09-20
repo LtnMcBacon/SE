@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BufferTest.cpp" />
+    <ClCompile Include="EnemyMovementTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="FlowFieldTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
@@ -149,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferTest.h" />
+    <ClInclude Include="EnemyMovementTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="FlowFieldTest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
