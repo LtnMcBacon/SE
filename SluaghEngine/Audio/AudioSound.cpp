@@ -10,7 +10,13 @@ namespace SE {
 
 		AudioSound::~AudioSound()
 		{
-
+			for (auto &ss : soundSample)
+			{
+				if (ss.samples)
+				{
+					delete ss.samples;
+				}
+			}
 		}
 
 		int AudioSound::Initialize()
@@ -104,12 +110,20 @@ namespace SE {
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
-			if (soundType == BakgroundSound || Effect)
+			if (soundType == BakgroundSound)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
-				outData->pData.volume = 1.0;
+				outData->pData.volume = masterVol * bakgroundVol;
+				return (void*)outData;
+			}
+			else if (soundType == Effect)
+			{
+				AudioOut *outData = new AudioOut();
+				outData->sample = &soundSample[soundID];
+				outData->pData.currentPos = 0;
+				outData->pData.volume = masterVol * effectVol;
 				return (void*)outData;
 			}
 			return nullptr;

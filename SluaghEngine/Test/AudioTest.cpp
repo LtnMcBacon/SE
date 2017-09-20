@@ -1,7 +1,6 @@
 #include "AudioTest.h"
 #include <Core\AudioManager.h>
 #include <Core\Engine.h>
-#include <Window\Window.h>
 #include <portaudio\portaudio.h>
 
 #ifdef _DEBUG
@@ -52,6 +51,7 @@ namespace SE
 
 			}
 
+			int streamID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 			if (audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect) == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
@@ -59,10 +59,52 @@ namespace SE
 			}
 			else
 			{
-				audio.PlaySound(0);
-				while (e.GetWindow()->HandleMSG() != false)
+				streamID[0] = 0;
+				audio.PlaySound(streamID[0]);
+				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+				e.GetWindow()->MapActionButton(1, Window::KeyW);
+				e.GetWindow()->MapActionButton(2, Window::KeyS);
+				e.GetWindow()->MapActionButton(3, Window::KeyR);
+				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-
+					e.Frame();
+					if (e.GetWindow()->ButtonPressed(1) == true)
+					{
+						for (int i = 0; i < 10; i++)
+						{
+							if (streamID[i] == -1)
+							{
+								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect);
+								audio.PlaySound(streamID[i]);
+								i = 11;
+							}
+						}
+					}
+					if (e.GetWindow()->ButtonPressed(2) == true)
+					{
+						for (int i = 0; i < 10; i++)
+						{
+							if (streamID[i] != -1)
+							{
+								audio.StopSound(streamID[i]);
+								audio.RemoveSound(streamID[i]);
+								streamID[i] = -1;
+								i = 11;
+							}
+						}
+					}
+					if (e.GetWindow()->ButtonPressed(3) == true)
+					{
+						for (int i = 0; i < 10; i++)
+						{
+							if (streamID[i] != -1)
+							{
+								audio.StopSound(streamID[i]);
+								audio.PlaySound(streamID[i]);
+								i = 11;
+							}
+						}
+					}
 				}
 				e.Release();
 				return true;

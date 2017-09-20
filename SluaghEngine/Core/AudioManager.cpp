@@ -32,6 +32,7 @@ namespace SE {
 			sound->soundData = (char*)data;
 			sound->currentPos = 0;
 			trackSound[guid] = audioSound->LoadSound(sound);
+			delete sound;
 		}
 
 		int AudioManager::LoadSound(Utilz::GUID soundFile)
@@ -84,9 +85,9 @@ namespace SE {
 		}
 
 		void AudioManager::Shutdown()
-		{
-			delete audioSound;
+		{			
 			delete audioStream;
+			delete audioSound;
 		}
 
 

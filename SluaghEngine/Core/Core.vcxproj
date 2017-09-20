@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Core\AudioManager.h" />
     <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />

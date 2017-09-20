@@ -51,8 +51,8 @@ int SE::Core::Engine::Release()
 {
 	renderer->Shutdown();
 	window->Shutdown();
-	resourceHandler->Shutdown();
 	audioManager->Shutdown();
+	resourceHandler->Shutdown();	
 
 	delete renderableManager;
 	delete renderer;

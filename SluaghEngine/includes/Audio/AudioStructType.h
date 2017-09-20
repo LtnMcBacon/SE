@@ -21,7 +21,7 @@
 
 namespace SE {
 	namespace Audio {
-		enum SoundIndexName { StereoPan, BakgroundSound, Effect };
+		enum SoundIndexName { BakgroundSound, Effect };
 
 		//only for loading sound
 		struct AudioFile	

@@ -43,6 +43,9 @@ namespace SE {
 			void* GetSample(int soundID, SoundIndexName soundType);
 		private:
 			std::vector<AudioSample> soundSample;
+			float masterVol = 1.0f;
+			float effectVol = 0.8f;
+			float bakgroundVol = 0.5f;
 		};
 	}	//namespace Audio
 }	//namespace SE

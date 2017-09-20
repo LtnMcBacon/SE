@@ -18,6 +18,13 @@ namespace SE {
 					Pa_CloseStream(st);
 				}
 			}
+			for (auto &so : sampleOut)
+			{
+				if (so)
+				{
+					delete so;
+				}
+			}
 			Pa_Terminate();
 		}
 
@@ -125,7 +132,9 @@ namespace SE {
 			err = Pa_CloseStream(stream[streamID]);
 			if (err != paNoError)
 				return -1;
+			stream[streamID] = nullptr;
 			delete sampleOut[streamID];
+			sampleOut[streamID] = nullptr;
 			freeStreamID.push(streamID);
 			return 0;
 		}
