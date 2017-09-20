@@ -8,6 +8,15 @@ GameUnit::GameUnit()
 
 }
 
+GameUnit::GameUnit(float xPos, float yPos, float maxHealth, Core::Entity *entity) :
+	xPos(xPos),
+	yPos(yPos),
+	health(maxHealth),
+	unitEntity(entity)
+{
+	
+}
+
 GameUnit::~GameUnit()
 {
 

@@ -57,6 +57,9 @@
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="MaterialManagerTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

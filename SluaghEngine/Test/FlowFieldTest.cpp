@@ -105,7 +105,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 	playerPos.x = 1.5f;
 	playerPos.y = 1.5f;
 
-	FlowField flowField(mapRepresentation, 1.0f, playerPos, 0.0f, 0.0f);
+	SE::Gameplay::FlowField flowField(mapRepresentation, 1.0f, playerPos, 0.0f, 0.0f);
 	for(int x = 0; x < 25; x++)
 	{
 		for(int y = 0; y < 25; y++, numberOfEntitesPlaced++)

@@ -23,6 +23,7 @@ namespace SE
 		{
 		public:
 			GameUnit();
+			GameUnit(float xPos, float yPos, float maxHealth, Core::Entity *entity);
 			virtual ~GameUnit();
 
 			/**
@@ -116,14 +117,17 @@ namespace SE
 			void ClearConditionEvents();
 
 			inline float GetHealth() const { return health; };
-
+			inline float GetXPosition() { return xPos; };
+			inline float GetYPosition() { return yPos; };
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:
-			Core::Entity unitEntity = {};
+			Core::Entity* unitEntity = {};
 
 			//Life. Float needed?
 			float health;
+			float xPos;
+			float yPos;
 			
 			std::vector<DamageEvent> DamageEventVector;
 			std::vector<HealingEvent> HealingEventVector;
@@ -137,7 +141,7 @@ namespace SE
 			//Weapons? Needed here?
 
 		public:
-			inline const Core::Entity& GetEntity() const
+			inline const Core::Entity* GetEntity() const
 			{
 				return unitEntity;
 			}
