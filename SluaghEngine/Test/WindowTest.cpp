@@ -1,13 +1,17 @@
 #include "WindowTest.h"
 #include <window/WindowSDL.h>
 #include <window/IWindow.h>
+#include <Graphics/Renderer.h>
 #include "Utilz/Console.h"
+#include <Profiler.h>
+#include <Graphics\GraphicResourceHandler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
 #else
 #pragma comment(lib, "Window.lib")
 #endif
+
 
 //using namespace SE::Window;
 using namespace SE::Test;
@@ -39,6 +43,7 @@ static void MouseMotionCall(int rx, int ry, int x, int y)
 
 bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	//create a window pointer
 	SE::Window::IWindow* window = new SE::Window::WindowSDL();
 	
@@ -76,8 +81,27 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	
+	Graphics::IRenderer* renderer = new Graphics::Renderer;
+	renderer->Initialize(window->GetHWND());
+
+	uint8_t* fakeTexture = new uint8_t[256 * 256 * 4];
+
+	for(int i = 0; i < 256*256*4; i++)
+	{
+		fakeTexture[i] = 255;
+	}
+
+	Graphics::TextureDesc td;
+	td.width = 256;
+	td.height = 256;
+
+	renderer->CreateTexture(fakeTexture, td);
+
 	
+	renderer->Shutdown();
 	window->Shutdown();
+	delete renderer;
 	delete window;
-	return true;
+	delete[] fakeTexture;
+	ProfileReturnConst(true);
 }

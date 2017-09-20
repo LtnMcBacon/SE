@@ -11,6 +11,8 @@
 #include <Graphics\Renderer.h>
 #include <OBJParser\Parsers.h>
 
+#include <Profiler.h>
+
 namespace SE
 {
 	namespace Test
@@ -29,17 +31,18 @@ namespace SE
 		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
+			StartProfile;
 			window = new Window::WindowSDL();
 			int isOK = window->Initialize();
 			if (isOK != 0)
 			{
-				return isOK;
+				ProfileReturnConst( isOK);
 			}
 			deviceManager = new Graphics::DeviceManager();
 			HRESULT hr = deviceManager->Init((HWND)window->GetHWND());
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst( false);
 			}
 
 		#pragma region Constbuffer
@@ -69,17 +72,17 @@ namespace SE
 			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[0], &ID[0]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[1], &ID[1]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[2], &ID[2]);
 			if (hr != S_OK)
 			{
-				return false;
+				ProfileReturnConst(false);
 			}
 
 			//set Cbuffers
@@ -103,26 +106,12 @@ namespace SE
 			if (re)
 			{
 				console->Print("Could not init Core, Error: %d.", re);
-				return false;
+				ProfileReturnConst(false);
 			}
 
 			auto r = e.GetResourceHandler();
 			result = false;
 
-			r->AddParser(Utilz::GUID("objtest"), [](void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize) -> int
-			{
-				ArfData::Data arfData;
-				ArfData::DataPointers arfp;
-				auto r = Arf::ParseObj(rawData, rawSize, &arfData, &arfp);
-				if (r)
-					return r;
-				auto data = (Arf::Mesh::Data**)parsedData;
-				r = Arf::Interleave(arfData, arfp, data, parsedSize, Arf::Mesh::InterleaveOption::Position);
-				if (r)
-					return r;
-				delete arfp.buffer;
-				return 0;
-			});
 
 			
 			r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<BufferTest, &BufferTest::Load>(this));
@@ -132,29 +121,41 @@ namespace SE
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
-			
-			return true;
+			ProfileReturnConst(true);;
 		}
-		void BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
+		int BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
 		{
-			auto& mD = *(Arf::Mesh::Data*)data;
+			ArfData::Data arfData;
+			ArfData::DataPointers arfp;
+			auto r = Arf::ParseObj(data, size, &arfData, &arfp);
+			if (r)
+				return r;
+			Arf::Mesh::Data* parsedData;
+			size_t parsedSize;
+			r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
+			if (r)
+				return r;
+
+			delete arfp.buffer;
+
+			auto& mD = *(Arf::Mesh::Data*)parsedData;
 			auto verts = (Arf::Mesh::Position*)mD.vertices;
 
 
 			int vertexID[3];
 			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create vertexbuffer
-			HRESULT hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[0]);
+			HRESULT hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[1]);
+			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[1]);
 			if (hr != S_OK)
 			{
 				result = false;
 			}
-			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2, &vertexID[2]);
+			hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[2]);
 			if (hr != S_OK)
 			{
 				result = false;
@@ -172,8 +173,10 @@ namespace SE
 
 			gResourceHandler->Shutdown();
 			delete gResourceHandler;
-
+			delete parsedData;
 			result = true;
+			
+			return 0;
 		}
 	}
 }

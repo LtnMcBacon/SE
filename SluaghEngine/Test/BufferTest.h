@@ -17,7 +17,7 @@ namespace SE
 
 			bool Run(Utilz::IConsoleBackend* console);
 		private:
-			void Load(const Utilz::GUID& guid, void* data, size_t size);
+			int Load(const Utilz::GUID& guid, void* data, size_t size);
 		};
 	}
 }

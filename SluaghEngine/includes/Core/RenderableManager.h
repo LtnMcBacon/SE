@@ -22,35 +22,20 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			/**
-			*
-			* @brief This struct contains the GUID of the assets to load. 
-			*
-			* @details If any option is not required set it to nullptr and count to 0.
-			*
-			**/
-			struct CreateRenderObjectInfo
-			{
-				Utilz::GUID meshGUID;
-				Utilz::GUID* textureGUIDPtr = nullptr;
-				uint32_t textureGUIDCount = 0;
-			};
-
 			RenderableManager(const EntityManager& entityManager);
 			~RenderableManager();
+			RenderableManager(const RenderableManager& other) = delete;
+			RenderableManager(const RenderableManager&& other) = delete;
+			RenderableManager& operator=(const RenderableManager& other) = delete;
 
 			/**
 			* @brief	Bind a renderable object to and entity
 			*
-			* @details	This functions binds the selected renderable assets in the CreateRenderObjectInfo struct 
-			* to and entity and prepair is for rendering.
-			*
-			*
 			* @param[in] entity The entity to bind the renderable object to.
-			* @param[in] info The info struct Contains the GUID that should be used. 
+			* @param[in] meshGUID The guid of the mesh to be used. 
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity,const CreateRenderObjectInfo& info);
+			void CreateRenderableObject(const Entity& entity,const Utilz::GUID& meshGUID);
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -91,7 +76,7 @@ namespace SE
 			void UpdateDirtyTransforms();
 
 
-			void AddResource(const Utilz::GUID& guid, void* data, size_t size);
+			int LoadModel(const Utilz::GUID& guid, void* data, size_t size);
 			void SetDirty(const Entity& entity, size_t index);
 			struct DirtyEntityInfo
 			{
@@ -115,12 +100,13 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-
+			int defaultShader;
+			int defaultMeshHandle;
 
 			struct BufferInfo
 			{
-				uint32_t refCount;
 				int bufferHandle;
+				uint32_t refCount;		
 			};
 
 			std::vector<BufferInfo> bufferInfo;

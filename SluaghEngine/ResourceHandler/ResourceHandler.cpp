@@ -36,7 +36,7 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	delete diskLoader;
 }
 
-void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback)
+int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool wait)
 {
 	StartProfile;
 
@@ -44,38 +44,22 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 	if (find == resourceMap.end())
 	{
 		auto& resourceInfo = resourceMap[guid];
-		void* rawData;
-		size_t rawSize;
-		auto result = diskLoader->LoadResource(guid, &rawData, &rawSize, &resourceInfo.extension);
+		auto result = diskLoader->LoadResource(guid, &resourceInfo.data, &resourceInfo.size, &resourceInfo.extension);
 		if (result)
+		{
 			Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
+			ProfileReturnConst(result);
+		}	
 		else
 		{
-			auto& findParser = parsers.find(resourceInfo.extension);
-			if (findParser == parsers.end())
+		
+			auto ret = callback(guid, resourceInfo.data, resourceInfo.size);
+			if (ret)
 			{
-				resourceInfo.data = rawData;
-				resourceInfo.size = rawSize;
-				Utilz::Console::Print("Resource GUID: %u unknown file format Ext: %u. Skipping parsing.\n", guid, resourceInfo.extension);
-			}
-			else
-			{
-				result = findParser->second(rawData, rawSize, &resourceInfo.data, &resourceInfo.size);
-				if (result)
-				{
-					resourceInfo.data = rawData;
-					resourceInfo.size = rawSize;
-					Utilz::Console::Print("Resource GUID: %u, failed to parse, Ext: %u, Error: %d. Skipping parsing.\n", guid, resourceInfo.extension, result);
-				}
-				else
-					delete rawData;
-
-
-
+				Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
+				ProfileReturnConst( ret);
 			}
 			resourceInfo.refCount++;
-			callback(guid, resourceInfo.data, resourceInfo.size);
-
 		}
 			
 	}
@@ -83,10 +67,10 @@ void SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid
 	{
 		auto& resourceInfo = resourceMap[guid];	
 		resourceInfo.refCount++;
-		callback(guid, resourceInfo.data, resourceInfo.size);
+		ProfileReturn(callback(guid, resourceInfo.data, resourceInfo.size));
 	}
-	
-	StopProfile;
+
+	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
@@ -98,9 +82,4 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 		find->second.refCount--;
 	}
 	StopProfile;
-}
-
-void SE::ResourceHandler::ResourceHandler::AddParser(const Utilz::GUID & extGUID, const std::function<int(void*rawData, size_t rawSize, void**parsedData, size_t*parsedSize)>& parserFunction)
-{
-	parsers[extGUID] = std::move(parserFunction);
 }

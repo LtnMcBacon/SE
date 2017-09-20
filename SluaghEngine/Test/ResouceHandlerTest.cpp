@@ -8,6 +8,8 @@
 #pragma comment(lib, "ResourceHandler.lib")
 #endif
 
+#include <Profiler.h>
+
 using namespace SE::Test;
 ResouceHandlerTest::ResouceHandlerTest()
 {
@@ -18,18 +20,21 @@ ResouceHandlerTest::~ResouceHandlerTest()
 {
 }
 static bool result = false;
-void Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
 	std::string r = (char*)data;
 	if (r.substr(0, size) == "1337")
 	{
 		result = true;
 	}
+
+	return 0;
 }
 
 
 bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 {
+	StartProfile;
 	ResourceHandler::IResourceHandler* r = new ResourceHandler::ResourceHandler();
 
 	r->Initialize();
@@ -40,5 +45,5 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	r->Shutdown();
 	delete r;
 
-	return result;
+	ProfileReturnConst(result);
 }

@@ -8,8 +8,8 @@ namespace SE
 {
 	namespace ResourceHandler
 	{		
-		typedef Utilz::Delegate<void(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
-		typedef void(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
+		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+		typedef int(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
 		/**
 		*
 		* @brief Resource Handler Interface
@@ -45,13 +45,33 @@ namespace SE
 			* @param[in] guid The GUID of the resource to be loaded.
 			* @param[out] callback A delegate that is called when the data has been loaded.
 			*
+			* @retval 0 On success.
 			* Example code:
 			* @code
-			*	r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>()); // Where load is a function
+			* //Static function
+			* int Load(const Utilz::GUID& guid, void* data, size_t size)
+			* {
+			*	//...
+			* }
+			* resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>()); // Where load is a function
+			*
+			* //Class method
+			* class A
+			* {
+			* int Load(const Utilz::GUID& guid, void* data, size_t size)
+			*  {
+			*	/...
+			*  }
+			* void Run()
+			* {
+			*	resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&A, A::Load>(this)); 
+			* }
+			* }
+			* 
 			* @endcode
 			* @sa LoadResourceDelegate
 			*/
-			virtual void LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback) = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool wait = false) = 0;
 
 			/**
 			* @brief	Unload the given resource
@@ -65,17 +85,7 @@ namespace SE
 			**/
 			virtual void UnloadResource(const Utilz::GUID& guid) = 0;
 
-			/**
-			* @brief	Add a parser to parse the data of a resource.
-			*
-			* @details Here you can add a parser callback that will be called when a resource has been loaded from disk. 
-			* The raw loaded data is given in the rawData pointer, the parser functions job is to parse the data and return it in the parsedData pointer.
-			*
-			* @param[in] guid The GUID of the file extension ( The hash of the extension ex. txt)
-			*
-			*/
-			virtual void AddParser(const Utilz::GUID& extGUID, const std::function<int(void* rawData, size_t rawSize, void** parsedData, size_t* parsedSize)>& parserFunction) = 0;
-		protected:
+			protected:
 			IResourceHandler() {};
 			IResourceHandler(const IResourceHandler& other) = delete;
 			IResourceHandler(const IResourceHandler&& other) = delete;

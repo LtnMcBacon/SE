@@ -30,7 +30,7 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioManager.cpp">
+    <ClCompile Include="MaterialManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,10 +47,10 @@
     <ClInclude Include="..\includes\Core\RenderableManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\Entity.h">
+    <ClInclude Include="..\includes\Core\MaterialManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\AudioManager.h">
+    <ClInclude Include="..\includes\Core\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

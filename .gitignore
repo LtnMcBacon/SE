@@ -11,7 +11,9 @@
 *.mtl
 *.objtest
 *.hlsl
-
+*.exe
+*.jpg
+*.bbf
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -28,6 +30,8 @@ bld/
 [Ll]og/
 Intermediate/
 Build/
+Asset/
+Assets/
 
 # Visual Studio 2015 cache/options directory
 .vs/

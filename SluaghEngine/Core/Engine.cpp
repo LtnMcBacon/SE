@@ -4,7 +4,7 @@
 #include <Window\WindowSDL.h>
 #include <ResourceHandler\ResourceHandler.h>
 #include <OBJParser\Parsers.h>
-
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -22,6 +22,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+
 	entityManager = new EntityManager;
 	window = new Window::WindowSDL();
 	renderer = new Graphics::Renderer();
@@ -43,7 +44,13 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	transformManager = new TransformManager(entityManager);
 	renderableManager = new RenderableManager(*entityManager);
+	materialManager = new MaterialManager(*entityManager);
 
+	return 0;
+}
+
+int SE::Core::Engine::Frame(double dt)
+{
 	return 0;
 }
 
@@ -54,6 +61,7 @@ int SE::Core::Engine::Release()
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();	
 
+	delete materialManager;
 	delete renderableManager;
 	delete renderer;
 	delete window;
@@ -101,11 +109,6 @@ SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() c
 SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
 {
 	return *transformManager;
-}
-
-SE::Core::AudioManager& SE::Core::Engine::GetAudioManager() const
-{
-	return *audioManager;
 }
 
 SE::Core::Engine::Engine()

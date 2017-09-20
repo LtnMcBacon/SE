@@ -18,48 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\includes\Graphics\DeviceManager.h" />
-    <ClInclude Include="..\includes\Graphics\GraphicResourceHandler.h" />
-    <ClInclude Include="..\includes\Graphics\IRenderer.h" />
-    <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
-    <ClInclude Include="..\includes\Graphics\Renderer.h" />
-    <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DeviceManager.cpp" />
-    <ClCompile Include="GraphicResourceHandler.cpp" />
-    <ClCompile Include="LiveObjectReporter.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{98A5895B-DA4E-43AD-8AD4-BC0916460BE1}</ProjectGuid>
-    <RootNamespace>Graphics</RootNamespace>
+    <ProjectGuid>{956A354F-6B9E-4142-9522-3D19F1C02FD5}</ProjectGuid>
+    <RootNamespace>FileParser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -84,43 +70,33 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
-    <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
-    <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -153,6 +129,13 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="HLSLParser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HLSLParser.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
