@@ -2,9 +2,8 @@
 #define SE_GRAPHICS_RENDERER_H_
 #include "IRenderer.h"
 #include "DeviceManager.h"
-#include "MaterialHandler.h"
-#include "StaticVertexBufferHandler.h"
-#include "ConstantBufferHandler.h"
+#include "GraphicResourceHandler.h"
+
 #include <Utilz\Camera.h>
 
 namespace SE
@@ -121,10 +120,9 @@ namespace SE
 			};
 			int oncePerFrameBufferID;
 
-			MaterialHandler* materialHandler;
 			DeviceManager* device;
-			StaticVertexBufferHandler* staticVertexBufferHandler;
-			ConstantBufferHandler* constantBufferHandler;
+
+			GraphicResourceHandler* graphicResourceHandler;
 
 			Utilz::Camera cam;
 
