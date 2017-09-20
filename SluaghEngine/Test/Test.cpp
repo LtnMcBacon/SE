@@ -12,6 +12,7 @@
 #include "BufferTest.h"
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
+#include "ImageLoadTest.h"
 #include <map>
 #include <ctime>
 
@@ -47,9 +48,12 @@ int main(int argc, char** argv)
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
 	AddTest(MaterialManagerTest);
-	volatile bool running = true;
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
+	AddTest(ImageLoadTest);
+
+	volatile bool running = true;
+	
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
