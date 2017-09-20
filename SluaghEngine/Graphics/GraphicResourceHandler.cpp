@@ -58,6 +58,13 @@ void GraphicResourceHandler::Shutdown() {
 			ps.pixelShader->Release();
 		}
 	}
+
+	// Release Samplerstate
+	if (sampleState != nullptr)
+	{
+		sampleState->Release();
+		sampleState = nullptr;
+	}
 }
 
 HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID) {
@@ -396,5 +403,29 @@ void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)
 	cBuffers[constBufferID].constBuffer->Release();
 	cBuffers[constBufferID].constBuffer = nullptr;
 	freeConstantBufferLocations.push(constBufferID);
+}
+
+HRESULT GraphicResourceHandler::CreateSamplerState()
+{
+	StartProfile;
+	D3D11_SAMPLER_DESC samplDesc;
+	ZeroMemory(&samplDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplDesc.MaxAnisotropy = 4;
+	samplDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplDesc.MinLOD = 0;
+	samplDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	HRESULT hr = gDevice->CreateSamplerState(&samplDesc, &sampleState);
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	//Set the sampler state
+	gDeviceContext->PSSetSamplers(0, 1, &sampleState);
+	ProfileReturnConst(hr);
 }
 
