@@ -15,7 +15,7 @@ namespace SE {
 			{
 				if (ss.samples)
 				{
-					delete ss.samples;
+					delete[] ss.samples;
 				}
 			}
 			StopProfile;

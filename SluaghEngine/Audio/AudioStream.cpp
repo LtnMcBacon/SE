@@ -70,7 +70,6 @@ namespace SE {
 			else if (soundType == Effect)
 			{
 				/* Open an audio I/O stream. */
-				std::cout << (float)*inSample->sample->samples << std::endl;
 				err = Pa_OpenDefaultStream(&tempStream,
 					0,          /* no input channels */
 					inSample->sample->info.channels,          /* stereo output */
