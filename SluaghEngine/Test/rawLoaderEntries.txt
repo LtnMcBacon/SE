@@ -1,4 +1,10 @@
-test.txt
-Asset/test.objtest
-Asset/Placeholder_level.obj
-Asset/Placeholder_MC.obj
+Assets/dummytex.jpg
+Assets/Placeholder_level.mtl
+Assets/Placeholder_level.obj
+Assets/Placeholder_MC.mtl
+Assets/Placeholder_MC.obj
+Assets/SimpleGS.hlsl
+Assets/SimplePS.hlsl
+Assets/SimpleVS.hlsl
+Assets/test.objtest
+Assets/test.txt
