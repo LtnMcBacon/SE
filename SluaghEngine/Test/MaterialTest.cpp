@@ -51,12 +51,12 @@ bool SE::Test::MaterialTest::Run(Utilz::IConsoleBackend * console)
 		return false;
 	}
 
-	hr = mat->CreatePixelShader(device->GetDevice(), &shaderID[1]);
+	/*hr = mat->CreatePixelShader(device->GetDevice(), &shaderID[1]);
 	if (FAILED(hr))
 	{
 		console->Print("Could not init material handler, Error: %d.\n", hr);
 		return false;
-	}
+	}*/
 
 	mat->SetMaterial(shaderID[0], shaderID[1]);
 

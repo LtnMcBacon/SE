@@ -168,7 +168,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, int *v
 	ProfileReturnConst(hr);
 }
 
-HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pixelShaderID) {
+HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID) {
 
 	StartProfile;
 
@@ -176,43 +176,41 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, int *pi
 
 	HRESULT hr = S_OK;
 
-	ID3DBlob* psBlob = nullptr;
-	ID3DBlob* psErrorBlob = nullptr;
+	//ID3DBlob* psBlob = nullptr;
+	//ID3DBlob* psErrorBlob = nullptr;
 
-	hr = D3DCompileFromFile(
-		L"Asset\\SimplePS.hlsl",
-		nullptr,
-		nullptr,
-		"PS_main",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG,
-		0,
-		&psBlob,
-		&psErrorBlob
-	);
+	//hr = D3DCompileFromFile(
+	//	L"Asset\\SimplePS.hlsl",
+	//	nullptr,
+	//	nullptr,
+	//	"PS_main",
+	//	"ps_5_0",
+	//	D3DCOMPILE_OPTIMIZATION_LEVEL3,
+	//	0,
+	//	&psBlob,
+	//	&psErrorBlob
+	//);
 
-	if (FAILED(hr)) {
+	//if (FAILED(hr)) {
 
-		Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
+	//	Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
 
-		if (psErrorBlob) {
+	//	if (psErrorBlob) {
 
-			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
-			psErrorBlob->Release();
-		}
+	//		OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+	//		psErrorBlob->Release();
+	//	}
 
-		ProfileReturnConst(hr);
-	}
+	//	ProfileReturnConst(hr);
+	//}
 
-	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &tempPixelShader);
+	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
 
 		Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
-
-	psBlob->Release();
 
 	if (FAILED(hr))
 	{

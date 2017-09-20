@@ -11,6 +11,8 @@ namespace SE
 		{
 			int bufferHandle;
 			int transformHandle;
+			int pixelShader;
+			int vertexShader;
 		};
 		class IRenderer
 		{

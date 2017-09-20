@@ -66,7 +66,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			{
 				shaderInfo.push_back({ defaultShaderHandle , 0 }); // Init the texture to default texture.
 				shaderIndex = shaderInfo.size() - 1;
-				engine.GetResourceHandler()->LoadResource(info.textures[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+				engine.GetResourceHandler()->LoadResource(info.shader[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
 			}
 				
 			// Increase refCount

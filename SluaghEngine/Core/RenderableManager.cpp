@@ -4,6 +4,7 @@
 #include <Utilz\Delegator.h>
 #include <OBJParser\Parsers.h>
 #include <Core\Engine.h>
+#include <MaterialManager.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -24,6 +25,7 @@ SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManage
 	Allocate(128);
 	Core::Engine::GetInstance().GetTransformManager().SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
 	defaultMeshHandle = 0;
+	defaultShader = 0;
 	StopProfile;
 }
 
@@ -91,6 +93,13 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
+		info.vertexShader = defaultShader;
+		auto& mm = Core::Engine::GetInstance().GetMaterialManager();
+		auto& find = mm.entityToMaterialInfo.find(entity);
+		if (find != mm.entityToMaterialInfo.end())
+			info.pixelShader = mm.shaderInfo[mm.materialInfo.shaderIndex[find->second]].shaderHandle;
+		else
+			info.pixelShader = mm.defaultShaderHandle;
 		visible ? r->EnableRendering(info) : r->DisableRendering(info);
 	}
 }
