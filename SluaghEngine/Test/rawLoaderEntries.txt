@@ -11,6 +11,7 @@ Assets/purewhite.png
 Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
+Assets/SimpleTexPS.txt
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
