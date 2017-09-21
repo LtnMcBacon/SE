@@ -2,6 +2,7 @@
 #ifndef SE_AUDIO_AUDIOSOUND_H
 #define SE_AUDIO_AUDIOSOUND_H
 #include "AudioStructType.h"
+#include <Utilz\StackAllocator.h>
 
 
 
@@ -41,8 +42,10 @@ namespace SE {
 			*
 			*/
 			void* GetSample(int soundID, SoundIndexName soundType);
+			void Shutdown();
 		private:
 			std::vector<AudioSample> soundSample;
+			Utilz::StackAllocator sampleStack;
 			float masterVol = 1.0f;
 			float effectVol = 0.8f;
 			float bakgroundVol = 0.5f;
