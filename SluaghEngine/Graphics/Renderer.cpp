@@ -98,6 +98,22 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 
 int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 {
+	const int size = renderJobs.size();
+	int at = -1;
+	for(size_t i = 0; i < size; ++i)
+	{
+		if(handles - renderJobs[i] == 0)
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderJobs[i] = renderJobs[i + 1];
+		renderJobs.pop_back();
+	}
 	return 0;
 }
 
