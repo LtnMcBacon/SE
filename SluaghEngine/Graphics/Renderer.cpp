@@ -154,13 +154,22 @@ int SE::Graphics::Renderer::Render() {
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
+	RenderObjectInfo previousJob;
+	previousJob.diffuseTexture = -1;
+	previousJob.bufferHandle = -1;
+	previousJob.pixelShader = -1;
+	previousJob.transformHandle = -1;
+	previousJob.vertexShader = -1;
 	for (auto& job : renderJobs)
 	{
-		graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
-		graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
-		graphicResourceHandler->BindConstantBuffer(job.transformHandle);
-		graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
+		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
+			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
+		if(previousJob.bufferHandle != job.bufferHandle)
+			graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
+		if(previousJob.transformHandle != job.transformHandle)
+			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
+		if(previousJob.diffuseTexture != job.diffuseTexture)
+			graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 	}
 
