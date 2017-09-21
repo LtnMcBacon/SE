@@ -136,9 +136,15 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		auto& mm = Core::Engine::GetInstance().GetMaterialManager();
 		auto& find = mm.entityToMaterialInfo.find(entity);
 		if (find != mm.entityToMaterialInfo.end())
+		{
 			info.pixelShader = mm.shaderInfo[mm.materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = mm.textureInfo[mm.materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
+		{
 			info.pixelShader = mm.defaultShaderHandle;
+			info.diffuseTexture = mm.defaultTextureHandle;
+		}
 		visible ? r->EnableRendering(info) : r->DisableRendering(info);
 	}
 }

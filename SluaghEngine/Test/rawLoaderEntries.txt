@@ -1,4 +1,4 @@
-Assets/dummytex.jpg
+Assets/dummytex.sei
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
 Assets/Placeholder_Floor.mtl
@@ -7,13 +7,13 @@ Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
-Assets/purewhite.png
+Assets/purewhite.sei
 Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
-Assets/SimpleTexPS.txt
+Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
-Assets/testimg.png
+Assets/testimg.sei
 Assets/testimg.rawimg
