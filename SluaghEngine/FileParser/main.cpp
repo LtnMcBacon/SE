@@ -38,6 +38,8 @@ int main(int argc, char* argv[])
 				printf("Parsing file: %s...\n", f.name.c_str());
 				if (ImageParse(f.fullPath.c_str(), (std::string(argv[2]) + "\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei")).c_str()))
 					printf("Could not parse: %s\n", f.name.c_str());
+				else
+					f.fullPath.replace(f.fullPath.size() - Utilz::getExtension(f.name).size(), Utilz::getExtension(f.name).size(), "sei");
 			}
 			else
 			{
