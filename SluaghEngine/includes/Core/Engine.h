@@ -1,13 +1,13 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
-#include "Core/EntityManager.h"
-#include "Core/TransformManager.h"
+#include "EntityManager.h"
+#include "TransformManager.h"
 #include "MaterialManager.h"
+#include "CollisionManager.h"
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "RenderableManager.h"
-#include "MaterialManager.h"
 namespace SE
 {
 	namespace Core
@@ -148,6 +148,10 @@ namespace SE
 			inline MaterialManager& GetMaterialManager() const {
 				return *materialManager;
 			}
+
+			inline CollisionManager& GetCollisionManager()const {
+				return *collisionManager;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -162,6 +166,7 @@ namespace SE
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
 			MaterialManager* materialManager;
+			CollisionManager* collisionManager;
 		};
 
 	}
