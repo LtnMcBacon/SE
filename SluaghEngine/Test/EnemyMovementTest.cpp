@@ -156,7 +156,7 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		for(int i = 0; i < 10; i++)
 		{
 			enemies[i]->Update(dt);
-			tm.SetPosition(*enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemies[i]->GetXPosition(), 0.5f, enemies[i]->GetYPosition()));
+			tm.SetPosition(*enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemies[i]->GetXPosition()-0.5f, 0.5f, enemies[i]->GetYPosition()-0.5f));
 		}
 
 			
