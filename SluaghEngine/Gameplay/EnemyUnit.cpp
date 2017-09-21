@@ -71,7 +71,7 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ProfileReturnVoid;
 }
 
-SE::Gameplay::EnemyUnit::EnemyUnit(FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
+SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
 	flowFieldForRoom(roomFlowField)
 {

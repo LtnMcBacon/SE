@@ -67,6 +67,8 @@ namespace SE
 			* This function is used once a frame (may be modified!, update this section to reflect that in that case) to make sure that the enemies
 			* can move towards the player.
 			*
+			* @param[in] playerX The x position of the player
+			* @param[in] playerY The y position of the player
 			*
 			* @retval void No return value
 			*
@@ -78,7 +80,7 @@ namespace SE
 			*	To be written
 			* @endcode
 			*/
-			void UpdateFlowField(/*Cell/Point to point towards*/);
+			void UpdateFlowField(float playerX, float playerY);
 
 			/**
 			* @brief	Update the Flowfield of a room, given the direction of the exit that should be used as point for the flowfield.
@@ -224,24 +226,24 @@ namespace SE
 			* or when an enemy moves between two rooms. The flag "ignorePowerLevel" can be used to make sure that
 			* an enemy is added to a room, no matter the current powerlevel of that room.
 			*
+			* @param[in] toAdd The enemy to be added into the room.
 			*
 			* @retval true The enemy has been added to the room
 			* @retval false The powerlevel of the room is to high for the current enemy to be added to the room.
 			*
-			* @warning Due to this function not being implemented (Enemy class not constructed), the param[in] macro
-			* will not work and thus hasn't been documented!
+			* @warning Note that the room WILL take ownership of the AIs it contains. This means that they will delete them!
 			*
 			* Example code:
 			* @code
 			*	To be added when function is implemented
 			* @endcode
 			*/
-			bool AddEnemyToRoom(/*EnemyClass *toAdd, bool ignorePowerLevel*/);
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *toAdd/*bool ignorePowerLevel*/);
 			
-			/*inline const char GetMap() const
+			inline const FlowField *GetFlowFieldMap() const
 			{
-				return map;
-			};*/
+				return roomField;
+			};
 
 			inline const Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
 			{
@@ -255,11 +257,13 @@ namespace SE
 			* logic that needs to be updated.
 			*
 			* @param[in] dt DeltaTime for the current frame
+			* @param[in] playerX The x position of the player
+			* @param[in] playerY The y position of the player
 			*
 			* @retval void No return value
 			*
 			*/
-			void Update(float dt);
+			void Update(float dt, float playerX, float playerY);
 
 		};
 

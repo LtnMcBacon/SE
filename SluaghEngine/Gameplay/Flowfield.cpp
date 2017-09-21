@@ -47,7 +47,7 @@ void FlowField::Update(const pos & playerPos)
 	StopProfile;
 }
 
-void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude)
+void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude) const
 {
 	StartProfile;
 	int xIndex = (int)enemyPos.x;

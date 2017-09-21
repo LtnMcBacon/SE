@@ -144,6 +144,7 @@
     <ClCompile Include="ObjLoaderTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResouceHandlerTest.cpp" />
+    <ClCompile Include="RoomCreationTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
     <ClCompile Include="WindowTest.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="ObjLoaderTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResouceHandlerTest.h" />
+    <ClInclude Include="RoomCreationTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="WindowTest.h" />
