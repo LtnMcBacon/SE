@@ -18,7 +18,23 @@ namespace SE
 			MemoryMeasuring();
 			~MemoryMeasuring();
 
+			/**
+			* @brief Init MM
+			*
+			* @retval 0	 When successful
+			* @retval -1 When unsuccessful
+			*
+			*/
 			int Init();
+			/**
+			* @brief Print vRam to console
+			*
+			* @param[in] console To be able to printing the data
+			*
+			* @retval 0	 When successful
+			* @retval -1 When unsuccessful
+			*
+			*/
 			int printUsage(SE::Utilz::IConsoleBackend* console);
 		private:
 			IDXGIFactory* dxgifactory = nullptr;
