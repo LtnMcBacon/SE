@@ -71,25 +71,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform);;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
   </PropertyGroup>
@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EnemyMovementTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EnemyMovementTest.h" />
     <ClInclude Include="EntityManagerTest.h" />

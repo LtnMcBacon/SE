@@ -480,7 +480,8 @@ void GraphicResourceHandler::RemoveShaderResourceView(int id)
 
 void GraphicResourceHandler::BindShaderResourceView(int id, int slot)
 {
-	gDeviceContext->PSSetShaderResources(slot, 1, &shaderResourceViews[id]);
+	if(shaderResourceViews.size() > id && shaderResourceViews[id] != nullptr)
+		gDeviceContext->PSSetShaderResources(slot, 1, &shaderResourceViews[id]);
 }
 
 HRESULT GraphicResourceHandler::CreateSamplerState()
