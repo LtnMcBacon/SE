@@ -158,6 +158,11 @@ namespace SE
 				return *audioManager;
 			}
 
+			/**
+			* @brief    Returns a reference to the collision manager
+			* @retval return_value_0 Returns a reference to the collision manager.
+			* @sa AudioManager
+			*/
 			inline CollisionManager& GetCollisionManager()const {
 				return *collisionManager;
 			}

@@ -101,8 +101,12 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
 		}
 		else
+		{
 			info.pixelShader = materialManager->defaultShaderHandle;
-		visible ? r->EnableRendering(info) : r->DisableRendering(info);
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+			
+		visible ? renderer->EnableRendering(info) : renderer->DisableRendering(info);
 	}
 	StopProfile;
 }
@@ -122,9 +126,16 @@ void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
 
 		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())
+		{
 			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
+		{
 			info.pixelShader = materialManager->defaultShaderHandle;
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+
 		renderer->DisableRendering(info);
 	}
 	StopProfile;
@@ -145,9 +156,16 @@ void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
 
 		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())
+		{
 			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
+		{
 			info.pixelShader = materialManager->defaultShaderHandle;
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+
 		renderer->EnableRendering(info);
 	}
 	StopProfile;
