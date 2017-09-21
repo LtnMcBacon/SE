@@ -94,7 +94,7 @@ namespace SE {
 			int RemoveSound(int streamID);
 			void Shutdown();
 		private:
-			void retSoundData(const Utilz::GUID& guid, void* data, size_t size);
+			int retSoundData(const Utilz::GUID& guid, void* data, size_t size);
 			Audio::AudioSound* audioSound;
 			Audio::AudioStream* audioStream;
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;

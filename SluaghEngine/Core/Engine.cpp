@@ -81,36 +81,6 @@ void SE::Core::Engine::Frame()
 	renderer->Render();
 }
 
-SE::Core::EntityManager& SE::Core::Engine::GetEntityManager() const
-{
-	return *entityManager;
-}
-
-SE::Core::RenderableManager& SE::Core::Engine::GetRenderableManager() const
-{
-	return *renderableManager;
-}
-
-SE::Graphics::IRenderer * SE::Core::Engine::GetRenderer() const
-{
-	return renderer;
-}
-
-SE::Window::IWindow * SE::Core::Engine::GetWindow() const
-{
-	return window;
-}
-
-SE::ResourceHandler::IResourceHandler * SE::Core::Engine::GetResourceHandler() const
-{
-	return resourceHandler;
-}
-
-SE::Core::TransformManager& SE::Core::Engine::GetTransformManager() const
-{
-	return *transformManager;
-}
-
 SE::Core::Engine::Engine()
 {
 	entityManager = nullptr;

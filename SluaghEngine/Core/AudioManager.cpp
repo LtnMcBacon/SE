@@ -26,7 +26,7 @@ namespace SE {
 			ProfileReturnConst(0);
 		}
 
-		void AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
+		int AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
 			Audio::AudioFile *sound = new Audio::AudioFile;
@@ -35,7 +35,7 @@ namespace SE {
 			sound->currentPos = 0;
 			trackSound[guid] = audioSound->LoadSound(sound);
 			delete sound;
-			ProfileReturnVoid;
+			ProfileReturn(0);
 		}
 
 		int AudioManager::LoadSound(Utilz::GUID soundFile)
