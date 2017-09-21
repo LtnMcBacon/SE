@@ -74,8 +74,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 
 		// Transform binding
 		renderableObjectInfo.transformHandle[newEntry] = renderer->CreateTransform();
-		renderableObjectInfo.visible[newEntry] = false;
-		renderableObjectInfo.used++;
+		renderableObjectInfo.visible[newEntry] = 0;
+
 	}
 	StopProfile;
 }
