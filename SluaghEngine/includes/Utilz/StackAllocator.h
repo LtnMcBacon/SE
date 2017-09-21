@@ -11,7 +11,7 @@ namespace SE
 		public:
 			StackAllocator();
 			~StackAllocator();
-			int InitStackAlloc(size_t amountOfMemory);
+			void InitStackAlloc(size_t amountOfMemory);
 			void* GetMemoryAligned(size_t requestedMemSize, size_t aligment);
 			void ClearStackAlloc();
 

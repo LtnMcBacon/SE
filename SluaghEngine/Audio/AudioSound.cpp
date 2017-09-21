@@ -10,20 +10,13 @@ namespace SE {
 
 		AudioSound::~AudioSound()
 		{
-			StartProfile;
-			for (auto &ss : soundSample)
-			{
-				if (ss.samples)
-				{
-					delete[] ss.samples;
-				}
-			}
-			StopProfile;
+			
 		}
 
 		int AudioSound::Initialize()
 		{
 			StartProfile;
+			sampleStack.InitStackAlloc(100000000);
 			ProfileReturnConst(0);
 		}
 
@@ -100,7 +93,7 @@ namespace SE {
 			info.format = SF_FORMAT_WAV;
 			SNDFILE* music = sf_open_virtual(&sfvirtual, SFM_READ, &info, sound);
 			int samples = (info.channels * info.frames);
-			float* sampleData = new float[samples] {};
+			float* sampleData = (float*)sampleStack.GetMemoryAligned(samples * sizeof(float), sizeof(float));
 			sf_read_float(music, sampleData, samples);
 			sf_close(music);
 
@@ -132,6 +125,14 @@ namespace SE {
 				ProfileReturn((void*)outData);
 			}
 			ProfileReturnConst(nullptr);
+		}
+
+		void AudioSound::Shutdown()
+		{
+			StartProfile;
+			sampleStack.ClearStackAlloc();
+			soundSample.clear();
+			StopProfile;
 		}
 	}	//namespace Audio
 }	//namespace SE

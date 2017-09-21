@@ -12,12 +12,14 @@ namespace SE
 
 		StackAllocator::~StackAllocator()
 		{
-
+			free(stackBeg);
 		}
 
-		int StackAllocator::InitStackAlloc(size_t amountOfMemory)
+		void StackAllocator::InitStackAlloc(size_t amountOfMemory)
 		{
 			stackBeg = malloc(amountOfMemory);
+			stackCurrent = stackBeg;
+			stackSize = amountOfMemory;
 		}
 
 		void* StackAllocator::GetMemoryAligned(size_t requestedMemSize, size_t alignment)
@@ -26,7 +28,7 @@ namespace SE
 			{
 				return nullptr;
 			}
-			if (!(alignment <= 1))
+			if (!(alignment <= 128))
 			{
 				return nullptr;
 			}
@@ -40,7 +42,7 @@ namespace SE
 
 			//alloct unaligned, convert to uintptr_t
 			void* rawVoidptr = GetMemUnaligned(expandSize_bytes);
-			if (rawVoidptr = nullptr)
+			if (rawVoidptr == nullptr)
 			{
 				return nullptr;
 			}
@@ -53,7 +55,7 @@ namespace SE
 
 			//calc adjusted address
 			uintptr_t alignedAddress = rawAddress + adjustment;
-
+			
 			//store adjustment in byte before the aligned ptr
 			if (!(adjustment < 256))
 			{

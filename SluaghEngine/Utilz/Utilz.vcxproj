@@ -148,6 +148,7 @@
     <ClInclude Include="..\includes\Utilz\INIReader.h" />
     <ClInclude Include="..\includes\Utilz\PathParsing.h" />
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
+    <ClInclude Include="..\includes\Utilz\StackAllocator.h" />
     <ClInclude Include="..\includes\Utilz\Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="INIReader.cpp" />
+    <ClCompile Include="StackAllocator.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
