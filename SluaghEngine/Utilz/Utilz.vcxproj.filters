@@ -33,9 +33,6 @@
     <ClInclude Include="..\includes\Utilz\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Utilz\GUID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Utilz\StackAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\GUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

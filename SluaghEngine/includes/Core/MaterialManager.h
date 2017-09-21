@@ -2,7 +2,9 @@
 #define SE_CORE_MATERIAL_MANAGER_H_
 #include <Utilz\GUID.h>
 #include "EntityManager.h"
+#include <ResourceHandler\IResourceHandler.h>
 #include <unordered_map>
+#include <Graphics\IRenderer.h>
 #include <map>
 #include <random>
 namespace SE
@@ -21,7 +23,7 @@ namespace SE
 				size_t shaderCount;
 			};
 
-			MaterialManager(const EntityManager& entityManager);
+			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager);
 			~MaterialManager();
 			MaterialManager(const MaterialManager& other) = delete;
 			MaterialManager(const MaterialManager&& other) = delete;
@@ -53,6 +55,7 @@ namespace SE
 			*/
 			void GarbageCollection();
 
+			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
 
@@ -77,6 +80,8 @@ namespace SE
 				size_t* shaderIndex;
 			};
 
+			ResourceHandler::IResourceHandler* resourceHandler;
+			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
 			std::default_random_engine generator;
 

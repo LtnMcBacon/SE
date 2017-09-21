@@ -7,6 +7,8 @@
 #include <Graphics\IRenderer.h>
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
+#include "TransformManager.h"
+#include "MaterialManager.h"
 
 namespace SE
 {
@@ -22,7 +24,7 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			RenderableManager(const EntityManager& entityManager);
+			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, MaterialManager* materialManager);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -60,6 +62,8 @@ namespace SE
 			*/
 			void Frame();
 		private:
+			void SetDirty(const Entity& entity, size_t index);
+
 			/**
 			* @brief	Allocate more memory
 			*/
@@ -75,16 +79,12 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-
+			int LoadDefaultModel(const Utilz::GUID& guid, void* data, size_t size);
+			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 			int LoadModel(const Utilz::GUID& guid, void* data, size_t size);
-			void SetDirty(const Entity& entity, size_t index);
-			struct DirtyEntityInfo
-			{
-				size_t transformIndex;
-				size_t renderableIndex;
-			};
-			std::vector<DirtyEntityInfo> dirtyEntites;
-
+			
+			void LoadResource(const Utilz::GUID& meshGUID, size_t index);
+		
 			struct RenderableObjectData
 			{
 				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int);
@@ -95,8 +95,22 @@ namespace SE
 				size_t* bufferIndex;
 				int* transformHandle;
 			};
+			ResourceHandler::IResourceHandler* resourceHandler;
+			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
+			TransformManager* transformManager;
+			MaterialManager* materialManager;
 			std::default_random_engine generator;	
+
+			struct DirtyEntityInfo
+			{
+				size_t transformIndex;
+				size_t renderableIndex;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
+
+
+
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
@@ -106,7 +120,7 @@ namespace SE
 			struct BufferInfo
 			{
 				int bufferHandle;
-				uint32_t refCount;		
+				uint32_t refCount;	
 			};
 
 			std::vector<BufferInfo> bufferInfo;
