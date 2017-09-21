@@ -57,62 +57,59 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 
 	switch (data[xIndex][yIndex].dir)
 	{
-		case Direction::NONE:
-			xMagnitude = 0.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
-		
-		case Direction::UP: 
-			xMagnitude = 0.0f;
-			yMagnitude = 1.0f;
-			StopProfile;
-			return;
-		
-		case Direction::UP_LEFT: 
-			xMagnitude = -0.707f;
-			yMagnitude = 0.707f;
-			StopProfile;
-			return;
+	case Direction::NONE:
+		xMagnitude = 0.0f;
+		yMagnitude = 0.0f;
+		StopProfile;
+		return;
 
-		case Direction::LEFT: 
-			xMagnitude = -1.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
+	case Direction::UP:
+		xMagnitude = 0.0f;
+		yMagnitude = 1.0f;
+		break;
 
-		case Direction::DOWN_LEFT: 
-			xMagnitude = -0.707f;
-			yMagnitude = -0.707f;
-			StopProfile;
-			return;
+	case Direction::UP_LEFT:
+		xMagnitude = -0.707f;
+		yMagnitude = 0.707f;
+		break;
 
-		case Direction::DOWN: 
-			xMagnitude = 0.0f;
-			yMagnitude = -1.0f;
-			StopProfile;
-			return;
+	case Direction::LEFT:
+		xMagnitude = -1.0f;
+		yMagnitude = 0.0f;
+		break;
 
-		case Direction::DOWN_RIGHT: 
-			xMagnitude = 0.707f;
-			yMagnitude = -0.707f;
-			StopProfile;
-			return;
+	case Direction::DOWN_LEFT:
+		xMagnitude = -0.707f;
+		yMagnitude = -0.707f;
+		break;
 
-		case Direction::RIGHT: 
-			xMagnitude = 1.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
+	case Direction::DOWN:
+		xMagnitude = 0.0f;
+		yMagnitude = -1.0f;
+		break;
 
-		case Direction::UP_RIGHT: 
-			xMagnitude = 0.707f;
-			yMagnitude = 0.707f;
-			StopProfile;
-			return;
+	case Direction::DOWN_RIGHT:
+		xMagnitude = 0.707f;
+		yMagnitude = -0.707f;
+		break;
+
+	case Direction::RIGHT:
+		xMagnitude = 1.0f;
+		yMagnitude = 0.0f;
+		break;
+
+	case Direction::UP_RIGHT:
+		xMagnitude = 0.707f;
+		yMagnitude = 0.707f;
+		break;
 
 	}
+
+
+
+
 	StopProfile;
+	return;
 }
 
 void FlowField::ResetField()

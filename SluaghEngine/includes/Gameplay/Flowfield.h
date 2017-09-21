@@ -14,6 +14,9 @@ struct pos // to be moved inside the class later on probably
 *
 * @details Holds and updates a flowfield based on mapdata received at creation, update should be called everytime the player moves so that the flowfield is correctly updated when the enemies
 * sample their move vector from it
+* 
+* @warning Note: FlowField does not check if the pos you send in is legal! For now, it takes for granted that the "walls" are blocked,
+* and thus will never be sampled (will cause out of bounds error if they are!)
 *
 **/
 namespace SE
