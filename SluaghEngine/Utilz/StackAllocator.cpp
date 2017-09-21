@@ -1,6 +1,7 @@
 #include "StackAllocator.h"
 #include <inttypes.h>
 #include <stdlib.h>
+#include <assert.h>
 
 namespace SE
 {
@@ -25,18 +26,10 @@ namespace SE
 
 		void* StackAllocator::GetMemoryAligned(size_t requestedMemSize, size_t alignment)
 		{
-			if (!(alignment >= 1))
-			{
-				return nullptr;
-			}
-			if (!(alignment <= 128))
-			{
-				return nullptr;
-			}
-			if (!((alignment & (alignment - 1)) == 0))
-			{
-				return nullptr;
-			}
+			assert(alignment >= 1);
+			assert(alignment <= 128);
+			assert((alignment & (alignment - 1)) == 0);
+
 
 			//tot size to allocate
 			size_t expandSize_bytes = requestedMemSize + alignment;
