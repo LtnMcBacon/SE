@@ -58,7 +58,10 @@ namespace SE {
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded != trackSound.end())
 			{
-				ProfileReturn(audioStream.CreateStream(soundType, (Audio::AudioOut*)audioSound.GetSample(trackSound[soundFile], soundType)));
+				if (trackSound[soundFile] != -1)
+				{
+					ProfileReturn(audioStream.CreateStream(soundType, (Audio::AudioOut*)audioSound.GetSample(trackSound[soundFile], soundType)));
+				}
 			}
 			ProfileReturnConst(-1);
 		}
