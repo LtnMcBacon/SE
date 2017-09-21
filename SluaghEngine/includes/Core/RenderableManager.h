@@ -87,13 +87,14 @@ namespace SE
 
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				size_t* bufferIndex;
 				int* transformHandle;
+				uint8_t* visible;
 			};
 			const EntityManager& entityManager;
 			std::default_random_engine generator;	
