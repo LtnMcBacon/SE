@@ -13,7 +13,7 @@ struct pos // to be moved inside the class later on probably
 * @brief Holds and updates a flowfield based on mapdata received at creation
 *
 * @details Holds and updates a flowfield based on mapdata received at creation, update should be called everytime the player moves so that the flowfield is correctly updated when the enemies
-* sample their move vector from it
+* sample their move vector from it. Do note that the bottom corner coords that are sent in with the constructor should be the position of the corner, not the tiles centerpoint
 *
 **/
 namespace SE
@@ -64,6 +64,8 @@ namespace SE
 
 			MapData data[MAXSIZE][MAXSIZE];
 			float sideLength;
+			float lowerLeftCornerXCoord;
+			float lowerLeftCornerYCoord;
 
 			/**
 			* @brief	Resets the value of each part of the grid to a high value
