@@ -126,7 +126,7 @@ namespace SE
 			EnemyUnit& operator=(const EnemyUnit& rhs) = delete;
 
 			EnemyActions entityAction = EnemyActions::ENEMY_ACTION_NOTHING;
-			const FlowField* flowFieldForRoom = nullptr;;
+			const FlowField* flowFieldForRoom = nullptr;
 
 		public:
 			//EnemyUnit(); <- Create a "real" constructor
