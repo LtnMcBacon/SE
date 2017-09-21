@@ -33,12 +33,18 @@ bool SE::Test::ImageLoadTest::Run(Utilz::IConsoleBackend* console)
 	timer.Tick();
 	std::ifstream fin;
 	fin.open("Asset/purewhite.rawimg", std::ios_base::in | std::ios_base::binary);
-	size_t fsize = fin.tellg();
-	char* rawData = new char[fsize];
-	fin.read(rawData, fsize);
-	timer.Tick();
-	console->Print("Loaded %d x %d in %f seconds.\n",x,y,timer.GetDeltaSeconds());
-	stbi_image_free(pixelData);
-	delete[] rawData;
-	return true;
+	if (fin.is_open())
+	{
+		size_t fsize = fin.tellg();
+		char* rawData = new char[fsize];
+		fin.read(rawData, fsize);
+		timer.Tick();
+		console->Print("Loaded %d x %d in %f seconds.\n", x, y, timer.GetDeltaSeconds());
+		stbi_image_free(pixelData);
+		delete[] rawData;
+
+		return true;
+	}
+	
+	return false;
 }

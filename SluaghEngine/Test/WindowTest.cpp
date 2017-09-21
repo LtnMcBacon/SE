@@ -3,13 +3,15 @@
 #include <window/IWindow.h>
 #include <Graphics/Renderer.h>
 #include "Utilz/Console.h"
-#include "Graphics/GraphicResourceHandler.h"
+#include <Profiler.h>
+#include <Graphics\GraphicResourceHandler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
 #else
 #pragma comment(lib, "Window.lib")
 #endif
+
 
 //using namespace SE::Window;
 using namespace SE::Test;
@@ -41,6 +43,7 @@ static void MouseMotionCall(int rx, int ry, int x, int y)
 
 bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	//create a window pointer
 	SE::Window::IWindow* window = new SE::Window::WindowSDL();
 	
@@ -100,5 +103,5 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	delete renderer;
 	delete window;
 	delete[] fakeTexture;
-	return true;
+	ProfileReturnConst(true);
 }

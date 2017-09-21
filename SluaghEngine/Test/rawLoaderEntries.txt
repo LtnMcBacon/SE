@@ -1,3 +1,5 @@
+Assets/Placeholder_Arrow.mtl
+Assets/Placeholder_Arrow.obj
 Assets/dummytex.sei
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
@@ -13,7 +15,6 @@ Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
+Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
-Assets/testimg.sei
-Assets/testimg.rawimg
