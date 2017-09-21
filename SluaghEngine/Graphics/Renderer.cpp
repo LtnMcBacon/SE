@@ -66,6 +66,33 @@ void SE::Graphics::Renderer::Shutdown()
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	renderJobs.push_back(handles);
+
+	int insertion = renderJobs.size() - 1;
+	const int prior = insertion - 1;
+
+	int minChange = 0;
+	if (renderJobs.size() >= 2)
+		minChange = handles - renderJobs[prior];
+
+	for (int i = 0; i <= prior; i++)
+	{
+		int change = renderJobs[i] - handles;
+		if (change <= minChange)
+		{
+			minChange = change;
+			insertion = i;
+		}
+	}
+
+	if (insertion != prior)
+	{
+		for (int i = prior + 1; i > insertion; i--)
+		{
+			renderJobs[i] = renderJobs[i - 1];
+		}
+		renderJobs[insertion] = handles;
+	}
+
 	return 0;
 }
 
@@ -120,9 +147,6 @@ int SE::Graphics::Renderer::Render() {
 		graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 	}
-
-
-
 
 	device->Present();
 
