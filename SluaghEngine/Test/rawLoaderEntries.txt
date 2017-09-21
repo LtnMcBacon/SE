@@ -1,6 +1,8 @@
+Assets/Canary.wav
+Assets/Cout.wav
+Assets/dummytex.jpg
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
-Assets/dummytex.sei
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
 Assets/Placeholder_Floor.mtl
@@ -9,14 +11,13 @@ Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
-Assets/purewhite.sei
+Assets/purewhite.png
 Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
+Assets/temp - Copy.ini
 Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
-Assets/Cout.wav
-Assets/Canary.wav

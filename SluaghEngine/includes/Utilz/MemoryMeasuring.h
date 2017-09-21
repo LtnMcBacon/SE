@@ -3,6 +3,8 @@
 #define SE_UTILZ_MEMORYMEASURING_H_
 #include <d3d11_3.h>
 #include <dxgi1_4.h>
+#include <Utilz\Console.h>
+
 
 #pragma comment(lib, "dxgi.lib")
 
@@ -17,10 +19,10 @@ namespace SE
 			~MemoryMeasuring();
 
 			int Init();
-			int printUsage();
+			int printUsage(SE::Utilz::IConsoleBackend* console);
 		private:
 			IDXGIFactory* dxgifactory = nullptr;
-			IDXGIAdapter3* dxgiAdapter3 = NULL;
+			IDXGIAdapter3* dxgiAdapter3 = nullptr;
 		};
 	}
 }

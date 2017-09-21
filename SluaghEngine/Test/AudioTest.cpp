@@ -2,6 +2,7 @@
 #include <Core\AudioManager.h>
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
+#include <Utilz\MemoryMeasuring.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -30,6 +31,8 @@ namespace SE
 
 		bool AudioTest::Run(SE::Utilz::IConsoleBackend* console)
 		{		
+			Utilz::MemoryMeasuring mm;
+			mm.Init();
 			auto& e = Core::Engine::GetInstance();
 			auto& info = Core::Engine::InitializationInfo();
 			auto re = e.Init(info);
@@ -39,6 +42,7 @@ namespace SE
 				return false;
 			}
 			Core::AudioManager& audio = e.GetAudioManager();
+			
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
@@ -65,9 +69,12 @@ namespace SE
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
+				char* hej;
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame();
+					mm.printUsage(console);
+					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
 						for (int i = 0; i < 10; i++)
