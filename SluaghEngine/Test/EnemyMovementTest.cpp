@@ -144,6 +144,7 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+	e.GetWindow()->MapActionButton(1, Window::Key1);
 
 	bool running = true;
 	unsigned char counter = 0;
@@ -153,6 +154,16 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
+		if(e.GetWindow()->ButtonPressed(1))
+		{
+			do
+			{
+				playerPos.x = rand() % 25;
+				playerPos.y = rand() % 25;
+			} while (mapRepresentation[int(playerPos.x)][int(playerPos.y)]);
+			tm.SetPosition(player, { playerPos.x + 0.5f, 1.5f, playerPos.y + 0.5f });
+			flowField.Update(playerPos);
+		}
 		for(int i = 0; i < 10; i++)
 		{
 			enemies[i]->Update(dt);
