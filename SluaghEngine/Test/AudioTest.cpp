@@ -47,6 +47,7 @@ namespace SE
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
 				console->Print("Sound already loaded??????");
+				e.Release();
 				return false;
 			}
 
@@ -59,6 +60,7 @@ namespace SE
 			if (audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect) == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
+				e.Release();
 				return false;
 			}
 			else

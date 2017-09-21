@@ -24,6 +24,7 @@ namespace SE
 		class TransformManager
 		{		
 			friend class RenderableManager;
+			friend class CollisionManager;
 		public:
 			TransformManager(EntityManager* em);
 			~TransformManager();

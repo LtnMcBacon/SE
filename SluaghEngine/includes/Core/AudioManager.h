@@ -95,8 +95,8 @@ namespace SE {
 			void Shutdown();
 		private:
 			int retSoundData(const Utilz::GUID& guid, void* data, size_t size);
-			Audio::AudioSound* audioSound;
-			Audio::AudioStream* audioStream;
+			Audio::AudioSound audioSound;
+			Audio::AudioStream audioStream;
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;
 		};
 	}	//namespace Core

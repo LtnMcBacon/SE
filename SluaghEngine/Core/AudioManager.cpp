@@ -17,9 +17,8 @@ namespace SE {
 		int AudioManager::Initialize()
 		{
 			StartProfile;
-			audioSound = new Audio::AudioSound();
-			audioStream = new Audio::AudioStream();
-			if (audioStream->Initialize() == -1)
+			audioSound.Initialize();
+			if (audioStream.Initialize() == -1)
 			{
 				ProfileReturnConst(-1);
 			}
@@ -33,7 +32,7 @@ namespace SE {
 			sound->size = size;
 			sound->soundData = (char*)data;
 			sound->currentPos = 0;
-			trackSound[guid] = audioSound->LoadSound(sound);
+			trackSound[guid] = audioSound.LoadSound(sound);
 			delete sound;
 			ProfileReturn(0);
 		}
@@ -59,7 +58,10 @@ namespace SE {
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded != trackSound.end())
 			{
-				ProfileReturn(audioStream->CreateStream(soundType, (Audio::AudioOut*)audioSound->GetSample(trackSound[soundFile], soundType)));
+				if (trackSound[soundFile] != -1)
+				{
+					ProfileReturn(audioStream.CreateStream(soundType, (Audio::AudioOut*)audioSound.GetSample(trackSound[soundFile], soundType)));
+				}
 			}
 			ProfileReturnConst(-1);
 		}
@@ -78,26 +80,26 @@ namespace SE {
 		int AudioManager::StreamSound(int streamID)
 		{
 			StartProfile;
-			ProfileReturn(audioStream->StreamSound(streamID));
+			ProfileReturn(audioStream.StreamSound(streamID));
 		}
 
 		int AudioManager::StopSound(int streamID)
 		{
 			StartProfile;
-			ProfileReturn(audioStream->StopSound(streamID));
+			ProfileReturn(audioStream.StopSound(streamID));
 		}
 
 		int AudioManager::RemoveSound(int streamID)
 		{
 			StartProfile;
-			ProfileReturn(audioStream->RemoveSound(streamID));
+			ProfileReturn(audioStream.RemoveSound(streamID));
 		}
 
 		void AudioManager::Shutdown()
 		{		
 			StartProfile;
-			delete audioStream;
-			delete audioSound;
+			audioStream.Shutdown();
+			audioSound.Shutdown();
 			ProfileReturnVoid;
 		}
 
