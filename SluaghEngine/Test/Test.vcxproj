@@ -100,6 +100,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -111,6 +112,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,6 +120,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,6 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -135,9 +139,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioTest.cpp" />
+    <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="ImageLoadTest.cpp" />
+    <ClCompile Include="INITest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
@@ -149,9 +155,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioTest.h" />
+    <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
+    <ClInclude Include="INITest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />

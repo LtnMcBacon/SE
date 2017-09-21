@@ -61,6 +61,7 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID);
+			void Shutdown();
 		private:
 			std::vector<PaStream*> stream;
 			std::vector<AudioOut*> sampleOut;

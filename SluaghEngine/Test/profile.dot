@@ -1,0 +1,88 @@
+digraph "11172" { node[shape = "record"];
+graph [ rankdir = "LR"];
+"000001DC695D21B0"[
+label = "<f0> SE::ResourceHandler::ResourceHandler::Initialize | <f1> Times Called: 297 | <f2> Time Spent(IC): 2455 | Time Spent(EC): 2362"];
+"000001DC695D1F10"[
+label = "<f0> SE::ResourceHandler::RawLoader::Initialize | <f1> Times Called: 1 | <f2> Time Spent(IC): 52, 0.0211813 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC695D1F10":f0
+"000001DC69601790"[
+label = "<f0> SE::Graphics::DeviceManager::Init | <f1> Times Called: 1 | <f2> Time Spent(IC): 29, 0.0118126 % of parents. | Time Spent(EC): 1"];
+"000001DC69600BF0"[
+label = "<f0> SE::Graphics::DeviceManager::CreateSwapChain | <f1> Times Called: 1 | <f2> Time Spent(IC): 5, 0.172414 % of parents."];
+
+"000001DC69601790":f0 -> "000001DC69600BF0":f0
+"000001DC69601310"[
+label = "<f0> SE::Graphics::DeviceManager::CreateDepthStencil | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC69601790":f0 -> "000001DC69601310":f0
+"000001DC69600D70"[
+label = "<f0> SE::Graphics::DeviceManager::CreateBackBufferRTV | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC69601790":f0 -> "000001DC69600D70":f0
+"000001DC69600E30"[
+label = "<f0> SE::Graphics::DeviceManager::CreateDeviceResources | <f1> Times Called: 1 | <f2> Time Spent(IC): 23, 0.793103 % of parents."];
+
+"000001DC69601790":f0 -> "000001DC69600E30":f0
+
+"000001DC695D21B0":f0 -> "000001DC69601790":f0
+"000001DC6FE09480"[
+label = "<f0> SE::Graphics::Renderer::CreateTransform | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents. | Time Spent(EC): 0"];
+"000001DC6FE08E20"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreateConstantBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, -nan(ind) % of parents."];
+
+"000001DC6FE09480":f0 -> "000001DC6FE08E20":f0
+
+"000001DC695D21B0":f0 -> "000001DC6FE09480":f0
+"000001DC69601A30"[
+label = "<f0> SE::ResourceHandler::ResourceHandler::LoadResource | <f1> Times Called: 5 | <f2> Time Spent(IC): 12, 0.00488798 % of parents. | Time Spent(EC): 8"];
+"000001DC696015B0"[
+label = "<f0> SE::ResourceHandler::RawLoader::LoadResource | <f1> Times Called: 4 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC69601A30":f0 -> "000001DC696015B0":f0
+"000001DC69601490"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreateVertexShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 1, 0.0833333 % of parents."];
+
+"000001DC69601A30":f0 -> "000001DC69601490":f0
+"000001DC6FE09540"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreatePixelShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 3, 0.25 % of parents."];
+
+"000001DC69601A30":f0 -> "000001DC6FE09540":f0
+"000001DC69601070"[
+label = "<f0> SE::Graphics::Renderer::CreateVertexBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents. | Time Spent(EC): 0"];
+"000001DC69601A90"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreateVertexBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, -nan(ind) % of parents."];
+
+"000001DC69601070":f0 -> "000001DC69601A90":f0
+
+"000001DC69601A30":f0 -> "000001DC69601070":f0
+
+"000001DC695D21B0":f0 -> "000001DC69601A30":f0
+"000001DC69601670"[
+label = "<f0> SE::Core::RenderableManager::Allocate | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC69601670":f0
+"000001DC6FE090C0"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::UnbindShaders | <f1> Times Called: 144 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC6FE090C0":f0
+"000001DC69601370"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreateConstantBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC69601370":f0
+"000001DC6FE093C0"[
+label = "<f0> SE::ResourceHandler::RawLoader::LoadResource | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC6FE093C0":f0
+"000001DC69601970"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreateSamplerState | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC69601970":f0
+"000001DC6FE09120"[
+label = "<f0> SE::Graphics::GraphicResourceHandler::CreatePixelShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+
+"000001DC695D21B0":f0 -> "000001DC6FE09120":f0
+
+
+}
+

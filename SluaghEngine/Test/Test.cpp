@@ -9,8 +9,10 @@
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
 #include "BufferTest.h"
+#include "INITest.h"
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
+#include "BoundingTest.h"
 #include "ImageLoadTest.h"
 #include "AudioTest.h"
 #include <map>
@@ -48,11 +50,13 @@ int main(int argc, char** argv)
 	AddTest(ObjLoaderTest);
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
+	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
+	AddTest(BoundingTest);
 
 	volatile bool running = true;
 	

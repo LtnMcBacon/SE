@@ -43,8 +43,9 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		return r;
 
 	transformManager = new TransformManager(entityManager);
-	renderableManager = new RenderableManager(*entityManager);
-	materialManager = new MaterialManager(*entityManager);
+	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
+	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
 
 	return 0;
 }
@@ -61,6 +62,7 @@ int SE::Core::Engine::Release()
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();	
 
+	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
 	delete renderer;
@@ -75,8 +77,11 @@ int SE::Core::Engine::Release()
 
 void SE::Core::Engine::Frame()
 {
+	
 	transformManager->Frame();
 	renderableManager->Frame();
+	materialManager->Frame();
+	collisionManager->Frame();
 	window->Frame();
 	renderer->Render();
 }

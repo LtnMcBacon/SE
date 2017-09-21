@@ -264,7 +264,8 @@ struct MM<size, size, dummy> {
 
 #define ProfileReturnVoid {Profiler::GetInstance().StopProfileF(0); return;}
 #define ProfileReturnConst(x) {Profiler::GetInstance().StopProfileF(0); return x;}
-#define ProfileReturn(x) {auto& e = x; Profiler::GetInstance().StopProfileF(0); return e;}
+#define ProfileReturn(x) {auto e = x; Profiler::GetInstance().StopProfileF(0); return e;}
+
 
 #else
 #define StartProfile 
