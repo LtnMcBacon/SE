@@ -20,7 +20,6 @@ void Room::UpdateAIs(float dt)
 	for (auto &enemy : enemyEntities)
 	{
 		enemy->Update(dt);
-
 	}
 }
 

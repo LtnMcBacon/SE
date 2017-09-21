@@ -23,7 +23,7 @@ namespace SE
 		{
 		public:
 			GameUnit();
-			GameUnit(float xPos, float yPos, float maxHealth, Core::Entity *entity);
+			GameUnit(float xPos, float yPos, float maxHealth);
 			virtual ~GameUnit();
 
 			/**
@@ -122,26 +122,65 @@ namespace SE
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:
-			Core::Entity* unitEntity = {};
+			Core::Entity unitEntity = {};
 
 			//Life. Float needed?
 			float health;
 			float xPos;
 			float yPos;
+
+			/*Functions to move the GameUnit*/
+			/**
+			* @brief	Move the unit along a 2-Dimensional vector
+			*
+			* @details	This function is used to move the Unit along a 2-Dimensional
+			* vector specified by the unit itself. That is, this function is used when
+			* the Update() function in one way or another causes movement. NOTE: The
+			* unit will move as if the world was a 2D world, but this function will translate
+			* that movement into a 3D space.
+			*
+			*
+			* @param[in] xMovement The movement in x-axis (absolute movement)
+			* @param[in] yMovement The movement in y-axis (absolute movement)
+			
+			* @retval void No return value
+			*
+			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
+			*
+			*/
+			void MoveEntity(float xMovement, float yMovement);
+			/**
+			* @brief	Put the unit at a certain position on the map.
+			*
+			* @details	Instantly move the unit to the defined coordinates
+			* specified by the unit itself. That is, this function is used when
+			* the Update() function in one way or another causes movement. NOTE: The
+			* unit will move as if the world was a 2D world, but this function will translate
+			* that movement into a 3D space.
+			*
+			*
+			* @param[in] xPos New x-position for the entity
+			* @param[in] yPos New y-position for the entity
+			*
+			* @retval void No return value
+			* 
+			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
+			*
+			*/
+			void PositionEntity(float xPos, float yPos);
 			
 			std::vector<DamageEvent> DamageEventVector;
 			std::vector<HealingEvent> HealingEventVector;
 			std::vector<ConditionEvent> ConditionEventVector;
 
 			std::vector<DamageEvent> NextFrameDamage;
-			
 			std::vector<HealingEvent> NextFrameHealing;
 			std::vector<ConditionEvent> NextFrameCondition;
 
 			//Weapons? Needed here?
 
 		public:
-			inline const Core::Entity* GetEntity() const
+			inline const Core::Entity &GetEntity() const
 			{
 				return unitEntity;
 			}

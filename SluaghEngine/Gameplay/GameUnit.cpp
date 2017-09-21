@@ -1,5 +1,8 @@
 #include "GameUnit.h"
 #include <Profiler.h>
+#include <Core/EntityManager.h>
+#include <Core/TransformManager.h>
+#include <Core/Engine.h>
 using namespace SE;
 using namespace Gameplay;
 
@@ -8,13 +11,13 @@ GameUnit::GameUnit()
 
 }
 
-GameUnit::GameUnit(float xPos, float yPos, float maxHealth, Core::Entity *entity) :
+GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 	xPos(xPos),
 	yPos(yPos),
-	health(maxHealth),
-	unitEntity(entity)
+	health(maxHealth)
 {
-	
+	this->unitEntity = Core::Engine::GetInstance().GetEntityManager().Create();
+	Core::Engine::GetInstance().GetTransformManager().Create(this->unitEntity, DirectX::XMFLOAT3(xPos, 0.f, yPos));
 }
 
 GameUnit::~GameUnit()
@@ -55,6 +58,20 @@ void GameUnit::ClearConditionEvents()
 	}
 	NextFrameCondition.clear();
 	StopProfile;
+}
+
+void GameUnit::MoveEntity(float xMovement, float yMovement)
+{
+	xPos += xMovement;
+	yPos += yMovement;
+	Core::Engine::GetInstance().GetTransformManager().Move(this->unitEntity, { xMovement, 0.0f, yMovement });
+}
+
+void GameUnit::PositionEntity(float xPos, float yPos)
+{
+	this->xPos = xPos;
+	this->yPos = yPos;
+	Core::Engine::GetInstance().GetTransformManager().SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
 }
 
 

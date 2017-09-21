@@ -134,11 +134,11 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.x = rand() % 25;
 			enemyPos.y = rand() % 25;
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
-		enemies[i] = new Gameplay::EnemyUnit(&flowField, enemyPos.x + .5f, enemyPos.y + .5f, 10.0f, &entities[numberOfEntitesPlaced++]);
-		rm.CreateRenderableObject(*enemies[i]->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
-		rm.ToggleRenderableObject(*enemies[i]->GetEntity(), true);
-		tm.SetPosition(*enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemyPos.x + .5f, 0.5f, enemyPos.y + .5f));
-		tm.SetRotation(*enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+		enemies[i] = new Gameplay::EnemyUnit(&flowField, enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+		rm.CreateRenderableObject(enemies[i]->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
+		rm.ToggleRenderableObject(enemies[i]->GetEntity(), true);
+		tm.SetPosition(enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemyPos.x + .5f, 0.5f, enemyPos.y + .5f));
+		tm.SetRotation(enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 	}
 
 
@@ -156,7 +156,6 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		for(int i = 0; i < 10; i++)
 		{
 			enemies[i]->Update(dt);
-			tm.SetPosition(*enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemies[i]->GetXPosition(), 0.5f, enemies[i]->GetYPosition()));
 		}
 
 			

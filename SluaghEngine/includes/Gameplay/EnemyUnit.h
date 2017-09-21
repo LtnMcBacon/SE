@@ -130,7 +130,7 @@ namespace SE
 
 		public:
 			//EnemyUnit(); <- Create a "real" constructor
-			EnemyUnit(FlowField* roomFlowField, float xPos, float yPos, float maxHealth, Core::Entity *entity);
+			EnemyUnit(FlowField* roomFlowField, float xPos, float yPos, float maxHealth);
 			~EnemyUnit();
 		};
 
