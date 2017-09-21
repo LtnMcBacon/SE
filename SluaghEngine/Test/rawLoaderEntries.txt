@@ -18,3 +18,5 @@ Assets/SimpleVS.hlsl
 Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
+Assets/Cout.wav
+Assets/Canary.wav

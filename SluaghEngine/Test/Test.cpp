@@ -12,6 +12,7 @@
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
 #include "ImageLoadTest.h"
+#include "AudioTest.h"
 #include <map>
 #include <ctime>
 
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
 	AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
 	AddTest(MaterialManagerTest);
+	AddTest(AudioTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
