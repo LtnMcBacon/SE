@@ -117,6 +117,7 @@ int SE::Graphics::Renderer::Render() {
 		graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
 		graphicResourceHandler->BindConstantBuffer(job.transformHandle);
+		graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 	}
 

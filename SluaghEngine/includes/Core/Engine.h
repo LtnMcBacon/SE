@@ -7,6 +7,7 @@
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include "AudioManager.h"
 #include "RenderableManager.h"
 namespace SE
 {
@@ -148,6 +149,14 @@ namespace SE
 			inline MaterialManager& GetMaterialManager() const {
 				return *materialManager;
 			}
+			/**
+			* @brief    Returns a reference to the audio manager
+			* @retval return_value_0 Returns a reference to the audio manager.
+			* @sa AudioManager
+			*/
+			inline AudioManager& GetAudioManager() const {
+				return *audioManager;
+			}
 
 			inline CollisionManager& GetCollisionManager()const {
 				return *collisionManager;
@@ -166,6 +175,7 @@ namespace SE
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
 			MaterialManager* materialManager;
+			AudioManager* audioManager;
 			CollisionManager* collisionManager;
 		};
 

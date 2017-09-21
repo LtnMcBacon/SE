@@ -48,6 +48,12 @@
     <ClInclude Include="..\includes\Utilz\PathParsing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Utilz\INIReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Utilz\StackAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\includes\Utilz\GUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,6 +72,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="INIReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StackAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

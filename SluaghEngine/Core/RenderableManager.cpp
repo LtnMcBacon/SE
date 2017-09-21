@@ -93,12 +93,16 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		info.vertexShader = defaultShader;
 
+
 		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())
+		{
 			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
 			info.pixelShader = materialManager->defaultShaderHandle;
-		visible ? renderer->EnableRendering(info) : renderer->DisableRendering(info);
+		visible ? r->EnableRendering(info) : r->DisableRendering(info);
 	}
 	StopProfile;
 }

@@ -14,6 +14,7 @@ namespace SE
 			int transformHandle;
 			int pixelShader;
 			int vertexShader;
+			int diffuseTexture;
 		};
 
 
