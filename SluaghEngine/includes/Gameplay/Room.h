@@ -238,7 +238,7 @@ namespace SE
 			*	To be added when function is implemented
 			* @endcode
 			*/
-			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *toAdd/*bool ignorePowerLevel*/);
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd/*bool ignorePowerLevel*/);
 			
 			inline const FlowField *GetFlowFieldMap() const
 			{

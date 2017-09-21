@@ -41,7 +41,7 @@ void Room::UpdateAIs(float dt)
 void Room::UpdateAdjacentRooms(float dt)
 {
 	StartProfile;
-	for (auto &room : adjacentRooms)
+	for (auto room : adjacentRooms)
 		if(room)
 			room->UpdateAIs(dt);
 	StopProfile;
@@ -85,9 +85,9 @@ Room::~Room()
 		delete AI;
 }
 
-bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *toAdd)
+bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
-	enemyEntities.push_back(toAdd);
+	enemyEntities.push_back(enemyToAdd);
 
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
