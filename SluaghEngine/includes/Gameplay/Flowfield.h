@@ -114,7 +114,7 @@ namespace SE
 			* @param[in, out] xMagnitude the vectors x part
 			* @param[in, out] yMagnitude the vectors y part
 			*/
-			void SampleFromMap(const pos& enemyPos, float& xMagnitude, float& yMagnitude);
+			void SampleFromMap(const pos& enemyPos, float& xMagnitude, float& yMagnitude) const;
 
 		};
 
