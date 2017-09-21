@@ -171,6 +171,7 @@ int SE::Graphics::Renderer::Render() {
 		if(previousJob.diffuseTexture != job.diffuseTexture)
 			graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
+		previousJob = job;
 	}
 
 	device->Present();
