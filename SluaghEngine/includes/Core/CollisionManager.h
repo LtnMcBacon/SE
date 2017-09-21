@@ -85,10 +85,12 @@ namespace SE
 
 			/**
 			* @brief	Called each frame, to update the state.
+			* @details The frame will keep the bounding objects up to date with the entities transform.
 			*/
 			void Frame();
 		private:
 			void SetDirty(const Entity& entity, size_t index);
+
 			/**
 			* @brief	Allocate more memory
 			*/
