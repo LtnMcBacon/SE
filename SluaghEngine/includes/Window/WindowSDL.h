@@ -39,6 +39,8 @@ namespace SE
 			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void UnbindCallbacks() override;
 		private:
+			void OptionUpdate();
+
 			/*Window related things*/
 			SDL_Window* window;
 			uint32_t width;

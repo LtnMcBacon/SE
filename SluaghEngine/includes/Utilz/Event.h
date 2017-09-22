@@ -37,12 +37,14 @@ namespace SE
 					deleg.Invoke(std::forward<Args>(args)...);
 			}
 
+
 			/**
 			* @brief Register a delegate
 			*/
 			inline void Add(const Delegate<R(Args...)>& del)
 			{
 				delegates.push_back(del);
+
 			}
 			/** @brief Registers a function.
 			* @sa Event
