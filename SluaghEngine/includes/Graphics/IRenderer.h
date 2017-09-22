@@ -3,20 +3,12 @@
 #include <Utilz/GUID.h>
 #include <cstdint>
 #include "TextureDesc.h"
+#include "RenderObjectInfo.h"
 namespace SE
 {
 	namespace Graphics
 	{
 		class Entity;
-		struct RenderObjectInfo
-		{
-			int bufferHandle;
-			int transformHandle;
-			int pixelShader;
-			int vertexShader;
-		};
-
-
 
 		class IRenderer
 		{

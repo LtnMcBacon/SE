@@ -1,10 +1,7 @@
-#include "RenderableManager.h"
+#include <RenderableManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <Utilz\Delegator.h>
 #include <OBJParser\Parsers.h>
-#include <Core\Engine.h>
-#include <MaterialManager.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -18,54 +15,31 @@
 #pragma comment(lib, "Utilz.lib")
 #endif
 
-SE::Core::RenderableManager::RenderableManager(const EntityManager& entityManager) : entityManager(entityManager)
+
+
+SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, MaterialManager* materialManager)
+	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager), materialManager(materialManager)
 {
-	StartProfile;
+
+	_ASSERT(resourceHandler);
+	_ASSERT(renderer);
+	_ASSERT(transformManager);
+	_ASSERT(materialManager);
 
 	Allocate(128);
-	Core::Engine::GetInstance().GetTransformManager().SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
+	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto rh = Core::Engine::GetInstance().GetResourceHandler();
-	auto res = rh->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make([this](const Utilz::GUID& guid, void*data, size_t size)->int {
-		
-		ArfData::Data arfData;
-		ArfData::DataPointers arfp;
-		auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-		if (r)
-			return r;
-		Arf::Mesh::Data* parsedData;
-		size_t parsedSize;
-		r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize);
-		if (r)
-			return r;
-
-		delete arfp.buffer;
-
-		auto& mD = *(Arf::Mesh::Data*)parsedData;
-		auto defaultShader = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2);
-		if (defaultShader == -1)
-			return -1;
-
-		delete parsedData;
-
-		return 0;
-	}), true);
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this), true);
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
-	res = rh->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make([this](const Utilz::GUID& guid, void*data, size_t size) -> int {
-		defaultShader = Core::Engine::GetInstance().GetRenderer()->CreateVertexShader(data, size);
-		if (defaultShader == -1)
-			return -1;
-		return 0;
-	}), true);
+	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this), true);
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 	StopProfile;
 }
-
 
 SE::Core::RenderableManager::~RenderableManager()
 {
@@ -80,7 +54,6 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find == entityToRenderableObjectInfoIndex.end())
 	{
-		auto& engine = Core::Engine::GetInstance();
 		// Check if the entity is alive
 		if (!entityManager.Alive(entity))
 			ProfileReturnVoid;
@@ -93,98 +66,120 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		size_t newEntry = renderableObjectInfo.used;
 		entityToRenderableObjectInfoIndex[entity] = newEntry;
 		renderableObjectInfo.entity[newEntry] = entity;
+		renderableObjectInfo.used++;
 
+		// Load the model
+		LoadResource(meshGUID, newEntry);
 
-	
-		{
-			// Load model
-			auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
-			auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
-			if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
-			{
-				bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
-				bufferIndex = bufferInfo.size() - 1;
-				auto res = engine.GetResourceHandler()->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
-				if (res)
-					Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
-			}
-			// Increase ref Count and save the index to the material info.
-			bufferInfo[bufferIndex].refCount++;
-			renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
-		}
 
 		// Transform binding
-		renderableObjectInfo.transformHandle[newEntry] = engine.GetRenderer()->CreateTransform();
-	
-		renderableObjectInfo.used++;
+		renderableObjectInfo.transformHandle[newEntry] = renderer->CreateTransform();
+		renderableObjectInfo.visible[newEntry] = 0;
+
 	}
 	StopProfile;
 }
 
 void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, bool visible)
 {
-	auto r = Core::Engine::GetInstance().GetRenderer();
+	StartProfile;
 	// See so that the entity exist
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		//If the visibility state is switched to what it already is we dont do anything.
+		if ((bool)renderableObjectInfo.visible[find->second] == visible)
+			return;
+		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		info.vertexShader = defaultShader;
-		auto& mm = Core::Engine::GetInstance().GetMaterialManager();
-		auto& find = mm.entityToMaterialInfo.find(entity);
-		if (find != mm.entityToMaterialInfo.end())
-			info.pixelShader = mm.shaderInfo[mm.materialInfo.shaderIndex[find->second]].shaderHandle;
+
+
+		auto& find = materialManager->entityToMaterialInfo.find(entity);
+		if (find != materialManager->entityToMaterialInfo.end())
+		{
+			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
-			info.pixelShader = mm.defaultShaderHandle;
-		visible ? r->EnableRendering(info) : r->DisableRendering(info);
+		{
+			info.pixelShader = materialManager->defaultShaderHandle;
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+			
+		visible ? renderer->EnableRendering(info) : renderer->DisableRendering(info);
 	}
+	StopProfile;
 }
 
 void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
 {
-	auto r = Core::Engine::GetInstance().GetRenderer();
+	StartProfile;
 	// See so that the entity exist
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		if (!renderableObjectInfo.visible[find->second])
+			return;
+		renderableObjectInfo.visible[find->second] = 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		info.vertexShader = defaultShader;
-		auto& mm = Core::Engine::GetInstance().GetMaterialManager();
-		auto& find = mm.entityToMaterialInfo.find(entity);
-		if (find != mm.entityToMaterialInfo.end())
-			info.pixelShader = mm.shaderInfo[mm.materialInfo.shaderIndex[find->second]].shaderHandle;
+
+		auto& find = materialManager->entityToMaterialInfo.find(entity);
+		if (find != materialManager->entityToMaterialInfo.end())
+		{
+			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
-			info.pixelShader = mm.defaultShaderHandle;
-		r->DisableRendering(info);
+		{
+			info.pixelShader = materialManager->defaultShaderHandle;
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+
+		renderer->DisableRendering(info);
 	}
+	StopProfile;
 }
 
 void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
 {
-	auto r = Core::Engine::GetInstance().GetRenderer();
+	StartProfile;
 	// See so that the entity exist
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		//If the entity is already visible, we dont do anything
+		if (renderableObjectInfo.visible[find->second])
+			return;
+		renderableObjectInfo.visible[find->second] = 1;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		info.vertexShader = defaultShader;
-		auto& mm = Core::Engine::GetInstance().GetMaterialManager();
-		auto& find = mm.entityToMaterialInfo.find(entity);
-		if (find != mm.entityToMaterialInfo.end())
-			info.pixelShader = mm.shaderInfo[mm.materialInfo.shaderIndex[find->second]].shaderHandle;
+
+		auto& find = materialManager->entityToMaterialInfo.find(entity);
+		if (find != materialManager->entityToMaterialInfo.end())
+		{
+			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+		}
 		else
-			info.pixelShader = mm.defaultShaderHandle;
-		r->EnableRendering(info);
+		{
+			info.pixelShader = materialManager->defaultShaderHandle;
+			info.diffuseTexture = materialManager->defaultTextureHandle;
+		}
+
+		renderer->EnableRendering(info);
 	}
+	StopProfile;
 }
 
 void SE::Core::RenderableManager::Frame()
@@ -208,11 +203,13 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.bufferIndex = (size_t*)(newData.entity + newData.allocated);
 	newData.transformHandle = (int*)(newData.bufferIndex + newData.allocated);
+	newData.visible = (uint8_t*)(newData.transformHandle + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.bufferIndex, renderableObjectInfo.bufferIndex, renderableObjectInfo.used * sizeof(size_t));
 	memcpy(newData.transformHandle, renderableObjectInfo.transformHandle, renderableObjectInfo.used * sizeof(int));
+	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -234,6 +231,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
 	renderableObjectInfo.transformHandle[index] = renderableObjectInfo.transformHandle[last];
+	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;
@@ -264,17 +262,71 @@ void SE::Core::RenderableManager::GarbageCollection()
 
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
-	auto& engine = Core::Engine::GetInstance();
-	auto& tm = engine.GetTransformManager();
-	auto renderer = engine.GetRenderer();
-
+	StartProfile;
+	
 	for (auto& dirty : dirtyEntites)
 	{
-		auto& transform = tm.dirtyTransforms[dirty.transformIndex];
+		auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
 		renderer->UpdateTransform(renderableObjectInfo.transformHandle[dirty.renderableIndex], (float*)&transform);
 	}
 
 	dirtyEntites.clear();
+	StopProfile;
+}
+
+int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void * data, size_t size)
+{
+	StartProfile;
+	ArfData::Data arfData;
+	ArfData::DataPointers arfp;
+	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
+	if (r)
+		ProfileReturnConst( r);
+	Arf::Mesh::Data* parsedData;
+	size_t parsedSize;
+	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize);
+	if (r)
+		ProfileReturnConst( r);
+
+	delete arfp.buffer;
+
+	auto& mD = *(Arf::Mesh::Data*)parsedData;
+	auto defaultShader = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2);
+	if (defaultShader == -1)
+		ProfileReturnConst( -1);
+
+	delete parsedData;
+
+	ProfileReturnConst( 0);
+}
+
+int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
+{
+	StartProfile;
+	defaultShader = renderer->CreateVertexShader(data, size);
+	if (defaultShader == -1)
+		ProfileReturnConst( -1);
+	ProfileReturnConst( 0);
+}
+
+void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry)
+{
+	StartProfile;
+	// Load model
+	auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
+	auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
+	if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
+	{
+		bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
+		bufferIndex = bufferInfo.size() - 1;
+		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
+		if (res)
+			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
+	}
+	// Increase ref Count and save the index to the material info.
+	bufferInfo[bufferIndex].refCount++;
+	renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
+	StopProfile;
 }
 
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
@@ -294,7 +346,7 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	delete arfp.buffer;
 
 	auto& mD = *(Arf::Mesh::Data*)parsedData;
-	auto bufferHandle = Core::Engine::GetInstance().GetRenderer()->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	auto bufferHandle = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
 	if (bufferHandle == -1)
 		ProfileReturnConst(-1);
 

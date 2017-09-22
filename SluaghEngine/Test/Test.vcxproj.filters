@@ -54,10 +54,22 @@
     <ClCompile Include="ImageLoadTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AudioTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="INITest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
     <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomCreationTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,6 +114,18 @@
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoadTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoomCreationTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="INITest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

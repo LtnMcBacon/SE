@@ -8,6 +8,8 @@ FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, con
 {
 	StartProfile;
 	this->sideLength = sideLength;
+	lowerLeftCornerXCoord = bottomLeftCornerXCoord;
+	lowerLeftCornerYCoord = bottomLeftCornerYCoord;
 
 	for (int i = 0; i < MAXSIZE; i++)
 	{
@@ -47,72 +49,69 @@ void FlowField::Update(const pos & playerPos)
 	StopProfile;
 }
 
-void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude)
+void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude) const
 {
 	StartProfile;
-	int xIndex = (int)enemyPos.x;
-	int yIndex = (int)enemyPos.y;
+	int xIndex = (int)enemyPos.x - lowerLeftCornerXCoord;
+	int yIndex = (int)enemyPos.y - lowerLeftCornerYCoord;
 
 
 
 	switch (data[xIndex][yIndex].dir)
 	{
-		case Direction::NONE:
-			xMagnitude = 0.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
-		
-		case Direction::UP: 
-			xMagnitude = 0.0f;
-			yMagnitude = 1.0f;
-			StopProfile;
-			return;
-		
-		case Direction::UP_LEFT: 
-			xMagnitude = -0.707f;
-			yMagnitude = 0.707f;
-			StopProfile;
-			return;
+	case Direction::NONE:
+		xMagnitude = 0.0f;
+		yMagnitude = 0.0f;
+		StopProfile;
+		return;
 
-		case Direction::LEFT: 
-			xMagnitude = -1.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
+	case Direction::UP:
+		xMagnitude = 0.0f;
+		yMagnitude = 1.0f;
+		break;
 
-		case Direction::DOWN_LEFT: 
-			xMagnitude = -0.707f;
-			yMagnitude = -0.707f;
-			StopProfile;
-			return;
+	case Direction::UP_LEFT:
+		xMagnitude = -0.707f;
+		yMagnitude = 0.707f;
+		break;
 
-		case Direction::DOWN: 
-			xMagnitude = 0.0f;
-			yMagnitude = -1.0f;
-			StopProfile;
-			return;
+	case Direction::LEFT:
+		xMagnitude = -1.0f;
+		yMagnitude = 0.0f;
+		break;
 
-		case Direction::DOWN_RIGHT: 
-			xMagnitude = 0.707f;
-			yMagnitude = -0.707f;
-			StopProfile;
-			return;
+	case Direction::DOWN_LEFT:
+		xMagnitude = -0.707f;
+		yMagnitude = -0.707f;
+		break;
 
-		case Direction::RIGHT: 
-			xMagnitude = 1.0f;
-			yMagnitude = 0.0f;
-			StopProfile;
-			return;
+	case Direction::DOWN:
+		xMagnitude = 0.0f;
+		yMagnitude = -1.0f;
+		break;
 
-		case Direction::UP_RIGHT: 
-			xMagnitude = 0.707f;
-			yMagnitude = 0.707f;
-			StopProfile;
-			return;
+	case Direction::DOWN_RIGHT:
+		xMagnitude = 0.707f;
+		yMagnitude = -0.707f;
+		break;
+
+	case Direction::RIGHT:
+		xMagnitude = 1.0f;
+		yMagnitude = 0.0f;
+		break;
+
+	case Direction::UP_RIGHT:
+		xMagnitude = 0.707f;
+		yMagnitude = 0.707f;
+		break;
 
 	}
+
+
+
+
 	StopProfile;
+	return;
 }
 
 void FlowField::ResetField()
@@ -170,13 +169,13 @@ void FlowField::SetDirectionsBasedOnCosts()
 		{
 			smallestCost = -1;
 
-			for (int k = 0; k < 8; k++)
+			for (int k = 0; k < 4; k++)
 			{
-				if (k == 0 || k == 3 || k == 5)
+				if (k == 1)
 				{
 					xModifier = -1;
 				}
-				else if (k == 2 || k == 4 || k == 7)
+				else if (k == 2)
 				{
 					xModifier = 1;
 				}
@@ -185,11 +184,11 @@ void FlowField::SetDirectionsBasedOnCosts()
 					xModifier = 0;
 				}
 
-				if (k < 3)
+				if (k == 0)
 				{
 					yModifier = 1;
 				}
-				else if (k > 4)
+				else if (k == 3)
 				{
 					yModifier = -1;
 				}
@@ -202,45 +201,21 @@ void FlowField::SetDirectionsBasedOnCosts()
 				{
 					if (xModifier == 1)
 					{
-						if (yModifier == 1)
-						{
-							data[i][j].dir = Direction::UP_RIGHT;
-						}
-						else if (yModifier == -1)
-						{
-							data[i][j].dir = Direction::DOWN_RIGHT;
-						}
-						else
-						{
-							data[i][j].dir = Direction::RIGHT;
-						}
+						data[i][j].dir = Direction::RIGHT;
 					}
 					else if (xModifier == -1)
 					{
-						if (yModifier == 1)
-						{
-							data[i][j].dir = Direction::UP_LEFT;
-						}
-						else if (yModifier == -1)
-						{
-							data[i][j].dir = Direction::DOWN_LEFT;
-						}
-						else
-						{
-							data[i][j].dir = Direction::LEFT;
-						}
+						data[i][j].dir = Direction::LEFT;
+					}
+					else if (yModifier == 1)
+					{
+							data[i][j].dir = Direction::UP;
 					}
 					else
 					{
-						if (yModifier == 1)
-						{
-							data[i][j].dir = Direction::UP;
-						}
-						else
-						{
 							data[i][j].dir = Direction::DOWN;
-						}
 					}
+
 					smallestCost = data[i + xModifier][j + yModifier].cost;
 				}
 			}

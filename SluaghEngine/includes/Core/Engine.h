@@ -1,13 +1,14 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
-#include "Core/EntityManager.h"
-#include "Core/TransformManager.h"
+#include "EntityManager.h"
+#include "TransformManager.h"
 #include "MaterialManager.h"
+#include "CollisionManager.h"
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include "AudioManager.h"
 #include "RenderableManager.h"
-#include "MaterialManager.h"
 namespace SE
 {
 	namespace Core
@@ -148,6 +149,23 @@ namespace SE
 			inline MaterialManager& GetMaterialManager() const {
 				return *materialManager;
 			}
+			/**
+			* @brief    Returns a reference to the audio manager
+			* @retval return_value_0 Returns a reference to the audio manager.
+			* @sa AudioManager
+			*/
+			inline AudioManager& GetAudioManager() const {
+				return *audioManager;
+			}
+
+			/**
+			* @brief    Returns a reference to the collision manager
+			* @retval return_value_0 Returns a reference to the collision manager.
+			* @sa AudioManager
+			*/
+			inline CollisionManager& GetCollisionManager()const {
+				return *collisionManager;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -162,6 +180,8 @@ namespace SE
 			TransformManager* transformManager;
 			RenderableManager* renderableManager;
 			MaterialManager* materialManager;
+			AudioManager* audioManager;
+			CollisionManager* collisionManager;
 		};
 
 	}

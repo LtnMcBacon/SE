@@ -20,8 +20,8 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	auto& texture = Utilz::GUID("dummytex.jpg");
-	auto& shader = Utilz::GUID("SimplePS.hlsl");
+	auto& texture = Utilz::GUID("dummytex.sei");
+	auto& shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.textures = &texture;
 	info.textureCount = 1;
 	info.shader = &shader;
@@ -37,6 +37,8 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	rm.ToggleRenderableObject(entity, true);
 
 	engine.GetWindow()->MapActionButton(0, Window::KeyEscape);
+	engine.GetWindow()->MapActionButton(1, Window::KeyO);
+	engine.GetWindow()->MapActionButton(2, Window::KeyK);
 
 	bool running = true;
 	while (running)
@@ -44,6 +46,11 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (engine.GetWindow()->ButtonPressed(0))
 			running = false;
 		
+		if (engine.GetWindow()->ButtonPressed(1))
+			rm.ToggleRenderableObject(entity, false);
+		if (engine.GetWindow()->ButtonPressed(2))
+			rm.ToggleRenderableObject(entity, true);
+
 		engine.Frame();
 	}
 
