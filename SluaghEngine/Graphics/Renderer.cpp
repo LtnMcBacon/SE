@@ -236,7 +236,7 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 
 
 
-int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
+int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
 	int handle;
 	auto hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(),data, size, &handle);

@@ -36,6 +36,8 @@ namespace SE
 			*/
 			void Create(const Entity& entity, const CreateInfo& info);
 
+			void SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
+				Utilz::GUID textureFileName);
 
 			/**
 			* @brief	Called each frame, to update the state.

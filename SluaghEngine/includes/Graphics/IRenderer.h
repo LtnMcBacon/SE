@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
+#include "ShaderSettings.h"
 namespace SE
 {
 	namespace Graphics
@@ -121,11 +122,12 @@ namespace SE
 			* @brief Create a pixel shader from raw data
 			* @param[in] data A pointer to shader blob.
 			* @param[in] size The size of the shader blob.
+			* @param[out] reflection Stores information from a shader reflection at the address pointed to by reflection if not nullptr.
 			* @retval handle On success.
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			virtual int CreatePixelShader(void* data, size_t size) = 0;
+			virtual int CreatePixelShader(void* data, size_t size, ShaderSettings* reflection = nullptr) = 0;
 
 			/**
 			* @brief Create a vertex shader from raw data

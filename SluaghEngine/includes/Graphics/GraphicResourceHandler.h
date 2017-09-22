@@ -61,7 +61,6 @@ namespace SE {
 		struct PixelShaderData {
 
 			ID3D11PixelShader*		pixelShader;
-			ShaderSettings shaderSettings;
 		};
 
 		/**
@@ -112,7 +111,7 @@ namespace SE {
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
 			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
-			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID);
+			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
 
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
