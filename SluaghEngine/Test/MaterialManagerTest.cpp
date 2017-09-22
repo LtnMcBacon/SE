@@ -20,9 +20,16 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	auto& texture = Utilz::GUID("dummytex.sei");
-	auto& shader = Utilz::GUID("SimpleTexPS.hlsl");
+	Utilz::GUID textures[] = { Utilz::GUID("dummytex.sei") };
+	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
+	info.shaderResourceNames = resourceNames;
+	info.textureFileNames = textures;
+	info.textureCount = 1;
+
+
+	
 	mm.Create(entity, info);
 
 	auto& rm = engine.GetRenderableManager();
