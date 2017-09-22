@@ -52,8 +52,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 			xMovementTot /= moveTot;
 			yMovementTot /= moveTot;
 		}
-		xPos += xMovementTot*dt;
-		yPos += yMovementTot*dt;
+		MoveEntity(xMovementTot*dt, yMovementTot*dt);
 
 		break;
 	}
@@ -72,8 +71,8 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ProfileReturnVoid;
 }
 
-SE::Gameplay::EnemyUnit::EnemyUnit(FlowField* roomFlowField, float xPos, float yPos, float maxHealth, Core::Entity *entity) :
-	GameUnit(xPos, yPos, maxHealth, entity),
+SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
+	GameUnit(xPos, yPos, maxHealth),
 	flowFieldForRoom(roomFlowField)
 {
 

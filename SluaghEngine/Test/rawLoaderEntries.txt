@@ -1,6 +1,7 @@
 Assets/Canary.wav
 Assets/Cout.wav
 Assets/dummytex.sei
+Assets/dummytex.jpg
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl
@@ -11,7 +12,7 @@ Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
-Assets/purewhite.sei
+Assets/purewhite.png
 Assets/purewhite.rawimg
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
