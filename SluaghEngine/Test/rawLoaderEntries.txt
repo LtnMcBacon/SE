@@ -21,3 +21,5 @@ Assets/temp - Copy.ini
 Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
+Assets/test2.txt
+Assets/test3.txt

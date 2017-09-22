@@ -9,7 +9,7 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	Allocate(128);
 	defaultTextureHandle = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultShader>(this), true);
+	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultShader>(this));
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 

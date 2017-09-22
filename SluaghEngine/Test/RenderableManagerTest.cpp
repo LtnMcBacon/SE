@@ -24,6 +24,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
+	e.GetWindow();
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);

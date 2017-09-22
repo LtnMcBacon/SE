@@ -31,11 +31,11 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this), true);
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this), true);
+	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this));
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 	StopProfile;

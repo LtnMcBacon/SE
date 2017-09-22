@@ -38,16 +38,13 @@ namespace SE
 			}
 
 			/**
-			* @brief Registers a lambda.
-			* @sa Event
+			* @brief Register a delegate
 			*/
-			inline void Add(const std::function<R(Args...)>& instance)
+			inline void Add(const Delegate<R(Args...)>& del)
 			{
-				delegates.push_back(Delegate<R(Args...)>::Make(instance));
+				delegates.push_back(del);
 			}
-
-			/**
-			* @brief Registers a function.
+			/** @brief Registers a function.
 			* @sa Event
 			*/
 			template<R(*Function)(Args...)>
@@ -76,15 +73,6 @@ namespace SE
 				delegates.push_back(Delegate<R(Args...)>::Make<C, Function>(instance));
 			}
 
-			/**
-			* @brief Removes a lambda.
-			* @sa Event
-			*/
-			template<R(*Function)(Args...)>
-			inline void Remove(const std::function<R(Args...)>& instance)
-			{
-				delegates.remove(Delegate<R(Args...)>::Make(instance));
-			}
 			/**
 			* @brief Removes a function.
 			* @sa Event

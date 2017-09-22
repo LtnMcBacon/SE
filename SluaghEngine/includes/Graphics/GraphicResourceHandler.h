@@ -234,7 +234,7 @@ namespace SE {
 			ID3D11DeviceContext* gDeviceContext;
 
 			// Samplerstate
-			ID3D11SamplerState* sampleState = nullptr;
+			ID3D11SamplerState* sampleState;
 
 			// Vertex shader specific data
 			std::vector<VertexShaderData>vShaders;
