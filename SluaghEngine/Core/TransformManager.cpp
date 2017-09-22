@@ -175,7 +175,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 	auto translation = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[index]));
 	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[index]));
 	auto scale = XMMatrixScaling(scalings[index], scalings[index], scalings[index]);
-	XMStoreFloat4x4(&transform, scale*translation*rotation);
+	XMStoreFloat4x4(&transform, scale*rotation*translation);
 	dirtyTransforms.push_back(transform);
 	dirty[index] = false;
 	SetDirty(entities[index], dirtyTransforms.size() - 1);

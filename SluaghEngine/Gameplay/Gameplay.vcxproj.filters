@@ -25,6 +25,12 @@
     <Filter Include="Source Files\GameUnits">
       <UniqueIdentifier>{6d0cb078-a175-4662-8d05-feb82974d0a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Flowfield">
+      <UniqueIdentifier>{7f6677ad-200d-46ad-9889-76ab7e012dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Flowfield">
+      <UniqueIdentifier>{a21a1b1f-eb9c-4706-8ee7-b1bb09fa6bc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,21 +45,25 @@
     <ClCompile Include="EnemyUnit.cpp">
       <Filter>Source Files\GameUnits</Filter>
     </ClCompile>
+    <ClCompile Include="Flowfield.cpp">
+      <Filter>Source Files\Flowfield</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameUnit.h">
-      <Filter>Header Files\GameUnits</Filter>
-    </ClInclude>
-    <ClInclude Include="EventStructs.h">
+    <ClInclude Include="..\includes\Gameplay\EventStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Room.h">
+    <ClInclude Include="..\includes\Gameplay\Room.h">
       <Filter>Header Files\Rooms</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyUnit.h">
+    <ClInclude Include="..\includes\Gameplay\EnemyUnit.h">
       <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Flowfield.h">
+      <Filter>Header Files\Flowfield</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

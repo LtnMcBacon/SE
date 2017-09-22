@@ -11,6 +11,7 @@
 #include "BufferTest.h"
 #include "INITest.h"
 #include "RenderableManagerTest.h"
+#include "FlowFieldTest.h"
 #include "MaterialManagerTest.h"
 #include "BoundingTest.h"
 #include "ImageLoadTest.h"
@@ -19,6 +20,8 @@
 #include <ctime>
 
 #include <crtdbg.h>
+#include "EnemyMovementTest.h"
+#include "RoomCreationTest.h"
 
 
 #ifdef _DEBUG
@@ -58,8 +61,12 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 
-	volatile bool running = true;
 	
+	AddTest(FlowFieldTest);
+	AddTest(EnemyMovementTest);
+	AddTest(RoomCreationTest);
+
+	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{

@@ -7,7 +7,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
-
+		class FlowField;
 		/**
 		*
 		* @brief The base class for all enemies
@@ -76,12 +76,14 @@ namespace SE
 			* For instance, a "move action" will check the FlowField and move the enemy in the direction
 			* annotated by the flowfield.
 			*
+			* @param [in] dt Delta time for this frame
+			* 
 			* @retval void No return value
 			*
 			* @warning NOT IMPLEMENTED! Will always perform a "move" action!
 			*
 			*/
-			virtual void PerformAction();
+			virtual void PerformAction(float dt);
 
 		public:
 			/*Should flowfield be a part of EnemyUnit?
@@ -100,14 +102,22 @@ namespace SE
 			 * from a virtual function in enemy. Update should under no 
 			 * circumstances be changed to virtual!
 			 *
+			 * @param [in] dt Delta time for this frame
+			 *
 			 * @retval void No value
 			 
 			 * @warning Due to design decisions not being taken as of now, the parameters has yet to be defined. Thus, the param
 			 * comment can not be used for documentation at this moment.
 			 *
 			 */
-			void Update(/*Delta time, FlowField, Outgoing events?*/);
+			void Update(float dt/*FlowField, Outgoing events?*/);
 
+
+			enum class EnemyActions
+			{
+				ENEMY_ACTION_NOTHING,
+				ENEMY_ACTION_MOVE
+			};
 
 		private:
 			EnemyUnit() {};
@@ -115,8 +125,12 @@ namespace SE
 			EnemyUnit(const EnemyUnit&& other) = delete;
 			EnemyUnit& operator=(const EnemyUnit& rhs) = delete;
 
+			EnemyActions entityAction = EnemyActions::ENEMY_ACTION_NOTHING;
+			const FlowField* flowFieldForRoom = nullptr;
+
 		public:
 			//EnemyUnit(); <- Create a "real" constructor
+			EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth);
 			~EnemyUnit();
 		};
 
