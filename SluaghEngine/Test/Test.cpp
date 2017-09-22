@@ -14,6 +14,7 @@
 #include "MaterialManagerTest.h"
 #include "BoundingTest.h"
 #include "ImageLoadTest.h"
+#include "AllocatorTest.h"
 #include "AudioTest.h"
 #include <map>
 #include <ctime>
@@ -57,6 +58,7 @@ int main(int argc, char** argv)
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
+	AddTest(AllocatorTest);
 
 	volatile bool running = true;
 	
