@@ -1,6 +1,7 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
+#include <Core\Engine.h>
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
@@ -13,8 +14,12 @@ SE::Window::WindowSDL::~WindowSDL()
 
 int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 {
-	width = info.width;
-	height = info.height;
+	//width = info.width;
+	//height = info.height;
+	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
+	width = optHandler.GetOption("Window", "width", 1280);
+	height = optHandler.GetOption("Window", "height", 720);
+	optHandler.Register(Utilz::Delegate<void()>::Make<WindowSDL, &WindowSDL::OptionUpdate>(this));
 	fullScreen = info.fullScreen;
 	windowTitle = info.windowTitle;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -268,4 +273,12 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 	if (k == actionToKeyState.end())
 		return 0;
 	return k->second;
+}
+
+void SE::Window::WindowSDL::OptionUpdate()
+{
+	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
+	width = optHandler.GetOption("Window", "width", 1280);
+	height = optHandler.GetOption("Window", "height", 720);
+	SDL_SetWindowSize(window, width, height);
 }

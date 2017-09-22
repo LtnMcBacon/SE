@@ -30,40 +30,50 @@ namespace SE {
 		int OptionHandler::GetOption(const std::string& section, const std::string& optionName, int defaultVal)
 		{
 			StartProfile;
-			for (auto& mapsPair : optionMap)
+			if (optionMap.size() > 0)
 			{
-				if (mapsPair.first == section)
+				for (auto& mapsPair : optionMap)
 				{
-					std::map<std::string, int> values = optionMap[mapsPair.first];
-					for (auto& valuesPair : values)
+					if (mapsPair.first == section)
 					{
-						if (valuesPair.first == optionName)
+						std::map<std::string, int> values = optionMap[mapsPair.first];
+						auto fileLoaded = values.find(optionName);
+						if (fileLoaded == values.end())
 						{
-							ProfileReturn(values[valuesPair.first]);
+							SetOption(section, optionName, defaultVal);
+							ProfileReturnConst(defaultVal);
+						}
+						else
+						{
+							ProfileReturn(values[optionName]);
 						}
 					}
 				}
 			}
+			SetOption(section, optionName, defaultVal);
 			ProfileReturnConst(defaultVal);
 		}
 
 		void OptionHandler::SetOption(const std::string& section, const std::string& optionName, int newValue)
 		{
 			StartProfile;
-			for (auto& mapsPair : optionMap)
+			auto fileLoaded = optionMap.find(section);
+			if (fileLoaded == optionMap.end())
 			{
-				if (mapsPair.first == section)
+				std::map<std::string, int> value;
+				value[optionName] = newValue;
+				optionMap[section] = value;
+				if (optionMap.size() > 0)
 				{
-					std::map<std::string, int> values = optionMap[mapsPair.first];
-					for (auto& valuesPair : values)
-					{
-						if (valuesPair.first == optionName)
-						{
-							values[valuesPair.first] = newValue;
-							ProfileReturnVoid
-						}
-					}
+					int hej = 0;
 				}
+				ProfileReturnVoid;
+			}
+			else
+			{
+				std::map<std::string, int> &values = optionMap[section];
+				values[optionName] = newValue;
+				ProfileReturnVoid
 			}
 			ProfileReturnVoid;
 		}
@@ -71,8 +81,12 @@ namespace SE {
 		int OptionHandler::UnloadOption(const std::string& filename)
 		{
 			StartProfile;
-			Utilz::INIReader reader;
-			ProfileReturn(reader.WriteToINI(filename, optionMap));
+			if (optionMap.size() > 0)
+			{
+				Utilz::INIReader reader;
+				ProfileReturn(reader.WriteToINI(filename, optionMap));
+			}
+			ProfileReturnConst(-1);
 		}
 
 		void OptionHandler::Register(const Utilz::Delegate<void()>& delegat)

@@ -22,12 +22,15 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+	optionHandler = new OptionHandler();
+	optionHandler->Initialize("Config.ini");
 
 	entityManager = new EntityManager;
 	window = new Window::WindowSDL();
 	renderer = new Graphics::Renderer();
 	resourceHandler = new ResourceHandler::ResourceHandler();
 	audioManager = new AudioManager();
+	
 
 	auto r = resourceHandler->Initialize();
 	if (r)
@@ -41,7 +44,6 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	r = audioManager->Initialize();
 	if (r)
 		return r;
-	optionHandler->Initialize("Config.ini");
 
 
 	transformManager = new TransformManager(entityManager);
@@ -74,6 +76,7 @@ int SE::Core::Engine::Release()
 	delete entityManager;
 	delete transformManager;
 	delete audioManager;
+	delete optionHandler;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
