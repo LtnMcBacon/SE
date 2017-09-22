@@ -41,6 +41,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	r = audioManager->Initialize();
 	if (r)
 		return r;
+	optionHandler->Initialize("Config.ini");
+
 
 	transformManager = new TransformManager(entityManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
@@ -60,7 +62,8 @@ int SE::Core::Engine::Release()
 	renderer->Shutdown();
 	window->Shutdown();
 	audioManager->Shutdown();
-	resourceHandler->Shutdown();	
+	resourceHandler->Shutdown();
+	optionHandler->UnloadOption("Config.ini");
 
 	delete collisionManager;
 	delete materialManager;
