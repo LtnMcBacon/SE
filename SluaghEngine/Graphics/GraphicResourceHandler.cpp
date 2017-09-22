@@ -214,6 +214,44 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 	//	ProfileReturnConst(hr);
 	//}
+	ID3D11ShaderReflection* reflection = nullptr;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if(FAILED(hr))
+	{
+		Console::Print("Failed to reflect pixel shader.\n");
+		ProfileReturnConst(hr);
+	}
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+	ShaderSettings settings;
+	for(int i = 0; i < shaderDesc.ConstantBuffers; ++i)
+	{
+		D3D11_SHADER_BUFFER_DESC sbd;
+		ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
+		srcb->GetDesc(&sbd);
+		auto& cbInfo = settings.bufferNameToBufferInfo[sbd.Name];
+		cbInfo.size = sbd.Size;
+		cbInfo.bindSlot = i;
+		for(int j = 0; j < sbd.Variables; j++)
+		{
+			ID3D11ShaderReflectionVariable* var = srcb->GetVariableByIndex(i);
+			D3D11_SHADER_VARIABLE_DESC svd;
+			var->GetDesc(&svd);
+			auto& varInfo = cbInfo.variables[svd.Name];
+			varInfo.size = svd.Size;
+			varInfo.offset = svd.StartOffset;
+		}
+	}
+	for(int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if(sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_STRUCTURED)
+		{
+			settings.textureNameToBindSlot[sibd.Name] = sibd.BindPoint;
+		}
+	}
+	reflection->Release();
 
 	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
@@ -229,13 +267,14 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 	}
 	if (freePixelShaderLocations.size() == 0)
 	{
-		pShaders.push_back({ tempPixelShader });
+		pShaders.push_back({ tempPixelShader, settings });
 		*pixelShaderID = pShaders.size() - 1;
 	}
 	else
 	{
 		auto top = freePixelShaderLocations.top();
 		pShaders[top].pixelShader = tempPixelShader;
+		pShaders[top].shaderSettings = settings;
 		*pixelShaderID = top;
 		freePixelShaderLocations.pop();
 	}

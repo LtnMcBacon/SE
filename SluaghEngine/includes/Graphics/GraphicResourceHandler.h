@@ -7,13 +7,17 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <unordered_map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
+#include "ShaderSettings.h"
 
 namespace SE {
 
 	namespace Graphics {
+
+	
 
 
 		struct VertexCount
@@ -57,6 +61,7 @@ namespace SE {
 		struct PixelShaderData {
 
 			ID3D11PixelShader*		pixelShader;
+			ShaderSettings shaderSettings;
 		};
 
 		/**
