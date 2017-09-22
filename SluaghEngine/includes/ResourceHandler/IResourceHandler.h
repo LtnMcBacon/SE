@@ -71,7 +71,7 @@ namespace SE
 			* @endcode
 			* @sa LoadResourceDelegate
 			*/
-			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool wait = false) = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool wait = true) = 0;
 
 			/**
 			* @brief	Unload the given resource
