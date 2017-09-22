@@ -65,13 +65,18 @@ namespace SE
 			}
 			else
 			{
+				auto ent = e.GetEntityManager().Create();
+				e.GetRenderableManager().CreateRenderableObject(ent, Utilz::GUID("Placeholder_Arrow.obj"));
+				e.GetTransformManager().Create(ent);
+				e.GetRenderableManager().ToggleRenderableObject(ent, true);
+
 				streamID[0] = 0;
 				audio.StreamSound(streamID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
-				char* hej;
+
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame();
