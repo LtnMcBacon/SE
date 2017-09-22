@@ -15,16 +15,19 @@ SE::Window::WindowSDL::~WindowSDL()
 int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 {
 	//width = info.width;
-	//height = info.height;
+	//eight = info.height;
+	//fullScreen = info.fullScreen;
 	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 	width = optHandler.GetOption("Window", "width", 1280);
 	height = optHandler.GetOption("Window", "height", 720);
+	fullScreen = (bool)optHandler.GetOption("Window", "fullScreen", 0);
 	optHandler.Register(Utilz::Delegate<void()>::Make<WindowSDL, &WindowSDL::OptionUpdate>(this));
-	fullScreen = info.fullScreen;
+	
 	windowTitle = info.windowTitle;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		throw std::exception("Failed to initialize SDL subsystem");
-	window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, createFlags);
 	if (window == nullptr)
 		throw std::exception("Failed to create window.");
 
@@ -286,6 +289,9 @@ void SE::Window::WindowSDL::OptionUpdate()
 	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 	width = optHandler.GetOption("Window", "width", 1280);
 	height = optHandler.GetOption("Window", "height", 720);
+	fullScreen = (bool)optHandler.GetOption("Window", "fullScreen", 0);
+	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	SDL_SetWindowFullscreen(window, createFlags);
 	SDL_SetWindowSize(window, width, height);
 	Core::Engine::GetInstance().GetRenderer()->ResizeSwapChain(Core::Engine::GetInstance().GetWindow()->GetHWND());
 }
