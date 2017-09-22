@@ -17,10 +17,7 @@ namespace SE
 		public:
 			struct CreateInfo
 			{
-				Utilz::GUID* textures;
-				size_t textureCount;
-				Utilz::GUID* shader;
-				size_t shaderCount;
+				Utilz::GUID shader;
 			};
 
 			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager);

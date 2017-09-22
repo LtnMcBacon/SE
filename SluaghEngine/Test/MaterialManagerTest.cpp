@@ -22,10 +22,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::MaterialManager::CreateInfo info;
 	auto& texture = Utilz::GUID("dummytex.sei");
 	auto& shader = Utilz::GUID("SimpleTexPS.hlsl");
-	info.textures = &texture;
-	info.textureCount = 1;
-	info.shader = &shader;
-	info.shaderCount = 1;
+	info.shader = shader;
 	mm.Create(entity, info);
 
 	auto& rm = engine.GetRenderableManager();

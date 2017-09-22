@@ -25,7 +25,7 @@ SE::Core::MaterialManager::~MaterialManager()
 void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
 {
 	StartProfile;
-	auto& find = entityToMaterialInfo.find(entity);
+	auto find = entityToMaterialInfo.find(entity);
 	if (find == entityToMaterialInfo.end())
 	{
 		// Check if the entity is alive
@@ -42,32 +42,17 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		materialInfo.entity[newEntry] = entity;
 		materialInfo.used++;
 
-		// TODO: Multiple textures (sub-meshes)
-		{
-			// Load texture
-			auto& findTexture = guidToTextureInfo.find(info.textures[0]); // See if it the texture is loaded.
-			auto& textureIndex = guidToTextureInfo[info.textures[0]]; // Get a reference to the texture index
-			if (findTexture == guidToTextureInfo.end())	// If it wasn't loaded, load it.	
-			{
-				textureInfo.push_back({ defaultTextureHandle , 0 }); // Init the texture to default texture.
-				textureIndex = textureInfo.size() - 1;
-				resourceHandler->LoadResource(info.textures[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this));
-			}
-			// Increase ref Count and save the index to the material info.
-			textureInfo[textureIndex].refCount++;
-			materialInfo.textureIndex[newEntry] = textureIndex;
-		}
 
 		// TODO: Multiple shaders (sub-meshes)
 		{
 			// Load shader
-			auto& findShader = guidToShaderInfo.find(info.shader[0]); // See if the shader is loaded
-			auto& shaderIndex = guidToTextureInfo[info.shader[0]]; // Get a reference to the shader index
+			auto findShader = guidToShaderInfo.find(info.shader); // See if the shader is loaded
+			auto& shaderIndex = guidToTextureInfo[info.shader]; // Get a reference to the shader index
 			if (findShader == guidToShaderInfo.end())// If it wasn't loaded, load it.	
 			{
 				shaderInfo.push_back({ defaultShaderHandle , 0 }); // Init the texture to default texture.
 				shaderIndex = shaderInfo.size() - 1;
-				resourceHandler->LoadResource(info.shader[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+				resourceHandler->LoadResource(info.shader, ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
 			}
 				
 			// Increase refCount
