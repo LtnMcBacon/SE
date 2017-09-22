@@ -67,7 +67,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			resourceHandler->LoadResource(info.textureFileNames[i], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this));
 		}
 		const int textureIndex = guidToTextureIndex[info.textureFileNames[i]];
-		shaders[textureIndex].refCount++;
+		textures[textureIndex].refCount++;
 	}
 
 	auto& reflection = shaders[shaderIndex].shaderReflection;
