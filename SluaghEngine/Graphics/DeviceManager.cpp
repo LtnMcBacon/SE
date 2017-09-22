@@ -274,3 +274,15 @@ void DeviceManager::Present() {
 
 	auto hr = gSwapChain->Present(1, 0);
 }
+
+void DeviceManager::ResizeSwapChain(HWND windowHandle)
+{
+	gSwapChain->Release();
+	gBackBuffer->Release();
+	gBackbufferRTV->Release();
+	gDepthStencil->Release();
+	gDepthStencilView->Release();
+	CreateSwapChain(windowHandle);
+	CreateBackBufferRTV();
+	CreateDepthStencil();
+}

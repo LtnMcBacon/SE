@@ -281,4 +281,5 @@ void SE::Window::WindowSDL::OptionUpdate()
 	width = optHandler.GetOption("Window", "width", 1280);
 	height = optHandler.GetOption("Window", "height", 720);
 	SDL_SetWindowSize(window, width, height);
+	Core::Engine::GetInstance().GetRenderer()->ResizeSwapChain(Core::Engine::GetInstance().GetWindow()->GetHWND());
 }
