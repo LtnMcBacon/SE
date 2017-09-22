@@ -43,12 +43,16 @@ namespace SE {
 			*/
 			void* GetSample(int soundID, SoundIndexName soundType);
 			void Shutdown();
+
 		private:
+			void OptionUpdate();
+
 			std::vector<AudioSample> soundSample;
 			Utilz::StackAllocator sampleStack;
-			float masterVol = 1.0f;
-			float effectVol = 0.8f;
-			float bakgroundVol = 0.5f;
+			
+			float masterVol;
+			float effectVol;
+			float bakgroundVol;
 		};
 	}	//namespace Audio
 }	//namespace SE

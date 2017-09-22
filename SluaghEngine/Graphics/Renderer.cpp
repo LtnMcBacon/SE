@@ -255,3 +255,8 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 	return handle;
 }
 
+void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
+{
+	device->ResizeSwapChain((HWND)windowHandle);
+}
+

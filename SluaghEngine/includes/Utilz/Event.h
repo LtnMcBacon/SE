@@ -37,13 +37,10 @@ namespace SE
 					deleg.Invoke(std::forward<Args>(args)...);
 			}
 
-			/**
-			* @brief Registers a lambda.
-			* @sa Event
-			*/
-			inline void Add(const std::function<R(Args...)>& instance)
+
+			inline void Add(const Delegate<R(Args...)>& del)
 			{
-				delegates.push_back(Delegate<R(Args...)>::Make(instance));
+				delegates.push_front(del);
 			}
 
 			/**
