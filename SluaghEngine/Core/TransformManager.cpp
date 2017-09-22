@@ -124,7 +124,7 @@ float SE::Core::TransformManager::GetScale(const Entity& e) const
 
 int SE::Core::TransformManager::GarbageCollection()
 {
-	StartProfile
+	StartProfile;
 	const uint32_t upperIndex = std::min(garbageCollectionIndex + 4, transformCount);
 	const uint32_t priorCount = transformCount;
 
@@ -183,7 +183,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 
 void SE::Core::TransformManager::ExpandTransforms()
 {
-	StartProfile
+	StartProfile;
 	const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
 	const uint32_t newCapacity = transformCapacity + transformCapacityIncrement;
 

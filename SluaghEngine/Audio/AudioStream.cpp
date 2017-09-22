@@ -12,23 +12,7 @@ namespace SE {
 
 		AudioStream::~AudioStream()
 		{
-			StartProfile;
-			for (auto &st : stream)
-			{
-				if (st)
-				{
-					Pa_CloseStream(st);
-				}
-			}
-			for (auto &so : sampleOut)
-			{
-				if (so)
-				{
-					delete so;
-				}
-			}
-			Pa_Terminate();
-			StopProfile;
+			
 		}
 
 		int AudioStream::Initialize()
@@ -142,6 +126,33 @@ namespace SE {
 			sampleOut[streamID] = nullptr;
 			freeStreamID.push(streamID);
 			ProfileReturnConst(0);
+		}
+
+		void AudioStream::Shutdown()
+		{
+			StartProfile;
+			for (auto &st : stream)
+			{
+				if (st)
+				{
+					Pa_CloseStream(st);
+				}
+			}
+			stream.clear();
+			for (auto &so : sampleOut)
+			{
+				if (so)
+				{
+					delete so;
+				}
+			}
+			while (freeStreamID.size() > 0)
+			{
+				freeStreamID.pop();
+			}
+			sampleOut.clear();
+			Pa_Terminate();
+			StopProfile;
 		}
 	}	//namespace Audio
 }	//namespace SE

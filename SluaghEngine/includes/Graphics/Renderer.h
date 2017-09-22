@@ -23,13 +23,13 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int Initialize(void* window);
+			int Initialize(void* window) override;
 
 			/**
 			* @brief Shutdown the renderer
 			* @endcode
 			*/
-			void Shutdown();
+			void Shutdown() override;
 
 			/**
 			* @brief    Sets a render job
@@ -38,7 +38,7 @@ namespace SE
 			* @sa RenderObjectInfo
 			* @endcode
 			*/
-			int EnableRendering(const RenderObjectInfo& handles);
+			int EnableRendering(const RenderObjectInfo& handles) override;
 
 			/**
 			* @brief    Removes a render job.
@@ -46,7 +46,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int DisableRendering(const RenderObjectInfo& handles);
+			int DisableRendering(const RenderObjectInfo& handles) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -54,14 +54,14 @@ namespace SE
 			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			int UpdateView(float* viewMatrix);
+			int UpdateView(float* viewMatrix) override;
 
 			/**
 			* @brief Renders the scene
 			* @retval return_value_0 Returns 0 On success.
 			* @endcode
 			*/
-			int Render();
+			int Render() override;
 
 
 			/**
@@ -73,14 +73,14 @@ namespace SE
 			* @retval -1 If something went wrong
 			* @endcode
 			*/
-			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride);
+			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride) override;
 
 			/**
 			* @brief Destroys a buffer.
 			* @param[in] bufferHandle The handle to the buffer to destroy
 			* @endcode
 			*/
-			void DestroyVertexBuffer(int bufferHandle);
+			void DestroyVertexBuffer(int bufferHandle) override;
 			
 			/**
 			* @brief Creates a texture (SRV)
@@ -98,13 +98,13 @@ namespace SE
 			* @retval -1 If something went wrong
 			* @endcode
 			*/
-			int CreateTransform();
+			int CreateTransform() override;
 			/**
 			* @brief Destroy a transform
 			* @param[in] transformHandle Handle to the transform to destroy.
 			* @endcode
 			*/
-			void DestroyTransform(int transformHandle);
+			void DestroyTransform(int transformHandle) override;
 			/**
 			* @brief Updates the transformation for an entity that is bound to rendering.
 			* @param[in] transformHandle The transform handle that is bound to the renderable object.
@@ -112,7 +112,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int UpdateTransform(int transformHandle, float* transform);
+			int UpdateTransform(int transformHandle, float* transform) override;
 
 
 
@@ -124,7 +124,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreatePixelShader(void* data, size_t size);
+			int CreatePixelShader(void* data, size_t size) override;
 
 			/**
 			* @brief Create a vertex shader from raw data
@@ -134,7 +134,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateVertexShader(void* data, size_t size);
+			int CreateVertexShader(void* data, size_t size) override;
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

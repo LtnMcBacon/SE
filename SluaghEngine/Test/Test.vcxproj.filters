@@ -57,6 +57,12 @@
     <ClCompile Include="AudioTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="INITest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
@@ -108,6 +114,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AudioTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="INITest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

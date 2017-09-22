@@ -66,11 +66,54 @@ void SE::Graphics::Renderer::Shutdown()
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	renderJobs.push_back(handles);
+
+	int insertion = renderJobs.size() - 1;
+	const int prior = insertion - 1;
+
+	int minChange = 0;
+	if (renderJobs.size() >= 2)
+		minChange = handles - renderJobs[prior];
+
+	for (int i = 0; i <= prior; i++)
+	{
+		int change = renderJobs[i] - handles;
+		if (change <= minChange)
+		{
+			minChange = change;
+			insertion = i;
+		}
+	}
+
+	if (insertion != prior)
+	{
+		for (int i = prior + 1; i > insertion; i--)
+		{
+			renderJobs[i] = renderJobs[i - 1];
+		}
+		renderJobs[insertion] = handles;
+	}
+
 	return 0;
 }
 
 int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 {
+	const int size = renderJobs.size();
+	int at = -1;
+	for(size_t i = 0; i < size; ++i)
+	{
+		if(handles - renderJobs[i] == 0)
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderJobs[i] = renderJobs[i + 1];
+		renderJobs.pop_back();
+	}
 	return 0;
 }
 
@@ -111,18 +154,25 @@ int SE::Graphics::Renderer::Render() {
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
+	RenderObjectInfo previousJob;
+	previousJob.diffuseTexture = -1;
+	previousJob.bufferHandle = -1;
+	previousJob.pixelShader = -1;
+	previousJob.transformHandle = -1;
+	previousJob.vertexShader = -1;
 	for (auto& job : renderJobs)
 	{
-		graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
-		graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
-		graphicResourceHandler->BindConstantBuffer(job.transformHandle);
-		graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
+		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
+			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
+		if(previousJob.bufferHandle != job.bufferHandle)
+			graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
+		if(previousJob.transformHandle != job.transformHandle)
+			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
+		if(previousJob.diffuseTexture != job.diffuseTexture)
+			graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
+		previousJob = job;
 	}
-
-
-
 
 	device->Present();
 
