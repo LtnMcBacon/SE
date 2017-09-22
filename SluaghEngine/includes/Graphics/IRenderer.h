@@ -138,6 +138,13 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
+
+			/**
+			* @brief Resizes the swapchain
+			* @param[in] windowHandle A window handle.
+			* @endcode
+			*/
+			virtual void ResizeSwapChain(void* windowHandle) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

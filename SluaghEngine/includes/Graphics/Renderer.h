@@ -136,6 +136,12 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+			/**
+			* @brief Resizes the swapchain
+			* @param[in] windowHandle A window handle.
+			* @endcode
+			*/
+			void ResizeSwapChain(void* windowHandle) override;
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;

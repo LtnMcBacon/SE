@@ -277,6 +277,13 @@ namespace SE
 			*/
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
 
+			/**
+			* @brief Retrieves the mouse pos.
+			* @parameter[in] x The x position
+			* @parameter[in] y The y position
+			*/
+			virtual void GetMousePos(int& x, int& y) const = 0;
+
 			
 			/**
 			* @brief Binds a callback function that is called when the mouse button bound to actionButton is lifted (a click).
