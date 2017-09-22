@@ -74,8 +74,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 
 		// Transform binding
 		renderableObjectInfo.transformHandle[newEntry] = renderer->CreateTransform();
-	
-		
+		renderableObjectInfo.visible[newEntry] = 0;
+
 	}
 	StopProfile;
 }
@@ -87,6 +87,10 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		//If the visibility state is switched to what it already is we dont do anything.
+		if ((bool)renderableObjectInfo.visible[find->second] == visible)
+			return;
+		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
@@ -118,6 +122,9 @@ void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		if (!renderableObjectInfo.visible[find->second])
+			return;
+		renderableObjectInfo.visible[find->second] = 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
@@ -148,6 +155,10 @@ void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		//If the entity is already visible, we dont do anything
+		if (renderableObjectInfo.visible[find->second])
+			return;
+		renderableObjectInfo.visible[find->second] = 1;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
@@ -192,11 +203,13 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.bufferIndex = (size_t*)(newData.entity + newData.allocated);
 	newData.transformHandle = (int*)(newData.bufferIndex + newData.allocated);
+	newData.visible = (uint8_t*)(newData.transformHandle + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.bufferIndex, renderableObjectInfo.bufferIndex, renderableObjectInfo.used * sizeof(size_t));
 	memcpy(newData.transformHandle, renderableObjectInfo.transformHandle, renderableObjectInfo.used * sizeof(int));
+	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -218,6 +231,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
 	renderableObjectInfo.transformHandle[index] = renderableObjectInfo.transformHandle[last];
+	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;
