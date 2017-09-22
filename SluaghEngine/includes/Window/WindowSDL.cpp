@@ -226,6 +226,12 @@ bool SE::Window::WindowSDL::ButtonUp(uint32_t actionButton) const
 	return GetKeyState(actionButton) & UP;
 }
 
+void SE::Window::WindowSDL::GetMousePos(int& x, int& y) const
+{
+	x = curMouseX;
+	y = curMouseY;
+}
+
 void SE::Window::WindowSDL::MapActionButton(uint32_t actionButton, KeyCode key)
 {
 	keyToAction[keyMapping[key]] = actionButton;

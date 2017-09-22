@@ -62,6 +62,8 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->BindKeyPressCallback(2, Window::KeyCallback::Make<&KeyCall>());
 	window->BindMouseClickCallback(5, Window::MouseClickCallback::Make<&MouseCall>());
 	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
+	window->MapActionButton(8, SE::Window::KeyO);
+
 
 	bool running = true;
 	while(running)
@@ -78,6 +80,12 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 			console->Print("Action button %d pressed\n", 4);
 		if (window->ButtonPressed(7))
 			window->UnbindCallbacks();
+		if (window->ButtonPressed(8))
+		{
+			int x, y;
+			window->GetMousePos(x, y);
+			console->Print("Mouse at: %d, %d\n", x, y);
+		}
 	}
 
 	

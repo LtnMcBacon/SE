@@ -27,6 +27,8 @@ namespace SE
 			bool ButtonPressed(uint32_t actionButton) const override;
 			bool ButtonUp(uint32_t actionButton) const override;
 
+			void GetMousePos(int& x, int& y) const override;
+
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
 
 
