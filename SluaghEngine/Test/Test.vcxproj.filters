@@ -72,6 +72,9 @@
     <ClCompile Include="RoomCreationTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="PickingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -127,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="BoundingTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PickingTest.h">
+      <Filter>Source Files\Gameplay Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
