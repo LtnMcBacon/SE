@@ -25,59 +25,68 @@ SE::Core::MaterialManager::~MaterialManager()
 void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
 {
 	StartProfile;
-	auto& find = entityToMaterialInfo.find(entity);
-	if (find == entityToMaterialInfo.end())
+	auto find = entityToMaterialInfo.find(entity);
+	if (find != entityToMaterialInfo.end())
+		ProfileReturnVoid;
+	
+	// Check if the entity is alive
+	if (!entityManager.Alive(entity))
+		ProfileReturnVoid;
+
+	// Make sure we have enough memory.
+	if (materialInfo.used + 1 > materialInfo.allocated)
+		Allocate(materialInfo.allocated * 2);
+
+	// Register the entity
+	size_t newEntry = materialInfo.used;
+	entityToMaterialInfo[entity] = newEntry;
+	materialInfo.entity[newEntry] = entity;
+	materialInfo.used++;
+
+	//Check if shader already is loaded.
+	const auto shaderFind = guidToShaderIndex.find(info.shader);
+	if(shaderFind == guidToShaderIndex.end())
 	{
-		// Check if the entity is alive
-		if (!entityManager.Alive(entity))
-			ProfileReturnVoid;
-
-		// Make sure we have enough memory.
-		if (materialInfo.used + 1 > materialInfo.allocated)
-			Allocate(materialInfo.allocated * 2);
-
-		// Register the entity
-		size_t newEntry = materialInfo.used;
-		entityToMaterialInfo[entity] = newEntry;
-		materialInfo.entity[newEntry] = entity;
-		materialInfo.used++;
-
-		// TODO: Multiple textures (sub-meshes)
+		//Not loaded, load it.
+		const size_t shaderIndex = shaders.size();
+		shaders.push_back({ defaultShaderHandle, 1 });
+		guidToShaderIndex[info.shader] = shaderIndex;
+		resourceHandler->LoadResource(info.shader, ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+	}
+	const int shaderIndex = guidToShaderIndex[info.shader];
+	shaders[shaderIndex].refCount++;
+	materialInfo.shaderIndex[newEntry] = shaderIndex;
+	for(int i = 0; i < info.textureCount; ++i)
+	{
+		const auto textureFind = guidToTextureIndex.find(info.textureFileNames[i]);
+		if(textureFind == guidToTextureIndex.end())
 		{
-			// Load texture
-			auto& findTexture = guidToTextureInfo.find(info.textures[0]); // See if it the texture is loaded.
-			auto& textureIndex = guidToTextureInfo[info.textures[0]]; // Get a reference to the texture index
-			if (findTexture == guidToTextureInfo.end())	// If it wasn't loaded, load it.	
-			{
-				textureInfo.push_back({ defaultTextureHandle , 0 }); // Init the texture to default texture.
-				textureIndex = textureInfo.size() - 1;
-				resourceHandler->LoadResource(info.textures[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this));
-			}
-			// Increase ref Count and save the index to the material info.
-			textureInfo[textureIndex].refCount++;
-			materialInfo.textureIndex[newEntry] = textureIndex;
+			const size_t textureIndex = textures.size();
+			textures.push_back({ defaultTextureHandle, 0 });
+			guidToTextureIndex[info.textureFileNames[i]] = textureIndex;
+			resourceHandler->LoadResource(info.textureFileNames[i], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this));
 		}
+		const int textureIndex = guidToTextureIndex[info.textureFileNames[i]];
+		textures[textureIndex].refCount++;
+	}
 
-		// TODO: Multiple shaders (sub-meshes)
+	auto& reflection = shaders[shaderIndex].shaderReflection;
+	for (int i = 0; i < info.textureCount; ++i)
+	{
+		const auto bindName = reflection.textureNameToBindSlot.find(info.shaderResourceNames[i]);
+		if (bindName != reflection.textureNameToBindSlot.end())
 		{
-			// Load shader
-			auto& findShader = guidToShaderInfo.find(info.shader[0]); // See if the shader is loaded
-			auto& shaderIndex = guidToTextureInfo[info.shader[0]]; // Get a reference to the shader index
-			if (findShader == guidToShaderInfo.end())// If it wasn't loaded, load it.	
-			{
-				shaderInfo.push_back({ defaultShaderHandle , 0 }); // Init the texture to default texture.
-				shaderIndex = shaderInfo.size() - 1;
-				resourceHandler->LoadResource(info.shader[0], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
-			}
-				
-			// Increase refCount
-			shaderInfo[shaderIndex].refCount++;
-			materialInfo.shaderIndex[newEntry] = shaderIndex;
+			materialInfo.textureBindings[newEntry].bindings[i] = bindName->second;
+			materialInfo.textureIndices[newEntry].indices[i] = guidToTextureIndex[info.textureFileNames[i]];
 		}
-
-
 	}
 	StopProfile;
+}
+
+void SE::Core::MaterialManager::SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
+	Utilz::GUID textureFileName)
+{
+
 }
 
 void SE::Core::MaterialManager::Frame()
@@ -100,13 +109,15 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.textureIndex = (size_t*)(newData.entity + newData.allocated);
-	newData.shaderIndex = (size_t*)(newData.textureIndex + newData.allocated);
+	newData.textureBindings = (TextureBindings*)(newData.entity + newData.allocated);
+	newData.textureIndices = (TextureIndices*)(newData.textureBindings + newData.allocated);
+	newData.shaderIndex = (uint32_t*)(newData.textureIndices + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));
-	memcpy(newData.textureIndex, materialInfo.textureIndex, materialInfo.used * sizeof(size_t));
-	memcpy(newData.shaderIndex, materialInfo.shaderIndex, materialInfo.used * sizeof(size_t));
+	memcpy(newData.textureBindings, materialInfo.textureBindings, materialInfo.used * sizeof(TextureBindings));
+	memcpy(newData.textureIndices, materialInfo.textureIndices, materialInfo.used * sizeof(TextureIndices));
+	memcpy(newData.shaderIndex, materialInfo.shaderIndex, materialInfo.used * sizeof(uint32_t));
 
 
 	// Delete old data;
@@ -128,10 +139,16 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	// Copy the data
 	materialInfo.entity[index] = last_entity;
 
-	textureInfo[materialInfo.textureIndex[index]].refCount--;
-	materialInfo.textureIndex[index] = materialInfo.textureIndex[last];
+	auto& reflection = shaders[materialInfo.shaderIndex[index]].shaderReflection;
+	const int textureCount = reflection.textureNameToBindSlot.size();
+	for(int i = 0; i < textureCount; ++i)
+	{
+		textures[materialInfo.textureIndices[index].indices[i]].refCount--;
+		materialInfo.textureIndices[index].indices[i] = materialInfo.textureIndices[last].indices[i];
+		materialInfo.textureBindings[index].bindings[i] = materialInfo.textureBindings[last].bindings[i];
+	}
 
-	shaderInfo[materialInfo.shaderIndex[index]].refCount--;
+	shaders[materialInfo.shaderIndex[index]].refCount--;
 	materialInfo.shaderIndex[index] = materialInfo.shaderIndex[last];
 
 	// Replace the index for the last_entity 
@@ -164,7 +181,7 @@ void SE::Core::MaterialManager::GarbageCollection()
 int SE::Core::MaterialManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	defaultShaderHandle = renderer->CreatePixelShader(data, size);
+	defaultShaderHandle = renderer->CreatePixelShader(data, size, &defaultShaderReflection);
 	if (defaultShaderHandle == -1)
 		ProfileReturnConst(-1);
 	ProfileReturnConst(0);
@@ -182,8 +199,8 @@ int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data
 	auto handle = renderer->CreateTexture(rawTextureData, td);
 	if (handle == -1)
 		ProfileReturnConst(-1);
-	auto index = guidToTextureInfo[guid];
-	textureInfo[index].textureHandle = handle;
+	const int index = guidToTextureIndex[guid];
+	textures[index].textureHandle = handle;
 
 	ProfileReturnConst(0);
 }
@@ -191,11 +208,12 @@ int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data
 int SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	auto handle = renderer->CreatePixelShader(data, size);
+	const int shaderIndex = guidToShaderIndex[guid];
+
+	auto handle = renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
 	if (handle == -1)
 		ProfileReturnConst(-1);
-	auto index = guidToShaderInfo[guid];
-	shaderInfo[index].shaderHandle = handle;
+	shaders[shaderIndex].shaderHandle = handle;
 
 	ProfileReturnConst(0);
 }

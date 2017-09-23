@@ -155,7 +155,7 @@ int SE::Graphics::Renderer::Render() {
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderObjectInfo previousJob;
-	previousJob.diffuseTexture = -1;
+	previousJob.textureBindings;
 	previousJob.bufferHandle = -1;
 	previousJob.pixelShader = -1;
 	previousJob.transformHandle = -1;
@@ -168,8 +168,8 @@ int SE::Graphics::Renderer::Render() {
 			graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
 		if(previousJob.transformHandle != job.transformHandle)
 			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
-		if(previousJob.diffuseTexture != job.diffuseTexture)
-			graphicResourceHandler->BindShaderResourceView(job.diffuseTexture, 0);
+		for (int i = 0; i < job.textureCount; ++i)
+			graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 		previousJob = job;
 	}
@@ -236,10 +236,10 @@ int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transfor
 
 
 
-int SE::Graphics::Renderer::CreatePixelShader(void * data, size_t size)
+int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
 	int handle;
-	auto hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(),data, size, &handle);
+	auto hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(),data, size, &handle, reflection );
 	if (FAILED(hr))
 		return hr;
 
