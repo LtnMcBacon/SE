@@ -12,6 +12,7 @@ GraphicResourceHandler::GraphicResourceHandler(ID3D11Device* gDevice, ID3D11Devi
 
 	this->gDevice = gDevice;
 	this->gDeviceContext = gDeviceContext;
+	sampleState = nullptr;
 }
 
 GraphicResourceHandler::~GraphicResourceHandler() {

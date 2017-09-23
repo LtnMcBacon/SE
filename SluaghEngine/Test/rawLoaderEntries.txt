@@ -15,5 +15,3 @@ Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
-Assets/testimg.sei
-Assets/testimg.rawimg
