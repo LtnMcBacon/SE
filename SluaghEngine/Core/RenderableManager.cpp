@@ -101,13 +101,29 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())
 		{
-			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+			info.pixelShader = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+			auto& reflection = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderReflection;
+			const int textureCount = reflection.textureNameToBindSlot.size();
+			info.textureCount = textureCount;
+			for(int i = 0; i < textureCount; ++i)
+			{
+				info.textureBindings[i] = materialManager->materialInfo.textureBindings[find->second].bindings[i];
+				info.textureHandles[i] = materialManager->textures[materialManager->materialInfo.textureIndices[find->second].indices[i]].textureHandle;
+			}
 		}
 		else
 		{
 			info.pixelShader = materialManager->defaultShaderHandle;
-			info.diffuseTexture = materialManager->defaultTextureHandle;
+			auto& reflection = materialManager->defaultShaderReflection;
+			const int textureCount = reflection.textureNameToBindSlot.size();
+			info.textureCount = textureCount;
+			int i = 0;
+			for(auto& b : reflection.textureNameToBindSlot)
+			{
+				info.textureBindings[i] = b.second;
+				info.textureHandles[i] = materialManager->defaultShaderHandle;
+				++i;
+			}
 		}
 			
 		visible ? renderer->EnableRendering(info) : renderer->DisableRendering(info);
@@ -118,67 +134,67 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
 {
 	StartProfile;
-	// See so that the entity exist
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end())
-	{
-		if (!renderableObjectInfo.visible[find->second])
-			return;
-		renderableObjectInfo.visible[find->second] = 0;
-		Graphics::RenderObjectInfo info;
-		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
-		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
-		info.vertexShader = defaultShader;
+	//// See so that the entity exist
+	//auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	//if (find != entityToRenderableObjectInfoIndex.end())
+	//{
+	//	if (!renderableObjectInfo.visible[find->second])
+	//		return;
+	//	renderableObjectInfo.visible[find->second] = 0;
+	//	Graphics::RenderObjectInfo info;
+	//	auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
+	//	info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
+	//	info.transformHandle = renderableObjectInfo.transformHandle[find->second];
+	//	info.vertexShader = defaultShader;
 
-		auto& find = materialManager->entityToMaterialInfo.find(entity);
-		if (find != materialManager->entityToMaterialInfo.end())
-		{
-			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
-		}
-		else
-		{
-			info.pixelShader = materialManager->defaultShaderHandle;
-			info.diffuseTexture = materialManager->defaultTextureHandle;
-		}
+	//	auto& find = materialManager->entityToMaterialInfo.find(entity);
+	//	if (find != materialManager->entityToMaterialInfo.end())
+	//	{
+	//		info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+	//		info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+	//	}
+	//	else
+	//	{
+	//		info.pixelShader = materialManager->defaultShaderHandle;
+	//		info.diffuseTexture = materialManager->defaultTextureHandle;
+	//	}
 
-		renderer->DisableRendering(info);
-	}
+	//	renderer->DisableRendering(info);
+	//}
 	StopProfile;
 }
 
 void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
 {
 	StartProfile;
-	// See so that the entity exist
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end())
-	{
-		//If the entity is already visible, we dont do anything
-		if (renderableObjectInfo.visible[find->second])
-			return;
-		renderableObjectInfo.visible[find->second] = 1;
-		Graphics::RenderObjectInfo info;
-		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
-		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
-		info.vertexShader = defaultShader;
+	//// See so that the entity exist
+	//auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	//if (find != entityToRenderableObjectInfoIndex.end())
+	//{
+	//	//If the entity is already visible, we dont do anything
+	//	if (renderableObjectInfo.visible[find->second])
+	//		return;
+	//	renderableObjectInfo.visible[find->second] = 1;
+	//	Graphics::RenderObjectInfo info;
+	//	auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
+	//	info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
+	//	info.transformHandle = renderableObjectInfo.transformHandle[find->second];
+	//	info.vertexShader = defaultShader;
 
-		auto& find = materialManager->entityToMaterialInfo.find(entity);
-		if (find != materialManager->entityToMaterialInfo.end())
-		{
-			info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-			info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
-		}
-		else
-		{
-			info.pixelShader = materialManager->defaultShaderHandle;
-			info.diffuseTexture = materialManager->defaultTextureHandle;
-		}
+	//	auto& find = materialManager->entityToMaterialInfo.find(entity);
+	//	if (find != materialManager->entityToMaterialInfo.end())
+	//	{
+	//		info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
+	//		info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
+	//	}
+	//	else
+	//	{
+	//		info.pixelShader = materialManager->defaultShaderHandle;
+	//		info.diffuseTexture = materialManager->defaultTextureHandle;
+	//	}
 
-		renderer->EnableRendering(info);
-	}
+	//	renderer->EnableRendering(info);
+	//}
 	StopProfile;
 }
 
