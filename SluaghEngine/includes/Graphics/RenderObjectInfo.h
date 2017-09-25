@@ -2,6 +2,7 @@
 #define SE_GRAPHICS_RENDEROBJECTINFO_H_
 #include <cstdint>
 #include <bitset>
+#include <algorithm>
 
 namespace SE
 {
@@ -29,13 +30,14 @@ namespace SE
 				stateChanges = (stateChanges << 1) | (transformHandle != rhs.transformHandle);
 				stateChanges = (stateChanges << 1) | (pixelShader != rhs.pixelShader);
 				stateChanges = (stateChanges << 1) | (vertexShader != rhs.vertexShader);
-				for (int i = 0; i < textureCount; ++i)
+				const uint32_t loopTo = std::min(textureCount, rhs.textureCount);
+				for (uint32_t i = 0; i < loopTo; ++i)
 				{
 					stateChanges = (stateChanges << 1) | (textureBindings[i] != rhs.textureBindings[i]);
 					stateChanges = (stateChanges << 1) | (textureHandles[i] != rhs.textureHandles[i]);
 				}
 				std::bitset<32> bits(stateChanges);
-				return bits.count();
+				return bits.count() + std::abs(textureCount - rhs.textureCount);
 			}
 		};
 	}
