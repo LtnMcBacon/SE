@@ -1,3 +1,5 @@
+Assets/Cout.wav
+Assets/Canary.wav
 Assets/dummytex.sei
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj

@@ -95,6 +95,11 @@ namespace SE {
 			ProfileReturn(audioStream.RemoveSound(streamID));
 		}
 
+		void AudioManager::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		{
+			audioSound.SetSoundVol(volType, newVol);
+		}
+
 		void AudioManager::Shutdown()
 		{		
 			StartProfile;
