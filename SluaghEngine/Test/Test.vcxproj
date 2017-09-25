@@ -142,6 +142,7 @@
     <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
+    <ClCompile Include="DebugRenderTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="ImageLoadTest.cpp" />
     <ClCompile Include="INITest.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="BufferTest.h" />
+    <ClInclude Include="DebugRenderTest.h" />
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="INITest.h" />

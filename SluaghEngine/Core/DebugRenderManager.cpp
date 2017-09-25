@@ -79,15 +79,15 @@ int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid,
 {
 	StartProfile;
 	lineRenderVertexShaderHandle = renderer->CreateVertexShader(data, size);
-	return lineRenderVertexShaderHandle < 0;
-	ProfileReturnVoid;
+	ProfileReturn(lineRenderVertexShaderHandle < 0);
+	
 }
 
 int SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
-	return lineRenderPixelShaderHandle < 0;
-	ProfileReturnVoid;
+	ProfileReturn(lineRenderPixelShaderHandle < 0);
+	
 }
 
