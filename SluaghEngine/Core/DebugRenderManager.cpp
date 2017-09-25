@@ -1,10 +1,17 @@
 #include "DebugRenderManager.h"
+#include <Profiler.h>
 
-SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, const EntityManager& entityManager,
-	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), dirty(false), dynamicVertexBufferHandle(-1)
+SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
+	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), dirty(false), dynamicVertexBufferHandle(-1)
 {
 	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(LineSegment));
 	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
+	auto res = resourceHandler->LoadResource(Utilz::GUID("DebugLinePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLinePixelShader>(this));
+	if (res)
+		throw std::exception("Could not load line render pixel shader.");
+	res = resourceHandler->LoadResource(Utilz::GUID("DebugLineVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLineVertexShader>(this));
+	if (res)
+		throw std::exception("Could not load line render vertex shader.");
 	
 }
 
@@ -58,5 +65,17 @@ void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, float x1, floa
 	const LineSegment l = { a, b };
 	entityToLineList[entity].push_back(l);
 	dirty = true;
+}
+
+int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
+{
+	lineRenderVertexShaderHandle = renderer->CreateVertexShader(data, size);
+	return lineRenderVertexShaderHandle;
+}
+
+int SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
+{
+	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
+	return lineRenderPixelShaderHandle;
 }
 

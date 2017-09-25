@@ -3,6 +3,8 @@
 
 #include "EntityManager.h"
 #include "TransformManager.h"
+#include <Utilz\GUID.h>
+#include <ResourceHandler\IResourceHandler.h>
 #include <Graphics/IRenderer.h>
 #include <Utilz/StackAllocator.h>
 
@@ -24,7 +26,7 @@ namespace SE
 		class DebugRenderManager
 		{
 		public:
-			DebugRenderManager( Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
+			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager);
 			~DebugRenderManager();
 			DebugRenderManager(const DebugRenderManager& other) = delete;
 			DebugRenderManager(const DebugRenderManager&& other) = delete;
@@ -84,6 +86,7 @@ namespace SE
 			const EntityManager& entityManager;
 			TransformManager* transformManager;
 			Graphics::IRenderer* renderer;
+			ResourceHandler::IResourceHandler* resourceHandler;
 
 			static const size_t maximumLinesToRender = 4096;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
@@ -91,12 +94,10 @@ namespace SE
 			int lineRenderVertexShaderHandle;
 			int lineRenderPixelShaderHandle;
 			bool dirty;
-
-		
-
-
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 
+			int LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
+			int LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size);
 		};
 	}
 }
