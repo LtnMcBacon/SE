@@ -1,7 +1,6 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
-#include <Core\Engine.h>
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
@@ -14,15 +13,9 @@ SE::Window::WindowSDL::~WindowSDL()
 
 int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 {
-	//width = info.width;
-	//eight = info.height;
-	//fullScreen = info.fullScreen;
-	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
-	width = optHandler.GetOption("Window", "width", 1280);
-	height = optHandler.GetOption("Window", "height", 720);
-	fullScreen = (bool)optHandler.GetOption("Window", "fullScreen", 0);
-	optHandler.Register(Utilz::Delegate<void()>::Make<WindowSDL, &WindowSDL::OptionUpdate>(this));
-	
+	width = info.width;
+	height = info.height;
+	fullScreen = info.fullScreen;
 	windowTitle = info.windowTitle;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		throw std::exception("Failed to initialize SDL subsystem");
@@ -284,14 +277,25 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 	return k->second;
 }
 
-void SE::Window::WindowSDL::OptionUpdate()
+bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {
-	auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
-	width = optHandler.GetOption("Window", "width", 1280);
-	height = optHandler.GetOption("Window", "height", 720);
-	fullScreen = (bool)optHandler.GetOption("Window", "fullScreen", 0);
+	bool changed = false;
+	if (inHeight != height)
+	{
+		height = inHeight;
+		changed = true;
+	}
+	if (inWidth != width)
+	{
+		width = inWidth;
+		changed = true;
+	}
+	fullScreen = inFullscreen;
 	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	SDL_SetWindowFullscreen(window, createFlags);
-	SDL_SetWindowSize(window, width, height);
-	Core::Engine::GetInstance().GetRenderer()->ResizeSwapChain(Core::Engine::GetInstance().GetWindow()->GetHWND());
+
+	if (changed == true)
+		SDL_SetWindowSize(window, width, height);
+
+	return changed;
 }
