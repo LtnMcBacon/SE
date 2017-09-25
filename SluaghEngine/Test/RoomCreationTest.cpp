@@ -171,8 +171,8 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 			}
 		}
 	}
-	/*
-	for (int i = 0; i < 10; i++)
+	
+	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
 		do
@@ -188,7 +188,7 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
 	}
-*/
+
 	Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), 1 + .5f, 22 + .5f, 10.0f);
 	rm.CreateRenderableObject(enemy->GetEntity(), Block);
 	rm.ToggleRenderableObject(enemy->GetEntity(), true);

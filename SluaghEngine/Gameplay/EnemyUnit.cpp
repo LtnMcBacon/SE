@@ -128,7 +128,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 		/*Check if we would collide in a wall
 		 * See CorrectCollision for information
 		 */
-		CorrectCollision(xMovementTot, yMovementTot, dt);
+		CorrectCollision(dt, xMovementTot, yMovementTot);
 
 		/*Normalize the movement vector*/
 		float moveTot = abs(xMovementTot) + abs(yMovementTot);
