@@ -41,6 +41,13 @@ namespace SE
 			* @warning MUST BE CALLED BEFORE ANY OTHER METHOD FOR A GIVEN ENTITY.
 			*/
 			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
+			
+			/**
+			* @brief    Bind an entity as a child to another entity. This will update the transform of the child when the parent change.
+			* @param[in] parent The parent entity
+			* @param[in] child The child entity.
+			* @warning A parent can only have one child. An entity with a child can not have a parent. An entity with a parent can not have a child.
+			*/
 			void BindChild(const Entity& parent, const Entity& child);
 			
 			/**
