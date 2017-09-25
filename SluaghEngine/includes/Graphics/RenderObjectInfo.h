@@ -37,7 +37,7 @@ namespace SE
 					stateChanges = (stateChanges << 1) | (textureHandles[i] != rhs.textureHandles[i]);
 				}
 				std::bitset<32> bits(stateChanges);
-				return bits.count() + std::abs(textureCount - rhs.textureCount);
+				return bits.count() + std::abs((int)textureCount - (int)rhs.textureCount);
 			}
 		};
 	}
