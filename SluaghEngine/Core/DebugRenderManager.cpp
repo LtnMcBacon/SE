@@ -21,6 +21,7 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 
 void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAllocator)
 {
+	StartProfile;
 	if(dirty)
 	{
 		size_t bufferSize = 0;
@@ -29,7 +30,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 		bufferSize *= sizeof(LineSegment);
 		void* lineData = perFrameStackAllocator.GetMemoryAligned(bufferSize, 4);
 		if (!lineData)
-			return;
+			ProfileReturnVoid;
 		void* cur = lineData;
 		for (auto& m : entityToLineList)
 		{
@@ -39,16 +40,20 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 		}
 		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(LineSegment));
 	}
+	ProfileReturnVoid;
 }
 
 void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bool enable)
 {
+	StartProfile;
 	if (!enable)
 		entityToLineList.erase(entity);
+	ProfileReturnVoid;
 }
 
 void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, float x, float y, float z)
 {
+	StartProfile;
 	const LineSegment lines[6] = { {{ x - scale, y, z }	,{ x + scale, y, z }},
 	{{ x, y, z - scale },{ x, y, z + scale } },
 	{{ x, y - scale, z },{ x, y + scale, z } } };
@@ -56,26 +61,33 @@ void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, 
 	for (auto& p : lines)
 		lineList.push_back(p);
 	dirty = true;
+	ProfileReturnVoid;
 }
 
 void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, float x1, float y1, float z1, float x2, float y2, float z2)
 {
+	StartProfile;
 	const Point3D a = { x1,y1,z1 };
 	const Point3D b = { x2,y2,z2 };
 	const LineSegment l = { a, b };
 	entityToLineList[entity].push_back(l);
 	dirty = true;
+	ProfileReturnVoid;
 }
 
 int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
 {
+	StartProfile;
 	lineRenderVertexShaderHandle = renderer->CreateVertexShader(data, size);
-	return lineRenderVertexShaderHandle;
+	return lineRenderVertexShaderHandle < 0;
+	ProfileReturnVoid;
 }
 
 int SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
 {
+	StartProfile;
 	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
-	return lineRenderPixelShaderHandle;
+	return lineRenderPixelShaderHandle < 0;
+	ProfileReturnVoid;
 }
 

@@ -10,6 +10,8 @@
 #include "AudioManager.h"
 #include "RenderableManager.h"
 #include "OptionHandler.h"
+#include "DebugRenderManager.h"
+#include <Utilz\StackAllocator.h>
 namespace SE
 {
 	namespace Core
@@ -193,6 +195,11 @@ namespace SE
 			AudioManager* audioManager;
 			CollisionManager* collisionManager;
 			OptionHandler* optionHandler;
+			DebugRenderManager* debugRenderManager;
+			Utilz::StackAllocator perFrameStackAllocator;
+
+
+
 		};
 
 	}

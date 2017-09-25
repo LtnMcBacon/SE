@@ -50,6 +50,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	perFrameStackAllocator.InitStackAlloc(1024U * 1024U * 5U);
 
 	return 0;
 }
@@ -70,6 +72,7 @@ int SE::Core::Engine::Release()
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
+	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
@@ -88,8 +91,10 @@ void SE::Core::Engine::Frame()
 	renderableManager->Frame();
 	materialManager->Frame();
 	collisionManager->Frame();
+	debugRenderManager->Frame(perFrameStackAllocator);
 	window->Frame();
 	renderer->Render();
+	
 }
 
 SE::Core::Engine::Engine()
