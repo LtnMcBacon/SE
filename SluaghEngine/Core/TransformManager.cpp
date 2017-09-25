@@ -34,7 +34,10 @@ SE::Core::TransformManager::~TransformManager()
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
 	const DirectX::XMFLOAT3& rotation, float scale)
 {
-	_ASSERT_EXPR(entityToIndex.find(e) == entityToIndex.end(), "Entity created twice in transformmanager");
+	auto& find = entityToIndex.find(e);
+	if (find != entityToIndex.end())
+		ProfileReturnVoid;
+
 	if (transformCount == transformCapacity)
 		ExpandTransforms();
 
@@ -63,9 +66,9 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float roll, float pitch
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	rotations[index].x += roll;
-	rotations[index].y += pitch;
-	rotations[index].z += yaw;
+	rotations[index].x += pitch;
+	rotations[index].y += yaw;
+	rotations[index].z += roll;
 	dirty[index] = true;
 }
 

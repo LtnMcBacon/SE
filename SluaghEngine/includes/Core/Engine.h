@@ -10,6 +10,8 @@
 #include "AudioManager.h"
 #include "RenderableManager.h"
 #include "OptionHandler.h"
+#include "CameraManager.h"
+
 namespace SE
 {
 	namespace Core
@@ -84,11 +86,6 @@ namespace SE
 			int Release();
 
 			/**
-			* @brief	Called each frame, to update the state.
-			*/
-			void Frame();
-
-			/**
 			* @brief    Returns a reference to the entity manager.
 			* @retval return_value_0 Returns a reference to the entity manager.
 			* @sa EntityManager
@@ -136,7 +133,7 @@ namespace SE
 			/**
 			* @brief    Returns a reference to the Renderable manager
 			* @retval return_value_0 Returns a reference to the renderable manager.
-			* @sa TransformManager
+			* @sa RenderableManager
 			*/
 			inline RenderableManager& GetRenderableManager() const {
 				return *renderableManager;
@@ -145,7 +142,7 @@ namespace SE
 			/**
 			* @brief    Returns a reference to the Material manager
 			* @retval return_value_0 Returns a reference to the Material manager.
-			* @sa TransformManager
+			* @sa MaterialManager
 			*/
 			inline MaterialManager& GetMaterialManager() const {
 				return *materialManager;
@@ -162,7 +159,7 @@ namespace SE
 			/**
 			* @brief    Returns a reference to the collision manager
 			* @retval return_value_0 Returns a reference to the collision manager.
-			* @sa AudioManager
+			* @sa CollisionManager
 			*/
 			inline CollisionManager& GetCollisionManager()const {
 				return *collisionManager;
@@ -171,11 +168,21 @@ namespace SE
 			/**
 			* @brief    Returns a reference to the audio manager
 			* @retval return_value_0 Returns a reference to the audio manager.
-			* @sa AudioManager
+			* @sa OptionHandler
 			*/
 			inline OptionHandler& GetOptionHandler() const {
 				return *optionHandler;
 			}
+
+			/**
+			* @brief    Returns a reference to the camera manager
+			* @retval return_value_0 Returns a reference to the camera manager.
+			* @sa CameraManager
+			*/
+			inline CameraManager& GetCameraManager() const {
+				return *cameraManager;
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -193,6 +200,7 @@ namespace SE
 			AudioManager* audioManager;
 			CollisionManager* collisionManager;
 			OptionHandler* optionHandler;
+			CameraManager* cameraManager;
 		};
 
 	}

@@ -49,6 +49,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	transformManager = new TransformManager(entityManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
+	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
 
 	return 0;
@@ -56,6 +57,14 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
+
+	transformManager->Frame();
+	renderableManager->Frame();
+	materialManager->Frame();
+	collisionManager->Frame();
+	window->Frame();
+	cameraManager->Frame();
+	renderer->Render();
 	return 0;
 }
 
@@ -67,6 +76,7 @@ int SE::Core::Engine::Release()
 	resourceHandler->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
+	delete cameraManager;
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
@@ -79,17 +89,6 @@ int SE::Core::Engine::Release()
 	delete optionHandler;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
-}
-
-void SE::Core::Engine::Frame()
-{
-	
-	transformManager->Frame();
-	renderableManager->Frame();
-	materialManager->Frame();
-	collisionManager->Frame();
-	window->Frame();
-	renderer->Render();
 }
 
 SE::Core::Engine::Engine()

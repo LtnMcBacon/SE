@@ -49,7 +49,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 
 	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
 
-	e.Frame();
+	e.Frame(0.0f);
 
 	if (!test)
 	{
@@ -61,7 +61,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
 
 	tm.SetPosition(ent2, { 100.0f, 100.0f, 100.0f });
-	e.Frame();
+	e.Frame(0.0f);
 	if (!test)
 	{
 		console->Print("Collided in check 2. Should not collide!\n");
@@ -72,7 +72,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
 
 	tm.SetPosition(ent, { 100.0f, 100.0f, 100.0f });
-	e.Frame();
+	e.Frame(0.0f);
 	if (!test)
 	{
 		console->Print("Did not collide in check 3. They should!\n");
@@ -82,7 +82,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
 
 	tm.SetPosition(ent, { 0.0f, 100.0f, 100.0f });
-	e.Frame();
+	e.Frame(0.0f);
 	if (!test)
 	{
 		console->Print("Collided in check 4. Should not collide!\n");

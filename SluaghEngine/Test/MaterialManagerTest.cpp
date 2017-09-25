@@ -55,7 +55,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (engine.GetWindow()->ButtonPressed(2))
 			rm.ToggleRenderableObject(entity, true);
 
-		engine.Frame();
+		engine.Frame(0.01f);
 	}
 
 

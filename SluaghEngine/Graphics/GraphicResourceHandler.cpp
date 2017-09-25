@@ -4,6 +4,10 @@
 #include <Utilz\Console.h>
 #include <Profiler.h>
 
+
+#include <d3dcompiler.h>
+#pragma comment(lib, "D3Dcompiler.lib")
+
 using namespace SE::Graphics;
 using namespace SE::Utilz;
 using namespace std;
