@@ -246,6 +246,18 @@ int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSet
 	return handle;
 }
 
+int Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->CreateDynamicVertexBuffer(bytewidth, vertexByteSize, initialData, initialDataSize));
+}
+
+int Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->UpdateDynamicVertexBuffer(handle, data, totalSize, sizePerElement));
+}
+
 int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 {
 	int handle;

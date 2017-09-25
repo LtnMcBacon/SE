@@ -282,7 +282,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		*pixelShaderID = top;
 		freePixelShaderLocations.pop();
 	}
-
+	
 	ProfileReturnConst(hr);
 }
 
@@ -551,3 +551,44 @@ HRESULT GraphicResourceHandler::CreateSamplerState()
 	ProfileReturnConst(hr);
 }
 
+int GraphicResourceHandler::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+{
+	D3D11_BUFFER_DESC bd;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.ByteWidth = bytewidth;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+
+	ID3D11Buffer* vBuffer;	
+	HRESULT hr = gDevice->CreateBuffer(&bd, nullptr, &vBuffer);
+	if (FAILED(hr))
+		return -1;
+	if (initialData && initialDataSize)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+		gDeviceContext->Map(vBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+		memcpy(mappedData.pData, initialData, initialDataSize);
+		gDeviceContext->Unmap(vBuffer, 0);
+	}
+	const size_t index = vBuffers.size();
+	const size_t vertexCount = initialDataSize / vertexByteSize;
+	vBuffers.push_back({ vBuffer, vertexCount, vertexByteSize });
+	return index;
+}
+
+int GraphicResourceHandler::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+{
+	const size_t vertexCount = totalSize / sizePerElement;
+	ID3D11Buffer* vBuffer = vBuffers[handle].vertexBuffer;
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	gDeviceContext->Map(vBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	memcpy(mappedData.pData, data, totalSize);
+	gDeviceContext->Unmap(vBuffer, 0);
+
+	vBuffers[handle].vertexCount = vertexCount;
+	vBuffers[handle].stride = sizePerElement;
+	return 0;
+}
