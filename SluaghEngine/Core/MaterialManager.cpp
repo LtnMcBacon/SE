@@ -83,11 +83,6 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	StopProfile;
 }
 
-void SE::Core::MaterialManager::SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
-	Utilz::GUID textureFileName)
-{
-
-}
 
 void SE::Core::MaterialManager::Frame()
 {

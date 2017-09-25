@@ -33,11 +33,10 @@ namespace SE
 			* @brief	Create a texture for the entity. This is for mesh with no submeshes.
 			* @param [in] entity The entity to bind the texture to.
 			* @param [in] guid The guid of the texture to use.
+			* @sa CreateInfo
 			*/
 			void Create(const Entity& entity, const CreateInfo& info);
 
-			void SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
-				Utilz::GUID textureFileName);
 
 			/**
 			* @brief	Called each frame, to update the state.
