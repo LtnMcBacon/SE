@@ -227,7 +227,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		D3D11_SHADER_DESC shaderDesc;
 		reflection->GetDesc(&shaderDesc);
 		ShaderSettings settings;
-		for (int i = 0; i < shaderDesc.ConstantBuffers; ++i)
+		for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
 		{
 			D3D11_SHADER_BUFFER_DESC sbd;
 			ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
@@ -235,7 +235,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 			auto& cbInfo = settings.bufferNameToBufferInfo[sbd.Name];
 			cbInfo.size = sbd.Size;
 			cbInfo.bindSlot = i;
-			for (int j = 0; j < sbd.Variables; j++)
+			for (unsigned int j = 0; j < sbd.Variables; j++)
 			{
 				ID3D11ShaderReflectionVariable* var = srcb->GetVariableByIndex(i);
 				D3D11_SHADER_VARIABLE_DESC svd;
@@ -245,7 +245,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 				varInfo.offset = svd.StartOffset;
 			}
 		}
-		for (int i = 0; i < shaderDesc.BoundResources; ++i)
+		for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
 		{
 			D3D11_SHADER_INPUT_BIND_DESC sibd;
 			reflection->GetResourceBindingDesc(i, &sibd);

@@ -95,8 +95,8 @@ namespace SE
 
 			std::vector<ShaderData> shaders;
 			std::vector<TextureData> textures;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToShaderIndex;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToTextureIndex;
+			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToShaderIndex;
+			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToTextureIndex;
 
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
