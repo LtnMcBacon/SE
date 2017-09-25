@@ -167,6 +167,37 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.vertexShader = -1;
 	for (auto& job : renderJobs)
 	{
+		if (previousJob.topology != job.topology)
+		{
+			switch (job.topology)
+			{
+				case RenderObjectInfo::PrimitiveTopology::LINE_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::POINT_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::LINE_STRIP:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::TRIANGLE_STRIP:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+					break;
+				}
+			}
+		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
@@ -174,7 +205,9 @@ int SE::Graphics::Renderer::Render() {
 		if(previousJob.transformHandle != job.transformHandle)
 			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
 		for (int i = 0; i < job.textureCount; ++i)
-			graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
+			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
+				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
+
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 		previousJob = job;
 	}
