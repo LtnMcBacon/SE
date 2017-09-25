@@ -332,6 +332,13 @@ namespace SE
 			* @endcode
 			*/
 			virtual void MapActionButton(uint32_t actionButton, KeyCode key) = 0;
+			/**
+			* @brief Sets the window data
+			*
+			* @retval true Returns true if changes has been done to size
+			* @retval false Returns false if no changed to size
+			*/
+			virtual bool SetWindow(int height, int width, bool inFullscreen) = 0;
 
 		private:
 
