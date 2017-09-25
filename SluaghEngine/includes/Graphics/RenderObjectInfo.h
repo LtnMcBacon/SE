@@ -10,12 +10,13 @@ namespace SE
 	{
 		struct RenderObjectInfo
 		{
+			static const uint32_t maxTextureBinds = 4;
 			int bufferHandle;
 			int transformHandle;
 			int pixelShader;
 			int vertexShader;
-			uint8_t textureBindings[4];
-			uint8_t textureHandles[4];
+			uint8_t textureBindings[maxTextureBinds];
+			uint8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
 			/**
 			* @brief Computes the difference between two RenderObjectInfo structs in terms of how many attributes are different. As such, a - b == b - a.

@@ -59,14 +59,14 @@ namespace SE
 			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
-			static const uint32_t maxTextureBinds = 4;
+			
 			struct TextureBindings
 			{
-				uint8_t bindings[maxTextureBinds];
+				uint8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 			struct TextureIndices
 			{
-				uint8_t indices[maxTextureBinds];
+				uint8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 
 			struct TextureData
