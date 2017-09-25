@@ -115,7 +115,7 @@ void SE::Core::Engine::InitStartupOption()
 	
 	if (sizeChange == true)
 	{
-		renderer->ResizeSwapChain(Core::Engine::GetInstance().GetWindow()->GetHWND());
+		renderer->ResizeSwapChain(window->GetHWND());
 	}
 
 	optionHandler->Register(Utilz::Delegate<void()>::Make<Engine, &Engine::OptionUpdate>(this));
@@ -134,7 +134,7 @@ void SE::Core::Engine::OptionUpdate()
 
 	if (sizeChange == true)
 	{
-		renderer->ResizeSwapChain(Core::Engine::GetInstance().GetWindow()->GetHWND());
+		renderer->ResizeSwapChain(window->GetHWND());
 	}
 	
 	ProfileReturnVoid;

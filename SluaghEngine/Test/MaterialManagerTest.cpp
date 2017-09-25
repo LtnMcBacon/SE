@@ -19,7 +19,8 @@ enum ActionButton
 	Up,
 	Down,
 	Left,
-	Right
+	Right,
+	Fullscreen
 };
 bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -66,10 +67,13 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::Down, Window::KeyS);
 	w->MapActionButton(ActionButton::Left, Window::KeyA);
 	w->MapActionButton(ActionButton::Right, Window::KeyD);
+	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 
 	bool running = true;
 	Utilz::Timer timer;
+	auto& oh = engine.GetOptionHandler();
 
+	int full = oh.GetOption("Window", "fullScreen", 0);
 	while (running)
 	{
 		timer.Tick();
@@ -81,6 +85,13 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 			rm.ToggleRenderableObject(entity, false);
 		if (w->ButtonPressed(ActionButton::Show))
 			rm.ToggleRenderableObject(entity, true);
+
+		if (w->ButtonPressed(ActionButton::Fullscreen))
+		{
+			full = full ? 0 : 1;
+			oh.SetOption("Window", "fullScreen", full);	
+			oh.Trigger();
+		}
 
 		if (w->ButtonDown(ActionButton::Up))
 			tm.Move(camera, { 0.0f, 0.0f, 0.01f*dt });
