@@ -95,7 +95,7 @@ namespace SE
 		
 
 
-			std::unordered_map<Entity, std::vector<LineSegment>> entityToLineList;
+			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 
 		};
 	}
