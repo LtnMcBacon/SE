@@ -1,6 +1,7 @@
 #pragma once
 #ifndef SE_UTILZ_STACKALLOCATOR_H_
 #define SE_UTILZ_STACKALLOCATOR_H_
+#include <stack>
 
 namespace SE
 {
@@ -35,6 +36,20 @@ namespace SE
 			*
 			*/
 			void ClearStackAlloc();
+			/**
+			* @brief Get a pointer to current pos
+			*
+			* @retval void* Pointer to current pos
+			*
+			*/
+			void* GetMarker();
+			/**
+			* @brief Clears to marker if it was the last created marker
+			*
+			* @retval void* Marker pointer
+			*
+			*/
+			int ClearToMarker(void* marker);
 
 		private:
 			void* GetMemUnaligned(size_t requestedMemSize);
@@ -42,6 +57,7 @@ namespace SE
 			void* stackCurrent;
 			size_t stackSize;
 			size_t occupiedSize;
+			std::stack<void*> takenMarkers;
 		};
 	}
 }
