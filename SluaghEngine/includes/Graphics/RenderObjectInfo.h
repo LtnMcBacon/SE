@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <bitset>
 #include <algorithm>
-
+#undef min //F you microsoft...
 namespace SE
 {
 	namespace Graphics
