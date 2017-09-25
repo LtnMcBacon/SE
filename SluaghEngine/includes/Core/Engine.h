@@ -190,6 +190,15 @@ namespace SE
 			Engine& operator=(const Engine& rhs) = delete;
 			~Engine();
 
+			/**
+			* @brief    Sets options to data in the .ini file
+			*/
+			void InitStartupOption();
+			/**
+			* @brief    Function that gets called when options has changed
+			*/
+			void OptionUpdate();
+
 			EntityManager* entityManager;
 			Graphics::IRenderer* renderer;
 			Window::IWindow* window;
