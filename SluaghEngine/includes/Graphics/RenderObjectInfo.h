@@ -22,7 +22,7 @@ namespace SE
 			* @param[in] rhs The other RenderObjectInfo to compare against
 			* @retval Returns the number of differing attributes between the objects
 			*/
-			inline int operator-(const RenderObjectInfo& rhs) const
+			inline size_t operator-(const RenderObjectInfo& rhs) const
 			{
 				uint32_t stateChanges = 0;
 				stateChanges = (stateChanges << 1) | (bufferHandle != rhs.bufferHandle);
