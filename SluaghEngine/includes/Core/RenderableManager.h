@@ -47,15 +47,7 @@ namespace SE
 			*
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool show);
-			/**
-			* @brief	Hide the renderable object
-			*/
-			void HideRenderableObject(const Entity& entity);
 
-			/**
-			* @brief	Show the renderable object
-			*/
-			void ShowRenderableObject(const Entity& entity);
 
 			/**
 			* @brief	Called each frame, to update the state.
