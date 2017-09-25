@@ -1,3 +1,5 @@
+Assets/DebugLinePS.hlsl
+Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
 Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
@@ -15,3 +17,5 @@ Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
 Assets/test.objtest
 Assets/test.txt
+Assets/testimg.sei
+Assets/testimg.rawimg

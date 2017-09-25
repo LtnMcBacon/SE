@@ -5,6 +5,7 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 {
 	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(LineSegment));
 	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
+	
 }
 
 SE::Core::DebugRenderManager::~DebugRenderManager()
