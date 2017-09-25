@@ -178,6 +178,15 @@ namespace SE
 			inline OptionHandler& GetOptionHandler() const {
 				return *optionHandler;
 			}
+
+			/**
+			* @brief    Returns a reference to the debug render manager
+			* @retval return_value_0 Returns a reference to the debug render manager.
+			* @sa DebugRenderManager
+			*/
+			inline DebugRenderManager& GetDebugRenderManager() const {
+				return *debugRenderManager;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
