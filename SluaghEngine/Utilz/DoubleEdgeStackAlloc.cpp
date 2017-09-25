@@ -133,5 +133,45 @@ namespace SE
 			stackCurrentRight = (char*)stackCurrentRight - requestedMemSize;
 			return stackCurrentRight;
 		}
+	
+		void* DoubleEdgeStackAlloc::GetMarkerLeft()
+		{
+			takenMarkersLeft.push(stackCurrentLeft);
+			return stackCurrentLeft;
+		}
+		
+		void* DoubleEdgeStackAlloc::GetMarkerRight()
+		{
+			takenMarkersRight.push(stackCurrentRight);
+			return stackCurrentRight;
+		}
+
+		int DoubleEdgeStackAlloc::ClearToMarkerLeft(void* marker)
+		{
+			if (takenMarkersLeft.size() > 0)
+			{
+				if (marker == takenMarkersLeft.top())
+				{
+					stackCurrentLeft = marker;
+					takenMarkersLeft.pop();
+					return 0;
+				}
+			}
+			return -1;
+		}
+
+		int DoubleEdgeStackAlloc::ClearToMarkerRight(void* marker)
+		{
+			if (takenMarkersRight.size() > 0)
+			{
+				if (marker == takenMarkersRight.top())
+				{
+					stackCurrentRight = marker;
+					takenMarkersRight.pop();
+					return 0;
+				}
+			}
+			return -1;
+		}
 	}
 }
