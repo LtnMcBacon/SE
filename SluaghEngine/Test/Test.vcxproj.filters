@@ -75,6 +75,9 @@
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -133,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="AllocatorTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

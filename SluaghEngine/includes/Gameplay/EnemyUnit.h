@@ -154,6 +154,7 @@ namespace SE
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
+			int sample = 0;
 
 		public:
 			//EnemyUnit(); <- Create a "real" constructor

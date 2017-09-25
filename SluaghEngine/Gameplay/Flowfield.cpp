@@ -171,13 +171,13 @@ void FlowField::SetDirectionsBasedOnCosts()
 			smallestCost = -1;
 			if (data[i][j].type != Type::BLOCKED)
 			{
-				for (int k = 0; k < 4; k++)
+				for (int k = 0; k < 8; k++)
 				{
-					if (k == 1)
+					if (k == 0 || k == 3 || k == 5)
 					{
 						xModifier = -1;
 					}
-					else if (k == 2)
+					else if (k == 2 || k == 4 || k == 7)
 					{
 						xModifier = 1;
 					}
@@ -186,11 +186,11 @@ void FlowField::SetDirectionsBasedOnCosts()
 						xModifier = 0;
 					}
 
-					if (k == 0)
+					if (k < 3)
 					{
 						yModifier = 1;
 					}
-					else if (k == 3)
+					else if (k > 4)
 					{
 						yModifier = -1;
 					}
@@ -203,21 +203,45 @@ void FlowField::SetDirectionsBasedOnCosts()
 					{
 						if (xModifier == 1)
 						{
-							data[i][j].dir = Direction::RIGHT;
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP_RIGHT;
+							}
+							else if (yModifier == -1)
+							{
+								data[i][j].dir = Direction::DOWN_RIGHT;
+							}
+							else
+							{
+								data[i][j].dir = Direction::RIGHT;
+							}
 						}
 						else if (xModifier == -1)
 						{
-							data[i][j].dir = Direction::LEFT;
-						}
-						else if (yModifier == 1)
-						{
-							data[i][j].dir = Direction::UP;
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP_LEFT;
+							}
+							else if (yModifier == -1)
+							{
+								data[i][j].dir = Direction::DOWN_LEFT;
+							}
+							else
+							{
+								data[i][j].dir = Direction::LEFT;
+							}
 						}
 						else
 						{
-							data[i][j].dir = Direction::DOWN;
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP;
+							}
+							else
+							{
+								data[i][j].dir = Direction::DOWN;
+							}
 						}
-
 						smallestCost = data[i + xModifier][j + yModifier].cost;
 					}
 				}

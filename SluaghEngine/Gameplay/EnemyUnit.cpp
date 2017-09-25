@@ -48,6 +48,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 		/*Sample from the 9 cells around us, starting with the center point
 		 * Add the movements from the cell to total movements (one for x, one for y)
 		 * If applicable, divide by the distance (0.5-1.5)
+		 * Walls pushes away the unit with half force
 		 */
 		pos myPos;
 		myPos.x = xPos;
@@ -57,74 +58,85 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 		xMovementTot += xMovement;
 		yMovementTot += yMovement;
 
-		/*Right*/
-		myPos.x = xPos + 1.f;
-		myPos.y = yPos;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceX;
+		if (!sample)
+		{
+			/*Right*/
+			myPos.x = xPos + 1.f;
+			myPos.y = yPos;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
-		/*Up-Left*/
-		myPos.x = xPos + 1.f;
-		myPos.y = yPos - 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceY;
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			xMovementTot += xMovement / distanceX;
+			yMovementTot += yMovement / distanceX;
 
-		/*Up-Right*/
-		myPos.x = xPos + 1.f;
-		myPos.y = yPos + 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceY;
+			/*Up-Left*/
+			myPos.x = xPos + 1.f;
+			myPos.y = yPos - 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
-		/*Left*/
-		myPos.x = xPos - 1.f;
-		myPos.y = yPos;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceX;
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+			xMovementTot += xMovement / distanceX ;
+			yMovementTot += yMovement / distanceY ;
 
-		/*Down-Left*/
-		myPos.x = xPos - 1.f;
-		myPos.y = yPos - 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceY;
+			/*Up-Right*/
+			myPos.x = xPos + 1.f;
+			myPos.y = yPos + 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
 
-		/*Down-Right*/
-		myPos.x = xPos - 1.f;
-		myPos.y = yPos + 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceX;
-		yMovementTot += yMovement / distanceY;
+			xMovementTot += xMovement / distanceX ;
+			yMovementTot += yMovement / distanceY ;
 
-		/*Up*/
-		myPos.x = xPos;
-		myPos.y = yPos + 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceY;
-		yMovementTot += yMovement / distanceY;
+			/*Left*/
+			myPos.x = xPos - 1.f;
+			myPos.y = yPos;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
 
-		/*Down*/
-		myPos.x = xPos;
-		myPos.y = yPos - 1.f;
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-		xMovementTot += xMovement / distanceY;
-		yMovementTot += yMovement / distanceY;
+			xMovementTot += xMovement / distanceX ;
+			yMovementTot += yMovement / distanceX ;
 
+			/*Down-Left*/
+			myPos.x = xPos - 1.f;
+			myPos.y = yPos - 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+
+			xMovementTot += xMovement / distanceX ;
+			yMovementTot += yMovement / distanceY ;
+
+			/*Down-Right*/
+			myPos.x = xPos - 1.f;
+			myPos.y = yPos + 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+
+			xMovementTot += xMovement / distanceX ;
+			yMovementTot += yMovement / distanceY ;
+
+			/*Up*/
+			myPos.x = xPos;
+			myPos.y = yPos + 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+
+			xMovementTot += xMovement / distanceY ;
+			yMovementTot += yMovement / distanceY ;
+
+			/*Down*/
+			myPos.x = xPos;
+			myPos.y = yPos - 1.f;
+			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
+			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+
+			xMovementTot += xMovement / distanceY ;
+			yMovementTot += yMovement / distanceY ;
+		}
+		sample = (sample + 1) % 60;
 		/*Check if we would collide in a wall
 		 * See CorrectCollision for information
 		 */
@@ -138,7 +150,9 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 			yMovementTot /= moveTot;
 		}
 		/*Move the entity in the normalized direction*/
+		
 		MoveEntity(xMovementTot*dt, yMovementTot*dt);
+
 
 		/*Save the direction for next movement*/
 		previousMovement[0] = xMovementTot;
@@ -272,7 +286,8 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	GameUnit(xPos, yPos, maxHealth),
 	flowFieldForRoom(roomFlowField),
 	extraSampleCoords{xPos, yPos},
-	previousMovement{0,0}
+	previousMovement{0,0},
+	sample(0)
 {
 	extends = 0.25f; /*Should not be hardcoded! Obviously*/
 }
