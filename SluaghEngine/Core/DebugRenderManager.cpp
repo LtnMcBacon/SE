@@ -4,7 +4,7 @@
 SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
 	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), dirty(false), dynamicVertexBufferHandle(-1)
 {
-	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(LineSegment));
+	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(Point3D));
 	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
 	auto res = resourceHandler->LoadResource(Utilz::GUID("DebugLinePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLinePixelShader>(this));
 	if (res)
@@ -12,6 +12,15 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 	res = resourceHandler->LoadResource(Utilz::GUID("DebugLineVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLineVertexShader>(this));
 	if (res)
 		throw std::exception("Could not load line render vertex shader.");
+
+	Graphics::RenderObjectInfo job;
+	job.bufferHandle = dynamicVertexBufferHandle;
+	job.vertexShader = lineRenderVertexShaderHandle;
+	job.pixelShader = lineRenderPixelShaderHandle;
+	job.textureCount = 0;
+	job.topology = Graphics::RenderObjectInfo::PrimitiveTopology::LINE_LIST;
+	job.transformHandle = 1;
+	renderer->EnableRendering(job);
 	
 }
 
@@ -38,15 +47,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			memcpy(cur, m.second.data(), cpySize);
 			cur = ((uint8_t*)cur) + cpySize;
 		}
-		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(LineSegment));
-		//Graphics::RenderObjectInfo job;
-		//job.bufferHandle = dynamicVertexBufferHandle;
-		//job.vertexShader = lineRenderVertexShaderHandle;
-		//job.pixelShader = lineRenderPixelShaderHandle;
-		//job.textureCount = 0;
-		//job.topology = Graphics::RenderObjectInfo::PrimitiveTopology::LINE_LIST;
-		//job.transformHandle = 0;
-		//renderer->EnableRendering(job);
+		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(Point3D));
 		dirty = false;
 	}
 	ProfileReturnVoid;
@@ -63,12 +64,12 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, float x, float y, float z)
 {
 	StartProfile;
-	const LineSegment lines[6] = { {{ x - scale, y, z }	,{ x + scale, y, z }},
+	const LineSegment lines[3] = { {{ x - scale, y, z }	,{ x + scale, y, z }},
 	{{ x, y, z - scale },{ x, y, z + scale } },
 	{{ x, y - scale, z },{ x, y + scale, z } } };
 	auto& lineList = entityToLineList[entity];
-	for (auto& p : lines)
-		lineList.push_back(p);
+	for (int i = 0; i < 3; i++)
+		lineList.push_back(lines[i]);
 	dirty = true;
 	ProfileReturnVoid;
 }

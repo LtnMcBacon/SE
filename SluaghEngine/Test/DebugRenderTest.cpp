@@ -43,8 +43,16 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	engine.GetWindow()->MapActionButton(1, Window::KeyO);
 	engine.GetWindow()->MapActionButton(2, Window::KeyK);
 
-	drm.DrawCross(entity);
-	drm.DrawLine(entity, 0, 0, 0, 0, 100, 0);
+	//drm.DrawCross(entity, 50.0f);
+	for (int i = 0; i < 100; i++)
+	{
+		drm.DrawCross(entity, 5.0f, i - 50, 10, 10);
+	}
+	//drm.DrawLine(entity, 0, 0, 0, 0, 100, 100);
+	//drm.DrawLine(entity, 0, 0, 0, -100, -100, -100);
+	//drm.DrawLine(entity, rand() % 200 - 100, rand() % 200 - 100, rand() % 200 - 100, rand() % 200 - 100, rand() % 200 - 100, rand() % 200 - 100);
+	
+	
 	
 	bool running = true;
 	while (running)

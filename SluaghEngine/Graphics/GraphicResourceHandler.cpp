@@ -456,7 +456,7 @@ HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t verte
 
 void GraphicResourceHandler::SetVertexBuffer(int vertexBufferID)
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = vBuffers[vertexBufferID].stride;
 	UINT32 offset = 0;
 	gDeviceContext->IASetVertexBuffers(0, 1, &vBuffers[vertexBufferID].vertexBuffer, &vertexSize, &offset);
 }
