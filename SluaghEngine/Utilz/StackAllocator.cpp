@@ -78,5 +78,25 @@ namespace SE
 			stackCurrent = (char*)stackCurrent + requestedMemSize;
 			return newMemPtr;
 		}
+
+		void* StackAllocator::GetMarker()
+		{
+			takenMarkers.push(stackCurrent);
+			return stackCurrent;
+		}
+
+		int StackAllocator::ClearToMarker(void* marker)
+		{
+			if (takenMarkers.size() > 0)
+			{
+				if (marker == takenMarkers.top())
+				{
+					stackCurrent = marker;
+					takenMarkers.pop();
+					return 0;
+				}
+			}
+			return -1;
+		}
 	}
 }
