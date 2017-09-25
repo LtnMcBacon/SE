@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "EntityManager.h"
 #include <Utilz\Event.h>
-#include <stack>
 
 namespace SE
 {
@@ -37,11 +36,13 @@ namespace SE
 			* @brief    Creates a transform component for an entity. Must be called before any other methods for a given entity. There is no destroy method, this is handled internally.
 			* @param[in] e The entity to bind a transform component to.
 			* @param[in] pos The worldspace position.
-			* @param[in] rotation The roll pitch and yaw of the entity as the x, y and z component of the vec3.
+			* @param[in] rotation The  pitch, yaw and roll of the entity as the x, y and z component of the vec3.
 			* @param[in] scale The scale.
 			* @warning MUST BE CALLED BEFORE ANY OTHER METHOD FOR A GIVEN ENTITY.
 			*/
-			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, float scale = 1.0f);
+			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
+			void BindChild(const Entity& parent, const Entity& child);
+			
 			/**
 			* @brief    Moves an entity along a vector.
 			* @param[in] e The entity to move
@@ -52,12 +53,12 @@ namespace SE
 			/**
 			* @brief    Relative rotation. Adds roll, pitch, and yaw to the current rotation. Uses radians and not degrees.
 			* @param[in] e The entity to rotate
-			* @param[in] roll The roll in radians. (z-axis)
 			* @param[in] pitch The pitch in radians. (x-axis)
 			* @param[in] yaw The yaw in radians. (y-axis)
+			* @param[in] roll The roll in radians. (z-axis)
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Rotate(const Entity& e, float roll, float pitch, float yaw);
+			void Rotate(const Entity& e, float pitch, float yaw, float roll);
 			/**
 			* @brief    Relative scaling. For example, if the scale is 2 and Scale(entity, 4) is called, the entity will be scaled to 8.
 			* @param[in] e The entity to scale
@@ -65,6 +66,13 @@ namespace SE
 			* @warning Create must be called before this method for a given entity.
 			*/
 			void Scale(const Entity& e, float scale);
+			/**
+			* @brief    Relative scaling. For example, if the scale is 2 and Scale(entity, 4) is called, the entity will be scaled to 8.
+			* @param[in] e The entity to scale
+			* @param[in] scale The value to multiply the scale with.
+			* @warning Create must be called before this method for a given entity.
+			*/
+			void Scale(const Entity& e, const DirectX::XMFLOAT3& scale);
 			/**
 			* @brief    Sets the position in world space for a given entity.
 			* @param[in] e The entity to scale
@@ -75,12 +83,12 @@ namespace SE
 			/**
 			* @brief    Absolute rotation. Sets the rotation to the roll, pitch and yaw supplied in the parameter list.
 			* @param[in] e The entity to rotate
-			* @param[in] roll The roll in radians. (z-axis)
 			* @param[in] pitch The pitch in radians. (x-axis)
 			* @param[in] yaw The yaw in radians. (y-axis)
+			* @param[in] roll The roll in radians. (z-axis)
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetRotation(const Entity& e, float roll, float pitch, float yaw);
+			void SetRotation(const Entity& e, float pitch, float yaw, float roll);
 			/**
 			* @brief    Sets the scale of an entity.
 			* @param[in] e The entity to scale
@@ -89,23 +97,30 @@ namespace SE
 			*/
 			void SetScale(const Entity& e, float scale);
 			/**
+			* @brief    Sets the scale of an entity.
+			* @param[in] e The entity to scale
+			* @param[in] scale The scale.
+			* @warning Create must be called before this method for a given entity.
+			*/
+			void SetScale(const Entity& e, const DirectX::XMFLOAT3& scale);
+			/**
 			* @brief    Returns the world position of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			DirectX::XMFLOAT3 GetPosition(const Entity& e) const;
+			const DirectX::XMFLOAT3& GetPosition(const Entity& e) const;
 			/**
 			* @brief    Returns the roll (x-component of vector), pitch (y-component of vector) and yaw (z-component of vector) of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			DirectX::XMFLOAT3 GetRotation(const Entity& e) const;
+			const DirectX::XMFLOAT3& GetRotation(const Entity& e) const;
 			/**
 			* @brief    Returns the scale of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			float GetScale(const Entity& e) const;
+			const DirectX::XMFLOAT3& GetScale(const Entity& e) const;
 
 			/**
 			* @brief     Is called once per frame by the engine. Do not call this from outside the engine as it is unnecessary.
@@ -124,22 +139,34 @@ namespace SE
 			void Frame();
 
 		private:
+			void SetAsDirty(size_t index);
+
 			void UpdateTransform(size_t index);
 
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
+			struct PD
+			{
+				size_t Index;
+				size_t parentIndex;
+			};
+			std::vector<PD> parentDeferred;
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 
 			Entity* entities;
 			DirectX::XMFLOAT3* positions;
 			DirectX::XMFLOAT3* rotations;
-			float* scalings;
+			DirectX::XMFLOAT3* scalings;
 			uint8_t* dirty;
+			size_t *Parent; // Parent transform (whose reference system we are relative to).
+			size_t *Child;
+			size_t *DirtyTransform; // Use this to get other children
+
 
 			uint32_t transformCount;
 			uint32_t transformCapacity;
 			uint32_t garbageCollectionIndex;
 			static const size_t transformCapacityIncrement = 512;
-			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(float) + sizeof(uint8_t) + sizeof(Entity);
+			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2;
 
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 

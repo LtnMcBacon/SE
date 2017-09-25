@@ -46,7 +46,7 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 	entityToIndex[entity] = index;
 
 	cameraData.entity[index] = entity;
-	cameraData.dirty[index] = 1u;
+	cameraData.dirty[index] = ~0u;
 	cameraData.fov[index] = fov;
 	cameraData.aspectRatio[index] = aspectRatio;
 	cameraData.nearPlane[index] = nearP;
@@ -74,16 +74,16 @@ void SE::Core::CameraManager::Frame()
 	StartProfile;
 	if (activeCamera != ~0u)
 	{
-		if(cameraData.dirty[activeCamera])// Update the transform
+		if(cameraData.dirty[activeCamera] != ~0u)// Update the transform
 		{
-			auto tindex = transformManager->entityToIndex[cameraData.entity[activeCamera]];
-
-			XMVECTOR pos = XMLoadFloat3(&transformManager->positions[tindex]);
-			auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&transformManager->rotations[tindex]));
+			XMMATRIX transform = XMLoadFloat4x4(&transformManager->dirtyTransforms[cameraData.dirty[activeCamera]]);
+			XMVECTOR pos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);// XMLoadFloat3(&transformManager->positions[tindex]);
+		//	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&transformManager->rotations[tindex]));
 			XMVECTOR forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 			XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-			forward = XMVector3TransformNormal(forward, rotation);
-			up = XMVector3TransformNormal(up, rotation);
+			pos = XMVector3TransformCoord(pos, transform);
+			forward = XMVector3TransformNormal(forward, transform);
+			up = XMVector3TransformNormal(up, transform);
 			XMVECTOR lookAt = pos + forward;
 
 			XMMATRIX viewproj = XMMatrixLookAtLH(pos, lookAt, up) * XMMatrixPerspectiveFovLH(cameraData.fov[activeCamera], cameraData.aspectRatio[activeCamera], cameraData.nearPlane[activeCamera], cameraData.farPlane[activeCamera]);
@@ -91,6 +91,8 @@ void SE::Core::CameraManager::Frame()
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
 			renderer->UpdateView((float*)&viewProjMatrix);
+
+			cameraData.dirty[activeCamera] = ~0u;
 		} 
 
 		
@@ -106,7 +108,7 @@ void SE::Core::CameraManager::SetDirty(const Entity & entity, size_t index)
 	if (find == entityToIndex.end())
 		ProfileReturnVoid;
 
-	cameraData.dirty[find->second] = 1u;
+	cameraData.dirty[find->second] = index;
 
 	StopProfile;
 }
@@ -124,7 +126,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.dirty = (uint8_t*)(newData.entity + newData.allocated);
+	newData.dirty = (size_t*)(newData.entity + newData.allocated);
 	newData.fov = (float*)(newData.dirty + newData.allocated);
 	newData.aspectRatio = (float*)(newData.fov + newData.allocated);
 	newData.nearPlane = (float*)(newData.aspectRatio + newData.allocated);
@@ -133,7 +135,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 
 	// Copy data
 	memcpy(newData.entity, cameraData.entity, cameraData.used * sizeof(Entity));
-	memcpy(newData.dirty, cameraData.dirty, cameraData.used * sizeof(uint8_t));
+	memcpy(newData.dirty, cameraData.dirty, cameraData.used * sizeof(size_t));
 	memcpy(newData.fov, cameraData.fov, cameraData.used * sizeof(float));
 	memcpy(newData.aspectRatio, cameraData.aspectRatio, cameraData.used * sizeof(float));
 	memcpy(newData.nearPlane, cameraData.nearPlane, cameraData.used * sizeof(float));

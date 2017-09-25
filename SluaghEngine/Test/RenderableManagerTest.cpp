@@ -44,14 +44,15 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	tm.SetPosition(mainC, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
 	cm.Bind(camera);
 	cm.SetActive(camera);
-	tm.SetPosition(camera, { 0.0f, 1.0f, -2.0f });
-
+	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
+	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
+	tm.BindChild(mainC, camera);
 
 	rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(level, true);
 
-	//rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
-	//rm.ToggleRenderableObject(mainC, true);
+	rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
+	rm.ToggleRenderableObject(mainC, true);
 	//for (int i = 0; i < 10; i++)
 	//{
 	//	auto& en = em.Create();
@@ -72,7 +73,8 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
 		tm.Move(mainC, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
-		tm.Rotate(camera, 0.0f, 0.0f, 0.01f);
+		//tm.Rotate(camera, 0.0f, 0.0f, 0.01f);
+		//tm.Move(camera, { 0.0f, -0.01f, 0.0f });
 		e.Frame(0.01f);
 	}
 	
