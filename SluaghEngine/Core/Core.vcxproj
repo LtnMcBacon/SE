@@ -150,6 +150,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
+    <ClCompile Include="OptionHandler.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
@@ -160,6 +161,7 @@
     <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
     <ClInclude Include="..\includes\Core\MaterialManager.h" />
+    <ClInclude Include="..\includes\Core\OptionHandler.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
   </ItemGroup>

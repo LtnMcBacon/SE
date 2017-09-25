@@ -42,7 +42,7 @@ namespace SE
 				return false;
 			}
 			Core::AudioManager& audio = e.GetAudioManager();
-			
+			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
@@ -65,13 +65,18 @@ namespace SE
 			}
 			else
 			{
+				auto ent = e.GetEntityManager().Create();
+				e.GetRenderableManager().CreateRenderableObject(ent, Utilz::GUID("Placeholder_Arrow.obj"));
+				e.GetTransformManager().Create(ent);
+				e.GetRenderableManager().ToggleRenderableObject(ent, true);
+
 				streamID[0] = 0;
 				audio.StreamSound(streamID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
-				char* hej;
+
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame();
@@ -88,6 +93,10 @@ namespace SE
 								i = 11;
 							}
 						}
+						optHandler.SetOption("Window", "width", 800);
+						optHandler.SetOption("Window", "height", 600);
+						optHandler.SetOption("Window", "fullScreen", 0);
+						optHandler.Trigger();
 					}
 					if (e.GetWindow()->ButtonPressed(2) == true)
 					{
@@ -101,6 +110,10 @@ namespace SE
 								i = 11;
 							}
 						}
+						optHandler.SetOption("Window", "width", 1280);
+						optHandler.SetOption("Window", "height", 720);
+						optHandler.SetOption("Window", "fullScreen", 1);
+						optHandler.Trigger();
 					}
 					if (e.GetWindow()->ButtonPressed(3) == true)
 					{

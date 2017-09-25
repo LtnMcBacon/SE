@@ -55,6 +55,7 @@ namespace SE
 						values.clear();
 					}
 					section.clear();
+					currentPos++;
 					while (memblock[currentPos] != ']')
 					{
 						if (memblock[currentPos] != ' ')
@@ -67,7 +68,6 @@ namespace SE
 							currentPos++;
 						}
 					}
-					section.push_back(memblock[currentPos]);
 					currentPos++;
 					while (memblock[currentPos] != '\n')
 					{
@@ -119,10 +119,13 @@ namespace SE
 		{
 			StartProfile;
 			std::string memblock;
+
 			for (auto& mapsPair : maps)
-			{	
+			{
 				std::map<std::string, int> values = maps[mapsPair.first];
+				memblock.push_back('[');
 				memblock.append(mapsPair.first);
+				memblock.push_back(']');
 				memblock.push_back('\n');
 				for (auto& valuesPair : values)
 				{
@@ -138,7 +141,7 @@ namespace SE
 			std::ofstream myfile;
 			myfile.open(filename, std::ios::out | std::ios::trunc);
 			if (myfile.is_open())
-			{		
+			{
 				myfile.write(memblock.c_str(), memblock.size());
 				myfile.close();
 				ProfileReturnConst(0);
