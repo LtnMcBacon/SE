@@ -1,5 +1,7 @@
 #include "Room.h"
 #include "Profiler.h"
+#include <d3d11.h>
+#include <cassert>
 
 
 using namespace SE;
@@ -31,9 +33,48 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
+	int collisionX = 0.0;
+	int collisionY = 0.0;
 	for (auto enemy : enemyEntities)
 	{
+		/*float currentX = enemy->GetXPosition();
+		float currentY = enemy->GetYPosition();*/
+		
 		enemy->Update(dt);
+
+		//float afterX = enemy->GetXPosition();
+		//float afterY = enemy->GetYPosition();
+
+		//bool collision = CheckCollisionInRoom(
+		//	currentX, currentY,
+		//	afterX, afterY,
+		//	0.25f, 0.25f,
+		//	collisionX, collisionY);
+
+
+
+		//if(collision)
+		//{
+		//	if (collisionX == -1 /*&& collisionY == 0*/)
+		//	{
+		//		enemy->SetXPosition(currentX);
+		//	}
+		//	else if(collisionX == 1/* && collisionY == 0*/)
+		//	{
+		//		enemy->SetXPosition(currentX);
+		//	}
+		//	if (collisionY == -1 /*&& collisionX == 0*/)
+		//	{
+		//		enemy->SetYPosition(currentY);
+		//	}
+		//	else if (collisionY == 1/* && collisionX == 0*/)
+		//	{
+		//		enemy->SetYPosition(currentY);
+
+		//	}
+		
+		//}
+
 	}
 	StopProfile;
 }
@@ -54,6 +95,112 @@ void Room::Update(float dt, float playerX, float playerY)
 	UpdateAdjacentRooms(dt);
 	UpdateAIs(dt);
 	StopProfile;
+}
+
+bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, float xExtent, float yExtent)
+{
+	
+	const int xLeftFloored = int(floor(xCenterPosition - xExtent));
+	const int xRightFloored = int(floor(xCenterPosition + xExtent));
+	const int yUpFloored = int(floor(yCenterPosition + yExtent));
+	const int yDownFloored = int(floor(yCenterPosition - yExtent));
+
+
+	if (map[xLeftFloored][yDownFloored])
+	{
+		return true;
+	}
+	if (map[xLeftFloored][yUpFloored])
+	{
+		return true;
+	}
+
+	if (map[xRightFloored][yUpFloored])
+	{
+		return true;
+	}
+	if (map[xRightFloored][yDownFloored])
+	{
+		return true;
+	}
+
+
+
+	
+	return false;
+}
+
+bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter,
+	float yCenterPositionAfter, float xExtent, float yExtent, int& xCollision, int& yCollision)
+{
+	bool collision = false;
+	const int xLeftBeforeFloored = int(xCenterPositionBefore - xExtent);
+	const int xRightBeforeFloored = int(xCenterPositionBefore + xExtent);
+	const int xCenterBeforeFloored = int(xCenterPositionBefore);
+	const int yUpBeforeFloored = int(yCenterPositionBefore + yExtent);
+	const int yDownBeforeFloored = int(yCenterPositionBefore - yExtent);
+	const int yCenterBeforeFloored = int(yCenterPositionBefore);
+
+	const int xLeftAfterFloored = int(xCenterPositionAfter - xExtent);
+	const int xRightAfterFloored = int(xCenterPositionAfter + xExtent);
+
+	const int yUpAfterFloored = int(yCenterPositionAfter + yExtent);
+	const int yDownAfterFloored = int(yCenterPositionAfter - yExtent);
+
+
+
+
+	if(map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+	{
+		xCollision = -1;
+		collision = true;
+	}
+	else if(map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	{
+		xCollision = 1;
+		collision = true;
+	}
+
+	if (map[xRightBeforeFloored][yUpAfterFloored] || map[xLeftBeforeFloored][yUpAfterFloored])
+	{
+		yCollision = 1;
+		collision = true;
+	}
+	else if (map[xRightBeforeFloored][yDownAfterFloored] || map[xLeftBeforeFloored][yDownAfterFloored])
+	{
+		yCollision = -1;
+		collision = true;
+	}/*
+
+	if(map[xLeftAfterFloored][yDownAfterFloored])
+	{
+		xCollision = -1;
+		yCollision = -1;
+		collision = true;
+		
+	}
+	if(map[xLeftAfterFloored][yUpAfterFloored])
+	{
+		xCollision = -1;
+		yCollision = 1;
+		collision = true;
+		
+	}
+	if(map[xRightAfterFloored][yUpAfterFloored])
+	{
+		xCollision = 1;
+		yCollision = 1;
+		collision = true;
+		
+	}
+	if(map[xRightAfterFloored][yDownAfterFloored])
+	{
+		xCollision = 1;
+		yCollision = -1;
+		collision = true;
+		
+	}*/
+	return collision;
 }
 
 Room::Room(char map[25][25])	
@@ -95,3 +242,5 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 
 	return true;
 }
+
+
