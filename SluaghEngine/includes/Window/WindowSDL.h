@@ -27,6 +27,8 @@ namespace SE
 			bool ButtonPressed(uint32_t actionButton) const override;
 			bool ButtonUp(uint32_t actionButton) const override;
 
+			void GetMousePos(int& x, int& y) const override;
+
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
 
 
@@ -37,6 +39,8 @@ namespace SE
 			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void UnbindCallbacks() override;
 		private:
+			void OptionUpdate();
+
 			/*Window related things*/
 			SDL_Window* window;
 			uint32_t width;

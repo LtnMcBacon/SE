@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AllocatorTest.h" />
     <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="BufferTest.h" />
