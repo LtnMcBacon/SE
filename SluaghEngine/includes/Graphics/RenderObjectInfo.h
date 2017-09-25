@@ -23,8 +23,8 @@ namespace SE
 			int transformHandle;
 			int pixelShader;
 			int vertexShader;
-			uint8_t textureBindings[maxTextureBinds];
-			uint8_t textureHandles[maxTextureBinds];
+			int8_t textureBindings[maxTextureBinds];
+			int8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
 			/**

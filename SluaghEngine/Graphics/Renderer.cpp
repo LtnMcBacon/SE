@@ -155,7 +155,12 @@ int SE::Graphics::Renderer::Render() {
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderObjectInfo previousJob;
-	previousJob.textureBindings;
+	previousJob.textureCount = 0;
+	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
+	{
+		previousJob.textureHandles[i] = -1;
+		previousJob.textureBindings[i] = -1;
+	}
 	previousJob.bufferHandle = -1;
 	previousJob.pixelShader = -1;
 	previousJob.transformHandle = -1;

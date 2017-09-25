@@ -43,6 +43,9 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	engine.GetWindow()->MapActionButton(1, Window::KeyO);
 	engine.GetWindow()->MapActionButton(2, Window::KeyK);
 
+	drm.DrawCross(entity);
+	drm.DrawLine(entity, 0, 0, 0, 0, 100, 0);
+	
 	bool running = true;
 	while (running)
 	{

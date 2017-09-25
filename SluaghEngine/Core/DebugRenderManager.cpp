@@ -39,6 +39,15 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			cur = ((uint8_t*)cur) + cpySize;
 		}
 		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(LineSegment));
+		//Graphics::RenderObjectInfo job;
+		//job.bufferHandle = dynamicVertexBufferHandle;
+		//job.vertexShader = lineRenderVertexShaderHandle;
+		//job.pixelShader = lineRenderPixelShaderHandle;
+		//job.textureCount = 0;
+		//job.topology = Graphics::RenderObjectInfo::PrimitiveTopology::LINE_LIST;
+		//job.transformHandle = 0;
+		//renderer->EnableRendering(job);
+		dirty = false;
 	}
 	ProfileReturnVoid;
 }
