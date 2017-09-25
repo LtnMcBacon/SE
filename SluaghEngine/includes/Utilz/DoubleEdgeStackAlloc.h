@@ -1,7 +1,7 @@
 #pragma once
 #ifndef SE_UTILZ_DOUBLE_EDGE_STACK_ALLOCATOR_H_
 #define SE_UTILZ_DOUBLE_EDGE_STACK_ALLOCATOR_H_
-
+#include <stack>
 namespace SE
 {
 	namespace Utilz
@@ -52,6 +52,34 @@ namespace SE
 			*
 			*/
 			void ClearStackAllocRight();
+			/**
+			* @brief Get a pointer to current left pos
+			*
+			* @retval void* Pointer to current left pos
+			*
+			*/
+			void* GetMarkerLeft();
+			/**
+			* @brief Get a pointer to current right pos
+			*
+			* @retval void* Pointer to current right pos
+			*
+			*/
+			void* GetMarkerRight();
+			/**
+			* @brief Clears to marker if it was the last created marker
+			*
+			* @retval void* Marker pointer
+			*
+			*/
+			int ClearToMarkerLeft(void* marker);
+			/**
+			* @brief Clears to marker if it was the last created marker
+			*
+			* @retval void* Marker pointer
+			*
+			*/
+			int ClearToMarkerRight(void* marker);
 
 		private:
 			void* GetMemUnalignedLeft(size_t requestedMemSize);
@@ -62,6 +90,8 @@ namespace SE
 			size_t stackSize;
 			size_t occupiedSizeLeft;
 			size_t occupiedSizeRight;
+			std::stack<void*> takenMarkersLeft;
+			std::stack<void*> takenMarkersRight;
 		};
 	}
 }
