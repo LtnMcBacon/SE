@@ -85,7 +85,11 @@ namespace SE
 			TransformManager* transformManager;
 			Graphics::IRenderer* renderer;
 
+			static const size_t maximumLinesToRender = 4096;
+			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
 			int dynamicVertexBufferHandle;
+			int lineRenderVertexShaderHandle;
+			int lineRenderPixelShaderHandle;
 			bool dirty;
 
 		

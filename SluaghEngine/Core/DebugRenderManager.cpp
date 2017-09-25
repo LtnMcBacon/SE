@@ -3,7 +3,8 @@
 SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, const EntityManager& entityManager,
 	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), dirty(false), dynamicVertexBufferHandle(-1)
 {
-
+	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(LineSegment));
+	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
 }
 
 SE::Core::DebugRenderManager::~DebugRenderManager()
@@ -21,14 +22,14 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 		void* lineData = perFrameStackAllocator.GetMemoryAligned(bufferSize, 4);
 		if (!lineData)
 			return;
+		void* cur = lineData;
 		for (auto& m : entityToLineList)
 		{
 			const size_t cpySize = m.second.size() * sizeof(LineSegment);
-			memcpy(lineData, m.second.data(), cpySize);
-			lineData = ((uint8_t*)lineData) + cpySize;
-			//Adding relevant functions in renderer before continuing
+			memcpy(cur, m.second.data(), cpySize);
+			cur = ((uint8_t*)cur) + cpySize;
 		}
-		
+		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(LineSegment));
 	}
 }
 
