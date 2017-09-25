@@ -64,7 +64,7 @@ void GameUnit::MoveEntity(float xMovement, float yMovement)
 {
 	xPos += xMovement;
 	yPos += yMovement;
-	Core::Engine::GetInstance().GetTransformManager().Move(this->unitEntity, { xMovement, 0.0f, yMovement });
+	Core::Engine::GetInstance().GetTransformManager().SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
 }
 
 void GameUnit::PositionEntity(float xPos, float yPos)
