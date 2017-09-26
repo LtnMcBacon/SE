@@ -31,66 +31,69 @@ namespace SE {
 			PaStream *tempStream = nullptr;
 			PaError err;
 			AudioOut *inSample = (AudioOut*)streamData;
-
-			if (soundType == BakgroundSound)
-			{				
-				/* Open an audio I/O stream. */
-				err = Pa_OpenDefaultStream(&tempStream,
-					0,          /* no input channels */
-					inSample->sample->info.channels,          /* stereo output */
-					paFloat32,  /* 32 bit floating point output */
-					inSample->sample->info.samplerate,
-					256,        /* frames per buffer, i.e. the number
-								of sample frames that PortAudio will
-								request from the callback. Many apps
-								may want to use
-								paFramesPerBufferUnspecified, which
-								tells PortAudio to pick the best,
-								possibly changing, buffer size.*/
-					bakgroundCallback, /* this is your callback function */
-					inSample); /*This is a pointer that will be passed to
-												 your callback*/
-			}
-			else if (soundType == Effect)
+			
+			if (Pa_GetDeviceCount() > 0)
 			{
-				/* Open an audio I/O stream. */
-				err = Pa_OpenDefaultStream(&tempStream,
-					0,          /* no input channels */
-					inSample->sample->info.channels,          /* stereo output */
-					paFloat32,  /* 32 bit floating point output */
-					inSample->sample->info.samplerate,
-					256,        /* frames per buffer, i.e. the number
-								of sample frames that PortAudio will
-								request from the callback. Many apps
-								may want to use
-								paFramesPerBufferUnspecified, which
-								tells PortAudio to pick the best,
-								possibly changing, buffer size.*/
-					effectCallback, /* this is your callback function */
-					inSample); /*This is a pointer that will be passed to
-												 your callback*/
-			}
-			if (err != paNoError)
-			{
-				ProfileReturnConst(-1);
-			}
-			else
-			{
-				if (freeStreamID.size() == 0)
+				if (soundType == BakgroundSound)
 				{
-					stream.push_back(tempStream);
-					sampleOut.push_back(inSample);
-					ProfileReturn(stream.size() - 1);
+					/* Open an audio I/O stream. */
+					err = Pa_OpenDefaultStream(&tempStream,
+						0,          /* no input channels */
+						inSample->sample->info.channels,          /* stereo output */
+						paFloat32,  /* 32 bit floating point output */
+						inSample->sample->info.samplerate,
+						256,        /* frames per buffer, i.e. the number
+									of sample frames that PortAudio will
+									request from the callback. Many apps
+									may want to use
+									paFramesPerBufferUnspecified, which
+									tells PortAudio to pick the best,
+									possibly changing, buffer size.*/
+						bakgroundCallback, /* this is your callback function */
+						inSample); /*This is a pointer that will be passed to
+													 your callback*/
+				}
+				else if (soundType == EffectSound)
+				{
+					/* Open an audio I/O stream. */
+					err = Pa_OpenDefaultStream(&tempStream,
+						0,          /* no input channels */
+						inSample->sample->info.channels,          /* stereo output */
+						paFloat32,  /* 32 bit floating point output */
+						inSample->sample->info.samplerate,
+						256,        /* frames per buffer, i.e. the number
+									of sample frames that PortAudio will
+									request from the callback. Many apps
+									may want to use
+									paFramesPerBufferUnspecified, which
+									tells PortAudio to pick the best,
+									possibly changing, buffer size.*/
+						effectCallback, /* this is your callback function */
+						inSample); /*This is a pointer that will be passed to
+													 your callback*/
+				}
+				if (err != paNoError)
+				{
+					ProfileReturnConst(-1);
 				}
 				else
 				{
-					stream[freeStreamID.top()] = tempStream;
-					sampleOut[freeStreamID.top()] = inSample;
-					freeStreamID.pop();
-					ProfileReturn(stream.size() - 1);
+					if (freeStreamID.size() == 0)
+					{
+						stream.push_back(tempStream);
+						sampleOut.push_back(inSample);
+						ProfileReturn(stream.size() - 1);
+					}
+					else
+					{
+						stream[freeStreamID.top()] = tempStream;
+						sampleOut[freeStreamID.top()] = inSample;
+						freeStreamID.pop();
+						ProfileReturn(stream.size() - 1);
+					}
 				}
-			}		
-			ProfileReturnConst(-1);
+			}
+			ProfileReturnConst(-2);
 		}
 	
 		int AudioStream::StreamSound(int streamID)

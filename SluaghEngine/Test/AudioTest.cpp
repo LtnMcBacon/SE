@@ -42,7 +42,7 @@ namespace SE
 				return false;
 			}
 			Core::AudioManager& audio = e.GetAudioManager();
-			
+			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
@@ -57,24 +57,36 @@ namespace SE
 			}
 
 			int streamID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			if (audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect) == -1)
+			streamID[0] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+			if (streamID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
 				e.Release();
 				return false;
 			}
+			else if (streamID[0] == -2)
+			{
+				console->Print("No device!!!!!!");
+				e.Release();
+				return false;
+			}
 			else
 			{
+				auto ent = e.GetEntityManager().Create();
+				e.GetRenderableManager().CreateRenderableObject(ent, Utilz::GUID("Placeholder_Arrow.obj"));
+				e.GetTransformManager().Create(ent);
+				e.GetRenderableManager().ToggleRenderableObject(ent, true);
+
 				streamID[0] = 0;
 				audio.StreamSound(streamID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
-				char* hej;
+
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-					e.Frame();
+					e.Frame(0.0f);
 					mm.printUsage(console);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
@@ -83,11 +95,22 @@ namespace SE
 						{
 							if (streamID[i] == -1)
 							{
-								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect);
-								audio.StreamSound(streamID[i]);
+								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+								if (streamID[i] == -2)
+								{
+									console->Print("No device!!!!!!");
+								}
+								else
+								{
+									audio.StreamSound(streamID[i]);
+								}
 								i = 11;
 							}
 						}
+						optHandler.SetOption("Window", "width", 800);
+						optHandler.SetOption("Window", "height", 600);
+						optHandler.SetOption("Window", "fullScreen", 0);
+						optHandler.Trigger();
 					}
 					if (e.GetWindow()->ButtonPressed(2) == true)
 					{
@@ -101,6 +124,10 @@ namespace SE
 								i = 11;
 							}
 						}
+						optHandler.SetOption("Window", "width", 1280);
+						optHandler.SetOption("Window", "height", 720);
+						optHandler.SetOption("Window", "fullScreen", 1);
+						optHandler.Trigger();
 					}
 					if (e.GetWindow()->ButtonPressed(3) == true)
 					{

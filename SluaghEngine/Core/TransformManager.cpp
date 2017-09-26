@@ -16,10 +16,12 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 	const size_t bytes = transformCapacity * sizePerEntity;
 	positions = new XMFLOAT3[transformCapacity];
 	rotations = new XMFLOAT3[transformCapacity];
-	scalings = new float[transformCapacity];
+	scalings = new XMFLOAT3[transformCapacity];
 	dirty = new uint8_t[transformCapacity];
 	entities = new Entity[transformCapacity];
-
+	Parent = new size_t[transformCapacity];
+	DirtyTransform = new size_t[transformCapacity];
+	Child = new size_t[transformCapacity];
 }
 
 SE::Core::TransformManager::~TransformManager()
@@ -29,12 +31,18 @@ SE::Core::TransformManager::~TransformManager()
 	delete[] scalings;
 	delete[] dirty;
 	delete[] entities;
+	delete[] Parent;
+	delete[] Child;
+	delete[] DirtyTransform;
 }
 
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
-	const DirectX::XMFLOAT3& rotation, float scale)
+	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
-	_ASSERT_EXPR(entityToIndex.find(e) == entityToIndex.end(), "Entity created twice in transformmanager");
+	auto& find = entityToIndex.find(e);
+	if (find != entityToIndex.end())
+		ProfileReturnVoid;
+
 	if (transformCount == transformCapacity)
 		ExpandTransforms();
 
@@ -44,8 +52,31 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	rotations[index] = rotation;
 	scalings[index] = scale;
 	entities[index] = e;
+	DirtyTransform[index] = ~0u;
+	Child[index] = ~0u;
+	Parent[index] = ~0u;
 
 	dirty[index] = true;
+
+}
+
+void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child)
+{
+	auto& findParent = entityToIndex.find(parent);
+	if (findParent == entityToIndex.end())
+		ProfileReturnVoid;
+
+	auto& findChild = entityToIndex.find(child);
+	if (findChild == entityToIndex.end())
+		ProfileReturnVoid;
+
+	// Setup Parent data
+	Child[findParent->second] = findChild->second;
+
+
+	// Setup child data
+	Parent[findChild->second] = findParent->second;
+
 
 }
 
@@ -56,25 +87,37 @@ void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& 
 	positions[index].x += dir.x;
 	positions[index].y += dir.y;
 	positions[index].z += dir.z;
-	dirty[index] = true;
+	SetAsDirty(index);
 }
 
-void SE::Core::TransformManager::Rotate(const Entity& e, float roll, float pitch, float yaw)
+void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw, float roll)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	rotations[index].x += roll;
-	rotations[index].y += pitch;
-	rotations[index].z += yaw;
-	dirty[index] = true;
+	rotations[index].x += pitch;
+	rotations[index].y += yaw;
+	rotations[index].z += roll;
+	SetAsDirty(index);
 }
 
 void SE::Core::TransformManager::Scale(const Entity& e, float scale)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	scalings[index] *= scale;
-	dirty[index] = true;
+	scalings[index].x *= scale;
+	scalings[index].y *= scale;
+	scalings[index].z *= scale;
+	SetAsDirty(index);
+}
+
+void SE::Core::TransformManager::Scale(const Entity & e, const DirectX::XMFLOAT3 & scale)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+	scalings[index].x *= scale.x;
+	scalings[index].y *= scale.y;
+	scalings[index].z *= scale.z;
+	SetAsDirty(index);
 }
 
 void SE::Core::TransformManager::SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos)
@@ -82,40 +125,50 @@ void SE::Core::TransformManager::SetPosition(const Entity& e, const DirectX::XMF
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
 	positions[index] = pos;
-	dirty[index] = true;
+	SetAsDirty(index);
 }
 
-void SE::Core::TransformManager::SetRotation(const Entity& e, float roll, float pitch, float yaw)
+void SE::Core::TransformManager::SetRotation(const Entity& e, float pitch, float yaw, float roll)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	rotations[index] = { roll, pitch, yaw };
-	dirty[index] = true;
+	rotations[index] = { pitch, yaw, roll };
+	SetAsDirty(index);
 }
 
 void SE::Core::TransformManager::SetScale(const Entity& e, float scale)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	scalings[index] = scale;
-	dirty[index] = true;
+	scalings[index].x = scale;
+	scalings[index].y = scale;
+	scalings[index].z = scale;
+	SetAsDirty(index);
 }
 
-DirectX::XMFLOAT3 SE::Core::TransformManager::GetPosition(const Entity& e) const
+void SE::Core::TransformManager::SetScale(const Entity & e, const DirectX::XMFLOAT3 & scale)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+	scalings[index] = scale;
+	SetAsDirty(index);
+}
+
+const DirectX::XMFLOAT3& SE::Core::TransformManager::GetPosition(const Entity& e) const
 {
 	auto entry = entityToIndex.find(e);
 	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	return positions[entry->second];
 }
 
-DirectX::XMFLOAT3 SE::Core::TransformManager::GetRotation(const Entity& e) const
+const DirectX::XMFLOAT3& SE::Core::TransformManager::GetRotation(const Entity& e) const
 {
 	auto entry = entityToIndex.find(e);
 	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	return rotations[entry->second];
 }
 
-float SE::Core::TransformManager::GetScale(const Entity& e) const
+const DirectX::XMFLOAT3& SE::Core::TransformManager::GetScale(const Entity& e) const
 {
 	auto entry = entityToIndex.find(e);
 	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
@@ -159,14 +212,32 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 void SE::Core::TransformManager::Frame()
 {
 	dirtyTransforms.clear();
+	parentDeferred.clear();
 	for (size_t i = 0; i < transformCount; i++)
 	{
 		if (dirty[i])
 		{
 			UpdateTransform(i);
+			
 		}
 	}
-	
+	for (auto i : parentDeferred)
+	{
+		XMMATRIX local = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]]);
+		XMMATRIX parent = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.parentIndex]]);
+		auto newTrans = local*parent;
+		XMStoreFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]], newTrans);
+	}
+}
+
+inline void SE::Core::TransformManager::SetAsDirty(size_t index)
+{
+	dirty[index] = 1u;
+	if (Parent[index] != ~0u)
+		dirty[Parent[index]] = 1u;
+	if (Child[index] != ~0u)
+		dirty[Child[index]] = 1u;
+
 }
 
 void SE::Core::TransformManager::UpdateTransform(size_t index)
@@ -174,11 +245,15 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 	XMFLOAT4X4 transform;
 	auto translation = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[index]));
 	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[index]));
-	auto scale = XMMatrixScaling(scalings[index], scalings[index], scalings[index]);
+	auto scale = XMMatrixScalingFromVector(XMLoadFloat3(&scalings[index]));
 	XMStoreFloat4x4(&transform, scale*rotation*translation);
 	dirtyTransforms.push_back(transform);
+	auto ti = dirtyTransforms.size() - 1;
+	DirtyTransform[index] = ti;
+	if (Parent[index] != ~0u)
+		parentDeferred.push_back({ index, Parent[index] });
+	SetDirty(entities[index], ti);
 	dirty[index] = false;
-	SetDirty(entities[index], dirtyTransforms.size() - 1);
 }
 
 void SE::Core::TransformManager::ExpandTransforms()
@@ -189,27 +264,39 @@ void SE::Core::TransformManager::ExpandTransforms()
 
 	XMFLOAT3* newPos = new XMFLOAT3[newCapacity];
 	XMFLOAT3* newRot = new XMFLOAT3[newCapacity];
-	float* newScale = new float[newCapacity];
+	XMFLOAT3* newScale = new XMFLOAT3[newCapacity];
 	uint8_t* newDirty = new uint8_t[newCapacity];
 	Entity* newEntities = new Entity[newCapacity];
+	size_t* newParent = new size_t[newCapacity];
+	size_t* newDirtyTransform = new size_t[newCapacity];
+	size_t* newChild = new size_t[newCapacity];
 
 	memcpy(newPos, positions, sizeof(XMFLOAT3) * transformCount);
 	memcpy(newRot, rotations, sizeof(XMFLOAT3) * transformCount);
-	memcpy(newScale, scalings, sizeof(float) * transformCount);
+	memcpy(newScale, scalings, sizeof(XMFLOAT3) * transformCount);
 	memcpy(newDirty, dirty, sizeof(uint8_t) * transformCount);
 	memcpy(newEntities, entities, sizeof(Entity) * transformCount);
+	memcpy(newParent, Parent, sizeof(size_t) * transformCount);
+	memcpy(newDirtyTransform, DirtyTransform, sizeof(size_t) * transformCount);
+	memcpy(newChild, Child, sizeof(size_t) * transformCount);
 
 	delete[] positions;
 	delete[] rotations;
 	delete[] scalings;
 	delete[] dirty;
 	delete[] entities;
+	delete[] Parent;
+	delete[] DirtyTransform;
+	delete[] Child;
 
 	positions = newPos;
 	rotations = newRot;
 	scalings = newScale;
 	dirty = newDirty;
 	entities = newEntities;
+	Parent = newParent;
+	DirtyTransform = newDirtyTransform;
+	Child = newChild;
 
 	transformCapacity = newCapacity;
 	ProfileReturnVoid;

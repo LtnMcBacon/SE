@@ -5,9 +5,9 @@
 #include <Graphics\GraphicResourceHandler.h>
 #include <Graphics\Renderer.h>
 #include <Window\WindowSDL.h>
-
+#include <ResourceHandler\ResourceHandler.h>
 #include "ObjLoaderTest.h"
-#include <Core\Engine.h>
+
 #include <Graphics\Renderer.h>
 #include <OBJParser\Parsers.h>
 
@@ -28,6 +28,7 @@ namespace SE
 		}
 		static Graphics::DeviceManager* deviceManager = nullptr;
 		Window::IWindow* window = nullptr;
+		Graphics::GraphicResourceHandler* gResourceHandler = nullptr;
 		static bool result = false;
 		bool BufferTest::Run(Utilz::IConsoleBackend* console)
 		{
@@ -67,7 +68,7 @@ namespace SE
 			tarOff[2].offset[2] = 0;
 			int ID[3];
 
-			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
+			gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
 			//create Cbuffers
 			hr = gResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMMATRIX), tarOff[0], &ID[0]);
 			if (hr != S_OK)
@@ -95,33 +96,35 @@ namespace SE
 			gResourceHandler->RemoveConstantBuffer(ID[1]);
 			gResourceHandler->RemoveConstantBuffer(ID[2]);
 
-			gResourceHandler->Shutdown();
-			delete gResourceHandler;
+		
 		#pragma endregion Constbuffer
 
 		#pragma region objLoad
-			auto& e = Core::Engine::GetInstance();
-			auto& info = Core::Engine::InitializationInfo();
-			auto re = e.Init(info);
+			auto r = new ResourceHandler::ResourceHandler();
+			auto re = r->Initialize();
 			if (re)
 			{
-				console->Print("Could not init Core, Error: %d.", re);
+				console->Print("Could not init resource handler, Error: %d.", re);
 				ProfileReturnConst(false);
 			}
-
-			auto r = e.GetResourceHandler();
 			result = false;
 
 
 			
 			r->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<BufferTest, &BufferTest::Load>(this));
 		#pragma endregion objLoad
-			e.Release();
+			
+
+			r->Shutdown();
+			delete r;
+			gResourceHandler->Shutdown();
+			delete gResourceHandler;
 			deviceManager->Shutdown();
 			delete deviceManager;
 			window->Shutdown();
 			delete window;
-			ProfileReturnConst(true);;
+
+			ProfileReturnConst(true);
 		}
 		int BufferTest::Load(const Utilz::GUID & guid, void * data, size_t size)
 		{
@@ -143,7 +146,7 @@ namespace SE
 
 
 			int vertexID[3];
-			Graphics::GraphicResourceHandler* gResourceHandler = new Graphics::GraphicResourceHandler(deviceManager->GetDevice(), deviceManager->GetDeviceContext());
+			
 			//create vertexbuffer
 			HRESULT hr = gResourceHandler->CreateVertexBuffer(verts, mD.NumVertices, sizeof(float) * 3, &vertexID[0]);
 			if (hr != S_OK)
@@ -171,8 +174,6 @@ namespace SE
 			gResourceHandler->RemoveVertexBuffer(vertexID[1]);
 			gResourceHandler->RemoveVertexBuffer(vertexID[2]);
 
-			gResourceHandler->Shutdown();
-			delete gResourceHandler;
 			delete parsedData;
 			result = true;
 			

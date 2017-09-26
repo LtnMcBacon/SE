@@ -118,18 +118,37 @@ namespace SE {
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
-				outData->pData.volume = masterVol * bakgroundVol;
+				outData->pData.volume = (masterVol * bakgroundVol) / 10000;
 				ProfileReturn((void*)outData);
 			}
-			else if (soundType == Effect)
+			else if (soundType == EffectSound)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
-				outData->pData.volume = masterVol * effectVol;
+				outData->pData.volume = (masterVol * effectVol) / 10000;
 				ProfileReturn((void*)outData);
 			}
 			ProfileReturnConst(nullptr);
+		}
+
+		void AudioSound::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		{
+			switch (volType)
+			{
+				case MasterVol:
+				{
+					masterVol = newVol;
+				}
+				case BakgroundVol:
+				{
+					bakgroundVol = newVol;
+				}
+				case EffectVol:
+				{
+					effectVol = newVol;
+				}
+			}
 		}
 
 		void AudioSound::Shutdown()
@@ -139,5 +158,6 @@ namespace SE {
 			soundSample.clear();
 			StopProfile;
 		}
+
 	}	//namespace Audio
 }	//namespace SE

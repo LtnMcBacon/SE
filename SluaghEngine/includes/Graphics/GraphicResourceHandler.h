@@ -2,18 +2,22 @@
 #define GRAPHICRESOURCEHANDLER_H
 
 #include <d3d11.h>
-#include <d3dcompiler.h>	// We also need the D3DCompiler header to compile shaders
+
 #include <DirectXMath.h>
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <unordered_map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
+#include "ShaderSettings.h"
 
 namespace SE {
 
 	namespace Graphics {
+
+	
 
 
 		struct VertexCount
@@ -107,7 +111,7 @@ namespace SE {
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
 			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
-			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID);
+			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
 
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
@@ -219,6 +223,28 @@ namespace SE {
 			void BindShaderResourceView(int id, int slot);
 
 			/**
+			* @brief Create a vertex buffer with CPU write access
+			* @param[in] bytewidth The size of the buffer
+			* @param[in] initialData The data to create the buffer with
+			* @param[in] vertexByteSize The size of the vertex type in bytes
+			* @param[in] initialDataSize The size in bytes of the initial data
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			*/
+			int CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData = nullptr, size_t initialDataSize = 0);
+
+			/**
+			* @brief Updates a dynamic vertex buffer. Replaces the existing data.
+			* @param[in] handle The handle of the vertex buffer to update
+			* @param[in] data The data to put in the vertex buffer
+			* @param[in] totalSize The total size in bytes of the data to put in the buffer
+			* @param[in] sizePerElement The size per vertex in bytes
+			* @retval 0 On success.
+			* @retval -1 Something went wrong.
+			*/
+			int UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement);
+
+			/**
 			* @brief	Creates and sets a simple sampler
 			*
 			* @retval S_OK Buffer creation succeded
@@ -234,7 +260,7 @@ namespace SE {
 			ID3D11DeviceContext* gDeviceContext;
 
 			// Samplerstate
-			ID3D11SamplerState* sampleState = nullptr;
+			ID3D11SamplerState* sampleState;
 
 			// Vertex shader specific data
 			std::vector<VertexShaderData>vShaders;

@@ -8,7 +8,12 @@ namespace SE
 {
 	namespace ResourceHandler
 	{		
-		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+		enum class Behavior : uint8_t
+		{
+			QUICK,
+			LAZY
+		};
+			typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
 		typedef int(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
 		/**
 		*
@@ -43,7 +48,9 @@ namespace SE
 			* @brief	Load the given resource
 			*
 			* @param[in] guid The GUID of the resource to be loaded.
-			* @param[out] callback A delegate that is called when the data has been loaded.
+			* @param[in] callback A delegate that is called when the data has been loaded.
+			* @param[in] async If the resource should be loaded with async.
+			* @param[in] behavior QUICK will prioritize the resource. LAZY will try to load the resource at regular intervals.
 			*
 			* @retval 0 On success.
 			* Example code:
@@ -71,17 +78,17 @@ namespace SE
 			* @endcode
 			* @sa LoadResourceDelegate
 			*/
-			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool wait = false) = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
 
 			/**
 			* @brief	Unload the given resource
 			*
 			* @details Decreases the refcount for the given resource.
 			* When the refcount reaches 0 the resource handler may unload the resource.
-			* Either by dumping the memory to disk, or just discarding it.
+			* Either by dumping the memory to disk, or just discarding it. 
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
-			*
+			* @warning This does not force the resource to unload!
 			**/
 			virtual void UnloadResource(const Utilz::GUID& guid) = 0;
 

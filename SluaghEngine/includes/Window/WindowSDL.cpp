@@ -19,7 +19,8 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 	windowTitle = info.windowTitle;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		throw std::exception("Failed to initialize SDL subsystem");
-	window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, createFlags);
 	if (window == nullptr)
 		throw std::exception("Failed to create window.");
 
@@ -274,4 +275,27 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 	if (k == actionToKeyState.end())
 		return 0;
 	return k->second;
+}
+
+bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
+{
+	bool changed = false;
+	if (inHeight != height)
+	{
+		height = inHeight;
+		changed = true;
+	}
+	if (inWidth != width)
+	{
+		width = inWidth;
+		changed = true;
+	}
+	fullScreen = inFullscreen;
+	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	SDL_SetWindowFullscreen(window, createFlags);
+
+	if (changed == true)
+		SDL_SetWindowSize(window, width, height);
+
+	return changed;
 }

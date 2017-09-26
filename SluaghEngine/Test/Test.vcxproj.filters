@@ -63,16 +63,10 @@
     <ClCompile Include="BoundingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlowFieldTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
+    <ClCompile Include="AllocatorTest.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyMovementTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="RoomCreationTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="PickingTest.cpp">
+    <ClCompile Include="DebugRenderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,8 +125,11 @@
     <ClInclude Include="BoundingTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PickingTest.h">
-      <Filter>Source Files\Gameplay Tests</Filter>
+    <ClInclude Include="AllocatorTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
