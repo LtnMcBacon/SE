@@ -3,6 +3,7 @@
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <chrono>
+#include <Gameplay/PlayerUnit.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -42,7 +43,6 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& tm = e.GetTransformManager();
 
 	auto floor = em.Create();
-	auto player = em.Create();
 	const int numberOfBlocks = 25 * 25;
 	SE::Core::Entity entities[numberOfBlocks];
 	SE::Core::Entity arrows[numberOfBlocks];
@@ -52,9 +52,6 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		entities[i] = em.Create();
 		arrows[i] = em.Create();
 	}
-	tm.Create(player);
-	tm.SetPosition(player, DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-	tm.SetScale(player, 1.5f);
 	tm.Create(floor);
 	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
 
@@ -68,9 +65,6 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.obj"));
 	rm.ToggleRenderableObject(floor, true);
 
-	rm.CreateRenderableObject(player, Utilz::GUID("Placeholder_Arrow.obj"));
-	rm.ToggleRenderableObject(player, true);
-	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
 	auto Block = Utilz::GUID("Placeholder_Block.obj");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.obj");
@@ -110,6 +104,15 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
 	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
+
+	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, (const char**)mapRepresentation);
+	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	tm.SetScale(player->GetEntity(), 1.5f);
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
+	rm.ToggleRenderableObject(player->GetEntity(), true);
+	tm.SetRotation(player->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+
+
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -324,15 +327,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		}
 
-		pos posBeforeMove = playerPos;
+		Gameplay::PlayerUnit::MovementInput input;
 
-		playerPos.x += movX*4*dt;
-		playerPos.y += movY*4*dt;
-
-		if (testRoom->CheckCollisionInRoom(playerPos.x, playerPos.y, 0.25f, 0.25f))
-			playerPos = posBeforeMove;
-
-		tm.SetPosition(player, { playerPos.x, 1.5f, playerPos.y });
+		player->UpdateMovement(dt, input);
 
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;

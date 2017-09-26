@@ -31,8 +31,8 @@
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
-    <ClInclude Include="PlayerUnit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

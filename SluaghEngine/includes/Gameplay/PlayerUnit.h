@@ -65,6 +65,11 @@ namespace SE
 				float mousePosX;
 				float mousePosY;
 
+				MovementInput()
+				{
+					
+				}
+
 				MovementInput(bool w, bool a, bool s, bool d, float mouseX, float mouseY)
 				{
 					downW = w;

@@ -68,7 +68,7 @@
     <ClInclude Include="..\includes\Gameplay\Flowfield.h">
       <Filter>Header Files\Flowfield</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerUnit.h">
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
   </ItemGroup>
