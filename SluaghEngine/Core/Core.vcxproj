@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="DebugRenderManager.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\AudioManager.h" />
+    <ClInclude Include="..\includes\Core\CameraManager.h" />
     <ClInclude Include="..\includes\Core\CollisionManager.h" />
     <ClInclude Include="..\includes\Core\DebugRenderManager.h" />
     <ClInclude Include="..\includes\Core\Engine.h" />

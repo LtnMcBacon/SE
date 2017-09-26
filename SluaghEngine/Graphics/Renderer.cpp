@@ -37,15 +37,16 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
 	off.shaderTarget[2] = true;
-	off.offset[0] = 0;
-	off.offset[1] = 0;
-	off.offset[2] = 0;
+	off.offset[0] = 1;
+	off.offset[1] = 1;
+	off.offset[2] = 1;
 
 	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
 	if (FAILED(hr))
 	{
-		throw "omg";
+		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
+
 
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
@@ -119,6 +120,10 @@ int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
+	DirectX::XMFLOAT4X4 wo;
+	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
+	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
+
 	return 0;
 }
 
@@ -129,6 +134,12 @@ int SE::Graphics::Renderer::Render() {
 
 
 	cam.Update(0.01f);
+
+	/*DirectX::XMFLOAT4X4 wo;
+	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
+	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);*/
+
+
 
 	ID3D11RenderTargetView* views[] = { device->GetRTV() };
 	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
@@ -146,10 +157,6 @@ int SE::Graphics::Renderer::Render() {
 	0);
 
 
-	DirectX::XMFLOAT4X4 wo;
-
-	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
-	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
 
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -249,10 +256,10 @@ int SE::Graphics::Renderer::CreateTransform()
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
 	off.shaderTarget[2] = true;
-	off.offset[0] = 1;
-	off.offset[1] = 1;
-	off.offset[2] = 1;
-	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &handle);
+	off.offset[0] = 2;
+	off.offset[1] = 2;
+	off.offset[2] = 2;
+	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), off, &handle);
 	if (FAILED(hr))
 		ProfileReturnConst(hr);
 	ProfileReturnConst(handle);

@@ -1,6 +1,7 @@
 #include "MaterialManagerTest.h"
 #include <Core\Engine.h>
 
+#include <Utilz\Timer.h>
 
 SE::Test::MaterialManagerTest::MaterialManagerTest()
 {
@@ -10,13 +11,25 @@ SE::Test::MaterialManagerTest::MaterialManagerTest()
 SE::Test::MaterialManagerTest::~MaterialManagerTest()
 {
 }
-
+enum ActionButton
+{
+	Exit,
+	Hide,
+	Show,
+	Up,
+	Down,
+	Left,
+	Right,
+	Fullscreen
+};
 bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& engine = Core::Engine::GetInstance();
 	engine.Init(Core::Engine::InitializationInfo());
 	auto& em = engine.GetEntityManager();
 	auto& mm = engine.GetMaterialManager();
+	auto& tm = engine.GetTransformManager();
+	auto& cm = engine.GetCameraManager();
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
@@ -31,31 +44,65 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	
 	mm.Create(entity, info);
+	auto& camera = em.Create();
+	cm.Bind(camera);
+	cm.SetActive(camera);
+	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
+	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 
 	auto& rm = engine.GetRenderableManager();
-	auto& tm = engine.GetTransformManager();
 
 	tm.Create(entity);
 
-	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_levsel.obj"));
+	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(entity, true);
 
-	engine.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	engine.GetWindow()->MapActionButton(1, Window::KeyO);
-	engine.GetWindow()->MapActionButton(2, Window::KeyK);
+	auto w = engine.GetWindow();
+
+
+	w->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	w->MapActionButton(ActionButton::Hide, Window::KeyO);
+	w->MapActionButton(ActionButton::Show, Window::KeyK);
+	w->MapActionButton(ActionButton::Up, Window::KeyW);
+	w->MapActionButton(ActionButton::Down, Window::KeyS);
+	w->MapActionButton(ActionButton::Left, Window::KeyA);
+	w->MapActionButton(ActionButton::Right, Window::KeyD);
+	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 
 	bool running = true;
+	Utilz::Timer timer;
+	auto& oh = engine.GetOptionHandler();
+
+	int full = oh.GetOption("Window", "fullScreen", 0);
 	while (running)
 	{
-		if (engine.GetWindow()->ButtonPressed(0))
+		timer.Tick();
+		float dt = timer.GetDeltaMilliseconds();
+		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
 		
-		if (engine.GetWindow()->ButtonPressed(1))
+		if (w->ButtonPressed(ActionButton::Hide))
 			rm.ToggleRenderableObject(entity, false);
-		if (engine.GetWindow()->ButtonPressed(2))
+		if (w->ButtonPressed(ActionButton::Show))
 			rm.ToggleRenderableObject(entity, true);
 
-		engine.Frame();
+		if (w->ButtonPressed(ActionButton::Fullscreen))
+		{
+			full = full ? 0 : 1;
+			oh.SetOption("Window", "fullScreen", full);	
+			oh.Trigger();
+		}
+
+		if (w->ButtonDown(ActionButton::Up))
+			tm.Move(camera, { 0.0f, 0.0f, 0.01f*dt });
+		if (w->ButtonDown(ActionButton::Down))
+			tm.Move(camera, { 0.0f, 0.0f, -0.01f*dt });
+		if (w->ButtonDown(ActionButton::Right))
+			tm.Move(camera, { 0.01f*dt, 0.0f, 0.0f });
+		if (w->ButtonDown(ActionButton::Left))
+			tm.Move(camera, { -0.01f*dt, 0.0f, 0.0f });
+
+		engine.Frame(0.01f);	
 	}
 
 

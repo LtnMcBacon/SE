@@ -3,7 +3,6 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-
 #include <Utilz\Camera.h>
 
 namespace SE
@@ -169,26 +168,21 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+
 			struct OncePerFrameConstantBuffer
 			{
 				DirectX::XMFLOAT4X4 viewproj;
 			};
 
-			struct OncePerObjectConstantBuffer
-			{
-				DirectX::XMFLOAT4X4 world;
-			};
 			int oncePerFrameBufferID;
 
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
 
-			Utilz::Camera cam;
-
 			std::vector<RenderObjectInfo> renderJobs;
 
-
+			Utilz::Camera cam;
 		};
 
 	}

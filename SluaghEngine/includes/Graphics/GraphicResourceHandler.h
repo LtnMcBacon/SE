@@ -2,7 +2,7 @@
 #define GRAPHICRESOURCEHANDLER_H
 
 #include <d3d11.h>
-#include <d3dcompiler.h>	// We also need the D3DCompiler header to compile shaders
+
 #include <DirectXMath.h>
 #include <iostream>
 #include <vector>
