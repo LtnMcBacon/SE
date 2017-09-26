@@ -2,21 +2,25 @@
 #include <Profiler.h>
 using namespace SE;
 using namespace Gameplay;
-using namespace Window;
+
 
 CharacterCreationState::CharacterCreationState()
 {
 
 }
+CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
+{
+	this->Input = Input;
+}
 CharacterCreationState::~CharacterCreationState()
 {
 
 }
-GameState::State CharacterCreationState::Update(IWindow* Input, void* &passableInfo)
+IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	GameState::State empty;
+	IGameState::State empty;
 	bool running = true;
 	while (running)
 	{
@@ -31,6 +35,5 @@ GameState::State CharacterCreationState::Update(IWindow* Input, void* &passableI
 		Input->Frame();
 	}
 
-	StopProfile;
-	return empty;
+	ProfileReturn(empty);
 }

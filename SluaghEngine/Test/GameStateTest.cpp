@@ -6,7 +6,7 @@
 #include <window/WindowSDL.h>
 #include <window/IWindow.h>
 #include <Gameplay\MainMenuState.h>
-#include <Gameplay\PausState.h>
+#include <Gameplay\PauseState.h>
 using namespace SE;
 using namespace Gameplay;
 using namespace Test;
@@ -42,37 +42,38 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 	
 
 	bool running = true;
-	GameState* Game = new MainMenuState;
 
 	void* passableInfo = nullptr;
 	
-	GameState::State SwitchState = GameState::MAIN_MENU_STATE;
+	IGameState::State SwitchState = IGameState::MAIN_MENU_STATE;
 
 	Window::IWindow* Input = e.GetWindow();
 	
 	Input->MapActionButton(0, Window::KeyEscape);
+	
+	IGameState* Game = new MainMenuState;
 	
 
 	while (running)
 	{
 		switch (SwitchState)
 		{
-		case GameState::MAIN_MENU_STATE:
+		case IGameState::MAIN_MENU_STATE:
 			console->Print("Entering Main menu state!\n");
 			Game = new MainMenuState;
-			SwitchState = Game->Update(Input,passableInfo);
+			SwitchState = Game->Update(passableInfo);
 			std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 			break;
-		case GameState::PLAY_STATE:
+		case IGameState::PLAY_STATE:
 			break;
-		case GameState::GAME_OVER_STATE:
+		case IGameState::GAME_OVER_STATE:
 			break;
-		case GameState::CHARACTER_CREATION_STATE:
+		case IGameState::CHARACTER_CREATION_STATE:
 			break;
-		case GameState::PAUSE_STATE:
+		case IGameState::PAUSE_STATE:
 			console->Print("Entering Pause state!\n");
-			Game = new PausState;
-			SwitchState = Game->Update(Input, passableInfo);
+			Game = new PauseState;
+			SwitchState = Game->Update(passableInfo);
 			std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 			break;
 		default:
@@ -84,5 +85,6 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		e.Frame();
 
 	}
+	delete[] passableInfo;
 	StopProfile;
 }

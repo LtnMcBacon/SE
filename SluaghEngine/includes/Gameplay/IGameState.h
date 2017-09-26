@@ -18,12 +18,12 @@ namespace SE
 		* @warning Not fully implemented.
 		**/
 
-		class GameState
+		class IGameState
 		{
 		public:
-			GameState();
-			GameState(void* state);
-			~GameState();
+			IGameState();
+			IGameState(void* state);
+			~IGameState();
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
@@ -39,7 +39,7 @@ namespace SE
 			// perhaps a pointer to decide states when switching between objects?
 			// or a bunch of subclasses objects.
 
-			virtual State Update(Window::IWindow* Input,void* &passableInfo) = 0;
+			virtual State Update(void* &passableInfo) = 0;
 		private:
 
 			void InitializeState();
@@ -49,6 +49,8 @@ namespace SE
 
 
 		protected:
+			Window::IWindow* Input;
+
 		};
 
 

@@ -2,20 +2,25 @@
 #include <Profiler.h>
 using namespace SE;
 using namespace Gameplay;
-using namespace Window;
+
 
 GameOverState::GameOverState()
 {
+}
+
+GameOverState::GameOverState(Window::IWindow * Input)
+{
+	this->Input = Input;
 }
 
 GameOverState::~GameOverState()
 {
 }
 
-GameState::State GameOverState::Update(IWindow* Input,void* &passableInfo)
+IGameState::State GameOverState::Update(void* &passableInfo)
 {
 	StartProfile;
-	GameState::State empty;
+	IGameState::State empty;
 
 	bool running = true;
 	while (running)
@@ -30,6 +35,5 @@ GameState::State GameOverState::Update(IWindow* Input,void* &passableInfo)
 		Input->Frame();
 	}
 
-	StopProfile;
-	return empty;
+	ProfileReturn(empty);
 }

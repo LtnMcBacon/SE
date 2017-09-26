@@ -3,34 +3,21 @@
 using namespace SE;
 using namespace Gameplay;
 
-GameState::GameState()
+IGameState::IGameState()
 {
 
 }
-GameState::GameState(void* state)
-{
-
-}
-
-GameState::~GameState()
+IGameState::IGameState(void* state)
 {
 
 }
 
-void GameState::InitializeState()
+IGameState::~IGameState()
 {
-	StartProfile;
-
-
-	//code
-
-
-
-	StopProfile;
 
 }
 
-void GameState::ChangeState()
+void IGameState::InitializeState()
 {
 	StartProfile;
 
@@ -40,9 +27,10 @@ void GameState::ChangeState()
 
 
 	StopProfile;
+
 }
 
-void GameState::UpdateState()
+void IGameState::ChangeState()
 {
 	StartProfile;
 
@@ -54,7 +42,19 @@ void GameState::UpdateState()
 	StopProfile;
 }
 
-void GameState::EndState()
+void IGameState::UpdateState()
+{
+	StartProfile;
+
+
+	//code
+
+
+
+	StopProfile;
+}
+
+void IGameState::EndState()
 {
 	StartProfile;
 

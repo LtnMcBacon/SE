@@ -14,15 +14,16 @@ namespace SE
 		*
 		* @warning Not complete
 		*
-		* @sa GameState.
+		* @sa IGameState.
 		*
 		**/
 
-		class CharacterCreationState : public GameState
+		class CharacterCreationState : public IGameState
 		{
 
 		public:
 			CharacterCreationState();
+			CharacterCreationState(Window::IWindow* Input);
 			~CharacterCreationState();
 
 
@@ -31,7 +32,6 @@ namespace SE
 			*
 			* @details	An update loop to be used during the Character Creation phase, more info added later
 			*
-			* @param[in] Input is a pointer to the Window class which lets us use user input within these update loops
 			* @param[in,out] passableInfo is a void pointer which lets us send information inbetween the states.
 			*
 			* @retval State return value to which other state to switch to when done.
@@ -40,7 +40,7 @@ namespace SE
 			*
 			*/
 
-			State Update(Window::IWindow* Input, void* &passableInfo);
+			State Update(void* &passableInfo);
 		private:
 
 		protected:

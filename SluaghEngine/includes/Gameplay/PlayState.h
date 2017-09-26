@@ -14,20 +14,20 @@ namespace SE
 		*
 		* @warning Not complete
 		*
-		* @sa GameState.
+		* @sa IGameState.
 		*
 		**/
-		class PlayState : public GameState
+		class PlayState : public IGameState
 		{
 		public:
 			PlayState();
+			PlayState(Window::IWindow* Input);
 			~PlayState();
 			/**
 			* @brief	The update loop for the Play state process.
 			*
 			* @details	An update loop to be used during the Play state phase, more info added later
 			*
-			* @param[in] Input is a pointer to the Window class which lets us use user input within these update loops
 			* @param[in,out] passableInfo is a void pointer which lets us send information inbetween the states.
 			*
 			* @retval State return value to which other state to switch to when done.

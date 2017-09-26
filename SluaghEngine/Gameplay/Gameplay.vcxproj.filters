@@ -58,9 +58,6 @@
     <Filter Include="Source Files\IGameState\PausState">
       <UniqueIdentifier>{89d9001b-fe0f-4a31-9884-071b8ca408fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\IGameState\PausState">
-      <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\IGameState\GameOverState">
       <UniqueIdentifier>{d4bbf0a5-f9bb-4c18-8196-7be17fa4eb09}</UniqueIdentifier>
     </Filter>
@@ -72,6 +69,9 @@
     </Filter>
     <Filter Include="Source Files\Game">
       <UniqueIdentifier>{06a9c891-0b67-4e25-b6c8-defa974d05d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\PauseState">
+      <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -140,14 +140,14 @@
     <ClInclude Include="..\includes\Gameplay\GameOverState.h">
       <Filter>Header Files\IGameState\GameOverState</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\PausState.h">
-      <Filter>Header Files\IGameState\PausState</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayState.h">
       <Filter>Header Files\IGameState\PlayState</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\IGameState.h">
       <Filter>Header Files\IGameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PauseState.h">
+      <Filter>Header Files\IGameState\PauseState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

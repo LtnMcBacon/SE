@@ -1,13 +1,18 @@
-#include "PausState.h"
+#include "PauseState.h"
 #include <Profiler.h>
 using namespace SE;
 using namespace Gameplay;
-using namespace Window;
-PausState::PausState()
+
+PauseState::PauseState()
 {
 }
 
-PausState::~PausState()
+PauseState::PauseState(Window::IWindow* Input)
+{
+	this->Input = Input;
+}
+
+PauseState::~PauseState()
 {
 }
 
@@ -15,11 +20,11 @@ PausState::~PausState()
 
 
 
-GameState::State PausState::Update(IWindow* Input,void* &passableInfo)
+IGameState::State PauseState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	GameState::State empty = State::PAUSE_STATE;
+	IGameState::State empty = State::PAUSE_STATE;
 	*(int*)passableInfo +=1;
 
 	bool running = true;
@@ -35,6 +40,5 @@ GameState::State PausState::Update(IWindow* Input,void* &passableInfo)
 	}
 
 
-	StopProfile;
-	return empty;
+	ProfileReturn(empty);
 }

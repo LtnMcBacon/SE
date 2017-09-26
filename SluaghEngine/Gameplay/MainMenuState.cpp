@@ -1,11 +1,16 @@
 #include "MainMenuState.h"
 using namespace SE;
 using namespace Gameplay;
-using namespace Window;
 #include <Profiler.h>
+
 MainMenuState::MainMenuState()
 {
 
+}
+
+MainMenuState::MainMenuState(Window::IWindow * Input)
+{
+	this->Input = Input;
 }
 
 MainMenuState::~MainMenuState()
@@ -13,11 +18,11 @@ MainMenuState::~MainMenuState()
 
 }
 
-GameState::State MainMenuState::Update(IWindow* Input, void* &passableInfo)
+IGameState::State MainMenuState::Update( void* &passableInfo)
 {
 	StartProfile;
 
-	GameState::State empty = State::MAIN_MENU_STATE;
+	IGameState::State empty = State::MAIN_MENU_STATE;
 	
 
 	bool running = true;
@@ -36,7 +41,6 @@ GameState::State MainMenuState::Update(IWindow* Input, void* &passableInfo)
 
 	passableInfo = new int(a);
 	
-	StopProfile;
-	return empty;
+	ProfileReturn(empty);
 	
 }

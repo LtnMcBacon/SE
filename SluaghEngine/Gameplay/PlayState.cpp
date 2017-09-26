@@ -8,16 +8,21 @@ PlayState::PlayState()
 
 }
 
+PlayState::PlayState(Window::IWindow* Input)
+{
+	this->Input = Input;
+}
+
 PlayState::~PlayState()
 {
 
 }
 
-GameState::State PlayState::Update(void* passableInfo)
+IGameState::State PlayState::Update(void* passableInfo)
 {
 	StartProfile;
 
-	GameState::State empty = State::PLAY_STATE;
+	IGameState::State empty = State::PLAY_STATE;
 
 	bool running = true;
 	while (running)
@@ -26,6 +31,5 @@ GameState::State PlayState::Update(void* passableInfo)
 		/*Code*/
 	}
 
-	StopProfile;
-	return empty;
+	ProfileReturn(empty);
 }

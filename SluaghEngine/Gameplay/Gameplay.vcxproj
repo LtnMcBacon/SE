@@ -41,7 +41,7 @@
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
-    <ClInclude Include="..\includes\Gameplay\PausState.h" />
+    <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="Game.h" />
