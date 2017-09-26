@@ -48,6 +48,9 @@
     <ClCompile Include="Flowfield.cpp">
       <Filter>Source Files\Flowfield</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\Flowfield.h">
       <Filter>Header Files\Flowfield</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

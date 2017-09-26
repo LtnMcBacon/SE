@@ -23,6 +23,7 @@
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="GameUnit.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +32,7 @@
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="PlayerUnit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

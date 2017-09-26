@@ -57,14 +57,12 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 	int yIndex = int(enemyPos.y - lowerLeftCornerYCoord);
 
 
-
 	switch (data[xIndex][yIndex].dir)
 	{
 	case Direction::NONE:
 		xMagnitude = 0.0f;
 		yMagnitude = 0.0f;
-		StopProfile;
-		return;
+		break;
 
 	case Direction::UP:
 		xMagnitude = 0.0f;
@@ -107,8 +105,6 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 		break;
 
 	}
-
-
 
 
 	StopProfile;
