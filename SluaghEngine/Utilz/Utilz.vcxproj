@@ -155,6 +155,7 @@
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\StackAllocator.h" />
     <ClInclude Include="..\includes\Utilz\Timer.h" />
+    <ClInclude Include="Tools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="MemoryMeasuring.cpp" />
     <ClCompile Include="StackAllocator.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

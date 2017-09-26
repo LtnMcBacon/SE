@@ -1,6 +1,7 @@
 #include "PickingTest.h"
 #include <Core\Engine.h>
 #include <Core\CollisionManager.h>
+#include <Windows.h>
 
 bool SE::Test::PickingTest::Run(SE::Utilz::IConsoleBackend * console)
 {
@@ -16,7 +17,8 @@ bool SE::Test::PickingTest::Run(SE::Utilz::IConsoleBackend * console)
 	auto& em = e.GetEntityManager();
 	auto& rm = e.GetRenderableManager();
 	auto& cm = e.GetCollisionManager();
-	
+	auto& tm = e.GetTransformManager();
+
 	auto floor = em.Create();
 	auto object = em.Create();
 
@@ -24,8 +26,30 @@ bool SE::Test::PickingTest::Run(SE::Utilz::IConsoleBackend * console)
 	rm.ToggleRenderableObject(floor, true);
 
 	cm.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.obj"));
-	//auto test = cm.PickEntity(floor, )
-	
+
+	DirectX::XMFLOAT3 pos = tm.GetPosition(floor);
+	DirectX::XMFLOAT3 rot = tm.GetRotation(floor);
+	float scale = tm.GetScale(floor);
+
+	DirectX::XMMATRIX worldM = { scale, 0, 0, 0,
+								0, scale, 0, 0,
+								0, 0, scale, 0,
+								pos.x, pos.y, pos.z, 1.0f };
+	//DirectX::XMMATRIX viewM = rm.
+
+	/*while (true)
+	{
+		if (GetAsyncKeyState(0x01))
+		{
+			POINT p;
+			if (GetCursorPos(&p))
+			{
+				DirectX::XMVECTOR ray = { p.x, p.y, 1.0f};
+				
+			}
+		}
+	}*/
+
 
 	return false;
 }

@@ -73,7 +73,7 @@
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
     <ClCompile Include="PickingTest.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,7 +132,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PickingTest.h">
-      <Filter>Source Files\Gameplay Tests</Filter>
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
