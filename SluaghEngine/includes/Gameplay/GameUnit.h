@@ -119,6 +119,9 @@ namespace SE
 			inline float GetHealth() const { return health; };
 			inline float GetXPosition() { return xPos; };
 			inline float GetYPosition() { return yPos; };
+
+			inline void SetXPosition(float value) { xPos = value; };
+			inline void SetYPosition(float value) { yPos = value; };
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:

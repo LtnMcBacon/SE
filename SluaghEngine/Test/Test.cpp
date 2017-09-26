@@ -24,6 +24,7 @@
 #include <crtdbg.h>
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
+#include "PlayerMovementTest.h"
 
 
 #ifdef _DEBUG
@@ -69,6 +70,7 @@ int main(int argc, char** argv)
 	AddTest(FlowFieldTest);
 	AddTest(EnemyMovementTest);
 	AddTest(RoomCreationTest);
+	AddTest(PlayerMovementTest);
 
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
