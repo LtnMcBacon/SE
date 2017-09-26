@@ -3,7 +3,6 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include <Utilz\Camera.h>
 
 namespace SE
 {
@@ -181,8 +180,6 @@ namespace SE
 			GraphicResourceHandler* graphicResourceHandler;
 
 			std::vector<RenderObjectInfo> renderJobs;
-
-			Utilz::Camera cam;
 		};
 
 	}
