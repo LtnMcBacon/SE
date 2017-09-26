@@ -55,6 +55,31 @@ void SE::Graphics::Renderer::Shutdown()
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
+	//Work in progress.
+	/*int32_t bucketIndex = -1;
+	const size_t renderBucketCount = renderBuckets.size();
+	for (size_t i = 0; i < renderBucketCount; ++i)
+	{
+		if (renderBuckets[i].stateInfo - handles == 0)
+		{
+			bucketIndex = i;
+			break;
+		}
+	}
+	if(bucketIndex >= 0)
+	{
+		const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+		DirectX::XMFLOAT4X4 identityMatrix;
+		DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
+		renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
+	}
+	else
+	{
+		bucketIndex = renderBuckets.size();
+		
+		
+	}*/
+
 	renderJobs.push_back(handles);
 
 	int insertion = renderJobs.size() - 1;

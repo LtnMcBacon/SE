@@ -34,7 +34,8 @@ namespace SE
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
 			* @sa RenderObjectInfo
 			* @endcode
 			*/

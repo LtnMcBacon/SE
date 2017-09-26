@@ -32,9 +32,9 @@ namespace SE
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
 			* @sa RenderObjectInfo
-			* @endcode
 			*/
 			int EnableRendering(const RenderObjectInfo& handles) override;
 
@@ -180,6 +180,20 @@ namespace SE
 			GraphicResourceHandler* graphicResourceHandler;
 
 			std::vector<RenderObjectInfo> renderJobs;
+
+			struct RenderBucket
+			{
+				RenderObjectInfo stateInfo;
+				size_t constantBufferHandle;
+				std::vector<DirectX::XMFLOAT4X4> transforms;
+			};
+			std::vector<RenderBucket> renderBuckets;
+			struct BucketAndTransformIndex
+			{
+				uint32_t bucketIndex;
+				uint32_t transformIndex;
+			};
+			std::map<uint32_t, BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 		};
 
 	}
