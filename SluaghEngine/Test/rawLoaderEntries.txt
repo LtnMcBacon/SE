@@ -1,5 +1,7 @@
 Assets/Canary.wav
 Assets/Cout.wav
+Assets/DebugLinePS.hlsl
+Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
