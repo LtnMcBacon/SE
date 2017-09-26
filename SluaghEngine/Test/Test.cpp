@@ -19,7 +19,7 @@
 #include "AudioTest.h"
 #include <map>
 #include <ctime>
-
+#include "GameStateTest.h"
 #include <crtdbg.h>
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
@@ -63,6 +63,7 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+	AddTest(GameStateTest);
 
 	
 	AddTest(FlowFieldTest);
