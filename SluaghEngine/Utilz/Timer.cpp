@@ -20,10 +20,10 @@ void SE::Utilz::Timer::Tick()
 
 float SE::Utilz::Timer::GetDeltaSeconds() const
 {
-	return std::chrono::duration_cast<std::chrono::duration<float>>(curTime - prevTime).count();
+	return std::chrono::duration_cast<std::chrono::seconds>(curTime - prevTime).count();
 }
 
 float SE::Utilz::Timer::GetDeltaMilliseconds() const
 {
-	return GetDeltaSeconds() * 0.001f;
+	return std::chrono::duration_cast<std::chrono::milliseconds>(curTime - prevTime).count();
 }

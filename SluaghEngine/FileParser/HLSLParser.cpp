@@ -70,7 +70,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 		printf("Wow, %s\n", outfilename);
 		return;
 	}
-	printf("Buffer size: %u\n", data->GetBufferSize());
+	//printf("Buffer size: %u\n", data->GetBufferSize());
 	outfile.write((const char*)data->GetBufferPointer(), data->GetBufferSize());
 
 	outfile.close();
@@ -89,7 +89,10 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		Write(outFilename, psBlob);
 		return 0;
 	}
-
+	else
+	{
+		printf("%s\n", psBlobErr->GetBufferPointer());
+	}
 
 	ID3DBlob* gsBlob;
 	ID3DBlob* gsBlobErr;
@@ -98,6 +101,10 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 	{
 		Write(outFilename, gsBlob);
 		return 0;
+	}
+	else
+	{
+		printf("%s\n", gsBlobErr->GetBufferPointer());
 	}
 
 	ID3DBlob* vsBlob;
@@ -108,6 +115,9 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		Write(outFilename, vsBlob);
 		return 0;
 	}
-
-	return 0;
+	else
+	{
+		printf("%s\n", vsBlobErr->GetBufferPointer());
+	}
+	return -1;
 }
