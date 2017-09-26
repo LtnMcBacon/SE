@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SE_AUDIO_AUDIOMANAGER_H
-#define SE_AUDIO_AUDIOMANAGER_H
+#ifndef SE_CORE_AUDIOMANAGER_H
+#define SE_CORE_AUDIOMANAGER_H
 #include <Audio\AudioSound.h>
 #include <Audio\AudioStream.h>
 #include <Utilz\GUID.h>
@@ -92,6 +92,7 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID);
+			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
 			void Shutdown();
 		private:
 			int retSoundData(const Utilz::GUID& guid, void* data, size_t size);
@@ -102,4 +103,4 @@ namespace SE {
 	}	//namespace Core
 }	//namespace SE
 
-#endif	//SE_AUDIO_AUDIOMANAGER_H
+#endif	//SE_CORE_AUDIOMANAGER_H

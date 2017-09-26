@@ -47,7 +47,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	for(int i = 0; i < 2048; i++)
 	{
 		entities[i] = em.Create();
-		tm.Create(entities[i], {1.0f, 1.0f, 1.0f}, {2.0f, 2.0f, 2.0f}, 2.0f);
+		tm.Create(entities[i], {1.0f, 1.0f, 1.0f}, {2.0f, 2.0f, 2.0f}, { 2.0f, 2.0f, 2.0f });
 	}
 	for(int i = 0; i < 2048; i++)
 	{
@@ -55,7 +55,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 			ProfileReturnConst(false);
 		if (!CompareFloat3(tm.GetRotation(entities[i]), { 2.0f,2.0f,2.0f }))
 			ProfileReturnConst(false);
-		if (!CompareFloat(tm.GetScale(entities[i]), 2.0f))
+		if (!CompareFloat(tm.GetScale(entities[i]).x, 2.0f))
 			ProfileReturnConst(false);
 
 	}
@@ -70,7 +70,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	{
 		DirectX::XMFLOAT3 pos = tm.GetPosition(entities[i]);
 		DirectX::XMFLOAT3 rot = tm.GetRotation(entities[i]);
-		float scale = tm.GetScale(entities[i]);
+		float scale = tm.GetScale(entities[i]).x;
 
 		if(!CompareFloat3(pos, {(float)i, 1.0f, 1.0f}))
 		{
@@ -104,7 +104,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	{
 		DirectX::XMFLOAT3 pos = tm.GetPosition(entities[i]);
 		DirectX::XMFLOAT3 rot = tm.GetRotation(entities[i]);
-		float scale = tm.GetScale(entities[i]);
+		float scale = tm.GetScale(entities[i]).x;
 
 		if (!CompareFloat3(pos, {0.0f,3.0f,0.0f}))
 		{
@@ -185,11 +185,18 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 		if (!CompareFloat3(tm.GetRotation(entities[i]), { 5.0f,5.0f,5.0f }))
 			ProfileReturnConst(false);
-		if (!CompareFloat(tm.GetScale(entities[i]), 5.0f))
+		if (!CompareFloat(tm.GetScale(entities[i]).x, 5.0f))
 			ProfileReturnConst(false);
 	}
 
-
+	auto& parent = em.Create();
+	auto& child = em.Create();
+	tm.Create(parent, { 0.0f, 0.0f, 0.0f });
+	tm.Create(child, { 1.0f, 0.0f, 0.0f });
+	tm.Frame();
+	tm.BindChild(parent, child);
+	tm.Move(parent, { 0.0f, 0.0f, 1.0f });
+	tm.Frame();
 	engine.Release();
 	ProfileReturnConst(true);
 }

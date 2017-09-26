@@ -38,7 +38,11 @@ namespace SE
 			void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void UnbindCallbacks() override;
+		
+			bool SetWindow(int height, int width, bool inFullscreen) override;
 		private:
+			
+
 			/*Window related things*/
 			SDL_Window* window;
 			uint32_t width;
