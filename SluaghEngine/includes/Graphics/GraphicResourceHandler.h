@@ -7,13 +7,17 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <unordered_map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
+#include "ShaderSettings.h"
 
 namespace SE {
 
 	namespace Graphics {
+
+	
 
 
 		struct VertexCount
@@ -107,7 +111,7 @@ namespace SE {
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
 			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
-			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID);
+			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
 
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
@@ -234,7 +238,7 @@ namespace SE {
 			ID3D11DeviceContext* gDeviceContext;
 
 			// Samplerstate
-			ID3D11SamplerState* sampleState = nullptr;
+			ID3D11SamplerState* sampleState;
 
 			// Vertex shader specific data
 			std::vector<VertexShaderData>vShaders;

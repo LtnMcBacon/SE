@@ -15,6 +15,7 @@
 #include "MaterialManagerTest.h"
 #include "BoundingTest.h"
 #include "ImageLoadTest.h"
+#include "AllocatorTest.h"
 #include "AudioTest.h"
 #include <map>
 #include <ctime>
@@ -22,6 +23,7 @@
 #include <crtdbg.h>
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
+#include "PlayerMovementTest.h"
 
 
 #ifdef _DEBUG
@@ -44,7 +46,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 542732;
+	//_crtBreakAlloc = 24432;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -60,11 +62,13 @@ int main(int argc, char** argv)
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
+	AddTest(AllocatorTest);
 
 	
 	AddTest(FlowFieldTest);
 	AddTest(EnemyMovementTest);
 	AddTest(RoomCreationTest);
+	AddTest(PlayerMovementTest);
 
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);

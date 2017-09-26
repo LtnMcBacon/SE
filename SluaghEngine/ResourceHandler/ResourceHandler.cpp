@@ -12,6 +12,7 @@
 
 SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr)
 {
+	
 }
 
 
@@ -24,62 +25,284 @@ int SE::ResourceHandler::ResourceHandler::Initialize()
 	StartProfile;
 	diskLoader = new RawLoader;
 	diskLoader->Initialize();
+	_ASSERT(diskLoader);
+
+	Allocate(128);
+
+	running = true;
+	myThread = std::thread(&ResourceHandler::Run, this);
+
 	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
-	for (auto& r : resourceMap)
+
+	running = false;
+	myThread.join();
+
+	for (size_t i = 0; i < resourceInfo.used; i++)
 	{
-		delete r.second.data;
+		operator delete(resourceInfo.resourceData[i].data);
 	}
+	operator delete(resourceInfo.data);
 	delete diskLoader;
 }
 
-int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool wait)
+int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool async, Behavior behavior)
 {
 	StartProfile;
 
-	auto& find = resourceMap.find(guid);
-	if (find == resourceMap.end())
-	{
-		auto& resourceInfo = resourceMap[guid];
-		auto result = diskLoader->LoadResource(guid, &resourceInfo.data, &resourceInfo.size, &resourceInfo.extension);
-		if (result)
-		{
-			Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
-			ProfileReturnConst(result);
-		}	
-		else
-		{
-		
-			auto ret = callback(guid, resourceInfo.data, resourceInfo.size);
-			if (ret)
-			{
-				Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
-				ProfileReturnConst( ret);
-			}
-			resourceInfo.refCount++;
-		}
-			
-	}
-	else
-	{
-		auto& resourceInfo = resourceMap[guid];	
-		resourceInfo.refCount++;
-		ProfileReturn(callback(guid, resourceInfo.data, resourceInfo.size));
-	}
+	auto& find = guidToResourceInfoIndex.find(guid);
+	auto& index = guidToResourceInfoIndex[guid];
 
-	ProfileReturnConst(0);
+	if (find == guidToResourceInfoIndex.end()) //If resource is not registered.
+	{
+
+		if (!diskLoader->Exist(guid)) // Make sure we can load the resource.
+		{
+			Utilz::Console::Print("Resource %u could not be found!\n", guid);
+			ProfileReturnConst(-1);
+		}
+
+		// Make sure we have enough memory.
+		if (resourceInfo.used + 1 > resourceInfo.allocated)
+			Allocate(resourceInfo.allocated * 2);
+
+		index = resourceInfo.used++;
+		resourceInfo.state[index] = State::Loading;
+		resourceInfo.refCount[index] = 1;
+
+		if (async) { // We create a load job
+			CreateLoadJob(guid, index, callback, behavior);
+			ProfileReturnConst(0);
+		}
+		else {
+			ProfileReturn(LoadSync(guid, index, callback));
+		}
+	}
+	else // Resource is registered
+	{
+		resourceInfo.refCount[index]++; // First increase the refcount
+		if (resourceInfo.state[index] == State::Loaded) // The resource already loaded.
+		{
+
+			if (async) { // Since the load is async we make a load job that will call the callback.			
+				CreateLoadJob(guid, index, callback, behavior);
+				ProfileReturnConst(0);
+			}
+			else { // Invoke the callback
+				ProfileReturn(InvokeCallback(guid, index, callback));
+			}
+		}
+		else if (resourceInfo.state[index] == State::Loading) // Someone has already started loading the resource.
+		{
+			// Update the toLoad struct
+
+			if (async) { // Update the load job
+				UpdateLoadJob(toLoad[guid], callback, behavior);
+				ProfileReturnConst(0);
+			}
+			else // Since the load is sync we need to wait until the resource has been loaded.
+			{
+				while (resourceInfo.state[index] != State::Loaded) Sleep(10); // TODO: Maybe change to a condition variable
+				ProfileReturn(InvokeCallback(guid, index, callback));
+			}
+		}
+		else // The resource is dead, the refCount reached 0 before the load was completed.
+		{
+			if (async) { // We create a load job
+				CreateLoadJob(guid, index, callback, behavior);
+				ProfileReturnConst(0);
+			}
+			else {
+				ProfileReturn(LoadSync(guid, index, callback));
+			}
+		}
+	}
+	StopProfile;
 }
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
 {
 	StartProfile;
-	auto& find = resourceMap.find(guid);
-	if (find == resourceMap.end())
+	auto& find = guidToResourceInfoIndex.find(guid);
+	if (find == guidToResourceInfoIndex.end())
 	{
-		find->second.refCount--;
+		resourceInfo.refCount[find->second]--;
+		if (resourceInfo.refCount[find->second] == 0 && resourceInfo.state[find->second] == State::Loading) // If no one want the resource any more and isn't loaded yet.
+			RemoveLoadJob(guid); // Remove the load job.
+
 	}
 	StopProfile;
+}
+
+void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
+{
+	StartProfile;
+	_ASSERT(size > resourceInfo.allocated);
+
+	// Allocate new memory
+	ResourceInfo newData;
+	newData.allocated = size;
+	newData.data = operator new(size * ResourceInfo::size);
+	newData.used = resourceInfo.used;
+
+	// Setup the new pointers
+	newData.resourceData = (Data*)newData.data;
+	newData.refCount = (uint16_t*)(newData.resourceData + newData.allocated);
+	newData.state = (State*)(newData.refCount + newData.allocated);
+	newData.extension = (Utilz::GUID*)(newData.state + newData.allocated);
+
+	// Copy data
+	memcpy(newData.resourceData, resourceInfo.resourceData, resourceInfo.used * sizeof(Data));
+	memcpy(newData.refCount, resourceInfo.refCount, resourceInfo.used * sizeof(uint16_t));
+	memcpy(newData.state, resourceInfo.state, resourceInfo.used * sizeof(State));
+	memcpy(newData.extension, resourceInfo.extension, resourceInfo.used * sizeof(Utilz::GUID));
+
+	// Delete old data;
+	operator delete(resourceInfo.data);
+	resourceInfo = newData;
+
+	StopProfile;
+}
+
+void SE::ResourceHandler::ResourceHandler::Destroy(size_t index)
+{
+}
+
+void SE::ResourceHandler::ResourceHandler::Run()
+{
+	StartProfile;
+
+	while (running)
+	{		
+			LoadAsync();
+			Sleep(66);
+	}
+	StopProfile;
+}
+
+void SE::ResourceHandler::ResourceHandler::LoadAsync()
+{
+	
+	while (toLoad.size()) // Do we need to load anything.
+	{
+		StartProfile;
+		toLoadLock.lock();
+		auto job = toLoad.begin()->second;
+		toLoadLock.unlock();
+
+		infoLock.lock();
+		auto state = resourceInfo.state[job.resourceInfoIndex];		
+		infoLock.unlock();
+
+		if (state == State::Loading) // Resource is not loaded yet
+		{
+			Data data;
+			Utilz::GUID ext;
+			auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size, &ext); // TODO: Fail check
+
+			infoLock.lock();
+			resourceInfo.resourceData[job.resourceInfoIndex] = data;
+			resourceInfo.extension[job.resourceInfoIndex] = ext;
+			resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
+			
+			infoLock.unlock();
+
+
+			toLoadLock.lock();
+			auto& find = toLoad.find(job.guid);
+			if (find != toLoad.end())
+			{
+				toLoad.erase(job.guid);
+				toLoadLock.unlock();
+				job.callbacks(job.guid, data.data, data.size); // TODO: Fail check
+			}
+			else
+				toLoadLock.unlock();
+		}
+		else if(state == State::Loaded) // Resource is loaded.
+		{
+			infoLock.lock();
+			Data data = resourceInfo.resourceData[job.resourceInfoIndex];
+			infoLock.unlock();
+
+
+
+			toLoadLock.lock();
+			auto& find = toLoad.find(job.guid);
+			if (find != toLoad.end())
+			{
+				toLoad.erase(job.guid);
+				toLoadLock.unlock();
+				job.callbacks(job.guid, data.data, data.size); // TODO: Fail check
+			}
+			else
+				toLoadLock.unlock();
+		}
+		StopProfile;
+	}
+	
+}
+
+void SE::ResourceHandler::ResourceHandler::CreateLoadJob(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback, Behavior behavior)
+{
+	StartProfile;
+	toLoadLock.lock();
+	auto& tl = toLoad[guid];
+	tl.behavior = behavior;
+	tl.callbacks.Add(callback);
+	tl.resourceInfoIndex = index;
+	tl.guid = guid;
+	toLoadLock.unlock();
+	StopProfile;
+}
+
+void SE::ResourceHandler::ResourceHandler::UpdateLoadJob(ToLoadInfo & loadInfo, const LoadResourceDelegate & callback, Behavior behavior)
+{
+	StartProfile;
+	toLoadLock.lock();
+	loadInfo.behavior = loadInfo.behavior == Behavior::QUICK ? Behavior::QUICK : behavior; // If someone already needs the resource quickly, make sure that we don't change it to lazy.
+	loadInfo.callbacks.Add(callback);
+	toLoadLock.unlock();
+	StopProfile;
+}
+
+void SE::ResourceHandler::ResourceHandler::RemoveLoadJob(const Utilz::GUID & guid)
+{
+	StartProfile;
+	toLoadLock.lock();
+	toLoad.erase(guid);
+	auto index = guidToResourceInfoIndex[guid];
+	resourceInfo.state[index] = State::Dead;
+	toLoadLock.unlock();
+	StopProfile;
+}
+
+int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
+{
+	StartProfile;
+	auto result = diskLoader->LoadResource(guid, &resourceInfo.resourceData[index].data, &resourceInfo.resourceData[index].size, &resourceInfo.extension[index]);
+	if (result)
+	{
+		Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
+		ProfileReturnConst(result);
+	}
+		
+	resourceInfo.state[index] = State::Loaded;
+	ProfileReturn(InvokeCallback(guid, index, callback));
+}
+
+int SE::ResourceHandler::ResourceHandler::InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
+{
+	StartProfile;
+	auto result = callback(guid, resourceInfo.resourceData[index].data, resourceInfo.resourceData[index].size);
+	if (result)
+	{
+		Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
+		resourceInfo.refCount[index]--;
+	}
+
+	ProfileReturnConst(result);
 }

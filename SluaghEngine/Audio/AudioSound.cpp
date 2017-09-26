@@ -1,5 +1,6 @@
 #include "AudioSound.h"
 #include <Profiler.h>
+#include <Core\Engine.h>
 
 namespace SE {
 	namespace Audio {
@@ -16,6 +17,11 @@ namespace SE {
 		int AudioSound::Initialize()
 		{
 			StartProfile;
+			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
+			masterVol = optHandler.GetOption("Audio", "masterVolume", 100);
+			effectVol = optHandler.GetOption("Audio", "effectVolume", 80);
+			bakgroundVol = optHandler.GetOption("Audio", "bakgroundVolume", 50);
+			optHandler.Register(Utilz::Delegate<void()>::Make<AudioSound, &AudioSound::OptionUpdate>(this));
 			sampleStack.InitStackAlloc(100000000);
 			ProfileReturnConst(0);
 		}
@@ -118,7 +124,7 @@ namespace SE {
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
-				outData->pData.volume = masterVol * bakgroundVol;
+				outData->pData.volume = (masterVol * bakgroundVol) / 10000;
 				ProfileReturn((void*)outData);
 			}
 			else if (soundType == Effect)
@@ -126,7 +132,7 @@ namespace SE {
 				AudioOut *outData = new AudioOut();
 				outData->sample = &soundSample[soundID];
 				outData->pData.currentPos = 0;
-				outData->pData.volume = masterVol * effectVol;
+				outData->pData.volume = (masterVol * effectVol) / 10000;
 				ProfileReturn((void*)outData);
 			}
 			ProfileReturnConst(nullptr);
@@ -139,5 +145,16 @@ namespace SE {
 			soundSample.clear();
 			StopProfile;
 		}
+
+		void AudioSound::OptionUpdate()
+		{
+			StartProfile;
+			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
+			masterVol = optHandler.GetOption("Audio", "masterVolume", 100);
+			effectVol = optHandler.GetOption("Audio", "effectVolume", 80);
+			bakgroundVol = optHandler.GetOption("Audio", "bakgroundVolume", 50);
+			ProfileReturnVoid;
+		}
+
 	}	//namespace Audio
 }	//namespace SE
