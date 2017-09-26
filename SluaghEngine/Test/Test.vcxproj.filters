@@ -65,15 +65,12 @@
     </ClCompile>
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugRenderTest.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyMovementTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
     <ClCompile Include="RoomCreationTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
@@ -81,10 +78,10 @@
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PickingTest.cpp">
+    <ClCompile Include="PlayerMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerMovementTest.cpp">
+    <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -124,9 +121,6 @@
     </ClInclude>
     <ClInclude Include="MaterialManagerTest.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyMovementTest.h">
-      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoadTest.h">
       <Filter>Header Files</Filter>

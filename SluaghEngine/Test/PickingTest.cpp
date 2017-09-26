@@ -18,6 +18,7 @@ bool SE::Test::PickingTest::Run(SE::Utilz::IConsoleBackend * console)
 	auto& rm = e.GetRenderableManager();
 	auto& cm = e.GetCollisionManager();
 	auto& tm = e.GetTransformManager();
+	auto& vm = e.GetCameraManager();
 
 	auto floor = em.Create();
 	auto object = em.Create();
@@ -29,26 +30,25 @@ bool SE::Test::PickingTest::Run(SE::Utilz::IConsoleBackend * console)
 
 	DirectX::XMFLOAT3 pos = tm.GetPosition(floor);
 	DirectX::XMFLOAT3 rot = tm.GetRotation(floor);
-	float scale = tm.GetScale(floor);
+	DirectX::XMFLOAT3 scale = tm.GetScale(floor);
 
-	DirectX::XMMATRIX worldM = { scale, 0, 0, 0,
-								0, scale, 0, 0,
-								0, 0, scale, 0,
+	DirectX::XMMATRIX worldM = { scale.x, 0, 0, 0,
+								0, scale.y, 0, 0,
+								0, 0, scale.z, 0,
 								pos.x, pos.y, pos.z, 1.0f };
-	//DirectX::XMMATRIX viewM = rm.
 
-	/*while (true)
-	{
-		if (GetAsyncKeyState(0x01))
-		{
-			POINT p;
-			if (GetCursorPos(&p))
-			{
-				DirectX::XMVECTOR ray = { p.x, p.y, 1.0f};
-				
-			}
-		}
-	}*/
+	//while (true)
+	//{
+	//	if (GetAsyncKeyState(0x01))
+	//	{
+	//		POINT p;
+	//		if (GetCursorPos(&p))
+	//		{
+	//			DirectX::XMVECTOR ray = { p.x, p.y, 1.0f};
+	//			
+	//		}
+	//	}
+	//}
 
 
 	return false;

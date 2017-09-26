@@ -150,6 +150,7 @@
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
+    <ClCompile Include="PickingTest.cpp" />
     <ClCompile Include="PlayerMovementTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResouceHandlerTest.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
+    <ClInclude Include="PickingTest.h" />
     <ClInclude Include="PlayerMovementTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResouceHandlerTest.h" />
