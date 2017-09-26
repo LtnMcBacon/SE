@@ -1,6 +1,7 @@
 #ifndef _SE_GAMEPLAY_GAME_STATE_H
 #define _SE_GAMEPLAY_GAME_STATE_H
-
+#include <window/WindowSDL.h>
+#include <window/IWindow.h>
 
 namespace SE
 {
@@ -21,26 +22,31 @@ namespace SE
 		{
 		public:
 			GameState();
+			GameState(void* state);
 			~GameState();
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
-			static enum  State
+			 enum  State
 			{
-				MENU_STATE,
-				GAME_STATE,
-				END_STATE
+				MAIN_MENU_STATE = 0,
+				PLAY_STATE = 1,
+				GAME_OVER_STATE = 2,
+				CHARACTER_CREATION_STATE = 3,
+				PAUSE_STATE = 4
 			};
 
 			// perhaps a pointer to decide states when switching between objects?
 			// or a bunch of subclasses objects.
 
+			virtual State Update(Window::IWindow* Input,void* &passableInfo) = 0;
 		private:
 
 			void InitializeState();
 			void ChangeState();
 			void UpdateState();
 			void EndState();
+
 
 		protected:
 		};

@@ -37,6 +37,42 @@
     <Filter Include="Header Files\IGameState">
       <UniqueIdentifier>{e8534a88-2b56-4d41-9195-b89980bc36e7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\IGameState\MainMenuState">
+      <UniqueIdentifier>{67833fcf-b42a-4d6d-8998-a800673d59c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\MainMenuState">
+      <UniqueIdentifier>{245505c7-948c-4731-bba5-8b5642e50562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\CharacterCreationState">
+      <UniqueIdentifier>{b4538386-366e-4e10-b9a1-d136b1e3d3c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\CharacterCreationState">
+      <UniqueIdentifier>{132dfeb3-ef6c-445d-b122-124cd007f9dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\PlayState">
+      <UniqueIdentifier>{3a00d426-1173-4ece-bdad-d94916083099}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\PlayState">
+      <UniqueIdentifier>{87a9284c-68c7-4291-9dd5-1c71cc290f3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\PausState">
+      <UniqueIdentifier>{89d9001b-fe0f-4a31-9884-071b8ca408fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\PausState">
+      <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\GameOverState">
+      <UniqueIdentifier>{d4bbf0a5-f9bb-4c18-8196-7be17fa4eb09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\GameOverState">
+      <UniqueIdentifier>{3690d693-1bb5-4589-839e-d7a5681a9d8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{264fab68-8213-4add-a8c7-5f7055dd148c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{06a9c891-0b67-4e25-b6c8-defa974d05d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,6 +93,24 @@
     <ClCompile Include="IGameState.cpp">
       <Filter>Source Files\IGameState</Filter>
     </ClCompile>
+    <ClCompile Include="MainMenuState.cpp">
+      <Filter>Source Files\IGameState\MainMenuState</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterCreationState.cpp">
+      <Filter>Source Files\IGameState\CharacterCreationState</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
+      <Filter>Source Files\IGameState\PlayState</Filter>
+    </ClCompile>
+    <ClCompile Include="PausState.cpp">
+      <Filter>Source Files\IGameState\PausState</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverState.cpp">
+      <Filter>Source Files\IGameState\GameOverState</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -74,7 +128,25 @@
     <ClInclude Include="..\includes\Gameplay\Flowfield.h">
       <Filter>Header Files\Flowfield</Filter>
     </ClInclude>
-    <ClInclude Include="IGameState.h">
+    <ClInclude Include="Game.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MainMenuState.h">
+      <Filter>Header Files\IGameState\MainMenuState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h">
+      <Filter>Header Files\IGameState\CharacterCreationState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameOverState.h">
+      <Filter>Header Files\IGameState\GameOverState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PausState.h">
+      <Filter>Header Files\IGameState\PausState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayState.h">
+      <Filter>Header Files\IGameState\PlayState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IGameState.h">
       <Filter>Header Files\IGameState</Filter>
     </ClInclude>
   </ItemGroup>

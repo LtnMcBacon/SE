@@ -7,6 +7,10 @@ GameState::GameState()
 {
 
 }
+GameState::GameState(void* state)
+{
+
+}
 
 GameState::~GameState()
 {
