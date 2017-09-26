@@ -2,7 +2,7 @@
 #define GRAPHICRESOURCEHANDLER_H
 
 #include <d3d11.h>
-#include <d3dcompiler.h>	// We also need the D3DCompiler header to compile shaders
+
 #include <DirectXMath.h>
 #include <iostream>
 #include <vector>
@@ -221,6 +221,28 @@ namespace SE {
 			* @param[in] slot Which slot to bind the shader resource view to.
 			*/
 			void BindShaderResourceView(int id, int slot);
+
+			/**
+			* @brief Create a vertex buffer with CPU write access
+			* @param[in] bytewidth The size of the buffer
+			* @param[in] initialData The data to create the buffer with
+			* @param[in] vertexByteSize The size of the vertex type in bytes
+			* @param[in] initialDataSize The size in bytes of the initial data
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			*/
+			int CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData = nullptr, size_t initialDataSize = 0);
+
+			/**
+			* @brief Updates a dynamic vertex buffer. Replaces the existing data.
+			* @param[in] handle The handle of the vertex buffer to update
+			* @param[in] data The data to put in the vertex buffer
+			* @param[in] totalSize The total size in bytes of the data to put in the buffer
+			* @param[in] sizePerElement The size per vertex in bytes
+			* @retval 0 On success.
+			* @retval -1 Something went wrong.
+			*/
+			int UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement);
 
 			/**
 			* @brief	Creates and sets a simple sampler

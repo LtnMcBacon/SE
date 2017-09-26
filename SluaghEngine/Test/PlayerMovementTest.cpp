@@ -348,7 +348,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		e.Frame();
+		e.Frame(dt);
 	}
 
 	delete testRoom;

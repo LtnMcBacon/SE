@@ -83,11 +83,6 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	StopProfile;
 }
 
-void SE::Core::MaterialManager::SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
-	Utilz::GUID textureFileName)
-{
-
-}
 
 void SE::Core::MaterialManager::Frame()
 {
@@ -140,7 +135,7 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	materialInfo.entity[index] = last_entity;
 
 	auto& reflection = shaders[materialInfo.shaderIndex[index]].shaderReflection;
-	const int textureCount = reflection.textureNameToBindSlot.size();
+	const size_t textureCount = reflection.textureNameToBindSlot.size();
 	for(int i = 0; i < textureCount; ++i)
 	{
 		textures[materialInfo.textureIndices[index].indices[i]].refCount--;
@@ -199,7 +194,7 @@ int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data
 	auto handle = renderer->CreateTexture(rawTextureData, td);
 	if (handle == -1)
 		ProfileReturnConst(-1);
-	const int index = guidToTextureIndex[guid];
+	const size_t index = guidToTextureIndex[guid];
 	textures[index].textureHandle = handle;
 
 	ProfileReturnConst(0);
@@ -208,7 +203,7 @@ int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID & guid, void * data
 int SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	const int shaderIndex = guidToShaderIndex[guid];
+	const size_t shaderIndex = guidToShaderIndex[guid];
 
 	auto handle = renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
 	if (handle == -1)
