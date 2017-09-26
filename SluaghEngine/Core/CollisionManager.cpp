@@ -101,11 +101,36 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, con
 
 bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMFLOAT3 & pickingRay, float * distance)
 {
+	auto ray = pickingRay;
+	auto r = XMLoadFloat3(&pickingRay);
+
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
+		float dist = 0;
 		auto& sphere = collisionData.sphereWorld[find->second];
-	}
+		auto rayDirection = XMLoadFloat3(&XMFLOAT3(sphere.Center.x - ray.x, sphere.Center.y - ray.y, sphere.Center.z - ray.z));
+		auto sphereColCheck = sphere.Intersects(r, rayDirection, dist);
+		if (sphereColCheck)
+		{
+			auto& AABox = collisionData.AABBWorld[find->second];
+			auto BBColCheck = AABox.Intersects(r, rayDirection, dist);
+			if (BBColCheck)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+
+	}	
 	return false;
 }
 
