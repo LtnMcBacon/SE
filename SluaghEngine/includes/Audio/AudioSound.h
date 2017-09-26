@@ -42,11 +42,10 @@ namespace SE {
 			*
 			*/
 			void* GetSample(int soundID, SoundIndexName soundType);
+			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
 			void Shutdown();
 
 		private:
-			void OptionUpdate();
-
 			std::vector<AudioSample> soundSample;
 			Utilz::StackAllocator sampleStack;
 			

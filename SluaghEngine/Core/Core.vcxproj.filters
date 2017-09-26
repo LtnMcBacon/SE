@@ -42,7 +42,10 @@
     <ClCompile Include="OptionHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUIManager.cpp">
+    <ClCompile Include="DebugRenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +77,10 @@
     <ClInclude Include="..\includes\Core\OptionHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\GUIManager.h">
+    <ClInclude Include="..\includes\Core\CameraManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\DebugRenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -92,6 +92,7 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID);
+			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
 			void Shutdown();
 		private:
 			int retSoundData(const Utilz::GUID& guid, void* data, size_t size);

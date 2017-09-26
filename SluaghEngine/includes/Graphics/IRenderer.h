@@ -157,6 +157,29 @@ namespace SE
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
 
 			/**
+			* @brief Create a vertex buffer with CPU write access
+			* @param[in] bytewidth The size of the buffer
+			* @param[in] initialData The data to create the buffer with
+			* @param[in] vertexByteSize The size of the vertex type in bytes
+			* @param[in] initialDataSize The size in bytes of the initial data
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			*/
+			virtual int CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData = nullptr, size_t initialDataSize = 0) = 0;
+
+			/**
+			* @brief Updates a dynamic vertex buffer. Replaces the existing data.
+			* @param[in] handle The handle of the vertex buffer to update
+			* @param[in] data The data to put in the vertex buffer
+			* @param[in] totalSize The total size in bytes of the data to put in the buffer
+			* @param[in] sizePerElement The size per vertex in bytes
+			* @retval 0 On success.
+			* @retval -1 Something went wrong.
+			*/
+			virtual int UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement) = 0;
+
+
+			/**
 			* @brief Create a new fomt
 			* @retval 0+ Font ID
 			* @retval -1 Something went wrong.

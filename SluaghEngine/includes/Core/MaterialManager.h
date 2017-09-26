@@ -14,6 +14,7 @@ namespace SE
 		class MaterialManager
 		{
 			friend class RenderableManager;
+
 		public:
 			struct CreateInfo
 			{
@@ -33,11 +34,10 @@ namespace SE
 			* @brief	Create a texture for the entity. This is for mesh with no submeshes.
 			* @param [in] entity The entity to bind the texture to.
 			* @param [in] guid The guid of the texture to use.
+			* @sa CreateInfo
 			*/
 			void Create(const Entity& entity, const CreateInfo& info);
 
-			void SetTexture(const Entity& entity, Utilz::GUID shaderResourceName,
-				Utilz::GUID textureFileName);
 
 			/**
 			* @brief	Called each frame, to update the state.
@@ -60,14 +60,14 @@ namespace SE
 			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
-			static const uint32_t maxTextureBinds = 4;
+			
 			struct TextureBindings
 			{
-				uint8_t bindings[maxTextureBinds];
+				uint8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 			struct TextureIndices
 			{
-				uint8_t indices[maxTextureBinds];
+				uint8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 
 			struct TextureData
@@ -96,8 +96,8 @@ namespace SE
 
 			std::vector<ShaderData> shaders;
 			std::vector<TextureData> textures;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToShaderIndex;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToTextureIndex;
+			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToShaderIndex;
+			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToTextureIndex;
 
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
