@@ -279,8 +279,8 @@ namespace SE
 
 			/**
 			* @brief Retrieves the mouse pos.
-			* @parameter[in] x The x position
-			* @parameter[in] y The y position
+			* @parameter[out] x The x position
+			* @parameter[out] y The y position
 			*/
 			virtual void GetMousePos(int& x, int& y) const = 0;
 

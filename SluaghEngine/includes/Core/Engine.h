@@ -12,6 +12,8 @@
 #include "OptionHandler.h"
 #include "CameraManager.h"
 
+#include "DebugRenderManager.h"
+#include <Utilz\StackAllocator.h>
 namespace SE
 {
 	namespace Core
@@ -183,6 +185,15 @@ namespace SE
 				return *cameraManager;
 			}
 
+
+			/**
+			* @brief    Returns a reference to the debug render manager
+			* @retval return_value_0 Returns a reference to the debug render manager.
+			* @sa DebugRenderManager
+			*/
+			inline DebugRenderManager& GetDebugRenderManager() const {
+				return *debugRenderManager;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -210,6 +221,11 @@ namespace SE
 			CollisionManager* collisionManager;
 			OptionHandler* optionHandler;
 			CameraManager* cameraManager;
+			DebugRenderManager* debugRenderManager;
+			Utilz::StackAllocator perFrameStackAllocator;
+
+
+
 		};
 
 	}

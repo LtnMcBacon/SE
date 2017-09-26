@@ -16,6 +16,7 @@
 #include "ImageLoadTest.h"
 #include "AllocatorTest.h"
 #include "AudioTest.h"
+#include "DebugRenderTest.h"
 #include <map>
 #include <ctime>
 
@@ -59,6 +60,7 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+	AddTest(DebugRenderManagerTest);
 
 	volatile bool running = true;
 	

@@ -129,7 +129,96 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		ProfileReturnConst(hr);
 	}
 
-	vertexInputLayout[0].SemanticName = "POSITION";
+	//Create the input layout with the help of shader reflection
+	ID3D11ShaderReflection* reflection;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+	{
+		Console::Print("Failed to reflect vertex shader.\n");
+		ProfileReturnConst(hr);
+	}
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputElementDescs;
+	uint32_t offset = 0;
+	for(uint32_t i = 0; i < shaderDesc.InputParameters; ++i)
+	{
+		D3D11_SIGNATURE_PARAMETER_DESC signatureParamaterDesc;
+		reflection->GetInputParameterDesc(i, &signatureParamaterDesc);
+		D3D11_INPUT_ELEMENT_DESC inputElementDesc;
+		inputElementDesc.SemanticName = signatureParamaterDesc.SemanticName;
+		inputElementDesc.SemanticIndex = signatureParamaterDesc.SemanticIndex;
+		inputElementDesc.AlignedByteOffset = offset;
+		inputElementDesc.InputSlot = 0;
+		inputElementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		inputElementDesc.InstanceDataStepRate = 0;
+
+		if(signatureParamaterDesc.Mask == 1)
+		{
+			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32_FLOAT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32_SINT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32_UINT;
+			offset += 4;
+		}
+		else if (signatureParamaterDesc.Mask <= 3)
+		{
+			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32_SINT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32_UINT;
+			offset += 8;
+		}
+		else if (signatureParamaterDesc.Mask <= 7)
+		{
+			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
+			offset += 12;
+		}
+		else if (signatureParamaterDesc.Mask <= 15)
+		{
+			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				inputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			offset += 16;
+		}
+		inputElementDescs.push_back(inputElementDesc);
+	}
+	ID3D11InputLayout* inputLayout;
+	hr = gDevice->CreateInputLayout(inputElementDescs.data(), inputElementDescs.size(), data, size, &inputLayout);
+	if(FAILED(hr))
+	{
+		Utilz::Console::Print("Failed to create input layout.\n");
+		ProfileReturnConst(hr);
+	}
+	reflection->Release();
+	if(freeVertexShaderLocations.size())
+	{
+		const size_t index = freeVertexShaderLocations.top();
+		vShaders[index] = { tempVertexShader, inputLayout };
+		freeVertexShaderLocations.pop();
+		*vertexShaderID = index;
+	}
+	else
+	{
+		const size_t index = vShaders.size();
+		vShaders.push_back({ tempVertexShader, inputLayout });
+		*vertexShaderID = index;
+	}
+	ProfileReturnConst(hr);
+
+	/*vertexInputLayout[0].SemanticName = "POSITION";
 	vertexInputLayout[0].SemanticIndex = 0;
 	vertexInputLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	vertexInputLayout[0].InputSlot = 0;
@@ -180,7 +269,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		*vertexShaderID = top;
 		freeVertexShaderLocations.pop();
 	}
-
+*/
 	ProfileReturnConst(hr);
 }
 
@@ -231,7 +320,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		D3D11_SHADER_DESC shaderDesc;
 		reflection->GetDesc(&shaderDesc);
 		ShaderSettings settings;
-		for (int i = 0; i < shaderDesc.ConstantBuffers; ++i)
+		for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
 		{
 			D3D11_SHADER_BUFFER_DESC sbd;
 			ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
@@ -239,7 +328,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 			auto& cbInfo = settings.bufferNameToBufferInfo[sbd.Name];
 			cbInfo.size = sbd.Size;
 			cbInfo.bindSlot = i;
-			for (int j = 0; j < sbd.Variables; j++)
+			for (unsigned int j = 0; j < sbd.Variables; j++)
 			{
 				ID3D11ShaderReflectionVariable* var = srcb->GetVariableByIndex(i);
 				D3D11_SHADER_VARIABLE_DESC svd;
@@ -249,7 +338,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 				varInfo.offset = svd.StartOffset;
 			}
 		}
-		for (int i = 0; i < shaderDesc.BoundResources; ++i)
+		for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
 		{
 			D3D11_SHADER_INPUT_BIND_DESC sibd;
 			reflection->GetResourceBindingDesc(i, &sibd);
@@ -286,7 +375,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		*pixelShaderID = top;
 		freePixelShaderLocations.pop();
 	}
-
+	
 	ProfileReturnConst(hr);
 }
 
@@ -347,6 +436,7 @@ HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t verte
 	ID3D11Buffer* tempBuffer;
 	HRESULT _hr = gDevice->CreateBuffer(&_vertexBufferDesc, &_vertexData, &tempBuffer);
 
+
 	if (FAILED(_hr))
 	{
 		ProfileReturnConst(_hr);
@@ -370,7 +460,7 @@ HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t verte
 
 void GraphicResourceHandler::SetVertexBuffer(int vertexBufferID)
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = vBuffers[vertexBufferID].stride;
 	UINT32 offset = 0;
 	gDeviceContext->IASetVertexBuffers(0, 1, &vBuffers[vertexBufferID].vertexBuffer, &vertexSize, &offset);
 }
@@ -555,3 +645,44 @@ HRESULT GraphicResourceHandler::CreateSamplerState()
 	ProfileReturnConst(hr);
 }
 
+int GraphicResourceHandler::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+{
+	D3D11_BUFFER_DESC bd;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.ByteWidth = bytewidth;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+
+	ID3D11Buffer* vBuffer;	
+	HRESULT hr = gDevice->CreateBuffer(&bd, nullptr, &vBuffer);
+	if (FAILED(hr))
+		return -1;
+	if (initialData && initialDataSize)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+		gDeviceContext->Map(vBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+		memcpy(mappedData.pData, initialData, initialDataSize);
+		gDeviceContext->Unmap(vBuffer, 0);
+	}
+	const size_t index = vBuffers.size();
+	const size_t vertexCount = initialDataSize / vertexByteSize;
+	vBuffers.push_back({ vBuffer, vertexCount, vertexByteSize });
+	return index;
+}
+
+int GraphicResourceHandler::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+{
+	const size_t vertexCount = totalSize / sizePerElement;
+	ID3D11Buffer* vBuffer = vBuffers[handle].vertexBuffer;
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	gDeviceContext->Map(vBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	memcpy(mappedData.pData, data, totalSize);
+	gDeviceContext->Unmap(vBuffer, 0);
+
+	vBuffers[handle].vertexCount = vertexCount;
+	vBuffers[handle].stride = sizePerElement;
+	return 0;
+}
