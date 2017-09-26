@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
+    <ClCompile Include="PlayerMovementTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResouceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
@@ -158,6 +160,7 @@
     <ClCompile Include="WindowTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AllocatorTest.h" />
     <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="BufferTest.h" />
@@ -170,6 +173,7 @@
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
+    <ClInclude Include="PlayerMovementTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResouceHandlerTest.h" />
     <ClInclude Include="RoomCreationTest.h" />

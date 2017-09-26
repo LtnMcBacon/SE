@@ -19,12 +19,6 @@
     <Filter Include="Header Files\GameplayTests">
       <UniqueIdentifier>{880c0fd5-2281-45c9-9378-38aa4e705cef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GameplayTests\GameStateTests">
-      <UniqueIdentifier>{ed92fc7d-776b-46da-8783-64faf6fb2d3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Gameplay Tests\GameStateTests">
-      <UniqueIdentifier>{00cb3924-b1c0-4743-b45f-20cdd6b248ef}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -78,8 +72,11 @@
     <ClCompile Include="RoomCreationTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
-    <ClCompile Include="GameStateTest.cpp">
-      <Filter>Source Files\Gameplay Tests\GameStateTests</Filter>
+    <ClCompile Include="AllocatorTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,8 +134,11 @@
     <ClInclude Include="BoundingTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameStateTest.h">
-      <Filter>Header Files\GameplayTests\GameStateTests</Filter>
+    <ClInclude Include="AllocatorTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

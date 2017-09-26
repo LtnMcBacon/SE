@@ -151,6 +151,13 @@ namespace SE {
 			*/
 			void Present();
 
+			/**
+			* @brief Resizes the swapchain
+			* @param[in] windowHandle A window handle.
+			* @endcode
+			*/
+			void ResizeSwapChain(HWND windowHandle);
+
 			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };

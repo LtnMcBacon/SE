@@ -13,7 +13,9 @@ namespace SE
 			int transformHandle;
 			int pixelShader;
 			int vertexShader;
-			int diffuseTexture;
+			uint8_t textureBindings[4];
+			uint8_t textureHandles[4];
+			uint8_t textureCount;
 			/**
 			* @brief Computes the difference between two RenderObjectInfo structs in terms of how many attributes are different. As such, a - b == b - a.
 			* @details This operator is used to determine which render job to complete next, i.e. the render job that requires the least amount of state changes from the current one.
@@ -27,7 +29,11 @@ namespace SE
 				stateChanges = (stateChanges << 1) | (transformHandle != rhs.transformHandle);
 				stateChanges = (stateChanges << 1) | (pixelShader != rhs.pixelShader);
 				stateChanges = (stateChanges << 1) | (vertexShader != rhs.vertexShader);
-				stateChanges = (stateChanges << 1) | (diffuseTexture != rhs.diffuseTexture);
+				for (int i = 0; i < textureCount; ++i)
+				{
+					stateChanges = (stateChanges << 1) | (textureBindings[i] != rhs.textureBindings[i]);
+					stateChanges = (stateChanges << 1) | (textureHandles[i] != rhs.textureHandles[i]);
+				}
 				std::bitset<32> bits(stateChanges);
 				return bits.count();
 			}

@@ -9,6 +9,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include "AudioManager.h"
 #include "RenderableManager.h"
+#include "OptionHandler.h"
 namespace SE
 {
 	namespace Core
@@ -166,6 +167,15 @@ namespace SE
 			inline CollisionManager& GetCollisionManager()const {
 				return *collisionManager;
 			}
+
+			/**
+			* @brief    Returns a reference to the audio manager
+			* @retval return_value_0 Returns a reference to the audio manager.
+			* @sa AudioManager
+			*/
+			inline OptionHandler& GetOptionHandler() const {
+				return *optionHandler;
+			}
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -182,6 +192,7 @@ namespace SE
 			MaterialManager* materialManager;
 			AudioManager* audioManager;
 			CollisionManager* collisionManager;
+			OptionHandler* optionHandler;
 		};
 
 	}

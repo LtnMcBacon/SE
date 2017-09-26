@@ -11,8 +11,29 @@ namespace SE
 		public:
 			StackAllocator();
 			~StackAllocator();
+			/**
+			* @brief Gets a piece of memory to distribute
+			*
+			* @param[in] amountOfMemory The requested size for the allocator
+			*
+			*/
 			void InitStackAlloc(size_t amountOfMemory);
+			/**
+			* @brief Get a pointer to memory with requested size
+			*
+			* @param[in] requestedMemSize The requested size for the pointer
+			* @param[in] aligment The size of the data type
+			*
+			* @retval void* Pointer to memory
+			* @retval nullptr Tells that creation of pointer to memory 
+			* was unsucessful (not enough memory left)
+			*
+			*/
 			void* GetMemoryAligned(size_t requestedMemSize, size_t aligment);
+			/**
+			* @brief Clears the allocated memory 
+			*
+			*/
 			void ClearStackAlloc();
 
 		private:

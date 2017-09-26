@@ -1,5 +1,3 @@
-Assets/Canary.wav
-Assets/Cout.wav
 Assets/dummytex.sei
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
@@ -17,7 +15,5 @@ Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
-Assets/temp - Copy.ini
-Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt

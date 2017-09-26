@@ -120,11 +120,12 @@ namespace SE
 			* @brief Create a pixel shader from raw data
 			* @param[in] data A pointer to shader blob.
 			* @param[in] size The size of the shader blob.
+			* @param[out] reflection Stores information from a shader reflection at the address pointed to by reflection if not nullptr.
 			* @retval handle On success.
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreatePixelShader(void* data, size_t size) override;
+			int CreatePixelShader(void* data, size_t size, ShaderSettings* reflection = nullptr) override;
 
 			/**
 			* @brief Create a vertex shader from raw data
@@ -135,6 +136,12 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+			/**
+			* @brief Resizes the swapchain
+			* @param[in] windowHandle A window handle.
+			* @endcode
+			*/
+			void ResizeSwapChain(void* windowHandle) override;
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
