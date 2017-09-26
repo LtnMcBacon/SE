@@ -65,11 +65,13 @@
     </ClCompile>
     <ClCompile Include="FlowFieldTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
+	</ClCompile>
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugRenderTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
@@ -78,6 +80,7 @@
     </ClCompile>
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
@@ -148,6 +151,7 @@
     </ClInclude>
     <ClInclude Include="DebugRenderTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PickingTest.h">
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>

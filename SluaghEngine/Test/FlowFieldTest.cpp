@@ -251,7 +251,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 				}
 			}
 		}
-		e.Frame();
+//		e.Frame();
 	}
 
 

@@ -227,7 +227,7 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		e.Frame();
+		//e.Frame();
 	}
 
 	delete testRoom;
