@@ -132,7 +132,6 @@ void SE::Core::CollisionManager::Frame()
 				auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
 				if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere) )
 				{
-					XMFLOAT3 dir;
 					collisionData.collisionWithAnyCallback[dirty.myIndex](collisionData.entity[dirty.myIndex], collisionData.entity[i]);
 				}
 			}
