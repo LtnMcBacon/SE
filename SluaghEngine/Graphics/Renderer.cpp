@@ -22,17 +22,6 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 
-	/*int shaderID[2];
-	hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(), &shaderID[0]);
-	if (FAILED(hr))
-		return -1;*/
-
-	//hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
-	//if (FAILED(hr))
-	//	return -1;
-	
-	cam.SetPosition(0.0f, 1.0f, -2.0f);
-	cam.Update(0.01f);
 	TargetOffset off;
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
@@ -131,14 +120,6 @@ int SE::Graphics::Renderer::Render() {
 	StartProfile;
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
-
-
-	cam.Update(0.01f);
-
-	/*DirectX::XMFLOAT4X4 wo;
-	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
-	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);*/
-
 
 
 	ID3D11RenderTargetView* views[] = { device->GetRTV() };
