@@ -45,17 +45,29 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	if (r)
 		return r;
 
-
 	transformManager = new TransformManager(entityManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
+	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
+	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	perFrameStackAllocator.InitStackAlloc(1024U * 1024U * 5U);
+
+	InitStartupOption();
 
 	return 0;
 }
 
 int SE::Core::Engine::Frame(double dt)
 {
+
+	transformManager->Frame();
+	renderableManager->Frame();
+	materialManager->Frame();
+	collisionManager->Frame();
+	window->Frame();
+	cameraManager->Frame();
+	renderer->Render();
 	return 0;
 }
 
@@ -67,9 +79,11 @@ int SE::Core::Engine::Release()
 	resourceHandler->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
+	delete cameraManager;
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
+//	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
@@ -81,17 +95,6 @@ int SE::Core::Engine::Release()
 	return 0;
 }
 
-void SE::Core::Engine::Frame()
-{
-	
-	transformManager->Frame();
-	renderableManager->Frame();
-	materialManager->Frame();
-	collisionManager->Frame();
-	window->Frame();
-	renderer->Render();
-}
-
 SE::Core::Engine::Engine()
 {
 	entityManager = nullptr;
@@ -100,5 +103,43 @@ SE::Core::Engine::Engine()
 
 SE::Core::Engine::~Engine()
 {
+	
 
+}
+
+void SE::Core::Engine::InitStartupOption()
+{
+	//Set Sound Vol
+	audioManager->SetSoundVol(Audio::MasterVol ,optionHandler->GetOption("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
+	
+	//Set Window and graphic
+	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
+	
+	if (sizeChange == true)
+	{
+		renderer->ResizeSwapChain(window->GetHWND());
+	}
+
+	optionHandler->Register(Utilz::Delegate<void()>::Make<Engine, &Engine::OptionUpdate>(this));
+}
+
+void SE::Core::Engine::OptionUpdate()
+{
+	StartProfile;
+	//Set Sound Vol
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOption("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
+	
+	//Set Window and graphic
+	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
+
+	if (sizeChange == true)
+	{
+		renderer->ResizeSwapChain(window->GetHWND());
+	}
+	
+	ProfileReturnVoid;
 }

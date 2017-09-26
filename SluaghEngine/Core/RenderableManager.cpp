@@ -131,72 +131,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 	StopProfile;
 }
 
-void SE::Core::RenderableManager::HideRenderableObject(const Entity & entity)
-{
-	StartProfile;
-	//// See so that the entity exist
-	//auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	//if (find != entityToRenderableObjectInfoIndex.end())
-	//{
-	//	if (!renderableObjectInfo.visible[find->second])
-	//		return;
-	//	renderableObjectInfo.visible[find->second] = 0;
-	//	Graphics::RenderObjectInfo info;
-	//	auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
-	//	info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	//	info.transformHandle = renderableObjectInfo.transformHandle[find->second];
-	//	info.vertexShader = defaultShader;
 
-	//	auto& find = materialManager->entityToMaterialInfo.find(entity);
-	//	if (find != materialManager->entityToMaterialInfo.end())
-	//	{
-	//		info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-	//		info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
-	//	}
-	//	else
-	//	{
-	//		info.pixelShader = materialManager->defaultShaderHandle;
-	//		info.diffuseTexture = materialManager->defaultTextureHandle;
-	//	}
-
-	//	renderer->DisableRendering(info);
-	//}
-	StopProfile;
-}
-
-void SE::Core::RenderableManager::ShowRenderableObject(const Entity & entity)
-{
-	StartProfile;
-	//// See so that the entity exist
-	//auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	//if (find != entityToRenderableObjectInfoIndex.end())
-	//{
-	//	//If the entity is already visible, we dont do anything
-	//	if (renderableObjectInfo.visible[find->second])
-	//		return;
-	//	renderableObjectInfo.visible[find->second] = 1;
-	//	Graphics::RenderObjectInfo info;
-	//	auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
-	//	info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	//	info.transformHandle = renderableObjectInfo.transformHandle[find->second];
-	//	info.vertexShader = defaultShader;
-
-	//	auto& find = materialManager->entityToMaterialInfo.find(entity);
-	//	if (find != materialManager->entityToMaterialInfo.end())
-	//	{
-	//		info.pixelShader = materialManager->shaderInfo[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-	//		info.diffuseTexture = materialManager->textureInfo[materialManager->materialInfo.textureIndex[find->second]].textureHandle;
-	//	}
-	//	else
-	//	{
-	//		info.pixelShader = materialManager->defaultShaderHandle;
-	//		info.diffuseTexture = materialManager->defaultTextureHandle;
-	//	}
-
-	//	renderer->EnableRendering(info);
-	//}
-	StopProfile;
-}
 
 void SE::Core::RenderableManager::Frame()
 {

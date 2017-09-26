@@ -37,10 +37,10 @@ namespace SE
 				{
 					newfloat[i]  = i;
 				}
-				for (int i = 0; i < 500; i++)
+				/*for (int i = 0; i < 500; i++)
 				{
 					console->Print("%f \n", newfloat[i]);
-				}
+				}*/
 			}
 				
 
@@ -56,10 +56,10 @@ namespace SE
 				{
 					pizzaFloat[i] = i;
 				}
-				for (int i = 0; i < 500; i++)
+				/*for (int i = 0; i < 500; i++)
 				{
 					console->Print("%f \n", pizzaFloat[i]);
-				}
+				}*/
 			}
 
 			alloc.ClearStackAllocLeft();
@@ -77,10 +77,10 @@ namespace SE
 				{
 					newfloat[i] = i;
 				}
-				for (int i = 0; i < 500; i++)
+				/*for (int i = 0; i < 500; i++)
 				{
 					console->Print("%f \n", newfloat[i]);
-				}
+				}*/
 			}
 
 
@@ -96,10 +96,10 @@ namespace SE
 				{
 					pizzaFloat[i] = i;
 				}
-				for (int i = 0; i < 500; i++)
+				/*for (int i = 0; i < 500; i++)
 				{
 					console->Print("%f \n", pizzaFloat[i]);
-				}
+				}*/
 			}
 
 			alloc.ClearStackAllocLeft();
