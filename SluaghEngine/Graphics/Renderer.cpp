@@ -1,5 +1,6 @@
 #include <Renderer.h>
 #include <Profiler.h>
+#include <ResourceHandler\IResourceHandler.h>
 
 using namespace SE;
 
@@ -117,6 +118,45 @@ int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 	return 0;
 }
 
+int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
+{
+	renderTextJobs.push_back(handles);
+
+	int insertion = renderTextJobs.size() - 1;
+	const int prior = insertion - 1;
+
+	if (insertion != prior)
+	{
+		for (int i = prior + 1; i > insertion; i--)
+		{
+			renderTextJobs[i] = renderTextJobs[i - 1];
+		}
+		renderTextJobs[insertion] = handles;
+	}
+	return 0;
+}
+
+int SE::Graphics::Renderer::DisableTextRendering(const TextGUI& handles)
+{
+	const int size = renderTextJobs.size();
+	int at = -1;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (handles.hashString == renderTextJobs[i].hashString)
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderTextJobs[i] = renderTextJobs[i + 1];
+		renderTextJobs.pop_back();
+	}
+	return 0;
+}
+
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	return 0;
@@ -173,6 +213,14 @@ int SE::Graphics::Renderer::Render() {
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 		previousJob = job;
 	}
+
+	spriteBatch->Begin();
+	for (auto& job : renderTextJobs)
+	{
+		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect,job.layerDepth);
+	}
+	spriteBatch->End();
+
 
 	device->Present();
 
@@ -253,6 +301,19 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 	if (hr)
 		return hr;
 	return handle;
+}
+
+int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
+{
+	StartProfile;
+	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
+	ProfileReturn(0);
+}
+
+int SE::Graphics::Renderer::CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler)
+{
+	resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<Renderer, &Renderer::RetFontData>(this));
+	return fonts.size();
 }
 
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)

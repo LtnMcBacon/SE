@@ -4,7 +4,9 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
+#include "GUIInfo.h"
 #include "ShaderSettings.h"
+#include <ResourceHandler\IResourceHandler.h>
 namespace SE
 {
 	namespace Graphics
@@ -48,6 +50,21 @@ namespace SE
 			*/
 			virtual int DisableRendering(const RenderObjectInfo& handles) = 0;
 
+			/**
+			* @brief    Sets a Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableTextRendering(const TextGUI & handles) = 0;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextRendering(const TextGUI& handles) = 0;
 
 
 			/**
@@ -138,6 +155,14 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
+
+			/**
+			* @brief Create a new fomt
+			* @retval 0+ Font ID
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) = 0;
 
 			/**
 			* @brief Resizes the swapchain

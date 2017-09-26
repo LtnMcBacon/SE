@@ -10,6 +10,7 @@
 #include "AudioManager.h"
 #include "RenderableManager.h"
 #include "OptionHandler.h"
+#include "GUIManager.h"
 namespace SE
 {
 	namespace Core
@@ -169,12 +170,21 @@ namespace SE
 			}
 
 			/**
-			* @brief    Returns a reference to the audio manager
-			* @retval return_value_0 Returns a reference to the audio manager.
-			* @sa AudioManager
+			* @brief    Returns a reference to the option handler
+			* @retval return_value_0 Returns a reference to the option handler.
+			* @sa OptionHandler
 			*/
 			inline OptionHandler& GetOptionHandler() const {
 				return *optionHandler;
+			}
+
+			/**
+			* @brief    Returns a reference to the GUI manager
+			* @retval return_value_0 Returns a reference to the GUI manager.
+			* @sa AudioManager
+			*/
+			inline GUIManager& GetGUIManager() const {
+				return *guiManager;
 			}
 		private:
 			Engine();
@@ -193,6 +203,7 @@ namespace SE
 			AudioManager* audioManager;
 			CollisionManager* collisionManager;
 			OptionHandler* optionHandler;
+			GUIManager* guiManager;
 		};
 
 	}

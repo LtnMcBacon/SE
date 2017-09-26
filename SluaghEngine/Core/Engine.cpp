@@ -50,6 +50,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
+	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 
 	return 0;
 }
@@ -65,6 +66,7 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();
+	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
 	delete collisionManager;
