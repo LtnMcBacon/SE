@@ -86,7 +86,7 @@ namespace SE
 
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-					e.Frame();
+					e.Frame(0.0f);
 					mm.printUsage(console);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)

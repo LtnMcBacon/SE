@@ -1,16 +1,15 @@
-#include "MaterialManagerTest.h"
+#include "DebugRenderTest.h"
 #include <Core\Engine.h>
+#include <Utilz/Timer.h>
 
-#include <Utilz\Timer.h>
-
-SE::Test::MaterialManagerTest::MaterialManagerTest()
+SE::Test::DebugRenderManagerTest::DebugRenderManagerTest()
 {
 }
 
-
-SE::Test::MaterialManagerTest::~MaterialManagerTest()
+SE::Test::DebugRenderManagerTest::~DebugRenderManagerTest()
 {
 }
+
 enum ActionButton
 {
 	Exit,
@@ -22,14 +21,14 @@ enum ActionButton
 	Right,
 	Fullscreen
 };
-bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& engine = Core::Engine::GetInstance();
 	engine.Init(Core::Engine::InitializationInfo());
 	auto& em = engine.GetEntityManager();
 	auto& mm = engine.GetMaterialManager();
-	auto& tm = engine.GetTransformManager();
 	auto& cm = engine.GetCameraManager();
+	auto& tm = engine.GetTransformManager();
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
@@ -41,16 +40,21 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	info.textureFileNames = textures;
 	info.textureCount = 2;
 
-
-	
-	mm.Create(entity, info);
-	auto& camera = em.Create();
+	auto camera = em.Create();
 	cm.Bind(camera);
 	cm.SetActive(camera);
 	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
 	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 
+	mm.Create(entity, info);
+
 	auto& rm = engine.GetRenderableManager();
+	auto& drm = engine.GetDebugRenderManager();
+
+	for(int i = 0; i < 100; i++)
+	{
+		drm.DrawCross(entity, 3.0f, i * 4 - 50, 10, 10);
+	}
 
 	tm.Create(entity);
 
@@ -80,7 +84,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		float dt = timer.GetDeltaMilliseconds();
 		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
-		
+
 		if (w->ButtonPressed(ActionButton::Hide))
 			rm.ToggleRenderableObject(entity, false);
 		if (w->ButtonPressed(ActionButton::Show))
@@ -89,7 +93,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonPressed(ActionButton::Fullscreen))
 		{
 			full = full ? 0 : 1;
-			oh.SetOption("Window", "fullScreen", full);	
+			oh.SetOption("Window", "fullScreen", full);
 			oh.Trigger();
 		}
 
@@ -102,9 +106,8 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonDown(ActionButton::Left))
 			tm.Move(camera, { -0.01f*dt, 0.0f, 0.0f });
 
-		engine.Frame(0.01f);	
+		engine.Frame(0.01f);
 	}
-
 
 	engine.Release();
 
