@@ -1,14 +1,16 @@
-#include <ResourceHandler.h>
+#include "ResourceHandler.h"
 #include <Profiler.h>
 #include "RawLoader.h"
-#include <Utilz\Console.h>
+//#include <Utilz\Console.h>
 
-#ifdef _DEBUG
-#pragma comment(lib, "UtilzD.lib")
-#else
-#pragma comment(lib, "Utilz.lib")
-#endif
+//#ifdef _DEBUG
+//#pragma comment(lib, "UtilzD.lib")
+//#else
+//#pragma comment(lib, "Utilz.lib")
+//#endif
 
+
+using namespace std::chrono_literals;
 
 SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr)
 {
@@ -61,7 +63,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (!diskLoader->Exist(guid)) // Make sure we can load the resource.
 		{
-			Utilz::Console::Print("Resource %u could not be found!\n", guid);
+			//Utilz::Console::Print("Resource %u could not be found!\n", guid);
 			ProfileReturnConst(-1);
 		}
 
@@ -105,7 +107,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			}
 			else // Since the load is sync we need to wait until the resource has been loaded.
 			{
-				while (resourceInfo.state[index] != State::Loaded) Sleep(10); // TODO: Maybe change to a condition variable
+				while (resourceInfo.state[index] != State::Loaded) std::this_thread::sleep_for(10ms); // TODO: Maybe change to a condition variable
 				ProfileReturn(InvokeCallback(guid, index, callback));
 			}
 		}
@@ -178,7 +180,7 @@ void SE::ResourceHandler::ResourceHandler::Run()
 	while (running)
 	{		
 			LoadAsync();
-			Sleep(66);
+			std::this_thread::sleep_for(66ms);
 	}
 	StopProfile;
 }
@@ -286,7 +288,7 @@ int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size
 	auto result = diskLoader->LoadResource(guid, &resourceInfo.resourceData[index].data, &resourceInfo.resourceData[index].size, &resourceInfo.extension[index]);
 	if (result)
 	{
-		Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
+	//	Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
 		ProfileReturnConst(result);
 	}
 		
@@ -300,7 +302,7 @@ int SE::ResourceHandler::ResourceHandler::InvokeCallback(const Utilz::GUID& guid
 	auto result = callback(guid, resourceInfo.resourceData[index].data, resourceInfo.resourceData[index].size);
 	if (result)
 	{
-		Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
+		//Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
 		resourceInfo.refCount[index]--;
 	}
 
