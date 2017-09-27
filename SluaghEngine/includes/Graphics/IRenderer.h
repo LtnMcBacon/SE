@@ -4,8 +4,10 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
+#include "GUIInfo.h"
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
+#include <ResourceHandler\IResourceHandler.h>
 namespace SE
 {
 	namespace Graphics
@@ -60,6 +62,29 @@ namespace SE
 			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 
 			/**
+			* @brief    Sets a Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableTextRendering(const TextGUI & handles) = 0;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextRendering(const TextGUI& handles) = 0;
+
+			/**
+			* @brief    Sets Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			/**
 			* @brief    Removes a line render job.
 			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
 			* @retval 0 On success.
@@ -74,6 +99,13 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			virtual int UpdateLineRenderJob(uint32_t lineJobID, float* transform) = 0;
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -185,6 +217,14 @@ namespace SE
 			*/
 			virtual int UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement) = 0;
 
+
+			/**
+			* @brief Create a new font
+			* @retval 0+ Font ID
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) = 0;
 
 			/**
 			* @brief Resizes the swapchain

@@ -221,6 +221,11 @@ namespace SE {
 			* @sa TextureDesc
 			*/
 			int CreateShaderResourceView(void* textureData, const TextureDesc& description);
+			ID3D11ShaderResourceView* GetShaderResourceView(int ID) {
+				if (shaderResourceViews.size() > ID)
+					return shaderResourceViews[ID];
+				return nullptr;
+			};
 			/**
 			* @brief	Removes a constant buffer
 			* @param[in] id The ID of the shader resource view to remove

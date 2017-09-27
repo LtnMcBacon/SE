@@ -1,5 +1,7 @@
 #include <Renderer.h>
 #include <Profiler.h>
+#include <ResourceHandler\IResourceHandler.h>
+
 #undef min
 using namespace SE;
 
@@ -21,7 +23,9 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		return -1;
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
-
+	
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+	
 	TargetOffset off;
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
@@ -60,6 +64,8 @@ void SE::Graphics::Renderer::Shutdown()
 	device->Shutdown();
 	renderBuckets.clear();
 	jobIDToBucketAndTransformIndex.clear();
+	lineRenderJobs.clear();
+	freeLineRenderJobIndices.clear();
 
 	delete graphicResourceHandler;
 	delete device;
@@ -168,6 +174,60 @@ int Graphics::Renderer::UpdateLineRenderJob(uint32_t lineJobID, float* transform
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
 	lineRenderJobs[lineJobID].transform = transposed;
 	ProfileReturnConst(0);
+}
+
+int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
+{
+	renderTextJobs.push_back(handles);
+	return 0;
+}
+
+int SE::Graphics::Renderer::DisableTextRendering(const TextGUI& handles)
+{
+	const int size = renderTextJobs.size();
+	int at = -1;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (handles.hashString == renderTextJobs[i].hashString)
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderTextJobs[i] = renderTextJobs[i + 1];
+		renderTextJobs.pop_back();
+	}
+	return 0;
+}
+
+int SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
+{
+	renderTextureJobs.push_back(handles);
+	return 0;
+}
+
+int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handles)
+{
+	const int size = renderTextureJobs.size();
+	int at = -1;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (handles == renderTextureJobs[i])
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderTextureJobs[i] = renderTextureJobs[i + 1];
+		renderTextureJobs.pop_back();
+	}
+	return 0;
 }
 
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
@@ -285,6 +345,23 @@ int SE::Graphics::Renderer::Render() {
 	
 	/********END render line jobs************/
 
+
+	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+	for (auto& job : renderTextureJobs)
+	{
+		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	}
+	spriteBatch->End();
+
+	spriteBatch->Begin();
+	for (auto& job : renderTextJobs)
+	{
+		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	}
+	spriteBatch->End();
+
+	device->SetBlendState();
+
 	device->Present();
 
 	ProfileReturnConst(0);
@@ -381,6 +458,19 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 	if (hr)
 		return hr;
 	return handle;
+}
+
+int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
+{
+	StartProfile;
+	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
+	ProfileReturn(0);
+}
+
+int SE::Graphics::Renderer::CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler)
+{
+	resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<Renderer, &Renderer::RetFontData>(this));
+	return fonts.size();
 }
 
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
