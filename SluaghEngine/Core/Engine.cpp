@@ -55,7 +55,6 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
-	perFrameStackAllocator.InitStackAlloc(1024U * 1024U * 5U);
 
 	InitStartupOption();
 
