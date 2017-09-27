@@ -263,7 +263,8 @@ namespace SE
 			void Shutdown();
 		private:
 			void GarbageCollection();
-			void Destroy(size_t index);
+			void DestroyText(size_t index);
+			void DestroyTexture(size_t index);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			// Text variables

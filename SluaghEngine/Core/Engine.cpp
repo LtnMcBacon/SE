@@ -63,7 +63,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
-
+	guiManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
 	debugRenderManager->Frame(*perFrameStackAllocator);

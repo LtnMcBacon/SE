@@ -74,12 +74,14 @@ namespace SE {
 
 		void GUIManager::Frame()
 		{
-
+			GarbageCollection();
 		}
 
 		int GUIManager::CreateTextFont(Utilz::GUID fontFile)
 		{
-			return 0;
+			StartProfile;
+			amountOfFonts = renderer->CreateTextFont(fontFile, resourceHandler);
+			ProfileReturnConst(0);
 		}
 
 		int GUIManager::Create2D(Utilz::GUID texFile)
@@ -146,45 +148,45 @@ namespace SE {
 			loadedTexts.clear();
 		}
 
-		void GUIManager::Destroy(size_t index)
+		void GUIManager::DestroyText(size_t index)
 		{
 			StartProfile;
+			// Temp variables
+			size_t last = loadedTexts.size() - 1;
+			const Entity& entity = ent[index];
+			const Entity& last_entity = ent[last];
 
-			if (garbage == false)
-			{
-				// Temp variables
-				size_t last = loadedTexts.size() - 1;
-				const Entity& entity = ent[index];
-				const Entity& last_entity = ent[last];
+			// Copy the data
+			ent[index] = last_entity;
+			loadedTexts[index] = loadedTexts[last];
+			entID[last_entity] = entID[entity];
 
-				// Copy the data
-				ent[index] = last_entity;
-				loadedTexts[index] = loadedTexts[last];
-				entID[last_entity] = entID[entity];
+			// Remove last spot 
+			entID.erase(entity);
+			loadedTexts.pop_back();
+			ent.pop_back();
 
-				// Remove last spot 
-				entID.erase(entity);
-				loadedTexts.pop_back();
-				ent.pop_back();
-			}
-			else
-			{
-				// Temp variables
-				size_t last = textureInfo.size() - 1;
-				const Entity& entity = textureEnt[index];
-				const Entity& last_entity = textureEnt[last];
+			StopProfile;	
+		}
 
-				// Copy the data
-				textureEnt[index] = last_entity;
-				textureInfo[index] = textureInfo[last];
-				textureGUID[entTextureID[entity].GUID].refCount--;
-				entTextureID[last_entity].ID = entTextureID[entity].ID;
+		void GUIManager::DestroyTexture(size_t index)
+		{
+			StartProfile;
+			// Temp variables
+			size_t last = textureInfo.size() - 1;
+			const Entity& entity = textureEnt[index];
+			const Entity& last_entity = textureEnt[last];
 
-				// Remove last spot 
-				entTextureID.erase(entity);
-				textureInfo.pop_back();
-				textureEnt.pop_back();
-			}
+			// Copy the data
+			textureEnt[index] = last_entity;
+			textureInfo[index] = textureInfo[last];
+			textureGUID[entTextureID[entity].GUID].refCount--;
+			entTextureID[last_entity].ID = entTextureID[entity].ID;
+
+			// Remove last spot 
+			entTextureID.erase(entity);
+			textureInfo.pop_back();
+			textureEnt.pop_back();
 
 			StopProfile;
 		}
@@ -206,7 +208,7 @@ namespace SE {
 					}
 					alive_in_row = 0;
 					renderer->DisableTextRendering(loadedTexts[entID[ent[i]]]);
-					Destroy(i);
+					DestroyText(i);
 				}
 				garbage = true;
 			}
@@ -223,7 +225,7 @@ namespace SE {
 					}
 					alive_in_row = 0;
 					renderer->DisableTextureRendering(textureInfo[entTextureID[textureEnt[i]].ID]);
-					Destroy(i);
+					DestroyTexture(i);
 				}
 				garbage = false;
 			}
