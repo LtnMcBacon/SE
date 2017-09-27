@@ -50,6 +50,9 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	perFrameStackAllocator = new Utilz::StackAllocator;
+	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 	perFrameStackAllocator.InitStackAlloc(1024U * 1024U * 5U);
@@ -64,6 +67,7 @@ int SE::Core::Engine::Frame(double dt)
 
 	transformManager->Frame();
 	renderableManager->Frame();
+	debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
@@ -85,7 +89,7 @@ int SE::Core::Engine::Release()
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
-//	delete debugRenderManager;
+	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
@@ -93,6 +97,7 @@ int SE::Core::Engine::Release()
 	delete transformManager;
 	delete audioManager;
 	delete optionHandler;
+	delete perFrameStackAllocator;
 	delete guiManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;

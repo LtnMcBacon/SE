@@ -232,7 +232,7 @@ namespace SE
 			OptionHandler* optionHandler;
 			CameraManager* cameraManager;
 			DebugRenderManager* debugRenderManager;
-			Utilz::StackAllocator perFrameStackAllocator;
+			Utilz::StackAllocator* perFrameStackAllocator;
 
 
 
