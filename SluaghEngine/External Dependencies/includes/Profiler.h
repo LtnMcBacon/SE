@@ -11,24 +11,24 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <ctime>
 #include <thread>
-#include <Windows.h>
+#include <mutex>
 
 #ifdef _P_NS
+static const char* scale = "ns";
 #define _P_TIMESCALE std::chrono::nanoseconds
 #else
 #ifdef _P_MS
+static const char* scale = "ms";
 #define _P_TIMESCALE std::chrono::milliseconds
 #else
+static const char* scale = "ms";
 #define _P_TIMESCALE std::chrono::milliseconds
 #endif
 #endif
 
 class Profiler
 {
-public:
-
 	struct Data
 	{
 		Data() : timesCalled(0), timeSpent(0)
@@ -61,15 +61,15 @@ public:
 			out << "label = \"";
 			out << "<f0> " << functionName;
 			out << " | <f1> Times Called: " << timesCalled;
-			out << " | <f2> Time Spent(IC): " << timeSpent;
+			out << " | <f2> Time Spent(IC): " << timeSpent << " " << scale;
 			if (parent)
-				out << ", " << (float)timeSpent / parent->timeSpent << " % of parents.";
+				out << ", " << ((double)timeSpent / parent->timeSpent)*100.0 << " % of parents.";
 			if (children.size())
 			{
 				auto temp = timeSpent;
 				for (auto& c : children)
 					temp -= c.second->timeSpent;
-				out << " | Time Spent(EC): " << temp;
+				out << " | Time Spent(EC): " << temp << " " << scale;
 
 			}
 			out << "\"];\n";
@@ -84,7 +84,6 @@ public:
 
 	};
 
-	
 
 private:
 
@@ -93,7 +92,7 @@ private:
 	{
 
 	}
-	~Profiler()
+	inline ~Profiler()
 	{
 		_dumpToFile();
 
@@ -115,7 +114,7 @@ public:
 		return inst;
 	}
 	template<uint64_t functionHash>
-	inline const void StartProfileF(const char * funcName)
+	const void StartProfileF(const char * funcName)
 	{
 		if (!_profile)
 			_profile = _current = new Data(nullptr, funcName);
@@ -126,8 +125,7 @@ public:
 			auto& child = _current->children[functionHash];
 			if (!child)
 				child = new Data(_current, funcName);
-			_current = child;
-			
+			_current = child;	
 		}	
 		_current->timesCalled++;
 		_current->timeStart = std::chrono::high_resolution_clock::now();
@@ -146,16 +144,14 @@ private:
 
 	const void _dumpToFile()
 	{
-		std::ofstream out;
-
-		auto end = std::chrono::system_clock::now();
-		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+		using namespace std::chrono_literals;
+		//auto end = std::chrono::system_clock::now();
+		//std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 		// std::ctime(&end_time)
 
 
 
 		std::stringstream ss;
-
 
 		ss << "digraph \"" << std::this_thread::get_id() << "\" { node[shape = \"record\"];\n";
 		ss << "graph [ rankdir = \"LR\"];\n";
@@ -166,23 +162,29 @@ private:
 			p->dump(ss);
 		}
 
-
-
-
 		ss << "\n}\n\n";
 
-
-		HANDLE f;
-
-		do
+		static std::mutex mutex;
+		static bool first = true;
+		std::ofstream out;
+		mutex.lock();
+	
+		if(first)
 		{
-			f = CreateFile("profile.dot", FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		} while (f == INVALID_HANDLE_VALUE);
+			out.open("profile.dot", std::ios::out);
+			first = false;
+		}
+			
+		else
+			out.open("profile.dot", std::ios::out | std::ios::app);
+		
 
-		WriteFile(f, ss.str().c_str(), ss.str().size(), NULL, NULL);
+		out.write(ss.str().c_str(), ss.str().size());
 
-		CloseHandle(f);
+		out.close();
 
+
+		mutex.unlock();
 		return void();
 	}
 
@@ -255,7 +257,7 @@ struct MM<size, size, dummy> {
 };
 
 
-// This don't take into account the nul char
+// This doesn't take into account the nul char
 #define COMPILE_TIME_CRC32_STR(x) (MM<sizeof(x)-1>::crc32(x))
 
 #define StartProfile Profiler::GetInstance().StartProfileF<COMPILE_TIME_CRC32_STR(__FUNCTION__)>(__FUNCTION__)
@@ -264,8 +266,8 @@ struct MM<size, size, dummy> {
 
 #define ProfileReturnVoid {Profiler::GetInstance().StopProfileF(0); return;}
 #define ProfileReturnConst(x) {Profiler::GetInstance().StopProfileF(0); return x;}
+#define ProfileReturnRef(x) {auto& e = x; Profiler::GetInstance().StopProfileF(0); return e;}
 #define ProfileReturn(x) {auto e = x; Profiler::GetInstance().StopProfileF(0); return e;}
-
 
 #else
 #define StartProfile 
