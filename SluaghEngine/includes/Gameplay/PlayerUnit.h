@@ -116,13 +116,13 @@ namespace SE
 			PlayerUnit(const PlayerUnit&& other) = delete;
 			PlayerUnit& operator=(const PlayerUnit& rhs) = delete;
 
-			const char** map = nullptr;
+			char map[25][25] = { {} };
 			float forcesToApply[2] = {};
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
 
 		public:
 			
-			PlayerUnit(void* skills, void* perks, float xPos, float yPos, const char** mapForRoom);
+			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
 		};
 

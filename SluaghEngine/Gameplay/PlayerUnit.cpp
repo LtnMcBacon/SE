@@ -103,7 +103,14 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	float yMovement = 0.f;
 
 	// Handle input and apply movement
-	
+	if (inputs.downW)
+		yMovement += 1.0f;
+	if (inputs.downS)
+		yMovement -= 1.0f;
+	if (inputs.downA)
+		xMovement -= 1.0f;
+	if (inputs.downD)
+		xMovement += 1.0f;
 
 
 	// Check for collision and update the movement based on it
@@ -133,14 +140,14 @@ void SE::Gameplay::PlayerUnit::AddForce(float force[2])
 void SE::Gameplay::PlayerUnit::UpdateMap(const char** mapForRoom)
 {
 	StartProfile;
-	map = mapForRoom;
+	//map = mapForRoom;
 	StopProfile;
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, const char** mapForRoom) :
-	GameUnit(xPos, yPos, 100),
-	map(mapForRoom)
+SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
+	GameUnit(xPos, yPos, 100)
 {
+	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extends = 0.25f; /*Should not be hardcoded! Obviously*/
 }
 
