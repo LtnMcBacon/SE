@@ -78,6 +78,9 @@
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DebugRenderTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="PlayerMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>

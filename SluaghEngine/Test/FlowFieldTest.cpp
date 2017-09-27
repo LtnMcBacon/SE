@@ -177,6 +177,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool running = true;
 	unsigned char counter = 0;
+	float dt = 1 / 60.0f;
 	while (running)
 	{
 		if (e.GetWindow()->ButtonPressed(0))
@@ -251,7 +252,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 				}
 			}
 		}
-//		e.Frame();
+		e.Frame(dt);
 	}
 
 
