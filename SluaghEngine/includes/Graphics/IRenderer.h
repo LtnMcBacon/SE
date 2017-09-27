@@ -66,6 +66,21 @@ namespace SE
 			*/
 			virtual int DisableTextRendering(const TextGUI& handles) = 0;
 
+			/**
+			* @brief    Sets Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -180,7 +195,7 @@ namespace SE
 
 
 			/**
-			* @brief Create a new fomt
+			* @brief Create a new font
 			* @retval 0+ Font ID
 			* @retval -1 Something went wrong.
 			* @endcode

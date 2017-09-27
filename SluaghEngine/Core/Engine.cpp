@@ -93,6 +93,7 @@ int SE::Core::Engine::Release()
 	delete transformManager;
 	delete audioManager;
 	delete optionHandler;
+	delete guiManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }

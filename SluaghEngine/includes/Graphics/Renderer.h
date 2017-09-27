@@ -3,7 +3,7 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-
+#include <Graphics\GUIInfo.h>
 namespace SE
 {
 	namespace Graphics
@@ -62,6 +62,21 @@ namespace SE
 			*/
 			int DisableTextRendering(const TextGUI& handles) override;
 
+			/**
+			* @brief    Sets Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableTextureRendering(const GUITextureInfo & handles) override;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableTextureRendering(const GUITextureInfo& handles) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -206,6 +221,7 @@ namespace SE
 
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
+			std::vector<GUITextureInfo> renderTextureJobs;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;

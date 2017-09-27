@@ -3,7 +3,7 @@
 #include <Utilz\Console.h>
 #include <OBJParser\Parsers.h>
 #include <list>
-#include "GUIMANAGER.H"
+
 
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParserD.lib")
@@ -25,6 +25,8 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
+			amountOfFonts = renderer->CreateTextFont(Utilz::GUID("moonhouse.spritefont"), resourceHandler);
+
 			StopProfile;
 		}
 
@@ -41,11 +43,12 @@ namespace SE {
 			if (!entityManager.Alive(entity))
 				ProfileReturnVoid;
 
-			Graphics::TextGUI tempText;
-			tempText = inTextInfo;
-
+			if (!(inTextInfo.fontID <= amountOfFonts))
+				ProfileReturnVoid;
+			
 			entID[entity] = loadedTexts.size();
-			loadedTexts.push_back(tempText);
+			ent.push_back(entity);
+			loadedTexts.push_back(inTextInfo);
 			ProfileReturnVoid;	
 		}
 
@@ -74,12 +77,176 @@ namespace SE {
 
 		}
 
+		int GUIManager::CreateTextFont(Utilz::GUID fontFile)
+		{
+			return 0;
+		}
+
+		int GUIManager::Create2D(Utilz::GUID texFile)
+		{
+			StartProfile;
+			auto fileLoaded = textureGUID.find(texFile);
+			if (fileLoaded == textureGUID.end())
+			{
+				textureGUID[texFile].textureHandle = -1;
+				resourceHandler->LoadResource(texFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadTexture>(this)); 
+				ProfileReturnConst(-1);
+			}
+			else if (textureGUID[texFile].textureHandle != -1)
+			{
+				ProfileReturn(textureGUID[texFile].textureHandle);
+			}
+			ProfileReturnConst(-1);
+		}
+
+		int GUIManager::Bind2D(const Entity & entity, Utilz::GUID texFile, Graphics::GUITextureInfo & texInfo)
+		{
+			StartProfile;
+			auto fileLoaded = textureGUID.find(texFile);
+			if (fileLoaded != textureGUID.end())
+			{
+				// Check if the entity is alive
+				if (!entityManager.Alive(entity))
+					ProfileReturnConst(-1);
+
+				entTextureID[entity].ID = textureInfo.size();
+				entTextureID[entity].GUID = texFile;
+				textureGUID[texFile].refCount++;
+				textureEnt.push_back(entity);
+				textureInfo.push_back(texInfo);
+				textureInfo[textureInfo.size() - 1].textureID = textureGUID[texFile].textureHandle;
+				ProfileReturnConst(0);
+			}
+			ProfileReturnConst(-1);
+		}
+
+		void GUIManager::ToggleRenderableTexture(const Entity & entity, bool show)
+		{
+			StartProfile;
+			// chexk if entity exist in text 
+			auto fileLoaded = entTextureID.find(entity);
+			if (fileLoaded != entTextureID.end())
+			{
+				if (show)
+				{
+					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
+				}
+				else
+				{
+					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
+				}
+				ProfileReturnVoid;
+			}
+			StopProfile;
+		}
+
 		void GUIManager::Shutdown()
 		{
 			entID.clear();
 			loadedTexts.clear();
 		}
 
+		void GUIManager::Destroy(size_t index)
+		{
+			StartProfile;
+
+			if (garbage == false)
+			{
+				// Temp variables
+				size_t last = loadedTexts.size() - 1;
+				const Entity& entity = ent[index];
+				const Entity& last_entity = ent[last];
+
+				// Copy the data
+				ent[index] = last_entity;
+				loadedTexts[index] = loadedTexts[last];
+				entID[last_entity] = entID[entity];
+
+				// Remove last spot 
+				entID.erase(entity);
+				loadedTexts.pop_back();
+				ent.pop_back();
+			}
+			else
+			{
+				// Temp variables
+				size_t last = textureInfo.size() - 1;
+				const Entity& entity = textureEnt[index];
+				const Entity& last_entity = textureEnt[last];
+
+				// Copy the data
+				textureEnt[index] = last_entity;
+				textureInfo[index] = textureInfo[last];
+				textureGUID[entTextureID[entity].GUID].refCount--;
+				entTextureID[last_entity].ID = entTextureID[entity].ID;
+
+				// Remove last spot 
+				entTextureID.erase(entity);
+				textureInfo.pop_back();
+				textureEnt.pop_back();
+			}
+
+			StopProfile;
+		}
+
+		void GUIManager::GarbageCollection()
+		{
+			StartProfile;
+			uint32_t alive_in_row = 0;
+			if (garbage == false)
+			{
+				while (loadedTexts.size() > 0 && alive_in_row < 4U)
+				{
+					std::uniform_int_distribution<uint32_t> distribution(0U, loadedTexts.size() - 1U);
+					uint32_t i = distribution(generator);
+					if (entityManager.Alive(ent[i]))
+					{
+						alive_in_row++;
+						continue;
+					}
+					alive_in_row = 0;
+					renderer->DisableTextRendering(loadedTexts[entID[ent[i]]]);
+					Destroy(i);
+				}
+				garbage = true;
+			}
+			else
+			{
+				while (textureInfo.size() > 0 && alive_in_row < 4U)
+				{
+					std::uniform_int_distribution<uint32_t> distribution(0U, textureInfo.size() - 1U);
+					uint32_t i = distribution(generator);
+					if (entityManager.Alive(textureEnt[i]))
+					{
+						alive_in_row++;
+						continue;
+					}
+					alive_in_row = 0;
+					renderer->DisableTextureRendering(textureInfo[entTextureID[textureEnt[i]].ID]);
+					Destroy(i);
+				}
+				garbage = false;
+			}
+			StopProfile;
+		}
+
+		int GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
+		{
+			StartProfile;
+			Graphics::TextureDesc td;
+			memcpy(&td, data, sizeof(td));
+			/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+			if (td.width * td.height * 4 != size - sizeof(td))
+				ProfileReturnConst(-1);
+			void* rawTextureData = ((char*)data) + sizeof(td);
+			auto handle = renderer->CreateTexture(rawTextureData, td);
+			if (handle == -1)
+				ProfileReturnConst(-1);
+			textureGUID[guid].textureHandle = handle;
+			textureGUID[guid].refCount = 0;
+
+			ProfileReturnConst(0);
+		}
 
 	}
 }

@@ -22,7 +22,9 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		return -1;
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
-
+	
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+	
 	TargetOffset off;
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
@@ -111,18 +113,6 @@ int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
 {
 	renderTextJobs.push_back(handles);
-
-	int insertion = renderTextJobs.size() - 1;
-	const int prior = insertion - 1;
-
-	if (insertion != prior)
-	{
-		for (int i = prior + 1; i > insertion; i--)
-		{
-			renderTextJobs[i] = renderTextJobs[i - 1];
-		}
-		renderTextJobs[insertion] = handles;
-	}
 	return 0;
 }
 
@@ -143,6 +133,33 @@ int SE::Graphics::Renderer::DisableTextRendering(const TextGUI& handles)
 		for (int i = at; i < size - 1; ++i)
 			renderTextJobs[i] = renderTextJobs[i + 1];
 		renderTextJobs.pop_back();
+	}
+	return 0;
+}
+
+int SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
+{
+	renderTextureJobs.push_back(handles);
+	return 0;
+}
+
+int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handles)
+{
+	const int size = renderTextureJobs.size();
+	int at = -1;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (handles == renderTextureJobs[i])
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderTextureJobs[i] = renderTextureJobs[i + 1];
+		renderTextureJobs.pop_back();
 	}
 	return 0;
 }
@@ -240,13 +257,21 @@ int SE::Graphics::Renderer::Render() {
 		previousJob = job;
 	}
 
-	spriteBatch->Begin();
-	for (auto& job : renderTextJobs)
+	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+	for (auto& job : renderTextureJobs)
 	{
-		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect,job.layerDepth);
+		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 	}
 	spriteBatch->End();
 
+	spriteBatch->Begin();
+	for (auto& job : renderTextJobs)
+	{
+		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	}
+	spriteBatch->End();
+
+	device->SetBlendState();
 
 	device->Present();
 
