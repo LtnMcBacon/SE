@@ -19,8 +19,7 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 	job.pixelShader = lineRenderPixelShaderHandle;
 	job.textureCount = 0;
 	job.topology = Graphics::RenderObjectInfo::PrimitiveTopology::LINE_LIST;
-	job.transformHandle = 1;
-	renderer->EnableRendering(job);
+	//renderer->EnableRendering(job);
 	
 }
 

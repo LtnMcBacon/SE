@@ -40,11 +40,11 @@ namespace SE
 
 			/**
 			* @brief    Removes a render job.
-			* @param[in] handles The handles struct
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
 			* @retval 0 On success.
-			* @endcode
+			* @sa EnableRendering
 			*/
-			int DisableRendering(const RenderObjectInfo& handles) override;
+			int DisableRendering(uint32_t jobID) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -104,13 +104,13 @@ namespace SE
 			*/
 			void DestroyTransform(int transformHandle) override;
 			/**
-			* @brief Updates the transformation for an entity that is bound to rendering.
-			* @param[in] transformHandle The transform handle that is bound to the renderable object.
-			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
+			* @brief Updates the transformation of a render job.
+			* @param[in] jobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int UpdateTransform(int transformHandle, float* transform) override;
+			int UpdateTransform(uint32_t jobID, float* transform) override;
 
 
 
@@ -181,11 +181,14 @@ namespace SE
 
 			std::vector<RenderObjectInfo> renderJobs;
 
+			static const uint32_t maxDrawInstances = 256;
 			struct RenderBucket
 			{
 				RenderObjectInfo stateInfo;
 				size_t constantBufferHandle;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
+				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
+				std::vector<uint32_t> jobsInBucket;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
@@ -193,7 +196,8 @@ namespace SE
 				uint32_t bucketIndex;
 				uint32_t transformIndex;
 			};
-			std::map<uint32_t, BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
+			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
+			std::stack<uint32_t> freeJobIndices;
 		};
 
 	}

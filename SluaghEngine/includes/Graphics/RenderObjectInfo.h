@@ -20,13 +20,65 @@ namespace SE
 			};
 			static const uint32_t maxTextureBinds = 4;
 			int bufferHandle;
-			int transformHandle;
 			int pixelShader;
 			int vertexShader;
 			int8_t textureBindings[maxTextureBinds];
 			int8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
+			RenderObjectInfo()
+			{
+				bufferHandle = -1;
+				pixelShader = -1;
+				vertexShader = -1;
+				for (int i = 0; i < maxTextureBinds; ++i)
+				{
+					textureBindings[i] = -1;
+					textureHandles[i] = -1;
+				}
+				textureCount = 0;
+				topology = PrimitiveTopology::TRIANGLE_LIST;
+			}
+			inline RenderObjectInfo& operator=(const RenderObjectInfo& rhs)
+			{
+				bufferHandle = rhs.bufferHandle;
+				pixelShader = rhs.pixelShader;
+				vertexShader = rhs.vertexShader;
+				for(int i = 0; i < maxTextureBinds; ++i)
+				{
+					textureBindings[i] = rhs.textureBindings[i];
+					textureHandles[i] = rhs.textureHandles[i];
+				}
+				textureCount = rhs.textureCount;
+				topology = rhs.topology;
+				return *this;
+			}
+			RenderObjectInfo(const RenderObjectInfo& rhs)
+			{
+				bufferHandle = rhs.bufferHandle;
+				pixelShader = rhs.pixelShader;
+				vertexShader = rhs.vertexShader;
+				for (int i = 0; i < maxTextureBinds; ++i)
+				{
+					textureBindings[i] = rhs.textureBindings[i];
+					textureHandles[i] = rhs.textureHandles[i];
+				}
+				textureCount = rhs.textureCount;
+				topology = rhs.topology;
+			}
+			RenderObjectInfo(RenderObjectInfo&& rhs)
+			{
+				bufferHandle = rhs.bufferHandle;
+				pixelShader = rhs.pixelShader;
+				vertexShader = rhs.vertexShader;
+				for (int i = 0; i < maxTextureBinds; ++i)
+				{
+					textureBindings[i] = rhs.textureBindings[i];
+					textureHandles[i] = rhs.textureHandles[i];
+				}
+				textureCount = rhs.textureCount;
+				topology = rhs.topology;
+			}
 			/**
 			* @brief Computes the difference between two RenderObjectInfo structs in terms of how many attributes are different. As such, a - b == b - a.
 			* @details This operator is used to determine which render job to complete next, i.e. the render job that requires the least amount of state changes from the current one.
@@ -37,7 +89,6 @@ namespace SE
 			{
 				uint32_t stateChanges = 0;
 				stateChanges = (stateChanges << 1) | (bufferHandle != rhs.bufferHandle);
-				stateChanges = (stateChanges << 1) | (transformHandle != rhs.transformHandle);
 				stateChanges = (stateChanges << 1) | (pixelShader != rhs.pixelShader);
 				stateChanges = (stateChanges << 1) | (vertexShader != rhs.vertexShader);
 				const uint32_t loopTo = std::min(textureCount, rhs.textureCount);
