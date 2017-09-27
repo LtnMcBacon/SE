@@ -35,8 +35,12 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	{
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
-
-
+	TargetOffset t = { {true, false, false},{2, 0, 0} };
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4) * maxDrawInstances, t, &instancedTransformsConstantBufferHandle);
+	if(FAILED(hr))
+	{
+		throw std::exception("Could not create OncePerObject constant buffer.\n");
+	}
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
 	graphicResourceHandler->CreateSamplerState();
@@ -72,13 +76,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	{
 		bucketIndex = renderBuckets.size();
 		TargetOffset t = { {true, false, false},{2, 0, 0} };
-		int transformBufferIndex;
-		HRESULT hr = graphicResourceHandler->CreateConstantBuffer(maxDrawInstances * sizeof(DirectX::XMFLOAT4X4), t, &transformBufferIndex);
-		if(FAILED(hr))
-		{
-			ProfileReturnConst(-1);
-		}
-		renderBuckets.push_back({ handles, (size_t)transformBufferIndex, {} });	
+		renderBuckets.push_back({ handles, {}, {} });	
 	}
 	const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
 	DirectX::XMFLOAT4X4 identityMatrix;
@@ -161,7 +159,7 @@ int SE::Graphics::Renderer::Render() {
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
+	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -220,8 +218,7 @@ int SE::Graphics::Renderer::Render() {
 		{
 			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, bucket.constantBufferHandle);
-			graphicResourceHandler->BindConstantBuffer(bucket.constantBufferHandle);
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 		previousJob = job;

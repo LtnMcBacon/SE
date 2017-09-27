@@ -182,10 +182,10 @@ namespace SE
 			std::vector<RenderObjectInfo> renderJobs;
 
 			static const uint32_t maxDrawInstances = 256;
+			int instancedTransformsConstantBufferHandle = -1;
 			struct RenderBucket
 			{
 				RenderObjectInfo stateInfo;
-				size_t constantBufferHandle;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
