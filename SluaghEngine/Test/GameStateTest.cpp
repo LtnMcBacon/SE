@@ -82,7 +82,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		
 		
 
-		e.Frame();
+		e.Frame(1/60.f);
 
 	}
 	delete[] passableInfo;
