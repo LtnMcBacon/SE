@@ -65,7 +65,7 @@ void SE::Graphics::Renderer::Shutdown()
 	renderBuckets.clear();
 	jobIDToBucketAndTransformIndex.clear();
 	lineRenderJobs.clear();
-	freeLineRenderJobIndices.clear();
+	
 
 	delete graphicResourceHandler;
 	delete device;
