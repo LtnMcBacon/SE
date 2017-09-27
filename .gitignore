@@ -87,6 +87,9 @@ artifacts/
 *.lib
 *.dll
 External*
+Asset\
+Assets\
+Format\
 
 # Chutzpah Test files
 _Chutzpah*
