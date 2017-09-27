@@ -93,6 +93,7 @@ namespace SE {
 					}
 				}
 			}
+			delete inSample;
 			ProfileReturnConst(-2);
 		}
 	
