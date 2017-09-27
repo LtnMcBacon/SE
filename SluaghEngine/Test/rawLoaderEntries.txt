@@ -15,10 +15,18 @@ Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
 Assets/purewhite.sei
 Assets/purewhite.rawimg
+Assets/Shaders/Geometry/SimpleGS.hlsl
+Assets/Shaders/Pixel/DebugLinePS.hlsl
+Assets/Shaders/Pixel/SimplePS.hlsl
+Assets/Shaders/Pixel/SimpleTexPS.hlsl
+Assets/Shaders/Vertex/DebugLineVS.hlsl
+Assets/Shaders/Vertex/SimpleVS.hlsl
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
+Assets/Sound/Background/Cout.wav
+Assets/Sound/Effect/Canary.wav
 Assets/temp - Copy.ini
 Assets/temp.ini
 Assets/test.objtest

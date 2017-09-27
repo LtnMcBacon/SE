@@ -287,7 +287,7 @@ namespace SE
 			bool CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, float xExtent, float yExtent);
 
 			/**
-			* @brief	Check for collision (2D-Plan)
+			* @brief	Check for collision (2D-Plane)
 			*
 			* @details	Given a 2D collision box, will the object collide with any static object in the room
 			*

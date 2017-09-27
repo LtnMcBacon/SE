@@ -18,25 +18,26 @@ MainMenuState::~MainMenuState()
 
 }
 
-IGameState::State MainMenuState::Update( void* &passableInfo)
+IGameState::State MainMenuState::Update(void* &passableInfo)
 {
 	StartProfile;
 
 	IGameState::State empty = State::MAIN_MENU_STATE;
 	
 
-	bool running = true;
-	while (running)
+	
+	
+
+		
+	
+	if (Input->ButtonPressed(0))
 	{
-
-		if (Input->ButtonPressed(0))
-		{
-			running = false;
-			empty = State::PAUSE_STATE;
-		}
-
-		Input->Frame();
+			
+		empty = State::PAUSE_STATE;
 	}
+
+		
+	
 	int a = 10;
 
 	passableInfo = new int(a);

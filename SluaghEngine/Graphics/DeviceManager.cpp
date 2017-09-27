@@ -285,4 +285,5 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 	CreateSwapChain(windowHandle);
 	CreateBackBufferRTV();
 	CreateDepthStencil();
+	SetViewport();
 }

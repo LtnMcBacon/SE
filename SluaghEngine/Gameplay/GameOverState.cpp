@@ -22,18 +22,16 @@ IGameState::State GameOverState::Update(void* &passableInfo)
 	StartProfile;
 	IGameState::State empty;
 
-	bool running = true;
-	while (running)
+	
+	if (Input->ButtonPressed(0))
 	{
-		if (Input->ButtonPressed(0))
-		{
-			running = false;
-			empty = State::MAIN_MENU_STATE;
-		}
-		/*Code*/
-
-		Input->Frame();
+			
+		empty = State::MAIN_MENU_STATE;
 	}
+	/*Code*/
+
+		
+	
 
 	ProfileReturn(empty);
 }

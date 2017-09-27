@@ -189,79 +189,71 @@ bool SE::Gameplay::EnemyUnit::CorrectCollision(float dt, float &xMov, float &yMo
 	myPos.x = xPos + xMovementTot - localExtent;
 	myPos.y = yPos - localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if(sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
 		xMov = 0;
-		return true;
+		ProfileReturnConst(true);
 	}
 	myPos.y = yPos + localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		xMov = 0.f;
-		return true;
+		xMov = 0;
+		ProfileReturnConst(true);
 	}
 
 	/*Checking collision in right x-axis*/
 	myPos.x = xPos + xMovementTot + localExtent;
 	myPos.y = yPos - localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		xMov = 0.f;
-		return true;
+		xMov = 0;
+		ProfileReturnConst(true);
 	}
 	myPos.y = yPos + localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		xMov = 0.f;
-		return true;
+		xMov = 0;
+		ProfileReturnConst(true);
 	}
 
 	/*Checking collision in down y-axis*/
 	myPos.x = xPos - localExtent;
 	myPos.y = yPos + yMovementTot - localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		yMov = 0.f;
-		return true;
+		yMov = 0;
+		ProfileReturnConst(true);
 	}
 	myPos.x = xPos + localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		yMov = 0.f;
-		return true;
+		yMov = 0;
+		ProfileReturnConst(true);
 	}
 
 	/*Checking collision in up y-axis*/
 	myPos.x = xPos - localExtent;
 	myPos.y = yPos + yMovementTot + localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		yMov = 0.f;
-		return true;
+		yMov = 0;
+		ProfileReturnConst(true);
 	}
 	myPos.x = xPos + localExtent;
 
-	flowFieldForRoom->SampleFromMap(myPos, sampleX, sampleY);
-	if (sampleX == 0.f && sampleY == 0.f)
+	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
 	{
-		yMov = 0.f;
-		return true;
+		yMov = 0;
+		ProfileReturnConst(true);
 	}
 
-	return false;
+	ProfileReturnConst(false);
 }
 
 void SE::Gameplay::EnemyUnit::Update(float dt)

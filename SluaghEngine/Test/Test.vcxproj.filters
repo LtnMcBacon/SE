@@ -81,6 +81,9 @@
     <ClCompile Include="PlayerMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="GameStateTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="DebugRenderTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStateTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
