@@ -98,13 +98,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		}
 
 		if (w->ButtonDown(ActionButton::Up))
-			tm.Move(camera, { 0.0f, 0.0f, 0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (w->ButtonDown(ActionButton::Down))
-			tm.Move(camera, { 0.0f, 0.0f, -0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
 		if (w->ButtonDown(ActionButton::Right))
-			tm.Move(camera, { 0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
 		if (w->ButtonDown(ActionButton::Left))
-			tm.Move(camera, { -0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 
 		engine.Frame(0.01f);
 	}

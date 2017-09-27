@@ -7,6 +7,9 @@
 #include <window/IWindow.h>
 #include <Gameplay\MainMenuState.h>
 #include <Gameplay\PauseState.h>
+#include "Gameplay/PlayState.h"
+#include "Gameplay/GameOverState.h"
+#include "Gameplay/CharacterCreationState.h"
 using namespace SE;
 using namespace Gameplay;
 using namespace Test;
@@ -47,44 +50,58 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 	
 	IGameState::State SwitchState = IGameState::MAIN_MENU_STATE;
 
+
+	IGameState::State OldState = SwitchState;
+
 	Window::IWindow* Input = e.GetWindow();
 	
 	Input->MapActionButton(0, Window::KeyEscape);
 	
-	IGameState* Game = new MainMenuState;
+	IGameState* Game = new MainMenuState(Input);
 	
 
 	while (running)
 	{
-		switch (SwitchState)
+		SwitchState = Game->Update(passableInfo);
+		if (SwitchState != OldState)
 		{
-		case IGameState::MAIN_MENU_STATE:
-			console->Print("Entering Main menu state!\n");
-			Game = new MainMenuState;
-			SwitchState = Game->Update(passableInfo);
-			std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
-			break;
-		case IGameState::PLAY_STATE:
-			break;
-		case IGameState::GAME_OVER_STATE:
-			break;
-		case IGameState::CHARACTER_CREATION_STATE:
-			break;
-		case IGameState::PAUSE_STATE:
-			console->Print("Entering Pause state!\n");
-			Game = new PauseState;
-			SwitchState = Game->Update(passableInfo);
-			std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
-			break;
-		default:
-			break;
+
+			switch (SwitchState)
+			{
+			case IGameState::MAIN_MENU_STATE:
+				console->Print("Making Main Menu State!\n");
+				delete Game;
+				Game = new MainMenuState(Input);
+				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
+				break;
+			case IGameState::PLAY_STATE:
+				console->Print("Making Pause State!\n");
+				
+				break;
+			case IGameState::GAME_OVER_STATE:
+				console->Print("Making Game over State!\n");
+				delete Game;
+				Game = new GameOverState(Input);
+				break;
+			case IGameState::CHARACTER_CREATION_STATE:
+				console->Print("Making Character Creation State!\n");
+				delete Game;
+				Game = new CharacterCreationState(Input);
+				break;
+			case IGameState::PAUSE_STATE:
+				console->Print("Making Pause State!\n");
+				Game = new PauseState(Input);
+				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
+				break;
+			default:
+				break;
+			}
 		}
 		
-		
-
+		OldState = SwitchState;
 		e.Frame(1/60.f);
 
 	}
-	delete[] passableInfo;
+	delete passableInfo;
 	StopProfile;
 }

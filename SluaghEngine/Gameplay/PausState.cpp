@@ -27,17 +27,16 @@ IGameState::State PauseState::Update(void* &passableInfo)
 	IGameState::State empty = State::PAUSE_STATE;
 	*(int*)passableInfo +=1;
 
-	bool running = true;
-	while (running)
-	{
+	
+	
 
 		if (Input->ButtonPressed(0))
 		{
-			running = false;
+			empty = State::MAIN_MENU_STATE;
 		}
 
-		Input->Frame();
-	}
+		
+	
 
 
 	ProfileReturn(empty);
