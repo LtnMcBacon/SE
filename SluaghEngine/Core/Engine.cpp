@@ -51,7 +51,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
-	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 
@@ -65,7 +65,7 @@ int SE::Core::Engine::Frame(double dt)
 
 	transformManager->Frame();
 	renderableManager->Frame();
-	//debugRenderManager->Frame(*perFrameStackAllocator);
+	debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
@@ -86,7 +86,7 @@ int SE::Core::Engine::Release()
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
-	//delete debugRenderManager;
+	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;

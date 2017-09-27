@@ -25,6 +25,7 @@ namespace SE
 			friend class RenderableManager;
 			friend class CollisionManager;
 			friend class CameraManager;
+			friend class DebugRenderManager;
 		public:
 			TransformManager(EntityManager* em);
 			~TransformManager();
@@ -128,6 +129,9 @@ namespace SE
 			* @warning Create must be called before this method for a given entity.
 			*/
 			const DirectX::XMFLOAT3& GetScale(const Entity& e) const;
+
+			
+			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const;
 
 			/**
 			* @brief     Is called once per frame by the engine. Do not call this from outside the engine as it is unnecessary.

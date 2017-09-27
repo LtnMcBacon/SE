@@ -5,6 +5,7 @@
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
 #include "ShaderSettings.h"
+#include "LineRenderJob.h"
 namespace SE
 {
 	namespace Graphics
@@ -49,7 +50,30 @@ namespace SE
 			*/
 			virtual int DisableRendering(uint32_t jobID) = 0;
 
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 
+			/**
+			* @brief    Removes a line render job.
+			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int RemoveLineRenderJob(uint32_t lineJobID) = 0;
+
+			/**
+			* @brief Updates the transformation of a line render job.
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			*/
+			virtual int UpdateLineRenderJob(uint32_t lineJobID, float* transform) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering

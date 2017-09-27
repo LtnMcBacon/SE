@@ -46,6 +46,32 @@ namespace SE
 			*/
 			int DisableRendering(uint32_t jobID) override;
 
+
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			int AddLineRenderJob(const LineRenderJob& lineJob) override;
+
+			/**
+			* @brief    Removes a line render job.
+			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			int RemoveLineRenderJob(uint32_t lineJobID) override;
+
+			/**
+			* @brief Updates the transformation of a line render job.
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			*/
+			int UpdateLineRenderJob(uint32_t lineJobID, float* transform) override;
+
 			/**
 			* @brief Updates the view matrix used for rendering
 			* @param[in] viewMatrix The view matrix to use, an array of 16 floats in row major format.
@@ -179,8 +205,7 @@ namespace SE
 
 			GraphicResourceHandler* graphicResourceHandler;
 
-			std::vector<RenderObjectInfo> renderJobs;
-
+			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
 			int instancedTransformsConstantBufferHandle = -1;
 			struct RenderBucket
@@ -198,6 +223,15 @@ namespace SE
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
+			/******** END Instanced render job members ********/
+
+			/*********** Line render job members **************/
+			std::vector<LineRenderJob> lineRenderJobs;
+			std::stack<uint32_t> freeLineRenderJobIndices;
+			int singleTransformConstantBuffer = -1;
+
+			/*********** END Line render job members **********/
+
 		};
 
 	}

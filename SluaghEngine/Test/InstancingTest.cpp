@@ -17,7 +17,8 @@ enum ActionButton
 	Down,
 	Left,
 	Right,
-	Fullscreen
+	Fullscreen,
+	FrameTime
 };
 bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 {
@@ -28,6 +29,7 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 	auto& tm = engine.GetTransformManager();
 	auto& cm = engine.GetCameraManager();
 	auto& rm = engine.GetRenderableManager();
+
 	Core::Entity entity = em.Create();
 	const int numEnts = 600;
 	Core::Entity ents[numEnts];
@@ -70,6 +72,7 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 	w->MapActionButton(ActionButton::Left, Window::KeyA);
 	w->MapActionButton(ActionButton::Right, Window::KeyD);
 	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+	w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
 
 	bool running = true;
 	Utilz::Timer timer;
@@ -106,6 +109,10 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 			{
 				rm.ToggleRenderableObject(ents[i], true);
 			}
+		}
+		if(w->ButtonPressed(ActionButton::FrameTime))
+		{
+			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
 		}
 		engine.Frame(0.01f);
 	}

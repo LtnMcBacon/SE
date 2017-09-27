@@ -41,6 +41,12 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	{
 		throw std::exception("Could not create OncePerObject constant buffer.\n");
 	}
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), t, &singleTransformConstantBuffer);
+	if (FAILED(hr))
+	{
+		throw std::exception("Could not create singleTransformConstantBuffer.\n");
+	}
+
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
 	graphicResourceHandler->CreateSamplerState();
@@ -121,6 +127,46 @@ int Graphics::Renderer::DisableRendering(uint32_t jobID)
 	freeJobIndices.push(jobID);
 
 
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
+{
+	StartProfile;
+	uint32_t lineJobID;
+	if(freeLineRenderJobIndices.size())
+	{
+		lineJobID = freeLineRenderJobIndices.top();
+		freeLineRenderJobIndices.pop();
+		lineRenderJobs[lineJobID] = lineJob;
+	}
+	else
+	{
+		lineJobID = lineRenderJobs.size();
+		lineRenderJobs.push_back(lineJob);
+	}
+	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)&lineRenderJobs[lineJobID].transform);
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
+	lineRenderJobs[lineJobID].transform = transposed;
+	ProfileReturnConst(lineJobID);
+}
+
+int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
+{
+	StartProfile;
+	freeLineRenderJobIndices.push(lineJobID);
+	lineRenderJobs[lineJobID].verticesToDrawCount = 0;
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::UpdateLineRenderJob(uint32_t lineJobID, float* transform)
+{
+	StartProfile;
+	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
+	lineRenderJobs[lineJobID].transform = transposed;
 	ProfileReturnConst(0);
 }
 
@@ -223,6 +269,21 @@ int SE::Graphics::Renderer::Render() {
 		}
 		previousJob = job;
 	}
+	/********** Render line jobs ************/
+
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+	for(auto& lineJob : lineRenderJobs)
+	{
+		if (lineJob.verticesToDrawCount == 0)
+			continue;
+		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	}
+	
+	/********END render line jobs************/
 
 	device->Present();
 

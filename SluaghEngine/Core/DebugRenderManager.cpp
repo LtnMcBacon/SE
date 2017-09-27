@@ -13,13 +13,7 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 	if (res)
 		throw std::exception("Could not load line render vertex shader.");
 
-	Graphics::RenderObjectInfo job;
-	job.bufferHandle = dynamicVertexBufferHandle;
-	job.vertexShader = lineRenderVertexShaderHandle;
-	job.pixelShader = lineRenderPixelShaderHandle;
-	job.textureCount = 0;
-	job.topology = Graphics::RenderObjectInfo::PrimitiveTopology::LINE_LIST;
-	//renderer->EnableRendering(job);
+	transformManager->SetDirty.Add<DebugRenderManager, &DebugRenderManager::SetDirty>(this);
 	
 }
 
@@ -47,6 +41,28 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			cur = ((uint8_t*)cur) + cpySize;
 		}
 		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(Point3D));
+
+		for(auto& job : entityToJobID)
+		{
+			renderer->RemoveLineRenderJob(job.second);
+		}
+		entityToJobID.clear();
+
+		uint32_t startVertex = 0;
+		for(auto& m : entityToLineList)
+		{
+			Graphics::LineRenderJob lineRenderJob;
+			lineRenderJob.firstVertex = startVertex;
+			lineRenderJob.pixelShaderHandle = lineRenderPixelShaderHandle;
+			lineRenderJob.vertexShaderHandle = lineRenderVertexShaderHandle;
+			lineRenderJob.transform = transformManager->GetTransform(m.first);
+			lineRenderJob.vertexBufferHandle = dynamicVertexBufferHandle;
+			const size_t verticesToDraw = m.second.size() * 2;
+			lineRenderJob.verticesToDrawCount = verticesToDraw;
+			startVertex += verticesToDraw;
+			entityToJobID[m.first] = renderer->AddLineRenderJob(lineRenderJob);
+		}
+
 		dirty = false;
 	}
 	ProfileReturnVoid;
@@ -56,7 +72,13 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 {
 	StartProfile;
 	if (!enable)
+	{
 		entityToLineList.erase(entity);
+		auto find = entityToJobID.find(entity);
+		if (find != entityToJobID.end())
+			renderer->RemoveLineRenderJob(find->second);
+		entityToJobID.erase(entity);
+	}
 	ProfileReturnVoid;
 }
 
@@ -98,5 +120,17 @@ int SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, 
 	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
 	ProfileReturn(lineRenderPixelShaderHandle < 0);
 	
+}
+
+void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
+{
+	StartProfile;
+	auto find = entityToJobID.find(entity);
+	if (find != entityToJobID.end())
+	{
+		DirectX::XMFLOAT4X4 transform = transformManager->GetTransform(entity);
+		renderer->UpdateLineRenderJob(find->second, (float*)&transform);
+	}
+	ProfileReturnVoid;
 }
 
