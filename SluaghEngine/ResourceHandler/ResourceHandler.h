@@ -7,7 +7,6 @@
 #include <mutex>
 #include <stack>
 #include <Utilz\Event.h>
-#include <DLLExport.h>
 
 namespace SE
 {

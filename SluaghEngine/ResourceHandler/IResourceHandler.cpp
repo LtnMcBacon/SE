@@ -1,7 +1,7 @@
 #include <IResourceHandler.h>
 #include "ResourceHandler.h"
 
-SE::ResourceHandler::IResourceHandler * SE::ResourceHandler::CreateResourceHandler()
+DECLDIR SE::ResourceHandler::IResourceHandler * SE::ResourceHandler::CreateResourceHandler()
 {
 	return new ResourceHandler;
 }

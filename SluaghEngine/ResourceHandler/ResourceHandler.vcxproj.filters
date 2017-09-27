@@ -29,13 +29,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ResourceHandler.cpp">
+    <ClCompile Include="IResourceHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RawLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IResourceHandler.cpp">
+    <ClCompile Include="ResourceHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

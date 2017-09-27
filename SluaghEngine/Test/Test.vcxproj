@@ -107,7 +107,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -118,7 +119,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,7 +131,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,7 +149,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
