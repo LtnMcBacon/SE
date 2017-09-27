@@ -62,9 +62,7 @@ void SE::Graphics::Renderer::Shutdown()
 {
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
-	renderBuckets.clear();
-	jobIDToBucketAndTransformIndex.clear();
-	lineRenderJobs.clear();
+
 	
 
 	delete graphicResourceHandler;
