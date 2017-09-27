@@ -15,9 +15,6 @@
 
 #include <filesystem>
 
-using namespace std;
-using namespace std::experimental::filesystem;
-
 class FBXConverter {
 
 public:
@@ -32,9 +29,9 @@ public:
 	// FBXCONVERTER LOAD FUNCTIONS
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	bool Load(string fileName, string exportFolder);
-	bool LoadFBXFormat(string mainFileName, string exportFolder);
-	bool LoadSceneFile(string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
+	bool Load(std::string fileName, std::string exportFolder);
+	bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
+	bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
 	bool InitializeFbxManager();
 	bool InitializeSceneImporter();
 
@@ -83,11 +80,11 @@ public:
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	void Write();
-	void WriteMaterial(string folderName, string textureFolder, Material& meshMaterial);
-	void WriteMesh(string folderName, Mesh& mesh);
-	void WriteSkeleton(string folderName, Skeleton skeleton, string meshName);
-	void WriteAnimation(string folderName, Skeleton skeleton);
-	void WriteLights(string folderName);
+	void WriteMaterial(std::string folderName, std::string textureFolder, Material& meshMaterial);
+	void WriteMesh(std::string folderName, Mesh& mesh);
+	void WriteSkeleton(std::string folderName, Skeleton skeleton, std::string meshName);
+	void WriteAnimation(std::string folderName, Skeleton skeleton);
+	void WriteLights(std::string folderName);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// HELPER FUNCTIONS
@@ -97,7 +94,7 @@ public:
 	unsigned int	 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
 	void			 ConvertToLeftHanded(FbxAMatrix &matrix);
 	FbxMesh*		 GetMeshFromRoot(FbxNode* node, string meshName);
-	XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
+	DirectX::XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
 	void			 Print4x4Matrix(FbxAMatrix fbxMatrix);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//

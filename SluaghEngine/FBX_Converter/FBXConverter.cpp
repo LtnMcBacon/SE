@@ -3,6 +3,9 @@
 
 #pragma comment(lib, "libfbxsdk.lib")
 
+using namespace std;
+using namespace std::experimental::filesystem;
+
 FBXConverter::FBXConverter() {
 
 	gFbxSdkManager = nullptr;
