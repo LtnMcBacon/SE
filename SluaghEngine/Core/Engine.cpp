@@ -56,6 +56,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
+	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
+	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 
 	InitStartupOption();
 
@@ -64,7 +66,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
-
+	guiManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
 	//debugRenderManager->Frame(*perFrameStackAllocator);
@@ -82,6 +84,7 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();
+	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
 	delete cameraManager;
@@ -97,6 +100,7 @@ int SE::Core::Engine::Release()
 	delete audioManager;
 	delete optionHandler;
 	delete perFrameStackAllocator;
+	delete guiManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
