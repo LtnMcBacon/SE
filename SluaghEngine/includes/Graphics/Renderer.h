@@ -3,7 +3,7 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-
+#include <Graphics\GUIInfo.h>
 namespace SE
 {
 	namespace Graphics
@@ -45,6 +45,38 @@ namespace SE
 			* @endcode
 			*/
 			int DisableRendering(const RenderObjectInfo& handles) override;
+
+			/**
+			* @brief    Sets Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableTextRendering(const TextGUI & handles) override;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableTextRendering(const TextGUI& handles) override;
+
+			/**
+			* @brief    Sets Text render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableTextureRendering(const GUITextureInfo & handles) override;
+
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableTextureRendering(const GUITextureInfo& handles) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -156,6 +188,14 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+
+			/**
+			* @brief Create a new fomt
+			* @retval 0+ Font ID
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) override;
 			/**
 			* @brief Resizes the swapchain
 			* @param[in] windowHandle A window handle.
@@ -180,6 +220,13 @@ namespace SE
 			GraphicResourceHandler* graphicResourceHandler;
 
 			std::vector<RenderObjectInfo> renderJobs;
+			std::vector<TextGUI> renderTextJobs;
+			std::vector<GUITextureInfo> renderTextureJobs;
+
+			// fonts
+			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
+			std::vector<DirectX::SpriteFont> fonts;
+			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
 		};
 
 	}

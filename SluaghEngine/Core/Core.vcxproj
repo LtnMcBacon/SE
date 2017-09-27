@@ -151,6 +151,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="GUIManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="OptionHandler.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
+    <ClInclude Include="..\includes\Core\GUIManager.h" />
     <ClInclude Include="..\includes\Core\MaterialManager.h" />
     <ClInclude Include="..\includes\Core\OptionHandler.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />

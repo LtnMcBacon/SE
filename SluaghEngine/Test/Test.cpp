@@ -4,11 +4,11 @@
 #include "Test.h"
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
-#include "ResouceHandlerTest.h"
+#include "ResourceHandlerTest.h"
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
-#include "BufferTest.h"
+//#include "BufferTest.h"
 #include "INITest.h"
 #include "RenderableManagerTest.h"
 #include "MaterialManagerTest.h"
@@ -43,14 +43,14 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 24432;
+	//_crtBreakAlloc = 27227;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
-	AddTest(ResouceHandlerTest);
+	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
 	AddTest(ObjLoaderTest);
-	AddTest(BufferTest);
+	//AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
