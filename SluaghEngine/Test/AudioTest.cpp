@@ -57,9 +57,16 @@ namespace SE
 			}
 
 			int streamID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			if (audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect) == -1)
+			streamID[0] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+			if (streamID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
+				e.Release();
+				return false;
+			}
+			else if (streamID[0] == -2)
+			{
+				console->Print("No device!!!!!!");
 				e.Release();
 				return false;
 			}
@@ -79,7 +86,7 @@ namespace SE
 
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-					e.Frame();
+					e.Frame(0.0f);
 					mm.printUsage(console);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
@@ -88,8 +95,15 @@ namespace SE
 						{
 							if (streamID[i] == -1)
 							{
-								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::Effect);
-								audio.StreamSound(streamID[i]);
+								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+								if (streamID[i] == -2)
+								{
+									console->Print("No device!!!!!!");
+								}
+								else
+								{
+									audio.StreamSound(streamID[i]);
+								}
 								i = 11;
 							}
 						}

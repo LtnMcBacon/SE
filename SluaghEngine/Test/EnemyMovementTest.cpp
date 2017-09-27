@@ -174,7 +174,7 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 
 			
-		e.Frame();
+		e.Frame(dt);
 	}
 
 	for (int i = 0; i < 10; i++)

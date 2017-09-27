@@ -22,30 +22,20 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 
-	/*int shaderID[2];
-	hr = graphicResourceHandler->CreateVertexShader(device->GetDevice(), &shaderID[0]);
-	if (FAILED(hr))
-		return -1;*/
-
-	//hr = graphicResourceHandler->CreatePixelShader(device->GetDevice(), &shaderID[1]);
-	//if (FAILED(hr))
-	//	return -1;
-	
-	cam.SetPosition(0.0f, 1.0f, -2.0f);
-	cam.Update(0.01f);
 	TargetOffset off;
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
 	off.shaderTarget[2] = true;
-	off.offset[0] = 0;
-	off.offset[1] = 0;
-	off.offset[2] = 0;
+	off.offset[0] = 1;
+	off.offset[1] = 1;
+	off.offset[2] = 1;
 
 	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
 	if (FAILED(hr))
 	{
-		throw "omg";
+		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
+
 
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
@@ -119,6 +109,10 @@ int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
 
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
+	DirectX::XMFLOAT4X4 wo;
+	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
+	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
+
 	return 0;
 }
 
@@ -127,8 +121,6 @@ int SE::Graphics::Renderer::Render() {
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
 
-
-	cam.Update(0.01f);
 
 	ID3D11RenderTargetView* views[] = { device->GetRTV() };
 	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
@@ -146,22 +138,54 @@ int SE::Graphics::Renderer::Render() {
 	0);
 
 
-	DirectX::XMFLOAT4X4 wo;
-
-	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(cam.ViewProj()));
-	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
 
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderObjectInfo previousJob;
-	previousJob.textureBindings;
+	previousJob.textureCount = 0;
+	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
+	{
+		previousJob.textureHandles[i] = -1;
+		previousJob.textureBindings[i] = -1;
+	}
 	previousJob.bufferHandle = -1;
 	previousJob.pixelShader = -1;
 	previousJob.transformHandle = -1;
 	previousJob.vertexShader = -1;
 	for (auto& job : renderJobs)
 	{
+		if (previousJob.topology != job.topology)
+		{
+			switch (job.topology)
+			{
+				case RenderObjectInfo::PrimitiveTopology::LINE_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::POINT_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::LINE_STRIP:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+					break;
+				}
+				case RenderObjectInfo::PrimitiveTopology::TRIANGLE_STRIP:
+				{
+					device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+					break;
+				}
+			}
+		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
@@ -169,7 +193,9 @@ int SE::Graphics::Renderer::Render() {
 		if(previousJob.transformHandle != job.transformHandle)
 			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
 		for (int i = 0; i < job.textureCount; ++i)
-			graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
+			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
+				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
+
 		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
 		previousJob = job;
 	}
@@ -211,10 +237,10 @@ int SE::Graphics::Renderer::CreateTransform()
 	off.shaderTarget[0] = true;
 	off.shaderTarget[1] = true;
 	off.shaderTarget[2] = true;
-	off.offset[0] = 1;
-	off.offset[1] = 1;
-	off.offset[2] = 1;
-	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerObjectConstantBuffer), off, &handle);
+	off.offset[0] = 2;
+	off.offset[1] = 2;
+	off.offset[2] = 2;
+	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), off, &handle);
 	if (FAILED(hr))
 		ProfileReturnConst(hr);
 	ProfileReturnConst(handle);
@@ -244,6 +270,18 @@ int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSet
 		return hr;
 
 	return handle;
+}
+
+int Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->CreateDynamicVertexBuffer(bytewidth, vertexByteSize, initialData, initialDataSize));
+}
+
+int Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+{
+	StartProfile;
+	ProfileReturn(graphicResourceHandler->UpdateDynamicVertexBuffer(handle, data, totalSize, sizePerElement));
 }
 
 int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
