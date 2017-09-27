@@ -18,12 +18,15 @@
     <ClInclude Include="..\includes\Window\IWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Window\WindowSDL.h">
+    <ClInclude Include="WindowSDL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\Window\WindowSDL.cpp">
+    <ClCompile Include="WindowSDL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

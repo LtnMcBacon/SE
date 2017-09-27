@@ -1,14 +1,16 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
 #include <Graphics\Renderer.h>
-#include <Window\WindowSDL.h>
+#include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
+#pragma comment(lib, "WindowD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "Window.lib")
 #endif
 
 
@@ -26,7 +28,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	optionHandler->Initialize("Config.ini");
 
 	entityManager = new EntityManager;
-	window = new Window::WindowSDL();
+	window = Window::CreateNewWindow();
 	renderer = new Graphics::Renderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager();

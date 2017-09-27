@@ -1,5 +1,4 @@
 #include "WindowTest.h"
-#include <window/WindowSDL.h>
 #include <window/IWindow.h>
 #include <Graphics/Renderer.h>
 #include "Utilz/Console.h"
@@ -45,7 +44,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
 	//create a window pointer
-	SE::Window::IWindow* window = new SE::Window::WindowSDL();
+	SE::Window::IWindow* window = Window::CreateNewWindow();
 	
 	//initiate window (display and input)
 	window->Initialize();
