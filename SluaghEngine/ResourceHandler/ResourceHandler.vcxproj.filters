@@ -18,13 +18,13 @@
     <ClInclude Include="..\includes\ResourceHandler\IResourceHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ResourceHandler\ResourceHandler.h">
+    <ClInclude Include="IAssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ResourceHandler\IAssetLoader.h">
+    <ClInclude Include="RawLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ResourceHandler\RawLoader.h">
+    <ClInclude Include="ResourceHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -33,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RawLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IResourceHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

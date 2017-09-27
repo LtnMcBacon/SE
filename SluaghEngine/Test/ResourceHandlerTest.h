@@ -6,11 +6,11 @@ namespace SE
 {
 	namespace Test
 	{
-		class ResouceHandlerTest : public Test
+		class ResourceHandlerTest : public Test
 		{
 		public:
-			ResouceHandlerTest();
-			~ResouceHandlerTest();
+			ResourceHandlerTest();
+			~ResourceHandlerTest();
 
 			bool Run(Utilz::IConsoleBackend* backend);
 		};

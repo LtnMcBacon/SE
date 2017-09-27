@@ -1,6 +1,6 @@
-#include "ResouceHandlerTest.h"
+#include "ResourceHandlerTest.h"
 #include <ResourceHandler\IResourceHandler.h>
-#include <ResourceHandler\ResourceHandler.h>
+
 #include <string>
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
@@ -11,12 +11,12 @@
 #include <Profiler.h>
 
 using namespace SE::Test;
-ResouceHandlerTest::ResouceHandlerTest()
+ResourceHandlerTest::ResourceHandlerTest()
 {
 }
 
 
-ResouceHandlerTest::~ResouceHandlerTest()
+ResourceHandlerTest::~ResourceHandlerTest()
 {
 }
 static bool result = false;
@@ -41,10 +41,12 @@ int Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 
 	return 0;
 }
-bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
+bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 {
 	StartProfile;
-	ResourceHandler::IResourceHandler* r = new ResourceHandler::ResourceHandler();
+	using namespace std::chrono_literals;
+
+	ResourceHandler::IResourceHandler* r = ResourceHandler::CreateResourceHandler();
 
 	r->Initialize();
 	Utilz::GUID guid = Utilz::GUID("test.txt");
@@ -73,7 +75,7 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		return false;
 	}
 	int timeOut = 0;
-	while (!result && timeOut < 3)timeOut++;  Sleep(1000);
+	while (!result && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
 	if (!result)
 	{
 		backend->Print("Load timed out for test2.txt\n");
@@ -106,7 +108,7 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		return false;
 	}
 	timeOut = 0;
-	while (!result && timeOut < 3)timeOut++;  Sleep(1000);
+	while (!result && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
 	if (!result)
 	{
 		backend->Print("Load timed out for test2 again.txt\n");
@@ -130,7 +132,7 @@ bool SE::Test::ResouceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		return false;
 	}
 	timeOut = 0;
-	while (!result && !result2 && timeOut < 3)timeOut++;  Sleep(1000);
+	while (!result && !result2 && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
 	if (!result)
 	{
 		backend->Print("Load timed out for test3.txt\n");

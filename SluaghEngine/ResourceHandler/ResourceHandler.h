@@ -1,12 +1,14 @@
 #ifndef SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_
 #define SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_
-#include "IResourceHandler.h"
+#include <IResourceHandler.h>
 #include "IAssetLoader.h"
 #include <map>
 #include <thread>
 #include <mutex>
 #include <stack>
 #include <Utilz\Event.h>
+#include <DLLExport.h>
+
 namespace SE
 {
 	namespace ResourceHandler

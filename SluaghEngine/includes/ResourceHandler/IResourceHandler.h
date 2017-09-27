@@ -3,17 +3,19 @@
 #include <Utilz\GUID.h>
 #include <functional>
 #include <Utilz\Delegator.h>
+#include <DLLExport.h>
+
 
 namespace SE
 {
 	namespace ResourceHandler
-	{		
+	{
 		enum class Behavior : uint8_t
 		{
 			QUICK,
 			LAZY
 		};
-			typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
 		typedef int(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
 		/**
 		*
@@ -71,10 +73,10 @@ namespace SE
 			*  }
 			* void Run()
 			* {
-			*	resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&A, A::Load>(this)); 
+			*	resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&A, A::Load>(this));
 			* }
 			* }
-			* 
+			*
 			* @endcode
 			* @sa LoadResourceDelegate
 			*/
@@ -85,21 +87,24 @@ namespace SE
 			*
 			* @details Decreases the refcount for the given resource.
 			* When the refcount reaches 0 the resource handler may unload the resource.
-			* Either by dumping the memory to disk, or just discarding it. 
+			* Either by dumping the memory to disk, or just discarding it.
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
 			* @warning This does not force the resource to unload!
 			**/
 			virtual void UnloadResource(const Utilz::GUID& guid) = 0;
 
-			protected:
+		protected:
 			IResourceHandler() {};
 			IResourceHandler(const IResourceHandler& other) = delete;
 			IResourceHandler(const IResourceHandler&& other) = delete;
 			IResourceHandler& operator=(const IResourceHandler& other) = delete;
 		};
+
+		DECLDIR IResourceHandler* CreateResourceHandler();
 	}
 }
+
 
 
 #endif //SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_
