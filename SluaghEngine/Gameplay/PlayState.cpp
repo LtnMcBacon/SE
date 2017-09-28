@@ -24,7 +24,5 @@ IGameState::State PlayState::Update(void* passableInfo)
 
 	IGameState::State empty = State::PLAY_STATE;
 
-	
-
 	ProfileReturn(empty);
 }

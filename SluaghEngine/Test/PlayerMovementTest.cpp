@@ -4,6 +4,7 @@
 #include <Gameplay/Room.h>
 #include <chrono>
 #include <Gameplay/PlayerUnit.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -30,6 +31,7 @@ SE::Test::PlayerMovementTest::~PlayerMovementTest()
 
 bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	using namespace DirectX;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
@@ -37,7 +39,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+		ProfileReturnConst(false)
 	}
 
 	auto& em = e.GetEntityManager();
@@ -379,6 +381,6 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	e.Release();
 
-	return true;
+	ProfileReturnConst(true)
 }
 

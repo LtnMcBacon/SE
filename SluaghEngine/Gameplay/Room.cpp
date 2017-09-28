@@ -168,6 +168,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 
 Room::Room(char map[25][25])	
 {
+	StartProfile;
 	pos start;
 	start.x = start.y = 1.5f;
 	memcpy(this->map, map, 25 * 25 * sizeof(char));
@@ -186,6 +187,7 @@ Room::Room(char map[25][25])
 	}
 	roomField = new FlowField(map, 1.0f, start, 0.0f, 0.0f);
 	enemyEntities.reserve(5);
+	StopProfile;
 }
 
 Room::~Room()

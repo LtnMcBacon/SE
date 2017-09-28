@@ -101,6 +101,7 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, con
 
 bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMFLOAT3 & pickingRay, float * distance)
 {
+	StartProfile;
 	auto ray = pickingRay;
 	auto r = XMLoadFloat3(&pickingRay);
 
@@ -117,21 +118,21 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 			auto BBColCheck = AABox.Intersects(r, rayDirection, dist);
 			if (BBColCheck)
 			{
-				return true;
+				ProfileReturnConst(true)
 			}
 			else
 			{
-				return false;
+				ProfileReturnConst(false)
 			}
 		}
 		else
 		{
-			return false;
+			ProfileReturnConst(false)
 		}
 
 
 	}	
-	return false;
+	ProfileReturnConst(false)
 }
 
 void SE::Core::CollisionManager::Frame()

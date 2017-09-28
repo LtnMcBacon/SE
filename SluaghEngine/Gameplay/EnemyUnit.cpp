@@ -167,6 +167,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 
 bool SE::Gameplay::EnemyUnit::CorrectCollision(float dt, float &xMov, float &yMov)
 {
+	StartProfile;
 	float moveTot = abs(xMov) + abs(yMov);
 	float xMovementTot = xMov;
 	float yMovementTot = yMov;
@@ -286,10 +287,9 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
-	StartProfile;
+	
 	/*
 	* Code body
 	*/
-	ProfileReturnVoid;
 }
 

@@ -3,6 +3,7 @@
 #include <Gameplay/Flowfield.h>
 #include <Gameplay/EnemyUnit.h>
 #include <chrono>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -28,13 +29,14 @@ SE::Test::EnemyMovementTest::~EnemyMovementTest()
 
 bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+		ProfileReturnConst(false)
 	}
 
 	auto& em = e.GetEntityManager();
@@ -182,5 +184,5 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	e.Release();
 
-	return true;
+	ProfileReturnConst(true)
 }

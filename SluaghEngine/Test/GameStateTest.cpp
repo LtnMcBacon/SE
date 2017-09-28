@@ -102,5 +102,5 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	}
 	delete passableInfo;
-	StopProfile;
+	ProfileReturnConst(true);
 }
