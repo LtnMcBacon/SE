@@ -29,6 +29,7 @@ namespace SE {
 			*
 			* @retval 0+ Stream ID
 			* @retval -1 Tells that creation was unsucessful
+			* @retval -2 No device was found
 			*
 			*/
 			int CreateStream(SoundIndexName soundType, void* streamData);
@@ -39,6 +40,7 @@ namespace SE {
 			*
 			* @retval 0 Tells that streamstart was sucessful
 			* @retval -1 Tells that streamstart was unsucessful
+			* @retval -2 No device was found
 			*
 			*/
 			int StreamSound(int streamID);
