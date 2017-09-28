@@ -93,6 +93,7 @@ namespace SE {
 					}
 				}
 			}
+			delete inSample;
 			ProfileReturnConst(-2);
 		}
 	
@@ -100,10 +101,14 @@ namespace SE {
 		{
 			StartProfile;
 			PaError err;
-			err = Pa_StartStream(stream[streamID]);
-			if (err != paNoError)
-				ProfileReturnConst(-1);
-			ProfileReturnConst(0);
+			if (Pa_GetDeviceCount() > 0)
+			{
+				err = Pa_StartStream(stream[streamID]);
+				if (err != paNoError)
+					ProfileReturnConst(-1);
+				ProfileReturnConst(0);
+			}
+			ProfileReturnConst(-2);
 		}
 
 		int AudioStream::StopSound(int streamID)
