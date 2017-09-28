@@ -4,6 +4,8 @@ Assets/Cout.wav
 Assets/DebugLinePS.hlsl
 Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
+Assets/GUITest.sei
+Assets/moonhouse.spritefont
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl

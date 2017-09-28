@@ -1,6 +1,6 @@
 #include "InitGraphicsTest.h"
 #include <Graphics\Renderer.h>
-#include <Window\WindowSDL.h>
+#include <Window\IWindow.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -24,7 +24,7 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 	Graphics::IRenderer* r = new Graphics::Renderer();
-	Window::IWindow* w = new Window::WindowSDL();
+	Window::IWindow* w = Window::CreateNewWindow();
 	int result = w->Initialize();
 	if (result)
 	{

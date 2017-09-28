@@ -1,14 +1,29 @@
 #ifndef SE_WINDOW_IWINDOW_H_
 #define SE_WINDOW_IWINDOW_H_
 
-#include <cstdint>
-#include <string>
 #include <Utilz/Delegator.h>
-#include <functional>
+
+
+#if defined DLL_EXPORT_W
+#define DECLDIR __declspec(dllexport)
+#else
+#define DECLDIR __declspec(dllimport)
+#endif
+
+
+
 namespace SE
 {
 	namespace Window
 	{
+		struct InitializationInfo
+		{
+			std::string windowTitle;
+			bool fullScreen = false;
+			uint32_t width = 1280;
+			uint32_t height = 720;
+		};
+
 		enum KeyCode
 		{
 			KeyEscape,
@@ -222,13 +237,7 @@ namespace SE
 		class IWindow
 		{
 		public:
-			struct InitializationInfo
-			{
-				std::string windowTitle;
-				bool fullScreen = false;
-				uint32_t width = 1280;
-				uint32_t height = 720;
-			};
+			
 
 			IWindow(){};
 			virtual ~IWindow(){};
@@ -340,10 +349,9 @@ namespace SE
 			*/
 			virtual bool SetWindow(int height, int width, bool inFullscreen) = 0;
 
-		private:
-
 		};
 
+		DECLDIR IWindow* CreateNewWindow();
 
 	}
 }

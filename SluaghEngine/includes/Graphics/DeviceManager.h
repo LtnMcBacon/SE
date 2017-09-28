@@ -158,10 +158,22 @@ namespace SE {
 			*/
 			void ResizeSwapChain(HWND windowHandle);
 
+			/**
+			* @brief Creates a blend state
+			* @endcode
+			*/
+			void CreateBlendState();
+
 			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
+			inline ID3D11BlendState*	   GetBlendState() { return blendState; };
+			inline void SetBlendState() {
+				float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
+				UINT sampleM = 0xffffffff;
+				gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
+			}
 
 		private:
 
@@ -174,6 +186,8 @@ namespace SE {
 			
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
+
+			ID3D11BlendState*		blendState;
 
 			D3D11_TEXTURE2D_DESC	gBB_Desc;
 			D3D_FEATURE_LEVEL		gFeatureLevel;
