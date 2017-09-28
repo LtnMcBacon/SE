@@ -95,9 +95,6 @@
     <ClInclude Include="..\includes\Core\AnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\AnimationStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Core\FileHeaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>

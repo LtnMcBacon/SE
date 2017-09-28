@@ -160,7 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\AnimationManager.h" />
-    <ClInclude Include="..\includes\Core\AnimationStructs.h" />
     <ClInclude Include="..\includes\Core\AudioManager.h" />
     <ClInclude Include="..\includes\Core\CameraManager.h" />
     <ClInclude Include="..\includes\Core\CollisionManager.h" />

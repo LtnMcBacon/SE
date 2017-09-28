@@ -50,7 +50,7 @@ using namespace std::experimental::filesystem;
 // 3. Material Attributes and Texture on the diffuse channel (1 texture per object)
 // 4: Lights
 // 5. Cameras
-FBXConverter File;
+SE::Core::FBXConverter File;
 
 int main(int argc, char *argv[]) {
 

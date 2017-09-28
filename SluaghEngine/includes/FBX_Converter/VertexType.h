@@ -9,29 +9,34 @@
 using namespace std;
 using namespace DirectX;
 
-//----------------------------------------------------------------------------------------------------------------------------------//
-// EXPORTER VERTEX TYPES
-//----------------------------------------------------------------------------------------------------------------------------------//
+namespace SE
+{
+	namespace Core
+	{
 
-struct Vertex{ // Struct for an ordinary vertex layout without deformer data
+		struct Vertex { // Struct for an ordinary vertex layout without deformer data
 
-	XMFLOAT3 pos;
-	XMFLOAT2 uv;
-	XMFLOAT3 normal;
-	XMFLOAT3 binormal;
-	XMFLOAT3 tangent;
+			XMFLOAT3 pos;
+			XMFLOAT2 uv;
+			XMFLOAT3 normal;
+			XMFLOAT3 binormal;
+			XMFLOAT3 tangent;
 
-};
+		};
 
-struct VertexDeformer { // Struct for a vertex layout with deformer data that holds the four influences (Weight pairs)
+		struct VertexDeformer { // Struct for a vertex layout with deformer data that holds the four influences (Weight pairs)
 
-	XMFLOAT3 pos;
-	XMFLOAT2 uv;
-	XMFLOAT3 normal;
-	XMFLOAT3 binormal;
-	XMFLOAT3 tangent;
-	float weights[4];
-	uint32_t boneIndices[4];
-};
+			XMFLOAT3 pos;
+			XMFLOAT2 uv;
+			XMFLOAT3 normal;
+			XMFLOAT3 binormal;
+			XMFLOAT3 tangent;
+			float weights[4];
+			uint32_t boneIndices[4];
+		};
+
+	}
+
+}
 
 #endif

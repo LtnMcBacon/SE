@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 		{
 			if (Utilz::getExtension(f.name) == "fbx")
 			{
-				FBXConverter File;
+				SE::Core::FBXConverter File;
 				if (!File.Load(f.fullPath, "FBXTemp")) {
 
 					printf("Could not parse fbx file %s\n", f.name);

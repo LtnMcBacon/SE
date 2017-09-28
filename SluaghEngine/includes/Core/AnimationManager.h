@@ -60,12 +60,15 @@ namespace SE
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
+				size_t* index;
 			};
 
 			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
+			std::vector<int> skeletonHandle;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToSkeletonIndex;
 
 
 		};

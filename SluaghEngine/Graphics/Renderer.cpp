@@ -384,3 +384,22 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 	device->ResizeSwapChain((HWND)windowHandle);
 }
 
+
+int SE::Graphics::Renderer::CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) {
+
+	int handle;
+	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+	if (hr)
+		return hr;
+	return handle;
+}
+
+int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) {
+
+	int handle;
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, skeletonIndex, &handle);
+	if (hr)
+		return hr;
+	return handle;
+}
+

@@ -6,74 +6,82 @@
 
 #include <DirectXMath.h>
 
-struct Mesh_Header {
+namespace SE
+{
+	namespace Core
+	{
 
-	uint32_t vertexLayout;
-	uint32_t nrOfVertices;
-};
+		struct Mesh_Header {
 
-struct TransformAttributes {
+			uint32_t vertexLayout;
+			uint32_t nrOfVertices;
+		};
 
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 rotation;
-	DirectX::XMFLOAT3 scale;
-};
+		struct TransformAttributes {
 
-struct BBox {
+			DirectX::XMFLOAT3 position;
+			DirectX::XMFLOAT3 rotation;
+			DirectX::XMFLOAT3 scale;
+		};
 
-	DirectX::XMFLOAT3 max;
-	DirectX::XMFLOAT3 min;
-};
+		struct BBox {
 
-
-struct Skeleton_Header {
-
-	uint32_t nrOfJoints;
-};
-
-struct JointAttributes {
-
-	uint32_t ParentIndex;
-	DirectX::XMFLOAT4X4 bindposeMatrix;
-};
+			DirectX::XMFLOAT3 max;
+			DirectX::XMFLOAT3 min;
+		};
 
 
-struct Material_Header {
+		struct Skeleton_Header {
 
-	uint32_t nrOfTextures;
-};
+			uint32_t nrOfJoints;
+		};
 
-struct MaterialAttributes {
+		struct JointAttributes {
 
-	DirectX::XMFLOAT3 diffuseColor;
-	float diffuseFactor;
-
-	DirectX::XMFLOAT3 ambientColor;
-	float ambientFactor;
-
-	DirectX::XMFLOAT3 specularColor;
-	float specularFactor;
-};
+			uint32_t ParentIndex;
+			DirectX::XMFLOAT4X4 bindposeMatrix;
+		};
 
 
-struct Animation_Header {
+		struct Material_Header {
 
-	uint32_t animationLength;
-	uint32_t nrOfJoints;
-};
+			uint32_t nrOfTextures;
+		};
+
+		struct MaterialAttributes {
+
+			DirectX::XMFLOAT3 diffuseColor;
+			float diffuseFactor;
+
+			DirectX::XMFLOAT3 ambientColor;
+			float ambientFactor;
+
+			DirectX::XMFLOAT3 specularColor;
+			float specularFactor;
+		};
 
 
-struct Light_Header {
+		struct Animation_Header {
 
-	uint32_t nrOfLights;
-};
+			uint32_t nrOfJoints;
+			uint32_t animationLength;
+		};
 
-struct LightAttributes {
 
-	DirectX::XMFLOAT3 color;
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 direction;
-};
+		struct Light_Header {
 
+			uint32_t nrOfLights;
+		};
+
+		struct LightAttributes {
+
+			DirectX::XMFLOAT3 color;
+			DirectX::XMFLOAT3 position;
+			DirectX::XMFLOAT3 direction;
+		};
+
+	}
+
+}
 
 #endif
