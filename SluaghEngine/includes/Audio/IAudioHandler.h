@@ -69,7 +69,7 @@ namespace SE {
 			*/
 			virtual int StopSound(int streamID) = 0;
 			/**
-			* @brief Streams the given sound
+			* @brief Removes the given sound
 			*
 			* @param[in] streamID The stream ID
 			*

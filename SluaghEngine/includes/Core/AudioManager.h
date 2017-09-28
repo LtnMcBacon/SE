@@ -26,7 +26,7 @@ namespace SE {
 			AudioManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager & entityManager);
 			~AudioManager() {};
 			/**
-			* @brief	Calls init functions in stream and sound
+			* @brief	Calls init functions in audiohandlern
 			*
 			* @retval 0 Tells that creation was sucessful
 			* @retval -1 Tells that creation was unsucessful
@@ -44,7 +44,7 @@ namespace SE {
 			*/
 			int LoadSound(Utilz::GUID soundFile);
 			/**
-			* @brief	Create a stream and return it's ID
+			* @brief	Create a sound and return it's ID
 			*
 			* @param[in] soundFile The GUID of the requested soundfile
 			* @param[in] soundType The type of sound
@@ -67,7 +67,7 @@ namespace SE {
 			/**
 			* @brief Streams the given sound
 			*
-			* @param[in] streamID The stream ID
+			* @param[in] soundID The sounds ID
 			*
 			* @retval 0 Tells that streamstart was sucessful
 			* @retval -1 Tells that streamstart was unsucessful
@@ -77,7 +77,7 @@ namespace SE {
 			/**
 			* @brief Stops the stream with the given ID
 			*
-			* @param[in] streamID The stream ID
+			* @param[in] soundID The sounds ID
 			*
 			* @retval 0 Tells that stopstream was sucessful
 			* @retval -1 Tells that stopstream was unsucessful
@@ -85,9 +85,9 @@ namespace SE {
 			*/
 			int StopSound(const Entity& entity, int soundID);
 			/**
-			* @brief Streams the given sound
+			* @brief Removes the given sound
 			*
-			* @param[in] streamID The stream ID
+			* @param[in] soundID The sounds ID
 			*
 			* @retval 0 Tells that removestream was sucessful
 			* @retval -1 Tells that removestream was unsucessful
