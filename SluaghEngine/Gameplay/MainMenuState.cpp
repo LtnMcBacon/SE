@@ -23,12 +23,7 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 	StartProfile;
 
 	IGameState::State empty = State::MAIN_MENU_STATE;
-	
-
-	
-	
-
-		
+			
 	
 	if (Input->ButtonPressed(0))
 	{
@@ -36,11 +31,8 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 		empty = State::PAUSE_STATE;
 	}
 
-		
-	
-	int a = 10;
 
-	passableInfo = new int(a);
+	passableInfo = new int(10);
 	
 	ProfileReturn(empty);
 	

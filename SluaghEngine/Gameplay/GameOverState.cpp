@@ -20,7 +20,7 @@ GameOverState::~GameOverState()
 IGameState::State GameOverState::Update(void* &passableInfo)
 {
 	StartProfile;
-	IGameState::State empty;
+	IGameState::State empty = State::GAME_OVER_STATE;
 
 	
 	if (Input->ButtonPressed(0))
@@ -28,9 +28,9 @@ IGameState::State GameOverState::Update(void* &passableInfo)
 			
 		empty = State::MAIN_MENU_STATE;
 	}
+		
 	/*Code*/
 
-		
 	
 
 	ProfileReturn(empty);

@@ -108,7 +108,6 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 
 
 	StopProfile;
-	return;
 }
 
 void FlowField::ResetField()

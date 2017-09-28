@@ -20,9 +20,8 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	IGameState::State empty;
+	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 
-	
 	
 	if (Input->ButtonPressed(0))
 	{
