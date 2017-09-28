@@ -1,5 +1,4 @@
 #include "AudioTest.h"
-#include <Core\AudioManager.h>
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
 #include <Utilz\MemoryMeasuring.h>
@@ -41,7 +40,7 @@ namespace SE
 				console->Print("Could not init Core, Error: %d.", re);
 				return false;
 			}
-			Core::AudioManager& audio = e.GetAudioManager();
+			auto& audio = e.GetAudioManager();
 			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
@@ -56,15 +55,16 @@ namespace SE
 
 			}
 
-			int streamID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			streamID[0] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
-			if (streamID[0] == -1)
+			auto soundEnt = e.GetEntityManager().Create();
+			int soundID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+			if (soundID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!");
 				e.Release();
 				return false;
 			}
-			else if (streamID[0] == -2)
+			else if (soundID[0] == -2)
 			{
 				console->Print("No device!!!!!!");
 				e.Release();
@@ -169,8 +169,7 @@ namespace SE
 				guiManager.Bind2D(entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4);
 				guiManager.ToggleRenderableTexture(entTexture4, true);
 
-				streamID[0] = 0;
-				audio.StreamSound(streamID[0]);
+				audio.StreamSound(soundEnt, soundID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
@@ -185,16 +184,16 @@ namespace SE
 					{
 						for (int i = 0; i < 10; i++)
 						{
-							if (streamID[i] == -1)
+							if (soundID[i] == -1)
 							{
-								streamID[i] = audio.CreateStream(Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
-								if (streamID[i] == -2)
+								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+								if (soundID[i] == -2)
 								{
 									console->Print("No device!!!!!!");
 								}
 								else
 								{
-									audio.StreamSound(streamID[i]);
+									audio.StreamSound(soundEnt, soundID[i]);
 								}
 								i = 11;
 							}
@@ -208,11 +207,11 @@ namespace SE
 					{
 						for (int i = 0; i < 10; i++)
 						{
-							if (streamID[i] != -1)
+							if (soundID[i] != -1)
 							{
-								audio.StopSound(streamID[i]);
-								audio.RemoveSound(streamID[i]);
-								streamID[i] = -1;
+								audio.StopSound(soundEnt, soundID[i]);
+								audio.RemoveSound(soundEnt, soundID[i]);
+								soundID[i] = -1;
 								i = 11;
 							}
 						}
@@ -225,10 +224,10 @@ namespace SE
 					{
 						for (int i = 0; i < 10; i++)
 						{
-							if (streamID[i] != -1)
+							if (soundID[i] != -1)
 							{
-								audio.StopSound(streamID[i]);
-								audio.StreamSound(streamID[i]);
+								audio.StopSound(soundEnt, soundID[i]);
+								audio.StreamSound(soundEnt, soundID[i]);
 								i = 11;
 							}
 						}

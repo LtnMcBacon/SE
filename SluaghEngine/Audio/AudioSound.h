@@ -2,9 +2,14 @@
 #ifndef SE_AUDIO_AUDIOSOUND_H
 #define SE_AUDIO_AUDIOSOUND_H
 #include "AudioStructType.h"
+#include "AudioTypeDefs.h"
 #include <Utilz\StackAllocator.h>
 
-
+#ifdef _DEBUG
+#pragma comment(lib, "utilzD.lib")
+#else
+#pragma comment(lib, "utilz.lib")
+#endif
 
 namespace SE {
 	namespace Audio {

@@ -2,6 +2,7 @@
 #ifndef SE_AUDIO_AUDIOSTREAM_H
 #define SE_AUDIO_AUDIOSTREAM_H
 #include "AudioStructType.h"
+#include "AudioTypeDefs.h"
 
 
 namespace SE {
