@@ -6,13 +6,9 @@
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
-#else
-#pragma comment(lib, "core.lib")
-#endif
-
-#ifdef _DEBUG
 #pragma comment(lib, "windowD.lib")
 #else
+#pragma comment(lib, "core.lib")
 #pragma comment(lib, "window.lib")
 #endif
 
