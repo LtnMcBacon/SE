@@ -62,8 +62,8 @@ namespace SE
 				bool downS;
 				bool downD;
 
-				float mousePosX;
-				float mousePosY;
+				int mousePosX;
+				int mousePosY;
 
 				MovementInput()
 				{

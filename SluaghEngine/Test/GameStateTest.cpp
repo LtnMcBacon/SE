@@ -55,8 +55,12 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 	Window::IWindow* Input = e.GetWindow();
 	
 	Input->MapActionButton(0, Window::KeyEscape);
-	
+	Input->MapActionButton(1, Window::KeyW);
+	Input->MapActionButton(2, Window::KeyS);
+	Input->MapActionButton(3, Window::KeyA);
+	Input->MapActionButton(4, Window::KeyD);
 	IGameState* Game = new MainMenuState(Input);
+	
 	
 
 	while (running)
@@ -101,6 +105,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		e.Frame(1/60.f);
 
 	}
+	delete Game;
 	delete passableInfo;
 	StopProfile;
 }
