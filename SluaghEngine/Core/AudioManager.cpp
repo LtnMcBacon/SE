@@ -32,7 +32,7 @@ namespace SE {
 			if (fileLoaded == trackSound.end())
 			{
 				resourceHandler->LoadResource(soundFile, ResourceHandler::LoadResourceDelegate::Make<AudioManager, &AudioManager::retSoundData>(this));
-				ProfileReturnConst(1);
+				ProfileReturnConst(-1);
 			}
 			else
 			{
