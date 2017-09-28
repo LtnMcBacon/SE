@@ -6,13 +6,9 @@
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
-#else
-#pragma comment(lib, "core.lib")
-#endif
-
-#ifdef _DEBUG
 #pragma comment(lib, "windowD.lib")
 #else
+#pragma comment(lib, "core.lib")
 #pragma comment(lib, "window.lib")
 #endif
 
@@ -179,7 +175,7 @@ namespace SE
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame(0.0f);
-					mm.printUsage(console);
+					//mm.printUsage(console);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
