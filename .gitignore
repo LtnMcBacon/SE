@@ -35,6 +35,9 @@ Intermediate/
 Build/
 Asset/
 Assets/
+External*
+*.dll
+*.lib
 
 # Visual Studio 2015 cache/options directory
 .vs/
