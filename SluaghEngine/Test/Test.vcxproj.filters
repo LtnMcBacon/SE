@@ -27,9 +27,6 @@
     <ClCompile Include="EntityManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResouceHandlerTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WindowTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -78,6 +75,9 @@
     <ClCompile Include="DebugRenderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceHandlerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="PlayerMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
@@ -90,9 +90,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResouceHandlerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowTest.h">
@@ -151,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="GameStateTest.h">
       <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceHandlerTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

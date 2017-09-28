@@ -1,16 +1,18 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
 #include <Graphics\Renderer.h>
-#include <Window\WindowSDL.h>
-#include <ResourceHandler\ResourceHandler.h>
-#include <OBJParser\Parsers.h>
+#include <Window\IWindow.h>
+#include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
+#pragma comment(lib, "ResourceHandlerD.lib")
+#pragma comment(lib, "WindowD.lib")
 #else
-#pragma comment(lib, "OBJParser.lib")
+#pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "Window.lib")
 #endif
+
 
 
 
@@ -26,9 +28,9 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	optionHandler->Initialize("Config.ini");
 
 	entityManager = new EntityManager;
-	window = new Window::WindowSDL();
+	window = Window::CreateNewWindow();
 	renderer = new Graphics::Renderer();
-	resourceHandler = new ResourceHandler::ResourceHandler();
+	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager();
 	
 
@@ -45,14 +47,17 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	if (r)
 		return r;
 
+
 	transformManager = new TransformManager(entityManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
-	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
+	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
+	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 
 	InitStartupOption();
 
@@ -61,10 +66,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
-
+	guiManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
-	debugRenderManager->Frame(*perFrameStackAllocator);
+	//debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
@@ -79,13 +84,14 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();
+	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
 	delete cameraManager;
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
-	delete debugRenderManager;
+	//delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
@@ -94,6 +100,7 @@ int SE::Core::Engine::Release()
 	delete audioManager;
 	delete optionHandler;
 	delete perFrameStackAllocator;
+	delete guiManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
