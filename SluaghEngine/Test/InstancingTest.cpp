@@ -1,15 +1,13 @@
-#include "DebugRenderTest.h"
-#include <Core\Engine.h>
+#include "InstancingTest.h"
+#include <Core/Engine.h>
 #include <Utilz/Timer.h>
-
-SE::Test::DebugRenderManagerTest::DebugRenderManagerTest()
+SE::Test::InstancingTest::InstancingTest()
 {
 }
 
-SE::Test::DebugRenderManagerTest::~DebugRenderManagerTest()
+SE::Test::InstancingTest::~InstancingTest()
 {
 }
-
 enum ActionButton
 {
 	Exit,
@@ -20,11 +18,9 @@ enum ActionButton
 	Left,
 	Right,
 	Fullscreen,
-	FrameTime,
-	Jiggle,
-	RemoveStuff
+	FrameTime
 };
-bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 {
 	auto& engine = Core::Engine::GetInstance();
 	engine.Init(Core::Engine::InitializationInfo());
@@ -33,7 +29,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& tm = engine.GetTransformManager();
 	auto& cm = engine.GetCameraManager();
 	auto& rm = engine.GetRenderableManager();
-	auto& drm = engine.GetDebugRenderManager();
+
 	Core::Entity entity = em.Create();
 	const int numEnts = 600;
 	Core::Entity ents[numEnts];
@@ -49,30 +45,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	{
 		ents[i] = em.Create();
 		mm.Create(ents[i], info);
-		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 0.02f,0.02f,0.02f });
+		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) },{0.0f,0.0f,0.0f},{0.02f,0.02f,0.02f});
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_level.obj"));
 		rm.ToggleRenderableObject(ents[i], true);
-		drm.DrawCross(ents[i], 100.0f);
 
 	}
-	for (int i = 10; i < 20; i++)
-	{
-		drm.ToggleDebugRendering(ents[i], false);
-	}
 
-	for (int i = 15; i < 20; i++)
-	{
-		drm.DrawCross(ents[i], 100.0f);
-	}
-	for (int i = 0; i <numEnts; i++)
-	{
-		drm.DrawCross(ents[i], 100.0f);
-	}
-	for (int i = 7; i < 14; i++)
-	{
-		drm.ToggleDebugRendering(ents[i], false);
-	}
 	rm.ToggleRenderableObject(ents[2], false);
 	rm.ToggleRenderableObject(ents[2], true);
 	const auto camera = em.Create();
@@ -94,16 +73,12 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::Right, Window::KeyD);
 	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 	w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
-	w->MapActionButton(ActionButton::Jiggle, Window::KeyJ);
-	w->MapActionButton(RemoveStuff, Window::KeyR);
 
 	bool running = true;
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
 	int full = oh.GetOption("Window", "fullScreen", 0);
-	float jiggler = 0.0f;
-	uint32_t removeIndex = 0;
 	while (running)
 	{
 		timer.Tick();
@@ -121,16 +96,9 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonDown(ActionButton::Left))
 			tm.Move(camera, { -0.11f*dt, 0.0f, 0.0f });
 
-		if (w->ButtonPressed(ActionButton::Jiggle))
-			tm.Move(ents[3], { 0.0f, 1.0f, 0.0f });
-
-		if (removeIndex < numEnts && w->ButtonDown(RemoveStuff))
-			em.Destroy(ents[removeIndex++]);
-
-
-		if (w->ButtonPressed(ActionButton::Hide))
+		if(w->ButtonPressed(ActionButton::Hide))
 		{
-			for (int i = 0; i< numEnts; i++)
+			for(int i = 0; i< numEnts; i++)
 			{
 				rm.ToggleRenderableObject(ents[i], false);
 			}
@@ -142,7 +110,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 				rm.ToggleRenderableObject(ents[i], true);
 			}
 		}
-		if (w->ButtonPressed(ActionButton::FrameTime))
+		if(w->ButtonPressed(ActionButton::FrameTime))
 		{
 			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
 		}
