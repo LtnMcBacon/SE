@@ -9,6 +9,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include "TransformManager.h"
 #include "MaterialManager.h"
+#include "AnimationManager.h"
 
 namespace SE
 {
@@ -24,7 +25,7 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, MaterialManager* materialManager);
+			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, MaterialManager* materialManager, AnimationManager* animationManager);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -72,7 +73,11 @@ namespace SE
 			void UpdateDirtyTransforms();
 
 			int LoadDefaultModel(const Utilz::GUID& guid, void* data, size_t size);
+
 			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
+
+			int LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
+
 			int LoadModel(const Utilz::GUID& guid, void* data, size_t size);
 			
 			void LoadResource(const Utilz::GUID& meshGUID, size_t index);
@@ -93,6 +98,7 @@ namespace SE
 			const EntityManager& entityManager;
 			TransformManager* transformManager;
 			MaterialManager* materialManager;
+			AnimationManager* animationManager;
 			std::default_random_engine generator;	
 
 			struct DirtyEntityInfo
@@ -107,6 +113,7 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
+			int skinnedShader;
 			int defaultShader;
 			int defaultMeshHandle;
 
@@ -115,6 +122,7 @@ namespace SE
 				int bufferHandle;
 				uint32_t refCount;	
 			};
+
 
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;

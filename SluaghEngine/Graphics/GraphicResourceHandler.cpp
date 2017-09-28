@@ -87,40 +87,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 
 	HRESULT hr = S_OK;
 
-	// We require three inputs (IN THE FOLLOWING ORDER):
-	// POSITION
-	// NORMAL
-	// TEXCOORD
-	D3D11_INPUT_ELEMENT_DESC vertexInputLayout[3];
-
-	/*ID3DBlob* vsBlob = nullptr;
-	ID3DBlob* vsErrorBlob = nullptr;
-
-	hr = D3DCompileFromFile(
-		L"Asset\\SimpleVS.hlsl",
-		nullptr,
-		nullptr,
-		"VS_main",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG,
-		0,
-		&vsBlob,
-		&vsErrorBlob
-	);
-
-	if (FAILED(hr)) {
-
-		Console::Print("Vertex Shader Error: Vertex Shader could not be compiled or loaded from file");
-
-		if (vsErrorBlob) {
-
-			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
-			vsErrorBlob->Release();
-		}
-
-		ProfileReturnConst(hr);
-	}*/
-
 	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {

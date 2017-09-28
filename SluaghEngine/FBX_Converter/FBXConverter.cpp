@@ -1,5 +1,5 @@
 
-#include "FBXConverter.h"
+#include <FBXConverter.h>
 
 #pragma comment(lib, "libfbxsdk.lib")
 
@@ -71,7 +71,7 @@ bool FBXConverter::LoadFBXFormat(string mainFileName, string exportFolder) {
 
 	// Create a folder for all the format files to easily manage them in other project folders
 	// Filesystem can create the folder directory for us given a path based on the previously entered path name
-	folderName = pathName.string() + "/Format";
+	folderName = pathName.string();
 	create_directory(folderName);
 
 	logFolder = folderName + "/Log/";

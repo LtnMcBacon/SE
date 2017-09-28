@@ -11,6 +11,7 @@
 #include "RenderableManager.h"
 #include "OptionHandler.h"
 #include "CameraManager.h"
+#include "AnimationManager.h"
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -204,6 +205,11 @@ namespace SE
 			inline GUIManager& GetGUIManager() const {
 				return *guiManager;
 			}
+
+			inline AnimationManager& GetAnimationManager() const {
+				return *animationManager;
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -232,6 +238,7 @@ namespace SE
 			OptionHandler* optionHandler;
 			CameraManager* cameraManager;
 			DebugRenderManager* debugRenderManager;
+			AnimationManager* animationManager;
 			Utilz::StackAllocator* perFrameStackAllocator;
 
 

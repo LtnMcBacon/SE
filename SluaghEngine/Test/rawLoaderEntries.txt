@@ -4,8 +4,6 @@ Assets/Cout.wav
 Assets/DebugLinePS.hlsl
 Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
-Assets/GUITest.sei
-Assets/moonhouse.spritefont
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl
@@ -24,11 +22,11 @@ Assets/Shaders/Pixel/SimplePS.hlsl
 Assets/Shaders/Pixel/SimpleTexPS.hlsl
 Assets/Shaders/Vertex/DebugLineVS.hlsl
 Assets/Shaders/Vertex/SimpleVS.hlsl
+Assets/Shaders/Vertex/SkinnedVS.hlsl
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
-Assets/SkinnedVS.hlsl
 Assets/Sound/Background/Cout.wav
 Assets/Sound/Effect/Canary.wav
 Assets/temp - Copy.ini
@@ -39,3 +37,12 @@ Assets/test2.txt
 Assets/test3.txt
 Assets/TestDiffuse.sei
 Assets/TestNormal.sei
+Assets/Animations/DanceAnimation_bakedTest.anim
+Assets/Animations/IdleAnimation_bakedTest.anim
+Assets/Animations/RunAnimation_bakedTest.anim
+Assets/Lights/bakedTest.light
+Assets/Materials/PhongTest_bakedTest.mat
+Assets/Meshes/TestMesh_bakedTest.mesh
+Assets/Skeleton/TestMesh_bakedTest.skel
+Assets/Textures/TestMesh_Diffuse.png
+Assets/Textures/TestMesh_Normal.jpg

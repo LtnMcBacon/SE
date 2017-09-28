@@ -2,11 +2,27 @@
 #include <Core\Engine.h>
 #include <Profiler.h>
 
+#include <Utilz\Timer.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
 #pragma comment(lib, "core.lib")
 #endif
+
+enum ActionButton
+{
+	Exit,
+	Hide,
+	Show,
+	Up,
+	Down,
+	Left,
+	Right,
+	Fullscreen,
+	Rise,
+	Sink
+};
 
 
 SE::Test::RenderableManagerTest::RenderableManagerTest()
@@ -35,49 +51,80 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& rm = e.GetRenderableManager();
 	auto& tm = e.GetTransformManager();
 	auto& cm = e.GetCameraManager();
+	auto& am = e.GetAnimationManager();
 	auto& level = em.Create();
 	auto& mainC = em.Create();
 	auto& camera = em.Create();
 
+	auto handle = e.GetWindow();
+
 	tm.Create(level);
 	tm.Create(mainC);
-	tm.SetPosition(mainC, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
+	tm.SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 	cm.Bind(camera);
 	cm.SetActive(camera);
-	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
-	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
-	tm.BindChild(mainC, camera);
+	tm.SetRotation(camera, 0.0f, 0.0f, 0.0f);
+	tm.SetPosition(camera, { 0.0f, 3.0f, -20.0f });
 
-	rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
-	rm.ToggleRenderableObject(level, true);
+	handle->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	handle->MapActionButton(ActionButton::Hide, Window::KeyO);
+	handle->MapActionButton(ActionButton::Show, Window::KeyK);
+	handle->MapActionButton(ActionButton::Up, Window::KeyW);
+	handle->MapActionButton(ActionButton::Down, Window::KeyS);
+	handle->MapActionButton(ActionButton::Left, Window::KeyA);
+	handle->MapActionButton(ActionButton::Right, Window::KeyD);
+	handle->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 
-	rm.CreateRenderableObject(mainC, Utilz::GUID("Placeholder_MC.obj"));
+	handle->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
+	handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
+
+	/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
+	rm.ToggleRenderableObject(level, true);*/
+	am.CreateSkeleton(mainC, "TestMesh_bakedTest.skel");
+	rm.CreateRenderableObject(mainC, Utilz::GUID("TestMesh_bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
-	//for (int i = 0; i < 10; i++)
-	//{
-	//	auto& en = em.Create();
-	//	tm.Create(en);
-	//	tm.SetPosition(en, DirectX::XMFLOAT3(rand() % 20, rand() % 20, rand() % 20));
-	//	rm.CreateRenderableObject(en, Utilz::GUID("Placeholder_MC.obj"));
-	//	rm.ToggleRenderableObject(en, true);
-	//}
-
-
-
+	/*for (int i = 0; i < 10; i++)
+	{
+	auto& en = em.Create();
+	tm.Create(en);
+	tm.SetPosition(en, DirectX::XMFLOAT3(rand() % 20, rand() % 20, rand() % 20));
+	rm.CreateRenderableObject(en, Utilz::GUID("Placeholder_MC.obj"));
+	rm.ToggleRenderableObject(en, true);
+	}*/
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
+	Utilz::Timer timer;
+
 	while (running)
 	{
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
-		tm.Move(mainC, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
-		//tm.Rotate(camera, 0.0f, 0.0f, 0.01f);
-		//tm.Move(camera, { 0.0f, -0.01f, 0.0f });
+
+		timer.Tick();
+		float dt = timer.GetDeltaMilliseconds();
+
+		if (handle->ButtonDown(ActionButton::Up))
+			tm.Move(camera, { 0.0f, 0.0f, 0.01f*dt });
+		if (handle->ButtonDown(ActionButton::Down))
+			tm.Move(camera, { 0.0f, 0.0f, -0.01f*dt });
+		if (handle->ButtonDown(ActionButton::Right))
+			tm.Move(camera, { 0.01f*dt, 0.0f, 0.0f });
+		if (handle->ButtonDown(ActionButton::Left))
+			tm.Move(camera, { -0.01f*dt, 0.0f, 0.0f });
+		if (handle->ButtonDown(ActionButton::Rise))
+			tm.Move(camera, { 0.0f, -0.01f*dt, 0.0f });
+		if (handle->ButtonDown(ActionButton::Sink))
+			tm.Move(camera, { 0.0f, 0.01f*dt, 0.0f });
+
+
+		//tm.Rotate(mainC, 0.0f, 0.0f, 0.01f);
+		//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
 		e.Frame(0.01f);
 	}
-	
+
 
 
 	e.Release();

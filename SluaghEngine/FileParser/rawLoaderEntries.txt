@@ -1,3 +1,4 @@
+Assets/bakedTest.fbx
 Assets/Canary.wav
 Assets/Cout.wav
 Assets/dummytex.sei
@@ -21,5 +22,14 @@ Assets/temp - Copy.ini
 Assets/temp.ini
 Assets/test.objtest
 Assets/test.txt
-Assets/test2.txt
-Assets/test3.txt
+Assets/TestDiffuse.sei
+Assets/TestNormal.sei
+Assets/Animations/DanceAnimation_bakedTest.anim
+Assets/Animations/IdleAnimation_bakedTest.anim
+Assets/Animations/RunAnimation_bakedTest.anim
+Assets/Lights/bakedTest.light
+Assets/Materials/PhongTest_bakedTest.mat
+Assets/Meshes/TestMesh_bakedTest.mesh
+Assets/Skeleton/TestMesh_bakedTest.skel
+Assets/Textures/TestMesh_Diffuse.png
+Assets/Textures/TestMesh_Normal.jpg
