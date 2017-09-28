@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <random>
 
 namespace SE
 {
@@ -97,11 +98,16 @@ namespace SE
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
 
+			
 
 			int LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
 			int LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size);
 
 			void SetDirty(const Entity & entity, size_t index);
+
+			std::default_random_engine generator;
+			void GarbageCollection();
+			void Destroy(const Entity& e);
 		};
 	}
 }

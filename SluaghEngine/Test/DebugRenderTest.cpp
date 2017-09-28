@@ -20,7 +20,9 @@ enum ActionButton
 	Left,
 	Right,
 	Fullscreen,
-	FrameTime
+	FrameTime,
+	Jiggle,
+	RemoveStuff
 };
 bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -92,12 +94,16 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::Right, Window::KeyD);
 	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 	w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
+	w->MapActionButton(ActionButton::Jiggle, Window::KeyJ);
+	w->MapActionButton(RemoveStuff, Window::KeyR);
 
 	bool running = true;
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
 	int full = oh.GetOption("Window", "fullScreen", 0);
+	float jiggler = 0.0f;
+	uint32_t removeIndex = 0;
 	while (running)
 	{
 		timer.Tick();
@@ -114,6 +120,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 			tm.Move(camera, { 0.11f*dt, 0.0f, 0.0f });
 		if (w->ButtonDown(ActionButton::Left))
 			tm.Move(camera, { -0.11f*dt, 0.0f, 0.0f });
+
+		if (w->ButtonPressed(ActionButton::Jiggle))
+			tm.Move(ents[3], { 0.0f, 1.0f, 0.0f });
+
+		if (removeIndex < numEnts && w->ButtonDown(RemoveStuff))
+			em.Destroy(ents[removeIndex++]);
+
 
 		if (w->ButtonPressed(ActionButton::Hide))
 		{

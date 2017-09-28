@@ -41,7 +41,10 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 {
 	auto& find = entityToIndex.find(e);
 	if (find != entityToIndex.end())
+	{
+		dirty[find->second] = 1;
 		ProfileReturnVoid;
+	}
 
 	if (transformCount == transformCapacity)
 		ExpandTransforms();

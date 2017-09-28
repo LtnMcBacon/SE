@@ -164,13 +164,23 @@ int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJob(uint32_t lineJobID, float* transform)
+int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
 	lineRenderJobs[lineJobID].transform = transposed;
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
+{
+	StartProfile;
+
+	lineRenderJobs[lineJobID].firstVertex = startVertex;
+	lineRenderJobs[lineJobID].verticesToDrawCount = vertexCount;
+
 	ProfileReturnConst(0);
 }
 

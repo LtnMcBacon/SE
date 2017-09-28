@@ -189,7 +189,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	size_t last = renderableObjectInfo.used - 1;
 	const Entity& entity = renderableObjectInfo.entity[index];
 	const Entity& last_entity = renderableObjectInfo.entity[last];
-
+	renderer->DisableRendering(entityToJobID[entity]);
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];

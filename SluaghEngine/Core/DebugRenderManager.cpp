@@ -1,5 +1,6 @@
 #include "DebugRenderManager.h"
 #include <Profiler.h>
+#include <random>
 
 SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
 	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), dynamicVertexBufferHandle(-1), dirty(false)
@@ -24,6 +25,7 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAllocator)
 {
 	StartProfile;
+	GarbageCollection();
 	if(dirty)
 	{
 		size_t bufferSize = 0;
@@ -41,28 +43,31 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			cur = ((uint8_t*)cur) + cpySize;
 		}
 		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(Point3D));
-
-		for(auto& job : entityToJobID)
-		{
-			renderer->RemoveLineRenderJob(job.second);
-		}
-		entityToJobID.clear();
-
+		
 		uint32_t startVertex = 0;
 		for(auto& m : entityToLineList)
 		{
-			Graphics::LineRenderJob lineRenderJob;
-			lineRenderJob.firstVertex = startVertex;
-			lineRenderJob.pixelShaderHandle = lineRenderPixelShaderHandle;
-			lineRenderJob.vertexShaderHandle = lineRenderVertexShaderHandle;
-			lineRenderJob.transform = transformManager->GetTransform(m.first);
-			lineRenderJob.vertexBufferHandle = dynamicVertexBufferHandle;
 			const size_t verticesToDraw = m.second.size() * 2;
-			lineRenderJob.verticesToDrawCount = verticesToDraw;
-			startVertex += verticesToDraw;
-			entityToJobID[m.first] = renderer->AddLineRenderJob(lineRenderJob);
-		}
+			Graphics::LineRenderJob lineRenderJob;
+			
 
+			auto f = entityToJobID.find(m.first);
+			if (f == entityToJobID.end())
+			{
+				lineRenderJob.firstVertex = startVertex;
+				lineRenderJob.pixelShaderHandle = lineRenderPixelShaderHandle;
+				lineRenderJob.vertexShaderHandle = lineRenderVertexShaderHandle;
+				transformManager->Create(m.first);
+				lineRenderJob.vertexBufferHandle = dynamicVertexBufferHandle;
+				lineRenderJob.verticesToDrawCount = verticesToDraw;
+				entityToJobID[m.first] = renderer->AddLineRenderJob(lineRenderJob);
+			}
+			else
+			{
+				renderer->UpdateLineRenderJobRange(f->second, startVertex, verticesToDraw);
+			}
+			startVertex += verticesToDraw;			
+		}
 		dirty = false;
 	}
 	ProfileReturnVoid;
@@ -128,9 +133,39 @@ void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 	auto find = entityToJobID.find(entity);
 	if (find != entityToJobID.end())
 	{
-		DirectX::XMFLOAT4X4 transform = transformManager->GetTransform(entity);
-		renderer->UpdateLineRenderJob(find->second, (float*)&transform);
+		renderer->UpdateLineRenderJobTransform(find->second, (float*)&transformManager->dirtyTransforms[index]);
 	}
 	ProfileReturnVoid;
+}
+
+void SE::Core::DebugRenderManager::GarbageCollection()
+{
+	StartProfile;
+	uint32_t alive_in_row = 0;
+	size_t activeJobs = entityToJobID.size();
+	while (activeJobs > 0 && alive_in_row < 4U)
+	{
+		const std::uniform_int_distribution<uint32_t> distribution(0U, activeJobs - 1U);
+		uint32_t i = distribution(generator);
+		auto iterator = entityToJobID.begin();
+		std::advance(iterator, i);
+		if (entityManager.Alive(iterator->first))
+		{
+			alive_in_row++;
+			continue;
+		}
+		alive_in_row = 0;
+		Destroy(iterator->first);
+		--activeJobs;
+	}
+	ProfileReturnVoid;
+}
+
+void SE::Core::DebugRenderManager::Destroy(const Entity& e)
+{
+	renderer->RemoveLineRenderJob(entityToJobID[e]);
+	entityToLineList.erase(e);
+	entityToJobID.erase(e);
+	dirty = true;
 }
 

@@ -98,7 +98,17 @@ namespace SE
 			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
 			* @retval 0 On success.
 			*/
-			virtual int UpdateLineRenderJob(uint32_t lineJobID, float* transform) = 0;
+			virtual int UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform) = 0;
+
+			/**
+			* @brief Updates the range of the line render job. (Which range of the dynamic vertex buffer to grab vertices from.)
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] startVertex The first vertex to draw
+			* @param[in] vertexCount The number of vertices to draw.
+			* @retval 0 On success.
+			*/
+			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
+
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
