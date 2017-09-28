@@ -75,14 +75,14 @@
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(VC_IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(VC_IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
@@ -90,14 +90,14 @@
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(VC_IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(VC_IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
