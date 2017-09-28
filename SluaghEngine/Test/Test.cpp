@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
-	AddTest(DebugRenderManagerTest);
+	//AddTest(DebugRenderManagerTest);
 
 	volatile bool running = true;
 	
