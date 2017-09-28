@@ -22,6 +22,11 @@ namespace SE
 			void Bind(const Entity& entity, float fov = 1.570796f, float aspectRatio = (800.0f/640.0f), float nearP = 0.01f, float farP = 100.0f, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f });
 
 			/**
+			* @brief	GetViewInv.
+			*/
+			const DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
+
+			/**
 			* @brief	Set the camera as the active camera.
 			*/
 			void SetActive(const Entity& entity);
@@ -55,7 +60,7 @@ namespace SE
 
 			struct CameraData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(float)*4;
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(float)*4 + sizeof(DirectX::XMFLOAT4X4);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -65,6 +70,7 @@ namespace SE
 				float* aspectRatio;
 				float* nearPlane;
 				float* farPlane;
+				DirectX::XMFLOAT4X4* view;
 			};
 
 			size_t activeCamera;
