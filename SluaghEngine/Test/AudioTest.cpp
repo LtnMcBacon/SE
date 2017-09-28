@@ -33,7 +33,7 @@ namespace SE
 			auto re = e.Init(info);
 			if (re)
 			{
-				console->Print("Could not init Core, Error: %d.", re);
+				console->Print("Could not init Core, Error: %d. \n", re);
 				return false;
 			}
 			auto& audio = e.GetAudioManager();
@@ -41,14 +41,15 @@ namespace SE
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
-				console->Print("Sound already loaded??????");
+				console->Print("Sound already loaded??????\n");
 				e.Release();
 				return false;
 			}
 
-			while (audio.CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0)
+			int delay = 0;
+			while (audio.CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0 && delay < 10)
 			{
-
+				delay++;
 			}
 
 			auto soundEnt = e.GetEntityManager().Create();
@@ -56,13 +57,13 @@ namespace SE
 			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
 			if (soundID[0] == -1)
 			{
-				console->Print("Sound is not loaded!!!!!!!!");
+				console->Print("Sound is not loaded!!!!!!!!\n");
 				e.Release();
 				return false;
 			}
 			else if (soundID[0] == -2)
 			{
-				console->Print("No device!!!!!!");
+				console->Print("No device!!!!!!\n");
 				e.Release();
 				return false;
 			}
@@ -171,6 +172,7 @@ namespace SE
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
 
+				console->Print("Start main loop!!\n");
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame(0.0f);
@@ -185,7 +187,7 @@ namespace SE
 								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
 								if (soundID[i] == -2)
 								{
-									console->Print("No device!!!!!!");
+									console->Print("No device!!!!!!\n");
 								}
 								else
 								{

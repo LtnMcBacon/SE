@@ -52,22 +52,25 @@ namespace SE {
 			{
 				if (trackSound[soundFile] != -1)
 				{
-					if (entToSounds[entity].freeStreamID.size() > 0)
+					int handle = audioHandler->CreateStream(trackSound[soundFile], soundType);
+					if (handle >= 0)
 					{
-						entToSounds[entity].streamID[entToSounds[entity].freeStreamID.top()] = audioHandler->CreateStream(trackSound[soundFile], soundType);
-						entToSounds[entity].freeStreamID.pop();
-					}
-					else
-					{
-						entToSounds[entity].streamID.push_back(audioHandler->CreateStream(trackSound[soundFile], soundType));
-					}
-					if (entToSounds[entity].streamID[entToSounds[entity].amountOfSound] != -1)
-					{
+						if (entToSounds[entity].freeStreamID.size() > 0)
+						{
+							entToSounds[entity].streamID[entToSounds[entity].freeStreamID.top()] = handle;
+							entToSounds[entity].freeStreamID.pop();
+						}
+						else
+						{
+							entToSounds[entity].streamID.push_back(handle);
+						}
 						entToSounds[entity].amountOfSound++;
-						soundEntity.push_back(entity);
-						ProfileReturn(entToSounds[entity].amountOfSound - 1);
+						if (entToSounds[entity].amountOfSound < 2)
+						{
+							soundEntity.push_back(entity);
+						}
 					}
-					entToSounds[entity].streamID.pop_back();
+					ProfileReturn(handle);
 				}
 			}
 			ProfileReturnConst(-1);
