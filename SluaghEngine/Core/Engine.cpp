@@ -31,7 +31,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	window = Window::CreateNewWindow();
 	renderer = new Graphics::Renderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
-	audioManager = new AudioManager();
+	audioManager = new AudioManager(resourceHandler, *entityManager);
 	
 
 	auto r = resourceHandler->Initialize();
@@ -70,6 +70,7 @@ int SE::Core::Engine::Frame(double dt)
 	transformManager->Frame();
 	renderableManager->Frame();
 	debugRenderManager->Frame(*perFrameStackAllocator);
+	audioManager->Frame();
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
