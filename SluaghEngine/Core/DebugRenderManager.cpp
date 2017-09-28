@@ -163,9 +163,11 @@ void SE::Core::DebugRenderManager::GarbageCollection()
 
 void SE::Core::DebugRenderManager::Destroy(const Entity& e)
 {
+	StartProfile;
 	renderer->RemoveLineRenderJob(entityToJobID[e]);
 	entityToLineList.erase(e);
 	entityToJobID.erase(e);
 	dirty = true;
+	ProfileReturnVoid;
 }
 
