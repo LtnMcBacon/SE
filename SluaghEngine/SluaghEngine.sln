@@ -39,6 +39,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileParser", "FileParser\FileParser.vcxproj", "{956A354F-6B9E-4142-9522-3D19F1C02FD5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBX_Converter", "FBX_Converter\FBX_Converter.vcxproj", "{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -119,6 +121,14 @@ Global
 		{956A354F-6B9E-4142-9522-3D19F1C02FD5}.Release|x64.Build.0 = Release|x64
 		{956A354F-6B9E-4142-9522-3D19F1C02FD5}.Release|x86.ActiveCfg = Release|Win32
 		{956A354F-6B9E-4142-9522-3D19F1C02FD5}.Release|x86.Build.0 = Release|Win32
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Debug|x64.ActiveCfg = Debug|x64
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Debug|x64.Build.0 = Debug|x64
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Debug|x86.ActiveCfg = Debug|Win32
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Debug|x86.Build.0 = Debug|Win32
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Release|x64.ActiveCfg = Release|x64
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Release|x64.Build.0 = Release|x64
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Release|x86.ActiveCfg = Release|Win32
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
