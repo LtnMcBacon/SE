@@ -7,6 +7,7 @@
 bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yMov)
 {
 	StartProfile;
+	bool collision = false;
 	float moveTot = abs(xMov) + abs(yMov);
 	float xMovementTot = xMov;
 	float yMovementTot = yMov;
@@ -32,14 +33,14 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		xMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 	myPos.y = yPos + localExtent;
 
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		xMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 
 	/*Checking collision in right x-axis*/
@@ -49,14 +50,14 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		xMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 	myPos.y = yPos + localExtent;
 
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		xMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 
 	/*Checking collision in down y-axis*/
@@ -66,14 +67,14 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		yMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 	myPos.x = xPos + localExtent;
 
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		yMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 
 	/*Checking collision in up y-axis*/
@@ -83,17 +84,17 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		yMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 	myPos.x = xPos + localExtent;
 
 	if (map[int(myPos.x)][int(myPos.y)])
 	{
 		yMov = 0;
-		ProfileReturnConst(true);
+		collision = true;
 	}
 
-	ProfileReturnConst(false);
+	ProfileReturnConst(collision);
 }
 
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
