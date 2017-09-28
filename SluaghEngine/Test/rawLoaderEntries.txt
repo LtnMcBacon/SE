@@ -1,11 +1,9 @@
-Assets/bakedTest.fbx
 Assets/Canary.wav
 Assets/Cout.wav
 Assets/DebugLinePS.hlsl
 Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
 Assets/GUITest.sei
-Assets/moonhouse.spritefont
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
 Assets/Placeholder_Block.mtl
@@ -28,9 +26,6 @@ Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
 Assets/SimpleVS.hlsl
-Assets/SkinnedVS.hlsl
-Assets/Sound/Background/Cout.wav
-Assets/Sound/Effect/Canary.wav
 Assets/Sound/Background/Cout.wav
 Assets/Sound/Effect/Canary.wav
 Assets/temp - Copy.ini
@@ -39,5 +34,3 @@ Assets/test.objtest
 Assets/test.txt
 Assets/test2.txt
 Assets/test3.txt
-Assets/TestDiffuse.sei
-Assets/TestNormal.sei

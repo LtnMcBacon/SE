@@ -3,7 +3,6 @@
 #include <Profiler.h>
 #include <Core\Engine.h>
 #include <chrono>
-#include <window/WindowSDL.h>
 #include <window/IWindow.h>
 #include <Gameplay\MainMenuState.h>
 #include <Gameplay\PauseState.h>
