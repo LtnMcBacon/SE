@@ -45,10 +45,13 @@ bool SE::Core::EntityManager::Alive(Entity e) const
 
 void SE::Core::EntityManager::Destroy(Entity e)
 {
-	++_generation[e.id & Entity::ENTITY_INDEX_MASK];
-	if (_reusableIndicesCount == _reusableIndicesCapacity)
-		_ExpandReusable();
-	_reusableIndices[_reusableIndicesCount++] = (e.id & Entity::ENTITY_INDEX_MASK);
+	if (_generation[e.Index()] == e.Gen())
+	{
+		++_generation[e.id & Entity::ENTITY_INDEX_MASK];
+		if (_reusableIndicesCount == _reusableIndicesCapacity)
+			_ExpandReusable();
+		_reusableIndices[_reusableIndicesCount++] = (e.id & Entity::ENTITY_INDEX_MASK);
+	}
 }
 
 void SE::Core::EntityManager::_ExpandGeneration()

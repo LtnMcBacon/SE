@@ -79,13 +79,13 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				size_t* bufferIndex;
-				int* transformHandle;
+				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
@@ -99,6 +99,7 @@ namespace SE
 			{
 				size_t transformIndex;
 				size_t renderableIndex;
+				Entity entity;
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
@@ -106,6 +107,7 @@ namespace SE
 
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
+			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
 
 			int defaultShader;
 			int defaultMeshHandle;

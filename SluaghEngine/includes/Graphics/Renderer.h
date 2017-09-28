@@ -32,19 +32,20 @@ namespace SE
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
 			* @sa RenderObjectInfo
-			* @endcode
 			*/
 			int EnableRendering(const RenderObjectInfo& handles) override;
 
 			/**
 			* @brief    Removes a render job.
-			* @param[in] handles The handles struct
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
 			* @retval 0 On success.
-			* @endcode
+			* @sa EnableRendering
 			*/
-			int DisableRendering(const RenderObjectInfo& handles) override;
+			int DisableRendering(uint32_t jobID) override;
+
 
 			/**
 			* @brief    Sets Text render jobs
@@ -77,6 +78,40 @@ namespace SE
 			* @endcode
 			*/
 			int DisableTextureRendering(const GUITextureInfo& handles) override;
+
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			int AddLineRenderJob(const LineRenderJob& lineJob) override;
+
+			/**
+			* @brief    Removes a line render job.
+			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			int RemoveLineRenderJob(uint32_t lineJobID) override;
+
+			/**
+			* @brief Updates the transformation of a line render job.
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			*/
+			int UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform) override;
+
+			/**
+			* @brief Updates the range of the line render job. (Which range of the dynamic vertex buffer to grab vertices from.)
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] startVertex The first vertex to draw
+			* @param[in] vertexCount The number of vertices to draw.
+			* @retval 0 On success.
+			*/
+			int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -136,13 +171,13 @@ namespace SE
 			*/
 			void DestroyTransform(int transformHandle) override;
 			/**
-			* @brief Updates the transformation for an entity that is bound to rendering.
-			* @param[in] transformHandle The transform handle that is bound to the renderable object.
-			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
+			* @brief Updates the transformation of a render job.
+			* @param[in] jobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int UpdateTransform(int transformHandle, float* transform) override;
+			int UpdateTransform(uint32_t jobID, float* transform) override;
 
 
 
@@ -218,6 +253,33 @@ namespace SE
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
+
+			/******** Instanced render job members ********/
+			static const uint32_t maxDrawInstances = 256;
+			int instancedTransformsConstantBufferHandle = -1;
+			struct RenderBucket
+			{
+				RenderObjectInfo stateInfo;
+				std::vector<DirectX::XMFLOAT4X4> transforms;
+				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
+				std::vector<uint32_t> jobsInBucket;
+			};
+			std::vector<RenderBucket> renderBuckets;
+			struct BucketAndTransformIndex
+			{
+				uint32_t bucketIndex;
+				uint32_t transformIndex;
+			};
+			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
+			std::stack<uint32_t> freeJobIndices;
+			/******** END Instanced render job members ********/
+
+			/*********** Line render job members **************/
+			std::vector<LineRenderJob> lineRenderJobs;
+			std::stack<uint32_t> freeLineRenderJobIndices;
+			int singleTransformConstantBuffer = -1;
+
+			/*********** END Line render job members **********/
 
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
