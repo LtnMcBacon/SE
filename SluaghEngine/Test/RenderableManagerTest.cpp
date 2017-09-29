@@ -81,8 +81,10 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(level, true);*/
+
 	am.CreateSkeleton(mainC, "TestMesh_bakedTest.skel");
 	am.AddAnimation(mainC, "RunAnimation_bakedTest.anim");
+
 	rm.CreateRenderableObject(mainC, Utilz::GUID("TestMesh_bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
 

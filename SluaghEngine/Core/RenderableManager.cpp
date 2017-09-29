@@ -109,17 +109,17 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		auto &entityIndex = animationManager->entityToIndex.find(entity);
 
 		// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
-		//if (entityIndex == animationManager->entityToIndex.end()) {
+		if (entityIndex == animationManager->entityToIndex.end()) {
+
+			info.vertexShader = defaultShader;
+		}
+
+		// Otherwise, there was an animated entity and we should use the skinned vertex shader
+		else {
 
 			info.vertexShader = skinnedShader;
-		//}
-
-		//// Otherwise, there was an animated entity and we should use the skinned vertex shader
-		//else {
-
-		//	info.vertexShader = skinnedShader;
-		//}
-		//
+		}
+		
 
 		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())

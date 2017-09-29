@@ -18,6 +18,13 @@ namespace SE
 				TRIANGLE_LIST,
 				TRIANGLE_STRIP
 			};
+
+			enum class JobType : uint32_t 
+			{
+				STATIC = 1,
+				SKINNED = 1 << 1
+			};
+
 			static const uint32_t maxTextureBinds = 4;
 			int bufferHandle;
 			int pixelShader;
@@ -26,6 +33,7 @@ namespace SE
 			int8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
+			JobType type;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;

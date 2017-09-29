@@ -172,20 +172,57 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		Utilz::Console::Print("Failed to create input layout.\n");
 		ProfileReturnConst(hr);
 	}
+
+	vector<int>handles;
+	vector<int>bindslots;
+
+	for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
+	{
+		D3D11_SHADER_BUFFER_DESC sbd;
+		ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
+		srcb->GetDesc(&sbd);
+
+		size_t buffSize = sbd.Size;
+		int handle = CreateConstantBuffer(buffSize);
+
+		if (handle < 0) {
+
+			Utilz::Console::Print("Failed to create constant buffer in function CreateVertexShader.\n");
+			ProfileReturnConst(-1);
+		}
+
+		handles.push_back(handle);
+		bindslots.push_back(i);
+	}
+
 	reflection->Release();
+
+	int index = -1;
+
 	if(freeVertexShaderLocations.size())
 	{
-		const size_t index = freeVertexShaderLocations.top();
+		index = freeVertexShaderLocations.top();
 		vShaders[index] = { tempVertexShader, inputLayout };
 		freeVertexShaderLocations.pop();
-		*vertexShaderID = index;
 	}
 	else
 	{
-		const size_t index = vShaders.size();
+		index = vShaders.size();
 		vShaders.push_back({ tempVertexShader, inputLayout });
-		*vertexShaderID = index;
 	}
+
+	for (UINT i = 0; i < 8; i++) {
+
+		vShaders[index].bufferHandle[i] = -1;
+	}
+
+	for (UINT i = 0; i < handles.size(); i++) {
+
+		vShaders[index].bufferHandle[bindslots[i]] = handles[i];
+	}
+
+	*vertexShaderID = index;
+
 	ProfileReturnConst(hr);
 
 	/*vertexInputLayout[0].SemanticName = "POSITION";
@@ -375,6 +412,14 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 	// Unbind shaders
 	UnbindShaders();
 
+	for (UINT i = 0; i < 8; i++) {
+
+		if (vShaders[vertexID].bufferHandle[i] != -1) {
+
+			gDeviceContext->VSSetConstantBuffers(i, 1, &cBuffers[vShaders[vertexID].bufferHandle[i]].constBuffer);
+		}
+	}
+
 	// Set the input layout
 	gDeviceContext->IASetInputLayout(vShaders[vertexID].inputLayout);
 
@@ -485,6 +530,46 @@ HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& 
 	}
 
 	ProfileReturnConst(hr);
+}
+
+int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
+
+	StartProfile;
+
+	int handle = -1;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.ByteWidth = size;
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+
+	//skapar constant buffer
+	ConstantBuffer tempBuffer;
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
+	tempBuffer.size = size;
+
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(-1);
+	}
+	if (freeConstantBufferLocations.size() == 0)
+	{
+		cBuffers.push_back(tempBuffer);
+		handle = cBuffers.size() - 1;
+	}
+	else
+	{
+		auto top = freeConstantBufferLocations.top();
+		cBuffers[top] = tempBuffer;
+		handle = top;
+		freeConstantBufferLocations.pop();
+	}
+
+	ProfileReturnConst(handle);
 }
 
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)

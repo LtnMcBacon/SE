@@ -54,7 +54,7 @@ namespace SE {
 
 			ID3D11VertexShader*		vertexShader;
 			ID3D11InputLayout*		inputLayout;
-
+			size_t bufferHandle[8];
 
 		};
 
@@ -171,10 +171,14 @@ namespace SE {
 			*
 			* @retval S_OK Buffer creation succeded
 			*
+			* @warning Deprecated, use int CreateConstantBuffer(size_t size) instead
+			*
 			* @retval nonZero Creation failed
 			*
 			*/
 			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
+
+			int CreateConstantBuffer(size_t size);
 
 			/**
 			* @brief	Bind the constant buffer to the shaders.

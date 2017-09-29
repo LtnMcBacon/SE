@@ -98,7 +98,6 @@ int SE::Core::Engine::Release()
 	delete renderableManager;
 	delete debugRenderManager;
 	delete animationManager;
-	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;
