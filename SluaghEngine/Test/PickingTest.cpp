@@ -88,7 +88,7 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 				rayD = DirectX::XMVector4Transform(rayD, viewM);
 				rayD = XMVector3Normalize(rayD);
 
-				float distance = 1000.0f;
+				float distance = 0.0f;
 				bool test = cm.PickEntity(floor, rayO, rayD, &distance);
 
 				if (test)

@@ -315,14 +315,13 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			rayD = XMVector3Normalize(rayD);
 
 			float distance = 0.0f;
-			bool test = coM.PickEntity(floor, rayO, rayD, &distance);
+			bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
 
 			auto clickPos = rayO + rayD*distance;
 
 			input.mouseRightDown = true;
 			input.mousePosX = DirectX::XMVectorGetX(clickPos);
-			input.mousePosY = DirectX::XMVectorGetY(clickPos);
-						
+			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
 		}
 		float totMov = abs(movX) + abs(movY);
 		if(totMov != 0.f)
