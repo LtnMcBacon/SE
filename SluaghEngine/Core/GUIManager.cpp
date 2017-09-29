@@ -22,12 +22,11 @@ namespace SE {
 		GUIManager::GUIManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer* renderer, const EntityManager & entityManager)
 			:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager)
 		{
+
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
 			amountOfFonts = renderer->CreateTextFont(Utilz::GUID("moonhouse.spritefont"), resourceHandler);
-
-			StopProfile;
 		}
 
 		GUIManager::~GUIManager()
@@ -59,11 +58,11 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show)
+				if (show && loadedTexts[entID[entity]].fontID > -1)
 				{
 					renderer->EnableTextRendering(loadedTexts[entID[entity]]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextRendering(loadedTexts[entID[entity]]);
 				}
@@ -129,11 +128,11 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show)
+				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1)
 				{
 					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}

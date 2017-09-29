@@ -54,8 +54,27 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	SetViewport();
 	CreateBlendState();
+	
+
+	D3D11_RASTERIZER_DESC rasterizerState;
+	rasterizerState.FillMode = D3D11_FILL_SOLID;
+	rasterizerState.CullMode = D3D11_CULL_NONE;
+	rasterizerState.FrontCounterClockwise = false;
+	rasterizerState.DepthBias = false;
+	rasterizerState.DepthBiasClamp = 0;
+	rasterizerState.SlopeScaledDepthBias = 0;
+	rasterizerState.DepthClipEnable = true;
+	rasterizerState.ScissorEnable = false;
+	rasterizerState.MultisampleEnable = false;
+	rasterizerState.AntialiasedLineEnable = false;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterState);
+	if (FAILED(hr))
+		throw "Fuck";
+	gDeviceContext->RSSetState(rasterState);
 
 	ProfileReturnConst(hr);
+
 }
 
 void DeviceManager::Shutdown() {
@@ -66,12 +85,14 @@ void DeviceManager::Shutdown() {
 
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
+	pDSState->Release();
 
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 
 	gDeviceContext->Release();
 	blendState->Release();
+	rasterState->Release();
 
 #ifdef _DEBUG
 
@@ -234,6 +255,39 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
 
+
+	D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+	// Depth test parameters
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	// Stencil test parameters
+	dsDesc.StencilEnable = true;
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create depth stencil state
+	gDevice->CreateDepthStencilState(&dsDesc, &pDSState);
+
+	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+
+
+
+
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
@@ -283,6 +337,7 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 	gSwapChain->Release();
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
+	pDSState->Release();
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 	CreateSwapChain(windowHandle);

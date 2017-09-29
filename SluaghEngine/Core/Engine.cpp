@@ -66,6 +66,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
+	StartProfile;
 	guiManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
@@ -76,7 +77,7 @@ int SE::Core::Engine::Frame(double dt)
 	window->Frame();
 	cameraManager->Frame();
 	renderer->Render();
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Release()

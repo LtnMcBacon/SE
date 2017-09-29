@@ -39,6 +39,7 @@ SE::Core::TransformManager::~TransformManager()
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
 	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
+	StartProfile;
 	auto& find = entityToIndex.find(e);
 	if (find != entityToIndex.end())
 	{
@@ -60,11 +61,12 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	Parent[index] = ~0u;
 
 	dirty[index] = true;
-
+	StopProfile;
 }
 
 void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child)
 {
+	StartProfile;
 	auto& findParent = entityToIndex.find(parent);
 	if (findParent == entityToIndex.end())
 		ProfileReturnVoid;
@@ -79,7 +81,7 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 
 	// Setup child data
 	Parent[findChild->second] = findParent->second;
-
+	StopProfile;
 
 }
 
@@ -238,6 +240,7 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 
 void SE::Core::TransformManager::Frame()
 {
+	StartProfile;
 	dirtyTransforms.clear();
 	parentDeferred.clear();
 	for (size_t i = 0; i < transformCount; i++)
@@ -255,6 +258,7 @@ void SE::Core::TransformManager::Frame()
 		auto newTrans = local*parent;
 		XMStoreFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]], newTrans);
 	}
+	StopProfile;
 }
 
 inline void SE::Core::TransformManager::SetAsDirty(size_t index)
@@ -269,6 +273,7 @@ inline void SE::Core::TransformManager::SetAsDirty(size_t index)
 
 void SE::Core::TransformManager::UpdateTransform(size_t index)
 {
+	StartProfile;
 	XMFLOAT4X4 transform;
 	auto translation = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[index]));
 	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[index]));
@@ -281,6 +286,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 		parentDeferred.push_back({ index, Parent[index] });
 	SetDirty(entities[index], ti);
 	dirty[index] = false;
+	StopProfile;
 }
 
 void SE::Core::TransformManager::ExpandTransforms()

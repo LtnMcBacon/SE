@@ -125,7 +125,7 @@ void FlowField::ResetField()
 
 void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY)
 {
-	StartProfile;
+
 	if (currentX > 0 && data[currentX - 1][currentY].type != Type::BLOCKED && data[currentX - 1][currentY].cost > data[currentX][currentY].cost + 1)
 	{
 		data[currentX - 1][currentY].cost = data[currentX][currentY].cost + 1;
@@ -149,7 +149,7 @@ void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY
 		data[currentX][currentY + 1].cost = data[currentX][currentY].cost + 1;
 		RecursiveLeifUpdate(currentX, currentY + 1);
 	}
-	StopProfile;
+
 }
 
 void FlowField::SetDirectionsBasedOnCosts()

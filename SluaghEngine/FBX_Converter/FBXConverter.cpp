@@ -665,91 +665,7 @@ void FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) 
 				vertex.normal.y = (float)FBXNormal.mData[1];
 				vertex.normal.z = (float)FBXNormal.mData[2];
 
-				if (pMesh.meshNode->GetElementBinormalCount() < 1)
-				{
-					cout << ("Invalid Binormal Number") << endl;
-					continue;
-				}
-
-				//////////////////////////////////////////////////////////////
-				//                     GET BINORMALS
-				//////////////////////////////////////////////////////////////
-
-				for (i = 0; i < pMesh.meshNode->GetElementBinormalCount(); i++)
-				{
-					// Fbx data type specific for holding binormals
-					FbxGeometryElementBinormal* binormals = pMesh.meshNode->GetElementBinormal(i);
-					iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
-
-					if (binormals->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-					{
-						switch (binormals->GetReferenceMode())
-						{
-						case FbxGeometryElement::eDirect:
-						{
-							vertex.binormal.x = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[0];
-							vertex.binormal.y = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[1];
-							vertex.binormal.z = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[2];
-
-							//cout << vertex.BiNormal.x << " " << vertex.BiNormal.y << " " << vertex.BiNormal.z << " " << endl;
-							break;
-						}
-						case  FbxGeometryElement::eIndexToDirect:
-						{
-							index = binormals->GetIndexArray().GetAt(iControlPointIndex);
-
-							vertex.binormal.x = (float)binormals->GetDirectArray().GetAt(index).mData[0];
-							vertex.binormal.y = (float)binormals->GetDirectArray().GetAt(index).mData[1];
-							vertex.binormal.z = (float)binormals->GetDirectArray().GetAt(index).mData[2];
-							break;
-						}
-						default:
-							cout << "Error: Invalid binormal reference mode\n";
-							break;
-						}
-					}
-				}
-
-				index = 0;
-				//////////////////////////////////////////////////////////////
-				//                     GET TANGENTS
-				//////////////////////////////////////////////////////////////
-
-				for (i = 0; i < pMesh.meshNode->GetElementTangentCount(); i++)
-				{
-					FbxGeometryElementTangent* tangents = pMesh.meshNode->GetElementTangent(i);
-
-					if (tangents->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-
-					{
-
-						switch (tangents->GetReferenceMode())
-						{
-						case FbxGeometryElement::eDirect:
-						{
-							vertex.binormal.x = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[0];
-							vertex.binormal.y = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[1];
-							vertex.binormal.z = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[2];
-							break;
-
-						}
-						case  FbxGeometryElement::eIndexToDirect:
-						{
-							index = tangents->GetIndexArray().GetAt(iControlPointIndex);
-
-							vertex.binormal.x = (float)tangents->GetDirectArray().GetAt(index).mData[0];
-							vertex.binormal.y = (float)tangents->GetDirectArray().GetAt(index).mData[1];
-							vertex.binormal.z = (float)tangents->GetDirectArray().GetAt(index).mData[2];
-							break;
-						}
-						default:
-							cout << "Error: Invalid Tangent reference mode\n";
-							break;
-						}
-
-
-					}
-				}
+				CreateNormals(pMesh, iControlPointIndex, vertex.binormal, vertex.tangent, j, k);
 
 				// Push back vertices to the current mesh
 				pMesh.standardVertices.push_back(vertex);
@@ -768,29 +684,10 @@ void FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
 
-		int index = 0;
 		int vertexCounter = 0;
 		int i = 0;
 
 		FbxVector4* pVertices = pMesh.meshNode->GetControlPoints();
-
-		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++) {	// Get number of children nodes from the root node
-
-			FbxNode* pFbxChildNode = pFbxRootNode->GetChild(i);	// Current child being processed in the file
-
-			if (pFbxChildNode->GetNodeAttribute() == NULL) {
-
-				continue;
-			}
-
-			FbxNodeAttribute::EType AttributeType = pFbxChildNode->GetNodeAttribute()->GetAttributeType();	// Get the attribute type of the child node
-
-			if (AttributeType != FbxNodeAttribute::eMesh) {
-
-				continue;
-			}
-
-		}
 
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
@@ -846,87 +743,8 @@ void FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 					vertex.weights[i] = currentControlPoint->BlendingInfo[i].BlendWeight;
 
 				}
-				if (pMesh.meshNode->GetElementBinormalCount() < 1)
-				{
-					cout << ("Invalid Binormal Number") << endl;
-					continue;
-				}
 
-				//////////////////////////////////////////////////////////////
-				//                     GET BINORMALS
-				//////////////////////////////////////////////////////////////
-
-				for (i = 0; i < pMesh.meshNode->GetElementBinormalCount(); i++)
-				{
-					FbxGeometryElementBinormal* binormals = pMesh.meshNode->GetElementBinormal(i);
-					iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
-
-					if (binormals->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-					{
-						switch (binormals->GetReferenceMode())
-						{
-						case FbxGeometryElement::eDirect:
-						{
-							vertex.binormal.x = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[0];
-							vertex.binormal.y = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[1];
-							vertex.binormal.z = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[2];
-
-							//cout << vertex.BiNormal.x << " " << vertex.BiNormal.y << " " << vertex.BiNormal.z << " " << endl;
-							break;
-						}
-						case  FbxGeometryElement::eIndexToDirect:
-						{
-							index = binormals->GetIndexArray().GetAt(iControlPointIndex);
-
-							vertex.binormal.x = (float)binormals->GetDirectArray().GetAt(index).mData[0];
-							vertex.binormal.y = (float)binormals->GetDirectArray().GetAt(index).mData[1];
-							vertex.binormal.z = (float)binormals->GetDirectArray().GetAt(index).mData[2];
-							break;
-						}
-						default:
-							cout << "Error: Invalid binormal reference mode\n";
-							break;
-						}
-					}
-				}
-
-				index = 0;
-				//////////////////////////////////////////////////////////////
-				//                     GET TANGENTS
-				//////////////////////////////////////////////////////////////
-
-				for (i = 0; i < pMesh.meshNode->GetElementTangentCount(); i++)
-				{
-					FbxGeometryElementTangent* tangents = pMesh.meshNode->GetElementTangent(i);
-
-					if (tangents->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-					{
-
-						switch (tangents->GetReferenceMode())
-						{
-						case FbxGeometryElement::eDirect:
-						{
-							vertex.tangent.x = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[0];
-							vertex.tangent.y = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[1];
-							vertex.tangent.z = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[2];
-							break;
-
-						}
-						case  FbxGeometryElement::eIndexToDirect:
-						{
-							index = tangents->GetIndexArray().GetAt(iControlPointIndex);
-
-							vertex.tangent.x = (float)tangents->GetDirectArray().GetAt(index).mData[0];
-							vertex.tangent.y = (float)tangents->GetDirectArray().GetAt(index).mData[1];
-							vertex.tangent.z = (float)tangents->GetDirectArray().GetAt(index).mData[2];
-							break;
-						}
-						default:
-							cout << "Error: Invalid Tangent reference mode\n";
-							break;
-						}
-					}
-				}
+				CreateNormals(pMesh, iControlPointIndex, vertex.binormal, vertex.tangent, j, k);
 
 				pMesh.boneVertices.push_back(vertex);	// Store all vertices in a separate vector
 
@@ -939,6 +757,93 @@ void FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	}
 
+}
+
+void FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k) {
+
+	int index = 0;
+
+	if (pMesh.meshNode->GetElementBinormalCount() < 1)
+	{
+		cout << ("Invalid Binormal Number") << endl;
+		
+	}
+
+	//////////////////////////////////////////////////////////////
+	//                     GET BINORMALS
+	//////////////////////////////////////////////////////////////
+
+	for (UINT i = 0; i < pMesh.meshNode->GetElementBinormalCount(); i++)
+	{
+		FbxGeometryElementBinormal* binormals = pMesh.meshNode->GetElementBinormal(i);
+		iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+
+		if (binormals->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		{
+			switch (binormals->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				binormal.x = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[0];
+				binormal.y = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[1];
+				binormal.z = (float)binormals->GetDirectArray().GetAt(iControlPointIndex).mData[2];
+
+				//cout << vertex.BiNormal.x << " " << vertex.BiNormal.y << " " << vertex.BiNormal.z << " " << endl;
+				break;
+			}
+			case  FbxGeometryElement::eIndexToDirect:
+			{
+				index = binormals->GetIndexArray().GetAt(iControlPointIndex);
+
+				binormal.x = (float)binormals->GetDirectArray().GetAt(index).mData[0];
+				binormal.y = (float)binormals->GetDirectArray().GetAt(index).mData[1];
+				binormal.z = (float)binormals->GetDirectArray().GetAt(index).mData[2];
+				break;
+			}
+			default:
+				cout << "Error: Invalid binormal reference mode\n";
+				break;
+			}
+		}
+	}
+
+	index = 0;
+	//////////////////////////////////////////////////////////////
+	//                     GET TANGENTS
+	//////////////////////////////////////////////////////////////
+
+	for (UINT i = 0; i < pMesh.meshNode->GetElementTangentCount(); i++)
+	{
+		FbxGeometryElementTangent* tangents = pMesh.meshNode->GetElementTangent(i);
+
+		if (tangents->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		{
+
+			switch (tangents->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				tangent.x = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[0];
+				tangent.y = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[1];
+				tangent.z = (float)tangents->GetDirectArray().GetAt(iControlPointIndex).mData[2];
+				break;
+
+			}
+			case  FbxGeometryElement::eIndexToDirect:
+			{
+				index = tangents->GetIndexArray().GetAt(iControlPointIndex);
+
+				tangent.x = (float)tangents->GetDirectArray().GetAt(index).mData[0];
+				tangent.y = (float)tangents->GetDirectArray().GetAt(index).mData[1];
+				tangent.z = (float)tangents->GetDirectArray().GetAt(index).mData[2];
+				break;
+			}
+			default:
+				cout << "Error: Invalid Tangent reference mode\n";
+				break;
+			}
+		}
+	}
 }
 
 

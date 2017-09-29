@@ -1,6 +1,4 @@
 Assets/bakedTest.fbx
-Assets/Canary.wav
-Assets/Cout.wav
 Assets/dummytex.sei
 Assets/GUITest.sei
 Assets/MCModell.obj
@@ -17,15 +15,11 @@ Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
 Assets/purewhite.sei
 Assets/purewhite.rawimg
-Assets/Shaders/DebugLinePS.hlsl
-Assets/Shaders/DebugLineVS.hlsl
 Assets/Shaders/Geometry/SimpleGS.hlsl
 Assets/Shaders/Pixel/DebugLinePS.hlsl
-Assets/Shaders/Pixel/DebugLineVS.hlsl
 Assets/Shaders/Pixel/SimpleGS.hlsl
 Assets/Shaders/Pixel/SimplePS.hlsl
 Assets/Shaders/Pixel/SimpleTexPS.hlsl
-Assets/Shaders/Pixel/SimpleVS.hlsl
 Assets/Shaders/Vertex/DebugLineVS.hlsl
 Assets/Shaders/Vertex/SimpleVS.hlsl
 Assets/Shaders/Vertex/SkinnedVS.hlsl
