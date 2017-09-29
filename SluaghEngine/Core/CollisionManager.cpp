@@ -111,6 +111,7 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 
 void SE::Core::CollisionManager::Frame()
 {
+	StartProfile;
 	// First update all bounding data
 	for (auto& dirty : dirtyEntites)
 	{
@@ -140,15 +141,18 @@ void SE::Core::CollisionManager::Frame()
 		}
 	}
 	dirtyEntites.clear();
+	StopProfile;
 }
 
 void SE::Core::CollisionManager::SetDirty(const Entity & entity, size_t index)
 {
+	StartProfile;
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
 		dirtyEntites.push_back({ index, find->second });
 	}
+	StopProfile;
 }
 
 void SE::Core::CollisionManager::Allocate(size_t size)
@@ -263,17 +267,17 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 
 int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
 {
-
+	StartProfile;
 	ArfData::Data arfData;
 	ArfData::DataPointers arfp;
 	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	Arf::Mesh::Data* parsedData;
 	size_t parsedSize;
 	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 
 	delete arfp.buffer;
 
@@ -289,7 +293,7 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 
 
 
-	return 0;
+	ProfileReturnConst(0);
 }
 
 void SE::Core::CollisionManager::CreateBoundingHierarchy(size_t index, void * data, size_t numVertices, size_t stride)

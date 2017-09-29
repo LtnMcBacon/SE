@@ -1,88 +1,372 @@
-digraph "11172" { node[shape = "record"];
-graph [ rankdir = "LR"];
-"000001DC695D21B0"[
-label = "<f0> SE::ResourceHandler::ResourceHandler::Initialize | <f1> Times Called: 297 | <f2> Time Spent(IC): 2455 | Time Spent(EC): 2362"];
-"000001DC695D1F10"[
-label = "<f0> SE::ResourceHandler::RawLoader::Initialize | <f1> Times Called: 1 | <f2> Time Spent(IC): 52, 0.0211813 % of parents."];
+digraph "4712"{
+ rankdir = LR;
+"00000251099C72D0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Test::RenderableManagerTest::Run</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 1805 ms</td></tr>
+<tr><td border="1">Time Spent(EC): 237 ms</td></tr>
+</table>>]
+"00000251099C76F0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::OptionHandler::Initialize</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC695D1F10":f0
-"000001DC69601790"[
-label = "<f0> SE::Graphics::DeviceManager::Init | <f1> Times Called: 1 | <f2> Time Spent(IC): 29, 0.0118126 % of parents. | Time Spent(EC): 1"];
-"000001DC69600BF0"[
-label = "<f0> SE::Graphics::DeviceManager::CreateSwapChain | <f1> Times Called: 1 | <f2> Time Spent(IC): 5, 0.172414 % of parents."];
+"00000251099C72D0":port1 -> "00000251099C76F0":port1
+"0000025109A1D200"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::DebugRenderManager::LoadLinePixelShader</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601790":f0 -> "000001DC69600BF0":f0
-"000001DC69601310"[
-label = "<f0> SE::Graphics::DeviceManager::CreateDepthStencil | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1D200":port1
+"0000025116240800"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CameraManager::Bind</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240920"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::TransformManager::Create</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
 
-"000001DC69601790":f0 -> "000001DC69601310":f0
-"000001DC69600D70"[
-label = "<f0> SE::Graphics::DeviceManager::CreateBackBufferRTV | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"0000025116240800":port1 -> "0000025116240920":port1
 
-"000001DC69601790":f0 -> "000001DC69600D70":f0
-"000001DC69600E30"[
-label = "<f0> SE::Graphics::DeviceManager::CreateDeviceResources | <f1> Times Called: 1 | <f2> Time Spent(IC): 23, 0.793103 % of parents."];
+"00000251099C72D0":port1 -> "0000025116240800":port1
+"0000025116240B60"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::RenderableManager::ToggleRenderableObject</font></td></tr>
+<tr><td border="1">Times Called: 2</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601790":f0 -> "000001DC69600E30":f0
+"00000251099C72D0":port1 -> "0000025116240B60":port1
+"0000025109A1D920"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003231"><font color="white">SE::Core::RenderableManager::LoadDefaultModel</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 4 ms 0.221607 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC69601790":f0
-"000001DC6FE09480"[
-label = "<f0> SE::Graphics::Renderer::CreateTransform | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents. | Time Spent(EC): 0"];
-"000001DC6FE08E20"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreateConstantBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, -nan(ind) % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1D920":port1
+"0000025109A1D380"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#023231"><font color="white">SE::Core::AudioManager::Initialize</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 31 ms 1.71745 % of parents.</td></tr>
+</table>>]
 
-"000001DC6FE09480":f0 -> "000001DC6FE08E20":f0
+"00000251099C72D0":port1 -> "0000025109A1D380":port1
+"00000251162405C0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003231"><font color="white">SE::Core::OptionHandler::UnloadOption</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 1 ms 0.0554017 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC6FE09480":f0
-"000001DC69601A30"[
-label = "<f0> SE::ResourceHandler::ResourceHandler::LoadResource | <f1> Times Called: 5 | <f2> Time Spent(IC): 12, 0.00488798 % of parents. | Time Spent(EC): 8"];
-"000001DC696015B0"[
-label = "<f0> SE::ResourceHandler::RawLoader::LoadResource | <f1> Times Called: 4 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251099C72D0":port1 -> "00000251162405C0":port1
+"0000025109A1CD20"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CollisionManager::AllocateBH</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601A30":f0 -> "000001DC696015B0":f0
-"000001DC69601490"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreateVertexShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 1, 0.0833333 % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1CD20":port1
+"0000025109A1D6E0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003231"><font color="white">SE::Core::RenderableManager::LoadDefaultShader</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 3 ms 0.166205 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601A30":f0 -> "000001DC69601490":f0
-"000001DC6FE09540"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreatePixelShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 3, 0.25 % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1D6E0":port1
+"0000025109A1D8C0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CameraManager::Allocate</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601A30":f0 -> "000001DC6FE09540":f0
-"000001DC69601070"[
-label = "<f0> SE::Graphics::Renderer::CreateVertexBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents. | Time Spent(EC): 0"];
-"000001DC69601A90"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreateVertexBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, -nan(ind) % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1D8C0":port1
+"0000025109A1CCC0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003231"><font color="white">SE::Core::MaterialManager::LoadDefaultShader</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 6 ms 0.33241 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601070":f0 -> "000001DC69601A90":f0
+"00000251099C72D0":port1 -> "0000025109A1CCC0":port1
+"0000025109A1DAA0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CollisionManager::Allocate</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC69601A30":f0 -> "000001DC69601070":f0
+"00000251099C72D0":port1 -> "0000025109A1DAA0":port1
+"00000251162406E0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#07322F"><font color="white">SE::Core::RenderableManager::CreateRenderableObject</font></td></tr>
+<tr><td border="1">Times Called: 2</td></tr>
+<tr><td border="1">Time Spent(IC): 88 ms 4.87535 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240500"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#963200"><font color="white">SE::Core::RenderableManager::LoadResource</font></td></tr>
+<tr><td border="1">Times Called: 2</td></tr>
+<tr><td border="1">Time Spent(IC): 88 ms 100 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 1 ms</td></tr>
+</table>>]
+"0000025116240E00"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#943200"><font color="white">SE::Core::RenderableManager::LoadModel</font></td></tr>
+<tr><td border="1">Times Called: 2</td></tr>
+<tr><td border="1">Time Spent(IC): 87 ms 98.8636 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC69601A30":f0
-"000001DC69601670"[
-label = "<f0> SE::Core::RenderableManager::Allocate | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"0000025116240500":port1 -> "0000025116240E00":port1
 
-"000001DC695D21B0":f0 -> "000001DC69601670":f0
-"000001DC6FE090C0"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::UnbindShaders | <f1> Times Called: 144 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251162406E0":port1 -> "0000025116240500":port1
 
-"000001DC695D21B0":f0 -> "000001DC6FE090C0":f0
-"000001DC69601370"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreateConstantBuffer | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251099C72D0":port1 -> "00000251162406E0":port1
+"00000251162407A0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::OptionHandler::GetOption</font></td></tr>
+<tr><td border="1">Times Called: 6</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC69601370":f0
-"000001DC6FE093C0"[
-label = "<f0> SE::ResourceHandler::RawLoader::LoadResource | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251099C72D0":port1 -> "00000251162407A0":port1
+"0000025109A1D620"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::RenderableManager::Allocate</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC6FE093C0":f0
-"000001DC69601970"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreateSamplerState | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"00000251099C72D0":port1 -> "0000025109A1D620":port1
+"00000251162400E0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#77320A"><font color="white">SE::Core::Engine::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 1435 ms 79.5014 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 1435 ms</td></tr>
+</table>>]
+"0000025116240C20"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::TransformManager::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240CE0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::TransformManager::UpdateTransform</font></td></tr>
+<tr><td border="1">Times Called: 187</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240D40"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::CameraManager::SetDirty</font></td></tr>
+<tr><td border="1">Times Called: 187</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC69601970":f0
-"000001DC6FE09120"[
-label = "<f0> SE::Graphics::GraphicResourceHandler::CreatePixelShader | <f1> Times Called: 1 | <f2> Time Spent(IC): 0, 0 % of parents."];
+"0000025116240CE0":port1 -> "0000025116240D40":port1
+"0000025116240560"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::DebugRenderManager::SetDirty</font></td></tr>
+<tr><td border="1">Times Called: 187</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
 
-"000001DC695D21B0":f0 -> "000001DC6FE09120":f0
+"0000025116240CE0":port1 -> "0000025116240560":port1
+"0000025116240620"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::CollisionManager::SetDirty</font></td></tr>
+<tr><td border="1">Times Called: 187</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
+
+"0000025116240CE0":port1 -> "0000025116240620":port1
+
+"0000025116240C20":port1 -> "0000025116240CE0":port1
+
+"00000251162400E0":port1 -> "0000025116240C20":port1
+"0000025116240440"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::RenderableManager::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240380"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::RenderableManager::UpdateDirtyTransforms</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
+
+"0000025116240440":port1 -> "0000025116240380":port1
+"0000025116240C80"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::RenderableManager::GarbageCollection</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
+
+"0000025116240440":port1 -> "0000025116240C80":port1
+
+"00000251162400E0":port1 -> "0000025116240440":port1
+"0000025116240980"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::GUIManager::GarbageCollection</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251162400E0":port1 -> "0000025116240980":port1
+"00000251162403E0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CameraManager::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251162400E0":port1 -> "00000251162403E0":port1
+"0000025116240F20"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::MaterialManager::GarbageCollection</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251162400E0":port1 -> "0000025116240F20":port1
+"00000251162409E0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CollisionManager::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251162400E0":port1 -> "00000251162409E0":port1
+"0000025116240140"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::DebugRenderManager::Frame</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+<tr><td border="1">Time Spent(EC): 0 ms</td></tr>
+</table>>]
+"0000025116240E60"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003200"><font color="white">SE::Core::DebugRenderManager::GarbageCollection</font></td></tr>
+<tr><td border="1">Times Called: 93</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms -nan(ind) % of parents.</td></tr>
+</table>>]
+
+"0000025116240140":port1 -> "0000025116240E60":port1
+
+"00000251162400E0":port1 -> "0000025116240140":port1
+
+"00000251099C72D0":port1 -> "00000251162400E0":port1
+"0000025109A1DB00"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::MaterialManager::Allocate</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "0000025109A1DB00":port1
+"0000025116240EC0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::TransformManager::BindChild</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "0000025116240EC0":port1
+"00000251162404A0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::CameraManager::SetActive</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "00000251162404A0":port1
+"0000025116240320"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::DebugRenderManager::LoadLineVertexShader</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "0000025116240320":port1
+"0000025116240860"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::TransformManager::Create</font></td></tr>
+<tr><td border="1">Times Called: 2</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "0000025116240860":port1
+"0000025116240DA0"[
+ shape = none
+label = <<table border="0" cellspacing = "0">
+<tr><td port="port1" border="1" bgcolor = "#003232"><font color="white">SE::Core::OptionHandler::Register</font></td></tr>
+<tr><td border="1">Times Called: 1</td></tr>
+<tr><td border="1">Time Spent(IC): 0 ms 0 % of parents.</td></tr>
+</table>>]
+
+"00000251099C72D0":port1 -> "0000025116240DA0":port1
 
 
 }
-

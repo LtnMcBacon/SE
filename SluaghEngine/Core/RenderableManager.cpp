@@ -38,7 +38,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this));
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
-	StopProfile;
+
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -89,7 +89,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 	{
 		//If the visibility state is switched to what it already is we dont do anything.
 		if ((bool)renderableObjectInfo.visible[find->second] == visible)
-			return;
+			ProfileReturnVoid;
 		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
