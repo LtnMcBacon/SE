@@ -248,7 +248,7 @@ int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void
 		ProfileReturnConst( r);
 	Arf::Mesh::Data* parsedData;
 	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize);
+	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
 	if (r)
 		ProfileReturnConst( r);
 
@@ -303,7 +303,7 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 		ProfileReturnConst( r);
 	Arf::Mesh::Data* parsedData;
 	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize);
+	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
 	if (r)
 		ProfileReturnConst( r);
 

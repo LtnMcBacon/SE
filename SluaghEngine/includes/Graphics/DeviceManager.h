@@ -174,7 +174,11 @@ namespace SE {
 				UINT sampleM = 0xffffffff;
 				gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
 			}
-
+			inline void SetDepthStencilStateAndRS()
+			{
+				gDeviceContext->RSSetState(rasterState);
+				gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+			}
 		private:
 
 			ID3D11Device*			gDevice;
@@ -186,8 +190,10 @@ namespace SE {
 			
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
+			ID3D11DepthStencilState * pDSState;
 
 			ID3D11BlendState*		blendState;
+			ID3D11RasterizerState * rasterState;
 
 			D3D11_TEXTURE2D_DESC	gBB_Desc;
 			D3D_FEATURE_LEVEL		gFeatureLevel;

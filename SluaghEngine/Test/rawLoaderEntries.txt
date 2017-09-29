@@ -1,6 +1,7 @@
 Assets/bakedTest.fbx
 Assets/dummytex.sei
 Assets/GUITest.sei
+Assets/MCModell.obj
 Assets/moonhouse.spritefont
 Assets/Placeholder_Arrow.mtl
 Assets/Placeholder_Arrow.obj
