@@ -122,7 +122,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 		//tm.Rotate(mainC, 0.0f, 0.0f, 0.01f);
 		//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
-		e.Frame(0.01f);
+		e.Frame(dt);
 	}
 
 

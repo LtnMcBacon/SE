@@ -145,7 +145,7 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void 
 	auto skelH = (Skeleton_Header*)data;
 
 	// After the skeleton header, there will only be joints
-	auto jointAttr = (JointAttributes*)(skelH + 1);
+	JointAttributes* jointAttr = (JointAttributes*)(skelH + 1);
 
 	const auto& index = guidToSkeletonIndex[skeleton];
 

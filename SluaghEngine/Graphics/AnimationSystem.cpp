@@ -3,7 +3,7 @@
 
 SE::Graphics::AnimationSystem::AnimationSystem() {
 
-
+	skeletons.reserve(3);
 }
 
 SE::Graphics::AnimationSystem::~AnimationSystem() {
@@ -14,7 +14,7 @@ SE::Graphics::AnimationSystem::~AnimationSystem() {
 int SE::Graphics::AnimationSystem::AddSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
 
 	// The number of joints must be larger 0
-	if(nrOfJoints > 0){
+	if (nrOfJoints > 0){
 
 		// Temporary skeleton
 		Skeleton skeleton;

@@ -24,6 +24,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+
+	animationSystem = new AnimationSystem();
 	
 	TargetOffset off;
 	off.shaderTarget[0] = true;
@@ -39,7 +41,6 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
 
-
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
 	graphicResourceHandler->CreateSamplerState();
@@ -53,6 +54,7 @@ void SE::Graphics::Renderer::Shutdown()
 	device->Shutdown();
 	
 	delete graphicResourceHandler;
+	delete animationSystem;
 	delete device;
 }
 

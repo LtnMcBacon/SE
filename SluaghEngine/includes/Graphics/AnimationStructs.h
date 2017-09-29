@@ -52,7 +52,7 @@ namespace SE {
 
 				GlobalTx = DirectX::XMMatrixIdentity();
 				inverseBindPoseMatrix = DirectX::XMMatrixIdentity();
-				unsigned int parentIndex = 0;
+				int parentIndex = 0;
 				Animations.reserve(3);
 			}
 		};
