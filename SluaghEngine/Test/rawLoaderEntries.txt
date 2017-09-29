@@ -9,6 +9,7 @@ Assets/Placeholder_Block.mtl
 Assets/Placeholder_Block.obj
 Assets/Placeholder_Floor.mtl
 Assets/Placeholder_Floor.obj
+Assets/PlaceHolder_Floor2.obj
 Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
