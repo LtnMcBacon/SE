@@ -37,12 +37,20 @@ void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Uti
 	animationData.entity[index] = entity;
 
 
-	auto res = resourceHandler->LoadResource(skeleton, ResourceHandler::LoadResourceDelegate::Make<AnimationManager, &AnimationManager::LoadSkeleton>(this));
-	if (res)
+	auto& findSkeleton = guidToSkeletonIndex.find(skeleton);
+	auto& skelIndex = guidToSkeletonIndex[skeleton];
+	if (findSkeleton == guidToSkeletonIndex.end())
 	{
-		Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", skeleton, res);
-		ProfileReturnVoid;
+		skeletonHandle.push_back({ 0 });
+		skelIndex = skeletonHandle.size() -1 ;
+		auto res = resourceHandler->LoadResource(skeleton, ResourceHandler::LoadResourceDelegate::Make<AnimationManager, &AnimationManager::LoadSkeleton>(this));
+		if (res)
+		{
+			Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", skeleton, res);
+			ProfileReturnVoid;
+		}
 	}
+
 
 
 }
@@ -86,12 +94,13 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
+	newData.skeletonIndex = (size_t*)(newData.entity + newData.size);
 	//newData.dirty = (size_t*)(newData.entity + newData.allocated);
 
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
-
+	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(size_t));
 
 	// Delete old data;
 	operator delete(animationData.data);
@@ -111,7 +120,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 	// Copy the data
 	animationData.entity[index] = last_entity;
-	//cameraData.dirty[index] = cameraData.dirty[last];
+	animationData.skeletonIndex[index] = animationData.skeletonIndex[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
@@ -148,10 +157,10 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void 
 	JointAttributes* jointAttr = (JointAttributes*)(skelH + 1);
 
 	const auto& index = guidToSkeletonIndex[skeleton];
-
 	auto handle = renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
-	//skeletonHandle[index]
-	//guidToSkeletonIndex[skeleton] = skeletonHandle.size() - 1;
+	skeletonHandle[index] = handle;
+
+	animationData.skeletonIndex[index] = handle;
 
 	return 0;
 }

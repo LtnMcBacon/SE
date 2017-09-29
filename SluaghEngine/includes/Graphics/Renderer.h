@@ -181,7 +181,7 @@ namespace SE
 			*/
 			int UpdateTransform(uint32_t jobID, float* transform) override;
 
-
+			int UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints);
 
 			/**
 			* @brief Create a pixel shader from raw data
@@ -271,12 +271,15 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
+				std::vector<DirectX::XMFLOAT4X4> gBoneTransforms;
+				size_t nrOfJoints;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
 			{
 				uint32_t bucketIndex;
 				uint32_t transformIndex;
+				uint32_t boneIndex;
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;

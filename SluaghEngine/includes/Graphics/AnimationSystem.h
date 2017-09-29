@@ -25,6 +25,11 @@ namespace SE
 			int AddSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints, int *skeletonID);
 			int AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex, int *animationID);
 
+			DirectX::XMFLOAT4X4 CalculateJointMatrix(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos);
+			DirectX::XMFLOAT4X4 ReturnFirstFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton);
+			DirectX::XMFLOAT4X4 ReturnLastFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton);
+			DirectX::XMFLOAT4X4 Interpolate(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos);
+
 		private:
 
 			std::vector<Skeleton> skeletons;

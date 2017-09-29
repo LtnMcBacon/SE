@@ -125,6 +125,7 @@ namespace SE
 				uint32_t refCount;	
 			};
 
+			std::map<Utilz::GUID, Graphics::RenderObjectInfo::JobType, Utilz::GUID::Compare> guidToMeshType;
 
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;

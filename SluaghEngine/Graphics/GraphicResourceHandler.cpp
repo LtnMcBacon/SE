@@ -211,12 +211,12 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		vShaders.push_back({ tempVertexShader, inputLayout });
 	}
 
-	for (UINT i = 0; i < 8; i++) {
+	for (UINT i = 0; i < MAX_CONSTANTBUFFER_PER_SHADER; i++) {
 
 		vShaders[index].bufferHandle[i] = -1;
 	}
 
-	for (UINT i = 0; i < handles.size(); i++) {
+	for (UINT i = MAX_CONSTANTBUFFER_PER_SHADER; i < handles.size(); i++) {
 
 		vShaders[index].bufferHandle[bindslots[i]] = handles[i];
 	}
@@ -571,6 +571,20 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
 
 	ProfileReturnConst(handle);
 }
+
+int SE::Graphics::GraphicResourceHandler::GetConstantBufferID(int vertexShaderHandle, int bindSlot)
+{
+	return vShaders[vertexShaderHandle].bufferHandle[bindSlot];
+}
+
+void SE::Graphics::GraphicResourceHandler::BindConstantBufferAtSlot(int shaderType, int bindSlot, int cBufferHandleID)
+{
+	// To-do, filter shader type
+
+	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[cBufferHandleID].constBuffer);
+}
+
+
 
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
 {

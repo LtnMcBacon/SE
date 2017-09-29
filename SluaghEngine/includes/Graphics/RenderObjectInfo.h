@@ -34,11 +34,14 @@ namespace SE
 			uint8_t textureCount;
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
 			JobType type;
+			uint8_t skeletonHandle;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;
 				pixelShader = -1;
 				vertexShader = -1;
+				type = JobType::STATIC;
+				skeletonHandle = 0;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = -1;
@@ -52,6 +55,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for(int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -66,6 +71,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -79,6 +86,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -106,6 +115,8 @@ namespace SE
 					stateChanges = (stateChanges << 1) | (textureHandles[i] != rhs.textureHandles[i]);
 				}
 				stateChanges = (stateChanges << 1) | (topology != rhs.topology);
+				stateChanges = (stateChanges << 1) | (type != rhs.type);
+				stateChanges = (stateChanges << 1) | (skeletonHandle != rhs.skeletonHandle);
 				std::bitset<32> bits(stateChanges);
 				return bits.count() + std::abs((int)textureCount - (int)rhs.textureCount);
 			}

@@ -111,12 +111,16 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
 		if (entityIndex == animationManager->entityToIndex.end()) {
 
+			info.type = Graphics::RenderObjectInfo::JobType::STATIC;
 			info.vertexShader = defaultShader;
 		}
 
 		// Otherwise, there was an animated entity and we should use the skinned vertex shader
 		else {
 
+			info.type = Graphics::RenderObjectInfo::JobType::SKINNED;
+			auto skelIndex = animationManager->animationData.skeletonIndex[entityIndex->second];
+			info.skeletonHandle = animationManager->skeletonHandle[skelIndex];
 			info.vertexShader = skinnedShader;
 		}
 		
@@ -269,12 +273,16 @@ int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void
 
 	if (meshHeader->vertexLayout == 0) {
 
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::STATIC;
+
 		Vertex* v = (Vertex*)(meshHeader + 1);
 		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
 
 	}
 
 	else {
+
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::SKINNED;
 
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));

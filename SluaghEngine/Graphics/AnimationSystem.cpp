@@ -1,6 +1,8 @@
 
 #include "AnimationSystem.h"
 
+using namespace DirectX;
+
 SE::Graphics::AnimationSystem::AnimationSystem() {
 
 	skeletons.reserve(3);
@@ -95,4 +97,98 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 
 		return -1;
 	}
+}
+
+XMFLOAT4X4 SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos) {
+
+	// Animation has just started, so return the first keyframe
+	int animationLength = skeleton.Hierarchy[jointIndex].Animations[animIndex].Length - 1;
+
+	if (animTimePos <= skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[0].TimePos) //first keyframe
+	{
+
+		ReturnFirstFrameMatrix(jointIndex, animIndex, skeleton);
+
+	}
+
+	// Animation has reached its end, so return the last keyframe
+	else if (animTimePos >= skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[animationLength].TimePos) // last keyframe
+	{
+
+		ReturnLastFrameMatrix(jointIndex, animIndex, skeleton);
+
+	}
+
+	// Animation time is between two frames so they should be interpolated
+	else
+	{
+
+		Interpolate(jointIndex, animIndex, skeleton, animTimePos);
+
+	}
+}
+
+XMFLOAT4X4 SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton) {
+
+	XMFLOAT4X4 M;
+
+	XMVECTOR S = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[0].Scale);
+	XMVECTOR T = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[0].Translation);
+	XMVECTOR Q = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[0].RotationQuat);
+
+	XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+	XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
+
+	return M;
+}
+
+XMFLOAT4X4 SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton) {
+
+	int animationLength = skeleton.Hierarchy[jointIndex].Animations[animIndex].Length - 1;
+
+	XMFLOAT4X4 M;
+
+	XMVECTOR S = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[animationLength].Scale);
+	XMVECTOR T = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[animationLength].Translation);
+	XMVECTOR Q = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[animationLength].RotationQuat);
+
+	XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+	XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
+
+	return M;
+}
+
+XMFLOAT4X4 SE::Graphics::AnimationSystem::Interpolate(int jointIndex, int animIndex, Skeleton & skeleton, float animTimePos)
+{
+	XMFLOAT4X4 M;
+	// I am using an int here to truncate the animation timepose to know which matrices I am interested about
+	// Ex. if time is 1.2, the returning frame is 1.
+	int currentFrameIndex = animTimePos;
+
+	float kFirst = skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex].TimePos;
+	float kLast = skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex + 1].TimePos;
+
+	// Though the interpolation percent will be mainly responsible of returning a slightly changed matrix
+	float interpolationPercent = (animTimePos - kFirst) / (kLast - kFirst);
+
+	XMVECTOR kFirstScale = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.
+	XMVECTOR kLastScale = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex + 1].Scale);
+
+	XMVECTOR kFirstTranslation = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex].Translation);
+	XMVECTOR kLastTranslation = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex + 1].Translation);
+
+	XMVECTOR kFirstQuaternion = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex].RotationQuat);
+	XMVECTOR kLastQuaternion = XMLoadFloat4(&skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[currentFrameIndex + 1].RotationQuat);
+
+	XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, interpolationPercent);
+	XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, interpolationPercent);
+	XMVECTOR Q = XMQuaternionSlerp(kFirstQuaternion, kLastQuaternion, interpolationPercent);
+
+	XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+	XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
+
+	return M;
 }

@@ -180,6 +180,10 @@ namespace SE {
 
 			int CreateConstantBuffer(size_t size);
 
+			int GetConstantBufferID(int vertexShaderHandle, int bindSlot);
+
+			void BindConstantBufferAtSlot(int shaderType, int bindSlot, int cBufferHandleID);
+
 			/**
 			* @brief	Bind the constant buffer to the shaders.
 			*
@@ -274,6 +278,8 @@ namespace SE {
 			*/
 			HRESULT CreateSamplerState();
 		private:
+
+			static const uint8_t MAX_CONSTANTBUFFER_PER_SHADER = 8;
 
 			// Device and device context references
 			ID3D11Device* gDevice;
