@@ -58,11 +58,11 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show)
+				if (show && loadedTexts[entID[entity]].fontID > -1)
 				{
 					renderer->EnableTextRendering(loadedTexts[entID[entity]]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextRendering(loadedTexts[entID[entity]]);
 				}

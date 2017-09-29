@@ -73,7 +73,7 @@ namespace SE {
 			* @retval -1 Tells that streamstart was unsucessful
 			*
 			*/
-			int StreamSound(const Entity& entity, int soundID);
+			int StreamSound(const Entity& entity, int entSoundID);
 			/**
 			* @brief Stops the stream with the given ID
 			*
@@ -83,7 +83,7 @@ namespace SE {
 			* @retval -1 Tells that stopstream was unsucessful
 			*
 			*/
-			int StopSound(const Entity& entity, int soundID);
+			int StopSound(const Entity& entity, int entSoundID);
 			/**
 			* @brief Removes the given sound
 			*
@@ -93,7 +93,7 @@ namespace SE {
 			* @retval -1 Tells that removestream was unsucessful
 			*
 			*/
-			int RemoveSound(const Entity& entity, int soundID);
+			int RemoveSound(const Entity& entity, int entSoundID);
 			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
 			void Frame();
 			void Shutdown();
