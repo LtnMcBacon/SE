@@ -11,6 +11,7 @@
 //#include "BufferTest.h"
 #include "INITest.h"
 #include "RenderableManagerTest.h"
+#include "FlowFieldTest.h"
 #include "MaterialManagerTest.h"
 #include "BoundingTest.h"
 #include "ImageLoadTest.h"
@@ -20,8 +21,11 @@
 #include "InstancingTest.h"
 #include <map>
 #include <ctime>
-
+#include "GameStateTest.h"
 #include <crtdbg.h>
+#include "EnemyMovementTest.h"
+#include "RoomCreationTest.h"
+#include "PlayerMovementTest.h"
 
 
 #ifdef _DEBUG
@@ -61,17 +65,24 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
+	AddTest(FlowFieldTest);
+	AddTest(EnemyMovementTest);
+	AddTest(RoomCreationTest);
+	AddTest(PlayerMovementTest);
+	AddTest(GameStateTest);
+  
 	volatile bool running = true;
-	
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
 	{
 		running = false;
 	},
 		"exit",
+	
 		"exit the application");
 
 	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv)

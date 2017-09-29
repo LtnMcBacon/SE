@@ -131,7 +131,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 			const uint32_t jobID = renderer->EnableRendering(info);
 			entityToJobID[entity] = jobID;
 			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
-			transformManager->Move(entity, { 0.0f,0.0f,0.0f });
+			transformManager->Move(entity, DirectX::XMFLOAT3{ 0.0f,0.0f,0.0f });
 		}
 		else
 		{

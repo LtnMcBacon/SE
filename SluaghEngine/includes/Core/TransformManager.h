@@ -58,6 +58,14 @@ namespace SE
 			* @warning Create must be called before this method for a given entity.
 			*/
 			void Move(const Entity& e, const DirectX::XMFLOAT3& dir);
+
+			/**
+			* @brief    Moves an entity along a vector.
+			* @param[in] e The entity to move
+			* @param[in] dir The direction to move the entity along. For example {0,5,0} will move the entity 5 units along the y-axis.
+			* @warning Create must be called before this method for a given entity.
+			*/
+			void Move(const Entity& e, const DirectX::XMVECTOR& dir);
 			/**
 			* @brief    Relative rotation. Adds roll, pitch, and yaw to the current rotation. Uses radians and not degrees.
 			* @param[in] e The entity to rotate

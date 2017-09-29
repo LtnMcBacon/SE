@@ -113,19 +113,22 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 
 
 		if (w->ButtonDown(ActionButton::Up))
-			tm.Move(camera, { 0.0f, 0.0f, 0.11f*dt });
+
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (w->ButtonDown(ActionButton::Down))
-			tm.Move(camera, { 0.0f, 0.0f, -0.11f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
 		if (w->ButtonDown(ActionButton::Right))
-			tm.Move(camera, { 0.11f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
 		if (w->ButtonDown(ActionButton::Left))
-			tm.Move(camera, { -0.11f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
+
 
 		if (w->ButtonPressed(ActionButton::Jiggle))
-			tm.Move(ents[3], { 0.0f, 1.0f, 0.0f });
+			tm.Move(ents[3], DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.0f });
 
 		if (removeIndex < numEnts && w->ButtonDown(RemoveStuff))
 			em.Destroy(ents[removeIndex++]);
+
 
 
 		if (w->ButtonPressed(ActionButton::Hide))

@@ -19,18 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
+    <ClCompile Include="Flowfield.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
+    <ClCompile Include="IGameState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainMenuState.cpp" />
+    <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Room.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="EnemyUnit.h" />
-    <ClInclude Include="EventStructs.h" />
-    <ClInclude Include="GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
+    <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
+    <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
+    <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\IGameState.h" />
+    <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
+    <ClInclude Include="..\includes\Gameplay\PauseState.h" />
+    <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="Game.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
