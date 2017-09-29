@@ -111,8 +111,8 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-	tm.SetScale(player->GetEntity(), 1.5f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
+	tm.SetScale(player->GetEntity(), 1.f);
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.obj"));
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
