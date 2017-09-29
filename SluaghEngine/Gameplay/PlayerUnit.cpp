@@ -97,6 +97,12 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	ProfileReturnConst(collision);
 }
 
+void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
+{
+	this->rotMov[0] = cosf(camAngleX);
+	this->rotMov[1] = sinf(camAngleX);
+}
+
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
@@ -113,6 +119,12 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	if (inputs.downD)
 		xMovement += 1.0f;
 
+
+	float tempX = xMovement;
+	float tempY = yMovement;
+
+	xMovement = tempX*rotMov[0] + tempY*rotMov[1];
+	yMovement = -tempX*rotMov[1] + tempY*rotMov[0];
 
 	// Check for collision and update the movement based on it
 	CorrectCollision(dt, xMovement, yMovement);

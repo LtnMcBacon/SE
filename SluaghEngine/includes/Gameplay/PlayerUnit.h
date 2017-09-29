@@ -110,6 +110,8 @@ namespace SE
 			*/
 			void UpdateMap(const char** mapForRoom);
 
+			void UpdatePlayerRotation(float camAngleX, float camAngleY);
+
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
@@ -119,6 +121,7 @@ namespace SE
 			char map[25][25] = { {} };
 			float forcesToApply[2] = {};
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
+			float rotMov[2] = {};
 
 		public:
 			
