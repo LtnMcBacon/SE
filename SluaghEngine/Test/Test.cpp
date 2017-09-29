@@ -65,10 +65,10 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
-	
 	AddTest(FlowFieldTest);
 	AddTest(EnemyMovementTest);
 	AddTest(RoomCreationTest);
