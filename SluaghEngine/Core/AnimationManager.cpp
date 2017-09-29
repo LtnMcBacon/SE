@@ -58,7 +58,7 @@ void SE::Core::AnimationManager::AddAnimation(const Entity & entity, const Utilz
 	}
 
 	auto res = resourceHandler->LoadResource(animation, ResourceHandler::LoadResourceDelegate::Make<AnimationManager, &AnimationManager::LoadAnimation>(this));
-	if (!res)
+	if (res)
 	{
 		Utilz::Console::Print("Could not load animation %u. Error: %d\n", animation, res);
 		ProfileReturnVoid;
@@ -163,7 +163,7 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, voi
 	// After the animation header, there will only be matrices of type XMFLOAT4X4
 	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	//renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints, );
+	renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints, 0);
 
 	return 0;
 }

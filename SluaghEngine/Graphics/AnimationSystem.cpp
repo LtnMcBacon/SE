@@ -20,6 +20,7 @@ int SE::Graphics::AnimationSystem::AddSkeleton(SE::Core::JointAttributes* jointD
 		Skeleton skeleton;
 
 		// Load all the bindposes and their corresponding parent index
+		// Parent index of the first root joint will never be used, since there is no parent
 		for (UINT i = 0; i < nrOfJoints; i++) {
 
 			Joint joint;
