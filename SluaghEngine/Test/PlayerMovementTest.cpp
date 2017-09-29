@@ -128,7 +128,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
-
+	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5* cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
