@@ -1,3 +1,4 @@
+Assets/bakedTest.fbx
 Assets/Canary.wav
 Assets/Cout.wav
 Assets/DebugLinePS.hlsl
@@ -16,6 +17,13 @@ Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
 Assets/purewhite.sei
 Assets/purewhite.rawimg
+Assets/Shaders/Geometry/SimpleGS.hlsl
+Assets/Shaders/Pixel/DebugLinePS.hlsl
+Assets/Shaders/Pixel/SimplePS.hlsl
+Assets/Shaders/Pixel/SimpleTexPS.hlsl
+Assets/Shaders/Vertex/DebugLineVS.hlsl
+Assets/Shaders/Vertex/SimpleVS.hlsl
+Assets/Shaders/Vertex/SkinnedVS.hlsl
 Assets/SimpleGS.hlsl
 Assets/SimplePS.hlsl
 Assets/SimpleTexPS.hlsl
@@ -28,3 +36,5 @@ Assets/test.objtest
 Assets/test.txt
 Assets/test2.txt
 Assets/test3.txt
+Assets/TestDiffuse.sei
+Assets/TestNormal.sei
