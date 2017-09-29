@@ -128,11 +128,11 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show)
+				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1)
 				{
 					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}
