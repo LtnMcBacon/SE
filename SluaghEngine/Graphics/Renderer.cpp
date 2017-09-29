@@ -354,20 +354,27 @@ int SE::Graphics::Renderer::Render() {
 	/********END render line jobs************/
 
 
-	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
-	for (auto& job : renderTextureJobs)
+	if (renderTextureJobs.size())
 	{
-		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+		for (auto& job : renderTextureJobs)
+		{
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		}
+		spriteBatch->End();
 	}
-	spriteBatch->End();
-
-	spriteBatch->Begin();
-	for (auto& job : renderTextJobs)
+	
+	if (renderTextJobs.size())
 	{
-		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		spriteBatch->Begin();
+		for (auto& job : renderTextJobs)
+		{
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		}
+		spriteBatch->End();
 	}
-	spriteBatch->End();
 
+	device->SetDepthStencilStateAndRS();
 	device->SetBlendState();
 
 	device->Present();

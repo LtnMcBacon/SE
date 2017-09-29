@@ -29,7 +29,7 @@ SE::Test::RoomCreationTest::~RoomCreationTest()
 
 bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 {
-	StartProfile
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);

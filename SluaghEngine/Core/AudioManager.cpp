@@ -87,25 +87,34 @@ namespace SE {
 			ProfileReturnConst(0);
 		}
 
-		int AudioManager::StreamSound(const Entity& entity, int soundID)
-
+		int AudioManager::StreamSound(const Entity& entity, int entSoundID)
 		{
 			StartProfile;
-			ProfileReturn(audioHandler->StreamSound(entToSounds[entity].streamID[soundID]));
+			// Check if the entSoundID exist
+			if (entSoundID >= entToSounds[entity].amountOfSound || entToSounds[entity].streamID[entSoundID] == -1)
+				ProfileReturnConst(-1);
+			ProfileReturn(audioHandler->StreamSound(entToSounds[entity].streamID[entSoundID]));
 		}
 
-		int AudioManager::StopSound(const Entity& entity, int soundID)
+		int AudioManager::StopSound(const Entity& entity, int entSoundID)
 		{
 			StartProfile;
-			ProfileReturn(audioHandler->StopSound(entToSounds[entity].streamID[soundID]));
+			// Check if the entSoundID exist
+			if (entSoundID >= entToSounds[entity].amountOfSound || entToSounds[entity].streamID[entSoundID] == -1)
+				ProfileReturnConst(-1);
+			ProfileReturn(audioHandler->StopSound(entToSounds[entity].streamID[entSoundID]));
 		}
 
-		int AudioManager::RemoveSound(const Entity & entity, int soundID)
+		int AudioManager::RemoveSound(const Entity & entity, int entSoundID)
 		{
 			StartProfile;
-			if (audioHandler->RemoveSound(entToSounds[entity].streamID[soundID]))
+			// Check if the entSoundID exist
+			if (entSoundID >= entToSounds[entity].amountOfSound || entToSounds[entity].streamID[entSoundID] == -1)
+				ProfileReturnConst(-1);
+			if (audioHandler->RemoveSound(entToSounds[entity].streamID[entSoundID]))
 			{
-				entToSounds[entity].freeStreamID.push(soundID);
+				entToSounds[entity].streamID[entSoundID] = -1;
+				entToSounds[entity].freeStreamID.push(entSoundID);
 				ProfileReturnConst(0);
 			}
 			ProfileReturn(-1);
@@ -118,7 +127,7 @@ namespace SE {
 
 		void AudioManager::Frame()
 		{
-			void GarbageCollection();
+			GarbageCollection();
 		}
 
 		void AudioManager::Shutdown()
