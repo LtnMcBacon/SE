@@ -6,6 +6,7 @@
 #include "RenderObjectInfo.h"
 #include "GUIInfo.h"
 #include "ShaderSettings.h"
+#include "LineRenderJob.h"
 #include <ResourceHandler\IResourceHandler.h>
 namespace SE
 {
@@ -36,7 +37,8 @@ namespace SE
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
 			* @sa RenderObjectInfo
 			* @endcode
 			*/
@@ -44,11 +46,20 @@ namespace SE
 
 			/**
 			* @brief    Removes a render job.
-			* @param[in] handles The handles struct
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
 			* @retval 0 On success.
-			* @endcode
+			* @sa EnableRendering
 			*/
-			virtual int DisableRendering(const RenderObjectInfo& handles) = 0;
+			virtual int DisableRendering(uint32_t jobID) = 0;
+
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 
 			/**
 			* @brief    Sets a Text render jobs
@@ -73,6 +84,30 @@ namespace SE
 			* @endcode
 			*/
 			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			/**
+			* @brief    Removes a line render job.
+			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int RemoveLineRenderJob(uint32_t lineJobID) = 0;
+
+			/**
+			* @brief Updates the transformation of a line render job.
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			*/
+			virtual int UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform) = 0;
+
+			/**
+			* @brief Updates the range of the line render job. (Which range of the dynamic vertex buffer to grab vertices from.)
+			* @param[in] lineJobID The ID of the job to update.
+			* @param[in] startVertex The first vertex to draw
+			* @param[in] vertexCount The number of vertices to draw.
+			* @retval 0 On success.
+			*/
+			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
 
 			/**
 			* @brief    Removes a Text render job.
@@ -140,14 +175,13 @@ namespace SE
 			*/
 			virtual void DestroyTransform(int transformHandle) = 0;
 			/**
-			* @brief Updates the transformation for an entity that is bound to rendering.
-			* @param[in] transformHandle The transform handle that is bound to the renderable object.
-			* @param[in] transform The transfrom to apply to the renderable object, an array of 16 floats in row major format.
+			* @brief Updates the transformation of a render job.
+			* @param[in] jobID The ID of the job to update.
+			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int UpdateTransform(int transformHandle, float* transform) = 0;
-
+			virtual int UpdateTransform(uint32_t jobID, float* transform) = 0;
 
 
 			/**

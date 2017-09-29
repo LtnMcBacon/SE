@@ -41,7 +41,10 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 {
 	auto& find = entityToIndex.find(e);
 	if (find != entityToIndex.end())
+	{
+		dirty[find->second] = 1;
 		ProfileReturnVoid;
+	}
 
 	if (transformCount == transformCapacity)
 		ExpandTransforms();
@@ -184,6 +187,19 @@ const DirectX::XMFLOAT3& SE::Core::TransformManager::GetScale(const Entity& e) c
 	auto entry = entityToIndex.find(e);
 	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	return scalings[entry->second];
+}
+
+const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity& e) const
+{
+	auto entry = entityToIndex.find(e);
+	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	auto& pos = positions[entry->second];
+	auto& rot = rotations[entry->second];
+	auto& scale = scalings[entry->second];
+	XMFLOAT4X4 transform;
+	XMStoreFloat4x4(&transform, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x, pos.y, pos.z));
+	return transform;
+
 }
 
 int SE::Core::TransformManager::GarbageCollection()

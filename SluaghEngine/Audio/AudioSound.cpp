@@ -107,6 +107,7 @@ namespace SE {
 			tempAS.samples = sampleData;
 
 			soundSample.push_back(tempAS);
+			delete sound;
 			ProfileReturn(soundSample.size() - 1);
 		}
 
