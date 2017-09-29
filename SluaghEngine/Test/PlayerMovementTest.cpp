@@ -253,6 +253,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		RIGHT_MOUSE = 7
 	};
 
+
 	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
 	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
 	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
