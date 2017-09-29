@@ -1,8 +1,6 @@
 Assets/bakedTest.fbx
 Assets/Canary.wav
 Assets/Cout.wav
-Assets/DebugLinePS.hlsl
-Assets/DebugLineVS.hlsl
 Assets/dummytex.sei
 Assets/GUITest.sei
 Assets/Placeholder_Arrow.mtl
@@ -17,6 +15,8 @@ Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
 Assets/purewhite.sei
 Assets/purewhite.rawimg
+Assets/Shaders/DebugLinePS.hlsl
+Assets/Shaders/DebugLineVS.hlsl
 Assets/Shaders/Geometry/SimpleGS.hlsl
 Assets/Shaders/Pixel/DebugLinePS.hlsl
 Assets/Shaders/Pixel/DebugLineVS.hlsl
