@@ -58,11 +58,11 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show)
+				if (show && loadedTexts[entID[entity]].fontID > -1)
 				{
 					renderer->EnableTextRendering(loadedTexts[entID[entity]]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextRendering(loadedTexts[entID[entity]]);
 				}
@@ -128,11 +128,11 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show)
+				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1)
 				{
 					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}
-				else
+				else if (!show)
 				{
 					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
 				}
