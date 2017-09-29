@@ -93,6 +93,17 @@ void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& 
 	SetAsDirty(index);
 }
 
+void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMVECTOR& dir)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+
+	XMVECTOR position = XMLoadFloat3(&positions[index]);
+
+	XMStoreFloat3(&positions[index], position + dir);
+	SetAsDirty(index);
+}
+
 void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw, float roll)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");

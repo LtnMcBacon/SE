@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Gameplay Tests">
+      <UniqueIdentifier>{51c70d89-9e44-45d3-ab9f-9a4b59ab8fda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameplayTests">
+      <UniqueIdentifier>{880c0fd5-2281-45c9-9378-38aa4e705cef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -54,10 +60,28 @@
     <ClCompile Include="BoundingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FlowFieldTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomCreationTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
     <ClCompile Include="AllocatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugRenderTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStateTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceHandlerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ResourceHandlerTest.cpp">
@@ -95,14 +119,23 @@
     <ClInclude Include="RenderableManagerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FlowFieldTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
     <ClInclude Include="MaterialManagerTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoadTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AudioTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoomCreationTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="INITest.h">
       <Filter>Header Files</Filter>
@@ -113,7 +146,16 @@
     <ClInclude Include="AllocatorTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
     <ClInclude Include="DebugRenderTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStateTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceHandlerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceHandlerTest.h">
