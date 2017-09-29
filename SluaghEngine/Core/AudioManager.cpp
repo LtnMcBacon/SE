@@ -6,9 +6,9 @@ namespace SE {
 		AudioManager::AudioManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager & entityManager)
 			:resourceHandler(resourceHandler), entityManager(entityManager)
 		{
-			StartProfile;
+
 			assert(resourceHandler);
-			StopProfile;
+
 		}
 
 		int AudioManager::Initialize()
