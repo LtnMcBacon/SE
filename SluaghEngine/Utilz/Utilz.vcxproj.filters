@@ -63,7 +63,7 @@
     <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tools.h">
+    <ClInclude Include="..\includes\Utilz\Tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

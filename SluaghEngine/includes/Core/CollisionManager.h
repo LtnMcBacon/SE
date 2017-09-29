@@ -80,7 +80,7 @@ namespace SE
 			* @param[in] pickingRay The ray to do the picking with.
 			* @param[out] distance The distance to the entity.
 			*/
-			bool PickEntity(const Entity& entity, const DirectX::XMFLOAT3& pickingRay, float* distance);
+			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
 
 
 			/**

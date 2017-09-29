@@ -168,11 +168,20 @@ void SE::Window::WindowSDL::Frame()
 			{
 				if(ev.button.button == SDL_BUTTON_LEFT)
 				{	
+					
 					mouseLeftDown = true;
 				}
 				else if(ev.button.button == SDL_BUTTON_RIGHT)
 				{	
 					mouseRightDown = true;
+				}
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+					}
 				}
 				break;
 			}
@@ -187,6 +196,7 @@ void SE::Window::WindowSDL::Frame()
 						for (auto& cb : mouseClickCallbacks->second)
 							cb(curMouseX, curMouseY);
 					}
+					actionToKeyState[state->second] = UP;
 				}
 				if (ev.button.button == SDL_BUTTON_LEFT)
 				{

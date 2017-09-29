@@ -51,6 +51,7 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 	cameraData.aspectRatio[index] = aspectRatio;
 	cameraData.nearPlane[index] = nearP;
 	cameraData.farPlane[index] = farP;
+	XMStoreFloat4x4(&cameraData.view[index], XMMatrixIdentity());
 
 	transformManager->Create(entity, pos, rotation);
 
@@ -99,7 +100,9 @@ void SE::Core::CameraManager::Frame()
 			up = XMVector3TransformNormal(up, transform);
 			XMVECTOR lookAt = pos + forward;
 
-			XMMATRIX viewproj = XMMatrixLookAtLH(pos, lookAt, up) * XMMatrixPerspectiveFovLH(cameraData.fov[activeCamera], cameraData.aspectRatio[activeCamera], cameraData.nearPlane[activeCamera], cameraData.farPlane[activeCamera]);
+			XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+			XMStoreFloat4x4(&cameraData.view[activeCamera], view);
+			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[activeCamera], cameraData.aspectRatio[activeCamera], cameraData.nearPlane[activeCamera], cameraData.farPlane[activeCamera]);
 
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);

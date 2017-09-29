@@ -156,7 +156,7 @@
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\StackAllocator.h" />
     <ClInclude Include="..\includes\Utilz\Timer.h" />
-    <ClInclude Include="Tools.h" />
+    <ClInclude Include="..\includes\Utilz\Tools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />

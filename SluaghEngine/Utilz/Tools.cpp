@@ -1,24 +1,25 @@
 #include "Tools.h"
 
-DirectX::XMMATRIX SE::Core::Tools::getLocalMatrix(XMMATRIX worldM, XMMATRIX viewM)
+DirectX::XMMATRIX SE::Tools::Tools::getLocalMatrix(XMMATRIX worldM, XMMATRIX invViewM)
 {
-	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(viewM), viewM);
 	XMMATRIX invWorl = XMMatrixInverse(&XMMatrixDeterminant(worldM), worldM);
-	return XMMatrixMultiply(invView, invWorl);
+	return XMMatrixMultiply(invViewM, invWorl);
 }
 
-DirectX::XMFLOAT3 SE::Core::Tools::rayToWorld(int sx, int sy, float height, float width)
+DirectX::XMVECTOR SE::Tools::Tools::rayToView(int sx, int sy, float width, float height)
 {
-	float aro = width / height;
-	float x = aro * ((2 * sx / width) - 1);
-	float y = -((2 * sy / height) + 1);
-
-	return XMFLOAT3(x, y, 1.f);
+	float x = ((2.0f * sx / width) - 1.0f) / (1 / ((width / height)*tan(1.570796 / 2)));
+	float y = -((2.0f * sy / height) + 1.0f) / (1/tan(1.570796/2));
+	XMVECTOR ray = { x, y, 1.0f, 0.0f};
+	return ray;
 }
-DirectX::XMVECTOR SE::Core::Tools::getLocalRayDir(XMVECTOR rayO, XMVECTOR rayD, XMMATRIX localM)
+DirectX::XMVECTOR SE::Tools::Tools::getLocalRayDir(XMVECTOR rayD, XMMATRIX localM)
 {
-	rayO = XMVector3Transform(rayO, localM);
 	rayD = XMVector3TransformNormal(rayD, localM);
 
 	return XMVector3Normalize(rayD);
+}
+DirectX::XMVECTOR SE::Tools::Tools::getLocalRayOrigin(XMVECTOR rayO, XMMATRIX localM)
+{
+	return XMVector3TransformCoord(rayO, localM);
 }

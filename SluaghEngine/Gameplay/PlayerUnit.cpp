@@ -112,7 +112,11 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		xMovement -= 1.0f;
 	if (inputs.downD)
 		xMovement += 1.0f;
-
+	if (inputs.mouseRightDown)
+	{
+		xMovement = inputs.mousePosX;
+		yMovement = inputs.mousePosY;
+	}
 
 	// Check for collision and update the movement based on it
 	CorrectCollision(dt, xMovement, yMovement);

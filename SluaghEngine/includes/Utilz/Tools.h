@@ -1,5 +1,5 @@
-#ifndef SE_CORE_COLLISION_MANAGER_H_
-#define SE_CORE_COLLISION_MANAGER_H_
+#ifndef SE_CORE_TOOLS_H_
+#define SE_CORE_TOOLS_H_
 
 #include <DirectXMath.h>
 
@@ -7,7 +7,7 @@ using namespace DirectX;
 
 namespace SE
 {
-	namespace Core
+	namespace Tools
 	{
 		/**
 		*
@@ -36,17 +36,18 @@ namespace SE
 			* @Param[in] The screen resolution width.
 			* @retval return_value_1 returns your new ray origin relative to the projection.
 			**/
-			DirectX::XMFLOAT3 rayToWorld(int sx, int sy, float height, float width);
+			DirectX::XMVECTOR rayToView(int sx, int sy, float height, float width);
 			/**
 			* @breif  Takes your ray into local space for picking objects
 			* @detail Takes your ray from projection space into local space and calculates the new unit direction vector/normal
 			*         of your ray in local space.
-			* @Param[in] Your ray origin vector in projection space.
 			* @Param[in] Your ray direction vector in projection space.
 			* @Param[in] Your local matrix.
 			* @retval return_value_1 returns your new dir vector.
 			**/
-			DirectX::XMVECTOR getLocalRayDir(XMVECTOR rayO, XMVECTOR rayD, XMMATRIX localM);
+			DirectX::XMVECTOR getLocalRayDir(XMVECTOR rayD, XMMATRIX localM);
+
+			DirectX::XMVECTOR getLocalRayOrigin(XMVECTOR rayD, XMMATRIX localM);
 		};
 	}
 }
