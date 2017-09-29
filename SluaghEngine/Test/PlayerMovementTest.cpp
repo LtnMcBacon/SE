@@ -4,6 +4,7 @@
 #include <Gameplay/Room.h>
 #include <chrono>
 #include <Gameplay/PlayerUnit.h>
+#include <Profiler.h>
 #include <Utilz\Tools.h>
 
 #ifdef _DEBUG
@@ -33,6 +34,7 @@ SE::Test::PlayerMovementTest::~PlayerMovementTest()
 
 bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	using namespace DirectX;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
@@ -40,7 +42,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+		ProfileReturnConst(false)
 	}
 
 	auto& em = e.GetEntityManager();
@@ -122,8 +124,10 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-	tm.SetScale(player->GetEntity(), 1.5f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
+
+	tm.SetScale(player->GetEntity(), 1.f);
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.obj"));
+
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
@@ -139,7 +143,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
-
+	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5* cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
@@ -425,6 +429,6 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	e.Release();
 
-	return true;
+	ProfileReturnConst(true)
 }
 

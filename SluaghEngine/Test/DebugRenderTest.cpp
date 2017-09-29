@@ -19,7 +19,10 @@ enum ActionButton
 	Down,
 	Left,
 	Right,
-	Fullscreen
+	Fullscreen,
+	FrameTime,
+	Jiggle,
+	RemoveStuff
 };
 bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -27,10 +30,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	engine.Init(Core::Engine::InitializationInfo());
 	auto& em = engine.GetEntityManager();
 	auto& mm = engine.GetMaterialManager();
-	auto& cm = engine.GetCameraManager();
 	auto& tm = engine.GetTransformManager();
+	auto& cm = engine.GetCameraManager();
+	auto& rm = engine.GetRenderableManager();
+	auto& drm = engine.GetDebugRenderManager();
 	Core::Entity entity = em.Create();
-
+	const int numEnts = 600;
+	Core::Entity ents[numEnts];
 	Core::MaterialManager::CreateInfo info;
 	Utilz::GUID textures[] = { Utilz::GUID("dummytex.sei"), Utilz::GUID("purewhite.sei") };
 	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
@@ -39,27 +45,42 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	info.shaderResourceNames = resourceNames;
 	info.textureFileNames = textures;
 	info.textureCount = 2;
+	for (int i = 0; i < numEnts; i++)
+	{
+		ents[i] = em.Create();
+		mm.Create(ents[i], info);
+		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 0.02f,0.02f,0.02f });
+		//tm.Create(ents[i]);
+		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_level.obj"));
+		rm.ToggleRenderableObject(ents[i], true);
+		drm.DrawCross(ents[i], 100.0f);
 
-	auto camera = em.Create();
+	}
+	for (int i = 10; i < 20; i++)
+	{
+		drm.ToggleDebugRendering(ents[i], false);
+	}
+
+	for (int i = 15; i < 20; i++)
+	{
+		drm.DrawCross(ents[i], 100.0f);
+	}
+	for (int i = 0; i <numEnts; i++)
+	{
+		drm.DrawCross(ents[i], 100.0f);
+	}
+	for (int i = 7; i < 14; i++)
+	{
+		drm.ToggleDebugRendering(ents[i], false);
+	}
+	rm.ToggleRenderableObject(ents[2], false);
+	rm.ToggleRenderableObject(ents[2], true);
+	const auto camera = em.Create();
 	cm.Bind(camera);
 	cm.SetActive(camera);
 	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
 	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 
-	mm.Create(entity, info);
-
-	auto& rm = engine.GetRenderableManager();
-	auto& drm = engine.GetDebugRenderManager();
-
-	for(int i = 0; i < 100; i++)
-	{
-		drm.DrawCross(entity, 3.0f, i * 4 - 50, 10, 10);
-	}
-
-	tm.Create(entity);
-
-	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_level.obj"));
-	rm.ToggleRenderableObject(entity, true);
 
 	auto w = engine.GetWindow();
 
@@ -72,12 +93,17 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::Left, Window::KeyA);
 	w->MapActionButton(ActionButton::Right, Window::KeyD);
 	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+	w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
+	w->MapActionButton(ActionButton::Jiggle, Window::KeyJ);
+	w->MapActionButton(RemoveStuff, Window::KeyR);
 
 	bool running = true;
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
 	int full = oh.GetOption("Window", "fullScreen", 0);
+	float jiggler = 0.0f;
+	uint32_t removeIndex = 0;
 	while (running)
 	{
 		timer.Tick();
@@ -85,19 +111,9 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
 
-		if (w->ButtonPressed(ActionButton::Hide))
-			rm.ToggleRenderableObject(entity, false);
-		if (w->ButtonPressed(ActionButton::Show))
-			rm.ToggleRenderableObject(entity, true);
-
-		if (w->ButtonPressed(ActionButton::Fullscreen))
-		{
-			full = full ? 0 : 1;
-			oh.SetOption("Window", "fullScreen", full);
-			oh.Trigger();
-		}
 
 		if (w->ButtonDown(ActionButton::Up))
+
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (w->ButtonDown(ActionButton::Down))
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
@@ -106,8 +122,36 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonDown(ActionButton::Left))
 			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 
+
+		if (w->ButtonPressed(ActionButton::Jiggle))
+			tm.Move(ents[3], DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.0f });
+
+		if (removeIndex < numEnts && w->ButtonDown(RemoveStuff))
+			em.Destroy(ents[removeIndex++]);
+
+
+
+		if (w->ButtonPressed(ActionButton::Hide))
+		{
+			for (int i = 0; i< numEnts; i++)
+			{
+				rm.ToggleRenderableObject(ents[i], false);
+			}
+		}
+		if (w->ButtonPressed(ActionButton::Show))
+		{
+			for (int i = 0; i< numEnts; i++)
+			{
+				rm.ToggleRenderableObject(ents[i], true);
+			}
+		}
+		if (w->ButtonPressed(ActionButton::FrameTime))
+		{
+			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
+		}
 		engine.Frame(0.01f);
 	}
+
 
 	engine.Release();
 

@@ -70,8 +70,7 @@ IGameState::State PlayState::Update(void* passableInfo)
 	UpdateInput(MovementInput);
 
 
-
+	delete MovementInput;
 	ProfileReturn(empty);
 
-	delete MovementInput;
 }

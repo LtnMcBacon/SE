@@ -31,7 +31,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	window = Window::CreateNewWindow();
 	renderer = new Graphics::Renderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
-	audioManager = new AudioManager();
+	audioManager = new AudioManager(resourceHandler, *entityManager);
 	
 
 	auto r = resourceHandler->Initialize();
@@ -53,11 +53,11 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
-	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
-	//debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+
 
 	InitStartupOption();
 
@@ -66,16 +66,18 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 int SE::Core::Engine::Frame(double dt)
 {
+	StartProfile;
 	guiManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
-	//debugRenderManager->Frame(*perFrameStackAllocator);
+	debugRenderManager->Frame(*perFrameStackAllocator);
+	audioManager->Frame();
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
 	cameraManager->Frame();
 	renderer->Render();
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Release()
@@ -91,7 +93,7 @@ int SE::Core::Engine::Release()
 	delete collisionManager;
 	delete materialManager;
 	delete renderableManager;
-	//delete debugRenderManager;
+	delete debugRenderManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;

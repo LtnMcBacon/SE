@@ -3,6 +3,7 @@
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <chrono>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -28,13 +29,15 @@ SE::Test::RoomCreationTest::~RoomCreationTest()
 
 bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+
+		ProfileReturnConst(false)
 	}
 
 	auto& em = e.GetEntityManager();
@@ -234,5 +237,6 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	e.Release();
 
-	return true;
+
+	ProfileReturnConst(true)
 }
