@@ -37,43 +37,7 @@ void Room::UpdateAIs(float dt)
 	int collisionY = 0.0;
 	for (auto enemy : enemyEntities)
 	{
-		/*float currentX = enemy->GetXPosition();
-		float currentY = enemy->GetYPosition();*/
-		
 		enemy->Update(dt);
-
-		//float afterX = enemy->GetXPosition();
-		//float afterY = enemy->GetYPosition();
-
-		//bool collision = CheckCollisionInRoom(
-		//	currentX, currentY,
-		//	afterX, afterY,
-		//	0.25f, 0.25f,
-		//	collisionX, collisionY);
-
-
-
-		//if(collision)
-		//{
-		//	if (collisionX == -1 /*&& collisionY == 0*/)
-		//	{
-		//		enemy->SetXPosition(currentX);
-		//	}
-		//	else if(collisionX == 1/* && collisionY == 0*/)
-		//	{
-		//		enemy->SetXPosition(currentX);
-		//	}
-		//	if (collisionY == -1 /*&& collisionX == 0*/)
-		//	{
-		//		enemy->SetYPosition(currentY);
-		//	}
-		//	else if (collisionY == 1/* && collisionX == 0*/)
-		//	{
-		//		enemy->SetYPosition(currentY);
-
-		//	}
-		
-		//}
 
 	}
 	StopProfile;
@@ -99,7 +63,7 @@ void Room::Update(float dt, float playerX, float playerY)
 
 bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, float xExtent, float yExtent)
 {
-	
+	StartProfile;
 	const int xLeftFloored = int(floor(xCenterPosition - xExtent));
 	const int xRightFloored = int(floor(xCenterPosition + xExtent));
 	const int yUpFloored = int(floor(yCenterPosition + yExtent));
@@ -108,31 +72,30 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 
 	if (map[xLeftFloored][yDownFloored])
 	{
-		return true;
+		ProfileReturnConst(true);
 	}
 	if (map[xLeftFloored][yUpFloored])
 	{
-		return true;
+		ProfileReturnConst(true);
 	}
 
 	if (map[xRightFloored][yUpFloored])
 	{
-		return true;
+		ProfileReturnConst(true);
 	}
 	if (map[xRightFloored][yDownFloored])
 	{
-		return true;
+		ProfileReturnConst(true);
 	}
 
-
-
 	
-	return false;
+	ProfileReturnConst(false);
 }
 
 bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter,
 	float yCenterPositionAfter, float xExtent, float yExtent, int& xCollision, int& yCollision)
 {
+	StartProfile;
 	bool collision = false;
 	const int xLeftBeforeFloored = int(xCenterPositionBefore - xExtent);
 	const int xRightBeforeFloored = int(xCenterPositionBefore + xExtent);
@@ -200,7 +163,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 		collision = true;
 		
 	}*/
-	return collision;
+	ProfileReturn(collision);
 }
 
 Room::Room(char map[25][25])	
@@ -234,13 +197,14 @@ Room::~Room()
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
+	StartProfile;
 	enemyEntities.push_back(enemyToAdd);
 
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
 
-	return true;
+	ProfileReturnConst(true);
 }
 
 

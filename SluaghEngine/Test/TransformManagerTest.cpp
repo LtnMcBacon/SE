@@ -96,7 +96,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 	for(int i = 0; i < 2048; i++)
 	{
-		tm.Move(entities[i], { 0.0f, 3.0f, 0.0f });
+		tm.Move(entities[i], DirectX::XMFLOAT3{ 0.0f, 3.0f, 0.0f });
 		tm.Rotate(entities[i], 3.0f, 0.0f, 0.0f);
 		tm.Scale(entities[i], 3.0f);
 	}
@@ -195,7 +195,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.Create(child, { 1.0f, 0.0f, 0.0f });
 	tm.Frame();
 	tm.BindChild(parent, child);
-	tm.Move(parent, { 0.0f, 0.0f, 1.0f });
+	tm.Move(parent, DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f });
 	tm.Frame();
 	engine.Release();
 	ProfileReturnConst(true);

@@ -62,18 +62,22 @@ void GameUnit::ClearConditionEvents()
 
 void GameUnit::MoveEntity(float xMovement, float yMovement)
 {
+	StartProfile;
 	xPos += xMovement;
 	yPos += yMovement;
 	Core::Engine::GetInstance().GetTransformManager().SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
 	auto temp = Core::Engine::GetInstance().GetTransformManager().GetPosition(this->unitEntity);
 	int a = 10;
+	StopProfile;
 }
 
 void GameUnit::PositionEntity(float xPos, float yPos)
 {
+	StartProfile;
 	this->xPos = xPos;
 	this->yPos = yPos;
 	Core::Engine::GetInstance().GetTransformManager().SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
+	StopProfile;
 }
 
 

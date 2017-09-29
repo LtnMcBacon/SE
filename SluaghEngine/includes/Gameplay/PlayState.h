@@ -1,6 +1,7 @@
 #ifndef _SE_GAMEPLAY_PLAY_STATE_H
 #define _SE_GAMEPLAY_PLAY_STATE_H
 #include "IGameState.h"
+#include "PlayerUnit.h"
 
 namespace SE 
 {
@@ -36,7 +37,13 @@ namespace SE
 			*
 			*/
 			State Update(void* passableInfo);
+
+			void UpdateInput(PlayerUnit::MovementInput* &Movement);
+
+			
 		private:
+			void InitializeRooms();
+			void InitializePlayer();
 		protected:
 
 		};

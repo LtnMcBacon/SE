@@ -1,6 +1,5 @@
 #ifndef _SE_GAMEPLAY_GAME_STATE_H
 #define _SE_GAMEPLAY_GAME_STATE_H
-#include <window/WindowSDL.h>
 #include <window/IWindow.h>
 
 namespace SE
