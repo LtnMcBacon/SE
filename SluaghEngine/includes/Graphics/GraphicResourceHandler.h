@@ -191,14 +191,25 @@ namespace SE {
 			* @param[in] inData The data to be place in the buffer
 			*
 			* @param[in] constBufferID Tells which constant buffer to use
+			* @warning Deprecated, use UpdateConstantBuffer instead.
 			*
 			*/
 			void SetConstantBuffer(void* inData, int constBufferID);
+
+			/**
+			* @brief	Updates the contents of a constant buffer.
+			*
+			* @param[in] data The data to copy to the buffer.
+			* @param[in] size The size in bytes of the data. It is up to the caller to make sure the buffer can accomodate the data.
+			* @param[in] id The ID of the constant buffer received from CreateConstantBuffer.
+			* @retval S_OK on success.
+			*/
+			HRESULT UpdateConstantBuffer(void* data, size_t size, int id);
+
+
 			/**
 			* @brief	Removes a constant buffer
-			*
 			* @param[in] constBufferID Tells which constant buffer to remove
-			*
 			*/
 			void RemoveConstantBuffer(int constBufferID);
 
@@ -210,6 +221,11 @@ namespace SE {
 			* @sa TextureDesc
 			*/
 			int CreateShaderResourceView(void* textureData, const TextureDesc& description);
+			ID3D11ShaderResourceView* GetShaderResourceView(int ID) {
+				if (shaderResourceViews.size() > ID)
+					return shaderResourceViews[ID];
+				return nullptr;
+			};
 			/**
 			* @brief	Removes a constant buffer
 			* @param[in] id The ID of the shader resource view to remove

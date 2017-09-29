@@ -4,11 +4,11 @@
 #include "Test.h"
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
-#include "ResouceHandlerTest.h"
+#include "ResourceHandlerTest.h"
 #include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
-#include "BufferTest.h"
+//#include "BufferTest.h"
 #include "INITest.h"
 #include "RenderableManagerTest.h"
 #include "FlowFieldTest.h"
@@ -18,12 +18,14 @@
 #include "AllocatorTest.h"
 #include "AudioTest.h"
 #include "DebugRenderTest.h"
+#include "InstancingTest.h"
 #include <map>
 #include <ctime>
-
+#include "GameStateTest.h"
 #include <crtdbg.h>
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
+#include "PlayerMovementTest.h"
 
 
 #ifdef _DEBUG
@@ -46,14 +48,14 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 24432;
+	//_crtBreakAlloc = 24681;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
-	AddTest(ResouceHandlerTest);
+	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
 	AddTest(ObjLoaderTest);
-	AddTest(BufferTest);
+	//AddTest(BufferTest);
 	AddTest(RenderableManagerTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
@@ -63,13 +65,16 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
-	AddTest(DebugRenderManagerTest);
 
-	
+	AddTest(DebugRenderManagerTest);
+	AddTest(InstancingTest);
+
 	AddTest(FlowFieldTest);
 	AddTest(EnemyMovementTest);
 	AddTest(RoomCreationTest);
-
+	AddTest(PlayerMovementTest);
+	AddTest(GameStateTest);
+  
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
 	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
@@ -77,6 +82,7 @@ int main(int argc, char** argv)
 		running = false;
 	},
 		"exit",
+	
 		"exit the application");
 
 	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv)

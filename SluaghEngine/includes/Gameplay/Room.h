@@ -181,6 +181,9 @@ namespace SE
 			*
 			*/
 			void UpdateAdjacentRooms(float dt);
+
+
+
 		public:
 			Room(char map[25][25]);
 			~Room();
@@ -264,6 +267,47 @@ namespace SE
 			*
 			*/
 			void Update(float dt, float playerX, float playerY);
+
+			/**
+			* @brief	Check for collision (2D-Plan)
+			*
+			* @details	Given a 2D collision box, will the object collide with any static object in the room
+			* 
+			* For testing of movement collision were a collision vector is needed, see below function.
+			*
+			* @param[in] xCenterPosition The x position of the center for the collision box
+			* @param[in] yCenterPosition The y position of the center for the collision box
+			* @param[in] xExtent The xExtent for the 2D collision box
+			* @param[in] yExtent The yExtent for the 2D collision box
+			*
+			* @retval false No collision occours
+			* @retval true Collision occours 
+			*
+			*/
+			bool CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, float xExtent, float yExtent);
+
+			/**
+			* @brief	Check for collision (2D-Plane)
+			*
+			* @details	Given a 2D collision box, will the object collide with any static object in the room
+			*
+			* For testing of movement collision were a collision vector is needed, see below function.
+			*
+			* @param[in] xCenterPositionBefore The x position of the center before the movement
+			* @param[in] yCenterPositionBefore The y position of the center before the movement
+			* @param[in] xCenterPositionAfter The x position of the center after the movement
+			* @param[in] yCenterPositionAfter The y position of the center after the movement
+			* @param[in] xExtent The xExtent for the 2D collision box
+			* @param[in] yExtent The yExtent for the 2D collision box
+			* @param[out] xCollision -1 indicates left collision, 1 right
+			* @param[out] yCollision -1 indicates down collision, 1 up
+			*
+			*
+			* @retval false No collision occours
+			* @retval true Collision occours
+			*
+			*/
+			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
 		};
 

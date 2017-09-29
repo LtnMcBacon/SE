@@ -22,6 +22,7 @@ FlowField::FlowField(const char mapData[MAXSIZE][MAXSIZE], float sideLength, con
 			else if (mapData[i][j] == 1)
 			{
 				data[i][j].type = Type::BLOCKED;
+				data[i][j].dir = Direction::NONE;
 			}
 
 			data[i][j].posX = bottomLeftCornerXCoord + i * sideLength + sideLength / 2;
@@ -52,9 +53,8 @@ void FlowField::Update(const pos & playerPos)
 void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & yMagnitude) const
 {
 	StartProfile;
-	int xIndex = (int)enemyPos.x - lowerLeftCornerXCoord;
-	int yIndex = (int)enemyPos.y - lowerLeftCornerYCoord;
-
+	int xIndex = int(enemyPos.x- lowerLeftCornerXCoord);
+	int yIndex = int(enemyPos.y - lowerLeftCornerYCoord);
 
 
 	switch (data[xIndex][yIndex].dir)
@@ -62,8 +62,7 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 	case Direction::NONE:
 		xMagnitude = 0.0f;
 		yMagnitude = 0.0f;
-		StopProfile;
-		return;
+		break;
 
 	case Direction::UP:
 		xMagnitude = 0.0f;
@@ -108,10 +107,7 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 	}
 
 
-
-
 	StopProfile;
-	return;
 }
 
 void FlowField::ResetField()
@@ -129,7 +125,7 @@ void FlowField::ResetField()
 
 void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY)
 {
-	StartProfile;
+
 	if (currentX > 0 && data[currentX - 1][currentY].type != Type::BLOCKED && data[currentX - 1][currentY].cost > data[currentX][currentY].cost + 1)
 	{
 		data[currentX - 1][currentY].cost = data[currentX][currentY].cost + 1;
@@ -153,7 +149,7 @@ void FlowField::RecursiveLeifUpdate(unsigned int currentX, unsigned int currentY
 		data[currentX][currentY + 1].cost = data[currentX][currentY].cost + 1;
 		RecursiveLeifUpdate(currentX, currentY + 1);
 	}
-	StopProfile;
+
 }
 
 void FlowField::SetDirectionsBasedOnCosts()
@@ -168,55 +164,81 @@ void FlowField::SetDirectionsBasedOnCosts()
 		for (int j = 1; j < MAXSIZE - 1; j++)
 		{
 			smallestCost = -1;
-
-			for (int k = 0; k < 4; k++)
+			if (data[i][j].type != Type::BLOCKED)
 			{
-				if (k == 1)
+				for (int k = 0; k < 8; k++)
 				{
-					xModifier = -1;
-				}
-				else if (k == 2)
-				{
-					xModifier = 1;
-				}
-				else
-				{
-					xModifier = 0;
-				}
-
-				if (k == 0)
-				{
-					yModifier = 1;
-				}
-				else if (k == 3)
-				{
-					yModifier = -1;
-				}
-				else
-				{
-					yModifier = 0;
-				}
-
-				if (data[i + xModifier][j + yModifier].cost < smallestCost)
-				{
-					if (xModifier == 1)
+					if (k == 0 || k == 3 || k == 5)
 					{
-						data[i][j].dir = Direction::RIGHT;
+						xModifier = -1;
 					}
-					else if (xModifier == -1)
+					else if (k == 2 || k == 4 || k == 7)
 					{
-						data[i][j].dir = Direction::LEFT;
-					}
-					else if (yModifier == 1)
-					{
-							data[i][j].dir = Direction::UP;
+						xModifier = 1;
 					}
 					else
 					{
-							data[i][j].dir = Direction::DOWN;
+						xModifier = 0;
 					}
 
-					smallestCost = data[i + xModifier][j + yModifier].cost;
+					if (k < 3)
+					{
+						yModifier = 1;
+					}
+					else if (k > 4)
+					{
+						yModifier = -1;
+					}
+					else
+					{
+						yModifier = 0;
+					}
+
+					if (data[i + xModifier][j + yModifier].cost < smallestCost)
+					{
+						if (xModifier == 1)
+						{
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP_RIGHT;
+							}
+							else if (yModifier == -1)
+							{
+								data[i][j].dir = Direction::DOWN_RIGHT;
+							}
+							else
+							{
+								data[i][j].dir = Direction::RIGHT;
+							}
+						}
+						else if (xModifier == -1)
+						{
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP_LEFT;
+							}
+							else if (yModifier == -1)
+							{
+								data[i][j].dir = Direction::DOWN_LEFT;
+							}
+							else
+							{
+								data[i][j].dir = Direction::LEFT;
+							}
+						}
+						else
+						{
+							if (yModifier == 1)
+							{
+								data[i][j].dir = Direction::UP;
+							}
+							else
+							{
+								data[i][j].dir = Direction::DOWN;
+							}
+						}
+						smallestCost = data[i + xModifier][j + yModifier].cost;
+					}
 				}
 			}
 		}

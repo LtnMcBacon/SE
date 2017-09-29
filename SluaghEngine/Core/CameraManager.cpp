@@ -57,6 +57,20 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 	StopProfile;
 }
 
+const DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
+{
+	StartProfile;
+	auto& find = entityToIndex.find(entity);
+	if (find == entityToIndex.end())
+		throw std::exception("No camera bound to entity!");
+
+	XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
+	view = XMMatrixInverse(nullptr, view);
+	XMFLOAT4X4 v;
+	XMStoreFloat4x4(&v, view);
+	ProfileReturnConst( v);
+}
+
 void SE::Core::CameraManager::SetActive(const Entity & entity)
 {
 	StartProfile;
@@ -131,7 +145,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 	newData.aspectRatio = (float*)(newData.fov + newData.allocated);
 	newData.nearPlane = (float*)(newData.aspectRatio + newData.allocated);
 	newData.farPlane = (float*)(newData.nearPlane + newData.allocated);
-
+	newData.view = (XMFLOAT4X4*)(newData.farPlane + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, cameraData.entity, cameraData.used * sizeof(Entity));
@@ -140,7 +154,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 	memcpy(newData.aspectRatio, cameraData.aspectRatio, cameraData.used * sizeof(float));
 	memcpy(newData.nearPlane, cameraData.nearPlane, cameraData.used * sizeof(float));
 	memcpy(newData.farPlane, cameraData.farPlane, cameraData.used * sizeof(float));
-
+	memcpy(newData.view, cameraData.view, cameraData.used * sizeof(XMFLOAT4X4));
 
 	// Delete old data;
 	operator delete(cameraData.data);
@@ -165,6 +179,7 @@ void SE::Core::CameraManager::Destroy(size_t index)
 	cameraData.aspectRatio[index] = cameraData.aspectRatio[last];
 	cameraData.nearPlane[index] = cameraData.nearPlane[last];
 	cameraData.farPlane[index] = cameraData.farPlane[last];
+	cameraData.view[index] = cameraData.view[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;

@@ -14,6 +14,12 @@
 *.exe
 *.jpg
 *.bbf
+External*
+*.dll
+*.lib
+*.xml
+*.dot
+*.pdf
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -32,6 +38,9 @@ Intermediate/
 Build/
 Asset/
 Assets/
+External*
+*.dll
+*.lib
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -81,6 +90,12 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+*.lib
+*.dll
+External*
+Asset\
+Assets\
+Format\
 
 # Chutzpah Test files
 _Chutzpah*

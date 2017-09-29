@@ -1,6 +1,7 @@
 #include "FlowFieldTest.h"
 #include <Core\Engine.h>
 #include <Gameplay/Flowfield.h>
+#include <Profiler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -26,13 +27,14 @@ SE::Test::FlowFieldTest::~FlowFieldTest()
 
 bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 {
+	StartProfile;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
 	auto re = e.Init(info);
 	if (re)
 	{
 		console->Print("Could not init Core, Error: %d.", re);
-		return false;
+		ProfileReturnConst(false)
 	}
 
 	auto& em = e.GetEntityManager();
@@ -84,7 +86,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 		{1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
 		{1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1},
 		{1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-		{1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
 		{1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
 		{1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1},
 		{1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1},
@@ -177,6 +179,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool running = true;
 	unsigned char counter = 0;
+	float dt = 1 / 60.0f;
 	while (running)
 	{
 		if (e.GetWindow()->ButtonPressed(0))
@@ -251,11 +254,11 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 				}
 			}
 		}
-		e.Frame();
+		e.Frame(dt);
 	}
 
 
 
 	e.Release();
-	return true;
+	ProfileReturnConst(true)
 }

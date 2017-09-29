@@ -1,5 +1,7 @@
 #include "Room.h"
 #include "Profiler.h"
+#include <d3d11.h>
+#include <cassert>
 
 
 using namespace SE;
@@ -31,9 +33,12 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
+	int collisionX = 0.0;
+	int collisionY = 0.0;
 	for (auto enemy : enemyEntities)
 	{
 		enemy->Update(dt);
+
 	}
 	StopProfile;
 }
@@ -56,8 +61,114 @@ void Room::Update(float dt, float playerX, float playerY)
 	StopProfile;
 }
 
+bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, float xExtent, float yExtent)
+{
+	StartProfile;
+	const int xLeftFloored = int(floor(xCenterPosition - xExtent));
+	const int xRightFloored = int(floor(xCenterPosition + xExtent));
+	const int yUpFloored = int(floor(yCenterPosition + yExtent));
+	const int yDownFloored = int(floor(yCenterPosition - yExtent));
+
+
+	if (map[xLeftFloored][yDownFloored])
+	{
+		ProfileReturnConst(true);
+	}
+	if (map[xLeftFloored][yUpFloored])
+	{
+		ProfileReturnConst(true);
+	}
+
+	if (map[xRightFloored][yUpFloored])
+	{
+		ProfileReturnConst(true);
+	}
+	if (map[xRightFloored][yDownFloored])
+	{
+		ProfileReturnConst(true);
+	}
+
+	
+	ProfileReturnConst(false);
+}
+
+bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter,
+	float yCenterPositionAfter, float xExtent, float yExtent, int& xCollision, int& yCollision)
+{
+	StartProfile;
+	bool collision = false;
+	const int xLeftBeforeFloored = int(xCenterPositionBefore - xExtent);
+	const int xRightBeforeFloored = int(xCenterPositionBefore + xExtent);
+	const int xCenterBeforeFloored = int(xCenterPositionBefore);
+	const int yUpBeforeFloored = int(yCenterPositionBefore + yExtent);
+	const int yDownBeforeFloored = int(yCenterPositionBefore - yExtent);
+	const int yCenterBeforeFloored = int(yCenterPositionBefore);
+
+	const int xLeftAfterFloored = int(xCenterPositionAfter - xExtent);
+	const int xRightAfterFloored = int(xCenterPositionAfter + xExtent);
+
+	const int yUpAfterFloored = int(yCenterPositionAfter + yExtent);
+	const int yDownAfterFloored = int(yCenterPositionAfter - yExtent);
+
+
+
+
+	if(map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+	{
+		xCollision = -1;
+		collision = true;
+	}
+	else if(map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	{
+		xCollision = 1;
+		collision = true;
+	}
+
+	if (map[xRightBeforeFloored][yUpAfterFloored] || map[xLeftBeforeFloored][yUpAfterFloored])
+	{
+		yCollision = 1;
+		collision = true;
+	}
+	else if (map[xRightBeforeFloored][yDownAfterFloored] || map[xLeftBeforeFloored][yDownAfterFloored])
+	{
+		yCollision = -1;
+		collision = true;
+	}/*
+
+	if(map[xLeftAfterFloored][yDownAfterFloored])
+	{
+		xCollision = -1;
+		yCollision = -1;
+		collision = true;
+		
+	}
+	if(map[xLeftAfterFloored][yUpAfterFloored])
+	{
+		xCollision = -1;
+		yCollision = 1;
+		collision = true;
+		
+	}
+	if(map[xRightAfterFloored][yUpAfterFloored])
+	{
+		xCollision = 1;
+		yCollision = 1;
+		collision = true;
+		
+	}
+	if(map[xRightAfterFloored][yDownAfterFloored])
+	{
+		xCollision = 1;
+		yCollision = -1;
+		collision = true;
+		
+	}*/
+	ProfileReturn(collision);
+}
+
 Room::Room(char map[25][25])	
 {
+	StartProfile;
 	pos start;
 	start.x = start.y = 1.5f;
 	memcpy(this->map, map, 25 * 25 * sizeof(char));
@@ -76,6 +187,7 @@ Room::Room(char map[25][25])
 	}
 	roomField = new FlowField(map, 1.0f, start, 0.0f, 0.0f);
 	enemyEntities.reserve(5);
+	StopProfile;
 }
 
 Room::~Room()
@@ -87,11 +199,14 @@ Room::~Room()
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
+	StartProfile;
 	enemyEntities.push_back(enemyToAdd);
 
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
 
-	return true;
+	ProfileReturnConst(true);
 }
+
+

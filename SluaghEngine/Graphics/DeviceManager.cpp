@@ -53,8 +53,28 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	}
 
 	SetViewport();
+	CreateBlendState();
+	
+
+	D3D11_RASTERIZER_DESC rasterizerState;
+	rasterizerState.FillMode = D3D11_FILL_SOLID;
+	rasterizerState.CullMode = D3D11_CULL_NONE;
+	rasterizerState.FrontCounterClockwise = false;
+	rasterizerState.DepthBias = false;
+	rasterizerState.DepthBiasClamp = 0;
+	rasterizerState.SlopeScaledDepthBias = 0;
+	rasterizerState.DepthClipEnable = true;
+	rasterizerState.ScissorEnable = false;
+	rasterizerState.MultisampleEnable = false;
+	rasterizerState.AntialiasedLineEnable = false;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterState);
+	if (FAILED(hr))
+		throw "Fuck";
+	gDeviceContext->RSSetState(rasterState);
 
 	ProfileReturnConst(hr);
+
 }
 
 void DeviceManager::Shutdown() {
@@ -65,11 +85,15 @@ void DeviceManager::Shutdown() {
 
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
+	pDSState->Release();
 
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 
 	gDeviceContext->Release();
+	blendState->Release();
+	rasterState->Release();
+
 #ifdef _DEBUG
 
 	/*reportLiveObjects(gDevice);*/
@@ -231,6 +255,39 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
 
+
+	D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+	// Depth test parameters
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	// Stencil test parameters
+	dsDesc.StencilEnable = true;
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create depth stencil state
+	gDevice->CreateDepthStencilState(&dsDesc, &pDSState);
+
+	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+
+
+
+
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
@@ -280,9 +337,46 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 	gSwapChain->Release();
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
+	pDSState->Release();
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 	CreateSwapChain(windowHandle);
 	CreateBackBufferRTV();
 	CreateDepthStencil();
+	SetViewport();
+}
+
+void DeviceManager::CreateBlendState()
+{
+	D3D11_RENDER_TARGET_BLEND_DESC rendTarBlendState[8];
+	for (auto& rtbs : rendTarBlendState)
+	{
+	rtbs.BlendEnable = false;
+	rtbs.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbs.DestBlend = D3D11_BLEND_ZERO;
+	rtbs.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	rtbs.SrcBlend = D3D11_BLEND_ONE;
+	rtbs.SrcBlendAlpha = D3D11_BLEND_ONE;
+	}
+
+	// just default values right now
+	D3D11_BLEND_DESC blendStateDesc;
+	blendStateDesc.AlphaToCoverageEnable = false;
+	blendStateDesc.IndependentBlendEnable = false;
+	blendStateDesc.RenderTarget[0] = rendTarBlendState[0];
+	blendStateDesc.RenderTarget[1] = rendTarBlendState[1];
+	blendStateDesc.RenderTarget[2] = rendTarBlendState[2];
+	blendStateDesc.RenderTarget[3] = rendTarBlendState[3];
+	blendStateDesc.RenderTarget[4] = rendTarBlendState[4];
+	blendStateDesc.RenderTarget[5] = rendTarBlendState[5];
+	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
+	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
+
+	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendState);
+
+	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
+	UINT sampleM = 0xffffffff;
+	gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
 }

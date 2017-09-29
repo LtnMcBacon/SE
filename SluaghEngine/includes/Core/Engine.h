@@ -7,13 +7,14 @@
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
-#include "AudioManager.h"
 #include "RenderableManager.h"
 #include "OptionHandler.h"
 #include "CameraManager.h"
+#include "AudioManager.h"
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
+#include "GUIManager.h"
 namespace SE
 {
 	namespace Core
@@ -168,8 +169,8 @@ namespace SE
 			}
 
 			/**
-			* @brief    Returns a reference to the audio manager
-			* @retval return_value_0 Returns a reference to the audio manager.
+			* @brief    Returns a reference to the option handler
+			* @retval return_value_0 Returns a reference to the option handler.
 			* @sa OptionHandler
 			*/
 			inline OptionHandler& GetOptionHandler() const {
@@ -193,6 +194,15 @@ namespace SE
 			*/
 			inline DebugRenderManager& GetDebugRenderManager() const {
 				return *debugRenderManager;
+			}
+
+			/**
+			* @brief    Returns a reference to the GUI manager
+			* @retval return_value_0 Returns a reference to the GUI manager.
+			* @sa AudioManager
+			*/
+			inline GUIManager& GetGUIManager() const {
+				return *guiManager;
 			}
 		private:
 			Engine();
@@ -226,6 +236,7 @@ namespace SE
 
 
 
+			GUIManager* guiManager;
 		};
 
 	}

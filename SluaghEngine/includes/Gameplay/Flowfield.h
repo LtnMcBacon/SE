@@ -116,6 +116,14 @@ namespace SE
 			*/
 			void SampleFromMap(const pos& enemyPos, float& xMagnitude, float& yMagnitude) const;
 
+			/**
+			* @brief	Checks if a position in the grid is walkable or not
+			*/
+			inline bool IsBlocked(float xCoord, float yCoord) const
+			{
+				return (data[int(xCoord - lowerLeftCornerXCoord)][int(yCoord - lowerLeftCornerYCoord)].type == Type::BLOCKED);
+			};
+
 		};
 
 	}
