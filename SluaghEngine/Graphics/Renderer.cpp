@@ -2,6 +2,7 @@
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
 
+#undef min
 using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
@@ -38,7 +39,17 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	{
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
-
+	TargetOffset t = { {true, false, false},{2, 0, 0} };
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4) * maxDrawInstances, t, &instancedTransformsConstantBufferHandle);
+	if(FAILED(hr))
+	{
+		throw std::exception("Could not create OncePerObject constant buffer.\n");
+	}
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), t, &singleTransformConstantBuffer);
+	if (FAILED(hr))
+	{
+		throw std::exception("Could not create singleTransformConstantBuffer.\n");
+	}
 
 	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
 
@@ -51,63 +62,126 @@ void SE::Graphics::Renderer::Shutdown()
 {
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
+
 	
+
 	delete graphicResourceHandler;
 	delete device;
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
-	renderJobs.push_back(handles);
-
-	int insertion = renderJobs.size() - 1;
-	const int prior = insertion - 1;
-
-	int minChange = 0;
-	if (renderJobs.size() >= 2)
-		minChange = handles - renderJobs[prior];
-
-	for (int i = 0; i <= prior; i++)
+	StartProfile;
+	int32_t bucketIndex = -1;
+	const size_t renderBucketCount = renderBuckets.size();
+	for (size_t i = 0; i < renderBucketCount; ++i)
 	{
-		int change = renderJobs[i] - handles;
-		if (change <= minChange)
+		if (renderBuckets[i].stateInfo - handles == 0)
 		{
-			minChange = change;
-			insertion = i;
-		}
-	}
-
-	if (insertion != prior)
-	{
-		for (int i = prior + 1; i > insertion; i--)
-		{
-			renderJobs[i] = renderJobs[i - 1];
-		}
-		renderJobs[insertion] = handles;
-	}
-
-	return 0;
-}
-
-int SE::Graphics::Renderer::DisableRendering(const RenderObjectInfo & handles)
-{
-	const int size = renderJobs.size();
-	int at = -1;
-	for(size_t i = 0; i < size; ++i)
-	{
-		if(handles - renderJobs[i] == 0)
-		{
-			at = i;
+			bucketIndex = i;
 			break;
 		}
 	}
-	if (at >= 0)
+	if(bucketIndex < 0)
 	{
-		for (int i = at; i < size - 1; ++i)
-			renderJobs[i] = renderJobs[i + 1];
-		renderJobs.pop_back();
+		bucketIndex = renderBuckets.size();
+		TargetOffset t = { {true, false, false},{2, 0, 0} };
+		renderBuckets.push_back({ handles, {}, {} });	
 	}
-	return 0;
+	const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+	DirectX::XMFLOAT4X4 identityMatrix;
+	DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
+	renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
+	
+	uint32_t jobID;
+	if (freeJobIndices.size())
+	{
+		jobID = freeJobIndices.top();
+		freeJobIndices.pop();
+	}
+	else
+	{
+		jobID = jobIDToBucketAndTransformIndex.size();
+		jobIDToBucketAndTransformIndex.push_back({ 0,0 });
+	}
+	
+	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
+	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
+	ProfileReturnConst(jobID);
+}
+
+int Graphics::Renderer::DisableRendering(uint32_t jobID)
+{
+	StartProfile;
+	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
+	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+
+	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
+
+	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
+	bucketOfRemoved.transforms.pop_back();
+	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
+	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
+	bucketOfRemoved.jobsInBucket.pop_back();
+
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
+
+	freeJobIndices.push(jobID);
+
+
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
+{
+	StartProfile;
+	uint32_t lineJobID;
+	if(freeLineRenderJobIndices.size())
+	{
+		lineJobID = freeLineRenderJobIndices.top();
+		freeLineRenderJobIndices.pop();
+		lineRenderJobs[lineJobID] = lineJob;
+	}
+	else
+	{
+		lineJobID = lineRenderJobs.size();
+		lineRenderJobs.push_back(lineJob);
+	}
+	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)&lineRenderJobs[lineJobID].transform);
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
+	lineRenderJobs[lineJobID].transform = transposed;
+	ProfileReturnConst(lineJobID);
+}
+
+int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
+{
+	StartProfile;
+	freeLineRenderJobIndices.push(lineJobID);
+	lineRenderJobs[lineJobID].verticesToDrawCount = 0;
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
+{
+	StartProfile;
+	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
+	lineRenderJobs[lineJobID].transform = transposed;
+	ProfileReturnConst(0);
+}
+
+int Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
+{
+	StartProfile;
+
+	lineRenderJobs[lineJobID].firstVertex = startVertex;
+	lineRenderJobs[lineJobID].verticesToDrawCount = vertexCount;
+
+	ProfileReturnConst(0);
 }
 
 int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
@@ -199,6 +273,7 @@ int SE::Graphics::Renderer::Render() {
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -208,10 +283,11 @@ int SE::Graphics::Renderer::Render() {
 	}
 	previousJob.bufferHandle = -1;
 	previousJob.pixelShader = -1;
-	previousJob.transformHandle = -1;
+	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 	previousJob.vertexShader = -1;
-	for (auto& job : renderJobs)
+	for(auto& bucket : renderBuckets)
 	{
+		const RenderObjectInfo& job = bucket.stateInfo;
 		if (previousJob.topology != job.topology)
 		{
 			switch (job.topology)
@@ -247,15 +323,36 @@ int SE::Graphics::Renderer::Render() {
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
 			graphicResourceHandler->SetVertexBuffer(job.bufferHandle);
-		if(previousJob.transformHandle != job.transformHandle)
-			graphicResourceHandler->BindConstantBuffer(job.transformHandle);
 		for (int i = 0; i < job.textureCount; ++i)
 			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
-		device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(job.bufferHandle), 0);
+		const size_t instanceCount = bucket.transforms.size();
+		for(int i = 0; i < instanceCount; i += maxDrawInstances)
+		{
+			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
+			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+		}
 		previousJob = job;
 	}
+	/********** Render line jobs ************/
+
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+	for(auto& lineJob : lineRenderJobs)
+	{
+		if (lineJob.verticesToDrawCount == 0)
+			continue;
+		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	}
+	
+	/********END render line jobs************/
+
 
 	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
 	for (auto& job : renderTextureJobs)
@@ -323,13 +420,18 @@ void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
 {
 }
 
-int SE::Graphics::Renderer::UpdateTransform(int transformHandle, float* transform)
+int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
-	graphicResourceHandler->SetConstantBuffer(&transposed, transformHandle);
+	
+	const size_t bucketIndex = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
+	const size_t transformIndex = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+
+	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
+
 	ProfileReturnConst(0);
 }
 

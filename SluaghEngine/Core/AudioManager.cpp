@@ -1,39 +1,27 @@
 #include <Core\AudioManager.h>
-#include <Core\Engine.h>
 #include <Profiler.h>
 
 namespace SE {
 	namespace Core {
-		AudioManager::AudioManager()
+		AudioManager::AudioManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager & entityManager)
+			:resourceHandler(resourceHandler), entityManager(entityManager)
 		{
-			
-		}
-
-		AudioManager::~AudioManager()
-		{
-			
+			StartProfile;
+			assert(resourceHandler);
+			StopProfile;
 		}
 
 		int AudioManager::Initialize()
 		{
 			StartProfile;
-			audioSound.Initialize();
-			if (audioStream.Initialize() == -1)
-			{
-				ProfileReturnConst(-1);
-			}
-			ProfileReturnConst(0);
+			audioHandler = Audio::CreateNewAudioHandler();
+			ProfileReturn(audioHandler->Initialize());
 		}
 
 		int AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
-			Audio::AudioFile *sound = new Audio::AudioFile;
-			sound->size = size;
-			sound->soundData = (char*)data;
-			sound->currentPos = 0;
-			trackSound[guid] = audioSound.LoadSound(sound);
-			delete sound;
+			trackSound[guid] = audioHandler->LoadSound(data, size);
 			ProfileReturn(0);
 		}
 
@@ -42,25 +30,47 @@ namespace SE {
 			StartProfile;
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded == trackSound.end())
-			{	
-				Core::Engine::GetInstance().GetResourceHandler()->LoadResource(soundFile, ResourceHandler::LoadResourceDelegate::Make<AudioManager, &AudioManager::retSoundData>(this));
-				ProfileReturnConst(1);
+			{
+				resourceHandler->LoadResource(soundFile, ResourceHandler::LoadResourceDelegate::Make<AudioManager, &AudioManager::retSoundData>(this));
+				ProfileReturnConst(-1);
 			}
 			else
 			{
 				ProfileReturnConst(0);
 			}
 		}
-		
-		int AudioManager::CreateStream(Utilz::GUID soundFile, Audio::SoundIndexName soundType)
+
+		int AudioManager::CreateStream(const Entity& entity, Utilz::GUID soundFile, Audio::SoundIndexName soundType)
 		{
 			StartProfile;
+			// Check if the entity is alive
+			if (!entityManager.Alive(entity))
+				ProfileReturnConst(-1);
+
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded != trackSound.end())
 			{
 				if (trackSound[soundFile] != -1)
 				{
-					ProfileReturn(audioStream.CreateStream(soundType, (Audio::AudioOut*)audioSound.GetSample(trackSound[soundFile], soundType)));
+					int handle = audioHandler->CreateStream(trackSound[soundFile], soundType);
+					if (handle >= 0)
+					{
+						if (entToSounds[entity].freeStreamID.size() > 0)
+						{
+							entToSounds[entity].streamID[entToSounds[entity].freeStreamID.top()] = handle;
+							entToSounds[entity].freeStreamID.pop();
+						}
+						else
+						{
+							entToSounds[entity].streamID.push_back(handle);
+						}
+						entToSounds[entity].amountOfSound++;
+						if (entToSounds[entity].amountOfSound < 2)
+						{
+							soundEntity.push_back(entity);
+						}
+					}
+					ProfileReturn(handle);
 				}
 			}
 			ProfileReturnConst(-1);
@@ -77,37 +87,81 @@ namespace SE {
 			ProfileReturnConst(0);
 		}
 
-		int AudioManager::StreamSound(int streamID)
+		int AudioManager::StreamSound(const Entity& entity, int soundID)
+
 		{
 			StartProfile;
-			ProfileReturn(audioStream.StreamSound(streamID));
+			ProfileReturn(audioHandler->StreamSound(entToSounds[entity].streamID[soundID]));
 		}
 
-		int AudioManager::StopSound(int streamID)
+		int AudioManager::StopSound(const Entity& entity, int soundID)
 		{
 			StartProfile;
-			ProfileReturn(audioStream.StopSound(streamID));
+			ProfileReturn(audioHandler->StopSound(entToSounds[entity].streamID[soundID]));
 		}
 
-		int AudioManager::RemoveSound(int streamID)
+		int AudioManager::RemoveSound(const Entity & entity, int soundID)
 		{
 			StartProfile;
-			ProfileReturn(audioStream.RemoveSound(streamID));
+			if (audioHandler->RemoveSound(entToSounds[entity].streamID[soundID]))
+			{
+				entToSounds[entity].freeStreamID.push(soundID);
+				ProfileReturnConst(0);
+			}
+			ProfileReturn(-1);
 		}
 
 		void AudioManager::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
 		{
-			audioSound.SetSoundVol(volType, newVol);
+			audioHandler->SetSoundVol(volType, newVol);
+		}
+
+		void AudioManager::Frame()
+		{
+			void GarbageCollection();
 		}
 
 		void AudioManager::Shutdown()
-		{		
-			StartProfile;
-			audioStream.Shutdown();
-			audioSound.Shutdown();
-			ProfileReturnVoid;
+		{
+			audioHandler->Shutdown();
+			delete audioHandler;
 		}
 
+		void AudioManager::GarbageCollection()
+		{
+			StartProfile;
+			uint32_t alive_in_row = 0;
+
+			while (soundEntity.size() > 0 && alive_in_row < 4U)
+			{
+				std::uniform_int_distribution<uint32_t> distribution(0U, soundEntity.size() - 1U);
+				uint32_t i = distribution(generator);
+				if (entityManager.Alive(soundEntity[i]))
+				{
+					alive_in_row++;
+					continue;
+				}
+				alive_in_row = 0;
+				Destroy(i);
+			}
+			StopProfile;
+		}
+
+		void AudioManager::Destroy(size_t index)
+		{
+			StartProfile;
+			while (entToSounds[soundEntity[index]].amountOfSound > 0)
+			{
+				if (entToSounds[soundEntity[index]].streamID[entToSounds[soundEntity[index]].amountOfSound - 1] != -1)
+				{
+					RemoveSound(soundEntity[index], entToSounds[soundEntity[index]].streamID[entToSounds[soundEntity[index]].amountOfSound - 1]);
+				}
+			}
+			entToSounds.erase(soundEntity[index]);
+			soundEntity[index] = soundEntity[soundEntity.size() - 1];
+			soundEntity.pop_back();
+			StopProfile;
+		}
 
 	}	//namespace Core
 }	//namespace SE
