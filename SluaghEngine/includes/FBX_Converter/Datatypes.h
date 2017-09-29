@@ -19,7 +19,7 @@ using namespace DirectX;
 
 namespace SE
 {
-	namespace Core
+	namespace FBX
 	{
 
 		struct Keyframe { // Stores the attributes of a keyframe in an animation

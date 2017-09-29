@@ -5,8 +5,9 @@
 
 using namespace std;
 using namespace std::experimental::filesystem;
+using namespace DirectX;
 
-SE::Core::FBXConverter::FBXConverter() {
+SE::FBX::FBXConverter::FBXConverter() {
 
 	gFbxSdkManager = nullptr;
 	pIOsettings = nullptr;
@@ -15,17 +16,17 @@ SE::Core::FBXConverter::FBXConverter() {
 	pFbxRootNode = nullptr;
 }
 
-SE::Core::FBXConverter::~FBXConverter() {
+SE::FBX::FBXConverter::~FBXConverter() {
 	
 	
 }
 
-void SE::Core::FBXConverter::ReleaseAll(FbxManager* gFbxSdkManager) {
+void SE::FBX::FBXConverter::ReleaseAll(FbxManager* gFbxSdkManager) {
 
 	gFbxSdkManager->Destroy();
 }
 
-void SE::Core::FBXConverter::Deallocate() {
+void SE::FBX::FBXConverter::Deallocate() {
 
 	for (UINT i = 0; i < meshes.size(); i++) {
 
@@ -38,7 +39,7 @@ void SE::Core::FBXConverter::Deallocate() {
 
 }
 
-bool SE::Core::FBXConverter::Load(string fileName, string exportFolder) {
+bool SE::FBX::FBXConverter::Load(string fileName, string exportFolder) {
 
 	// Check if the FBX file was loaded properly
 
@@ -52,7 +53,7 @@ bool SE::Core::FBXConverter::Load(string fileName, string exportFolder) {
 	return true;
 }
 
-bool SE::Core::FBXConverter::LoadFBXFormat(string mainFileName, string exportFolder) {
+bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFolder) {
 
 	cout << "#----------------------------------------------------------------------------\n"
 		"# STEP 1: LOADING THE MAIN FILE\n"
@@ -132,7 +133,7 @@ bool SE::Core::FBXConverter::LoadFBXFormat(string mainFileName, string exportFol
 	return true;
 }
 
-bool SE::Core::FBXConverter::LoadSceneFile(string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene) {
+bool SE::FBX::FBXConverter::LoadSceneFile(string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene) {
 
 	// Gather the new FBX file importer
 
@@ -181,7 +182,7 @@ bool SE::Core::FBXConverter::LoadSceneFile(string fileName, FbxManager* gFbxSdkM
 	return true;
 }
 
-bool SE::Core::FBXConverter::InitializeFbxManager() {
+bool SE::FBX::FBXConverter::InitializeFbxManager() {
 
 	string logFileName = logFolder + "/Log_" + "Start_" + fileName + ".log";
 
@@ -222,7 +223,7 @@ bool SE::Core::FBXConverter::InitializeFbxManager() {
 	}
 }
 
-bool SE::Core::FBXConverter::InitializeSceneImporter() {
+bool SE::FBX::FBXConverter::InitializeSceneImporter() {
 
 	pImporter = FbxImporter::Create(gFbxSdkManager, "");
 
@@ -254,7 +255,7 @@ bool SE::Core::FBXConverter::InitializeSceneImporter() {
 }
 
 
-void SE::Core::FBXConverter::GetMeshes() {
+void SE::FBX::FBXConverter::GetMeshes() {
 
 	for (unsigned int i = 0; i < pFbxRootNode->GetChildCount(); i++) {	// Get number of children nodes from the root node
 
@@ -397,7 +398,7 @@ void SE::Core::FBXConverter::GetMeshes() {
 	logFile.close();
 }
 
-void SE::Core::FBXConverter::GetLights() {
+void SE::FBX::FBXConverter::GetLights() {
 
 	for (int i = 0; i < pFbxRootNode->GetChildCount(); i++) {	// Get number of children nodes from the root node
 
@@ -549,7 +550,7 @@ void SE::Core::FBXConverter::GetLights() {
 }
 
 
-void SE::Core::FBXConverter::ProcessControlPoints(Mesh &pMesh) {
+void SE::FBX::FBXConverter::ProcessControlPoints(Mesh &pMesh) {
 
 	unsigned int controlPointCount = pMesh.meshNode->GetControlPointsCount();	// Store the total amount of control points
 
@@ -572,7 +573,7 @@ void SE::Core::FBXConverter::ProcessControlPoints(Mesh &pMesh) {
 	}
 }
 
-void SE::Core::FBXConverter::CheckSkinNode(Mesh &pMesh) {
+void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 
 	unsigned int deformerCount = pMesh.meshNode->GetDeformerCount();
 
@@ -612,7 +613,7 @@ void SE::Core::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 
 }
 
-void SE::Core::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
+void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
 
@@ -680,7 +681,7 @@ void SE::Core::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbx
 
 }
 
-void SE::Core::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
+void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
 
@@ -759,7 +760,7 @@ void SE::Core::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRoot
 
 }
 
-void FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k) {
+void SE::FBX::FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k) {
 
 	int index = 0;
 
@@ -847,7 +848,7 @@ void FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 b
 }
 
 
-void SE::Core::FBXConverter::GetSkeletonHierarchy(Mesh &pMesh) {
+void SE::FBX::FBXConverter::GetSkeletonHierarchy(Mesh &pMesh) {
 
 	string logFileName = logFolder + "/Log_" + "Hierarchy_" + fileName + ".log";
 
@@ -877,7 +878,7 @@ void SE::Core::FBXConverter::GetSkeletonHierarchy(Mesh &pMesh) {
 	}
 }
 
-void SE::Core::FBXConverter::RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex) {
+void SE::FBX::FBXConverter::RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex) {
 
 	// Recurvise depth first search function will first control that the actual node is a valid skeleton node by checking if
 	// the node isn't a null pointer, which would result in the node attribute and its type being null and result in a thrown exception
@@ -908,7 +909,7 @@ void SE::Core::FBXConverter::RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMes
 	}
 }
 
-void SE::Core::FBXConverter::CreateBindPose(Mesh &pMesh) {
+void SE::FBX::FBXConverter::CreateBindPose(Mesh &pMesh) {
 
 	string logFileName = logFolder + "/Log_" + "Bindposes_" + fileName + ".log";
 
@@ -969,7 +970,7 @@ void SE::Core::FBXConverter::CreateBindPose(Mesh &pMesh) {
 
 }
 
-void SE::Core::FBXConverter::GatherWeights(Mesh &pMesh) {
+void SE::FBX::FBXConverter::GatherWeights(Mesh &pMesh) {
 
 	unsigned int clusterCount = pMesh.skinNode->GetClusterCount();	// Every joint is technically a deformer, so we must process through each one in the hierarchy
 
@@ -996,7 +997,7 @@ void SE::Core::FBXConverter::GatherWeights(Mesh &pMesh) {
 }
 
 
-void SE::Core::FBXConverter::GatherAnimationData(Mesh &pMesh) {
+void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 	string logFileName = logFolder + "/Log_" + "Animations_" + fileName + ".log";
 
@@ -1136,7 +1137,7 @@ void SE::Core::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 }
 
 
-void SE::Core::FBXConverter::LoadMaterial(Mesh& pMesh) {
+void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 
 	FbxSurfaceMaterial* surfaceMaterial;
 	FbxNode* materialNode;
@@ -1230,7 +1231,7 @@ void SE::Core::FBXConverter::LoadMaterial(Mesh& pMesh) {
 	}
 }
 
-void SE::Core::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty) {
+void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty) {
 
 	// Look if any textures are attached (currently only on the diffuse channel) 
 	int textureCount = materialProperty.GetSrcObjectCount<FbxTexture>();
@@ -1256,7 +1257,7 @@ void SE::Core::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty material
 
 }
 
-bool SE::Core::FBXConverter::ExportTexture(Texture &texture, string textureFolder) {
+bool SE::FBX::FBXConverter::ExportTexture(Texture &texture, string textureFolder) {
 
 	// Components to build the texture path to gather the texture from
 	string texturePath = texture.texturePath;
@@ -1275,7 +1276,7 @@ bool SE::Core::FBXConverter::ExportTexture(Texture &texture, string textureFolde
 	return true;
 }
 
-void SE::Core::FBXConverter::Write() {
+void SE::FBX::FBXConverter::Write() {
 
 	cout << "\n#----------------------------------------------------------------------------\n"
 		"# STEP 3: WRITE DATA\n"
@@ -1313,7 +1314,7 @@ void SE::Core::FBXConverter::Write() {
 	cout << "\nFinished writing the FBX file. See log folder for details. \n\nPress enter to close the program..." << endl;
 }
 
-void SE::Core::FBXConverter::WriteMaterial(string folderName, string textureFolder, Material& meshMaterial) {
+void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolder, Material& meshMaterial) {
 
 	// Define the file name
 	string binaryFile = folderName + "/" + meshMaterial.materialName + "_" + fileName + ".mat";
@@ -1378,7 +1379,7 @@ void SE::Core::FBXConverter::WriteMaterial(string folderName, string textureFold
 	outBinary.close();
 }
 
-void SE::Core::FBXConverter::WriteMesh(string folderName, Mesh& mesh) {
+void SE::FBX::FBXConverter::WriteMesh(string folderName, Mesh& mesh) {
 
 	// Define the file name
 	string binaryFile = folderName + "/" + mesh.name + "_" + fileName + ".mesh";
@@ -1433,7 +1434,7 @@ void SE::Core::FBXConverter::WriteMesh(string folderName, Mesh& mesh) {
 	outBinary.close();
 }
 
-void SE::Core::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, string meshName) {
+void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, string meshName) {
 
 	if (skeleton.hierarchy.size() > 0){
 
@@ -1470,7 +1471,7 @@ void SE::Core::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton,
 	}
 }
 
-void SE::Core::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton) {
+void SE::FBX::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton) {
 
 	if (skeleton.hierarchy.size() > 0) {
 
@@ -1526,7 +1527,7 @@ void SE::Core::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton
 
 }
 
-void SE::Core::FBXConverter::WriteLights(string folderName) {
+void SE::FBX::FBXConverter::WriteLights(string folderName) {
 
 	if(lights.size() > 0){
 
@@ -1560,7 +1561,7 @@ void SE::Core::FBXConverter::WriteLights(string folderName) {
 	}
 }
 
-FbxAMatrix SE::Core::FBXConverter::GetGeometryTransformation(FbxNode* node) {
+FbxAMatrix SE::FBX::FBXConverter::GetGeometryTransformation(FbxNode* node) {
 
 	// Geometric offset is to allow this offset to not inherit and propagate to children or its parents
 
@@ -1577,7 +1578,7 @@ FbxAMatrix SE::Core::FBXConverter::GetGeometryTransformation(FbxNode* node) {
 	return FbxAMatrix(T, R, S);
 }
 
-unsigned int SE::Core::FBXConverter::FindJointIndexByName(string& jointName, Skeleton skeleton) {
+unsigned int SE::FBX::FBXConverter::FindJointIndexByName(string& jointName, Skeleton skeleton) {
 
 	for (unsigned int i = 0; i < skeleton.hierarchy.size(); i++) {
 
@@ -1593,7 +1594,7 @@ unsigned int SE::Core::FBXConverter::FindJointIndexByName(string& jointName, Ske
 	throw std::exception("Skeleton information in FBX file cannot be received and might be corrupt");
 }
 
-void SE::Core::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
+void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
 	// Get the translation and rotation from the matrix to be processed
 	FbxVector4 translation = matrix.GetT();
@@ -1609,7 +1610,7 @@ void SE::Core::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 	matrix.SetR(rotation);
 }
 
-FbxMesh* SE::Core::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName) {	// Function to receive a mesh from the root node
+FbxMesh* SE::FBX::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName) {	// Function to receive a mesh from the root node
 
 	FbxMesh* currentMesh;
 
@@ -1643,7 +1644,7 @@ FbxMesh* SE::Core::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName)
 	return currentMesh;
 }
 
-XMFLOAT4X4 SE::Core::FBXConverter::Load4X4Transformations(FbxAMatrix fbxMatrix) {
+XMFLOAT4X4 SE::FBX::FBXConverter::Load4X4Transformations(FbxAMatrix fbxMatrix) {
 
 	XMFLOAT4X4 matrix;
 
@@ -1670,7 +1671,7 @@ XMFLOAT4X4 SE::Core::FBXConverter::Load4X4Transformations(FbxAMatrix fbxMatrix) 
 	return matrix;
 }
 
-void SE::Core::FBXConverter::Print4x4Matrix(FbxAMatrix fbxMatrix) {
+void SE::FBX::FBXConverter::Print4x4Matrix(FbxAMatrix fbxMatrix) {
 
 	logFile << fbxMatrix.Get(0, 0) << "  "
 			<< fbxMatrix.Get(0, 1) << "  "
@@ -1693,7 +1694,7 @@ void SE::Core::FBXConverter::Print4x4Matrix(FbxAMatrix fbxMatrix) {
 			<< fbxMatrix.Get(3, 3) << "\n\n";
 }
 
-string SE::Core::FBXConverter::getFilename(string const& path) {
+string SE::FBX::FBXConverter::getFilename(string const& path) {
 
 	const size_t last_slash_idx = path.find_last_of("\\/");
 	if (std::string::npos != last_slash_idx)
@@ -1703,7 +1704,7 @@ string SE::Core::FBXConverter::getFilename(string const& path) {
 	return path;
 }
 
-string SE::Core::FBXConverter::removeExtension(const string& path) {
+string SE::FBX::FBXConverter::removeExtension(const string& path) {
 
 	const size_t period_idx = path.find_last_of('.');
 	if (std::string::npos != period_idx)

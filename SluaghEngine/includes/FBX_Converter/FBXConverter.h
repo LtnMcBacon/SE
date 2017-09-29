@@ -17,7 +17,7 @@
 
 namespace SE
 {
-	namespace Core
+	namespace FBX
 	{
 
 		class FBXConverter {
@@ -54,9 +54,9 @@ namespace SE
 			void ProcessControlPoints(Mesh &pMesh);
 			void CheckSkinNode(Mesh &pMesh);
 
-	void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
-	void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
-	void CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k);
+			void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
+			void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
+			void CreateNormals(Mesh &pMesh, int iControlPointIndex, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3 tangent, int j, int k);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// SKELETON/SKINNING FUNCTIONS

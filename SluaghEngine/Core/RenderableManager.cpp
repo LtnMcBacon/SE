@@ -102,7 +102,6 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
 		info.topology = renderableObjectInfo.topology[find->second];
 		info.vertexShader = defaultShader;
 

@@ -100,17 +100,17 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 		float dt = timer.GetDeltaMilliseconds();
 
 		if (handle->ButtonDown(ActionButton::Up))
-			tm.Move(camera, { 0.0f, 0.0f, 0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, 0.01f*dt });
 		if (handle->ButtonDown(ActionButton::Down))
-			tm.Move(camera, { 0.0f, 0.0f, -0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, -0.01f*dt });
 		if (handle->ButtonDown(ActionButton::Right))
-			tm.Move(camera, { 0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3 { 0.01f*dt, 0.0f, 0.0f });
 		if (handle->ButtonDown(ActionButton::Left))
-			tm.Move(camera, { -0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3 { -0.01f*dt, 0.0f, 0.0f });
 		if (handle->ButtonDown(ActionButton::Rise))
-			tm.Move(camera, { 0.0f, -0.01f*dt, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, -0.01f*dt, 0.0f });
 		if (handle->ButtonDown(ActionButton::Sink))
-			tm.Move(camera, { 0.0f, 0.01f*dt, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.01f*dt, 0.0f });
 
 
 		//tm.Rotate(mainC, 0.0f, 0.0f, 0.01f);

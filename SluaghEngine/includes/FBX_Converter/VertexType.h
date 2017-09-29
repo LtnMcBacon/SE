@@ -11,7 +11,7 @@ using namespace DirectX;
 
 namespace SE
 {
-	namespace Core
+	namespace FBX
 	{
 
 		struct Vertex { // Struct for an ordinary vertex layout without deformer data
