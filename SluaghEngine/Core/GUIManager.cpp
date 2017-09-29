@@ -22,12 +22,11 @@ namespace SE {
 		GUIManager::GUIManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer* renderer, const EntityManager & entityManager)
 			:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager)
 		{
+
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
 			amountOfFonts = renderer->CreateTextFont(Utilz::GUID("moonhouse.spritefont"), resourceHandler);
-
-			StopProfile;
 		}
 
 		GUIManager::~GUIManager()

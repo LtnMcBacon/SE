@@ -7,10 +7,10 @@
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
-#include "AudioManager.h"
 #include "RenderableManager.h"
 #include "OptionHandler.h"
 #include "CameraManager.h"
+#include "AudioManager.h"
 #include "AnimationManager.h"
 
 #include "DebugRenderManager.h"

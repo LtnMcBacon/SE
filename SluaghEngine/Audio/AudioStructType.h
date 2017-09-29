@@ -21,8 +21,6 @@
 
 namespace SE {
 	namespace Audio {
-		enum SoundIndexName { BakgroundSound, EffectSound };
-		enum SoundVolType { MasterVol, BakgroundVol,EffectVol };
 
 		//only for loading sound
 		struct AudioFile	

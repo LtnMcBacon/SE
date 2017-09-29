@@ -7,7 +7,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
-
+		class FlowField;
 		/**
 		*
 		* @brief The base class for all enemies
@@ -76,12 +76,31 @@ namespace SE
 			* For instance, a "move action" will check the FlowField and move the enemy in the direction
 			* annotated by the flowfield.
 			*
+			* @param [in] dt Delta time for this frame
+			* 
 			* @retval void No return value
 			*
 			* @warning NOT IMPLEMENTED! Will always perform a "move" action!
 			*
 			*/
-			virtual void PerformAction();
+			virtual void PerformAction(float dt);
+
+			/**
+			* @brief	Hinder collision during movement
+			*
+			* @details	This function checks if the units new position after a move will cause a collision.
+			* If a move will cause a collision in x- or y-direction, then that direction-component will be nulled
+			* before further computation is done.
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in/out] xMov The x-component of the direction
+			* @param [in/out] yMov The y-component of the direction
+			*
+			* @retval True Collision occoured
+			* @retval False Collision didn't occour
+			*
+			*/
+			virtual bool CorrectCollision(float dt, float &xMov, float &yMov);
 
 		public:
 			/*Should flowfield be a part of EnemyUnit?
@@ -100,14 +119,28 @@ namespace SE
 			 * from a virtual function in enemy. Update should under no 
 			 * circumstances be changed to virtual!
 			 *
+			 * @param [in] dt Delta time for this frame
+			 *
 			 * @retval void No value
 			 
 			 * @warning Due to design decisions not being taken as of now, the parameters has yet to be defined. Thus, the param
 			 * comment can not be used for documentation at this moment.
 			 *
 			 */
-			void Update(/*Delta time, FlowField, Outgoing events?*/);
+			void Update(float dt/*FlowField, Outgoing events?*/);
 
+			/**
+			 * @brief To be documented
+			 */
+			void AddForce(float force[2]);
+
+
+
+			enum class EnemyActions
+			{
+				ENEMY_ACTION_NOTHING,
+				ENEMY_ACTION_MOVE
+			};
 
 		private:
 			EnemyUnit() {};
@@ -115,8 +148,17 @@ namespace SE
 			EnemyUnit(const EnemyUnit&& other) = delete;
 			EnemyUnit& operator=(const EnemyUnit& rhs) = delete;
 
+			EnemyActions entityAction = EnemyActions::ENEMY_ACTION_NOTHING;
+			const FlowField* flowFieldForRoom = nullptr;
+			float forcesToApply[2] = {};
+			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
+			float extraSampleCoords[2] = {};
+			float previousMovement[2] = {};
+			int sample = 0;
+
 		public:
 			//EnemyUnit(); <- Create a "real" constructor
+			EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth);
 			~EnemyUnit();
 		};
 

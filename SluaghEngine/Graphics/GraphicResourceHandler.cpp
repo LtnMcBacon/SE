@@ -121,6 +121,9 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 
 		if(signatureParamaterDesc.Mask == 1)
 		{
+			const std::string semName(inputElementDesc.SemanticName);
+			if (semName == "SV_InstanceID")
+				continue;
 			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
 				inputElementDesc.Format = DXGI_FORMAT_R32_FLOAT;
 			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
@@ -128,6 +131,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
 				inputElementDesc.Format = DXGI_FORMAT_R32_UINT;
 			offset += 4;
+			
 		}
 		else if (signatureParamaterDesc.Mask <= 3)
 		{
@@ -443,6 +447,7 @@ size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
 	return vBuffers[vertexBufferID].vertexCount;
 }
 
+
 HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
 {
 	StartProfile;
@@ -505,6 +510,18 @@ void GraphicResourceHandler::SetConstantBuffer(void* inData, int constBufferID)
 	memcpy(mappedResource.pData, inData, cBuffers[constBufferID].size);
 	gDeviceContext->Unmap(cBuffers[constBufferID].constBuffer, 0);
 
+}
+
+HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
+{
+	StartProfile;
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	HRESULT hr = gDeviceContext->Map(cBuffers[id].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	if (FAILED(hr))
+		ProfileReturnConst(hr);
+	memcpy(mappedData.pData, data, size);
+	gDeviceContext->Unmap(cBuffers[id].constBuffer, 0);
+	ProfileReturnConst(hr);
 }
 
 void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)

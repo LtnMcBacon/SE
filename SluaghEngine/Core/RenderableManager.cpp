@@ -81,7 +81,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 
 
 		// Transform binding
-		renderableObjectInfo.transformHandle[newEntry] = renderer->CreateTransform();
+		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 		renderableObjectInfo.visible[newEntry] = 0;
 
 	}
@@ -92,17 +92,19 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 {
 	StartProfile;
 	// See so that the entity exist
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		//If the visibility state is switched to what it already is we dont do anything.
 		if ((bool)renderableObjectInfo.visible[find->second] == visible)
-			return;
+			ProfileReturnVoid;
 		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
 		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
 		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 		info.transformHandle = renderableObjectInfo.transformHandle[find->second];
+		info.topology = renderableObjectInfo.topology[find->second];
+		info.vertexShader = defaultShader;
 
 		// Get the entity register from the animationManager
 		auto &entityIndex = animationManager->entityToIndex.find(entity);
@@ -148,17 +150,29 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 			}
 		}
 			
-		visible ? renderer->EnableRendering(info) : renderer->DisableRendering(info);
+		if (visible)
+		{
+			const uint32_t jobID = renderer->EnableRendering(info);
+			entityToJobID[entity] = jobID;
+			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
+			transformManager->Move(entity, DirectX::XMFLOAT3{ 0.0f,0.0f,0.0f });
+		}
+		else
+		{
+			renderer->DisableRendering(entityToJobID[entity]);
+		}
 	}
-	StopProfile;
+	ProfileReturnVoid;
 }
 
 
 
 void SE::Core::RenderableManager::Frame()
 {
+	StartProfile;
 	GarbageCollection();
 	UpdateDirtyTransforms();
+	ProfileReturnVoid;
 }
 
 void SE::Core::RenderableManager::Allocate(size_t size)
@@ -175,13 +189,13 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.bufferIndex = (size_t*)(newData.entity + newData.allocated);
-	newData.transformHandle = (int*)(newData.bufferIndex + newData.allocated);
-	newData.visible = (uint8_t*)(newData.transformHandle + newData.allocated);
+	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
+	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.bufferIndex, renderableObjectInfo.bufferIndex, renderableObjectInfo.used * sizeof(size_t));
-	memcpy(newData.transformHandle, renderableObjectInfo.transformHandle, renderableObjectInfo.used * sizeof(int));
+	memcpy(newData.topology, renderableObjectInfo.topology, renderableObjectInfo.used * sizeof(Graphics::RenderObjectInfo::PrimitiveTopology));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
@@ -199,16 +213,17 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	size_t last = renderableObjectInfo.used - 1;
 	const Entity& entity = renderableObjectInfo.entity[index];
 	const Entity& last_entity = renderableObjectInfo.entity[last];
-
+	renderer->DisableRendering(entityToJobID[entity]);
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
-	renderableObjectInfo.transformHandle[index] = renderableObjectInfo.transformHandle[last];
+	renderableObjectInfo.topology[index] = renderableObjectInfo.topology[last];
 	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;
 	entityToRenderableObjectInfoIndex.erase(entity);
+	entityToJobID[last_entity] = entityToJobID[entity];
 
 	renderableObjectInfo.used--;
 	StopProfile;
@@ -240,7 +255,7 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	for (auto& dirty : dirtyEntites)
 	{
 		auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
-		renderer->UpdateTransform(renderableObjectInfo.transformHandle[dirty.renderableIndex], (float*)&transform);
+		renderer->UpdateTransform(entityToJobID[dirty.entity], (float*)&transform);
 	}
 
 	dirtyEntites.clear();
@@ -345,6 +360,6 @@ void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		dirtyEntites.push_back({ index, find->second });
+		dirtyEntites.push_back({ index, find->second, entity });
 	}
 }
