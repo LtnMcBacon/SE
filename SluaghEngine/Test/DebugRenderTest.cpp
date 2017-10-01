@@ -34,6 +34,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& cm = engine.GetCameraManager();
 	auto& rm = engine.GetRenderableManager();
 	auto& drm = engine.GetDebugRenderManager();
+	auto& colm = engine.GetCollisionManager();
 	Core::Entity entity = em.Create();
 	const int numEnts = 600;
 	Core::Entity ents[numEnts];
@@ -53,22 +54,29 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_level.obj"));
 		rm.ToggleRenderableObject(ents[i], true);
-		drm.DrawCross(ents[i], 100.0f);
+		colm.CreateBoundingHierarchy(ents[i], "Placeholder_level.obj");
+		
+		drm.ToggleDebugRendering(ents[i], true);
+		//drm.DrawCross(ents[i], 1.0f);
 
 	}
 	for (int i = 10; i < 20; i++)
 	{
 		drm.ToggleDebugRendering(ents[i], false);
 	}
-
-	for (int i = 15; i < 20; i++)
+	for (int i = 0; i < 200; i++)
 	{
 		drm.DrawCross(ents[i], 100.0f);
 	}
-	for (int i = 0; i <numEnts; i++)
-	{
-		drm.DrawCross(ents[i], 100.0f);
-	}
+	
+	//for (int i = 15; i < 20; i++)
+	//{
+	//	drm.DrawCross(ents[i], 100.0f);
+	//}
+	//for (int i = 0; i <numEnts; i++)
+	//{
+	//	drm.DrawCross(ents[i], 100.0f);
+	//}
 	for (int i = 7; i < 14; i++)
 	{
 		drm.ToggleDebugRendering(ents[i], false);
@@ -114,13 +122,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 
 		if (w->ButtonDown(ActionButton::Up))
 
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
 		if (w->ButtonDown(ActionButton::Down))
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
 		if (w->ButtonDown(ActionButton::Right))
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
 		if (w->ButtonDown(ActionButton::Left))
-			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
 
 
 		if (w->ButtonPressed(ActionButton::Jiggle))
@@ -147,7 +155,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		}
 		if (w->ButtonPressed(ActionButton::FrameTime))
 		{
-			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
+			console->Print("Frametime: %f ms\n", timer.GetDeltaMilliseconds());
 		}
 		engine.Frame(0.01f);
 	}
