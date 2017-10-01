@@ -33,7 +33,7 @@ namespace SE
 			CollisionManager(const CollisionManager&& other) = delete;
 			CollisionManager& operator=(const CollisionManager& other) = delete;
 
-
+			friend class DebugRenderManager;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*

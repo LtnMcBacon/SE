@@ -3,7 +3,7 @@
 #include <random>
 
 SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
-	TransformManager* transformManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), dynamicVertexBufferHandle(-1), dirty(false)
+	TransformManager* transformManager, CollisionManager* collisionManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), collisionManager(collisionManager), dynamicVertexBufferHandle(-1), dirty(false)
 {
 	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(Point3D));
 	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
@@ -49,7 +49,6 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 		{
 			const size_t verticesToDraw = m.second.size() * 2;
 			Graphics::LineRenderJob lineRenderJob;
-			
 
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
@@ -78,11 +77,62 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 	StartProfile;
 	if (!enable)
 	{
+		lineCount -= entityToLineList[entity].size();
 		entityToLineList.erase(entity);
 		auto find = entityToJobID.find(entity);
 		if (find != entityToJobID.end())
 			renderer->RemoveLineRenderJob(find->second);
 		entityToJobID.erase(entity);
+		//In case we don't leave it up to the caller to not enable the same entity twice
+		//entityRendersBoundingVolume.erase(entity);
+	}
+	else
+	{
+		//In case we don't leave it up to the caller to not enable the same entity twice
+		/*
+		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
+		if (alreadyRendering != entityRendersBoundingVolume.end())
+			ProfileReturnVoid;
+		*/
+		const auto f = collisionManager->entityToCollisionData.find(entity);
+		if(f != collisionManager->entityToCollisionData.end() && lineCount + 12 < maximumLinesToRender)
+		{
+			const auto index = collisionManager->collisionData.boundingIndex[f->second];
+			const auto index2 = collisionManager->boundingIndex[index].index;
+			const auto& aabb = collisionManager->boundingHierarchy.AABB[index2];
+
+			const auto& center = aabb.Center;
+			auto ex = aabb.Extents;
+			
+			const DirectX::XMFLOAT3 mic = { center.x - ex.x, center.y - ex.y, center.z - ex.z };
+			const DirectX::XMFLOAT3 mac = { center.x + ex.x, center.y + ex.y, center.z + ex.z };
+			ex.x *= 2;
+			ex.y *= 2;
+			ex.z *= 2;
+			const LineSegment lines[12] = {
+				{ {mic.x, mic.y, mic.z}, {mic.x + ex.x,mic.y,mic.z} },
+				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y,mic.z + ex.z } },
+				{ { mic.x + ex.x,mic.y,mic.z + ex.z }, { mic.x,mic.y,mic.z + ex.z } },
+				{ { mic.x,mic.y,mic.z + ex.z },{ mic.x,mic.y,mic.z} },
+
+				{ { mic.x,mic.y,mic.z },{ mic.x,mic.y + ex.y,mic.z } },
+				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y+ex.y,mic.z } },
+				{ { mic.x,mic.y,mic.z+ex.z },{ mic.x,mic.y+ex.y,mic.z + ex.z } },
+				{ { mic.x+ex.x,mic.y,mic.z+ex.z },{ mic.x +ex.x,mic.y+ex.y,mic.z+ex.z } },
+
+				{ { mac.x, mac.y, mac.z },{ mac.x - ex.x,mac.y,mac.z } },
+				{ { mac.x - ex.x, mac.y,mac.z },{ mac.x - ex.x,mac.y,mac.z - ex.z } },
+				{ { mac.x - ex.x,mac.y,mac.z - ex.z },{ mac.x,mac.y,mac.z - ex.z } },
+				{ { mac.x, mac.y, mac.z - ex.z },{ mac.x,mac.y,mac.z } }
+			};
+			auto& lineList = entityToLineList[entity];
+			for(int i = 0; i < 12; ++i)
+			{
+				lineList.push_back(lines[i]);
+			}
+			dirty = true;
+			lineCount += 12;
+		}
 	}
 	ProfileReturnVoid;
 }
@@ -90,6 +140,9 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, float x, float y, float z)
 {
 	StartProfile;
+	if (lineCount + 3 > maximumLinesToRender)
+		ProfileReturnVoid;
+	lineCount += 3;
 	const LineSegment lines[3] = { {{ x - scale, y, z }	,{ x + scale, y, z }},
 	{{ x, y, z - scale },{ x, y, z + scale } },
 	{{ x, y - scale, z },{ x, y + scale, z } } };
@@ -103,6 +156,9 @@ void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, 
 void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, float x1, float y1, float z1, float x2, float y2, float z2)
 {
 	StartProfile;
+	if (lineCount + 1 > maximumLinesToRender)
+		ProfileReturnVoid;
+	lineCount += 1;
 	const Point3D a = { x1,y1,z1 };
 	const Point3D b = { x2,y2,z2 };
 	const LineSegment l = { a, b };

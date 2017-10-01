@@ -3,6 +3,7 @@
 
 #include "EntityManager.h"
 #include "TransformManager.h"
+#include "CollisionManager.h"
 #include <Utilz\GUID.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Graphics/IRenderer.h>
@@ -11,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <random>
+#include <unordered_set>
 
 namespace SE
 {
@@ -27,7 +29,7 @@ namespace SE
 		class DebugRenderManager
 		{
 		public:
-			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager);
+			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager, CollisionManager* collisionManager);
 			~DebugRenderManager();
 			DebugRenderManager(const DebugRenderManager& other) = delete;
 			DebugRenderManager(const DebugRenderManager&& other) = delete;
@@ -88,6 +90,7 @@ namespace SE
 			TransformManager* transformManager;
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
+			CollisionManager* collisionManager;
 
 			static const size_t maximumLinesToRender = 4096;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
@@ -95,9 +98,11 @@ namespace SE
 			int lineRenderVertexShaderHandle;
 			int lineRenderPixelShaderHandle;
 			bool dirty;
+			size_t lineCount;
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
-
+			//In case we don't leave it up to the caller to not enable the same entity twice
+			//std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
 			
 
 			int LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
