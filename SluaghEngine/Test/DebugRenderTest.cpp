@@ -52,9 +52,9 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		mm.Create(ents[i], info);
 		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 0.02f,0.02f,0.02f });
 		//tm.Create(ents[i]);
-		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_level.obj"));
+		rm.CreateRenderableObject(ents[i], Utilz::GUID("pCube1_Placeholder_Block.mesh"));
 		rm.ToggleRenderableObject(ents[i], true);
-		colm.CreateBoundingHierarchy(ents[i], "Placeholder_level.obj");
+		colm.CreateBoundingHierarchy(ents[i], "pCube1_Placeholder_Block.mesh");
 		
 		drm.ToggleDebugRendering(ents[i], true);
 		//drm.DrawCross(ents[i], 1.0f);

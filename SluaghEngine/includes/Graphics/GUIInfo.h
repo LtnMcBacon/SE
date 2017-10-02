@@ -3,6 +3,7 @@
 #ifndef SE_GRAPHICS_GUI_INFO_H_
 #define SE_GRAPHICS_GUI_INFO_H_
 #include <DirectXMath.h>
+#include <Utilz\GUID.h>
 #include <ToolKit\SpriteFont.h>
 #include <ToolKit\SpriteBatch.h>
 

@@ -119,7 +119,11 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		xMovement -= 1.0f;
 	if (inputs.downD)
 		xMovement += 1.0f;
-
+	if (inputs.mouseRightDown)
+	{
+		xMovement = inputs.mousePosX - xPos;
+		yMovement = inputs.mousePosY - yPos;
+	}
 
 	float tempX = xMovement;
 	float tempY = yMovement;

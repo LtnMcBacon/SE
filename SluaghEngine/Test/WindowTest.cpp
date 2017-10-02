@@ -1,14 +1,15 @@
 #include "WindowTest.h"
 #include <window/IWindow.h>
-#include <Graphics/Renderer.h>
+#include <Graphics/IRenderer.h>
 #include "Utilz/Console.h"
 #include <Profiler.h>
-#include <Graphics\GraphicResourceHandler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
+#pragma comment(lib, "GraphicsD.lib")
 #else
 #pragma comment(lib, "Window.lib")
+#pragma comment(lib, "Graphics.lib")
 #endif
 
 
@@ -63,12 +64,14 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
 	window->MapActionButton(8, SE::Window::KeyO);
 
+	
 
 	bool running = true;
 	while(running)
 	{
 		window->Frame();
-
+		if (window->ButtonDown(6))
+			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
 		if (window->ButtonPressed(0))
@@ -88,7 +91,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	
-	Graphics::IRenderer* renderer = new Graphics::Renderer;
+	Graphics::IRenderer* renderer = Graphics::CreateRenderer();
 	renderer->Initialize(window->GetHWND());
 
 	uint8_t* fakeTexture = new uint8_t[256 * 256 * 4];

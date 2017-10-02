@@ -95,7 +95,7 @@ namespace SE
 			std::mutex lock;
 			std::thread thread;
 
-			std::map<uint32_t, Command_Structure> commands;
+			std::map<size_t, Command_Structure> commands;
 
 			bool running;
 
