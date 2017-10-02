@@ -462,7 +462,7 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
+int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
 
 	StartProfile;
 
@@ -527,7 +527,7 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 }
 
 
-int SE::Graphics::Renderer::CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) {
+int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
 
 	int handle;
 	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);

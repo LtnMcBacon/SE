@@ -93,6 +93,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 				break;
 			case IGameState::PAUSE_STATE:
 				console->Print("Making Pause State!\n");
+				delete Game;
 				Game = new PauseState(Input);
 				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 				break;
@@ -103,7 +104,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		
 		OldState = SwitchState;
 		e.Frame(1/60.f);
-
+		delete passableInfo;
 	}
 	delete Game;
 	delete passableInfo;

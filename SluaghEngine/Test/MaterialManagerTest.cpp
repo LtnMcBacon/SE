@@ -54,7 +54,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	tm.Create(entity);
 
-	rm.CreateRenderableObject(entity, Utilz::GUID("TestMesh_bakedTest.skel"));
+	rm.CreateRenderableObject(entity, Utilz::GUID("pCube1_Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(entity, true);
 
 	auto w = engine.GetWindow();

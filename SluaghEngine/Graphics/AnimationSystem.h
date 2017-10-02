@@ -7,8 +7,8 @@
 
 #include <DirectXMath.h>
 
-#include <Core\FileHeaders.h>
-#include "AnimationStructs.h"
+#include <Graphics\FileHeaders.h>
+#include <Graphics\AnimationStructs.h>
 
 namespace SE
 {
@@ -22,7 +22,7 @@ namespace SE
 			AnimationSystem();
 			~AnimationSystem();
 
-			int AddSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints, int *skeletonID);
+			int AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID);
 			int AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex, int *animationID);
 
 			DirectX::XMFLOAT4X4 CalculateJointMatrix(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos);
