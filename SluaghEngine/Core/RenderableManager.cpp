@@ -3,6 +3,9 @@
 #include <Utilz\Console.h>
 #include <OBJParser\Parsers.h>
 
+#include <VertexStructs.h>
+#include <FileHeaders.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "OBJParser.lib")
 #else
@@ -17,21 +20,22 @@
 
 
 
-SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, MaterialManager* materialManager)
-	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager), materialManager(materialManager)
+SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, MaterialManager* materialManager, AnimationManager* animationManager)
+	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager), materialManager(materialManager), animationManager(animationManager)
 {
 
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
 	_ASSERT(materialManager);
+	_ASSERT(animationManager);
 
 	Allocate(128);
 	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("TestMesh_bakedTest.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
@@ -39,6 +43,10 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
+	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadSkinnedShader>(this));
+	if (res)
+		throw std::exception("Could not load default vertex shader.");
+	StopProfile;
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -97,8 +105,27 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		info.topology = renderableObjectInfo.topology[find->second];
 		info.vertexShader = defaultShader;
 
+		// Get the entity register from the animationManager
+		auto &entityIndex = animationManager->entityToIndex.find(entity);
 
-		auto find = materialManager->entityToMaterialInfo.find(entity);
+		// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
+		if (entityIndex == animationManager->entityToIndex.end()) {
+
+			info.type = Graphics::RenderObjectInfo::JobType::STATIC;
+			info.vertexShader = defaultShader;
+		}
+
+		// Otherwise, there was an animated entity and we should use the skinned vertex shader
+		else {
+
+			info.type = Graphics::RenderObjectInfo::JobType::SKINNED;
+			auto skelIndex = animationManager->animationData.skeletonIndex[entityIndex->second];
+			info.skeletonHandle = animationManager->skeletonHandle[skelIndex];
+			info.vertexShader = skinnedShader;
+		}
+		
+
+		auto& find = materialManager->entityToMaterialInfo.find(entity);
 		if (find != materialManager->entityToMaterialInfo.end())
 		{
 			info.pixelShader = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
@@ -241,27 +268,39 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst( r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
-	if (r)
-		ProfileReturnConst( r);
 
-	delete arfp.buffer;
+	Mesh_Header* meshHeader = (Mesh_Header*)data;
 
-	auto& mD = *(Arf::Mesh::Data*)parsedData;
-	auto defaultShader = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2);
-	if (defaultShader == -1)
-		ProfileReturnConst( -1);
+	if (meshHeader->vertexLayout == 0) {
 
-	delete parsedData;
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::STATIC;
 
-	ProfileReturnConst( 0);
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
+
+	}
+
+	else {
+
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::SKINNED;
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
+	if (defaultMeshHandle == -1)
+		ProfileReturnConst(-1);
+
+	ProfileReturnConst(0);
+}
+
+int SE::Core::RenderableManager::LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size) {
+
+	StartProfile;
+	skinnedShader = renderer->CreateVertexShader(data, size);
+	if (skinnedShader == -1)
+		ProfileReturnConst(-1);
+	ProfileReturnConst(0);
 }
 
 int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
@@ -296,28 +335,29 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst( r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
-	if (r)
-		ProfileReturnConst( r);
 
-	delete arfp.buffer;
+	auto bufferHandle = 1;
 
-	auto& mD = *(Arf::Mesh::Data*)parsedData;
-	auto bufferHandle = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	Mesh_Header* meshHeader = (Mesh_Header*)data;
+
+	if (meshHeader->vertexLayout == 0) {
+
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
+
+	}
+
+	else {
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
 	if (bufferHandle == -1)
 		ProfileReturnConst(-1);
 
 	auto index = guidToBufferInfoIndex[guid];
 	bufferInfo[index].bufferHandle = bufferHandle;
-
-	delete parsedData;
 
 	ProfileReturnConst(0);
 }

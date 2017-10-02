@@ -173,12 +173,14 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	}
 
 	int index;
+
+	int index = -1;
+
 	if(freeVertexShaderLocations.size())
 	{
 		index = freeVertexShaderLocations.top();
 		vShaders[index] = { tempVertexShader, inputLayout };
 		freeVertexShaderLocations.pop();
-		*vertexShaderID = index;
 	}
 	else
 	{

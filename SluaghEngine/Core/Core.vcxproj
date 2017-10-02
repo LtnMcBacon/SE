@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Core\AnimationManager.h" />
     <ClInclude Include="..\includes\Core\AudioManager.h" />
     <ClInclude Include="..\includes\Core\CameraManager.h" />
     <ClInclude Include="..\includes\Core\CollisionManager.h" />
@@ -165,11 +167,13 @@
     <ClInclude Include="..\includes\Core\Engine.h" />
     <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\EntityManager.h" />
+    <ClInclude Include="..\includes\Core\FileHeaders.h" />
     <ClInclude Include="..\includes\Core\GUIManager.h" />
     <ClInclude Include="..\includes\Core\MaterialManager.h" />
     <ClInclude Include="..\includes\Core\OptionHandler.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
+    <ClInclude Include="..\includes\Core\VertexStructs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

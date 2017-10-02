@@ -177,6 +177,8 @@ namespace SE {
 			*
 			* @retval S_OK Buffer creation succeded
 			*
+			* @warning Deprecated, use int CreateConstantBuffer(size_t size) instead
+			*
 			* @retval nonZero Creation failed
 			*
 			*/
@@ -301,6 +303,8 @@ namespace SE {
 			*/
 			HRESULT CreateSamplerState();
 		private:
+
+			static const uint8_t MAX_CONSTANTBUFFER_PER_SHADER = 8;
 
 			// Device and device context references
 			ID3D11Device* gDevice;
