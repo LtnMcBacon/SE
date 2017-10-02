@@ -58,10 +58,10 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 	StopProfile;
 }
 
-const DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
+	const auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 		throw std::exception("No camera bound to entity!");
 

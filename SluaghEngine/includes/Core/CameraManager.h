@@ -24,7 +24,7 @@ namespace SE
 			/**
 			* @brief	GetViewInv.
 			*/
-			const DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
+			DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
 
 			/**
 			* @brief Retrieves the projection matrix in a row major format.
