@@ -206,20 +206,37 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		Utilz::Console::Print("Failed to create input layout.\n");
 		ProfileReturnConst(hr);
 	}
-	reflection->Release();
+
+	int index;
 	if(freeVertexShaderLocations.size())
 	{
-		const size_t index = freeVertexShaderLocations.top();
+		index = freeVertexShaderLocations.top();
 		vShaders[index] = { tempVertexShader, inputLayout };
 		freeVertexShaderLocations.pop();
 		*vertexShaderID = index;
 	}
 	else
 	{
-		const size_t index = vShaders.size();
+		index = vShaders.size();
 		vShaders.push_back({ tempVertexShader, inputLayout });
 		*vertexShaderID = index;
 	}
+	D3D11_SHADER_BUFFER_DESC sbd;
+	for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
+	{
+		ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
+		srcb->GetDesc(&sbd);
+		const int constBufferHandle = CreateConstantBuffer(sbd.Size);
+		if(constBufferHandle < 0)
+		{
+			reflection->Release();
+			ProfileReturnConst(-1)
+		}
+		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = i;
+		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].handle = constBufferHandle;
+	}
+
+	reflection->Release();
 	ProfileReturnConst(hr);
 }
 
@@ -438,6 +455,43 @@ HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& 
 	}
 
 	ProfileReturnConst(hr);
+}
+
+int GraphicResourceHandler::CreateConstantBuffer(size_t size)
+{
+	StartProfile;
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.ByteWidth = size;
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+
+	//skapar constant buffer
+	ConstantBuffer tempBuffer;
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, nullptr, &tempBuffer.constBuffer);
+	tempBuffer.size = size;
+	int handle = -1;
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(-1);
+	}
+	if (freeConstantBufferLocations.size() == 0)
+	{
+		cBuffers.push_back(tempBuffer);
+		handle = cBuffers.size() - 1;
+	}
+	else
+	{
+		const auto top = freeConstantBufferLocations.top();
+		cBuffers[top] = tempBuffer;
+		handle = top;
+		freeConstantBufferLocations.pop();
+	}
+
+	ProfileReturnConst(handle);
 }
 
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)

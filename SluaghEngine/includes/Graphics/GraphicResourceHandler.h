@@ -8,6 +8,7 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
+#include <Utilz/GUID.h>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
@@ -54,8 +55,12 @@ namespace SE {
 
 			ID3D11VertexShader*		vertexShader;
 			ID3D11InputLayout*		inputLayout;
-
-
+			struct HandleAndBindSlot
+			{
+				int handle;
+				int bindSlot;
+			};
+			std::map<Utilz::GUID, HandleAndBindSlot, Utilz::GUID::Compare> constBufferNameToHandleAndBindSlot;
 		};
 
 		struct PixelShaderData {
@@ -176,6 +181,13 @@ namespace SE {
 			*/
 			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
 
+			/**
+			* @brief Creates a constant buffer and returns a handle to it.
+			* @param[in] size The size of the to be created buffer.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
+			int CreateConstantBuffer(size_t size);
 			/**
 			* @brief	Bind the constant buffer to the shaders.
 			*
