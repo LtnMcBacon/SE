@@ -1,16 +1,9 @@
 #include <RenderableManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 
-#include <VertexStructs.h>
-#include <FileHeaders.h>
-
-#ifdef _DEBUG
-#pragma comment(lib, "OBJParser.lib")
-#else
-#pragma comment(lib, "OBJParser.lib")
-#endif
+#include <Graphics\VertexStructs.h>
+#include <Graphics\FileHeaders.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -35,7 +28,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("TestMesh_bakedTest.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Mesh_MCModell.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
@@ -269,7 +262,7 @@ int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void
 {
 	StartProfile;
 
-	Mesh_Header* meshHeader = (Mesh_Header*)data;
+	auto meshHeader = (Graphics::Mesh_Header*)data;
 
 	if (meshHeader->vertexLayout == 0) {
 
@@ -336,10 +329,9 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 {
 	StartProfile;
 
-	auto bufferHandle = 1;
+	auto bufferHandle = -1;
 
-	Mesh_Header* meshHeader = (Mesh_Header*)data;
-
+	auto meshHeader = (Graphics::Mesh_Header*)data;
 	if (meshHeader->vertexLayout == 0) {
 
 		Vertex* v = (Vertex*)(meshHeader + 1);

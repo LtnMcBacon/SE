@@ -1,6 +1,6 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
-#include <Graphics\Renderer.h>
+#include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
@@ -29,7 +29,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	entityManager = new EntityManager;
 	window = Window::CreateNewWindow();
-	renderer = new Graphics::Renderer();
+	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
 	
@@ -58,7 +58,6 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
-
 
 	InitStartupOption();
 

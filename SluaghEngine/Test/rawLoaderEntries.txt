@@ -19,7 +19,7 @@ Assets/Placeholder_level.mtl
 Assets/Placeholder_level.obj
 Assets/Placeholder_MC.mtl
 Assets/Placeholder_MC.obj
-Assets/purewhite.sei
+Assets/purewhite.png
 Assets/purewhite.rawimg
 Assets/Shaders/Geometry/SimpleGS.hlsl
 Assets/Shaders/Pixel/DebugLinePS.hlsl

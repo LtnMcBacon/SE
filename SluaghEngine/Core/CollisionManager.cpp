@@ -1,7 +1,6 @@
 #include <CollisionManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 
 using namespace DirectX;
 
@@ -14,6 +13,9 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
 
 	defaultHierarchy = 0;
+
+
+
 	Allocate(128);
 	AllocateBH(64);
 }
@@ -289,27 +291,28 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
+
 int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst(r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
-	if (r)
-		ProfileReturnConst(r);
-
-	delete arfp.buffer;
 
 	auto newHI = guidToBoundingHierarchy[guid];
 
-	CreateBoundingHierarchy(newHI, parsedData->vertices, parsedData->NumVertices, sizeof(XMFLOAT3));
+	auto meshHeader = (Graphics::Mesh_Header*)data;
 
-	delete parsedData;
+	if (meshHeader->vertexLayout == 0) {
+
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
+	}
+
+	else {
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
 
 	auto bIndex = guidToBoundingIndex[guid];
 

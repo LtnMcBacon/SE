@@ -1,7 +1,6 @@
 
-#include <Graphics/GraphicResourceHandler.h>
-
-#include <Utilz/Console.h>
+#include "GraphicResourceHandler.h"
+#include <Utilz\Console.h>
 #include <Profiler.h>
 
 

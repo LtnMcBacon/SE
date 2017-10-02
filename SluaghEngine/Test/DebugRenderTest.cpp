@@ -52,7 +52,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		mm.Create(ents[i], info);
 		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,3.14f,0.0f }, { 5.02f,5.02f,5.02f });
 		//tm.Create(ents[i]);
-		rm.CreateRenderableObject(ents[i], Utilz::GUID("Mesh_MCModell.mesh"));
+		rm.CreateRenderableObject(ents[i], Utilz::GUID("pCube1_Placeholder_Block.mesh"));
 		rm.ToggleRenderableObject(ents[i], true);
 		
 		drm.ToggleDebugRendering(ents[i], true);

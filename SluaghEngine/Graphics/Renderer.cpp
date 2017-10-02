@@ -1,9 +1,8 @@
-#include <Renderer.h>
+#include "Renderer.h"
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
 
 #undef min
-using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
 {
@@ -429,7 +428,7 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	StopProfile;
 }
 
-int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
@@ -457,7 +456,7 @@ void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
 {
 }
 
-int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
+int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
@@ -472,7 +471,7 @@ int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
+int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
 
 	StartProfile;
 
@@ -497,13 +496,13 @@ int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSet
 	return handle;
 }
 
-int Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+int SE::Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateDynamicVertexBuffer(bytewidth, vertexByteSize, initialData, initialDataSize));
 }
 
-int Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+int SE::Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->UpdateDynamicVertexBuffer(handle, data, totalSize, sizePerElement));
@@ -537,7 +536,7 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 }
 
 
-int SE::Graphics::Renderer::CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) {
+int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
 
 	int handle;
 	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);

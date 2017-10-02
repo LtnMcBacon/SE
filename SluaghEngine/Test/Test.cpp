@@ -5,10 +5,9 @@
 #include "EntityManagerTest.h"
 #include "InitGraphicsTest.h"
 #include "ResourceHandlerTest.h"
-#include "ObjLoaderTest.h"
+//#include "ObjLoaderTest.h"
 #include "WindowTest.h"
 #include "TransformManagerTest.h"
-//#include "BufferTest.h"
 #include "INITest.h"
 #include "RenderableManagerTest.h"
 #include "FlowFieldTest.h"
@@ -55,8 +54,7 @@ int main(int argc, char** argv)
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
-	AddTest(ObjLoaderTest);
-	//AddTest(BufferTest);
+	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);

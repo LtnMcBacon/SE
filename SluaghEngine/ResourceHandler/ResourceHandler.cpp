@@ -43,9 +43,11 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	running = false;
 	myThread.join();
 
+
 	for (size_t i = 0; i < resourceInfo.used; i++)
 	{
-		operator delete(resourceInfo.resourceData[i].data);
+		if(resourceInfo.resourceData[i].data)
+			operator delete(resourceInfo.resourceData[i].data);
 	}
 	operator delete(resourceInfo.data);
 	delete diskLoader;
@@ -74,6 +76,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		index = resourceInfo.used++;
 		resourceInfo.state[index] = State::Loading;
 		resourceInfo.refCount[index] = 1;
+		resourceInfo.resourceData[index].data = nullptr;
 
 		if (async) { // We create a load job
 			CreateLoadJob(guid, index, callback, behavior);
@@ -154,13 +157,11 @@ void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 	newData.resourceData = (Data*)newData.data;
 	newData.refCount = (uint16_t*)(newData.resourceData + newData.allocated);
 	newData.state = (State*)(newData.refCount + newData.allocated);
-	newData.extension = (Utilz::GUID*)(newData.state + newData.allocated);
 
 	// Copy data
 	memcpy(newData.resourceData, resourceInfo.resourceData, resourceInfo.used * sizeof(Data));
 	memcpy(newData.refCount, resourceInfo.refCount, resourceInfo.used * sizeof(uint16_t));
 	memcpy(newData.state, resourceInfo.state, resourceInfo.used * sizeof(State));
-	memcpy(newData.extension, resourceInfo.extension, resourceInfo.used * sizeof(Utilz::GUID));
 
 	// Delete old data;
 	operator delete(resourceInfo.data);
@@ -202,14 +203,11 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 		if (state == State::Loading) // Resource is not loaded yet
 		{
 			Data data;
-			Utilz::GUID ext;
-			auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size, &ext); // TODO: Fail check
+			auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size); // TODO: Fail check
 
 			infoLock.lock();
 			resourceInfo.resourceData[job.resourceInfoIndex] = data;
-			resourceInfo.extension[job.resourceInfoIndex] = ext;
 			resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
-			
 			infoLock.unlock();
 
 
@@ -285,7 +283,7 @@ void SE::ResourceHandler::ResourceHandler::RemoveLoadJob(const Utilz::GUID & gui
 int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
 {
 	StartProfile;
-	auto result = diskLoader->LoadResource(guid, &resourceInfo.resourceData[index].data, &resourceInfo.resourceData[index].size, &resourceInfo.extension[index]);
+	auto result = diskLoader->LoadResource(guid, &resourceInfo.resourceData[index].data, &resourceInfo.resourceData[index].size);
 	if (result)
 	{
 	//	Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);

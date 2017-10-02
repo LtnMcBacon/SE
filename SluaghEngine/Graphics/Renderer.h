@@ -1,11 +1,11 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
-#include "IRenderer.h"
+#include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include "AnimationSystem.h"
 #include <Graphics\GUIInfo.h>
-#include <Core\FileHeaders.h>
+#include "AnimationSystem.h"
+
 namespace SE
 {
 	namespace Graphics
@@ -240,7 +240,7 @@ namespace SE
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
 
-			int CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints);
+			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints);
 
 			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
 
