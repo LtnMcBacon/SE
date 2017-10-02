@@ -36,9 +36,6 @@
     <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BufferTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TransformManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjLoaderTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformManagerTest.h">

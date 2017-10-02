@@ -1,9 +1,8 @@
-#include <Renderer.h>
+#include "Renderer.h"
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
 
 #undef min
-using namespace SE;
 
 SE::Graphics::Renderer::Renderer()
 {
@@ -111,7 +110,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	ProfileReturnConst(jobID);
 }
 
-int Graphics::Renderer::DisableRendering(uint32_t jobID)
+int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
@@ -134,7 +133,7 @@ int Graphics::Renderer::DisableRendering(uint32_t jobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
+int SE::Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 {
 	StartProfile;
 	uint32_t lineJobID;
@@ -156,7 +155,7 @@ int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 	ProfileReturnConst(lineJobID);
 }
 
-int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
+int SE::Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 {
 	StartProfile;
 	freeLineRenderJobIndices.push(lineJobID);
@@ -164,7 +163,7 @@ int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
+int SE::Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
@@ -174,7 +173,7 @@ int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* 
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
+int SE::Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
 {
 	StartProfile;
 
@@ -399,7 +398,7 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	StopProfile;
 }
 
-int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
@@ -427,7 +426,7 @@ void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
 {
 }
 
-int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
+int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
@@ -454,13 +453,13 @@ int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSet
 	return handle;
 }
 
-int Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+int SE::Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateDynamicVertexBuffer(bytewidth, vertexByteSize, initialData, initialDataSize));
 }
 
-int Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+int SE::Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->UpdateDynamicVertexBuffer(handle, data, totalSize, sizePerElement));

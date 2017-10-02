@@ -1,14 +1,15 @@
 #include "WindowTest.h"
 #include <window/IWindow.h>
-#include <Graphics/Renderer.h>
+#include <Graphics/IRenderer.h>
 #include "Utilz/Console.h"
 #include <Profiler.h>
-#include <Graphics\GraphicResourceHandler.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "WindowD.lib")
+#pragma comment(lib, "GraphicsD.lib")
 #else
 #pragma comment(lib, "Window.lib")
+#pragma comment(lib, "Graphics.lib")
 #endif
 
 
@@ -88,7 +89,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	
-	Graphics::IRenderer* renderer = new Graphics::Renderer;
+	Graphics::IRenderer* renderer = Graphics::CreateRenderer();
 	renderer->Initialize(window->GetHWND());
 
 	uint8_t* fakeTexture = new uint8_t[256 * 256 * 4];

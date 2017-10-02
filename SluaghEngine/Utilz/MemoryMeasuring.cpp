@@ -46,7 +46,7 @@ namespace SE
 			DXGI_QUERY_VIDEO_MEMORY_INFO info;
 			if (SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
 			{
-				int memoryUsage = info.CurrentUsage / 1024 / 1024; //MiB
+				auto memoryUsage = info.CurrentUsage / 1024 / 1024; //MiB
 				std::string memString = "Memory usage " + std::to_string(memoryUsage) + "\n";
 				console->Print(memString.c_str());
 				/*char msg[100];

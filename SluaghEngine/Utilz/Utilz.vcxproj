@@ -140,7 +140,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Utilz\Camera.h" />
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
@@ -159,7 +158,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="DoubleEdgeStackAlloc.cpp" />

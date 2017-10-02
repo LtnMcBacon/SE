@@ -1,6 +1,6 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
-#include "IRenderer.h"
+#include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
 #include <Graphics\GUIInfo.h>

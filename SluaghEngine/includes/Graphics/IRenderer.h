@@ -8,6 +8,14 @@
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
 #include <ResourceHandler\IResourceHandler.h>
+
+#if defined DLL_EXPORT_RENDERER
+#define DECLDIR_R __declspec(dllexport)
+#else
+#define DECLDIR_R __declspec(dllimport)
+#endif
+
+
 namespace SE
 {
 	namespace Graphics
@@ -248,6 +256,9 @@ namespace SE
 			IRenderer(const IRenderer&& other) = delete;
 			IRenderer& operator=(const IRenderer& rhs) = delete;
 		};
+
+		DECLDIR_R IRenderer* CreateRenderer();
+
 	}
 }
 #endif
