@@ -77,14 +77,14 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.obj"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
-	coM.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.obj"));
+	coM.CreateBoundingHierarchy(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
 
 
-	auto Block = Utilz::GUID("Placeholder_Block.obj");
-	auto Arrow = Utilz::GUID("Placeholder_Arrow.obj");
+	auto Block = Utilz::GUID("pCube1_Placeholder_Block.mesh");
+	auto Arrow = Utilz::GUID("pPyramid2_Placeholder_Arrow.mesh");
 
 
 
@@ -126,7 +126,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
 	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.obj"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Mesh_MCModell.mesh"));
 
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
