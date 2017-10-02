@@ -18,6 +18,10 @@ namespace SE
 {
 	namespace Core
 	{
+		struct Point3D
+		{
+			float x, y, z;
+		};
 		/**
 		*
 		* @brief This manager is used to render debug-related elements using line lists. Lazy creation is employed which means that if an entity does not have a DebugRender-component when any of the methods in this class are called, the component will be created without having to explicitly create a component.
@@ -66,21 +70,14 @@ namespace SE
 			* @details  The positions of the two points are given in local space. When rendered they will be transformed based on the transformation stored in the transform manager.
 			*			
 			* @param[in] entity Which entity.
-			* @param[in] x1 The x-coordinate of the the first point
-			* @param[in] y1 The y-coordinate of the the first point
-			* @param[in] z1 The z-coordinate of the the first point
-			* @param[in] x2 The x-coordinate of the the second point
-			* @param[in] y2 The y-coordinate of the the second point
-			* @param[in] z2 The z-coordinate of the the second point
+			* @param[in] a The first point
+			* @param[in] b The second point
 			*/
-			void DrawLine(const Entity& entity, float x1, float y1, float z1, float x2, float y2, float z2);
+			void DrawLine(const Entity& entity, const Point3D& a, const Point3D& b);
 
 
 		private:
-			struct Point3D
-			{
-				float x, y, z;
-			};
+			
 			struct LineSegment
 			{
 				Point3D a;
