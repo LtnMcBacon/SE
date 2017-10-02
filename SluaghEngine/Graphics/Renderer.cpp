@@ -25,6 +25,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+
+	animationSystem = new AnimationSystem();
 	
 	TargetOffset off;
 	off.shaderTarget[0] = true;
@@ -66,6 +68,7 @@ void SE::Graphics::Renderer::Shutdown()
 	
 
 	delete graphicResourceHandler;
+	delete animationSystem;
 	delete device;
 }
 
@@ -111,7 +114,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	ProfileReturnConst(jobID);
 }
 
-int Graphics::Renderer::DisableRendering(uint32_t jobID)
+int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
@@ -134,7 +137,7 @@ int Graphics::Renderer::DisableRendering(uint32_t jobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
+int SE::Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 {
 	StartProfile;
 	uint32_t lineJobID;
@@ -156,7 +159,7 @@ int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 	ProfileReturnConst(lineJobID);
 }
 
-int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
+int SE::Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 {
 	StartProfile;
 	freeLineRenderJobIndices.push(lineJobID);
@@ -164,7 +167,7 @@ int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
+int SE::Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
@@ -174,7 +177,7 @@ int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* 
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
+int SE::Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
 {
 	StartProfile;
 
@@ -268,9 +271,6 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
-
-
-	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
@@ -327,14 +327,35 @@ int SE::Graphics::Renderer::Render() {
 			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
-		const size_t instanceCount = bucket.transforms.size();
-		for(int i = 0; i < instanceCount; i += maxDrawInstances)
-		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
-			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
-			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+		if(job.type == RenderObjectInfo::JobType::STATIC){
+
+			const size_t instanceCount = bucket.transforms.size();
+			for(int i = 0; i < instanceCount; i += maxDrawInstances)
+			{
+				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
+				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+			}
+
 		}
+
+		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
+
+			// The bone transform buffer should be at bindslot index 3
+			int cBoneBufferIndex = graphicResourceHandler->GetConstantBufferID(job.vertexShader, 3);
+			int cWorldBufferIndex = graphicResourceHandler->GetConstantBufferID(job.vertexShader, 2);
+
+			graphicResourceHandler->BindConstantBufferAtSlot(0, 3, cBoneBufferIndex);
+			graphicResourceHandler->BindConstantBufferAtSlot(0, 2, cWorldBufferIndex);
+
+			int drawCallCount = bucket.transforms.size();
+
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
+			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
+		}
+
 		previousJob = job;
 	}
 	/********** Render line jobs ************/
@@ -442,7 +463,20 @@ int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	ProfileReturnConst(0);
 }
 
+int Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
 
+	StartProfile;
+
+	auto& indices = jobIDToBucketAndTransformIndex[jobID];
+
+	auto& bucket = renderBuckets[indices.bucketIndex];
+
+	bucket.gBoneTransforms.resize(nrOfJoints);
+
+	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
+
+	ProfileReturnConst(0);
+}
 
 int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
@@ -491,5 +525,24 @@ int SE::Graphics::Renderer::CreateTextFont(Utilz::GUID fontFile, ResourceHandler
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 {
 	device->ResizeSwapChain((HWND)windowHandle);
+}
+
+
+int SE::Graphics::Renderer::CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) {
+
+	int handle;
+	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+	if (hr)
+		return hr;
+	return handle;
+}
+
+int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) {
+
+	int handle;
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, skeletonIndex, &handle);
+	if (hr)
+		return hr;
+	return handle;
 }
 

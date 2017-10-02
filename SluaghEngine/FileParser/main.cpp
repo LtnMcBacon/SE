@@ -5,6 +5,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "TextureDesc.h"
+#include <FBX_Converter\FBXConverter.h>
+
+#ifdef _DEBUG
+#pragma comment(lib, "FBX_ConverterD.lib")
+#else
+#pragma comment(lib, "FBX_Converter.lib")
+#endif
 
 namespace fs = std::experimental::filesystem;
 using namespace SE;
@@ -21,12 +28,26 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+
 		Parsers::HLSLParser hlslp;
 		vector<Utilz::File> files;
 		Utilz::get_all_files_names_within_folder(argv[1], files);
 		for (auto& f : files)
 		{
-			if (Utilz::getExtension(f.name) == "hlsl")
+			if (Utilz::getExtension(f.name) == "fbx")
+			{
+				SE::FBX::FBXConverter File;
+				if (!File.Load(f.fullPath, "FBXTemp")) {
+
+					printf("Could not parse fbx file %s\n", f.name);
+					return -1;
+				}
+
+				File.Write();
+
+				File.Deallocate();
+			}
+			else if (Utilz::getExtension(f.name) == "hlsl")
 			{
 				printf("Parsing file: %s...\n", f.name.c_str());
 				
@@ -58,6 +79,27 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		vector<Utilz::File> fbxConvFiles;
+		Utilz::get_all_files_names_within_folder("FBXTemp", fbxConvFiles);
+
+		for (auto& f : fbxConvFiles)
+		{
+			if (Utilz::getExtension(f.name) != "log")
+			{
+				std::ifstream  src(f.fullPath, std::ios::binary);
+
+				std::string path = (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)).c_str();
+				auto idx = path.find_last_of("\\/");
+				auto path2 = path.substr(0, idx);
+				fs::create_directories(path2);
+
+				std::ofstream  dst(path, std::ios::binary | std::ios::trunc);
+
+				dst << src.rdbuf();
+				src.close();
+				dst.close();
+			}
+		}
 
 		std::ofstream gE;
 		gE.open("rawLoaderEntries.txt", std::ios::trunc);
@@ -65,9 +107,12 @@ int main(int argc, char* argv[])
 		{
 			for (auto& f : files)
 				gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
+			for (auto& f : fbxConvFiles)
+				if (Utilz::getExtension(f.name) != "log")
+					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
 		}
 
-
+		fs::remove_all("FBXTemp");
 	}
 	
 	return 0;
