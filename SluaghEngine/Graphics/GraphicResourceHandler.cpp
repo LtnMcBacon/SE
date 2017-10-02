@@ -460,6 +460,23 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size)
 	ProfileReturnConst(handle);
 }
 
+int GraphicResourceHandler::GetVSConstantBufferByName(int vertexShaderHandle, const Utilz::GUID& bufferName, int* bindSlot)
+{
+	StartProfile;
+	auto f = vShaders[vertexShaderHandle].constBufferNameToHandleAndBindSlot.find(bufferName);
+	if (f == vShaders[vertexShaderHandle].constBufferNameToHandleAndBindSlot.end())
+		ProfileReturnConst(-1);
+	if (bindSlot)
+		*bindSlot = f->second.bindSlot;
+	ProfileReturnConst(f->second.handle);
+
+}
+
+void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bindSlot)
+{
+	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+}
+
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
 {
 	if (targetOffset.at(constBufferID).shaderTarget[0] == true)

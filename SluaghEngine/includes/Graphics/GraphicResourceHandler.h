@@ -188,6 +188,24 @@ namespace SE {
 			* @retval -1 On failure.
 			*/
 			int CreateConstantBuffer(size_t size);
+
+			/**
+			* @brief Returns a handle to the constant buffer in the shader specified by vertexShaderHandle with the name bufferName
+			* @param[in] vertexShaderHandle The vertex shader that declares the buffer
+			* @param[in] bufferName The name of the buffer
+			* @param[out] bindSlot The slot the buffer is bound to. Can be left as nullptr if this is not relevant.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
+			int GetVSConstantBufferByName(int vertexShaderHandle, const Utilz::GUID& bufferName, int* bindSlot = nullptr);
+
+			/**
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the vertex shader stage
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
+			*/
+			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
 			/**
 			* @brief	Bind the constant buffer to the shaders.
 			*
