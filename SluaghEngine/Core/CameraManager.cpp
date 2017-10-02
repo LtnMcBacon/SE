@@ -90,6 +90,24 @@ DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetProjection(const Entity& entity)
 
 }
 
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewProjection(const Entity& entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto f = entityToIndex.find(entity);
+	if (f != entityToIndex.end())
+	{
+		XMMATRIX proj = XMMatrixPerspectiveFovLH(cameraData.fov[f->second], cameraData.aspectRatio[f->second], cameraData.nearPlane[f->second], cameraData.farPlane[f->second]);
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[f->second]);
+		XMStoreFloat4x4(&retMat, view * proj);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+}
+
 void SE::Core::CameraManager::SetActive(const Entity & entity)
 {
 	StartProfile;
