@@ -69,7 +69,7 @@ const DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & ent
 	view = XMMatrixInverse(nullptr, view);
 	XMFLOAT4X4 v;
 	XMStoreFloat4x4(&v, view);
-	ProfileReturnConst( v);
+	ProfileReturnConst(v);
 }
 
 void SE::Core::CameraManager::SetActive(const Entity & entity)
