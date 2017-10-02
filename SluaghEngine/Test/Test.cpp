@@ -25,6 +25,7 @@
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
 #include "PlayerMovementTest.h"
+#include "PickingTest.h"
 
 
 #ifdef _DEBUG
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 24681;
+	//_crtBreakAlloc = 983;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -72,6 +73,8 @@ int main(int argc, char** argv)
 	AddTest(RoomCreationTest);
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
+
+	AddTest(PickingTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);

@@ -40,7 +40,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& em = e.GetEntityManager();
 	auto& rm = e.GetRenderableManager();
 	auto& tm = e.GetTransformManager();
-	
+
 	auto floor = em.Create();
 	auto player = em.Create();
 	const int numberOfBlocks = 25*25;
@@ -60,15 +60,15 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	
 	
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.obj"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
-	rm.CreateRenderableObject(player, Utilz::GUID("Placeholder_Arrow.obj"));
+	rm.CreateRenderableObject(player, Utilz::GUID("pPyramid2_Placeholder_Arrow.mesh"));
 	rm.ToggleRenderableObject(player, true);
 	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
-	auto Block = Utilz::GUID("Placeholder_Block.obj");
-	auto Arrow = Utilz::GUID("Placeholder_Arrow.obj");
+	auto Block = Utilz::GUID("pCube1_Placeholder_Block.mesh");
+	auto Arrow = Utilz::GUID("pPyramid2_Placeholder_Arrow.mesh");
 
 	
 

@@ -25,12 +25,14 @@
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
+    <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GraphicResourceHandler.h" />
     <ClInclude Include="LiveObjectReporter.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="GraphicResourceHandler.cpp" />
     <ClCompile Include="IRenderer.cpp" />

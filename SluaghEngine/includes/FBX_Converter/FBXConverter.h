@@ -15,114 +15,122 @@
 
 #include <filesystem>
 
-class FBXConverter {
+namespace SE
+{
+	namespace FBX
+	{
 
-public:
+		class FBXConverter {
 
-	FBXConverter();
-	~FBXConverter();
+		public:
 
-	void ReleaseAll(FbxManager* gFbxSdkManager);
-	void Deallocate();
+			FBXConverter();
+			~FBXConverter();
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// FBXCONVERTER LOAD FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void ReleaseAll(FbxManager* gFbxSdkManager);
+			void Deallocate();
 
-	bool Load(std::string fileName, std::string exportFolder);
-	bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
-	bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
-	bool InitializeFbxManager();
-	bool InitializeSceneImporter();
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// FBXCONVERTER LOAD FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// FBXCONVERTER PRIMARY FUNCTIONS IN ORDER
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			bool Load(std::string fileName, std::string exportFolder);
+			bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
+			bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
+			bool InitializeFbxManager();
+			bool InitializeSceneImporter();
 
-	void GetMeshes();
-	void GetLights();
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// FBXCONVERTER PRIMARY FUNCTIONS IN ORDER
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// MESH FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void GetMeshes();
+			void GetLights();
 
-	void ProcessControlPoints(Mesh &pMesh);
-	void CheckSkinNode(Mesh &pMesh);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// MESH FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
-	void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
-	void CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k);
+			void ProcessControlPoints(Mesh &pMesh);
+			void CheckSkinNode(Mesh &pMesh);
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// SKELETON/SKINNING FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
+			void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
+			void CreateNormals(Mesh &pMesh, int iControlPointIndex, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3 tangent, int j, int k);
 
-	void GetSkeletonHierarchy(Mesh &pMesh);
-	void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
-	void CreateBindPose(Mesh &pMesh);
-	void GatherWeights(Mesh &pMesh);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// SKELETON/SKINNING FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// ANIMATION FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void GetSkeletonHierarchy(Mesh &pMesh);
+			void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
+			void CreateBindPose(Mesh &pMesh);
+			void GatherWeights(Mesh &pMesh);
 
-	void GatherAnimationData(Mesh &pMesh);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// ANIMATION FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// MATERIAL/TEXTURE FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void GatherAnimationData(Mesh &pMesh);
 
-	void LoadMaterial(Mesh& pMesh);
-	void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
-	bool ExportTexture(Texture &texture, string textureFolder);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// MATERIAL/TEXTURE FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// EXPORT FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void LoadMaterial(Mesh& pMesh);
+			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
+			bool ExportTexture(Texture &texture, string textureFolder);
 
-	void Write();
-	void WriteMaterial(std::string folderName, std::string textureFolder, Material& meshMaterial);
-	void WriteMesh(std::string folderName, Mesh& mesh);
-	void WriteSkeleton(std::string folderName, Skeleton skeleton, std::string meshName);
-	void WriteAnimation(std::string folderName, Skeleton skeleton);
-	void WriteLights(std::string folderName);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// EXPORT FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// HELPER FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			void Write();
+			void WriteMaterial(std::string folderName, std::string textureFolder, Material& meshMaterial);
+			void WriteMesh(std::string folderName, Mesh& mesh);
+			void WriteSkeleton(std::string folderName, Skeleton skeleton, std::string meshName);
+			void WriteAnimation(std::string folderName, Skeleton skeleton);
+			void WriteLights(std::string folderName);
 
-	FbxAMatrix		 GetGeometryTransformation(FbxNode* node);
-	unsigned int	 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
-	void			 ConvertToLeftHanded(FbxAMatrix &matrix);
-	FbxMesh*		 GetMeshFromRoot(FbxNode* node, string meshName);
-	DirectX::XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
-	void			 Print4x4Matrix(FbxAMatrix fbxMatrix);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// HELPER FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// STRING HELPER FUNCTIONS
-	//----------------------------------------------------------------------------------------------------------------------------------//
+			FbxAMatrix		 GetGeometryTransformation(FbxNode* node);
+			unsigned int	 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
+			void			 ConvertToLeftHanded(FbxAMatrix &matrix);
+			FbxMesh*		 GetMeshFromRoot(FbxNode* node, string meshName);
+			DirectX::XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
+			void			 Print4x4Matrix(FbxAMatrix fbxMatrix);
 
-	string getFilename(string const& path);
-	string removeExtension(const string& path);
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// STRING HELPER FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-private:
+			string getFilename(string const& path);
+			string removeExtension(const string& path);
 
-	string fileName;
-	string folderName;
-	string logFolder;
+		private:
 
-	FbxManager* gFbxSdkManager;
-	FbxIOSettings* pIOsettings;
-	FbxScene* pFbxScene;
-	FbxImporter* pImporter;
-	FbxNode* pFbxRootNode;
+			string fileName;
+			string folderName;
+			string logFolder;
 
-	ofstream logFile;
+			FbxManager* gFbxSdkManager;
+			FbxIOSettings* pIOsettings;
+			FbxScene* pFbxScene;
+			FbxImporter* pImporter;
+			FbxNode* pFbxRootNode;
 
-	vector<Mesh> meshes;
-	vector<Light> lights;
+			ofstream logFile;
 
-};
+			vector<Mesh> meshes;
+			vector<Light> lights;
+
+		};
+
+	}
+}
 
 
 #endif FBXCONVERTER_H

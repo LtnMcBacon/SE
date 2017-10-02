@@ -1,7 +1,6 @@
 #include <CollisionManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 
 using namespace DirectX;
 
@@ -99,23 +98,21 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, con
 	}
 }
 
-bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMFLOAT3 & pickingRay, float * distance)
+bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance)
 {
 	StartProfile;
-	auto ray = pickingRay;
-	auto r = XMLoadFloat3(&pickingRay);
+	DirectX::FXMVECTOR origin = rayO;
+	DirectX::FXMVECTOR direction = rayD;
 
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
-		float dist = 0;
 		auto& sphere = collisionData.sphereWorld[find->second];
-		auto rayDirection = XMLoadFloat3(&XMFLOAT3(sphere.Center.x - ray.x, sphere.Center.y - ray.y, sphere.Center.z - ray.z));
-		auto sphereColCheck = sphere.Intersects(r, rayDirection, dist);
+		auto sphereColCheck = sphere.Intersects(origin, direction, *distance);
 		if (sphereColCheck)
 		{
 			auto& AABox = collisionData.AABBWorld[find->second];
-			auto BBColCheck = AABox.Intersects(r, rayDirection, dist);
+			auto BBColCheck = AABox.Intersects(rayO, rayD, *distance);
 			if (BBColCheck)
 			{
 				ProfileReturnConst(true)
@@ -291,27 +288,36 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
+
 int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst(r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
-	if (r)
-		ProfileReturnConst(r);
-
-	delete arfp.buffer;
 
 	auto newHI = guidToBoundingHierarchy[guid];
 
-	CreateBoundingHierarchy(newHI, parsedData->vertices, parsedData->NumVertices, sizeof(XMFLOAT3));
+	auto bufferHandle = -1;
 
-	delete parsedData;
+	auto meshHeader = (Graphics::Mesh_Header*)data;
+
+	if (meshHeader->vertexLayout == 0) {
+
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
+	}
+
+	else {
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
+	if (bufferHandle == -1)
+		ProfileReturnConst(-1);
+
+	
+
 
 	auto bIndex = guidToBoundingIndex[guid];
 
