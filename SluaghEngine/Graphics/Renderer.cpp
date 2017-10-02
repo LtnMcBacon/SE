@@ -325,6 +325,7 @@ int SE::Graphics::Renderer::Render() {
 		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
 	}
 	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(lightBufferID);
 	// SetLightBuffer end
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
