@@ -27,6 +27,13 @@ namespace SE
 			const DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
 
 			/**
+			* @brief Retrieves the projection matrix in a row major format.
+			* @param[in] entity The entity which the camera is to be gotten from.
+			* @retval Returns the projection matrix if the entity has a camera component. Returns an identity matrix otherwise.
+			*/
+			DirectX::XMFLOAT4X4 GetProjection(const Entity& entity);
+
+			/**
 			* @brief	Set the camera as the active camera.
 			*/
 			void SetActive(const Entity& entity);
