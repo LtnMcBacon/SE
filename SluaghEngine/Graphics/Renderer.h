@@ -271,7 +271,14 @@ namespace SE
 				DirectX::XMFLOAT4X4 viewproj;
 			};
 
+			struct LightDataBuffer
+			{
+				DirectX::XMFLOAT4 size;
+				LightData data[20];
+			};
+
 			int oncePerFrameBufferID;
+			int lightBufferID;
 
 			DeviceManager* device;
 

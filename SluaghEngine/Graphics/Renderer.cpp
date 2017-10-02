@@ -56,11 +56,23 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->CreateSamplerState();
 
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(LightData) * 20, off, &oncePerFrameBufferID);
+	// LightBuffer create start
+	TargetOffset lightOffset;
+	off.shaderTarget[0] = false;
+	off.shaderTarget[1] = false;
+	off.shaderTarget[2] = true;
+	off.offset[0] = 0;
+	off.offset[1] = 0;
+	off.offset[2] = 2;
+
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * 20, lightOffset, &lightBufferID);
 	if (FAILED(hr))
 	{
 		throw std::exception("Could not create LightDataBuffer");
 	}
+
+	graphicResourceHandler->BindConstantBuffer(lightBufferID);
+	// LightBuffer create end
 
 	ProfileReturnConst( 0);
 }
@@ -303,8 +315,17 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
-	
+	// SetLightBuffer Start
+	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+	LightDataBuffer lightBufferData;
+	lightBufferData.size.x = renderLightJobs.size();
 
+	for (int lightNr = 0; lightNr < renderLightJobs.size(); lightNr++)
+	{
+		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
+	}
+	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	// SetLightBuffer end
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

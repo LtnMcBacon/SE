@@ -80,6 +80,11 @@ namespace SE {
 			ProfileReturnConst(-1);
 		}
 
+		void LightManager::Frame()
+		{
+			GarbageCollection();
+		}
+
 		void LightManager::GarbageCollection()
 		{
 			StartProfile;

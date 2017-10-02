@@ -8,7 +8,8 @@
 #include <Graphics\IRenderer.h>
 #include <random>
 #include <Graphics\LightInfo.h>
-#include <TransformManager.h>
+#include "TransformManager.h"
+
 
 namespace SE
 {
@@ -33,6 +34,7 @@ namespace SE
 
 			int ToggleLight(Entity entity, bool show);
 
+			void Frame();
 		private:
 			void GarbageCollection();
 			void Destroy(size_t index);
