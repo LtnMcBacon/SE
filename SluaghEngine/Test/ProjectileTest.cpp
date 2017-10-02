@@ -6,6 +6,7 @@
 #include <chrono>
 #include <Gameplay/PlayerUnit.h>
 #include <Profiler.h>
+#include <Utilz\Tools.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -46,6 +47,14 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& em = e.GetEntityManager();
 	auto& rm = e.GetRenderableManager();
 	auto& tm = e.GetTransformManager();
+	auto& om = e.GetOptionHandler();
+	auto& caM = e.GetCameraManager();
+	auto& coM = e.GetCollisionManager();
+
+	Tools::Tools t;
+
+	float width = om.GetOption("Window", "width", 800);
+	float height = om.GetOption("Window", "height", 600);
 
 	auto floor = em.Create();
 	const int numberOfBlocks = 25 * 25;
@@ -67,12 +76,14 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.obj"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
+	coM.CreateBoundingHierarchy(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
 
-	auto Block = Utilz::GUID("Placeholder_Block.obj");
-	auto Arrow = Utilz::GUID("Placeholder_Arrow.obj");
+
+	auto Block = Utilz::GUID("pCube1_Placeholder_Block.mesh");
+	auto Arrow = Utilz::GUID("pPyramid2_Placeholder_Arrow.mesh");
 
 
 
@@ -114,7 +125,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
 	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.obj"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Mesh_MCModell.mesh"));
 
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
@@ -238,13 +249,16 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		RIGHT = 4,
 		DOWN = 5,
 		LEFT = 6,
-		SPACE = 7
+		RIGHT_MOUSE = 7,
+		SPACE = 8
 	};
+
 
 	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
 	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
 	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
 	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
+	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
 	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
 
 	pos playerPos;
@@ -252,6 +266,14 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	playerPos.y = 1.5f;
 
 	std::vector<Gameplay::ProjectileData> newProjectiles;
+
+	DirectX::XMFLOAT3 tPos = tm.GetPosition(floor);
+	DirectX::XMFLOAT3 tRot = tm.GetRotation(floor);
+	DirectX::XMFLOAT3 tScale = tm.GetScale(floor);
+	DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
+		0, tScale.y, 0, 0,
+		0, 0, tScale.z, 0,
+		tPos.x, tPos.y, tPos.z, 1.0f };
 
 	bool stepping = false;
 	bool running = true;
@@ -261,7 +283,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	{
 		newProjectiles.clear();
 
-		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, 0.0f, 0.0f);
+		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
 		float movX = 0.0f;
 		float movY = 0.0f;
 
@@ -285,7 +307,30 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			input.downA = true;
 			movX -= 1.0f;
 		}
+		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
+		{
+			int mX = 0;
+			int mY = 0;
+			e.GetWindow()->GetMousePos(mX, mY);
 
+			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+			DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
+			DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
+			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+
+			rayO = DirectX::XMVector4Transform(rayO, viewM);
+			rayD = DirectX::XMVector4Transform(rayD, viewM);
+			rayD = XMVector3Normalize(rayD);
+
+			float distance = 0.0f;
+			bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+
+			auto clickPos = rayO + rayD*distance;
+
+			input.mouseRightDown = true;
+			input.mousePosX = DirectX::XMVectorGetX(clickPos);
+			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
+		}
 		float totMov = abs(movX) + abs(movY);
 		if (totMov != 0.f)
 		{
@@ -393,8 +438,9 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	delete testRoom;
-
+	delete player;
 	e.Release();
 
 	ProfileReturnConst(true)
 }
+
