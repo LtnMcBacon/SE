@@ -4,6 +4,12 @@
 
 #pragma comment(lib, "d3d11.lib")
 
+#ifdef _DEBUG
+#pragma comment(lib, "UtilzD.lib")
+#else
+#pragma comment(lib, "Utilz.lib")
+#endif
+
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;

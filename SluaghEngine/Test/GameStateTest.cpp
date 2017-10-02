@@ -23,7 +23,10 @@ GameStateTest::~GameStateTest()
 {
 
 }
-
+enum
+{
+	Exit
+};
 bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 
@@ -45,8 +48,6 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool running = true;
 
-	void* passableInfo = nullptr;
-	
 	IGameState::State SwitchState = IGameState::MAIN_MENU_STATE;
 
 
@@ -61,10 +62,14 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 	Input->MapActionButton(4, Window::KeyD);
 	IGameState* Game = new MainMenuState(Input);
 	
-	
-
+	auto w = e.GetWindow();
+	w->MapActionButton(Exit, Window::KeyEscape);
+	void* passableInfo = nullptr;
 	while (running)
 	{
+		if (w->ButtonPressed(Exit))
+			running = false;
+		
 		SwitchState = Game->Update(passableInfo);
 		if (SwitchState != OldState)
 		{
@@ -76,6 +81,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 				delete Game;
 				Game = new MainMenuState(Input);
 				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
+	
 				break;
 			case IGameState::PLAY_STATE:
 				console->Print("Making Pause State!\n");
@@ -90,22 +96,28 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 				console->Print("Making Character Creation State!\n");
 				delete Game;
 				Game = new CharacterCreationState(Input);
+		
 				break;
 			case IGameState::PAUSE_STATE:
 				console->Print("Making Pause State!\n");
+				delete Game;
 				Game = new PauseState(Input);
 				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
+		
 				break;
 			default:
 				break;
 			}
+			
 		}
-		
+		delete passableInfo;
 		OldState = SwitchState;
 		e.Frame(1/60.f);
 
 	}
 	delete Game;
-	delete passableInfo;
+
+	e.Release();
+
 	ProfileReturnConst(true);
 }

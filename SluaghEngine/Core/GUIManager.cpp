@@ -1,15 +1,8 @@
 #include <Core\GUIManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 #include <list>
 
-
-#ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
-#else
-#pragma comment(lib, "OBJParser.lib")
-#endif
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")

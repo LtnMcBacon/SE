@@ -38,7 +38,7 @@ namespace SE
 			// perhaps a pointer to decide states when switching between objects?
 			// or a bunch of subclasses objects.
 
-			virtual State Update(void* &passableInfo) = 0;
+			virtual State Update(void*&) = 0;
 		private:
 
 			void InitializeState();

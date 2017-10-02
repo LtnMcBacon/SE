@@ -8,7 +8,7 @@
 
 namespace SE
 {
-	namespace Core
+	namespace Graphics
 	{
 
 		struct Mesh_Header {

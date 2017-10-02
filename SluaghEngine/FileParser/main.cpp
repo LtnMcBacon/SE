@@ -49,20 +49,22 @@ int main(int argc, char* argv[])
 			}
 			else if (Utilz::getExtension(f.name) == "hlsl")
 			{
-				printf("Parsing file: %s...\n", f.name.c_str());
+				printf("Parsing file: %s...", f.name.c_str());
 				
-				if (hlslp.Parse(Utilz::utf8ToUtf16(f.fullPath).c_str(), (std::string(argv[2]) + "\\"+  Utilz::removeRoot(f.fullPath)).c_str()))
-					printf("Could not parse: %s\n", f.name.c_str());
+				if (hlslp.Parse(Utilz::utf8ToUtf16(f.fullPath).c_str(), (std::string(argv[2]) + "\\" + Utilz::removeRoot(f.fullPath)).c_str()))
+					printf("\n\tCould not parse: %s\n", f.name.c_str());
+				else
+					printf("Success\n");
 			}
-			else if(Utilz::getExtension(f.name) == "png" || Utilz::getExtension(f.name) == "jpg" || Utilz::getExtension(f.name) == "tga")
+			/*else if(Utilz::getExtension(f.name) == "png" || Utilz::getExtension(f.name) == "jpg" || Utilz::getExtension(f.name) == "tga")
 			{
 				printf("Parsing file: %s...\n", f.name.c_str());
 				if (ImageParse(f.fullPath.c_str(), (std::string(argv[2]) + "\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei")).c_str()))
 					printf("Could not parse: %s\n", f.name.c_str());
 				else
 					f.fullPath.replace(f.fullPath.size() - Utilz::getExtension(f.name).size(), Utilz::getExtension(f.name).size(), "sei");
-			}
-			else
+			}*/
+			else if (Utilz::getExtension(f.name) == "txt")
 			{
 				std::ifstream  src(f.fullPath, std::ios::binary);
 
@@ -84,7 +86,15 @@ int main(int argc, char* argv[])
 
 		for (auto& f : fbxConvFiles)
 		{
-			if (Utilz::getExtension(f.name) != "log")
+			if(Utilz::getExtension(f.name) == "png" || Utilz::getExtension(f.name) == "jpg" || Utilz::getExtension(f.name) == "tga")
+			{
+			printf("Parsing file: %s...\n", f.name.c_str());
+			if (ImageParse(f.fullPath.c_str(), (std::string(argv[2]) + "\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei")).c_str()))
+			printf("Could not parse: %s\n", f.name.c_str());
+			else
+			f.fullPath.replace(f.fullPath.size() - Utilz::getExtension(f.name).size(), Utilz::getExtension(f.name).size(), "sei");
+			}
+			else if (Utilz::getExtension(f.name) != "log")
 			{
 				std::ifstream  src(f.fullPath, std::ios::binary);
 
