@@ -221,60 +221,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		*vertexShaderID = index;
 	}
 	ProfileReturnConst(hr);
-
-	/*vertexInputLayout[0].SemanticName = "POSITION";
-	vertexInputLayout[0].SemanticIndex = 0;
-	vertexInputLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexInputLayout[0].InputSlot = 0;
-	vertexInputLayout[0].AlignedByteOffset = 0;
-	vertexInputLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[0].InstanceDataStepRate = 0;
-
-	vertexInputLayout[1].SemanticName = "NORMAL";
-	vertexInputLayout[1].SemanticIndex = 0;
-	vertexInputLayout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexInputLayout[1].InputSlot = 0;
-	vertexInputLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexInputLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[1].InstanceDataStepRate = 0;
-
-	vertexInputLayout[2].SemanticName = "TEXCOORD";
-	vertexInputLayout[2].SemanticIndex = 0;
-	vertexInputLayout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexInputLayout[2].InputSlot = 0;
-	vertexInputLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexInputLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[2].InstanceDataStepRate = 0;
-
-	int inputLayoutSize = sizeof(vertexInputLayout) / sizeof(vertexInputLayout[0]);
-	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, data, size, &tempInputLayout);
-
-	if (FAILED(hr)) {
-
-		Console::Print("Input Layout Error: Shader Input Layout could not be created");
-
-		ProfileReturnConst(hr);
-	}
-
-	if (FAILED(hr))
-	{
-		ProfileReturnConst(hr);
-	}
-	if (freeVertexShaderLocations.size() == 0)
-	{
-		vShaders.push_back({ tempVertexShader, tempInputLayout });
-		*vertexShaderID = vShaders.size() - 1;
-	}
-	else
-	{
-		auto top = freeVertexShaderLocations.top();
-		vShaders[top].vertexShader = tempVertexShader;
-		vShaders[top].inputLayout = tempInputLayout;
-		*vertexShaderID = top;
-		freeVertexShaderLocations.pop();
-	}
-*/
-	ProfileReturnConst(hr);
 }
 
 HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut) {
