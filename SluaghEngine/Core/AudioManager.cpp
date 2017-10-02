@@ -127,7 +127,7 @@ namespace SE {
 
 		void AudioManager::Frame()
 		{
-			void GarbageCollection();
+			GarbageCollection();
 		}
 
 		void AudioManager::Shutdown()
