@@ -172,8 +172,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		ProfileReturnConst(hr);
 	}
 
-	int index;
-
 	int index = -1;
 
 	if(freeVertexShaderLocations.size())
