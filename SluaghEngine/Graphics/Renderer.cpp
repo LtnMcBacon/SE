@@ -55,6 +55,12 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->CreateSamplerState();
 
+	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(LightData) * 20, off, &oncePerFrameBufferID);
+	if (FAILED(hr))
+	{
+		throw std::exception("Could not create LightDataBuffer");
+	}
+
 	ProfileReturnConst( 0);
 }
 
@@ -238,6 +244,33 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 	return 0;
 }
 
+int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
+{
+	renderLightJobs.push_back(handles);
+	return 0;
+}
+
+int SE::Graphics::Renderer::DisableLightRendering(const LightData & handles)
+{
+	const int size = renderLightJobs.size();
+	int at = -1;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (handles == renderLightJobs[i])
+		{
+			at = i;
+			break;
+		}
+	}
+	if (at >= 0)
+	{
+		for (int i = at; i < size - 1; ++i)
+			renderLightJobs[i] = renderLightJobs[i + 1];
+		renderLightJobs.pop_back();
+	}
+	return 0;
+}
+
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	DirectX::XMFLOAT4X4 wo;
@@ -268,7 +301,7 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
-
+	
 
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

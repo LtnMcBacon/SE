@@ -4,7 +4,8 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
-#include "GUIInfo.h"
+#include <Graphics\GUIInfo.h>
+#include <Graphics\LightInfo.h>
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
 #include <ResourceHandler\IResourceHandler.h>
@@ -52,14 +53,7 @@ namespace SE
 			*/
 			virtual int DisableRendering(uint32_t jobID) = 0;
 
-			/**
-			* @brief    Sets a render job
-			* @param[in] lineJob The job containing information about the job.
-			* @retval Returns a handle to the job on success.
-			* @retval -1 on failure.
-			* @sa LineRenderJob
-			*/
-			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
+			
 
 			/**
 			* @brief    Sets a Text render jobs
@@ -84,6 +78,40 @@ namespace SE
 			* @endcode
 			*/
 			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+
+			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableLightRendering(const LightData & handles) = 0;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableLightRendering(const LightData& handles) = 0;
+
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
+			
 			/**
 			* @brief    Removes a line render job.
 			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
@@ -108,14 +136,6 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
-
-			/**
-			* @brief    Removes a Text render job.
-			* @param[in] handles The handles struct
-			* @retval 0 On success.
-			* @endcode
-			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering

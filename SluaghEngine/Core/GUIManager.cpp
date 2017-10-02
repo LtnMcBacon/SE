@@ -1,21 +1,6 @@
 #include <Core\GUIManager.h>
 #include <Profiler.h>
-#include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 #include <list>
-
-
-#ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
-#else
-#pragma comment(lib, "OBJParser.lib")
-#endif
-
-#ifdef _DEBUG
-#pragma comment(lib, "UtilzD.lib")
-#else
-#pragma comment(lib, "Utilz.lib")
-#endif
 
 namespace SE {
 	namespace Core {
@@ -45,7 +30,7 @@ namespace SE {
 			if (!(inTextInfo.fontID <= amountOfFonts))
 				ProfileReturnVoid;
 			
-			entID[entity] = loadedTexts.size();
+			entID[entity].ID = loadedTexts.size();
 			ent.push_back(entity);
 			loadedTexts.push_back(inTextInfo);
 			ProfileReturnVoid;	
@@ -58,13 +43,15 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && loadedTexts[entID[entity]].fontID > -1)
+				if (show && loadedTexts[entID[entity].ID].fontID > -1 && !entID[entity].show)
 				{
-					renderer->EnableTextRendering(loadedTexts[entID[entity]]);
+					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
+					entID[entity].show = true;
 				}
-				else if (!show)
+				else if (!show && entID[entity].show)
 				{
-					renderer->DisableTextRendering(loadedTexts[entID[entity]]);
+					renderer->DisableTextRendering(loadedTexts[entID[entity].ID]);
+					entID[entity].show = false;
 				}
 				ProfileReturnVoid;
 			}
@@ -128,13 +115,15 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1)
+				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1 && !entTextureID[entity].show)
 				{
 					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
+					entTextureID[entity].show = true;
 				}
-				else if (!show)
+				else if (!show && entTextureID[entity].show)
 				{
 					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
+					entTextureID[entity].show = false;
 				}
 				ProfileReturnVoid;
 			}
@@ -206,7 +195,7 @@ namespace SE {
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextRendering(loadedTexts[entID[ent[i]]]);
+					renderer->DisableTextRendering(loadedTexts[entID[ent[i]].ID]);
 					DestroyText(i);
 				}
 				garbage = true;

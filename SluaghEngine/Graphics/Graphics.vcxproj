@@ -23,6 +23,7 @@
     <ClInclude Include="..\includes\Graphics\GraphicResourceHandler.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
+    <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
     <ClInclude Include="..\includes\Graphics\Renderer.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />

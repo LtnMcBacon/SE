@@ -3,7 +3,7 @@
 #include "IRenderer.h"
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include <Graphics\GUIInfo.h>
+
 namespace SE
 {
 	namespace Graphics
@@ -78,6 +78,22 @@ namespace SE
 			* @endcode
 			*/
 			int DisableTextureRendering(const GUITextureInfo& handles) override;
+
+			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableLightRendering(const LightData & handles) override;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableLightRendering(const LightData& handles) override;
 
 			/**
 			* @brief    Sets a render job
@@ -284,6 +300,7 @@ namespace SE
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
+			std::vector<LightData> renderLightJobs;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
