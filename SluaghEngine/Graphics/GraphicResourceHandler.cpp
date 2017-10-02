@@ -316,6 +316,10 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 	gDeviceContext->VSSetShader(vShaders[vertexID].vertexShader, nullptr, 0);
 	gDeviceContext->PSSetShader(pShaders[pixelID].pixelShader, nullptr, 0);
 
+	int constBufferBindSlot;
+	for (auto& c : vShaders[vertexID].constBufferNameToHandleAndBindSlot)
+		BindVSConstantBuffer(c.second.handle, c.second.bindSlot);
+
 }
 
 HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t vertexCount, size_t stride, int *vertexBufferID)
