@@ -8,6 +8,8 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
+#include <Utilz/GUID.h>
+#include <map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
@@ -54,8 +56,12 @@ namespace SE {
 
 			ID3D11VertexShader*		vertexShader;
 			ID3D11InputLayout*		inputLayout;
-			size_t bufferHandle[8];
-
+			struct HandleAndBindSlot
+			{
+				int handle;
+				int bindSlot;
+			};
+			std::map<Utilz::GUID, HandleAndBindSlot, Utilz::GUID::Compare> constBufferNameToHandleAndBindSlot;
 		};
 
 		struct PixelShaderData {
@@ -178,12 +184,31 @@ namespace SE {
 			*/
 			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
 
+			/**
+			* @brief Creates a constant buffer and returns a handle to it.
+			* @param[in] size The size of the to be created buffer.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
 			int CreateConstantBuffer(size_t size);
 
-			int GetConstantBufferID(int vertexShaderHandle, int bindSlot);
+			/**
+			* @brief Returns a handle to the constant buffer in the shader specified by vertexShaderHandle with the name bufferName
+			* @param[in] vertexShaderHandle The vertex shader that declares the buffer
+			* @param[in] bufferName The name of the buffer
+			* @param[out] bindSlot The slot the buffer is bound to. Can be left as nullptr if this is not relevant.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
+			int GetVSConstantBufferByName(int vertexShaderHandle, const Utilz::GUID& bufferName, int* bindSlot = nullptr);
 
-			void BindConstantBufferAtSlot(int shaderType, int bindSlot, int cBufferHandleID);
-
+			/**
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the vertex shader stage
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
+			*/
+			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
 			/**
 			* @brief	Bind the constant buffer to the shaders.
 			*
