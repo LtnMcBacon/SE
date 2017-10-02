@@ -4,7 +4,7 @@
 #include <OBJParser\Parsers.h>
 
 #ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
+#pragma comment(lib, "OBJParser.lib")
 #else
 #pragma comment(lib, "OBJParser.lib")
 #endif

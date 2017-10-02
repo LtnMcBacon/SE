@@ -328,11 +328,13 @@ int SE::Graphics::Renderer::Render() {
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
 		const size_t instanceCount = bucket.transforms.size();
+		const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject");
 		for(int i = 0; i < instanceCount; i += maxDrawInstances)
 		{
 			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
+			
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 		previousJob = job;
