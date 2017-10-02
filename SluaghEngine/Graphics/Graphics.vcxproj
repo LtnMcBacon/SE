@@ -31,6 +31,7 @@
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="GraphicResourceHandler.cpp" />
     <ClCompile Include="IRenderer.cpp" />

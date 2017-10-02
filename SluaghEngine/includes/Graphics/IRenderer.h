@@ -16,6 +16,7 @@
 #endif
 
 
+#include <Core\FileHeaders.h>
 namespace SE
 {
 	namespace Graphics
@@ -250,6 +251,11 @@ namespace SE
 			* @endcode
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
+
+			virtual int CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) = 0;
+
+			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
+
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

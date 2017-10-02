@@ -44,6 +44,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj",
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileParser", "FileParser\FileParser.vcxproj", "{956A354F-6B9E-4142-9522-3D19F1C02FD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3} = {66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBX_Converter", "FBX_Converter\FBX_Converter.vcxproj", "{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}"
 EndProject

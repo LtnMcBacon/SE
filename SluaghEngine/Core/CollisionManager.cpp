@@ -99,23 +99,21 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, con
 	}
 }
 
-bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMFLOAT3 & pickingRay, float * distance)
+bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance)
 {
 	StartProfile;
-	auto ray = pickingRay;
-	auto r = XMLoadFloat3(&pickingRay);
+	DirectX::FXMVECTOR origin = rayO;
+	DirectX::FXMVECTOR direction = rayD;
 
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
-		float dist = 0;
 		auto& sphere = collisionData.sphereWorld[find->second];
-		auto rayDirection = XMLoadFloat3(&XMFLOAT3(sphere.Center.x - ray.x, sphere.Center.y - ray.y, sphere.Center.z - ray.z));
-		auto sphereColCheck = sphere.Intersects(r, rayDirection, dist);
+		auto sphereColCheck = sphere.Intersects(origin, direction, *distance);
 		if (sphereColCheck)
 		{
 			auto& AABox = collisionData.AABBWorld[find->second];
-			auto BBColCheck = AABox.Intersects(r, rayDirection, dist);
+			auto BBColCheck = AABox.Intersects(rayO, rayD, *distance);
 			if (BBColCheck)
 			{
 				ProfileReturnConst(true)

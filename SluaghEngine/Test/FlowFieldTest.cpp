@@ -40,7 +40,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& em = e.GetEntityManager();
 	auto& rm = e.GetRenderableManager();
 	auto& tm = e.GetTransformManager();
-	
+
 	auto floor = em.Create();
 	auto player = em.Create();
 	const int numberOfBlocks = 25*25;
