@@ -9,6 +9,7 @@
 #include <stack>
 #include <unordered_map>
 #include <Utilz/GUID.h>
+#include <map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"

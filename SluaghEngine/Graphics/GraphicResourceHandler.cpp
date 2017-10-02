@@ -1,7 +1,7 @@
 
 #include <Graphics/GraphicResourceHandler.h>
 
-#include <Utilz\Console.h>
+#include <Utilz/Console.h>
 #include <Profiler.h>
 
 
@@ -9,8 +9,8 @@
 #pragma comment(lib, "D3Dcompiler.lib")
 
 using namespace SE::Graphics;
-using namespace SE::Utilz;
-using namespace std;
+
+
 
 GraphicResourceHandler::GraphicResourceHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext) {
 
@@ -90,8 +90,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Vertex Shader Error: Vertex Shader could not be created");
+		Utilz::Console::Print("Vertex Shader Error: Vertex Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -100,7 +99,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
 	{
-		Console::Print("Failed to reflect vertex shader.\n");
+		Utilz::Console::Print("Failed to reflect vertex shader.\n");
 		ProfileReturnConst(hr);
 	}
 	D3D11_SHADER_DESC shaderDesc;
@@ -220,7 +219,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
-			Console::Print("Failed to reflect pixel shader.\n");
+			Utilz::Console::Print("Failed to reflect pixel shader.\n");
 			ProfileReturnConst(hr);
 		}
 		D3D11_SHADER_DESC shaderDesc;
@@ -260,8 +259,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Pixel Shader Error: Pixel Shader could not be created");
+		Utilz::Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -460,7 +458,7 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size)
 	ProfileReturnConst(handle);
 }
 
-int GraphicResourceHandler::GetVSConstantBufferByName(int vertexShaderHandle, const Utilz::GUID& bufferName, int* bindSlot)
+int GraphicResourceHandler::GetVSConstantBufferByName(int vertexShaderHandle, const SE::Utilz::GUID& bufferName, int* bindSlot)
 {
 	StartProfile;
 	auto f = vShaders[vertexShaderHandle].constBufferNameToHandleAndBindSlot.find(bufferName);
