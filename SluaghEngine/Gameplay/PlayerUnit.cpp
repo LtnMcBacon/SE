@@ -1,6 +1,7 @@
 #include "PlayerUnit.h"
 #include <Profiler.h>
 #include "Flowfield.h"
+#include "ProjectileData.h"
 #include <Core\CollisionManager.h>
 #include "Core/Engine.h"
 
@@ -140,6 +141,30 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
+{
+	if (input.downSpace)
+	{
+		ProjectileData temp;
+
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
+		temp.magnitudeX = sinf(temp.startRotation);
+		temp.magnitudeY = cosf(temp.startRotation);
+
+		temp.extentsX = 0.1f;
+		temp.extentsY = 0.1f;
+
+		temp.maxLifeTime = 10.0f;
+		temp.speed = 2.0f;
+		temp.startPosX = this->xPos + 0.2 * temp.magnitudeX;
+		temp.startPosY = this->yPos + 0.2 * temp.magnitudeY;
+
+		newProjectiles.push_back(temp);
+	}
+
+
 }
 
 void SE::Gameplay::PlayerUnit::AddForce(float force[2])

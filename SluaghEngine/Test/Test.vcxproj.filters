@@ -90,6 +90,9 @@
     <ClCompile Include="InstancingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectileTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="InstancingTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectileTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
