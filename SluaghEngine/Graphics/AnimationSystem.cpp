@@ -107,7 +107,7 @@ XMFLOAT4X4 SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex, i
 	if (animTimePos <= skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[0].TimePos) //first keyframe
 	{
 
-		ReturnFirstFrameMatrix(jointIndex, animIndex, skeleton);
+		return ReturnFirstFrameMatrix(jointIndex, animIndex, skeleton);
 
 	}
 
@@ -115,7 +115,7 @@ XMFLOAT4X4 SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex, i
 	else if (animTimePos >= skeleton.Hierarchy[jointIndex].Animations[animIndex].Keyframes[animationLength].TimePos) // last keyframe
 	{
 
-		ReturnLastFrameMatrix(jointIndex, animIndex, skeleton);
+		return ReturnLastFrameMatrix(jointIndex, animIndex, skeleton);
 
 	}
 
@@ -123,7 +123,7 @@ XMFLOAT4X4 SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex, i
 	else
 	{
 
-		Interpolate(jointIndex, animIndex, skeleton, animTimePos);
+		return Interpolate(jointIndex, animIndex, skeleton, animTimePos);
 
 	}
 }

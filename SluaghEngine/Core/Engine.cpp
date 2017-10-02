@@ -54,7 +54,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
 	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager, animationManager);
-	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
