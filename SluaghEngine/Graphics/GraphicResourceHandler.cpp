@@ -285,33 +285,6 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 	HRESULT hr = S_OK;
 
-	//ID3DBlob* psBlob = nullptr;
-	//ID3DBlob* psErrorBlob = nullptr;
-
-	//hr = D3DCompileFromFile(
-	//	L"Asset\\SimplePS.hlsl",
-	//	nullptr,
-	//	nullptr,
-	//	"PS_main",
-	//	"ps_5_0",
-	//	D3DCOMPILE_OPTIMIZATION_LEVEL3,
-	//	0,
-	//	&psBlob,
-	//	&psErrorBlob
-	//);
-
-	//if (FAILED(hr)) {
-
-	//	Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
-
-	//	if (psErrorBlob) {
-
-	//		OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
-	//		psErrorBlob->Release();
-	//	}
-
-	//	ProfileReturnConst(hr);
-	//}
 	if (reflectionOut)
 	{
 		ID3D11ShaderReflection* reflection = nullptr;
