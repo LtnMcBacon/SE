@@ -18,6 +18,13 @@ namespace SE
 				TRIANGLE_LIST,
 				TRIANGLE_STRIP
 			};
+
+			enum class JobType : uint32_t 
+			{
+				STATIC = 1,
+				SKINNED = 1 << 1
+			};
+
 			static const uint32_t maxTextureBinds = 4;
 			int bufferHandle;
 			int pixelShader;
@@ -26,11 +33,15 @@ namespace SE
 			int8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
+			JobType type;
+			uint8_t skeletonHandle;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;
 				pixelShader = -1;
 				vertexShader = -1;
+				type = JobType::STATIC;
+				skeletonHandle = 0;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = -1;
@@ -44,6 +55,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for(int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -58,6 +71,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -71,6 +86,8 @@ namespace SE
 				bufferHandle = rhs.bufferHandle;
 				pixelShader = rhs.pixelShader;
 				vertexShader = rhs.vertexShader;
+				type = rhs.type;
+				skeletonHandle = rhs.skeletonHandle;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];
@@ -98,6 +115,8 @@ namespace SE
 					stateChanges = (stateChanges << 1) | (textureHandles[i] != rhs.textureHandles[i]);
 				}
 				stateChanges = (stateChanges << 1) | (topology != rhs.topology);
+				stateChanges = (stateChanges << 1) | (type != rhs.type);
+				stateChanges = (stateChanges << 1) | (skeletonHandle != rhs.skeletonHandle);
 				std::bitset<32> bits(stateChanges);
 				return bits.count() + std::abs((int)textureCount - (int)rhs.textureCount);
 			}

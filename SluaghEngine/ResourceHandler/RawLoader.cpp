@@ -35,7 +35,7 @@ int SE::ResourceHandler::RawLoader::Initialize()
 	ProfileReturnConst(0);
 }
 
-int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data, size_t * size, Utilz::GUID* ext)const
+int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data, size_t * size)const
 {
 	StartProfile;
 	auto find = resourceEntires.find(guid);
@@ -51,7 +51,6 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 	file.seekg(0);
 	file.read((char*)*data, *size);
 	file.close();
-	*ext = std::get<0>(find->second);
 
 	ProfileReturnConst( 0);
 

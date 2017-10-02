@@ -1,6 +1,6 @@
 #include "Core/Engine.h"
 #include "Core/EntityManager.h"
-#include <Graphics\Renderer.h>
+#include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
@@ -29,7 +29,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	entityManager = new EntityManager;
 	window = Window::CreateNewWindow();
-	renderer = new Graphics::Renderer();
+	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
 	
@@ -52,12 +52,12 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager);
-	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager);
+	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager, animationManager);
+	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
-
 
 	InitStartupOption();
 
@@ -72,6 +72,8 @@ int SE::Core::Engine::Frame(double dt)
 	renderableManager->Frame();
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	audioManager->Frame();
+	animationManager->Frame();
+	//debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
@@ -94,6 +96,7 @@ int SE::Core::Engine::Release()
 	delete materialManager;
 	delete renderableManager;
 	delete debugRenderManager;
+	delete animationManager;
 	delete renderer;
 	delete window;
 	delete resourceHandler;

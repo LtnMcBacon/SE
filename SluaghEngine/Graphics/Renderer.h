@@ -1,8 +1,10 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
-#include "IRenderer.h"
+#include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
+
+#include "AnimationSystem.h"
 
 namespace SE
 {
@@ -195,7 +197,7 @@ namespace SE
 			*/
 			int UpdateTransform(uint32_t jobID, float* transform) override;
 
-
+			int UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints);
 
 			/**
 			* @brief Create a pixel shader from raw data
@@ -253,6 +255,11 @@ namespace SE
 			* @endcode
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
+
+			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints);
+
+			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -269,6 +276,7 @@ namespace SE
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
+			AnimationSystem* animationSystem;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -279,12 +287,15 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
+				std::vector<DirectX::XMFLOAT4X4> gBoneTransforms;
+				size_t nrOfJoints;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
 			{
 				uint32_t bucketIndex;
 				uint32_t transformIndex;
+				uint32_t boneIndex;
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;

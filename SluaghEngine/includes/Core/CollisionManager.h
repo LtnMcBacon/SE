@@ -33,7 +33,7 @@ namespace SE
 			CollisionManager(const CollisionManager&& other) = delete;
 			CollisionManager& operator=(const CollisionManager& other) = delete;
 
-
+			friend class DebugRenderManager;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -80,7 +80,7 @@ namespace SE
 			* @param[in] pickingRay The ray to do the picking with.
 			* @param[out] distance The distance to the entity.
 			*/
-			bool PickEntity(const Entity& entity, const DirectX::XMFLOAT3& pickingRay, float* distance);
+			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
 
 
 			/**
