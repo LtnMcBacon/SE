@@ -140,7 +140,7 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.y = rand() % 25;
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
 		enemies[i] = new Gameplay::EnemyUnit(&flowField, enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemies[i]->GetEntity(), Utilz::GUID("Placeholder_Arrow.obj"));
+		rm.CreateRenderableObject(enemies[i]->GetEntity(), Arrow);
 		rm.ToggleRenderableObject(enemies[i]->GetEntity(), true);
 		tm.SetPosition(enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemyPos.x + .5f, 0.5f, enemyPos.y + .5f));
 		tm.SetRotation(enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);

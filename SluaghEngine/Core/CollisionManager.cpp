@@ -13,6 +13,9 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
 
 	defaultHierarchy = 0;
+
+
+
 	Allocate(128);
 	AllocateBH(64);
 }
@@ -297,8 +300,6 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 
 	auto newHI = guidToBoundingHierarchy[guid];
 
-	auto bufferHandle = -1;
-
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 
 	if (meshHeader->vertexLayout == 0) {
@@ -312,12 +313,6 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
-
-	if (bufferHandle == -1)
-		ProfileReturnConst(-1);
-
-	
-
 
 	auto bIndex = guidToBoundingIndex[guid];
 

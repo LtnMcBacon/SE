@@ -24,7 +24,10 @@ SE::Test::FlowFieldTest::~FlowFieldTest()
 {
 
 }
-
+enum
+{
+	Exit
+};
 bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
@@ -176,13 +179,15 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+	auto w = e.GetWindow();
+	w->MapActionButton(Exit, Window::KeyEscape);
 
 	bool running = true;
 	unsigned char counter = 0;
 	float dt = 1 / 60.0f;
 	while (running)
 	{
-		if (e.GetWindow()->ButtonPressed(0))
+		if (w->ButtonPressed(Exit))
 			running = false;
 		counter++;
 		if(!counter)

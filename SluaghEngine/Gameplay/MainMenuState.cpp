@@ -33,7 +33,7 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 
 
 	passableInfo = new int(10);
-	
+
 	ProfileReturn(empty);
 	
 }
