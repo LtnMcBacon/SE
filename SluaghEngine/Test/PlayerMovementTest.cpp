@@ -126,7 +126,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
 	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Mesh_MCModell.mesh"));
 
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
@@ -427,7 +427,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	delete testRoom;
-
+	delete player;
 	e.Release();
 
 	ProfileReturnConst(true)

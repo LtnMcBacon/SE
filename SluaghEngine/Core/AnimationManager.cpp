@@ -13,6 +13,7 @@ SE::Core::AnimationManager::AnimationManager(Graphics::IRenderer * renderer, Res
 
 SE::Core::AnimationManager::~AnimationManager()
 {
+	operator delete(animationData.data);
 }
 
 void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Utilz::GUID & skeleton)

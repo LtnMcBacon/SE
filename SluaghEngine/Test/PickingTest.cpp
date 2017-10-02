@@ -11,7 +11,11 @@ SE::Test::PickingTest::PickingTest()
 SE::Test::PickingTest::~PickingTest()
 {
 }
-
+enum
+{
+	Exit,
+	Click
+};
 bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
@@ -70,17 +74,21 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 								0, scale.y, 0, 0,
 								0, 0, scale.z, 0,
 								pos.x, pos.y, pos.z, 1.0f };
-
-
-	while (true)
+	auto w = e.GetWindow();
+	w->MapActionButton(Exit, Window::KeyEscape);
+	w->MapActionButton(Click, Window::MouseLeft);
+	bool running = true;
+	while (running)
 	{
-		if (GetAsyncKeyState(0x01))
+		if (w->ButtonPressed(Exit))
+			running = false;
+		if (w->ButtonPressed(Click))
 		{
-			POINT p;
-			if (GetCursorPos(&p))
+			int x, y;
+			w->GetMousePos(x, y);
 			{
 				DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-				DirectX::XMVECTOR rayD = t.rayToView(p.x, p.y, width, height);
+				DirectX::XMVECTOR rayD = t.rayToView(x, y, width, height);
 				DirectX::XMFLOAT4X4 tempView = vm.GetViewInv(camera);
 				DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 
@@ -94,12 +102,14 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 				if (test)
 				{
 					rm.ToggleRenderableObject(floor, false);
+					running = false;
 				}
+				
 			}
 		}
 		e.Frame(0.01f);
 	}
 
-
-	return false;
+	e.Release();
+	return true;
 }

@@ -172,6 +172,8 @@
     <ClInclude Include="..\includes\Core\OptionHandler.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
+    <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
+    <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

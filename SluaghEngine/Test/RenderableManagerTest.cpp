@@ -38,8 +38,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
+	auto re = e.Init(Core::Engine::InitializationInfo());
 	e.GetWindow();
 	if (re)
 	{
@@ -52,6 +51,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& tm = e.GetTransformManager();
 	auto& cm = e.GetCameraManager();
 	auto& am = e.GetAnimationManager();
+	auto& mm = e.GetMaterialManager();
 	auto& level = em.Create();
 	auto& mainC = em.Create();
 	auto& camera = em.Create();
@@ -82,11 +82,21 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 	rm.ToggleRenderableObject(level, true);*/
 
-	//am.CreateSkeleton(mainC, "TestMesh_bakedTest.skel");
-	//am.AddAnimation(mainC, "RunAnimation_bakedTest.anim");
+	Core::MaterialManager::CreateInfo info;
+	Utilz::GUID textures[] = { Utilz::GUID("TestMesh_Diffuse.sei"), Utilz::GUID("purewhite.sei") };
+	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
+	info.shader = shader;
+	info.shaderResourceNames = resourceNames;
+	info.textureFileNames = textures;
+	info.textureCount = 2;
 
-	rm.CreateRenderableObject(mainC, Utilz::GUID("TestMesh_bakedTest.mesh"));
+	mm.Create(mainC, info);
+
+	rm.CreateRenderableObject(mainC, Utilz::GUID("Mesh_MCModell.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
+
+	
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 

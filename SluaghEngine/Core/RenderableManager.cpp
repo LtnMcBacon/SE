@@ -2,9 +2,8 @@
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
-#include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
-
+#include <Graphics\FileHeaders.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -29,7 +28,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("TestMesh_bakedTest.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Mesh_MCModell.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
@@ -269,8 +268,8 @@ int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void
 
 		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::STATIC;
 
-		auto v = (Graphics::Vertex*)(meshHeader + 1);
-		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Graphics::Vertex));
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
 
 	}
 
@@ -278,8 +277,8 @@ int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void
 
 		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::SKINNED;
 
-		auto v = (Graphics::VertexDeformer*)(meshHeader + 1);
-		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Graphics::VertexDeformer));
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
 	if (defaultMeshHandle == -1)
@@ -330,21 +329,20 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 {
 	StartProfile;
 
-	auto bufferHandle = 1;
+	auto bufferHandle = -1;
 
 	auto meshHeader = (Graphics::Mesh_Header*)data;
-
 	if (meshHeader->vertexLayout == 0) {
 
-		auto v = (Graphics::Vertex*)(meshHeader + 1);
-		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Graphics::Vertex));
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
 
 	}
 
 	else {
 
-		auto v = (Graphics::VertexDeformer*)(meshHeader + 1);
-		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Graphics::VertexDeformer));
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
 	if (bufferHandle == -1)

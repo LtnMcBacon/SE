@@ -74,7 +74,6 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 
-
 	/*Place out the level*/
 	char mapRepresentation[25][25] =
 	{

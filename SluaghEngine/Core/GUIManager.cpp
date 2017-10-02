@@ -3,6 +3,7 @@
 #include <Utilz\Console.h>
 #include <list>
 
+
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else

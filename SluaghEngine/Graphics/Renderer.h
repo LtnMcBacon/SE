@@ -3,9 +3,8 @@
 #include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include "AnimationSystem.h"
 #include <Graphics\GUIInfo.h>
-#include <FileHeaders.h>
+#include "AnimationSystem.h"
 
 namespace SE
 {

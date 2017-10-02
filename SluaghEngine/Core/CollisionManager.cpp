@@ -1,8 +1,6 @@
 #include <CollisionManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <Graphics\FileHeaders.h>
-#include <Graphics\VertexStructs.h>
 
 using namespace DirectX;
 
@@ -15,6 +13,9 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
 
 	defaultHierarchy = 0;
+
+
+
 	Allocate(128);
 	AllocateBH(64);
 }
@@ -290,10 +291,12 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
+
 int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	
 
 	auto newHI = guidToBoundingHierarchy[guid];
 
@@ -301,19 +304,15 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 
 	if (meshHeader->vertexLayout == 0) {
 
-		auto v = (Graphics::Vertex*)(meshHeader + 1);
-		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Graphics::Vertex));
-
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
 	}
 
 	else {
 
-		auto v = (Graphics::VertexDeformer*)(meshHeader + 1);
-		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Graphics::VertexDeformer));
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
-
-	
-
 
 	auto bIndex = guidToBoundingIndex[guid];
 

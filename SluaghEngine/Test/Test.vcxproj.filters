@@ -93,6 +93,9 @@
     <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PickingTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMovementTest.h">
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
