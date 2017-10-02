@@ -61,15 +61,19 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
 {
 	StartProfile;
+	XMFLOAT4X4 retMat;
 	const auto find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
-		throw std::exception("No camera bound to entity!");
-
-	XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
-	view = XMMatrixInverse(nullptr, view);
-	XMFLOAT4X4 v;
-	XMStoreFloat4x4(&v, view);
-	ProfileReturnConst( v);
+	if (find != entityToIndex.end())
+	{
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
+		view = XMMatrixInverse(nullptr, view);
+		XMStoreFloat4x4(&retMat, view);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
 }
 
 DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetProjection(const Entity& entity)
