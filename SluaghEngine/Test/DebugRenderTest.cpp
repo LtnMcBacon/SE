@@ -50,14 +50,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	{
 		ents[i] = em.Create();
 		mm.Create(ents[i], info);
-		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 0.02f,0.02f,0.02f });
+		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,3.14f,0.0f }, { 5.02f,5.02f,5.02f });
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("pCube1_Placeholder_Block.mesh"));
 		rm.ToggleRenderableObject(ents[i], true);
-		colm.CreateBoundingHierarchy(ents[i], "pCube1_Placeholder_Block.mesh");
 		
 		drm.ToggleDebugRendering(ents[i], true);
-		//drm.DrawCross(ents[i], 1.0f);
+		drm.DrawCross(ents[i], 1.0f);
 
 	}
 	for (int i = 10; i < 20; i++)
@@ -66,17 +65,9 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	}
 	for (int i = 0; i < 200; i++)
 	{
-		drm.DrawCross(ents[i], 100.0f);
+		drm.DrawCross(ents[i], 1.0f);
 	}
 	
-	//for (int i = 15; i < 20; i++)
-	//{
-	//	drm.DrawCross(ents[i], 100.0f);
-	//}
-	//for (int i = 0; i <numEnts; i++)
-	//{
-	//	drm.DrawCross(ents[i], 100.0f);
-	//}
 	for (int i = 7; i < 14; i++)
 	{
 		drm.ToggleDebugRendering(ents[i], false);

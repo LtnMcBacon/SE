@@ -153,19 +153,19 @@ void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, 
 	ProfileReturnVoid;
 }
 
-void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, float x1, float y1, float z1, float x2, float y2, float z2)
+void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, const Point3D& a, const Point3D& b)
 {
 	StartProfile;
 	if (lineCount + 1 > maximumLinesToRender)
 		ProfileReturnVoid;
 	lineCount += 1;
-	const Point3D a = { x1,y1,z1 };
-	const Point3D b = { x2,y2,z2 };
 	const LineSegment l = { a, b };
 	entityToLineList[entity].push_back(l);
 	dirty = true;
 	ProfileReturnVoid;
 }
+
+
 
 int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
 {

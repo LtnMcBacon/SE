@@ -22,10 +22,25 @@ namespace SE
 			void Bind(const Entity& entity, float fov = 1.570796f, float aspectRatio = (800.0f/640.0f), float nearP = 0.01f, float farP = 100.0f, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f });
 
 			/**
-			* @brief	GetViewInv.
+			* @brief Retrieves the inverse view matrix of the camera bound to entity in a row major format.
+			* @param[in] entity The entity which the camera is to be gotten from.
+			* @retval Returns the inverse view matrix if the entity has a camera component. Returns an identity matrix otherwise.
 			*/
-			const DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
+			DirectX::XMFLOAT4X4 GetViewInv(const Entity& entity);
 
+			/**
+			* @brief Retrieves the projection matrix in a row major format.
+			* @param[in] entity The entity which the camera is to be gotten from.
+			* @retval Returns the projection matrix if the entity has a camera component. Returns an identity matrix otherwise.
+			*/
+			DirectX::XMFLOAT4X4 GetProjection(const Entity& entity);
+
+			/**
+			* @brief Retrieves the combined view/projection matrix in a row major format.
+			* @param[in] entity The entity which the camera is to be gotten from.
+			* @retval Returns the combined view/projection matrix if the entity has a camera component. Returns an identity matrix otherwise.
+			*/
+			DirectX::XMFLOAT4X4 GetViewProjection(const Entity& entity);
 			/**
 			* @brief	Set the camera as the active camera.
 			*/

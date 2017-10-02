@@ -272,7 +272,8 @@ int SE::Graphics::Renderer::Render() {
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	//graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -329,11 +330,14 @@ int SE::Graphics::Renderer::Render() {
 		if(job.type == RenderObjectInfo::JobType::STATIC){
 
 			const size_t instanceCount = bucket.transforms.size();
-			for(int i = 0; i < instanceCount; i += maxDrawInstances)
+			int bindSlot;
+			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
+			for (int i = 0; i < instanceCount; i += maxDrawInstances)
 			{
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
 
@@ -341,26 +345,31 @@ int SE::Graphics::Renderer::Render() {
 
 		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
 
-			// The bone transform buffer should be at bindslot index 3
-			int cBoneBufferIndex = graphicResourceHandler->GetConstantBufferID(job.vertexShader, 3);
-			int cWorldBufferIndex = graphicResourceHandler->GetConstantBufferID(job.vertexShader, 2);
+			/*
+			int boneBindslot;
+			int worldBindslot;
+			const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
+			const int cWorldBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &worldBindslot);
 
-			graphicResourceHandler->BindConstantBufferAtSlot(0, 3, cBoneBufferIndex);
-			graphicResourceHandler->BindConstantBufferAtSlot(0, 2, cWorldBufferIndex);
+			graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
 
 			int drawCallCount = bucket.transforms.size();
 
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
 			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
+			*/
 		}
 
+		
 		previousJob = job;
 	}
 	/********** Render line jobs ************/
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+
 	for(auto& lineJob : lineRenderJobs)
 	{
 		if (lineJob.verticesToDrawCount == 0)

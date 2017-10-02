@@ -8,8 +8,8 @@
 #pragma comment(lib, "D3Dcompiler.lib")
 
 using namespace SE::Graphics;
-using namespace SE::Utilz;
-using namespace std;
+
+
 
 GraphicResourceHandler::GraphicResourceHandler(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext) {
 
@@ -89,8 +89,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Vertex Shader Error: Vertex Shader could not be created");
+		Utilz::Console::Print("Vertex Shader Error: Vertex Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -99,7 +98,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
 	{
-		Console::Print("Failed to reflect vertex shader.\n");
+		Utilz::Console::Print("Failed to reflect vertex shader.\n");
 		ProfileReturnConst(hr);
 	}
 	D3D11_SHADER_DESC shaderDesc;
@@ -172,30 +171,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		ProfileReturnConst(hr);
 	}
 
-	vector<int>handles;
-	vector<int>bindslots;
-
-	for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
-	{
-		D3D11_SHADER_BUFFER_DESC sbd;
-		ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
-		srcb->GetDesc(&sbd);
-
-		size_t buffSize = sbd.Size;
-		int handle = CreateConstantBuffer(buffSize);
-
-		if (handle < 0) {
-
-			Utilz::Console::Print("Failed to create constant buffer in function CreateVertexShader.\n");
-			ProfileReturnConst(-1);
-		}
-
-		handles.push_back(handle);
-		bindslots.push_back(i);
-	}
-
-	reflection->Release();
-
 	int index = -1;
 
 	if(freeVertexShaderLocations.size())
@@ -208,74 +183,32 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	{
 		index = vShaders.size();
 		vShaders.push_back({ tempVertexShader, inputLayout });
+		*vertexShaderID = index;
 	}
-
-	for (UINT i = 0; i < MAX_CONSTANTBUFFER_PER_SHADER; i++) {
-
-		vShaders[index].bufferHandle[i] = -1;
-	}
-
-	for (UINT i = MAX_CONSTANTBUFFER_PER_SHADER; i < handles.size(); i++) {
-
-		vShaders[index].bufferHandle[bindslots[i]] = handles[i];
-	}
-
-	*vertexShaderID = index;
-
-	ProfileReturnConst(hr);
-
-	/*vertexInputLayout[0].SemanticName = "POSITION";
-	vertexInputLayout[0].SemanticIndex = 0;
-	vertexInputLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexInputLayout[0].InputSlot = 0;
-	vertexInputLayout[0].AlignedByteOffset = 0;
-	vertexInputLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[0].InstanceDataStepRate = 0;
-
-	vertexInputLayout[1].SemanticName = "NORMAL";
-	vertexInputLayout[1].SemanticIndex = 0;
-	vertexInputLayout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexInputLayout[1].InputSlot = 0;
-	vertexInputLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexInputLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[1].InstanceDataStepRate = 0;
-
-	vertexInputLayout[2].SemanticName = "TEXCOORD";
-	vertexInputLayout[2].SemanticIndex = 0;
-	vertexInputLayout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexInputLayout[2].InputSlot = 0;
-	vertexInputLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexInputLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexInputLayout[2].InstanceDataStepRate = 0;
-
-	int inputLayoutSize = sizeof(vertexInputLayout) / sizeof(vertexInputLayout[0]);
-	gDevice->CreateInputLayout(vertexInputLayout, inputLayoutSize, data, size, &tempInputLayout);
-
-	if (FAILED(hr)) {
-
-		Console::Print("Input Layout Error: Shader Input Layout could not be created");
-
-		ProfileReturnConst(hr);
-	}
-
-	if (FAILED(hr))
+	D3D11_SHADER_BUFFER_DESC sbd;
+	for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
 	{
-		ProfileReturnConst(hr);
+		ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
+		srcb->GetDesc(&sbd);
+		const int constBufferHandle = CreateConstantBuffer(sbd.Size);
+		if(constBufferHandle < 0)
+		{
+			reflection->Release();
+			ProfileReturnConst(-1)
+		}
+		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].handle = constBufferHandle;
 	}
-	if (freeVertexShaderLocations.size() == 0)
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
 	{
-		vShaders.push_back({ tempVertexShader, tempInputLayout });
-		*vertexShaderID = vShaders.size() - 1;
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if(sibd.Type == D3D_SIT_CBUFFER)
+		{
+			vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = sibd.BindPoint;
+		}
 	}
-	else
-	{
-		auto top = freeVertexShaderLocations.top();
-		vShaders[top].vertexShader = tempVertexShader;
-		vShaders[top].inputLayout = tempInputLayout;
-		*vertexShaderID = top;
-		freeVertexShaderLocations.pop();
-	}
-*/
+
+	reflection->Release();
 	ProfileReturnConst(hr);
 }
 
@@ -287,40 +220,13 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 	HRESULT hr = S_OK;
 
-	//ID3DBlob* psBlob = nullptr;
-	//ID3DBlob* psErrorBlob = nullptr;
-
-	//hr = D3DCompileFromFile(
-	//	L"Asset\\SimplePS.hlsl",
-	//	nullptr,
-	//	nullptr,
-	//	"PS_main",
-	//	"ps_5_0",
-	//	D3DCOMPILE_OPTIMIZATION_LEVEL3,
-	//	0,
-	//	&psBlob,
-	//	&psErrorBlob
-	//);
-
-	//if (FAILED(hr)) {
-
-	//	Console::Print("Pixel Shader Error: Pixel Shader could not be compiled or loaded from file");
-
-	//	if (psErrorBlob) {
-
-	//		OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
-	//		psErrorBlob->Release();
-	//	}
-
-	//	ProfileReturnConst(hr);
-	//}
 	if (reflectionOut)
 	{
 		ID3D11ShaderReflection* reflection = nullptr;
 		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
-			Console::Print("Failed to reflect pixel shader.\n");
+			Utilz::Console::Print("Failed to reflect pixel shader.\n");
 			ProfileReturnConst(hr);
 		}
 		D3D11_SHADER_DESC shaderDesc;
@@ -360,8 +266,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Pixel Shader Error: Pixel Shader could not be created");
+		Utilz::Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -410,14 +315,6 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 
 	// Unbind shaders
 	UnbindShaders();
-
-	for (UINT i = 0; i < 8; i++) {
-
-		if (vShaders[vertexID].bufferHandle[i] != -1) {
-
-			gDeviceContext->VSSetConstantBuffers(i, 1, &cBuffers[vShaders[vertexID].bufferHandle[i]].constBuffer);
-		}
-	}
 
 	// Set the input layout
 	gDeviceContext->IASetInputLayout(vShaders[vertexID].inputLayout);
@@ -531,12 +428,9 @@ HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& 
 	ProfileReturnConst(hr);
 }
 
-int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
-
+int GraphicResourceHandler::CreateConstantBuffer(size_t size)
+{
 	StartProfile;
-
-	int handle = -1;
-
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
@@ -548,9 +442,9 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
 
 	//skapar constant buffer
 	ConstantBuffer tempBuffer;
-	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, nullptr, &tempBuffer.constBuffer);
 	tempBuffer.size = size;
-
+	int handle = -1;
 	if (FAILED(hr))
 	{
 		ProfileReturnConst(-1);
@@ -562,7 +456,7 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
 	}
 	else
 	{
-		auto top = freeConstantBufferLocations.top();
+		const auto top = freeConstantBufferLocations.top();
 		cBuffers[top] = tempBuffer;
 		handle = top;
 		freeConstantBufferLocations.pop();
@@ -571,19 +465,22 @@ int GraphicResourceHandler::CreateConstantBuffer(size_t size) {
 	ProfileReturnConst(handle);
 }
 
-int SE::Graphics::GraphicResourceHandler::GetConstantBufferID(int vertexShaderHandle, int bindSlot)
+int GraphicResourceHandler::GetVSConstantBufferByName(int vertexShaderHandle, const SE::Utilz::GUID& bufferName, int* bindSlot)
 {
-	return vShaders[vertexShaderHandle].bufferHandle[bindSlot];
+	StartProfile;
+	auto f = vShaders[vertexShaderHandle].constBufferNameToHandleAndBindSlot.find(bufferName);
+	if (f == vShaders[vertexShaderHandle].constBufferNameToHandleAndBindSlot.end())
+		ProfileReturnConst(-1);
+	if (bindSlot)
+		*bindSlot = f->second.bindSlot;
+	ProfileReturnConst(f->second.handle);
+
 }
 
-void SE::Graphics::GraphicResourceHandler::BindConstantBufferAtSlot(int shaderType, int bindSlot, int cBufferHandleID)
+void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bindSlot)
 {
-	// To-do, filter shader type
-
-	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[cBufferHandleID].constBuffer);
+	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
 }
-
-
 
 void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
 {

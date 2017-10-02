@@ -58,18 +58,58 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 	StopProfile;
 }
 
-const DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
-		throw std::exception("No camera bound to entity!");
+	XMFLOAT4X4 retMat;
+	const auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
+		view = XMMatrixInverse(nullptr, view);
+		XMStoreFloat4x4(&retMat, view);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+}
 
-	XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
-	view = XMMatrixInverse(nullptr, view);
-	XMFLOAT4X4 v;
-	XMStoreFloat4x4(&v, view);
-	ProfileReturnConst( v);
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetProjection(const Entity& entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto f = entityToIndex.find(entity);
+	if(f != entityToIndex.end())
+	{
+		XMMATRIX m = XMMatrixPerspectiveFovLH(cameraData.fov[f->second], cameraData.aspectRatio[f->second], cameraData.nearPlane[f->second], cameraData.farPlane[f->second]);
+		XMStoreFloat4x4(&retMat, m);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+
+}
+
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewProjection(const Entity& entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto f = entityToIndex.find(entity);
+	if (f != entityToIndex.end())
+	{
+		XMMATRIX proj = XMMatrixPerspectiveFovLH(cameraData.fov[f->second], cameraData.aspectRatio[f->second], cameraData.nearPlane[f->second], cameraData.farPlane[f->second]);
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[f->second]);
+		XMStoreFloat4x4(&retMat, view * proj);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
 }
 
 void SE::Core::CameraManager::SetActive(const Entity & entity)
