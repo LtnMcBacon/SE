@@ -63,12 +63,14 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
 	window->MapActionButton(8, SE::Window::KeyO);
 
+	
 
 	bool running = true;
 	while(running)
 	{
 		window->Frame();
-
+		if (window->ButtonDown(6))
+			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
 		if (window->ButtonPressed(0))

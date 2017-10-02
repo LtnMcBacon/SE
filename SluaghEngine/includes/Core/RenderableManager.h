@@ -35,10 +35,10 @@ namespace SE
 			* @brief	Bind a renderable object to and entity
 			*
 			* @param[in] entity The entity to bind the renderable object to.
-			* @param[in] meshGUID The guid of the mesh to be used. 
+			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity,const Utilz::GUID& meshGUID);
+			void CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID);
 
 			/**
 			* @brief	Hide/Show the renderable object
