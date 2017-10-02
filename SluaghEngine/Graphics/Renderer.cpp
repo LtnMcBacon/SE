@@ -273,7 +273,8 @@ int SE::Graphics::Renderer::Render() {
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	//graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -328,12 +329,13 @@ int SE::Graphics::Renderer::Render() {
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
 		const size_t instanceCount = bucket.transforms.size();
-		const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject");
+		int bindSlot;
+		const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+		graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
 		for(int i = 0; i < instanceCount; i += maxDrawInstances)
 		{
 			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
@@ -343,6 +345,7 @@ int SE::Graphics::Renderer::Render() {
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+
 	for(auto& lineJob : lineRenderJobs)
 	{
 		if (lineJob.verticesToDrawCount == 0)

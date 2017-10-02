@@ -197,8 +197,16 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 			reflection->Release();
 			ProfileReturnConst(-1)
 		}
-		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = i;
 		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].handle = constBufferHandle;
+	}
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if(sibd.Type == D3D_SIT_CBUFFER)
+		{
+			vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = sibd.BindPoint;
+		}
 	}
 
 	reflection->Release();
@@ -315,10 +323,6 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 	// Set the vertex and pixel shaders
 	gDeviceContext->VSSetShader(vShaders[vertexID].vertexShader, nullptr, 0);
 	gDeviceContext->PSSetShader(pShaders[pixelID].pixelShader, nullptr, 0);
-
-	int constBufferBindSlot;
-	for (auto& c : vShaders[vertexID].constBufferNameToHandleAndBindSlot)
-		BindVSConstantBuffer(c.second.handle, c.second.bindSlot);
 
 }
 
