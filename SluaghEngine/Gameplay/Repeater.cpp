@@ -18,10 +18,15 @@ Status Repeater::Update()
 		if (myStatus == Status::BEHAVIOUR_RUNNING)
 			break;
 		if (myStatus == Status::BEHAVIOUR_FAILURE)
+		{
+			myStatus = Status::BEHAVIOUR_RUNNING;
+			break;
+		}
+		if (myStatus == Status::BEHAVIOUR_INVALID)
 			break;
 		if(++repeatCounter == repeatLimit || repeatLimit != uint_fast8_t(-1))
 		{
-			myStatus = Status::BEHAVIOUR_RUNNING;
+			myStatus = Status::BEHAVIOUR_SUCCESS;
 			break;
 		}
 

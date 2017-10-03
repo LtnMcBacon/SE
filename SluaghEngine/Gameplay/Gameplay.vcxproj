@@ -30,6 +30,7 @@
     <ClCompile Include="IComposite.cpp" />
     <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
+    <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
     <ClCompile Include="PausState.cpp" />
@@ -38,6 +39,7 @@
     <ClCompile Include="RandomSelector.cpp" />
     <ClCompile Include="RandomSequence.cpp" />
     <ClCompile Include="Repeater.cpp" />
+    <ClCompile Include="RepeatUntilFail.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
@@ -63,9 +65,11 @@
     <ClInclude Include="GameBlackboard.h" />
     <ClInclude Include="IComposite.h" />
     <ClInclude Include="IDecorator.h" />
+    <ClInclude Include="Inverter.h" />
     <ClInclude Include="RandomSelector.h" />
     <ClInclude Include="RandomSequence.h" />
     <ClInclude Include="Repeater.h" />
+    <ClInclude Include="RepeatUntilFail.h" />
     <ClInclude Include="Selector.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="Succeeder.h" />

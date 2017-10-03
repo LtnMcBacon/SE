@@ -177,6 +177,12 @@
     <ClCompile Include="Repeater.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClCompile>
+    <ClCompile Include="RepeatUntilFail.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="Inverter.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -252,6 +258,12 @@
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClInclude>
     <ClInclude Include="Repeater.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="RepeatUntilFail.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="Inverter.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClInclude>
   </ItemGroup>
