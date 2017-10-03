@@ -19,9 +19,9 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			//auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
-			//if (ret)
-			//	throw std::exception("Could not load default font.");
+			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			if (ret)
+				throw std::exception("Could not load default font.");
 		}
 
 		GUIManager::~GUIManager()
