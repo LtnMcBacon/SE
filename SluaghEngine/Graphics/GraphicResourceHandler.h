@@ -192,16 +192,6 @@ namespace SE {
 			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
 
 
-			/**
-			* @brief	Set constant buffer data
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			* @warning Deprecated, use UpdateConstantBuffer instead.
-			*
-			*/
-			void SetConstantBuffer(void* inData, int constBufferID);
 
 			/**
 			* @brief	Updates the contents of a constant buffer.

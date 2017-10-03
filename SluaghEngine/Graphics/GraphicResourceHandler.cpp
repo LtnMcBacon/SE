@@ -446,16 +446,6 @@ void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bin
 }
 
 
-
-void GraphicResourceHandler::SetConstantBuffer(void* inData, int constBufferID)
-{
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	HRESULT hr = gDeviceContext->Map(cBuffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, inData, cBuffers[constBufferID].size);
-	gDeviceContext->Unmap(cBuffers[constBufferID].constBuffer, 0);
-
-}
-
 HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
 {
 	StartProfile;
