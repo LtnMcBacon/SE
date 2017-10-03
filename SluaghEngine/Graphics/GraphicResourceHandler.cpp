@@ -445,21 +445,7 @@ void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bin
 	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
 }
 
-void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
-{
-	if (targetOffset.at(constBufferID).shaderTarget[0] == true)
-	{
-		gDeviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &cBuffers[constBufferID].constBuffer);
-	}
-	if (targetOffset.at(constBufferID).shaderTarget[1] == true)
-	{
-		gDeviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &cBuffers[constBufferID].constBuffer);
-	}
-	if (targetOffset.at(constBufferID).shaderTarget[2] == true)
-	{
-		gDeviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &cBuffers[constBufferID].constBuffer);
-	}
-}
+
 
 void GraphicResourceHandler::SetConstantBuffer(void* inData, int constBufferID)
 {

@@ -190,15 +190,8 @@ namespace SE {
 			* @retval void
 			*/
 			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
-			/**
-			* @brief	Bind the constant buffer to the shaders.
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			*
-			*/
-			void BindConstantBuffer(int constBufferID);
+
+
 			/**
 			* @brief	Set constant buffer data
 			*
