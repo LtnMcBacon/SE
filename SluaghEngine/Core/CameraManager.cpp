@@ -143,6 +143,7 @@ void SE::Core::CameraManager::SetActive(const Entity & entity)
 void SE::Core::CameraManager::Frame()
 {
 	StartProfile;
+	GarbageCollection();
 	if (activeCamera != ~0u)
 	{
 		if(cameraData.dirty[activeCamera] != ~0u)// Update the transform
@@ -245,7 +246,8 @@ void SE::Core::CameraManager::Destroy(size_t index)
 	entityToIndex.erase(entity);
 	if (activeCamera == last)
 		activeCamera = index;
-
+	else if (activeCamera == index)
+		activeCamera = ~0u;
 	cameraData.used--;
 	StopProfile;
 }
