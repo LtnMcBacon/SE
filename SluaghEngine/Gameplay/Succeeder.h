@@ -7,6 +7,13 @@ namespace SE
 {
 	namespace GAMEPLAY
 	{
+		/**
+		*
+		* @brief The Succeeder tick of its child and return success.
+		*
+		* @sa IBehaviour for the basic Behaviour, IDecorator for the class Succeeder derives from.
+		*
+		**/
 		class Succeeder : public IDecorator
 		{
 		private:
