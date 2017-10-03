@@ -35,7 +35,7 @@ void OutputShaderErrorMessage(ID3DBlob* errorMessage,const wchar_t* shaderFilena
 
 	// Release the error message.
 	errorMessage->Release();
-	errorMessage = 0;
+	
 	return;
 }
 
@@ -78,7 +78,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 	data->Release();
 }
 
-int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)
+int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)const
 {
 
 	ID3DBlob* psBlob;

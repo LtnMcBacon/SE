@@ -7,13 +7,15 @@ SE::Utilz::Console* SE::Utilz::Console::console = nullptr;
 
 void SE::Utilz::Console::Run()
 {
+	using namespace std::chrono_literals;
+
 	char buffer[256];
 	while (running)
 	{
 		backend->Getline(buffer, 256);
 		InterpretCommand(buffer);
 
-		Sleep(200);
+		std::this_thread::sleep_for(500ms);
 	}
 }
 

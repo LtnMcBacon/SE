@@ -65,7 +65,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	cm.Bind(camera);
 	cm.SetActive(camera);
 	tm.SetRotation(camera, 0.0f, 0.0f, 0.0f);
-	tm.SetPosition(camera, { 0.0f, 3.0f, -20.0f });
+	tm.SetPosition(camera, { 0.0f, 1.0f, -5.0f });
 
 	handle->MapActionButton(ActionButton::Exit, Window::KeyEscape);
 	handle->MapActionButton(ActionButton::Hide, Window::KeyO);

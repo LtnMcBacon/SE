@@ -5,6 +5,7 @@
 #include "GraphicResourceHandler.h"
 #include <Graphics\GUIInfo.h>
 #include "AnimationSystem.h"
+#include <mutex>
 
 namespace SE
 {
@@ -48,6 +49,14 @@ namespace SE
 			*/
 			int DisableRendering(uint32_t jobID) override;
 
+			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] bufferHandle The buffer to change to.
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -158,13 +167,6 @@ namespace SE
 			*/
 			int CreateTexture(void* data, const TextureDesc& description) override;
 
-
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			void DestroyTransform(int transformHandle) override;
 			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
@@ -225,7 +227,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) override;
+			int CreateTextFont(void * data, size_t size) override;
 			/**
 			* @brief Resizes the swapchain
 			* @param[in] windowHandle A window handle.
@@ -288,6 +290,7 @@ namespace SE
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
+			std::mutex renderJobLock;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
