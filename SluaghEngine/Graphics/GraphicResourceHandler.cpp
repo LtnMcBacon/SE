@@ -389,7 +389,7 @@ size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
 }
 
 
-HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
+HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID)
 {
 	StartProfile;
 	D3D11_BUFFER_DESC bufferDesc;

@@ -16,7 +16,16 @@ using namespace SE::Graphics;
 using namespace SE::Utilz;
 
 DeviceManager::DeviceManager() {
-
+	gDevice = nullptr;
+	gDeviceContext = nullptr;
+	gSwapChain = nullptr;
+	gBackBuffer = nullptr;
+	gBackbufferRTV = nullptr;
+	gDepthStencil = nullptr;
+	gDepthStencilView = nullptr;
+	pDSState = nullptr;
+	blendState = nullptr;
+	rasterState = nullptr;
 }
 
 DeviceManager::~DeviceManager() {
@@ -328,10 +337,7 @@ void DeviceManager::SetViewport() {
 	gDeviceContext->RSSetViewports(1, &gViewportDefault);
 }
 
-float DeviceManager::GetAspectRatio() {
 
-	return static_cast<float>(gBB_Desc.Width) / static_cast<float>(gBB_Desc.Height);
-}
 
 void DeviceManager::Present() {
 

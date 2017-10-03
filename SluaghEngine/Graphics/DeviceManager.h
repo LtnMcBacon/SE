@@ -138,12 +138,6 @@ namespace SE {
 			*/
 			void SetViewport();
 
-			/**
-			* @brief GetAspectRatio returns the aspect ratio
-			* @retval return_value_n Returns the aspect ratio from the window
-			* @endcode
-			*/
-			float GetAspectRatio();
 
 			/**
 			* @brief Present displays the rendered image to the user

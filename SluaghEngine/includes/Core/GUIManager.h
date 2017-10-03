@@ -45,7 +45,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(Utilz::GUID fontFile);
+			int CreateTextFont(const Utilz::GUID& fontFile);
 
 			/**
 			* @brief Create a new 2D texture for GUI
@@ -54,7 +54,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			int Create2D(Utilz::GUID texFile);
+			int Create2D(const Utilz::GUID& texFile);
 
 			/**
 			* @brief	Hide/Show the renderable text
@@ -262,6 +262,9 @@ namespace SE
 
 			void Shutdown();
 		private:
+			int LoadFont(const Utilz::GUID& font, void*data, size_t size);
+
+
 			void GarbageCollection();
 			void DestroyText(size_t index);
 			void DestroyTexture(size_t index);
@@ -275,6 +278,8 @@ namespace SE
 			//Texture variables
 			std::unordered_map<Entity, Graphics::EntBindIDGUID, EntityHasher> entTextureID;
 			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
+
 			std::vector<Graphics::GUITextureInfo> textureInfo;
 			std::vector<Entity> textureEnt;
 
