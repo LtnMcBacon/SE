@@ -164,25 +164,6 @@ namespace SE {
 			void RemoveVertexBuffer(int vertexBufferID);
 			size_t GetVertexCount(int vertexBufferID) const;
 
-			/**
-			* @brief	Adds a constant buffer
-			*
-			* @param[in] size The size to be given to the buffer
-			*
-			* @param[in] target A bool array to that holds the info for which shaders to bind the buffer to
-			*
-			* @param[in] offset A int array to that holds the info for which offset to bind the buffer to
-			*
-			* @param[in] constBufferID To return the ID of the buffer
-			*
-			* @retval S_OK Buffer creation succeded
-			*
-			* @warning Deprecated, use int CreateConstantBuffer(size_t size) instead
-			*
-			* @retval nonZero Creation failed
-			*
-			*/
-			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
 
 			/**
 			* @brief Creates a constant buffer and returns a handle to it.

@@ -24,6 +24,7 @@ Assets/purewhite.rawimg
 Assets/Shaders/Geometry/SimpleGS.hlsl
 Assets/Shaders/Pixel/DebugLinePS.hlsl
 Assets/Shaders/Pixel/SimpleGS.hlsl
+Assets/Shaders/Pixel/SimpleLightPS.hlsl
 Assets/Shaders/Pixel/SimplePS.hlsl
 Assets/Shaders/Pixel/SimpleTexPS.hlsl
 Assets/Shaders/Vertex/DebugLineVS.hlsl

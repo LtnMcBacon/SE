@@ -389,44 +389,7 @@ size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
 }
 
 
-HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
-{
-	StartProfile;
-	D3D11_BUFFER_DESC bufferDesc;
-	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
-	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	bufferDesc.ByteWidth = size;
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bufferDesc.MiscFlags = 0;
-
-	//skapar constant buffer
-	ConstantBuffer tempBuffer;
-	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
-	tempBuffer.size = size;
-
-	if (FAILED(hr))
-	{
-		ProfileReturnConst(hr);
-	}
-	if (freeConstantBufferLocations.size() == 0)
-	{
-		cBuffers.push_back(tempBuffer);
-		targetOffset.push_back(inTargetOffset);
-		*constBufferID = cBuffers.size() - 1;
-	}
-	else
-	{
-		auto top = freeConstantBufferLocations.top();
-		cBuffers[top] = tempBuffer;
-		targetOffset[top] = inTargetOffset;
-		*constBufferID = top;
-		freeConstantBufferLocations.pop();
-	}
-
-	ProfileReturnConst(hr);
-}
 
 int GraphicResourceHandler::CreateConstantBuffer(size_t size)
 {
