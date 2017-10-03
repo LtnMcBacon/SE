@@ -99,6 +99,32 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 	}
 }
 
+void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, Skeleton &skeleton, float timePos) {
+
+	// Open up a new XMFLOAT4x4 array to temporarily store the updated joint transformations
+	std::vector<DirectX::XMFLOAT4X4> globalJointTransforms;
+	globalJointTransforms.reserve(skeleton.Hierarchy.size());
+
+	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
+	for (int i = 0; i < skeleton.Hierarchy.size(); i++) {
+
+		globalJointTransforms.push_back(CalculateJointMatrix(i, animIndex, skeleton, timePos)); // check Interpolate function.
+	}
+
+	//With all the precalculated matrices at our disposal, let's update the transformations in the secondary joint array
+
+	for (UINT i = 0; i < skeleton.Hierarchy.size(); i++) {
+
+		// Create a reference to the currenct joint to be processed
+		Joint &b = skeleton.Hierarchy[i];
+
+		// Get the current joint LOCAL transformation at the current animation time pose
+		b.GlobalTx = XMLoadFloat4x4(&globalJointTransforms[i]);
+
+		//XMStoreFloat4x4(&mesh.secondaryJointArray[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+	}
+}
+
 XMFLOAT4X4 SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos) {
 
 	// Animation has just started, so return the first keyframe
