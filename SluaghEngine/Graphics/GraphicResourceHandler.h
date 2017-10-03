@@ -182,7 +182,7 @@ namespace SE {
 			* @retval nonZero Creation failed
 			*
 			*/
-			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
+			HRESULT CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID);
 
 			/**
 			* @brief Creates a constant buffer and returns a handle to it.

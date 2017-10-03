@@ -6,6 +6,10 @@
 
 SE::Graphics::Renderer::Renderer()
 {
+	oncePerFrameBufferID = -1;
+	device = nullptr;
+	graphicResourceHandler = nullptr;
+	animationSystem = nullptr;
 }
 
 SE::Graphics::Renderer::~Renderer()
@@ -435,27 +439,6 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 }
 
 
-int SE::Graphics::Renderer::CreateTransform()
-{
-	StartProfile;
-	int handle;
-	TargetOffset off;
-	off.shaderTarget[0] = true;
-	off.shaderTarget[1] = true;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 2;
-	off.offset[1] = 2;
-	off.offset[2] = 2;
-	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), off, &handle);
-	if (FAILED(hr))
-		ProfileReturnConst(hr);
-	ProfileReturnConst(handle);
-}
-
-void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
-{
-}
-
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
@@ -524,9 +507,9 @@ int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, s
 	ProfileReturn(0);
 }
 
-int SE::Graphics::Renderer::CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler)
+int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 {
-	resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<Renderer, &Renderer::RetFontData>(this));
+	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
 	return fonts.size();
 }
 
