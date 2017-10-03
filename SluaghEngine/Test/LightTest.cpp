@@ -52,8 +52,8 @@ namespace SE
 			const int numEnts = 50;
 			Core::Entity ents[numEnts];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("GUI/dummytex.sei") };
-			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+			Utilz::GUID textures[] = { Utilz::GUID("TestMesh_Diffuse.sei"), Utilz::GUID("purewhite.sei") };
+			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
 			info.shaderResourceNames = resourceNames;
@@ -69,10 +69,6 @@ namespace SE
 				rm.ToggleRenderableObject(ents[i], true);
 
 			}
-
-			rm.ToggleRenderableObject(ents[2], false);
-			rm.ToggleRenderableObject(ents[2], true);
-
 
 			auto light = em.Create();
 			transformManager.Create(light);
