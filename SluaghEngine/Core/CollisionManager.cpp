@@ -48,28 +48,27 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			Allocate(collisionData.allocated * 2);
 
 		// Register the entity
-		size_t newEntry = collisionData.used;
+		size_t newEntry = collisionData.used++;
 		entityToCollisionData[entity] = newEntry;
 		collisionData.entity[newEntry] = entity;
-		collisionData.used++;
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoundingIndex.find(mesh);
-			auto& bIndex = guidToBoundingIndex[mesh];
-			if (findHi == guidToBoundingIndex.end())
+			auto& findHi = guidToBoundingInfoIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto& bIndex = guidToBoundingInfoIndex[mesh];
+			if (findHi == guidToBoundingInfoIndex.end()) // If not created
 			{
 				// Make sure we have enough memory.
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
 					AllocateBH(boundingHierarchy.allocated + 10); // TODO: Make thread safe
 
 
-				boundingIndex.push_back({ defaultHierarchy, 0 });
-				bIndex = boundingIndex.size() - 1;
+				boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
+				bIndex = boundingInfoIndex.size() - 1;
 
 				// Register the new hierarchy
-				size_t newHI = boundingHierarchy.used;
-				bIndex = defaultHierarchy;
+				auto newHI = boundingHierarchy.used++;
+				guidToBoundingHierarchyIndex[mesh] = newHI;
 
 				auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
 
@@ -79,7 +78,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			}
 
 			collisionData.boundingIndex[newEntry] = bIndex;
-			boundingIndex[bIndex].refCount++;
+			boundingInfoIndex[bIndex].refCount++;
 			
 
 			
@@ -142,8 +141,8 @@ void SE::Core::CollisionManager::Frame()
 	for (auto& dirty : dirtyEntites)
 	{
 		// TODO: Multithread
-		auto& mySphere = boundingHierarchy.sphere[boundingIndex[collisionData.boundingIndex[dirty.myIndex]].index];
-		auto& myAABB = boundingHierarchy.AABB[boundingIndex[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& mySphere = boundingHierarchy.sphere[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& myAABB = boundingHierarchy.AABB[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
 		XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
 		mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);	
 		myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
@@ -298,7 +297,7 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 {
 	StartProfile;
 
-	auto newHI = guidToBoundingHierarchy[guid];
+	auto newHI = guidToBoundingHierarchyIndex[guid];
 
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 
@@ -314,9 +313,9 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
-	auto bIndex = guidToBoundingIndex[guid];
+	auto bIndex = guidToBoundingInfoIndex[guid];
 
-	boundingIndex[bIndex].index = newHI;
+	boundingInfoIndex[bIndex].index = newHI;
 
 
 

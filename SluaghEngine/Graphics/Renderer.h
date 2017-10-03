@@ -168,20 +168,6 @@ namespace SE
 			int CreateTexture(void* data, const TextureDesc& description) override;
 
 			/**
-			* @brief Create a transform.
-			* @param[in] transform Initial transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			int CreateTransform() override;
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			void DestroyTransform(int transformHandle) override;
-			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
 			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
@@ -241,7 +227,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) override;
+			int CreateTextFont(void * data, size_t size) override;
 			/**
 			* @brief Resizes the swapchain
 			* @param[in] windowHandle A window handle.

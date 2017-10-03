@@ -5,7 +5,9 @@ namespace SE {
 	namespace Audio {
 		AudioSound::AudioSound()
 		{
-
+			masterVol = 0;
+			effectVol = 0;
+			bakgroundVol = 0;
 		}
 
 		AudioSound::~AudioSound()
@@ -51,8 +53,7 @@ namespace SE {
 			sf_count_t sf_vio_read1(void *ptr, sf_count_t count, void *user_data)
 			{
 				AudioFile *data = (AudioFile*)user_data;
-				char *saveData = (char*)ptr;
-				int nrOfCpy;
+
 				if (data->currentPos + count < data->size)
 				{
 					memcpy(ptr, &data->soundData[data->currentPos], count);
