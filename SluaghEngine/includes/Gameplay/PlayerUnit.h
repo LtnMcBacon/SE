@@ -158,6 +158,82 @@ namespace SE
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
 			float rotMov[2] = {};
 
+		private:
+			struct stats
+			{
+				//std::string characterName;
+				int str = 5;
+				int agi = 5;
+				int whi = 5;
+
+				//str
+				float health			 = 100.f;
+				float damage			 = 10.f;
+				float meleeMultiplier	 = 1.f;
+				float physicalResistance = 1.f;
+
+				//agi
+				float rangedDamage		= 10.f;
+				float rangedMultiplier  = 1.f;
+				float movementSpeed		= 1.f;
+				//float healBonus			= 1.f;
+				//float attackSpeed		= 1.f;
+
+				//whi
+				float magicDamage		= 10.f;
+				float magicMultiplier	= 1.f;
+				float magicResistance	= 1.f;
+				float natureResistance	= 1.f;
+				float fireResistance	= 1.f;
+				float waterResistance	= 1.f;
+				
+				int armorCap			= 3;
+				enum equippedArmorType		  { LIGHT, MEDIUM, HEAVY, NONE };
+				enum equippedWeaponType		  { CLOSE, RANGED, MAGIC, NONE };
+				enum equippedElementalType	  { FIRE, WATER, NATURE, NONE};
+				equippedArmorType armor		  = equippedArmorType::NONE;
+				equippedWeaponType weapon	  = equippedWeaponType::NONE;
+				equippedElementalType element = equippedElementalType::NONE;
+
+			};
+			stats baseStat;
+			stats newStat;
+
+			/**
+			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcStrChanges();
+			/**
+			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcAgiChanges();
+			/**
+			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcWhiChanges();
+			/**
+			* @brief	  Changes the equipped armor type.
+			* @param [in] The new given armor type.
+			**/
+			void changeArmorType(stats::equippedArmorType armor);
+			/**
+			* @brief	  Changes the equipped weapon type.
+			* @param [in] The new given weapon type.
+			**/
+			void changeWeaponType(stats::equippedWeaponType weapon);
+			/**
+			* @brief	  Changes the equipped element type.
+			* @param [in] The new given element type.
+			**/
+			void changeElementType(stats::equippedElementalType element);
+			
+
 		public:
 			
 			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
