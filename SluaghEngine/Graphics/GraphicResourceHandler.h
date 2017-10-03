@@ -46,11 +46,7 @@ namespace SE {
 			VertexCount vertexBuffer;
 		};
 
-		struct ConstantData {
 
-			ConstantBuffer constantBuffer;
-			TargetOffset targetOffset;
-		};
 
 		struct VertexShaderData {
 
@@ -306,7 +302,6 @@ namespace SE {
 
 			// Constant buffer specific data
 			std::vector<ConstantBuffer> cBuffers;
-			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeConstantBufferLocations;
 
 			//Shader resource views
