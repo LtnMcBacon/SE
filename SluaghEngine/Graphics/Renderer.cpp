@@ -30,8 +30,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
-	
-
+	currentEntityTimePos = 0;
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -302,9 +301,13 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
+
+	currentEntityTimePos += 5;
+
+	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
+
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
-
 
 	ID3D11RenderTargetView* views[] = { device->GetRTV() };
 	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
@@ -398,7 +401,7 @@ int SE::Graphics::Renderer::Render() {
 
 		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
 
-			/*
+
 			int boneBindslot;
 			int worldBindslot;
 			const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
@@ -408,11 +411,11 @@ int SE::Graphics::Renderer::Render() {
 			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
 
 			int drawCallCount = bucket.transforms.size();
-
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
+			bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+			graphicResourceHandler->UpdateConstantBuffer(&animationSystem->GetSkeleton(0).jointArray[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
 			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
-			*/
+			
 		}
 
 		

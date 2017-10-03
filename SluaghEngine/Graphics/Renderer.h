@@ -256,6 +256,7 @@ namespace SE
 
 			GraphicResourceHandler* graphicResourceHandler;
 			AnimationSystem* animationSystem;
+			float currentEntityTimePos;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;

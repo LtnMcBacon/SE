@@ -27,6 +27,7 @@
 #include "PlayerMovementTest.h"
 #include "ProjectileTest.h"
 #include "PickingTest.h"
+#include "SkeletonAnimationTest.h"
 
 
 #ifdef _DEBUG
@@ -57,6 +58,7 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
+	AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
