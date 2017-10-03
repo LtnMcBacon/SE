@@ -149,25 +149,26 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
+	StartProfile;
+
 	if (input.downSpace)
 	{
 		ProjectileData temp;
 
 		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
-		temp.magnitudeX = sinf(temp.startRotation);
-		temp.magnitudeY = cosf(temp.startRotation);
 
-		temp.extentsX = 0.1f;
-		temp.extentsY = 0.1f;
+		//temp.extentsX = 0.1f;
+		//temp.extentsY = 0.1f;
 
-		temp.maxLifeTime = 10.0f;
-		temp.speed = 2.0f;
-		temp.startPosX = this->xPos + 0.2 * temp.magnitudeX;
-		temp.startPosY = this->yPos + 0.2 * temp.magnitudeY;
+		//temp.maxLifeTime = 10.0f;
+		//temp.speed = 2.0f;
+		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
+		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
 
 		newProjectiles.push_back(temp);
 	}
 
+	StopProfile;
 
 }
 

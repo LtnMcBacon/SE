@@ -31,6 +31,7 @@
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +49,7 @@
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Projectile.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -120,6 +120,9 @@
     <ClCompile Include="PlayerUnit.cpp">
       <Filter>Source Files\GameUnits</Filter>
     </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile.h">
       <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
   </ItemGroup>
