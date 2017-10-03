@@ -28,7 +28,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Mesh_MCModell.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("pCube1_Placeholder_Block.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
@@ -317,7 +317,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
 		bufferIndex = bufferInfo.size() - 1;
-		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
+		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), true);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 	}
@@ -330,6 +330,9 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
+	using namespace std::chrono_literals;
+
+	std::this_thread::sleep_for(2s);
 
 	auto bufferHandle = -1;
 

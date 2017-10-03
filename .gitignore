@@ -20,6 +20,8 @@ External*
 *.xml
 *.dot
 *.pdf
+*.ps
+*.bat
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
