@@ -31,9 +31,6 @@ Assets/Shaders/Vertex/SimpleVS.hlsl
 Assets/Shaders/Vertex/SkinnedVS.hlsl
 Assets/Sound/Background/Cout.wav
 Assets/Sound/Effect/Canary.wav
-Assets/temp - Copy.ini
-Assets/temp.ini
-Assets/test.objtest
 Assets/test.txt
 Assets/test2.txt
 Assets/test3.txt
