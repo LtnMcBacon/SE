@@ -7,8 +7,8 @@
 
 #include <DirectXMath.h>
 
-#include <FileHeaders.h>
-#include <AnimationStructs.h>
+#include <Graphics\FileHeaders.h>
+#include <Graphics\AnimationStructs.h>
 
 namespace SE
 {

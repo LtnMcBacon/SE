@@ -113,7 +113,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		delete passableInfo;
 		OldState = SwitchState;
 		e.Frame(1/60.f);
-
+		delete passableInfo;
 	}
 	delete Game;
 
