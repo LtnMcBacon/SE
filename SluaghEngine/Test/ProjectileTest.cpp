@@ -132,7 +132,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
-	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, 1.570796, 1280 / 720.0f);
+	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, { 1280 / 720.0f, 1.570796 });
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
