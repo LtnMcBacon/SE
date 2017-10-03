@@ -49,12 +49,12 @@ namespace SE
 			auto& transformManager = engine.GetTransformManager();
 
 			Core::Entity entity = em.Create();
-			const int numEnts = 3;
+			const int numEnts = 50;
 			Core::Entity ents[numEnts];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("dummytex.sei"), Utilz::GUID("purewhite.sei") };
-			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
-			auto shader = Utilz::GUID("SimpleTexPS.hlsl");
+			Utilz::GUID textures[] = { Utilz::GUID("GUI/dummytex.sei") };
+			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
 			info.shaderResourceNames = resourceNames;
 			info.textureFileNames = textures;
@@ -78,7 +78,7 @@ namespace SE
 			transformManager.Create(light);
 
 			Graphics::LightData data;
-			data.colour = DirectX::XMFLOAT4(1.0, 0.5, 0.3, 0.2);
+			data.colour = DirectX::XMFLOAT4(1.0, 0.1, 0.1, 1.0);
 			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
 
 			lightManager.AddLight(light, data);

@@ -58,12 +58,12 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	// LightBuffer create start
 	TargetOffset lightOffset;
-	off.shaderTarget[0] = false;
-	off.shaderTarget[1] = false;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 0;
-	off.offset[1] = 0;
-	off.offset[2] = 2;
+	lightOffset.shaderTarget[0] = false;
+	lightOffset.shaderTarget[1] = false;
+	lightOffset.shaderTarget[2] = true;
+	lightOffset.offset[0] = 0;
+	lightOffset.offset[1] = 0;
+	lightOffset.offset[2] = 2;
 
 	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * 20, lightOffset, &lightBufferID);
 	if (FAILED(hr))
