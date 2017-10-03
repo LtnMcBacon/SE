@@ -63,10 +63,6 @@ namespace SE {
 				std::map<std::string, int> value;
 				value[optionName] = newValue;
 				optionMap[section] = value;
-				if (optionMap.size() > 0)
-				{
-					int hej = 0;
-				}
 				ProfileReturnVoid;
 			}
 			else

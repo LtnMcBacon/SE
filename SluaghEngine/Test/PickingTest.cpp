@@ -42,8 +42,9 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 	auto object = em.Create();
 
 	auto camera = em.Create();
-
-	vm.Bind(camera, 1.570796, 1280 / 720.0f);
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800)/(float)om.GetOption("Window", "height", 640);
+	vm.Bind(camera, cInfo);
 	vm.SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
@@ -61,10 +62,10 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(floor);
 	tm.SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
-	cm.CreateBoundingHierarchy(floor, Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+	cm.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Block.mesh"));
 	
 	DirectX::XMFLOAT3 pos = tm.GetPosition(floor);
 	DirectX::XMFLOAT3 rot = tm.GetRotation(floor);
