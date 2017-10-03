@@ -158,14 +158,7 @@ namespace SE
 			*/
 			int CreateTexture(void* data, const TextureDesc& description) override;
 
-			/**
-			* @brief Create a transform.
-			* @param[in] transform Initial transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			int CreateTransform() override;
+
 			/**
 			* @brief Destroy a transform
 			* @param[in] transformHandle Handle to the transform to destroy.

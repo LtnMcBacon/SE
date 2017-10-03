@@ -435,22 +435,7 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 }
 
 
-int SE::Graphics::Renderer::CreateTransform()
-{
-	StartProfile;
-	int handle;
-	TargetOffset off;
-	off.shaderTarget[0] = true;
-	off.shaderTarget[1] = true;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 2;
-	off.offset[1] = 2;
-	off.offset[2] = 2;
-	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), off, &handle);
-	if (FAILED(hr))
-		ProfileReturnConst(hr);
-	ProfileReturnConst(handle);
-}
+
 
 void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
 {

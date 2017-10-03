@@ -171,13 +171,7 @@ namespace SE
 			*/
 			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
 
-			/**
-			* @brief Create a transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			virtual int CreateTransform() = 0;
+
 			/**
 			* @brief Destroy a transform
 			* @param[in] transformHandle Handle to the transform to destroy.
