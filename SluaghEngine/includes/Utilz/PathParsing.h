@@ -19,6 +19,15 @@ namespace SE
 			}
 			return path;
 		}
+		inline std::string removeExtension(const std::string& path)
+		{
+			const size_t period_idx = path.find_last_of('.');
+			if (std::string::npos != period_idx)
+			{
+				return path.substr(0, period_idx);
+			}
+			return path;
+		}
 		inline std::string getFilename(std::string const& path)
 		{
 			const size_t last_slash_idx = path.find_last_of("\\/");

@@ -666,7 +666,8 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 				vertex.normal.y = (float)FBXNormal.mData[1];
 				vertex.normal.z = (float)FBXNormal.mData[2];
 
-				CreateNormals(pMesh, iControlPointIndex, vertex.binormal, vertex.tangent, j, k);
+				vertex.binormal = CreateBinormals(pMesh.meshNode, iControlPointIndex, j, k);
+				vertex.tangent = CreateTangents(pMesh.meshNode, iControlPointIndex, j, k);
 
 				// Push back vertices to the current mesh
 				pMesh.standardVertices.push_back(vertex);
@@ -745,7 +746,8 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 				}
 
-				CreateNormals(pMesh, iControlPointIndex, vertex.binormal, vertex.tangent, j, k);
+				vertex.binormal = CreateBinormals(pMesh.meshNode, iControlPointIndex, j, k);
+				vertex.tangent = CreateTangents(pMesh.meshNode, iControlPointIndex, j, k);
 
 				pMesh.boneVertices.push_back(vertex);	// Store all vertices in a separate vector
 
@@ -760,24 +762,25 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 }
 
-void SE::FBX::FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, XMFLOAT3 binormal, XMFLOAT3 tangent, int j, int k) {
+XMFLOAT3 SE::FBX::FBXConverter::CreateBinormals(FbxMesh* meshNode, int iControlPointIndex, int j, int k) {
 
 	int index = 0;
+	XMFLOAT3 binormal = { 0.0f, 0.0f, 0.0f };
 
-	if (pMesh.meshNode->GetElementBinormalCount() < 1)
+	if (meshNode->GetElementBinormalCount() < 1)
 	{
 		cout << ("Invalid Binormal Number") << endl;
-		
+
 	}
 
 	//////////////////////////////////////////////////////////////
 	//                     GET BINORMALS
 	//////////////////////////////////////////////////////////////
 
-	for (UINT i = 0; i < pMesh.meshNode->GetElementBinormalCount(); i++)
+	for (UINT i = 0; i < meshNode->GetElementBinormalCount(); i++)
 	{
-		FbxGeometryElementBinormal* binormals = pMesh.meshNode->GetElementBinormal(i);
-		iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+		FbxGeometryElementBinormal* binormals = meshNode->GetElementBinormal(i);
+		iControlPointIndex = meshNode->GetPolygonVertex(j, k);
 
 		if (binormals->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
 		{
@@ -808,14 +811,27 @@ void SE::FBX::FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, X
 		}
 	}
 
-	index = 0;
+	return binormal;
+}
+
+XMFLOAT3 SE::FBX::FBXConverter::CreateTangents(FbxMesh* meshNode, int iControlPointIndex, int j, int k) {
+
+	int index = 0;
+	XMFLOAT3 tangent = { 0.0f, 0.0f, 0.0f };
+
+	if (meshNode->GetElementTangentCount() < 1)
+	{
+		cout << ("Invalid Tangent Number") << endl;
+
+	}
+
 	//////////////////////////////////////////////////////////////
 	//                     GET TANGENTS
 	//////////////////////////////////////////////////////////////
 
-	for (UINT i = 0; i < pMesh.meshNode->GetElementTangentCount(); i++)
+	for (UINT i = 0; i < meshNode->GetElementTangentCount(); i++)
 	{
-		FbxGeometryElementTangent* tangents = pMesh.meshNode->GetElementTangent(i);
+		FbxGeometryElementTangent* tangents = meshNode->GetElementTangent(i);
 
 		if (tangents->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
 		{
@@ -845,6 +861,8 @@ void SE::FBX::FBXConverter::CreateNormals(Mesh &pMesh, int iControlPointIndex, X
 			}
 		}
 	}
+
+	return tangent;
 }
 
 
@@ -1156,68 +1174,15 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 		// Check if the material is of the type Lambert
 		if (surfaceMaterial->GetClassId() == FbxSurfaceLambert::ClassId) {
 
-			pMesh.objectMaterial.materialType = "Lambert";
-
 			FbxSurfaceLambert* lambertMaterial = (FbxSurfaceLambert*)surfaceMaterial;
-			FbxPropertyT<FbxDouble3> lambertDiffuse = lambertMaterial->Diffuse;
-			FbxPropertyT<FbxDouble3> lambertAmbient = lambertMaterial->Ambient;
-			
-			FbxDouble3 lambertDiffuseInfo = lambertDiffuse.Get();
-			FbxDouble3 lambertAmbientInfo = lambertAmbient.Get();
-
-			pMesh.objectMaterial.diffuseColor.x = lambertDiffuseInfo.mData[0];
-			pMesh.objectMaterial.diffuseColor.y = lambertDiffuseInfo.mData[1];
-			pMesh.objectMaterial.diffuseColor.z = lambertDiffuseInfo.mData[2];
-
-			pMesh.objectMaterial.diffuseFactor = lambertMaterial->DiffuseFactor;
-
-			pMesh.objectMaterial.ambientColor.x = lambertAmbientInfo.mData[0];
-			pMesh.objectMaterial.ambientColor.y = lambertAmbientInfo.mData[1];
-			pMesh.objectMaterial.ambientColor.z = lambertAmbientInfo.mData[2];
-
-			pMesh.objectMaterial.ambientFactor = lambertMaterial->AmbientFactor;
-
-
-			// Lambert doesn't have any specularity to it, so this can be set to 0
-			pMesh.objectMaterial.specularColor.x = 0.0f;
-			pMesh.objectMaterial.specularColor.y = 0.0f;
-			pMesh.objectMaterial.specularColor.z = 0.0f;
-
-			pMesh.objectMaterial.specularFactor = 0.0f;
+			GetLambert(pMesh.objectMaterial, lambertMaterial);
 		}
-
+		
 		// Check if the material is of the type Phong
 		else if (surfaceMaterial->GetClassId() == FbxSurfacePhong::ClassId) {
 
-			pMesh.objectMaterial.materialType = "Phong";
-
 			FbxSurfacePhong* phongMaterial = (FbxSurfacePhong*)surfaceMaterial;
-			FbxPropertyT<FbxDouble3> phongDiffuse = phongMaterial->Diffuse;
-			FbxPropertyT<FbxDouble3> phongAmbient = phongMaterial->Ambient;
-			FbxPropertyT<FbxDouble3> phongSpecular = phongMaterial->Specular;
-
-			FbxDouble3 phongDiffuseInfo = phongDiffuse.Get();
-			FbxDouble3 phongAmbientInfo = phongAmbient.Get();
-			FbxDouble3 phongSpecularInfo = phongSpecular.Get();
-
-			pMesh.objectMaterial.diffuseColor.x = phongDiffuseInfo.mData[0];
-			pMesh.objectMaterial.diffuseColor.y = phongDiffuseInfo.mData[1];
-			pMesh.objectMaterial.diffuseColor.z = phongDiffuseInfo.mData[2];
-
-			pMesh.objectMaterial.diffuseFactor = phongMaterial->DiffuseFactor;
-
-			pMesh.objectMaterial.ambientColor.x = phongAmbientInfo.mData[0];
-			pMesh.objectMaterial.ambientColor.y = phongAmbientInfo.mData[1];
-			pMesh.objectMaterial.ambientColor.z = phongAmbientInfo.mData[2];
-
-			pMesh.objectMaterial.ambientFactor = phongMaterial->AmbientFactor;
-
-			pMesh.objectMaterial.specularColor.x = phongSpecularInfo.mData[0];
-			pMesh.objectMaterial.specularColor.y = phongSpecularInfo.mData[1];
-			pMesh.objectMaterial.specularColor.z = phongSpecularInfo.mData[2];
-
-			pMesh.objectMaterial.specularFactor = phongMaterial->Shininess;
-
+			GetLambert(pMesh.objectMaterial, phongMaterial);
 		}
 
 		// Get the texture on the diffuse material property
@@ -1229,6 +1194,68 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 		GetChannelTexture(pMesh, bumpProperty);
 
 	}
+}
+
+void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial) {
+
+	objectMaterial.materialType = "Lambert";
+
+	FbxPropertyT<FbxDouble3> lambertDiffuse = lambertMaterial->Diffuse;
+	FbxPropertyT<FbxDouble3> lambertAmbient = lambertMaterial->Ambient;
+
+	FbxDouble3 lambertDiffuseInfo = lambertDiffuse.Get();
+	FbxDouble3 lambertAmbientInfo = lambertAmbient.Get();
+
+	objectMaterial.diffuseColor.x = lambertDiffuseInfo.mData[0];
+	objectMaterial.diffuseColor.y = lambertDiffuseInfo.mData[1];
+	objectMaterial.diffuseColor.z = lambertDiffuseInfo.mData[2];
+
+	objectMaterial.diffuseFactor = lambertMaterial->DiffuseFactor;
+
+	objectMaterial.ambientColor.x = lambertAmbientInfo.mData[0];
+	objectMaterial.ambientColor.y = lambertAmbientInfo.mData[1];
+	objectMaterial.ambientColor.z = lambertAmbientInfo.mData[2];
+
+	objectMaterial.ambientFactor = lambertMaterial->AmbientFactor;
+
+
+	// Lambert doesn't have any specularity to it, so this can be set to 0
+	objectMaterial.specularColor.x = 0.0f;
+	objectMaterial.specularColor.y = 0.0f;
+	objectMaterial.specularColor.z = 0.0f;
+
+	objectMaterial.specularFactor = 0.0f;
+}
+
+void SE::FBX::FBXConverter::GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial) {
+
+	objectMaterial.materialType = "Phong";
+
+	FbxPropertyT<FbxDouble3> phongDiffuse = phongMaterial->Diffuse;
+	FbxPropertyT<FbxDouble3> phongAmbient = phongMaterial->Ambient;
+	FbxPropertyT<FbxDouble3> phongSpecular = phongMaterial->Specular;
+
+	FbxDouble3 phongDiffuseInfo = phongDiffuse.Get();
+	FbxDouble3 phongAmbientInfo = phongAmbient.Get();
+	FbxDouble3 phongSpecularInfo = phongSpecular.Get();
+
+	objectMaterial.diffuseColor.x = phongDiffuseInfo.mData[0];
+	objectMaterial.diffuseColor.y = phongDiffuseInfo.mData[1];
+	objectMaterial.diffuseColor.z = phongDiffuseInfo.mData[2];
+
+	objectMaterial.diffuseFactor = phongMaterial->DiffuseFactor;
+
+	objectMaterial.ambientColor.x = phongAmbientInfo.mData[0];
+	objectMaterial.ambientColor.y = phongAmbientInfo.mData[1];
+	objectMaterial.ambientColor.z = phongAmbientInfo.mData[2];
+
+	objectMaterial.ambientFactor = phongMaterial->AmbientFactor;
+
+	objectMaterial.specularColor.x = phongSpecularInfo.mData[0];
+	objectMaterial.specularColor.y = phongSpecularInfo.mData[1];
+	objectMaterial.specularColor.z = phongSpecularInfo.mData[2];
+
+	objectMaterial.specularFactor = phongMaterial->Shininess;
 }
 
 void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty) {
@@ -1244,11 +1271,10 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			FbxTexture* materialTexture = FbxCast<FbxTexture>(materialProperty.GetSrcObject<FbxTexture>(j));
 
-			texture.textureName = materialTexture->GetName();
-
 			FbxFileTexture* textureFile = (FbxFileTexture*)materialTexture;
 
 			texture.texturePath = textureFile->GetFileName();
+			texture.textureName = removeExtension(getFilename(textureFile->GetFileName()));
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1382,7 +1408,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 void SE::FBX::FBXConverter::WriteMesh(string folderName, Mesh& mesh) {
 
 	// Define the file name
-	string binaryFile = folderName + "/" + mesh.name + "_" + fileName + ".mesh";
+	string binaryFile = folderName + "/" + fileName + ".mesh";
 
 	// Define the ofstream 
 	ofstream outBinary(binaryFile, std::ios::binary);
@@ -1439,7 +1465,7 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 	if (skeleton.hierarchy.size() > 0){
 
 		// Define the file name
-		string binaryFile = folderName + "/" + meshName + "_" + fileName + ".skel";
+		string binaryFile = folderName + "/" + fileName + ".skel";
 
 		// Define the ofstream 
 		ofstream outBinary(binaryFile, std::ios::binary);

@@ -1,17 +1,1 @@
 
-Assets/Lights/bakedTest.light
-Assets/Materials/lambert1_male_basemesh1.mat
-Assets/Materials/lambert1_MCModell.mat
-Assets/Materials/lambert1_Placeholder_Arrow.mat
-Assets/Materials/lambert1_Placeholder_Block.mat
-Assets/Materials/lambert1_Placeholder_Floor.mat
-Assets/Materials/PhongTest_bakedTest.mat
-Assets/Meshes/base_human_male_default_male_basemesh1.mesh
-Assets/Meshes/Mesh_MCModell.mesh
-Assets/Meshes/pCube1_Placeholder_Block.mesh
-Assets/Meshes/pPlane1_Placeholder_Floor.mesh
-Assets/Meshes/pPyramid2_Placeholder_Arrow.mesh
-Assets/Meshes/TestMesh_bakedTest.mesh
-Assets/Skeleton/TestMesh_bakedTest.skel
-Assets/Textures/TestMesh_Diffuse.sei
-Assets/Textures/TestMesh_Normal.sei
