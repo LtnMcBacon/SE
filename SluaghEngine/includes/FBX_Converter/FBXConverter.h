@@ -56,8 +56,10 @@ namespace SE
 
 			void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
 			void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
-			void CreateNormals(Mesh &pMesh, int iControlPointIndex, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3 tangent, int j, int k);
-
+			
+			XMFLOAT3 CreateBinormals(FbxMesh* meshNode, int iControlPointIndex, int j, int k);
+			XMFLOAT3 CreateTangents(FbxMesh* meshNode, int iControlPointIndex, int j, int k);
+			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// SKELETON/SKINNING FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -78,6 +80,10 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void LoadMaterial(Mesh& pMesh);
+			void GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial);
+			void GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial);
+
+
 			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
 			bool ExportTexture(Texture &texture, string textureFolder);
 
