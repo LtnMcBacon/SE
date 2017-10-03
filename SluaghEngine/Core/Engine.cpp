@@ -84,10 +84,10 @@ int SE::Core::Engine::Frame(double dt)
 
 int SE::Core::Engine::Release()
 {
+	resourceHandler->Shutdown();
 	renderer->Shutdown();
 	window->Shutdown();
-	audioManager->Shutdown();
-	resourceHandler->Shutdown();
+	audioManager->Shutdown();	
 	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
