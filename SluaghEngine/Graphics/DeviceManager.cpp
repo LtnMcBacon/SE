@@ -37,9 +37,7 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	StartProfile;
 
-	HRESULT hr = S_OK;
-
-	hr = CreateDeviceResources();
+	HRESULT hr = CreateDeviceResources();
 
 	if (FAILED(hr)) {
 		StopProfile;
@@ -123,8 +121,6 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 	StartProfile;
 
-	HRESULT hr = S_OK;
-
 	D3D_FEATURE_LEVEL levels[] = {
 
 		D3D_FEATURE_LEVEL_11_0,
@@ -139,7 +135,7 @@ HRESULT DeviceManager::CreateDeviceResources() {
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
 #endif
-	hr = D3D11CreateDevice(
+	HRESULT hr = D3D11CreateDevice(
 
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -168,8 +164,6 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 
 	StartProfile;
 
-	HRESULT hr = S_OK;
-
 	DXGI_SWAP_CHAIN_DESC swChDesc;
 	ZeroMemory(&swChDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 	swChDesc.Windowed = TRUE;
@@ -182,7 +176,7 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	swChDesc.OutputWindow = windowHandle;
 
 	IDXGIDevice* dxgiDevice = 0;
-	hr = gDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)& dxgiDevice);
+	HRESULT hr = gDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)& dxgiDevice);
 	if (FAILED(hr)) {
 
 		ProfileReturnConst(hr);
@@ -215,8 +209,7 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 
 	StartProfile;
 
-	HRESULT hr = S_OK;
-	hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
+	HRESULT hr = gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&gBackBuffer);
 
 	setDebugName(gBackBuffer, "STANDARD_BACK_BUFFER_TEXTURE2D");
 
@@ -243,8 +236,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	StartProfile;
 
-	HRESULT hr = S_OK;
-
 	gBackBuffer->GetDesc(&gBB_Desc);
 
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(
@@ -256,7 +247,7 @@ HRESULT DeviceManager::CreateDepthStencil() {
 		D3D11_BIND_DEPTH_STENCIL
 	);
 
-	hr = gDevice->CreateTexture2D(
+	HRESULT hr = gDevice->CreateTexture2D(
 		&depthStencilDesc,
 		nullptr,
 		&gDepthStencil
@@ -387,6 +378,8 @@ void DeviceManager::CreateBlendState()
 	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
 
 	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendState);
+	if (FAILED(hr))
+		throw std::exception("Could not create blend state");
 
 	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
 	UINT sampleM = 0xffffffff;

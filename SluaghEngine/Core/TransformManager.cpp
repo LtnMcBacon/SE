@@ -13,7 +13,7 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 	transformCapacity = 512;
 	transformCount = 0;
 	garbageCollectionIndex = 0;
-	const size_t bytes = transformCapacity * sizePerEntity;
+	//const size_t bytes = transformCapacity * sizePerEntity;
 	positions = new XMFLOAT3[transformCapacity];
 	rotations = new XMFLOAT3[transformCapacity];
 	scalings = new XMFLOAT3[transformCapacity];
@@ -292,7 +292,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 void SE::Core::TransformManager::ExpandTransforms()
 {
 	StartProfile;
-	const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
+	//const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
 	const uint32_t newCapacity = transformCapacity + transformCapacityIncrement;
 
 	XMFLOAT3* newPos = new XMFLOAT3[newCapacity];

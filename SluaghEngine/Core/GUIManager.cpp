@@ -19,9 +19,9 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
-			if (ret)
-				throw std::exception("Could not load default font.");
+			//auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			//if (ret)
+			//	throw std::exception("Could not load default font.");
 		}
 
 		GUIManager::~GUIManager()
@@ -146,7 +146,7 @@ namespace SE {
 		int GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
 			guidToFont[font] = renderer->CreateTextFont(data, size);
-			return guidToFont[font];
+			return 0;
 		}
 
 		void GUIManager::DestroyText(size_t index)
