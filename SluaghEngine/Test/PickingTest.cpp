@@ -42,8 +42,9 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 	auto object = em.Create();
 
 	auto camera = em.Create();
-
-	vm.Bind(camera, {  1280 / 720.0f ,1.570796});
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800)/(float)om.GetOption("Window", "height", 640);
+	vm.Bind(camera, cInfo);
 	vm.SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
