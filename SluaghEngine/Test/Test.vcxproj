@@ -156,6 +156,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
   <ItemGroup>
     <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="AudioTest.cpp" />
+    <ClCompile Include="BehavioursTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="DebugRenderTest.cpp" />
@@ -181,6 +182,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
   <ItemGroup>
     <ClInclude Include="AllocatorTest.h" />
     <ClInclude Include="AudioTest.h" />
+    <ClInclude Include="BehavioursTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="BufferTest.h" />
     <ClInclude Include="EnemyMovementTest.h" />
