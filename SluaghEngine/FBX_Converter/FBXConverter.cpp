@@ -1274,7 +1274,7 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 			FbxFileTexture* textureFile = (FbxFileTexture*)materialTexture;
 
 			texture.texturePath = textureFile->GetFileName();
-			texture.textureName = getFilename(textureFile->GetFileName());
+			texture.textureName = removeExtension(getFilename(textureFile->GetFileName()));
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1465,7 +1465,7 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 	if (skeleton.hierarchy.size() > 0){
 
 		// Define the file name
-		string binaryFile = folderName + "/" + meshName + "_" + fileName + ".skel";
+		string binaryFile = folderName + "/" + fileName + ".skel";
 
 		// Define the ofstream 
 		ofstream outBinary(binaryFile, std::ios::binary);

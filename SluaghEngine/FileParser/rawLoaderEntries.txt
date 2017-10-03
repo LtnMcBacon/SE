@@ -30,6 +30,6 @@ Assets/Animations/RunAnimation_bakedTest.anim
 Assets/Lights/bakedTest.light
 Assets/Materials/PhongTest_bakedTest.mat
 Assets/Meshes/bakedTest.mesh
-Assets/Skeleton/TestMesh_bakedTest.skel
-Assets/Textures/TestDiffuse.png.sei
-Assets/Textures/TestNormal.jpg.sei
+Assets/Skeleton/bakedTest.skel
+Assets/Textures/TestDiffuse.sei
+Assets/Textures/TestNormal.sei
