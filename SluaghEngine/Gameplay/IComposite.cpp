@@ -1,7 +1,7 @@
 #include "IComposite.h"
 #include <Profiler.h>
 using namespace SE;
-using namespace GAMEPLAY;
+using namespace Gameplay;
 
 IComposite::IComposite(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)

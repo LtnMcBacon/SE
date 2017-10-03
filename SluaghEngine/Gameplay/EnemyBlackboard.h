@@ -3,7 +3,7 @@
 
 namespace SE
 {
-	namespace GAMEPLAY
+	namespace Gameplay
 	{
 		class Enemy;
 

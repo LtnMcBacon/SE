@@ -266,5 +266,8 @@
     <ClInclude Include="Inverter.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClInclude>
+    <ClInclude Include="Behaviours.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

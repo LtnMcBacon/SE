@@ -3,7 +3,7 @@
 #include <algorithm>
 
 using namespace SE;
-using namespace GAMEPLAY;
+using namespace Gameplay;
 
 void RandomSequence::OnInitialization()
 {

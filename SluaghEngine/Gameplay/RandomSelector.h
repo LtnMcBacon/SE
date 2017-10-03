@@ -5,7 +5,7 @@
 
 namespace SE
 {
-	namespace GAMEPLAY
+	namespace Gameplay
 	{
 		/**
 		*

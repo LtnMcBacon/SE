@@ -2,7 +2,7 @@
 #include <Profiler.h>
 
 using namespace SE;
-using namespace GAMEPLAY;
+using namespace Gameplay;
 
 void Sequence::OnInitialization()
 {

@@ -58,6 +58,7 @@
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="Behaviours.h" />
     <ClInclude Include="IBehaviour.h" />
     <ClInclude Include="BehaviouralTree.h" />
     <ClInclude Include="EnemyBlackboard.h" />

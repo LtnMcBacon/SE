@@ -1,6 +1,6 @@
 #include "IDecorator.h"
 using namespace SE;
-using namespace GAMEPLAY;
+using namespace Gameplay;
 
 IDecorator::IDecorator(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child) :
 	IBehaviour(enemyBlackboard, gameBlackboard),
