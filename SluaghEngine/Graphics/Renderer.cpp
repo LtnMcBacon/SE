@@ -358,7 +358,8 @@ int SE::Graphics::Renderer::Render() {
 	/********** Render line jobs ************/
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
 
 	for(auto& lineJob : lineRenderJobs)
 	{
