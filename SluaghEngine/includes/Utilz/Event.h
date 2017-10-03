@@ -2,6 +2,8 @@
 #define SE_UTILZ_EVENT_H_
 #include <list>
 #include "Delegator.h"
+#include <vector>
+
 namespace SE
 {
 	namespace Utilz
@@ -27,6 +29,21 @@ namespace SE
 		class Event<R(Args...)>
 		{
 		public:
+
+			/**
+			* @brief Invokes all registered functions.
+			* @sa Event
+			*/
+			inline std::vector<R> Invoke(Args... args)
+			{
+				std::vector<R> returns;
+				for (auto& deleg : delegates)
+					returns.push_back(deleg.Invoke(std::forward<Args>(args)...));
+
+				return returns;
+			}
+
+
 			/**
 			* @brief Invokes all registered functions.
 			* @sa Event

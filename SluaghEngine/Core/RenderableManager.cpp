@@ -317,9 +317,12 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
 		bufferIndex = bufferInfo.size() - 1;
+
+		bufferInfo[bufferIndex].entities.push_back(renderableObjectInfo.entity[newEntry]);
 		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), true);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
+
 	}
 	// Increase ref Count and save the index to the material info.
 	bufferInfo[bufferIndex].refCount++;
@@ -355,7 +358,19 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 
 	auto index = guidToBufferInfoIndex[guid];
 	bufferInfo[index].bufferHandle = bufferHandle;
-
+	for (auto& e : bufferInfo[index].entities)
+	{
+		auto& find = entityToRenderableObjectInfoIndex.find(e);
+		if (find != entityToRenderableObjectInfoIndex.end())
+		{
+			if (renderableObjectInfo.visible[find->second])
+			{
+				ToggleRenderableObject(e, false);
+				ToggleRenderableObject(e, true);
+			}
+		}
+		
+	}
 	ProfileReturnConst(0);
 }
 

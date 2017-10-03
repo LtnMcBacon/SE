@@ -123,6 +123,7 @@ namespace SE
 			{
 				int bufferHandle;
 				uint32_t refCount;	
+				std::vector<Entity> entities;
 			};
 
 			std::map<Utilz::GUID, Graphics::RenderObjectInfo::JobType, Utilz::GUID::Compare> guidToMeshType;

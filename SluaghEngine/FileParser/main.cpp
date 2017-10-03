@@ -139,7 +139,22 @@ int main(int argc, char* argv[])
 		if (gE.is_open())
 		{
 			for (auto& f : files)
-				gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
+			{
+
+				if (Utilz::getExtension(f.name) == "spritefont")
+				{
+					std::string path = (std::string(argv[2]) + "/Font/" + Utilz::removeRoot(f.fullPath));
+					gE << path << std::endl;
+				}
+				else if (Utilz::getExtension(f.name) == "gui")
+				{
+					std::string path = (std::string(argv[2]) + "\\GUI\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei"));
+					gE << path << std::endl;
+				}
+				else
+
+					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
+			}
 			for (auto& f : fbxConvFiles)
 				if (Utilz::getExtension(f.name) != "log")
 					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
