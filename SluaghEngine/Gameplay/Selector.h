@@ -1,5 +1,5 @@
-#ifndef SE_GAMEPLAY_SEQUENCE_H
-#define SE_GAMEPLAY_SEQUENCE_H
+#ifndef SE_GAMEPLAY_SELECTOR_H
+#define SE_GAMEPLAY_SELECTOR_H
 
 #include "IComposite.h"
 
@@ -7,23 +7,22 @@ namespace SE
 {
 	namespace GAMEPLAY
 	{
-		class Sequence : public IComposite
+		class Selector : public IComposite
 		{
 		private:
-			Sequence() = delete;
+			Selector() = delete;
 		protected:
 			Behaviours::iterator currentChild;
 			virtual void OnInitialization() override;
 			virtual Status Update() override;
 
 		public:
-			Sequence(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
-			~Sequence();
-
+			Selector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
+			~Selector();
+			
 		};
 	}
 }
-
 
 
 

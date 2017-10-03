@@ -36,6 +36,7 @@
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +59,7 @@
     <ClInclude Include="GameBlackboard.h" />
     <ClInclude Include="IComposite.h" />
     <ClInclude Include="IDecorator.h" />
+    <ClInclude Include="Selector.h" />
     <ClInclude Include="Sequence.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
