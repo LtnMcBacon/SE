@@ -65,9 +65,8 @@ namespace SE
 				mm.Create(ents[i], info);
 				transformManager.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
 				//tm.Create(ents[i]);
-				rm.CreateRenderableObject(ents[i], Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+				rm.CreateRenderableObject(ents[i], Utilz::GUID("MCModell.mesh"));
 				rm.ToggleRenderableObject(ents[i], true);
-
 			}
 
 			auto light = em.Create();
@@ -75,7 +74,7 @@ namespace SE
 
 			Graphics::LightData data;
 			data.colour = DirectX::XMFLOAT4(1.0, 0.1, 0.1, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
+			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30000000.0);
 
 			lightManager.AddLight(light, data);
 			lightManager.ToggleLight(light, true);
