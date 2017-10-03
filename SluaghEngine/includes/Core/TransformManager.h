@@ -52,6 +52,15 @@ namespace SE
 			*/
 			void BindChild(const Entity& parent, const Entity& child, bool rotation = true);
 			
+
+
+			/**
+			* @brief    Sets the entity as dirty.
+			* @param[in] e The entity to move
+			* @warning Create must be called before this method for a given entity.
+			*/
+			void SetAsDirty(const Entity& e);
+
 			/**
 			* @brief    Moves an entity along a vector.
 			* @param[in] e The entity to move

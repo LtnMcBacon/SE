@@ -88,6 +88,13 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 
 }
 
+void SE::Core::TransformManager::SetAsDirty(const Entity & e)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+	SetAsDirty(index);
+}
+
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& dir)
 {
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");

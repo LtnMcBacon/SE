@@ -5,6 +5,7 @@
 #include "GraphicResourceHandler.h"
 #include <Graphics\GUIInfo.h>
 #include "AnimationSystem.h"
+#include <mutex>
 
 namespace SE
 {
@@ -48,6 +49,14 @@ namespace SE
 			*/
 			int DisableRendering(uint32_t jobID) override;
 
+			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] bufferHandle The buffer to change to.
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -295,6 +304,7 @@ namespace SE
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
+			std::mutex renderJobLock;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
