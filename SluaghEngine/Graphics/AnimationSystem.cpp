@@ -101,27 +101,33 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 
 void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, Skeleton &skeleton, float timePos) {
 
-	// Open up a new XMFLOAT4x4 array to temporarily store the updated joint transformations
-	std::vector<DirectX::XMFLOAT4X4> globalJointTransforms;
-	globalJointTransforms.reserve(skeleton.Hierarchy.size());
+	XMFLOAT4X4 jointArray[30];
+
+	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
+	std::vector<DirectX::XMFLOAT4X4> interpolatedJointTransforms;
+
+	// Reserve the vectors to match the joint hierarchy size
+	interpolatedJointTransforms.reserve(skeleton.Hierarchy.size());
 
 	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
 	for (int i = 0; i < skeleton.Hierarchy.size(); i++) {
 
-		globalJointTransforms.push_back(CalculateJointMatrix(i, animIndex, skeleton, timePos)); // check Interpolate function.
+		interpolatedJointTransforms.push_back(CalculateJointMatrix(i, animIndex, skeleton, timePos)); // check interpolations
 	}
 
-	//With all the precalculated matrices at our disposal, let's update the transformations in the secondary joint array
-
+	//With all the calculated matrices at our disposal, let's update the transformations in the secondary joint array
 	for (UINT i = 0; i < skeleton.Hierarchy.size(); i++) {
+
+		XMFLOAT4X4 matrix;
 
 		// Create a reference to the currenct joint to be processed
 		Joint &b = skeleton.Hierarchy[i];
 
 		// Get the current joint LOCAL transformation at the current animation time pose
-		b.GlobalTx = XMLoadFloat4x4(&globalJointTransforms[i]);
+		b.GlobalTx = XMLoadFloat4x4(&interpolatedJointTransforms[i]);
 
-		//XMStoreFloat4x4(&mesh.secondaryJointArray[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+		// Create the matrix by applying the inverse bind pose matrix on the global transformation
+		XMStoreFloat4x4(&jointArray[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
 	}
 }
 
