@@ -38,12 +38,12 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto& tm = e.GetTransformManager();
 	auto& ent = em.Create();
 	tm.Create(ent);
-	col.CreateBoundingHierarchy(ent, "pCube1_Placeholder_Block.mesh");
+	col.CreateBoundingHierarchy(ent, "Placeholder_Block.mesh");
 	
 
 	auto& ent2 = em.Create();
 	tm.Create(ent2);
-	col.CreateBoundingHierarchy(ent2, "pCube1_Placeholder_Block.mesh");
+	col.CreateBoundingHierarchy(ent2, "Placeholder_Block.mesh");
 
 	test = false;
 

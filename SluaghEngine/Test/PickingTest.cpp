@@ -61,10 +61,10 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(floor);
 	tm.SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
-	cm.CreateBoundingHierarchy(floor, Utilz::GUID("pCube1_Placeholder_Block.mesh"));
+	cm.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Block.mesh"));
 	
 	DirectX::XMFLOAT3 pos = tm.GetPosition(floor);
 	DirectX::XMFLOAT3 rot = tm.GetRotation(floor);
