@@ -22,7 +22,6 @@ namespace SE {
 			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
 			if (ret)
 				throw std::exception("Could not load default font.");
-			amountOfFonts = 1;
 		}
 
 		GUIManager::~GUIManager()
@@ -38,7 +37,7 @@ namespace SE {
 			if (!entityManager.Alive(entity))
 				ProfileReturnVoid;
 
-			if (inTextInfo.fontID > amountOfFonts)
+			if (inTextInfo.fontID >= guidToFont.size())
 				ProfileReturnVoid;
 			
 			entID[entity] = loadedTexts.size();
@@ -76,7 +75,7 @@ namespace SE {
 		{
 			StartProfile;
 			auto ret = resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
-			amountOfFonts++;
+			
 			ProfileReturnConst(0);
 		}
 
@@ -147,7 +146,6 @@ namespace SE {
 		int GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
 			guidToFont[font] = renderer->CreateTextFont(data, size);
-			amountOfFonts++;
 			return guidToFont[font];
 		}
 

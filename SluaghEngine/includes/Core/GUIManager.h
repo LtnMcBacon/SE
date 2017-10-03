@@ -289,7 +289,6 @@ namespace SE
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
 
-			int amountOfFonts;
 			bool garbage = false;
 		};
 	}
