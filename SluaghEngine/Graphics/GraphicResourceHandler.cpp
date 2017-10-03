@@ -226,7 +226,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
-			Utilz::Console::Print("Failed to reflect pixel shader.\n");
+		//	Utilz::Console::Print("Failed to reflect pixel shader.\n");
 			ProfileReturnConst(hr);
 		}
 		D3D11_SHADER_DESC shaderDesc;

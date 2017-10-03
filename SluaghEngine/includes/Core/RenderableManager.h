@@ -8,15 +8,18 @@
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
 #include "TransformManager.h"
-#include "MaterialManager.h"
 #include "AnimationManager.h"
 #include <list>
 #include <mutex>
+#include <Utilz\Event.h>
 
 namespace SE
 {
 	namespace Core
 	{
+
+		typedef Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)> SetRenderObjectInfoDelegate;
+
 		/**
 		*
 		* @brief This class is used to bind renderable objects to an entity.
@@ -27,7 +30,7 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, MaterialManager* materialManager, AnimationManager* animationManager);
+			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, AnimationManager* animationManager);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -51,15 +54,21 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool show);
 
-
+			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate& callback)
+			{
+				SetRenderObjectInfoEvent.Add(callback);
+			}
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame();
-		private:
-			void CreateRenderObjectInfo(Graphics::RenderObjectInfo* data, size_t index);
 
 			void UpdateRenderableObject(const Entity& entity);
+		private:
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
+			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
+
+			
 
 			void SetDirty(const Entity& entity, size_t index);
 
@@ -104,7 +113,6 @@ namespace SE
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
 			TransformManager* transformManager;
-			MaterialManager* materialManager;
 			AnimationManager* animationManager;
 			std::default_random_engine generator;	
 
