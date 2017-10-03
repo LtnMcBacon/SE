@@ -31,32 +31,22 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	animationSystem = new AnimationSystem();
 	
-	TargetOffset off;
-	off.shaderTarget[0] = true;
-	off.shaderTarget[1] = true;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 1;
-	off.offset[1] = 1;
-	off.offset[2] = 1;
 
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
-	if (FAILED(hr))
+
+	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
+	if (oncePerFrameBufferID < 0)
 	{
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
-	TargetOffset t = { {true, false, false},{2, 0, 0} };
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4) * maxDrawInstances, t, &instancedTransformsConstantBufferHandle);
-	if(FAILED(hr))
-	{
-		throw std::exception("Could not create OncePerObject constant buffer.\n");
-	}
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), t, &singleTransformConstantBuffer);
-	if (FAILED(hr))
+
+	
+	singleTransformConstantBuffer = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4));
+	if (singleTransformConstantBuffer < 0)
 	{
 		throw std::exception("Could not create singleTransformConstantBuffer.\n");
 	}
 
-	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
+	
 
 	graphicResourceHandler->CreateSamplerState();
 
@@ -305,7 +295,7 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	DirectX::XMFLOAT4X4 wo;
 	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
-	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
+	graphicResourceHandler->UpdateConstantBuffer(&wo, sizeof(wo), oncePerFrameBufferID);
 
 	return 0;
 }
@@ -333,7 +323,7 @@ int SE::Graphics::Renderer::Render() {
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
@@ -433,7 +423,8 @@ int SE::Graphics::Renderer::Render() {
 	/********** Render line jobs ************/
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
 
 	for(auto& lineJob : lineRenderJobs)
 	{

@@ -57,8 +57,11 @@ namespace SE
 			void CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode);
 			void CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode);
 			
-			XMFLOAT3 CreateBinormals(FbxMesh* meshNode, int iControlPointIndex, int j, int k);
-			XMFLOAT3 CreateTangents(FbxMesh* meshNode, int iControlPointIndex, int j, int k);
+			XMFLOAT3 CreateBinormals(FbxMesh* meshNode, int j, int k);
+			XMFLOAT3 CreateTangents(FbxMesh* meshNode, int j, int k);
+
+			XMFLOAT2 CreateUVCoords(FbxMesh* meshNode, int j, int k);
+			XMFLOAT3 CreateNormals(FbxMesh* meshNode, int j, int k);
 			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// SKELETON/SKINNING FUNCTIONS
@@ -74,6 +77,7 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void GatherAnimationData(Mesh &pMesh);
+			void CreateKeyframe(Animation CurrentAnimation, int timeIndex, FbxAMatrix globalTransform);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// MATERIAL/TEXTURE FUNCTIONS
@@ -82,8 +86,6 @@ namespace SE
 			void LoadMaterial(Mesh& pMesh);
 			void GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial);
 			void GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial);
-
-
 			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
 			bool ExportTexture(Texture &texture, string textureFolder);
 
@@ -102,12 +104,13 @@ namespace SE
 			// HELPER FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			FbxAMatrix		 GetGeometryTransformation(FbxNode* node);
-			unsigned int	 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
-			void			 ConvertToLeftHanded(FbxAMatrix &matrix);
-			FbxMesh*		 GetMeshFromRoot(FbxNode* node, string meshName);
+			FbxAMatrix				 GetGeometryTransformation(FbxNode* node);
+			unsigned int			 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
+			void					 ConvertToLeftHanded(FbxAMatrix &matrix);
+			FbxMesh*				 GetMeshFromRoot(FbxNode* node, string meshName);
 			DirectX::XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
-			void			 Print4x4Matrix(FbxAMatrix fbxMatrix);
+			void					 Print4x4Matrix(FbxAMatrix fbxMatrix);
+			void					 PrintMeshData(Mesh& mesh);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// STRING HELPER FUNCTIONS
