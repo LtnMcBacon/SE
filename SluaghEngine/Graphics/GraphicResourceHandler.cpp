@@ -204,7 +204,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		reflection->GetResourceBindingDesc(i, &sibd);
 		if(sibd.Type == D3D_SIT_CBUFFER)
 		{
-			vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = sibd.BindPoint;
+			vShaders[index].constBufferNameToHandleAndBindSlot[sibd.Name].bindSlot = sibd.BindPoint;
 		}
 	}
 

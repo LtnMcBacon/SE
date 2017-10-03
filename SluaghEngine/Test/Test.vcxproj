@@ -205,9 +205,6 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="WindowTest.h" />
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Asset\Shaders\Vertex\SimpleVS.hlsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

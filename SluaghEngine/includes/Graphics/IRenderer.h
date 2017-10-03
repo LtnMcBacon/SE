@@ -128,15 +128,6 @@ namespace SE
 			* @endcode
 			*/
 			virtual int DisableLightRendering(const LightData& handles, size_t ID) = 0;
-
-			/**
-			* @brief    Sets a render job
-			* @param[in] lineJob The job containing information about the job.
-			* @retval Returns a handle to the job on success.
-			* @retval -1 on failure.
-			* @sa LineRenderJob
-			*/
-			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 			
 			/**
 			* @brief    Removes a line render job.

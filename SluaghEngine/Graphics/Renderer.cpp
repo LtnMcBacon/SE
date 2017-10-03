@@ -50,23 +50,12 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->CreateSamplerState();
 
-	// LightBuffer create start
-	TargetOffset lightOffset;
-	lightOffset.shaderTarget[0] = false;
-	lightOffset.shaderTarget[1] = false;
-	lightOffset.shaderTarget[2] = true;
-	lightOffset.offset[0] = 0;
-	lightOffset.offset[1] = 0;
-	lightOffset.offset[2] = 2;
-
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * 20, lightOffset, &lightBufferID);
-	if (FAILED(hr))
+	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * 20);
+	if (lightBufferID < 0)
 	{
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
-	graphicResourceHandler->BindConstantBuffer(lightBufferID);
-	// LightBuffer create end
 
 	ProfileReturnConst( 0);
 }
@@ -378,7 +367,7 @@ int SE::Graphics::Renderer::Render() {
 		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
 	}
 	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
-	graphicResourceHandler->BindConstantBuffer(lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -446,11 +435,25 @@ int SE::Graphics::Renderer::Render() {
 			int bindSlot;
 			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
+			int binsSlotInvers;
+			int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+			graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
 			for (int i = 0; i < instanceCount; i += maxDrawInstances)
 			{
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
 

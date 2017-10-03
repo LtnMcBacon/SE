@@ -78,7 +78,7 @@ namespace SE
 
 			Graphics::LightData data;
 			data.colour = DirectX::XMFLOAT4(1.0, 0.1, 0.1, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30000000.0);
+			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
 
 			lightManager.AddLight(light, data);
 			lightManager.ToggleLight(light, true);
