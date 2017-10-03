@@ -73,6 +73,39 @@
     <Filter Include="Header Files\IGameState\PauseState">
       <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{cf0b92a6-330a-41c0-b217-27b43ba33913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree">
+      <UniqueIdentifier>{81f05e5b-cd1e-4dba-a3a5-f6f867cb9b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Blackboard">
+      <UniqueIdentifier>{f4b69519-30ac-447e-bcb5-8e64244eebbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI">
+      <UniqueIdentifier>{69c9e446-c132-42b9-a706-10daf8dc6785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree">
+      <UniqueIdentifier>{7640b8a1-f990-4f15-8cb6-2979ae1290ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours">
+      <UniqueIdentifier>{0191e339-ca67-476c-8397-2b13b845a623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Decorators">
+      <UniqueIdentifier>{4854a74f-8380-46a5-b386-ba6cb2bf3183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Composites">
+      <UniqueIdentifier>{64341f40-3ae0-43f6-bcb4-5bc78f5f6d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours">
+      <UniqueIdentifier>{dd23f0ca-fa36-499b-aa11-17769e97ab2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Decorators">
+      <UniqueIdentifier>{47018d89-e601-4479-b8bb-255be5b0ea5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Composites">
+      <UniqueIdentifier>{147281d2-6e3f-421c-b9fe-aaf40e27155a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -114,6 +147,18 @@
     <ClCompile Include="PlayerUnit.cpp">
       <Filter>Source Files\GameUnits</Filter>
     </ClCompile>
+    <ClCompile Include="BehaviouralTree.cpp">
+      <Filter>Source Files\AI\BehaviouralTree</Filter>
+    </ClCompile>
+    <ClCompile Include="IBehaviour.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="IDecorator.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="IComposite.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -154,6 +199,24 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviouralTree.h">
+      <Filter>Header Files\AI\BehaviouralTree</Filter>
+    </ClInclude>
+    <ClInclude Include="IBehaviour.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="IDecorator.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="IComposite.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

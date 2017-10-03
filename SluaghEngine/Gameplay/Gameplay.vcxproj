@@ -19,12 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
+    <ClCompile Include="IBehaviour.cpp" />
+    <ClCompile Include="IComposite.cpp" />
+    <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
@@ -46,7 +50,13 @@
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="IBehaviour.h" />
+    <ClInclude Include="BehaviouralTree.h" />
+    <ClInclude Include="EnemyBlackboard.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameBlackboard.h" />
+    <ClInclude Include="IComposite.h" />
+    <ClInclude Include="IDecorator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
