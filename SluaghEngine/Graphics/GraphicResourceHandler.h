@@ -191,6 +191,21 @@ namespace SE {
 			*/
 			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
 
+			enum class ShaderStage
+			{
+				VERTEX,
+				GEOMETRY,
+				PIXEL,
+				COMPUTE
+			};
+			/**
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the shader stage specified by shaderStage.
+			* @param[in] shaderStage The shader stage to bind the constant buffer to.
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
+			*/
+			void BindConstantBuffer(ShaderStage shaderStage, int constBufferHandle, int bindSlot);
 
 
 			/**

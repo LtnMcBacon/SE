@@ -445,6 +445,25 @@ void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bin
 	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
 }
 
+void GraphicResourceHandler::BindConstantBuffer(ShaderStage shaderStage, int constBufferHandle, int bindSlot)
+{
+	switch(shaderStage)
+	{
+	case ShaderStage::VERTEX:
+		gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::GEOMETRY:
+		gDeviceContext->GSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::PIXEL:
+		gDeviceContext->PSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::COMPUTE:
+		gDeviceContext->CSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	}
+}
+
 
 HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
 {
