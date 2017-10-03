@@ -19,6 +19,12 @@ namespace SE
 		private:
 			Succeeder() = delete;
 		protected:
+
+			/**
+			* @brief	Tick of the child and return BEHAVIOUR_SUCCESS
+			*
+			* @retval BEHAVIOUR_SUCCESS The behaviour is finished and succeeded in its execution.
+			*/
 			Status Update() override;
 
 		public:

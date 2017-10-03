@@ -20,6 +20,22 @@ namespace SE
 		private:
 			RepeatUntilFail() = delete;
 		protected:
+
+			/**
+			* @brief	Goes through the child until fail..
+			*
+			* @details	Update its child, and continues to do so until a child returns BEHAVIOUR_FAILURE.
+			* If a child returns something but BEHAVIOUR_FAILURE and BEHAVIOUR_SUCCESS, RepeatUntilFail
+			* will return BEHAVIOUR_RUNNING
+			*
+			*
+			* @retval BEHAVIOUR_FAILURE The behaviour failed to complete.
+			* @retval BEHAVIOUR_RUNNING The behaviour is executing, and may take multiple frames to finish.
+			* @retval BEHAVIOUR_SUCCESS The behaviour is finished and succeeded in its execution.
+			* @retval BEHAVIOUR_SUSPENDED The behaviour is suspended by another node, and should be checked in on later.
+			* @retval BEHAVIOUR_INVALID Something is wrong, since this should only be a "default" state.
+			*
+			*/
 			Status Update() override;
 		public:
 			RepeatUntilFail(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child);
