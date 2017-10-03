@@ -33,6 +33,10 @@ namespace SE
 			Down,
 			Left,
 			Right,
+			LightUp,
+			LightDown,
+			LightLeft,
+			LightRight,
 			Fullscreen,
 			FrameTime
 		};
@@ -96,6 +100,10 @@ namespace SE
 			w->MapActionButton(ActionButton::Down, Window::KeyS);
 			w->MapActionButton(ActionButton::Left, Window::KeyA);
 			w->MapActionButton(ActionButton::Right, Window::KeyD);
+			w->MapActionButton(ActionButton::LightUp, Window::KeyR);
+			w->MapActionButton(ActionButton::LightDown, Window::KeyC);
+			w->MapActionButton(ActionButton::LightLeft, Window::KeyQ);
+			w->MapActionButton(ActionButton::LightRight, Window::KeyE);
 			w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 			w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
 
@@ -120,6 +128,14 @@ namespace SE
 					transformManager.Move(camera, DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
 				if (w->ButtonDown(ActionButton::Left))
 					transformManager.Move(camera, DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
+				if (w->ButtonDown(ActionButton::LightUp))
+					transformManager.Move(light, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
+				if (w->ButtonDown(ActionButton::LightDown))
+					transformManager.Move(light, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
+				if (w->ButtonDown(ActionButton::LightRight))
+					transformManager.Move(light, DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
+				if (w->ButtonDown(ActionButton::LightLeft))
+					transformManager.Move(light, DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
 
 				if (w->ButtonPressed(ActionButton::Hide))
 				{
@@ -137,7 +153,7 @@ namespace SE
 				}
 				if (w->ButtonPressed(ActionButton::FrameTime))
 				{
-					console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
+					console->Print("Frametime: %f ms\n", timer.GetDeltaMilliseconds());
 				}
 				engine.Frame(0.01f);
 			}

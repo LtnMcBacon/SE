@@ -111,7 +111,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int DisableLightRendering(const LightData& handles) = 0;
+			virtual int DisableLightRendering(const LightData& handles, size_t ID) = 0;
 
 			/**
 			* @brief    Sets a render job
@@ -146,6 +146,14 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
+
+			/**
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
+			* @endcode
+			*/
+			virtual int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering

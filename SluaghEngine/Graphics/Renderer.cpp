@@ -260,27 +260,29 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 {
+	StartProfile;
 	renderLightJobs.push_back(handles);
-	return 0;
+	lightID[renderLightJobs.size() - 1] = renderLightJobs.size() - 1;
+	ProfileReturn(renderLightJobs.size() - 1);
 }
 
-int SE::Graphics::Renderer::DisableLightRendering(const LightData & handles)
+int SE::Graphics::Renderer::DisableLightRendering(const LightData & handles, size_t ID)
 {
-	const int size = renderLightJobs.size();
-	int at = -1;
-	for (size_t i = 0; i < size; ++i)
+	StartProfile;
+	lightID[renderLightJobs.size() - 1] = lightID[ID];
+	renderLightJobs[lightID[ID]] = renderLightJobs[renderLightJobs.size() - 1];
+	renderLightJobs.pop_back();
+	size_t tempOut = lightID[ID];
+	lightID.erase(ID);
+	ProfileReturn(tempOut);
+}
+
+int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
+{
+	auto fileLoaded = lightID.find(ID);
+	if (fileLoaded != lightID.end())
 	{
-		if (handles == renderLightJobs[i])
-		{
-			at = i;
-			break;
-		}
-	}
-	if (at >= 0)
-	{
-		for (int i = at; i < size - 1; ++i)
-			renderLightJobs[i] = renderLightJobs[i + 1];
-		renderLightJobs.pop_back();
+		renderLightJobs[lightID[ID]].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[lightID[ID]].pos.w);
 	}
 	return 0;
 }

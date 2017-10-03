@@ -95,7 +95,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int DisableLightRendering(const LightData& handles) override;
+			int DisableLightRendering(const LightData& handles, size_t ID) override;
 
 			/**
 			* @brief    Sets a render job
@@ -130,6 +130,14 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) override;
+
+			/**
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
+			* @endcode
+			*/
+			int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -319,6 +327,7 @@ namespace SE
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
 			std::vector<LightData> renderLightJobs;
+			std::map<size_t, size_t> lightID;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;

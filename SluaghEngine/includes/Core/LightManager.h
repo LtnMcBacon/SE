@@ -38,17 +38,19 @@ namespace SE
 		private:
 			void GarbageCollection();
 			void Destroy(size_t index);
-
+			void UpdateDirtyPos(const Entity& entity, size_t index);
 			struct showID
 			{
 				size_t ID;
+				size_t jobID;
 				bool show = false;
 			};
 
-			// Text variables
+			// Light variables
 			std::unordered_map<Entity, showID, EntityHasher> entID;
 			std::vector<Graphics::LightData> lights;
 			std::vector<Entity> ent;
+			std::map<size_t, Entity> jobToEnt;
 
 			std::default_random_engine generator;
 
