@@ -79,6 +79,29 @@ int main(int argc, char* argv[])
 				src.close();
 				dst.close();
 			}
+			else if (Utilz::getExtension(f.name) == "spritefont")
+			{
+				std::ifstream  src(f.fullPath, std::ios::binary);
+
+				std::string path = (std::string(argv[2]) + "/Font/" + Utilz::removeRoot(f.fullPath));
+				auto idx = path.find_last_of("\\/");
+				auto path2 = path.substr(0, idx);
+				fs::create_directories(path2);
+
+				std::ofstream  dst(path, std::ios::binary | std::ios::trunc);
+
+				dst << src.rdbuf();
+				src.close();
+				dst.close();
+			}
+			else if (Utilz::getExtension(f.name) == "gui")
+			{
+				printf("Parsing file: %s...\n", f.name.c_str());
+				if (ImageParse(f.fullPath.c_str(), (std::string(argv[2]) + "\\GUI\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei")).c_str()))
+					printf("Could not parse: %s\n", f.name.c_str());
+				else
+					f.fullPath.replace(f.fullPath.size() - Utilz::getExtension(f.name).size(), Utilz::getExtension(f.name).size(), "sei");
+			}
 		}
 
 		vector<Utilz::File> fbxConvFiles;
