@@ -62,6 +62,16 @@ namespace SE
 			virtual int DisableRendering(uint32_t jobID) = 0;
 
 			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] bufferHandle The buffer to change to.
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) = 0;
+
+
+			/**
 			* @brief    Sets a render job
 			* @param[in] lineJob The job containing information about the job.
 			* @retval Returns a handle to the job on success.
