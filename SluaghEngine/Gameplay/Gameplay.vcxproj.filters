@@ -100,11 +100,11 @@
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours">
       <UniqueIdentifier>{dd23f0ca-fa36-499b-aa11-17769e97ab2b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Decorators">
-      <UniqueIdentifier>{47018d89-e601-4479-b8bb-255be5b0ea5e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Composites">
       <UniqueIdentifier>{147281d2-6e3f-421c-b9fe-aaf40e27155a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Decorators">
+      <UniqueIdentifier>{47018d89-e601-4479-b8bb-255be5b0ea5e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,10 +159,22 @@
     <ClCompile Include="IComposite.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClCompile>
-    <ClCompile Include="Sequence.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    <ClCompile Include="RandomSelector.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClCompile>
     <ClCompile Include="Selector.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="Sequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="Succeeder.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="Repeater.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClCompile>
   </ItemGroup>
@@ -229,6 +241,18 @@
     </ClInclude>
     <ClInclude Include="Selector.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSelector.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="Succeeder.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="Repeater.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

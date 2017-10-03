@@ -1,15 +1,14 @@
-#include "Selector.h"
+#include "RandomSelector.h"
+#include <algorithm>
 #include <Profiler.h>
 
-using namespace SE;
-using namespace GAMEPLAY;
-
-void Selector::OnInitialization()
+void SE::GAMEPLAY::RandomSelector::OnInitialization()
 {
+	std::random_shuffle(myChildren.begin(), myChildren.end());
 	currentChild = myChildren.begin();
 }
 
-Status Selector::Update()
+SE::GAMEPLAY::Status SE::GAMEPLAY::RandomSelector::Update()
 {
 	StartProfile
 	while (true)
@@ -19,23 +18,23 @@ Status Selector::Update()
 		{
 			ProfileReturn(myStatus);
 		}
+
 		if (++currentChild == myChildren.end())
 		{
 			ProfileReturn(myStatus);
 		}
 	}
-
 	myStatus = Status::BEHAVIOUR_INVALID;
 	ProfileReturn(myStatus);
 }
 
-Selector::Selector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
+SE::GAMEPLAY::RandomSelector::RandomSelector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IComposite(enemyBlackboard, gameBlackboard)
 {
 
 }
 
-Selector::~Selector()
+SE::GAMEPLAY::RandomSelector::~RandomSelector()
 {
 
 }

@@ -35,9 +35,13 @@
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="RandomSelector.cpp" />
+    <ClCompile Include="RandomSequence.cpp" />
+    <ClCompile Include="Repeater.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="Succeeder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
@@ -59,8 +63,12 @@
     <ClInclude Include="GameBlackboard.h" />
     <ClInclude Include="IComposite.h" />
     <ClInclude Include="IDecorator.h" />
+    <ClInclude Include="RandomSelector.h" />
+    <ClInclude Include="RandomSequence.h" />
+    <ClInclude Include="Repeater.h" />
     <ClInclude Include="Selector.h" />
     <ClInclude Include="Sequence.h" />
+    <ClInclude Include="Succeeder.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
