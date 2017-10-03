@@ -158,6 +158,11 @@ namespace SE {
 			*
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
+
+			/**
+			* @brief Retrieves the number of vertices stored in a vertex buffer.
+			* @param[in] vertexBufferID The handle of the vertex buffer
+			*/
 			size_t GetVertexCount(int vertexBufferID) const;
 
 
