@@ -137,6 +137,8 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 void SE::Core::CollisionManager::Frame()
 {
 	StartProfile;
+	GarbageCollection();
+
 	// First update all bounding data
 	for (auto& dirty : dirtyEntites)
 	{
@@ -230,6 +232,7 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
 	collisionData.collisionWithAnyCallback[index] = collisionData.collisionWithAnyCallback[last];
+
 	// Replace the index for the last_entity 
 	entityToCollisionData[last_entity] = index;
 	entityToCollisionData.erase(entity);

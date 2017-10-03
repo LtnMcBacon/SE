@@ -132,8 +132,10 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
-
-	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, 1.570796, 1280/720.0f);
+	
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI/3;
