@@ -90,14 +90,14 @@
     <ClCompile Include="InstancingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectileTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
     <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="LightTest.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,8 +173,8 @@
     <ClInclude Include="EnemyMovementTest.h">
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
-    <ClInclude Include="LightTest.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ProjectileTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

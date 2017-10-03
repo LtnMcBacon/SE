@@ -25,6 +25,7 @@
 #include "EnemyMovementTest.h"
 #include "RoomCreationTest.h"
 #include "PlayerMovementTest.h"
+#include "ProjectileTest.h"
 #include "PickingTest.h"
 #include "LightTest.h"
 
@@ -77,6 +78,8 @@ int main(int argc, char** argv)
 	AddTest(GameStateTest);
 
 	AddTest(PickingTest);
+  
+	AddTest(ProjectileTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
