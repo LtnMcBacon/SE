@@ -36,6 +36,7 @@
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="Sequence.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="GameBlackboard.h" />
     <ClInclude Include="IComposite.h" />
     <ClInclude Include="IDecorator.h" />
+    <ClInclude Include="Sequence.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

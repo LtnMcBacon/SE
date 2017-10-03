@@ -159,6 +159,9 @@
     <ClCompile Include="IComposite.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClCompile>
+    <ClCompile Include="Sequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -216,6 +219,9 @@
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClInclude>
     <ClInclude Include="IComposite.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="Sequence.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClInclude>
   </ItemGroup>
