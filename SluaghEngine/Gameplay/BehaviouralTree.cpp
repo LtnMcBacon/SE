@@ -2,15 +2,15 @@
 
 
 
-SE::GAMEPLAY::BehaviouralTree::BehaviouralTree()
+SE::Gameplay::BehaviouralTree::BehaviouralTree()
 {
 }
 
 
-SE::GAMEPLAY::BehaviouralTree::~BehaviouralTree()
+SE::Gameplay::BehaviouralTree::~BehaviouralTree()
 {
 }
 
-void SE::GAMEPLAY::BehaviouralTree::Tick()
+void SE::Gameplay::BehaviouralTree::Tick()
 {
 }

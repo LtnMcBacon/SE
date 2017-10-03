@@ -46,34 +46,34 @@
     <ClCompile Include="Succeeder.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
+    <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
+    <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
+    <ClInclude Include="..\includes\Gameplay\IComposite.h" />
+    <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
+    <ClInclude Include="..\includes\Gameplay\Inverter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Repeater.h" />
+    <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
-    <ClInclude Include="Behaviours.h" />
-    <ClInclude Include="IBehaviour.h" />
-    <ClInclude Include="BehaviouralTree.h" />
-    <ClInclude Include="EnemyBlackboard.h" />
+    <ClInclude Include="..\includes\Gameplay\Selector.h" />
+    <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GameBlackboard.h" />
-    <ClInclude Include="IComposite.h" />
-    <ClInclude Include="IDecorator.h" />
-    <ClInclude Include="Inverter.h" />
-    <ClInclude Include="RandomSelector.h" />
-    <ClInclude Include="RandomSequence.h" />
-    <ClInclude Include="Repeater.h" />
-    <ClInclude Include="RepeatUntilFail.h" />
-    <ClInclude Include="Selector.h" />
-    <ClInclude Include="Sequence.h" />
-    <ClInclude Include="Succeeder.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

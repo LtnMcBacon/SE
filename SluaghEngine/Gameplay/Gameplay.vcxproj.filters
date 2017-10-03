@@ -224,50 +224,50 @@
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
-    <ClInclude Include="GameBlackboard.h">
-      <Filter>Header Files\AI\Blackboard</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBlackboard.h">
-      <Filter>Header Files\AI\Blackboard</Filter>
-    </ClInclude>
-    <ClInclude Include="BehaviouralTree.h">
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h">
       <Filter>Header Files\AI\BehaviouralTree</Filter>
     </ClInclude>
-    <ClInclude Include="IBehaviour.h">
+    <ClInclude Include="..\includes\Gameplay\Behaviours.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
     </ClInclude>
-    <ClInclude Include="IDecorator.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
     </ClInclude>
-    <ClInclude Include="IComposite.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    <ClInclude Include="..\includes\Gameplay\GameBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
     </ClInclude>
-    <ClInclude Include="Sequence.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
-    </ClInclude>
-    <ClInclude Include="Selector.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
-    </ClInclude>
-    <ClInclude Include="RandomSelector.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
-    </ClInclude>
-    <ClInclude Include="RandomSequence.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
-    </ClInclude>
-    <ClInclude Include="Succeeder.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
-    </ClInclude>
-    <ClInclude Include="Repeater.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
-    </ClInclude>
-    <ClInclude Include="RepeatUntilFail.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
-    </ClInclude>
-    <ClInclude Include="Inverter.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
-    </ClInclude>
-    <ClInclude Include="Behaviours.h">
+    <ClInclude Include="..\includes\Gameplay\IBehaviour.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IComposite.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IDecorator.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Succeeder.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Inverter.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Repeater.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomSequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Selector.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Sequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomSelector.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

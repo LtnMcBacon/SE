@@ -2,13 +2,13 @@
 #include <algorithm>
 #include <Profiler.h>
 
-void SE::GAMEPLAY::RandomSelector::OnInitialization()
+void SE::Gameplay::RandomSelector::OnInitialization()
 {
 	std::random_shuffle(myChildren.begin(), myChildren.end());
 	currentChild = myChildren.begin();
 }
 
-SE::GAMEPLAY::Status SE::GAMEPLAY::RandomSelector::Update()
+SE::Gameplay::Status SE::Gameplay::RandomSelector::Update()
 {
 	StartProfile
 	while (true)
@@ -28,13 +28,13 @@ SE::GAMEPLAY::Status SE::GAMEPLAY::RandomSelector::Update()
 	ProfileReturn(myStatus);
 }
 
-SE::GAMEPLAY::RandomSelector::RandomSelector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
+SE::Gameplay::RandomSelector::RandomSelector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IComposite(enemyBlackboard, gameBlackboard)
 {
 
 }
 
-SE::GAMEPLAY::RandomSelector::~RandomSelector()
+SE::Gameplay::RandomSelector::~RandomSelector()
 {
 
 }
