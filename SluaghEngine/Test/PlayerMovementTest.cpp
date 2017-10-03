@@ -126,14 +126,16 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
 	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"), true);
 
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
-
-	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, 1.570796, 1280/720.0f);
+	
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI/3;
@@ -154,14 +156,14 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			if (mapRepresentation[x][y])
 			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block);
+				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block, true);
 				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 				numberOfEntitesPlaced++;
 			}
 			else
 			{
-				rm.CreateRenderableObject(arrows[numberOfArrows], Arrow);
+				rm.CreateRenderableObject(arrows[numberOfArrows], Arrow, true);
 				rm.ToggleRenderableObject(arrows[numberOfArrows], true);
 				float xMagnitude = 0.0f;
 				float zMagnitude = 0.0f;
@@ -226,7 +228,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemy->GetEntity(), Block);
+		rm.CreateRenderableObject(enemy->GetEntity(), Block, true);
 		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
@@ -234,7 +236,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 	Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), 1 + .5f, 22 + .5f, 10.0f);
-	rm.CreateRenderableObject(enemy->GetEntity(), Block);
+	rm.CreateRenderableObject(enemy->GetEntity(), Block, true);
 	rm.ToggleRenderableObject(enemy->GetEntity(), true);
 	tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 	tm.SetScale(enemy->GetEntity(), 0.5f);

@@ -8,7 +8,6 @@
 #include <Graphics\LightInfo.h>
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
-#include <ResourceHandler\IResourceHandler.h>
 #include "AnimationStructs.h"
 #include "FileHeaders.h"
 
@@ -63,7 +62,24 @@ namespace SE
 			*/
 			virtual int DisableRendering(uint32_t jobID) = 0;
 
-			
+			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] bufferHandle The buffer to change to.
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) = 0;
+
+
+			/**
+			* @brief    Sets a render job
+			* @param[in] lineJob The job containing information about the job.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa LineRenderJob
+			*/
+			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 
 			/**
 			* @brief    Sets a Text render jobs
@@ -200,19 +216,6 @@ namespace SE
 			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
 
 			/**
-			* @brief Create a transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			virtual int CreateTransform() = 0;
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			virtual void DestroyTransform(int transformHandle) = 0;
-			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
 			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
@@ -272,7 +275,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			virtual int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) = 0;
+			virtual int CreateTextFont(void * data, size_t size) = 0;
 
 			/**
 			* @brief Resizes the swapchain

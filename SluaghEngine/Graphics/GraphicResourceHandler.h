@@ -46,11 +46,7 @@ namespace SE {
 			VertexCount vertexBuffer;
 		};
 
-		struct ConstantData {
 
-			ConstantBuffer constantBuffer;
-			TargetOffset targetOffset;
-		};
 
 		struct VertexShaderData {
 
@@ -162,27 +158,13 @@ namespace SE {
 			*
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
-			size_t GetVertexCount(int vertexBufferID) const;
 
 			/**
-			* @brief	Adds a constant buffer
-			*
-			* @param[in] size The size to be given to the buffer
-			*
-			* @param[in] target A bool array to that holds the info for which shaders to bind the buffer to
-			*
-			* @param[in] offset A int array to that holds the info for which offset to bind the buffer to
-			*
-			* @param[in] constBufferID To return the ID of the buffer
-			*
-			* @retval S_OK Buffer creation succeded
-			*
-			* @warning Deprecated, use int CreateConstantBuffer(size_t size) instead
-			*
-			* @retval nonZero Creation failed
-			*
+			* @brief Retrieves the number of vertices stored in a vertex buffer.
+			* @param[in] vertexBufferID The handle of the vertex buffer
 			*/
-			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
+			size_t GetVertexCount(int vertexBufferID) const;
+
 
 			/**
 			* @brief Creates a constant buffer and returns a handle to it.
@@ -209,25 +191,23 @@ namespace SE {
 			* @retval void
 			*/
 			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
+
+			enum class ShaderStage
+			{
+				VERTEX,
+				GEOMETRY,
+				PIXEL,
+				COMPUTE
+			};
 			/**
-			* @brief	Bind the constant buffer to the shaders.
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			*
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the shader stage specified by shaderStage.
+			* @param[in] shaderStage The shader stage to bind the constant buffer to.
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
 			*/
-			void BindConstantBuffer(int constBufferID);
-			/**
-			* @brief	Set constant buffer data
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			* @warning Deprecated, use UpdateConstantBuffer instead.
-			*
-			*/
-			void SetConstantBuffer(void* inData, int constBufferID);
+			void BindConstantBuffer(ShaderStage shaderStage, int constBufferHandle, int bindSlot);
+
 
 			/**
 			* @brief	Updates the contents of a constant buffer.
@@ -327,7 +307,6 @@ namespace SE {
 
 			// Constant buffer specific data
 			std::vector<ConstantBuffer> cBuffers;
-			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeConstantBufferLocations;
 
 			//Shader resource views
