@@ -1,15 +1,8 @@
 #include <Core\GUIManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 #include <list>
 
-
-#ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
-#else
-#pragma comment(lib, "OBJParser.lib")
-#endif
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -26,7 +19,9 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			amountOfFonts = renderer->CreateTextFont(Utilz::GUID("moonhouse.spritefont"), resourceHandler);
+			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			if (ret)
+				throw std::exception("Could not load default font.");
 		}
 
 		GUIManager::~GUIManager()
@@ -42,7 +37,7 @@ namespace SE {
 			if (!entityManager.Alive(entity))
 				ProfileReturnVoid;
 
-			if (!(inTextInfo.fontID <= amountOfFonts))
+			if (inTextInfo.fontID >= guidToFont.size())
 				ProfileReturnVoid;
 			
 			entID[entity] = loadedTexts.size();
@@ -76,14 +71,15 @@ namespace SE {
 			GarbageCollection();
 		}
 
-		int GUIManager::CreateTextFont(Utilz::GUID fontFile)
+		int GUIManager::CreateTextFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			amountOfFonts = renderer->CreateTextFont(fontFile, resourceHandler);
+			auto ret = resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			
 			ProfileReturnConst(0);
 		}
 
-		int GUIManager::Create2D(Utilz::GUID texFile)
+		int GUIManager::Create2D(const Utilz::GUID& texFile)
 		{
 			StartProfile;
 			auto fileLoaded = textureGUID.find(texFile);
@@ -145,6 +141,12 @@ namespace SE {
 		{
 			entID.clear();
 			loadedTexts.clear();
+		}
+
+		int GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
+		{
+			guidToFont[font] = renderer->CreateTextFont(data, size);
+			return 0;
 		}
 
 		void GUIManager::DestroyText(size_t index)

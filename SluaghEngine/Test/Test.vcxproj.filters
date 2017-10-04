@@ -42,9 +42,6 @@
     <ClCompile Include="ObjLoaderTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BufferTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TransformManagerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,7 +96,13 @@
     <ClCompile Include="InstancingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectileTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
     <ClCompile Include="PickingTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
     <ClCompile Include="EnemyMovementTest.cpp">
@@ -123,9 +126,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjLoaderTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformManagerTest.h">
@@ -187,6 +187,12 @@
     </ClInclude>
     <ClInclude Include="BehavioursTest.h">
       <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMovementTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectileTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

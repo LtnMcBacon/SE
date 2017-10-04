@@ -1,7 +1,6 @@
 #include <CollisionManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 
 using namespace DirectX;
 
@@ -14,6 +13,9 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
 
 	defaultHierarchy = 0;
+
+
+
 	Allocate(128);
 	AllocateBH(64);
 }
@@ -46,28 +48,27 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			Allocate(collisionData.allocated * 2);
 
 		// Register the entity
-		size_t newEntry = collisionData.used;
+		size_t newEntry = collisionData.used++;
 		entityToCollisionData[entity] = newEntry;
 		collisionData.entity[newEntry] = entity;
-		collisionData.used++;
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoundingIndex.find(mesh);
-			auto& bIndex = guidToBoundingIndex[mesh];
-			if (findHi == guidToBoundingIndex.end())
+			auto& findHi = guidToBoundingInfoIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto& bIndex = guidToBoundingInfoIndex[mesh];
+			if (findHi == guidToBoundingInfoIndex.end()) // If not created
 			{
 				// Make sure we have enough memory.
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
 					AllocateBH(boundingHierarchy.allocated + 10); // TODO: Make thread safe
 
 
-				boundingIndex.push_back({ defaultHierarchy, 0 });
-				bIndex = boundingIndex.size() - 1;
+				boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
+				bIndex = boundingInfoIndex.size() - 1;
 
 				// Register the new hierarchy
-				size_t newHI = boundingHierarchy.used;
-				bIndex = defaultHierarchy;
+				auto newHI = boundingHierarchy.used++;
+				guidToBoundingHierarchyIndex[mesh] = newHI;
 
 				auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
 
@@ -77,7 +78,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			}
 
 			collisionData.boundingIndex[newEntry] = bIndex;
-			boundingIndex[bIndex].refCount++;
+			boundingInfoIndex[bIndex].refCount++;
 			
 
 			
@@ -136,12 +137,14 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 void SE::Core::CollisionManager::Frame()
 {
 	StartProfile;
+	GarbageCollection();
+
 	// First update all bounding data
 	for (auto& dirty : dirtyEntites)
 	{
 		// TODO: Multithread
-		auto& mySphere = boundingHierarchy.sphere[boundingIndex[collisionData.boundingIndex[dirty.myIndex]].index];
-		auto& myAABB = boundingHierarchy.AABB[boundingIndex[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& mySphere = boundingHierarchy.sphere[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& myAABB = boundingHierarchy.AABB[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
 		XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
 		mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);	
 		myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
@@ -229,6 +232,7 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
 	collisionData.collisionWithAnyCallback[index] = collisionData.collisionWithAnyCallback[last];
+
 	// Replace the index for the last_entity 
 	entityToCollisionData[last_entity] = index;
 	entityToCollisionData.erase(entity);
@@ -289,31 +293,32 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
+
 int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst(r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, Arf::Mesh::InterleaveOption::Position);
-	if (r)
-		ProfileReturnConst(r);
 
-	delete arfp.buffer;
+	auto newHI = guidToBoundingHierarchyIndex[guid];
 
-	auto newHI = guidToBoundingHierarchy[guid];
+	auto meshHeader = (Graphics::Mesh_Header*)data;
 
-	CreateBoundingHierarchy(newHI, parsedData->vertices, parsedData->NumVertices, sizeof(XMFLOAT3));
+	if (meshHeader->vertexLayout == 0) {
 
-	delete parsedData;
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
+	}
 
-	auto bIndex = guidToBoundingIndex[guid];
+	else {
 
-	boundingIndex[bIndex].index = newHI;
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
+	auto bIndex = guidToBoundingInfoIndex[guid];
+
+	boundingInfoIndex[bIndex].index = newHI;
 
 
 

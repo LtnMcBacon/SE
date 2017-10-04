@@ -28,7 +28,7 @@ namespace SE
 			GUID(const GUID&& other) : id(other.id) {}
 			GUID& operator=(const GUID& other) { this->id = other.id; return *this; }
 		private:
-			uint32_t id;			
+			size_t id;			
 		};
 
 

@@ -106,6 +106,12 @@
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Decorators">
       <UniqueIdentifier>{47018d89-e601-4479-b8bb-255be5b0ea5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Projectiles">
+      <UniqueIdentifier>{20d45af1-624a-4bbe-8bb0-30df9d94d30f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Projectiles">
+      <UniqueIdentifier>{a3501314-46aa-4280-a9f9-774854fd0a8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -268,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileData.h">
+      <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

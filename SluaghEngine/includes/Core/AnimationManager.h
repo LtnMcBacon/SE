@@ -5,7 +5,8 @@
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <unordered_map>
-#include "FileHeaders.h"
+#include <Graphics\FileHeaders.h>
+
 #include <random>
 
 namespace SE

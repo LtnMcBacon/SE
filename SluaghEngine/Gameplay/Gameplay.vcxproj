@@ -65,6 +65,7 @@
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Repeater.h" />

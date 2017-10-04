@@ -45,9 +45,9 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 	{
 		ents[i] = em.Create();
 		mm.Create(ents[i], info);
-		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) },{0.0f,0.0f,0.0f},{0.02f,0.02f,0.02f});
+		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) },{0.0f,0.0f,0.0f},{5.02f,5.02f,5.02f});
 		//tm.Create(ents[i]);
-		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_level.obj"));
+		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
 		rm.ToggleRenderableObject(ents[i], true);
 
 	}
