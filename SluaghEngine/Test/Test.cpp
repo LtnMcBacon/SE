@@ -27,6 +27,7 @@
 #include "PlayerMovementTest.h"
 #include "ProjectileTest.h"
 #include "PickingTest.h"
+#include "LightTest.h"
 
 
 #ifdef _DEBUG
@@ -65,6 +66,7 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+	AddTest(LightTest);
 
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);

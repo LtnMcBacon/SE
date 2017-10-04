@@ -42,7 +42,6 @@ enum ActionButton
 };
 
 
-
 bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();

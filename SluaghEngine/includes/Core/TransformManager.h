@@ -27,6 +27,7 @@ namespace SE
 			friend class CollisionManager;
 			friend class CameraManager;
 			friend class DebugRenderManager;
+			friend class LightManager;
 		public:
 			TransformManager(EntityManager* em);
 			~TransformManager();
