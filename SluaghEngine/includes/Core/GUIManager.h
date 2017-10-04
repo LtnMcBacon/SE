@@ -96,8 +96,8 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].text = text;
-					loadedTexts[entID[entity]].hashString = std::hash<std::wstring>()(text);
+					loadedTexts[entID[entity].ID].text = text;
+					loadedTexts[entID[entity].ID].hashString = std::hash<std::wstring>()(text);
 				}
 			};
 
@@ -106,7 +106,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].fontID = fontID;
+					loadedTexts[entID[entity].ID].fontID = fontID;
 				}
 			};
 
@@ -115,7 +115,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].colour = colour;
+					loadedTexts[entID[entity].ID].colour = colour;
 				}
 			};
 			
@@ -124,7 +124,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].pos = pos;
+					loadedTexts[entID[entity].ID].pos = pos;
 				}
 			};
 			
@@ -133,7 +133,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].origin = origin;
+					loadedTexts[entID[entity].ID].origin = origin;
 				}
 			};
 			
@@ -142,7 +142,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].scale = scale;
+					loadedTexts[entID[entity].ID].scale = scale;
 				}
 			};
 			
@@ -151,7 +151,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].effect = effect;
+					loadedTexts[entID[entity].ID].effect = effect;
 				}
 			};
 			
@@ -160,7 +160,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].rotation = rotation;
+					loadedTexts[entID[entity].ID].rotation = rotation;
 				}
 			};
 			
@@ -169,7 +169,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity]].layerDepth = layerDepth;
+					loadedTexts[entID[entity].ID].layerDepth = layerDepth;
 				}
 			};
 
@@ -270,13 +270,26 @@ namespace SE
 			void DestroyTexture(size_t index);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
+			struct EntBindIDGUID
+			{
+				Utilz::GUID GUID;
+				size_t ID;
+				bool show = false;
+			};
+
+			struct showID
+			{
+				size_t ID;
+				bool show = false;
+			};
+
 			// Text variables
-			std::unordered_map<Entity, size_t, EntityHasher> entID;
+			std::unordered_map<Entity, showID, EntityHasher> entID;
 			std::vector<Graphics::TextGUI> loadedTexts;
 			std::vector<Entity> ent;
 
 			//Texture variables
-			std::unordered_map<Entity, Graphics::EntBindIDGUID, EntityHasher> entTextureID;
+			std::unordered_map<Entity, EntBindIDGUID, EntityHasher> entTextureID;
 			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
 
