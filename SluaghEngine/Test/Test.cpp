@@ -27,6 +27,8 @@
 #include "PlayerMovementTest.h"
 #include "ProjectileTest.h"
 #include "PickingTest.h"
+#include "LightTest.h"
+#include "BehavioursTest.h"
 #include "SkeletonAnimationTest.h"
 
 
@@ -67,6 +69,7 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
+	AddTest(LightTest);
 
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
@@ -76,8 +79,10 @@ int main(int argc, char** argv)
 	AddTest(RoomCreationTest);
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
+	AddTest(BehavioursTest);
 
 	AddTest(PickingTest);
+
   
 	AddTest(ProjectileTest);
   
@@ -107,22 +112,36 @@ int main(int argc, char** argv)
 		else if (std::string(argv[1]) == "-a")
 		{
 			bool allTest = true;
-			for (auto& t : tests)
+			try
 			{
-				backend->Print("Running test: %s...\n", std::get<0>(t.second));
-				bool result = std::get<1>(t.second)->Run(backend);
-				if (!result) allTest = false;
-				backend->Print("Test %s %s\n\n", std::get<0>(t.second), result ? "succeeded" : "failed");
+				for (auto& t : tests)
+				{
+					backend->Print("Running test: %s...\n", std::get<0>(t.second));
+					bool result = std::get<1>(t.second)->Run(backend);
+					if (!result) allTest = false;
+					backend->Print("Test %s %s\n\n", std::get<0>(t.second), result ? "succeeded" : "failed");
+				}
+				backend->Print("Results: %s\n\n", allTest ? "All tests were successful." : "One or more tests failed.");
 			}
-			backend->Print("Results: %s\n\n", allTest ? "All tests were successful." : "One or more tests failed.");
+			catch (const std::exception& exe)
+			{
+				backend->Print("\nExeception: %s\n", exe.what());
+			}
 		}
 		else
 		{
 			auto& find = tests.find(SE::Utilz::GUID(argv[1]));
 			if (find != tests.end())
 			{
-				bool result = std::get<1>(find->second)->Run(backend);
-				backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed\n");
+				try
+				{
+					bool result = std::get<1>(find->second)->Run(backend);
+					backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed\n");
+				}
+				catch (const std::exception& exe)
+				{
+					backend->Print("%s Exeception: %s\n", std::get<0>(find->second), exe.what());
+				}
 			}
 				
 			else

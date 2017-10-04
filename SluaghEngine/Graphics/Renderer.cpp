@@ -4,6 +4,8 @@
 
 #undef min
 
+
+
 SE::Graphics::Renderer::Renderer()
 {
 	oncePerFrameBufferID = -1;
@@ -48,6 +50,13 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	
 
 	graphicResourceHandler->CreateSamplerState();
+
+	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * lightBufferSize);
+	if (lightBufferID < 0)
+	{
+		throw std::exception("Could not create LightDataBuffer");
+	}
+
 
 	ProfileReturnConst( 0);
 }
@@ -134,7 +143,7 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 
 
 
-int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, int bufferHandle)
+int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles)
 {
 	StartProfile;
 	renderJobLock.lock();
@@ -152,10 +161,6 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, int bufferHand
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
-
-
-	auto handles = bucketOfRemoved.stateInfo;
-	handles.bufferHandle = bufferHandle;
 
 	int32_t bucketIndex = -1;
 	const size_t renderBucketCount = renderBuckets.size();
@@ -290,6 +295,27 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 	return 0;
 }
 
+int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
+{
+	StartProfile;
+	renderLightJobs.push_back(handles);
+	ProfileReturn(renderLightJobs.size() - 1);
+}
+
+int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
+{
+	StartProfile;
+	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
+	renderLightJobs.pop_back();
+	ProfileReturn(renderLightJobs.size());
+}
+
+int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
+{
+	renderLightJobs[ID].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[ID].pos.w);
+	return 0;
+}
+
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	DirectX::XMFLOAT4X4 wo;
@@ -324,6 +350,19 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
+	// SetLightBuffer Start
+	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+	LightDataBuffer lightBufferData;
+	lightBufferData.size.x = renderLightJobs.size();
+
+	for (int lightNr = 0; lightNr < renderLightJobs.size(); lightNr++)
+	{
+		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
+	}
+	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
+	// SetLightBuffer end
+	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
@@ -389,11 +428,25 @@ int SE::Graphics::Renderer::Render() {
 			int bindSlot;
 			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
+			int binsSlotInvers;
+			int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+			graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
 			for (int i = 0; i < instanceCount; i += maxDrawInstances)
 			{
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
 

@@ -88,7 +88,7 @@ namespace SE {
 		void OptionHandler::Register(const Utilz::Delegate<void()>& delegat)
 		{
 			StartProfile;
-			optionEvent.Add(delegat);
+			optionEvent += delegat;
 			ProfileReturnVoid;
 		}
 

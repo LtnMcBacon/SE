@@ -7,7 +7,7 @@ namespace SE {
 			:resourceHandler(resourceHandler), entityManager(entityManager)
 		{
 
-			assert(resourceHandler);
+			_ASSERT(resourceHandler);
 
 		}
 
