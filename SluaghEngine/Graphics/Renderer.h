@@ -3,7 +3,7 @@
 #include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include <Graphics\GUIInfo.h>
+
 #include "AnimationSystem.h"
 #include <mutex>
 
@@ -91,6 +91,22 @@ namespace SE
 			int DisableTextureRendering(const GUITextureInfo& handles) override;
 
 			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableLightRendering(const LightData & handles) override;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableLightRendering(size_t ID) override;
+
+			/**
 			* @brief    Sets a render job
 			* @param[in] lineJob The job containing information about the job.
 			* @retval Returns a handle to the job on success.
@@ -123,6 +139,14 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) override;
+
+			/**
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
+			* @endcode
+			*/
+			int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -250,7 +274,14 @@ namespace SE
 				DirectX::XMFLOAT4X4 viewproj;
 			};
 
+			struct LightDataBuffer
+			{
+				DirectX::XMFLOAT4 size;
+				LightData data[20];
+			};
+
 			int oncePerFrameBufferID;
+			int lightBufferID;
 
 			DeviceManager* device;
 
@@ -291,11 +322,15 @@ namespace SE
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
 			std::mutex renderJobLock;
+			std::vector<LightData> renderLightJobs;
+			//std::map<size_t, size_t> lightID;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
 			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
+
+			static const int lightBufferSize = 20;
 		};
 
 	}
