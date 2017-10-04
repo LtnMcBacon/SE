@@ -302,28 +302,20 @@ int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 {
 	StartProfile;
 	renderLightJobs.push_back(handles);
-	lightID[renderLightJobs.size() - 1] = renderLightJobs.size() - 1;
 	ProfileReturn(renderLightJobs.size() - 1);
 }
 
 int SE::Graphics::Renderer::DisableLightRendering(const LightData & handles, size_t ID)
 {
 	StartProfile;
-	lightID[renderLightJobs.size() - 1] = lightID[ID];
-	renderLightJobs[lightID[ID]] = renderLightJobs[renderLightJobs.size() - 1];
+	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
 	renderLightJobs.pop_back();
-	size_t tempOut = lightID[ID];
-	lightID.erase(ID);
-	ProfileReturn(tempOut);
+	ProfileReturn(renderLightJobs.size());
 }
 
 int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
 {
-	auto fileLoaded = lightID.find(ID);
-	if (fileLoaded != lightID.end())
-	{
-		renderLightJobs[lightID[ID]].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[lightID[ID]].pos.w);
-	}
+	renderLightJobs[ID].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[ID].pos.w);
 	return 0;
 }
 

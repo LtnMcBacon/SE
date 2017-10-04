@@ -323,7 +323,7 @@ namespace SE
 			std::vector<GUITextureInfo> renderTextureJobs;
 			std::mutex renderJobLock;
 			std::vector<LightData> renderLightJobs;
-			std::map<size_t, size_t> lightID;
+			//std::map<size_t, size_t> lightID;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
