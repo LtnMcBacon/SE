@@ -52,6 +52,25 @@ void Room::UpdateAdjacentRooms(float dt)
 	StopProfile;
 }
 
+bool SE::Gameplay::Room::OnSegment(float pX, float pY, float qX, float qY, float rX, float rY)
+{
+	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
+		return true;
+
+	return false;
+}
+
+int SE::Gameplay::Room::Orientation(float pX, float pY, float qX, float qY, float rX, float rY)
+{
+	// See http://www.geeksforgeeks.org/orientation-3-ordered-points/
+	// for details of below formula.
+	int val = (qY - pY) * (rX - qX) - (qX - pX) * (rY - qY);
+
+	if (val == 0) return 0;  // colinear
+
+	return (val > 0) ? 1 : 2; // clock or counterclock wise
+}
+
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -166,7 +185,76 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	ProfileReturn(collision);
 }
 
-Room::Room(char map[25][25])	
+void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
+{
+	StartProfile;
+	bool collidedRight;
+	bool collidedLeft;
+	float xPower;
+	float yPower;
+
+#define p(s) projectiles[i].GetBoundingRect().s
+
+	for(int i = 0; i < projectiles.size(); i++)
+	{
+		collidedLeft = false;
+		collidedRight = false;
+		xPower = 0.0f;
+		yPower = 0.0f;
+
+		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperLeftX, projectiles[i].GetBoundingRect().upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
+		{
+			collidedLeft = true;
+		}
+
+		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperRightX, projectiles[i].GetBoundingRect().upperRightY, 0.0f, 0.0f)) //check if front right corner of projectile is in a blocked square
+		{
+			collidedRight = true;
+		}
+
+		if (collidedLeft)
+		{
+			//if(LineCollision(p(lowerLeftX), p(lowerLeftY), p(upperLeftX), p(upperLeftY)))
+		}
+	}
+
+	StopProfile;
+}
+
+bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y)
+{
+	// Find the four orientations needed for general and
+	// special cases
+	int o1 = Orientation(p1X, p1Y, q1X, q1Y, p2X, p2Y);
+	int o2 = Orientation(p1X, p1Y, q1X, q1Y, q2X, q2Y);
+	int o3 = Orientation(p2X, p2Y, q2X, q2Y, p1X, p2Y);
+	int o4 = Orientation(p2X, p2Y, q2X, q2Y, q1X, q1Y);
+
+	// General case
+	if (o1 != o2 && o3 != o4)
+		return true;
+
+	// Special Cases
+	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
+	if (o1 == 0 && OnSegment(p1X, p1Y, p2X, p2Y, q1X, q1Y))
+		return true;
+
+	// p1, q1 and p2 are colinear and q2 lies on segment p1q1
+	if (o2 == 0 && OnSegment(p1X, p1Y, q2X, q2Y, q1X, q1Y))
+		return true;
+
+	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
+	if (o3 == 0 && OnSegment(p2X, p2Y, p1X, p1Y, q2X, q2Y))
+		return true;
+
+	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
+	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y)) 
+		return true;
+
+	return false; // Doesn't fall in any of the above cases
+}
+
+Room::Room(char map[25][25])
 {
 	StartProfile;
 	pos start;

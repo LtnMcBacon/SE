@@ -41,6 +41,7 @@ namespace SE
 			float force;
 		};
 
+		//stefan approves
 		struct BoundingRect
 		{
 			float upperLeftX;
@@ -96,6 +97,11 @@ namespace SE
 			inline bool GetAlive()
 			{
 				return alive;
+			}
+			
+			inline BoundingRect GetBoundingRect()
+			{
+				return rect;
 			}
 
 		private:
