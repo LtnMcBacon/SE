@@ -25,7 +25,7 @@ namespace SE {
 				ProfileReturnConst(-1);
 
 			// chexk if entity exist in text 
-			auto fileLoaded = entID.find(entity);
+			auto& fileLoaded = entID.find(entity);
 			if (fileLoaded == entID.end())
 			{
 				entID[entity].ID = lights.size();
@@ -48,9 +48,9 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				size_t tempJobID = renderer->DisableLightRendering(lights[entID[entity].ID], entID[entity].jobID);
-				entID[jobToEnt[tempJobID]].jobID = entID[entity].jobID;
-				Destroy(entID[entity].ID);
+				size_t tempJobID = renderer->DisableLightRendering(fileLoaded->second.jobID);
+				entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+				Destroy(fileLoaded->second.ID);
 				ProfileReturnConst(0);
 			}
 			ProfileReturnConst(-1);
@@ -67,19 +67,20 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && !entID[entity].show)
+				if (show && !fileLoaded->second.show)
 				{
 					DirectX::XMFLOAT3 tempPos = transformManager->GetPosition(entity);
 					lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
-					entID[entity].jobID = renderer->EnableLightRendering(lights[entID[entity].ID]);
-					jobToEnt[entID[entity].jobID] = entity;
-					entID[entity].show = true;
+					fileLoaded->second.jobID = renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
+					jobToEnt[fileLoaded->second.jobID] = entity;
+					fileLoaded->second.show = true;
+					
 				}
-				else if (!show && entID[entity].show)
+				else if (!show && fileLoaded->second.show)
 				{
-					size_t tempJobID = renderer->DisableLightRendering(lights[entID[entity].ID], entID[entity].jobID);
-					entID[entity].show = false;
-					entID[jobToEnt[tempJobID]].jobID = entID[entity].jobID;
+					size_t tempJobID = renderer->DisableLightRendering(fileLoaded->second.jobID);
+					fileLoaded->second.show = false;
+					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 				}
 				ProfileReturnConst(0);
 			}
@@ -106,7 +107,7 @@ namespace SE {
 					continue;
 				}
 				alive_in_row = 0;
-				size_t tempJobID = renderer->DisableLightRendering(lights[entID[ent[i]].ID], entID[ent[i]].jobID);
+				size_t tempJobID = renderer->DisableLightRendering(entID[ent[i]].jobID);
 				entID[jobToEnt[tempJobID]].jobID = entID[ent[i]].jobID;
 				Destroy(i);
 			}
@@ -140,7 +141,7 @@ namespace SE {
 			auto find = entID.find(entity);
 			if (find != entID.end() && entID[entity].show == true)
 			{
-				renderer->UpdateLightPos(transformManager->GetPosition(entity) ,find->second.jobID);
+				renderer->UpdateLightPos(transformManager->GetPosition(entity), find->second.jobID);
 			}
 			ProfileReturnVoid;
 		}

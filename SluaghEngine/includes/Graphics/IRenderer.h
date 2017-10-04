@@ -127,7 +127,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int DisableLightRendering(const LightData& handles, size_t ID) = 0;
+			virtual int DisableLightRendering(size_t ID) = 0;
 			
 			/**
 			* @brief    Removes a line render job.

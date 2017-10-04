@@ -104,7 +104,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int DisableLightRendering(const LightData& handles, size_t ID) override;
+			int DisableLightRendering(size_t ID) override;
 
 			/**
 			* @brief    Sets a render job
@@ -329,6 +329,8 @@ namespace SE
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
 			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
+
+			static const int lightBufferSize = 20;
 		};
 
 	}

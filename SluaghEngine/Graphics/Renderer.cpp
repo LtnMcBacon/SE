@@ -4,6 +4,8 @@
 
 #undef min
 
+
+
 SE::Graphics::Renderer::Renderer()
 {
 	oncePerFrameBufferID = -1;
@@ -50,7 +52,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler->CreateSamplerState();
 
-	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * 20);
+	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * lightBufferSize);
 	if (lightBufferID < 0)
 	{
 		throw std::exception("Could not create LightDataBuffer");
@@ -301,7 +303,7 @@ int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 	ProfileReturn(renderLightJobs.size() - 1);
 }
 
-int SE::Graphics::Renderer::DisableLightRendering(const LightData & handles, size_t ID)
+int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
 {
 	StartProfile;
 	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
