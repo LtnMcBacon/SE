@@ -187,6 +187,9 @@ namespace SE
 			{
 				return unitEntity;
 			}
+
+			void DestroyEntity();
+			
 			
 		};
 	}

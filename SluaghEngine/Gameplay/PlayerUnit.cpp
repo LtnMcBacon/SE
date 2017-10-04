@@ -197,9 +197,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 SE::Gameplay::PlayerUnit::~PlayerUnit()
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
+	
+	this->DestroyEntity();
+
 	ProfileReturnVoid;
 }
 

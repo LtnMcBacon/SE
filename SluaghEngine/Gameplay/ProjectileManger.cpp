@@ -34,7 +34,7 @@ void SE::Gameplay::ProjectileManager::AddProjectiles(std::vector<ProjectileData>
 
 	for (int i = 0; i < newProjectiles.size(); i++)
 	{
-		factory.CreateNewProjectile(newProjectiles[i]);
+		projectiles.push_back(factory.CreateNewProjectile(newProjectiles[i]));
 	}
 
 	StopProfile;
@@ -48,9 +48,12 @@ SE::Gameplay::ProjectileManager::ProjectileManager()
 SE::Gameplay::ProjectileManager::~ProjectileManager()
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
+	
+	for (int i = 0; i < projectiles.size(); i++)
+	{
+		projectiles[i].DestroyEntity();
+	}
+
 	ProfileReturnVoid;
 }
 

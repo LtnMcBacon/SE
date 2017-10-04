@@ -193,8 +193,11 @@ Room::Room(char map[25][25])
 Room::~Room()
 {
 	delete roomField;
-	for (auto AI : enemyEntities)
-		delete AI;
+	for (auto enemy : enemyEntities)
+	{
+		enemy->DestroyEntity();
+		delete enemy;
+	}
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)

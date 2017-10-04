@@ -126,6 +126,23 @@ void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 	StopProfile;
 }
 
+SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
+{
+	extentX = 0.1f;
+	extentY = 0.1f;
+	rotation = 0.0f;
+
+	speed = 1.0f;
+	lifeTime = 10;
+	target = ValidTarget::EVERYONE;
+
+	eventDamage = DamageEvent();
+	eventHealing = HealingEvent();
+	eventCondition = ConditionEvent();
+
+	UpdateBounding();
+}
+
 SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
 	GameUnit(data.startPosX, data.startPosY, 100)
 {

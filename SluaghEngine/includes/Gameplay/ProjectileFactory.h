@@ -27,10 +27,10 @@ namespace SE
 			*
 			* @param [in] data Data created by the unit from which the need for the projectile originates
 			*
-			* @retval void No value
+			* @retval Projectile The newly created projectile
 			*
 			*/
-			Projectile CreateNewProjectile(ProjectileData data);
+			SE::Gameplay::Projectile CreateNewProjectile(ProjectileData data);
 
 
 		private:

@@ -99,7 +99,6 @@ namespace SE
 			}
 
 		private:
-			Projectile() {};
 			//Projectile(const Projectile& other) = delete;
 			//Projectile(const Projectile&& other) = delete;
 			Projectile& operator=(const Projectile& rhs) = delete;
@@ -141,13 +140,48 @@ namespace SE
 			void RotatePoint(float &xCoord, float &yCoord);
 
 		public:
-
+			Projectile();
 			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
 			~Projectile();
 
 			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)> func);
 			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)> func);
 			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)> func);
+
+			inline void SetRotation(float projectileRotation)
+			{
+				rotation = projectileRotation;
+			};
+
+			inline void SetRotationStyle(Rotation rotationStyle)
+			{
+				rotData = rotationStyle;
+			};
+
+			inline void SetSpeed(float projectileSpeed)
+			{
+				speed = projectileSpeed;
+			};
+
+			inline void SetValidTarget(ValidTarget projectileTarget)
+			{
+				target = projectileTarget;
+			};
+
+			inline void SetDamageEvent(DamageEvent eventD)
+			{
+				eventDamage = eventD;
+			};
+
+			inline void SetHealingEvent(HealingEvent eventH)
+			{
+				eventHealing = eventH;
+			};
+
+			inline void SetConditionEvent(ConditionEvent eventC)
+			{
+				eventCondition = eventC;
+			};
 
 		};
 

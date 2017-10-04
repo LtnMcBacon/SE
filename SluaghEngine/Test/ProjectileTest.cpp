@@ -151,7 +151,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
 
-	SE::Gameplay::ProjectileManager projectileManager;
+	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -420,9 +420,9 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
 
-		projectileManager.AddProjectiles(newProjectiles);
+		projectileManager->AddProjectiles(newProjectiles);
 
-		//projectileManager.UpdateProjectilePositions(dt);
+		projectileManager->UpdateProjectilePositions(dt);
 		//Check room collision for projectiles
 		//projectileManager.UpdateProjectileActions(dt);
 
@@ -449,6 +449,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 		e.Frame(dt);
 	}
+
+	delete projectileManager;
 
 	delete testRoom;
 	delete player;

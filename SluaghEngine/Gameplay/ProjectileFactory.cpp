@@ -6,11 +6,16 @@
 SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(ProjectileData data)
 {
 	Rotation rot;
-	DamageEvent eventD;
-	HealingEvent eventH;
-	ConditionEvent eventC;
 
-	SE::Gameplay::Projectile temp(data, rot, 2.0f, 10.0f, SE::Gameplay::ValidTarget::ENEMIES, eventD, eventH, eventC);
+	SE::Gameplay::Projectile temp(data, rot, 2.0f, 10.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
+	/*projectile.SetXPosition(data.startPosX);
+	projectile.SetYPosition(data.startPosY);
+	projectile.SetRotation(data.startRotation);
+	projectile.SetRotationStyle(rot);
+	projectile.SetValidTarget(SE::Gameplay::ValidTarget::ENEMIES);
+	projectile.SetDamageEvent(data.eventDamage);
+	projectile.SetHealingEvent(data.eventHealing);
+	projectile.SetConditionEvent(data.eventCondition);*/
 
 	auto& e = Core::Engine::GetInstance();
 
@@ -22,11 +27,13 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
 	tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
 
+	Utilz::GUID testGuid = Utilz::GUID("pCube1_Placeholder_Block.mesh");
+
 	rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("pCube1_Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(temp.GetEntity(), true);
 
-
 	return temp;
+
 }
 
 SE::Gameplay::ProjectileFactory::ProjectileFactory()

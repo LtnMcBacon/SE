@@ -60,6 +60,7 @@ namespace SE
 			std::vector<Projectile> projectiles;
 
 			ProjectileFactory factory;
+			int nrOfProjectiles = 0;
 
 
 		public:
