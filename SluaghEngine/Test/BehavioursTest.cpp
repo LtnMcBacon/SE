@@ -72,9 +72,10 @@ bool RunTest(std::string test, std::vector<SE::Gameplay::Status> &expectedValues
 			print = "Expected value: " + BehaviourToString(expected) +
 				" Returned value: " + BehaviourToString(result) + "\n";
 			console->Print(print.c_str());
+			return false;
 		}
 	}
-
+	return true;
 }
 
 bool BehavioursTest::Run(SE::Utilz::IConsoleBackend* console)
@@ -128,7 +129,7 @@ bool BehavioursTest::Run(SE::Utilz::IConsoleBackend* console)
 	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
 	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
 	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
-	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_FAILURE);
 
 	passed &= RunTest("Inverter", expectedValues, &Inverter, console);
 	/*Test Repeater*/
