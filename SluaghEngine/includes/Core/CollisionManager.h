@@ -5,7 +5,7 @@
 #include <DirectXCollision.h>
 #include <random>
 #include <Utilz\GUID.h>
-#include <Utilz\Delegator.h>
+#include <Utilz\Delegate.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "TransformManager.h"
 #include <unordered_map>

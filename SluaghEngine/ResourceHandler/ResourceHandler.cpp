@@ -1,7 +1,7 @@
 #include "ResourceHandler.h"
 #include <Profiler.h>
 #include "RawLoader.h"
-
+#include <vector>
 
 using namespace std::chrono_literals;
 
@@ -186,7 +186,7 @@ void SE::ResourceHandler::ResourceHandler::Run()
 
 void SE::ResourceHandler::ResourceHandler::LoadAsync()
 {
-	
+
 	while (toLoad.size()) // Do we need to load anything.
 	{
 		StartProfile;
@@ -215,18 +215,12 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 			{
 				toLoad.erase(job.guid);
 				toLoadLock.unlock();
-				auto rets = job.callbacks.Invoke(job.guid, data.data, data.size); // TODO: Fail check
+				std::vector<int> rets;
+				job.callbacks(job.guid, data.data, data.size, [&rets](size_t i, int* r) {rets.push_back(*r); }); 
 				infoLock.lock();
 				for (auto& r : rets)
 				{				
-					if (r == 1)
-					{
-						resourceInfo.refCount[job.resourceInfoIndex]--;
-					}
-					else if (r)
-					{
-						//Utilz::Console::Print("Error in resource callback GUID: %u, Error: %d.\n", job.guid, r);
-					}
+					resourceInfo.refCount[job.resourceInfoIndex]--;
 				}
 				infoLock.unlock();
 			}
@@ -247,18 +241,13 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 			{
 				toLoad.erase(job.guid);
 				toLoadLock.unlock();
-				auto rets = job.callbacks.Invoke(job.guid, data.data, data.size); // TODO: Fail check
+				std::vector<int> rets;
+				job.callbacks(job.guid, data.data, data.size, [&rets](size_t i, int* r) {rets.push_back(*r); }); 
 				infoLock.lock();
 				for (auto& r : rets)
 				{
 					if (r == 1)
-					{
 						resourceInfo.refCount[job.resourceInfoIndex]--;
-					}
-					else if (r)
-					{
-					//	Utilz::Console::Print("Error in resource callback GUID: %u, Error: %d.\n", job.guid, r);
-					}
 				}
 				infoLock.unlock();
 			}
@@ -276,7 +265,7 @@ void SE::ResourceHandler::ResourceHandler::CreateLoadJob(const Utilz::GUID& guid
 	toLoadLock.lock();
 	auto& tl = toLoad[guid];
 	tl.behavior = behavior;
-	tl.callbacks.Add(callback);
+	tl.callbacks += callback;
 	tl.resourceInfoIndex = index;
 	tl.guid = guid;
 	toLoadLock.unlock();
@@ -288,7 +277,7 @@ void SE::ResourceHandler::ResourceHandler::UpdateLoadJob(ToLoadInfo & loadInfo, 
 	StartProfile;
 	toLoadLock.lock();
 	loadInfo.behavior = loadInfo.behavior == Behavior::QUICK ? Behavior::QUICK : behavior; // If someone already needs the resource quickly, make sure that we don't change it to lazy.
-	loadInfo.callbacks.Add(callback);
+	loadInfo.callbacks += callback;
 	toLoadLock.unlock();
 	StopProfile;
 }

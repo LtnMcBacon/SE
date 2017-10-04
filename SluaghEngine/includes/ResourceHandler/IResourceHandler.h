@@ -2,7 +2,7 @@
 #define SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_
 #include <Utilz\GUID.h>
 #include <functional>
-#include <Utilz\Delegator.h>
+#include <Utilz\Delegate.h>
 
 #if defined DLL_EXPORT_RH
 #define DECLDIR __declspec(dllexport)
