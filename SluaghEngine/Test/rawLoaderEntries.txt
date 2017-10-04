@@ -3,6 +3,7 @@ Assets/Font/moonhouse.spritefont
 Assets/Shaders/SimpleGS.hlsl
 Assets/Shaders/DebugLinePS.hlsl
 Assets/Shaders/SimpleGS.hlsl
+Assets/Shaders/SimpleLightPS.hlsl
 Assets/Shaders/SimplePS.hlsl
 Assets/Shaders/SimpleTexPS.hlsl
 Assets/Shaders/DebugLineVS.hlsl
