@@ -52,6 +52,9 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 		entityToCollisionData[entity] = newEntry;
 		collisionData.entity[newEntry] = entity;
 
+		transformManager->Create(entity);
+
+
 		// Load the mesh
 		{
 			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
@@ -62,29 +65,41 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
 					AllocateBH(boundingHierarchy.allocated*2); // TODO: Make thread safe
 
-
-				//boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
-				//bIndex = boundingInfoIndex.size() - 1;
+				bIndex = boundingInfo.size();
+				boundingInfo.push_back({ defaultHierarchy }); // Setup the deafult info.
+				
 
 				// Register the new hierarchy
-				bIndex = boundingHierarchy.used++;
+				auto newHI = boundingHierarchy.used++;
 
 				//auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
-				auto res = resourceHandler->LoadResource(mesh, [this, bIndex](const Utilz::GUID& mesh, void* data, size_t size) {
+				auto res = resourceHandler->LoadResource(mesh, [this, bIndex, newHI](const Utilz::GUID& mesh, void* data, size_t size) ->int {
 			
 					auto meshHeader = (Graphics::Mesh_Header*)data;
 
 					if (meshHeader->vertexLayout == 0) {
 
 						Vertex* v = (Vertex*)(meshHeader + 1);
-						CreateBoundingHierarchy(bIndex, v, meshHeader->nrOfVertices, sizeof(Vertex));
+						CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
 					}
 
 					else {
 
 						VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-						CreateBoundingHierarchy(bIndex, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+						CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 					}
+
+					entityUpdateLock.lock();
+					for (auto& e : boundingInfo[bIndex].entities)
+					{
+						infoLock.lock();
+						auto& find = entityToCollisionData.find(e);
+						_ASSERT(find != entityToCollisionData.end());
+						collisionData.boundingIndex[find->second] = newHI;
+						transformManager->SetAsDirty(e);
+						infoLock.unlock();
+					}
+					entityUpdateLock.unlock();
 
 				});
 				if (res)
@@ -93,7 +108,10 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			}
 
 			collisionData.boundingIndex[newEntry] = bIndex;
-			
+			entityUpdateLock.lock();
+			boundingInfo[bIndex].entities.push_back(entity);
+			entityUpdateLock.unlock();
+			transformManager->SetAsDirty(entity);
 
 		}
 
@@ -180,6 +198,13 @@ void SE::Core::CollisionManager::Frame()
 		}
 	}
 	dirtyEntites.clear();
+	StopProfile;
+}
+
+void SE::Core::CollisionManager::UpdateEntity(const Entity & entity)
+{
+	StartProfile;
+	
 	StopProfile;
 }
 

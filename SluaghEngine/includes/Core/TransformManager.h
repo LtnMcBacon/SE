@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "EntityManager.h"
 #include <Utilz\Event.h>
+#include <mutex>
 
 namespace SE
 {
@@ -203,6 +204,8 @@ namespace SE
 
 			void ExpandTransforms();
 			
+			std::vector<Entity> entityStack;
+			std::mutex queueLock;
 		};
 	}
 }

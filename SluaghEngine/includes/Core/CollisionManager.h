@@ -10,6 +10,7 @@
 #include "TransformManager.h"
 #include <unordered_map>
 #include <map>
+#include <mutex>
 
 namespace SE
 {
@@ -89,6 +90,8 @@ namespace SE
 			*/
 			void Frame();
 		private:
+			void UpdateEntity(const Entity& entity);
+
 			void SetDirty(const Entity& entity, size_t index);
 
 			/**
@@ -166,6 +169,8 @@ namespace SE
 			int LoadMesh(const Utilz::GUID& guid, void*data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);
 
+			std::mutex infoLock;
+			std::mutex entityUpdateLock;
 		};
 	}
 }
