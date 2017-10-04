@@ -54,7 +54,7 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool show);
 
-			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate& callback)
+			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)
 			{
 				SetRenderObjectInfoEvent.Add(callback);
 			}

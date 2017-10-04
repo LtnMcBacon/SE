@@ -116,7 +116,7 @@ namespace SE
 			struct BoundingHierarchyInfo
 			{
 				size_t index;
-				std::list<Entity> entities;
+				int refCount;
 			};
 			struct BoundingHierarchy
 			{
@@ -159,8 +159,11 @@ namespace SE
 
 			size_t defaultHierarchy;
 			BoundingHierarchy boundingHierarchy;
-			std::vector<BoundingHierarchyInfo> boundingInfo;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoudningIndex;
+
+			std::vector<BoundingHierarchyInfo> boundingInfoIndex;
+
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingInfoIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingHierarchyIndex;
 
 
 			int LoadMesh(const Utilz::GUID& guid, void*data, size_t size);

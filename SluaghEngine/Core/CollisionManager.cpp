@@ -54,45 +54,33 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
-			auto& bIndex = guidToBoudningIndex[mesh];
-			if (findHi == guidToBoudningIndex.end()) // If not created
+			auto& findHi = guidToBoundingInfoIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto& bIndex = guidToBoundingInfoIndex[mesh];
+			if (findHi == guidToBoundingInfoIndex.end()) // If not created
 			{
 				// Make sure we have enough memory.
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
-					AllocateBH(boundingHierarchy.allocated*2); // TODO: Make thread safe
+					AllocateBH(boundingHierarchy.allocated + 10); // TODO: Make thread safe
 
 
-				//boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
-				//bIndex = boundingInfoIndex.size() - 1;
+				boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
+				bIndex = boundingInfoIndex.size() - 1;
 
 				// Register the new hierarchy
-				bIndex = boundingHierarchy.used++;
+				auto newHI = boundingHierarchy.used++;
+				guidToBoundingHierarchyIndex[mesh] = newHI;
 
-				//auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
-				auto res = resourceHandler->LoadResource(mesh, [this, bIndex](const Utilz::GUID& mesh, void* data, size_t size) {
-			
-					auto meshHeader = (Graphics::Mesh_Header*)data;
+				auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
 
-					if (meshHeader->vertexLayout == 0) {
-
-						Vertex* v = (Vertex*)(meshHeader + 1);
-						CreateBoundingHierarchy(bIndex, v, meshHeader->nrOfVertices, sizeof(Vertex));
-					}
-
-					else {
-
-						VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-						CreateBoundingHierarchy(bIndex, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
-					}
-
-				});
 				if (res)
 					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
 			
 			}
 
 			collisionData.boundingIndex[newEntry] = bIndex;
+			boundingInfoIndex[bIndex].refCount++;
+			
+
 			
 
 		}
