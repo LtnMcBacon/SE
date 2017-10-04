@@ -98,7 +98,7 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		if(f != collisionManager->entityToCollisionData.end() && lineCount + 12 < maximumLinesToRender)
 		{
 			const auto index = collisionManager->collisionData.boundingIndex[f->second];
-			const auto index2 = collisionManager->boundingInfoIndex[index].index;
+			const auto index2 = collisionManager->boundingInfo[index].index;
 			const auto& aabb = collisionManager->boundingHierarchy.AABB[index2];
 
 			const auto& center = aabb.Center;

@@ -2,6 +2,8 @@
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
 using namespace DirectX;
 
 SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
@@ -101,6 +103,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 					}
 					entityUpdateLock.unlock();
 
+					return 0;
 				});
 				if (res)
 					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
@@ -173,8 +176,8 @@ void SE::Core::CollisionManager::Frame()
 	for (auto& dirty : dirtyEntites)
 	{
 		// TODO: Multithread
-		auto& mySphere = boundingHierarchy.sphere[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
-		auto& myAABB = boundingHierarchy.AABB[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
+		auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
 		XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
 		mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);	
 		myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
@@ -330,37 +333,35 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
-#include <Graphics\FileHeaders.h>
-#include <Graphics\VertexStructs.h>
-
-int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-
-	auto newHI = guidToBoundingHierarchyIndex[guid];
-
-	auto meshHeader = (Graphics::Mesh_Header*)data;
-
-	if (meshHeader->vertexLayout == 0) {
-
-		Vertex* v = (Vertex*)(meshHeader + 1);
-		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
-	}
-
-	else {
-
-		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
-	}
-
-	auto bIndex = guidToBoundingInfoIndex[guid];
-
-	boundingInfoIndex[bIndex].index = newHI;
-
-
-
-	ProfileReturnConst(0);
-}
+//
+//int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
+//{
+//	StartProfile;
+//
+//	auto newHI = guidToBoundingHierarchyIndex[guid];
+//
+//	auto meshHeader = (Graphics::Mesh_Header*)data;
+//
+//	if (meshHeader->vertexLayout == 0) {
+//
+//		Vertex* v = (Vertex*)(meshHeader + 1);
+//		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
+//	}
+//
+//	else {
+//
+//		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+//		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+//	}
+//
+//	auto bIndex = guidToBoundingInfoIndex[guid];
+//
+//	boundingInfoIndex[bIndex].index = newHI;
+//
+//
+//
+//	ProfileReturnConst(0);
+//}
 
 void SE::Core::CollisionManager::CreateBoundingHierarchy(size_t index, void * data, size_t numVertices, size_t stride)
 {
