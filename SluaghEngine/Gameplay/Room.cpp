@@ -54,10 +54,12 @@ void Room::UpdateAdjacentRooms(float dt)
 
 bool SE::Gameplay::Room::OnSegment(float pX, float pY, float qX, float qY, float rX, float rY)
 {
-	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
-		return true;
+	StartProfile;
 
-	return false;
+	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
+		ProfileReturnConst(true);
+
+	ProfileReturnConst(false);
 }
 
 int SE::Gameplay::Room::Orientation(float pX, float pY, float qX, float qY, float rX, float rY)
@@ -66,7 +68,8 @@ int SE::Gameplay::Room::Orientation(float pX, float pY, float qX, float qY, floa
 	// for details of below formula.
 	int val = (qY - pY) * (rX - qX) - (qX - pX) * (rY - qY);
 
-	if (val == 0) return 0;  // colinear
+	if (val == 0)
+		return 0;  // colinear
 
 	return (val > 0) ? 1 : 2; // clock or counterclock wise
 }
@@ -192,11 +195,11 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 	bool collidedLeft;
 	float xPower;
 	float yPower;
-
-#define p(s) projectiles[i].GetBoundingRect().s
+	BoundingRect r;
 
 	for(int i = 0; i < projectiles.size(); i++)
 	{
+		r = projectiles[i].GetBoundingRect();
 		collidedLeft = false;
 		collidedRight = false;
 		xPower = 0.0f;
@@ -214,7 +217,44 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 
 		if (collidedLeft)
 		{
-			//if(LineCollision(p(lowerLeftX), p(lowerLeftY), p(upperLeftX), p(upperLeftY)))
+			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), ceil(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // top line
+			{
+				yPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), int(r.upperLeftY))) // bottom line
+			{
+				yPower -= 1.0f;
+			}
+
+			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, ceil(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // right line
+			{
+				xPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), int(r.upperLeftX), ceil(r.upperLeftY))) // left line
+			{
+				xPower -= 1.0f;
+			}
+		}
+
+		if (collidedRight)
+		{
+			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), ceil(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // top line
+			{
+				yPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), int(r.upperRightY))) // bottom line
+			{
+				yPower -= 1.0f;
+			}
+
+			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, ceil(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // right line
+			{
+				xPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), int(r.upperRightX), ceil(r.upperRightY))) // left line
+			{
+				xPower -= 1.0f;
+			}
 		}
 	}
 
@@ -223,6 +263,7 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 
 bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y)
 {
+	StartProfile;
 	// Find the four orientations needed for general and
 	// special cases
 	int o1 = Orientation(p1X, p1Y, q1X, q1Y, p2X, p2Y);
@@ -232,26 +273,26 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 
 	// General case
 	if (o1 != o2 && o3 != o4)
-		return true;
+		ProfileReturnConst(true);
 
 	// Special Cases
 	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
 	if (o1 == 0 && OnSegment(p1X, p1Y, p2X, p2Y, q1X, q1Y))
-		return true;
+		ProfileReturnConst(true);
 
 	// p1, q1 and p2 are colinear and q2 lies on segment p1q1
 	if (o2 == 0 && OnSegment(p1X, p1Y, q2X, q2Y, q1X, q1Y))
-		return true;
+		ProfileReturnConst(true);
 
 	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
 	if (o3 == 0 && OnSegment(p2X, p2Y, p1X, p1Y, q2X, q2Y))
-		return true;
+		ProfileReturnConst(true);
 
 	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
 	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y)) 
-		return true;
+		ProfileReturnConst(true);
 
-	return false; // Doesn't fall in any of the above cases
+	ProfileReturnConst(false); // Doesn't fall in any of the above cases
 }
 
 Room::Room(char map[25][25])
