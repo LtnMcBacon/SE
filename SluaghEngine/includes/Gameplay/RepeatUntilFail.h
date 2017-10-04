@@ -1,5 +1,5 @@
-#ifndef SE_GAMEPLAY_REPEATER_H
-#define SE_GAMEPLAY_REPEATER_H
+#ifndef SE_GAMEPLAY_REPEAT_UNTIL_FAIL_H
+#define SE_GAMEPLAY_REPEAT_UNTIL_FAIL_H
 
 #include "IDecorator.h"
 
@@ -43,6 +43,8 @@ namespace SE
 		};
 	}
 }
+
+
 
 
 

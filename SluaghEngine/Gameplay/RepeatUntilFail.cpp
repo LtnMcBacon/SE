@@ -1,11 +1,8 @@
 #include "RepeatUntilFail.h"
 #include <Profiler.h>
 
-using namespace SE;
-using namespace Gameplay;
 
-
-Status RepeatUntilFail::Update()
+SE::Gameplay::Status SE::Gameplay::RepeatUntilFail::Update()
 {
 	StartProfile
 	while (true)
@@ -29,13 +26,14 @@ Status RepeatUntilFail::Update()
 	ProfileReturn(myStatus)
 }
 
-RepeatUntilFail::RepeatUntilFail(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard,
+SE::Gameplay::RepeatUntilFail::RepeatUntilFail(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard,
 	IBehaviour* child) :
 	IDecorator(enemyBlackboard, gameBlackboard, child)
 {
+
 }
 
-RepeatUntilFail::~RepeatUntilFail()
+SE::Gameplay::RepeatUntilFail::~RepeatUntilFail()
 {
 
 }

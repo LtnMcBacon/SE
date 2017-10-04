@@ -122,6 +122,7 @@ bool BehavioursTest::Run(SE::Utilz::IConsoleBackend* console)
 	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
 
 	passed &= RunTest("Sequence", expectedValues, &Sequence, console);
+
 	/*Test Inverter*/
 	expectedValues.clear();
 	SE::Gameplay::Inverter Inverter(nullptr, nullptr, new TestLeaf(nullptr, nullptr, SE::Gameplay::Status::BEHAVIOUR_FAILURE, 3));
@@ -132,12 +133,40 @@ bool BehavioursTest::Run(SE::Utilz::IConsoleBackend* console)
 	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_FAILURE);
 
 	passed &= RunTest("Inverter", expectedValues, &Inverter, console);
+
 	/*Test Repeater*/
+	expectedValues.clear();
+	SE::Gameplay::Repeater Repeater(
+		nullptr,
+		nullptr,
+		new TestLeaf(nullptr, nullptr, SE::Gameplay::Status::BEHAVIOUR_FAILURE, 3),
+		20
+	);
 
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_FAILURE);
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_FAILURE);
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_FAILURE);
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
 
-	/*Test RepatUntilFail*/
+	passed &= RunTest("Repeater", expectedValues, &Repeater, console);
+
+	/*Test RepeatUntilFail*/
+	expectedValues.clear();
+	expectedValues.push_back(SE::Gameplay::Status::BEHAVIOUR_SUCCESS);
+
+	SE::Gameplay::RepeatUntilFail repeatUntilFail(nullptr, nullptr, 
+		new Gameplay::Inverter(nullptr, nullptr, 
+			new TestLeaf(nullptr, nullptr, SE::Gameplay::Status::BEHAVIOUR_FAILURE, 5)
+		)
+	);
+
+	passed &= RunTest("RepeatUntilFail", expectedValues, &repeatUntilFail, console);
 
 	/*Test Succeeder*/
+	SE::Gameplay::Succeeder Succeeder(nullptr, nullptr,
+		new TestLeaf(nullptr, nullptr, SE::Gameplay::Status::BEHAVIOUR_FAILURE, 2));
+
+	passed &= RunTest("Succeeder", expectedValues, &Succeeder, console);
 
 	ProfileReturn(passed);
 }
