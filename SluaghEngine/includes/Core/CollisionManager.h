@@ -166,7 +166,7 @@ namespace SE
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoudningIndex;
 
 
-			int LoadMesh(const Utilz::GUID& guid, void*data, size_t size);
+			int LoadMesh(size_t newHI, void * data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);
 
 			std::mutex infoLock;

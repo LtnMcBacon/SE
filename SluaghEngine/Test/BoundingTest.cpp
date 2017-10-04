@@ -36,58 +36,17 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto& em = e.GetEntityManager();
 	auto& col = e.GetCollisionManager();
 	auto& tm = e.GetTransformManager();
-	auto& ent = em.Create();
-	tm.Create(ent);
-	col.CreateBoundingHierarchy(ent, "Placeholder_Block.mesh");
-	
+	auto& cm = e.GetCameraManager();
+	auto& drm = e.GetDebugRenderManager();
+	auto& om = e.GetOptionHandler();
+	auto& camera = em.Create();
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	cm.Bind(camera, cInfo);
 
-	auto& ent2 = em.Create();
-	tm.Create(ent2);
-	col.CreateBoundingHierarchy(ent2, "Placeholder_Block.mesh");
+	auto& block1 = em.Create();
 
-	test = false;
 
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
-
-	e.Frame(0.0f);
-
-	if (!test)
-	{
-		console->Print("Did not collide in check 1. They should!\n");
-		return false;
-	}
-	test = true;
-
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
-
-	tm.SetPosition(ent2, { 100.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Collided in check 2. Should not collide!\n");
-		return false;
-	}
-	
-	test = false;
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
-
-	tm.SetPosition(ent, { 100.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Did not collide in check 3. They should!\n");
-		return false;
-	}
-	test = true;
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
-
-	tm.SetPosition(ent, { 0.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Collided in check 4. Should not collide!\n");
-		return false;
-	}
 
 	e.Release();
 	return true;

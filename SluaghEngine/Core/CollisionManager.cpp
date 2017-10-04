@@ -14,12 +14,19 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
 
-	defaultHierarchy = 0;
-
-
-
 	Allocate(128);
 	AllocateBH(64);
+
+
+	defaultHierarchy = 0;
+
+	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
+		LoadMesh(defaultHierarchy, data, size);
+
+		return 1;
+	});
+
+
 }
 
 SE::Core::CollisionManager::~CollisionManager()
@@ -77,19 +84,8 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				//auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
 				auto res = resourceHandler->LoadResource(mesh, [this, bIndex, newHI](const Utilz::GUID& mesh, void* data, size_t size) ->int {
 			
+					LoadMesh(newHI, data, size);
 					auto meshHeader = (Graphics::Mesh_Header*)data;
-
-					if (meshHeader->vertexLayout == 0) {
-
-						Vertex* v = (Vertex*)(meshHeader + 1);
-						CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
-					}
-
-					else {
-
-						VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-						CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
-					}
 
 					entityUpdateLock.lock();
 					for (auto& e : boundingInfo[bIndex].entities)
@@ -103,7 +99,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 					}
 					entityUpdateLock.unlock();
 
-					return 0;
+					return 1;
 				});
 				if (res)
 					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
@@ -333,35 +329,27 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
-//
-//int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
-//{
-//	StartProfile;
-//
-//	auto newHI = guidToBoundingHierarchyIndex[guid];
-//
-//	auto meshHeader = (Graphics::Mesh_Header*)data;
-//
-//	if (meshHeader->vertexLayout == 0) {
-//
-//		Vertex* v = (Vertex*)(meshHeader + 1);
-//		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
-//	}
-//
-//	else {
-//
-//		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-//		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
-//	}
-//
-//	auto bIndex = guidToBoundingInfoIndex[guid];
-//
-//	boundingInfoIndex[bIndex].index = newHI;
-//
-//
-//
-//	ProfileReturnConst(0);
-//}
+
+int SE::Core::CollisionManager::LoadMesh(size_t newHI, void * data, size_t size)
+{
+	StartProfile;
+
+	auto meshHeader = (Graphics::Mesh_Header*)data;
+
+	if (meshHeader->vertexLayout == 0) {
+
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(Vertex));
+	}
+
+	else {
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
+	ProfileReturnConst(0);
+}
 
 void SE::Core::CollisionManager::CreateBoundingHierarchy(size_t index, void * data, size_t numVertices, size_t stride)
 {

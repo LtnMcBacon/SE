@@ -261,7 +261,13 @@ void SE::Core::TransformManager::Frame()
 	StartProfile;
 	queueLock.lock();
 	for (auto& e : entityStack)
-		SetAsDirty(e);
+	{
+		auto& find = entityToIndex.find(e);
+		if(find != entityToIndex.end())
+			SetAsDirty(find->second);
+
+	}
+		
 	queueLock.unlock();
 	dirtyTransforms.clear();
 	parentDeferred.clear();
