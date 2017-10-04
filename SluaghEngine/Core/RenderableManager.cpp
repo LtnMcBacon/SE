@@ -13,14 +13,13 @@
 
 
 
-SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, MaterialManager* materialManager, AnimationManager* animationManager)
-	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager), materialManager(materialManager), animationManager(animationManager)
+SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
+	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
 
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
-	_ASSERT(materialManager);
 	_ASSERT(animationManager);
 
 	Allocate(128);
@@ -93,7 +92,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 			ProfileReturnVoid;
 		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
-		CreateRenderObjectInfo(&info, find->second);
+		CreateRenderObjectInfo(find->second, &info);
 		infoLock.lock();
 		if (visible)
 		{
@@ -121,12 +120,12 @@ void SE::Core::RenderableManager::Frame()
 	ProfileReturnVoid;
 }
 
-void SE::Core::RenderableManager::CreateRenderObjectInfo(Graphics::RenderObjectInfo * data, size_t index)
+void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info)
 {
 	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
-	data->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	data->topology = renderableObjectInfo.topology[index];
-	data->vertexShader = defaultShader;
+	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
+	info->topology = renderableObjectInfo.topology[index];
+	info->vertexShader = defaultShader;
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
@@ -134,47 +133,22 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(Graphics::RenderObjectI
 	// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
 	if (entityIndex == animationManager->entityToIndex.end()) {
 
-		data->type = Graphics::RenderObjectInfo::JobType::STATIC;
-		data->vertexShader = defaultShader;
+		info->type = Graphics::RenderObjectInfo::JobType::STATIC;
+		info->vertexShader = defaultShader;
 	}
 
 	// Otherwise, there was an animated entity and we should use the skinned vertex shader
 	else {
 
-		data->type = Graphics::RenderObjectInfo::JobType::SKINNED;
+		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
 		auto skelIndex = animationManager->animationData.skeletonIndex[entityIndex->second];
-		data->skeletonHandle = animationManager->skeletonHandle[skelIndex];
-		data->vertexShader = skinnedShader;
+		info->skeletonHandle = animationManager->skeletonHandle[skelIndex];
+		info->vertexShader = skinnedShader;
 	}
 
-
-	auto& find = materialManager->entityToMaterialInfo.find(renderableObjectInfo.entity[index]);
-	if (find != materialManager->entityToMaterialInfo.end())
-	{
-		data->pixelShader = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-		auto& reflection = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderReflection;
-		const int textureCount = reflection.textureNameToBindSlot.size();
-		data->textureCount = textureCount;
-		for (int i = 0; i < textureCount; ++i)
-		{
-			data->textureBindings[i] = materialManager->materialInfo.textureBindings[find->second].bindings[i];
-			data->textureHandles[i] = materialManager->textures[materialManager->materialInfo.textureIndices[find->second].indices[i]].textureHandle;
-		}
-	}
-	else
-	{
-		data->pixelShader = materialManager->defaultShaderHandle;
-		auto& reflection = materialManager->defaultShaderReflection;
-		const int textureCount = reflection.textureNameToBindSlot.size();
-		data->textureCount = textureCount;
-		int i = 0;
-		for (auto& b : reflection.textureNameToBindSlot)
-		{
-			data->textureBindings[i] = b.second;
-			data->textureHandles[i] = materialManager->defaultShaderHandle;
-			++i;
-		}
-	}
+	// Gather Renderobjectinfo from other managers
+	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
+	
 }
 
 void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
@@ -185,7 +159,9 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 	{
 		if (renderableObjectInfo.visible[find->second])
 		{
-			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], bufferInfo[renderableObjectInfo.bufferIndex[find->second]].bufferHandle);
+			Graphics::RenderObjectInfo info;
+			CreateRenderObjectInfo(find->second, &info);
+			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
 			//transformManager->SetAsDirty(entity);
 		}
 	}
@@ -344,18 +320,21 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	StartProfile;
 	// Load model
 	auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
+	entityToChangeLock.lock();
 	auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
 	if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
 	{
 		bufferInfo.push_back({ defaultMeshHandle }); // Init the texture to default texture.
 		bufferIndex = bufferInfo.size() - 1;
+		entityToChangeLock.unlock();
 
-	
 		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), async, behavior);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 
 	}
+	else
+		entityToChangeLock.unlock();
 	// Increase ref Count and save the index to the material info.
 	//bufferInfo[bufferIndex].refCount++;
 	entityToChangeLock.lock();
@@ -368,9 +347,9 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
-	using namespace std::chrono_literals;
+	//using namespace std::chrono_literals;
 
-	std::this_thread::sleep_for(1s);
+	//std::this_thread::sleep_for(1s);
 
 	auto bufferHandle = -1;
 
@@ -391,9 +370,9 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	if (bufferHandle == -1)
 		ProfileReturnConst(-1);
 
+	entityToChangeLock.lock();
 	auto index = guidToBufferInfoIndex[guid];
 	bufferInfo[index].bufferHandle = bufferHandle;
-	entityToChangeLock.lock();
 	for (auto& e : bufferInfo[index].entities)
 	{
 		UpdateRenderableObject(e);

@@ -135,7 +135,7 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 
 
 
-int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, int bufferHandle)
+int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles)
 {
 	StartProfile;
 	renderJobLock.lock();
@@ -153,10 +153,6 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, int bufferHand
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
-
-
-	auto handles = bucketOfRemoved.stateInfo;
-	handles.bufferHandle = bufferHandle;
 
 	int32_t bucketIndex = -1;
 	const size_t renderBucketCount = renderBuckets.size();
