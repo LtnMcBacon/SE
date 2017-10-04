@@ -423,8 +423,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		projectileManager->AddProjectiles(newProjectiles);
 
 		projectileManager->UpdateProjectilePositions(dt);
-		//Check room collision for projectiles
-		//projectileManager.UpdateProjectileActions(dt);
+		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+		projectileManager->UpdateProjectileActions(dt);
 
 
 		playerPos.x = player->GetXPosition();
