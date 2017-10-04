@@ -11,6 +11,8 @@
 #include "OptionHandler.h"
 #include "CameraManager.h"
 #include "AudioManager.h"
+#include "AnimationManager.h"
+#include "LightManager.h"
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -199,11 +201,25 @@ namespace SE
 			/**
 			* @brief    Returns a reference to the GUI manager
 			* @retval return_value_0 Returns a reference to the GUI manager.
-			* @sa AudioManager
+			* @sa GUIManager
 			*/
 			inline GUIManager& GetGUIManager() const {
 				return *guiManager;
 			}
+
+			/**
+			* @brief    Returns a reference to the Light manager
+			* @retval return_value_0 Returns a reference to the Light manager.
+			* @sa LightManager
+			*/
+			inline LightManager& GetLightManager() const {
+				return *lightManager;
+			}
+
+			inline AnimationManager& GetAnimationManager() const {
+				return *animationManager;
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -232,11 +248,11 @@ namespace SE
 			OptionHandler* optionHandler;
 			CameraManager* cameraManager;
 			DebugRenderManager* debugRenderManager;
+			AnimationManager* animationManager;
 			Utilz::StackAllocator* perFrameStackAllocator;
 
-
-
 			GUIManager* guiManager;
+			LightManager* lightManager;
 		};
 
 	}

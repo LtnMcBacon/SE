@@ -1,13 +1,9 @@
 #include <RenderableManager.h>
 #include <Profiler.h>
 #include <Utilz\Console.h>
-#include <OBJParser\Parsers.h>
 
-#ifdef _DEBUG
-#pragma comment(lib, "OBJParserD.lib")
-#else
-#pragma comment(lib, "OBJParser.lib")
-#endif
+#include <Graphics\VertexStructs.h>
+#include <Graphics\FileHeaders.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -17,21 +13,20 @@
 
 
 
-SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, MaterialManager* materialManager)
-	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager), materialManager(materialManager)
+SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
+	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
-
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
-	_ASSERT(materialManager);
+	_ASSERT(animationManager);
 
 	Allocate(128);
 	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_MC.obj"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
@@ -39,6 +34,10 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
+	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadSkinnedShader>(this));
+	if (res)
+		throw std::exception("Could not load default vertex shader.");
+	StopProfile;
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -47,7 +46,7 @@ SE::Core::RenderableManager::~RenderableManager()
 
 }
 
-void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID)
+void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
@@ -69,7 +68,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.used++;
 
 		// Load the model
-		LoadResource(meshGUID, newEntry);
+		LoadResource(meshGUID, newEntry, async, behavior);
 
 
 		// Transform binding
@@ -92,51 +91,20 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 			ProfileReturnVoid;
 		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
 		Graphics::RenderObjectInfo info;
-		auto vBufferIndex = renderableObjectInfo.bufferIndex[find->second];
-		info.bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-		info.topology = renderableObjectInfo.topology[find->second];
-		info.vertexShader = defaultShader;
-
-
-		auto find = materialManager->entityToMaterialInfo.find(entity);
-		if (find != materialManager->entityToMaterialInfo.end())
-		{
-			info.pixelShader = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderHandle;
-			auto& reflection = materialManager->shaders[materialManager->materialInfo.shaderIndex[find->second]].shaderReflection;
-			const int textureCount = reflection.textureNameToBindSlot.size();
-			info.textureCount = textureCount;
-			for(int i = 0; i < textureCount; ++i)
-			{
-				info.textureBindings[i] = materialManager->materialInfo.textureBindings[find->second].bindings[i];
-				info.textureHandles[i] = materialManager->textures[materialManager->materialInfo.textureIndices[find->second].indices[i]].textureHandle;
-			}
-		}
-		else
-		{
-			info.pixelShader = materialManager->defaultShaderHandle;
-			auto& reflection = materialManager->defaultShaderReflection;
-			const int textureCount = reflection.textureNameToBindSlot.size();
-			info.textureCount = textureCount;
-			int i = 0;
-			for(auto& b : reflection.textureNameToBindSlot)
-			{
-				info.textureBindings[i] = b.second;
-				info.textureHandles[i] = materialManager->defaultShaderHandle;
-				++i;
-			}
-		}
-			
+		CreateRenderObjectInfo(find->second, &info);
+		infoLock.lock();
 		if (visible)
 		{
 			const uint32_t jobID = renderer->EnableRendering(info);
-			entityToJobID[entity] = jobID;
+			renderableObjectInfo.jobID[find->second] = jobID;
 			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
-			transformManager->Move(entity, DirectX::XMFLOAT3{ 0.0f,0.0f,0.0f });
+			transformManager->SetAsDirty(entity);
 		}
 		else
 		{
-			renderer->DisableRendering(entityToJobID[entity]);
+			renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
+		infoLock.unlock();
 	}
 	ProfileReturnVoid;
 }
@@ -151,9 +119,58 @@ void SE::Core::RenderableManager::Frame()
 	ProfileReturnVoid;
 }
 
+void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info)
+{
+	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
+	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
+	info->topology = renderableObjectInfo.topology[index];
+	info->vertexShader = defaultShader;
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
+
+	// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
+	if (entityIndex == animationManager->entityToIndex.end()) {
+
+		info->type = Graphics::RenderObjectInfo::JobType::STATIC;
+		info->vertexShader = defaultShader;
+	}
+
+	// Otherwise, there was an animated entity and we should use the skinned vertex shader
+	else {
+
+		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
+		auto skelIndex = animationManager->animationData.skeletonIndex[entityIndex->second];
+		info->skeletonHandle = animationManager->skeletonHandle[skelIndex];
+		info->vertexShader = skinnedShader;
+	}
+
+	// Gather Renderobjectinfo from other managers
+	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
+	
+}
+
+void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
+{
+	infoLock.lock();
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second])
+		{
+			Graphics::RenderObjectInfo info;
+			CreateRenderObjectInfo(find->second, &info);
+			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
+			//transformManager->SetAsDirty(entity);
+		}
+	}
+	infoLock.unlock();
+}
+
 void SE::Core::RenderableManager::Allocate(size_t size)
 {
 	StartProfile;
+	infoLock.lock();
 	_ASSERT(size > renderableObjectInfo.allocated);
 
 	// Allocate new memory
@@ -167,41 +184,52 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.bufferIndex = (size_t*)(newData.entity + newData.allocated);
 	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
 	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
+	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.bufferIndex, renderableObjectInfo.bufferIndex, renderableObjectInfo.used * sizeof(size_t));
 	memcpy(newData.topology, renderableObjectInfo.topology, renderableObjectInfo.used * sizeof(Graphics::RenderObjectInfo::PrimitiveTopology));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
 	renderableObjectInfo = newData;
-
+	infoLock.unlock();
 	StopProfile;
 }
 
 void SE::Core::RenderableManager::Destroy(size_t index)
 {
 	StartProfile;
-
+	infoLock.lock();
 	// Temp variables
 	size_t last = renderableObjectInfo.used - 1;
 	const Entity& entity = renderableObjectInfo.entity[index];
 	const Entity& last_entity = renderableObjectInfo.entity[last];
-	renderer->DisableRendering(entityToJobID[entity]);
+
+	if(renderableObjectInfo.visible[index])
+		renderer->DisableRendering(renderableObjectInfo.jobID[index]);
+
+	entityToChangeLock.lock();
+	bufferInfo[renderableObjectInfo.bufferIndex[index]].entities.remove(entity); // Decrease the refcount
+	entityToChangeLock.unlock();
+
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
 	renderableObjectInfo.topology[index] = renderableObjectInfo.topology[last];
-	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
+	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];	
+	renderableObjectInfo.jobID[index] = renderableObjectInfo.jobID[last];
+
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;
 	entityToRenderableObjectInfoIndex.erase(entity);
-	entityToJobID[last_entity] = entityToJobID[entity];
 
 	renderableObjectInfo.used--;
+	infoLock.unlock();
 	StopProfile;
 }
 
@@ -227,13 +255,14 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
 	StartProfile;
-	
+	infoLock.lock();
 	for (auto& dirty : dirtyEntites)
 	{
 		auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
-		renderer->UpdateTransform(entityToJobID[dirty.entity], (float*)&transform);
+		if(renderableObjectInfo.visible[dirty.renderableIndex])
+			renderer->UpdateTransform(renderableObjectInfo.jobID[dirty.renderableIndex], (float*)&transform);
 	}
-
+	infoLock.unlock();
 	dirtyEntites.clear();
 	StopProfile;
 }
@@ -241,27 +270,39 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 int SE::Core::RenderableManager::LoadDefaultModel(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst( r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
-	if (r)
-		ProfileReturnConst( r);
 
-	delete arfp.buffer;
+	auto meshHeader = (Graphics::Mesh_Header*)data;
 
-	auto& mD = *(Arf::Mesh::Data*)parsedData;
-	auto defaultShader = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float) * 3 * 2 + sizeof(float) * 2);
-	if (defaultShader == -1)
-		ProfileReturnConst( -1);
+	if (meshHeader->vertexLayout == 0) {
 
-	delete parsedData;
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::STATIC;
 
-	ProfileReturnConst( 0);
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
+
+	}
+
+	else {
+
+		guidToMeshType[guid] = Graphics::RenderObjectInfo::JobType::SKINNED;
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		defaultMeshHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
+	if (defaultMeshHandle == -1)
+		ProfileReturnConst(-1);
+
+	ProfileReturnConst(0);
+}
+
+int SE::Core::RenderableManager::LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size) {
+
+	StartProfile;
+	skinnedShader = renderer->CreateVertexShader(data, size);
+	if (skinnedShader == -1)
+		ProfileReturnConst(-1);
+	ProfileReturnConst(0);
 }
 
 int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
@@ -273,22 +314,31 @@ int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, voi
 	ProfileReturnConst( 0);
 }
 
-void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry)
+void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
 	// Load model
 	auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
+	entityToChangeLock.lock();
 	auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
 	if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
 	{
-		bufferInfo.push_back({ defaultMeshHandle , 0 }); // Init the texture to default texture.
+		bufferInfo.push_back({ defaultMeshHandle }); // Init the texture to default texture.
 		bufferIndex = bufferInfo.size() - 1;
-		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this));
+		entityToChangeLock.unlock();
+
+		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), async, behavior);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
+
 	}
+	else
+		entityToChangeLock.unlock();
 	// Increase ref Count and save the index to the material info.
-	bufferInfo[bufferIndex].refCount++;
+	//bufferInfo[bufferIndex].refCount++;
+	entityToChangeLock.lock();
+	bufferInfo[bufferIndex].entities.push_back(renderableObjectInfo.entity[newEntry]);
+	entityToChangeLock.unlock();
 	renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
 	StopProfile;
 }
@@ -296,29 +346,39 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, size_t size)
 {
 	StartProfile;
-	ArfData::Data arfData;
-	ArfData::DataPointers arfp;
-	auto r = Arf::ParseObj(data, size, &arfData, &arfp);
-	if (r)
-		ProfileReturnConst( r);
-	Arf::Mesh::Data* parsedData;
-	size_t parsedSize;
-	r = Arf::Interleave(arfData, arfp, &parsedData, &parsedSize, ~0u,  ARF_FLIPN);
-	if (r)
-		ProfileReturnConst( r);
+	//using namespace std::chrono_literals;
 
-	delete arfp.buffer;
+	//std::this_thread::sleep_for(1s);
 
-	auto& mD = *(Arf::Mesh::Data*)parsedData;
-	auto bufferHandle = renderer->CreateVertexBuffer(mD.vertices, mD.NumVertices, sizeof(float)*3*2 + sizeof(float)*2);
+	auto bufferHandle = -1;
+
+	auto meshHeader = (Graphics::Mesh_Header*)data;
+	if (meshHeader->vertexLayout == 0) {
+
+		Vertex* v = (Vertex*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
+
+	}
+
+	else {
+
+		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+	}
+
 	if (bufferHandle == -1)
 		ProfileReturnConst(-1);
 
+	entityToChangeLock.lock();
 	auto index = guidToBufferInfoIndex[guid];
 	bufferInfo[index].bufferHandle = bufferHandle;
+	for (auto& e : bufferInfo[index].entities)
+	{
+		UpdateRenderableObject(e);
 
-	delete parsedData;
-
+		
+	}
+	entityToChangeLock.unlock();
 	ProfileReturnConst(0);
 }
 

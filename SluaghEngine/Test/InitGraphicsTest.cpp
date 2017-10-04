@@ -1,5 +1,5 @@
 #include "InitGraphicsTest.h"
-#include <Graphics\Renderer.h>
+#include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
 #include <Profiler.h>
 
@@ -23,7 +23,7 @@ SE::Test::InitGraphicsTest::InitGraphicsTest::~InitGraphicsTest()
 bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
-	Graphics::IRenderer* r = new Graphics::Renderer();
+	Graphics::IRenderer* r = Graphics::CreateRenderer();
 	Window::IWindow* w = Window::CreateNewWindow();
 	int result = w->Initialize();
 	if (result)

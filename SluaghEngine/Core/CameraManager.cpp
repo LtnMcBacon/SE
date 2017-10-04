@@ -25,14 +25,13 @@ SE::Core::CameraManager::~CameraManager()
 	operator delete(cameraData.data);
 }
 
-void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspectRatio, float nearP, float farP, const DirectX::XMFLOAT3& pos,
-	const DirectX::XMFLOAT3& rotation)
+void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct & info)
 {
 	StartProfile;
 	auto& find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 		ProfileReturnVoid;
-	
+
 	// Check if the entity is alive
 	if (!entityManager.Alive(entity))
 		ProfileReturnVoid;
@@ -47,29 +46,86 @@ void SE::Core::CameraManager::Bind(const Entity & entity, float fov, float aspec
 
 	cameraData.entity[index] = entity;
 	cameraData.dirty[index] = ~0u;
-	cameraData.fov[index] = fov;
-	cameraData.aspectRatio[index] = aspectRatio;
-	cameraData.nearPlane[index] = nearP;
-	cameraData.farPlane[index] = farP;
+	cameraData.fov[index] = info.fov;
+	cameraData.aspectRatio[index] = info.aspectRatio;
+	cameraData.nearPlane[index] = info.nearPlane;
+	cameraData.farPlane[index] = info.farPlance;
 	XMStoreFloat4x4(&cameraData.view[index], XMMatrixIdentity());
 
-	transformManager->Create(entity, pos, rotation);
+	transformManager->Create(entity, info.posistion, info.rotation);
 
 	StopProfile;
 }
 
-const DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetView(const Entity & entity)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
-		throw std::exception("No camera bound to entity!");
+	XMFLOAT4X4 retMat;
+	const auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		retMat = cameraData.view[find->second];
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+}
 
-	XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
-	view = XMMatrixInverse(nullptr, view);
-	XMFLOAT4X4 v;
-	XMStoreFloat4x4(&v, view);
-	ProfileReturnConst(v);
+
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewInv(const Entity & entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[find->second]);
+		view = XMMatrixInverse(nullptr, view);
+		XMStoreFloat4x4(&retMat, view);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+}
+
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetProjection(const Entity& entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto f = entityToIndex.find(entity);
+	if(f != entityToIndex.end())
+	{
+		XMMATRIX m = XMMatrixPerspectiveFovLH(cameraData.fov[f->second], cameraData.aspectRatio[f->second], cameraData.nearPlane[f->second], cameraData.farPlane[f->second]);
+		XMStoreFloat4x4(&retMat, m);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
+
+}
+
+DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewProjection(const Entity& entity)
+{
+	StartProfile;
+	XMFLOAT4X4 retMat;
+	const auto f = entityToIndex.find(entity);
+	if (f != entityToIndex.end())
+	{
+		XMMATRIX proj = XMMatrixPerspectiveFovLH(cameraData.fov[f->second], cameraData.aspectRatio[f->second], cameraData.nearPlane[f->second], cameraData.farPlane[f->second]);
+		XMMATRIX view = XMLoadFloat4x4(&cameraData.view[f->second]);
+		XMStoreFloat4x4(&retMat, view * proj);
+	}
+	else
+	{
+		XMStoreFloat4x4(&retMat, XMMatrixIdentity());
+	}
+	ProfileReturnConst(retMat);
 }
 
 void SE::Core::CameraManager::SetActive(const Entity & entity)
@@ -87,6 +143,7 @@ void SE::Core::CameraManager::SetActive(const Entity & entity)
 void SE::Core::CameraManager::Frame()
 {
 	StartProfile;
+	GarbageCollection();
 	if (activeCamera != ~0u)
 	{
 		if(cameraData.dirty[activeCamera] != ~0u)// Update the transform
@@ -189,7 +246,8 @@ void SE::Core::CameraManager::Destroy(size_t index)
 	entityToIndex.erase(entity);
 	if (activeCamera == last)
 		activeCamera = index;
-
+	else if (activeCamera == index)
+		activeCamera = ~0u;
 	cameraData.used--;
 	StopProfile;
 }

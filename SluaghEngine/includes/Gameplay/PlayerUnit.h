@@ -3,10 +3,13 @@
 
 #include "GameUnit.h"
 
+
 namespace SE
 {
 	namespace Gameplay
 	{
+
+		struct ProjectileData;
 		/**
 		*
 		* @brief The player class
@@ -97,6 +100,35 @@ namespace SE
 			*
 			*/
 			void UpdateMovement(float dt, const MovementInput& inputs);
+
+			struct ActionInput
+			{
+				bool downSpace;
+
+				ActionInput()
+				{
+
+				}
+
+				ActionInput(bool space)
+				{
+					downSpace = space;
+				}
+			};
+
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
+			* and perks then check new events that are created before they are deployed
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [out] newProjectiles Data to create new projectiles from
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 			/**
 			* @brief To be documented

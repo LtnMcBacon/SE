@@ -1,9 +1,12 @@
 #ifndef SE_GRAPHICS_RENDERER_H_
 #define SE_GRAPHICS_RENDERER_H_
-#include "IRenderer.h"
+#include <IRenderer.h>
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
-#include <Graphics\GUIInfo.h>
+
+#include "AnimationSystem.h"
+#include <mutex>
+
 namespace SE
 {
 	namespace Graphics
@@ -46,6 +49,14 @@ namespace SE
 			*/
 			int DisableRendering(uint32_t jobID) override;
 
+			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] handles The RenderObjectInfo to change to
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			int UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -80,6 +91,22 @@ namespace SE
 			int DisableTextureRendering(const GUITextureInfo& handles) override;
 
 			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int EnableLightRendering(const LightData & handles) override;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int DisableLightRendering(size_t ID) override;
+
+			/**
 			* @brief    Sets a render job
 			* @param[in] lineJob The job containing information about the job.
 			* @retval Returns a handle to the job on success.
@@ -112,6 +139,14 @@ namespace SE
 			* @retval 0 On success.
 			*/
 			int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) override;
+
+			/**
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
+			* @endcode
+			*/
+			int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) override;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -157,20 +192,6 @@ namespace SE
 			int CreateTexture(void* data, const TextureDesc& description) override;
 
 			/**
-			* @brief Create a transform.
-			* @param[in] transform Initial transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			int CreateTransform() override;
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			void DestroyTransform(int transformHandle) override;
-			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
 			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
@@ -179,7 +200,7 @@ namespace SE
 			*/
 			int UpdateTransform(uint32_t jobID, float* transform) override;
 
-
+			int UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints);
 
 			/**
 			* @brief Create a pixel shader from raw data
@@ -230,13 +251,18 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) override;
+			int CreateTextFont(void * data, size_t size) override;
 			/**
 			* @brief Resizes the swapchain
 			* @param[in] windowHandle A window handle.
 			* @endcode
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
+
+			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints);
+
+			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -248,11 +274,19 @@ namespace SE
 				DirectX::XMFLOAT4X4 viewproj;
 			};
 
+			struct LightDataBuffer
+			{
+				DirectX::XMFLOAT4 size;
+				LightData data[20];
+			};
+
 			int oncePerFrameBufferID;
+			int lightBufferID;
 
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
+			AnimationSystem* animationSystem;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -263,12 +297,15 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
+				std::vector<DirectX::XMFLOAT4X4> gBoneTransforms;
+				size_t nrOfJoints;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
 			{
 				uint32_t bucketIndex;
 				uint32_t transformIndex;
+				uint32_t boneIndex;
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
@@ -284,11 +321,16 @@ namespace SE
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
+			std::mutex renderJobLock;
+			std::vector<LightData> renderLightJobs;
+			//std::map<size_t, size_t> lightID;
 
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
 			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
+
+			static const int lightBufferSize = 20;
 		};
 
 	}

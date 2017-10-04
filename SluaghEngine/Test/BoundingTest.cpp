@@ -28,7 +28,6 @@ void Collide2(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
 	test = false;
 }
 
-
 bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
@@ -38,12 +37,12 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto& tm = e.GetTransformManager();
 	auto& ent = em.Create();
 	tm.Create(ent);
-	col.CreateBoundingHierarchy(ent, "Placeholder_MC.obj");
+	col.CreateBoundingHierarchy(ent, "Placeholder_Block.mesh");
 	
 
 	auto& ent2 = em.Create();
 	tm.Create(ent2);
-	col.CreateBoundingHierarchy(ent2, "Placeholder_MC.obj");
+	col.CreateBoundingHierarchy(ent2, "Placeholder_Block.mesh");
 
 	test = false;
 

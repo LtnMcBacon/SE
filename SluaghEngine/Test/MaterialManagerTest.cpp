@@ -33,7 +33,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("dummytex.sei"), Utilz::GUID("purewhite.sei") };
+	Utilz::GUID textures[] = { Utilz::GUID("Diffuse.sei"), Utilz::GUID("purewhite.sei") };
 	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
@@ -54,7 +54,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	tm.Create(entity);
 
-	rm.CreateRenderableObject(entity, Utilz::GUID("Placeholder_level.obj"));
+	rm.CreateRenderableObject(entity, Utilz::GUID("MCModell.mesh"));
 	rm.ToggleRenderableObject(entity, true);
 
 	auto w = engine.GetWindow();

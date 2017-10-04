@@ -5,12 +5,134 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "TextureDesc.h"
+#include <FBX_Converter\FBXConverter.h>
+#include <functional>
+
+#ifdef _DEBUG
+#pragma comment(lib, "FBX_ConverterD.lib")
+#else
+#pragma comment(lib, "FBX_Converter.lib")
+#endif
 
 namespace fs = std::experimental::filesystem;
 using namespace SE;
 using namespace std;
 
 int ImageParse(const char* filename, const char* outputFilename);
+
+struct Accepted
+{
+	std::string ext;
+	std::string newExt;
+	std::string map;
+	std::function<void(const char* filename, const char* outFilename)> callback;
+};
+std::vector<Accepted> acceptedExt = 
+{
+	{ "fbx", "nil", "../FBXTemp", [](const char* filename, const char* outFilename) {
+	SE::FBX::FBXConverter File;
+	if (!File.Load(filename, "FBXTemp")) {
+
+		printf("Could not parse fbx file %s\n", filename);
+		return;
+	}
+
+	File.Write();
+
+	File.Deallocate();
+} },
+
+	{ "hlsl", "hlsl", "Shaders", [](const char* filename, const char* outFilename) {
+	Parsers::HLSLParser hlslp;
+	printf("Parsing file: %s...", filename);
+	if (hlslp.Parse(Utilz::utf8ToUtf16(filename).c_str(), outFilename))
+		printf("\n\tCould not parse: %s\n", filename);
+	else
+		printf(" Success\n");
+} },
+
+	{ "txt", "txt", "Text", [](const char* filename, const char* outFilename) {
+	std::ifstream  src(filename, std::ios::binary);
+
+	std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+
+	dst << src.rdbuf();
+	src.close();
+	dst.close(); } },
+	{ "spritefont", "spritefont", "Font", [](const char* filename, const char* outFilename) {
+		std::ifstream  src(filename, std::ios::binary);
+		std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+		dst << src.rdbuf();
+		dst.close();
+		src.close(); 
+	} },
+	{ "gui", "sei", "GUI", [](const char* filename, const char* outFilename) {
+		printf("Parsing file: %s...\n", filename);
+
+		if (ImageParse(filename, outFilename))
+			printf("Could not parse: %s\n", filename);
+		} },
+		{"wav", "wav", "Sounds", [](const char* filename, const char* outFilename) {
+			std::ifstream  src(filename, std::ios::binary);
+			std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+			dst << src.rdbuf();
+			dst.close();
+			src.close(); }}
+};
+
+std::vector<Accepted> fbxAccepted =
+{
+	{ "jpg", "sei", "Textures", [](const char* filename, const char* outFilename) {
+	if (ImageParse(filename, outFilename))
+		printf("Could not parse: %s\n", filename); } },
+	{ "png", "sei", "Textures", [](const char* filename, const char* outFilename) {
+		if (ImageParse(filename, outFilename))
+			printf("Could not parse: %s\n", filename); } },
+	{ "tga", "sei", "Textures", [](const char* filename, const char* outFilename) {
+			if (ImageParse(filename, outFilename))
+				printf("Could not parse: %s\n", filename); } },
+
+
+	{ "mesh", "mesh", "Meshes", [](const char* filename, const char* outFilename) {
+				std::ifstream  src(filename, std::ios::binary);
+				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+				dst << src.rdbuf();
+				dst.close();
+				src.close(); } },
+	{ "anim", "anim", "Animations", [](const char* filename, const char* outFilename) {
+					std::ifstream  src(filename, std::ios::binary);
+					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+					dst << src.rdbuf();
+					dst.close();
+					src.close(); } },
+	{ "light", "light", "Lights", [](const char* filename, const char* outFilename) {
+						std::ifstream  src(filename, std::ios::binary);
+						std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+						dst << src.rdbuf();
+						dst.close();
+						src.close(); } },
+	{ "skel", "skel", "Skeletons", [](const char* filename, const char* outFilename) {
+							std::ifstream  src(filename, std::ios::binary);
+							std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+							dst << src.rdbuf();
+							dst.close();
+							src.close(); } },
+};
+
+
+
+Accepted* IsAccepted(std::vector<Accepted>& acc, const Utilz::File& file)
+{
+	for (auto& a : acc)
+	{
+		if (Utilz::getExtension(file.name) == a.ext)
+		{
+			return &a;
+		}
+	}
+
+	return nullptr;
+}
 
 int main(int argc, char* argv[])
 {
@@ -21,53 +143,64 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		Parsers::HLSLParser hlslp;
+
+
+
+		fs::remove_all(argv[2]);
+		fs::remove_all("FBXTemp");
 		vector<Utilz::File> files;
+		vector<std::string> acceptedFiles;
+
 		Utilz::get_all_files_names_within_folder(argv[1], files);
 		for (auto& f : files)
 		{
-			if (Utilz::getExtension(f.name) == "hlsl")
+			auto a = IsAccepted(acceptedExt, f);
+			if (a != nullptr)
 			{
-				printf("Parsing file: %s...\n", f.name.c_str());
-				
-				if (hlslp.Parse(Utilz::utf8ToUtf16(f.fullPath).c_str(), (std::string(argv[2]) + "\\"+  Utilz::removeRoot(f.fullPath)).c_str()))
-					printf("Could not parse: %s\n", f.name.c_str());
-			}
-			else if(Utilz::getExtension(f.name) == "png" || Utilz::getExtension(f.name) == "jpg" || Utilz::getExtension(f.name) == "tga")
-			{
-				printf("Parsing file: %s...\n", f.name.c_str());
-				if (ImageParse(f.fullPath.c_str(), (std::string(argv[2]) + "\\" + Utilz::removeRoot(f.fullPath.substr(0, f.fullPath.size() - Utilz::getExtension(f.name).size()) + "sei")).c_str()))
-					printf("Could not parse: %s\n", f.name.c_str());
-				else
-					f.fullPath.replace(f.fullPath.size() - Utilz::getExtension(f.name).size(), Utilz::getExtension(f.name).size(), "sei");
-			}
-			else
-			{
-				std::ifstream  src(f.fullPath, std::ios::binary);
-
-				std::string path = (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)).c_str();
+				std::string path = std::string(argv[2]) + "/" + a->map + "/"+ Utilz::removeExtension(f.name) + "." + a->newExt;
+				if(a->newExt != "nil")
+					acceptedFiles.push_back(path);
 				auto idx = path.find_last_of("\\/");
 				auto path2 = path.substr(0, idx);
 				fs::create_directories(path2);
 
-				std::ofstream  dst(path, std::ios::binary | std::ios::trunc);
-
-				dst << src.rdbuf();
-				src.close();
-				dst.close();
+				a->callback(f.fullPath.c_str(), path.c_str());
 			}
 		}
 
+		vector<Utilz::File> fbxConvFiles;
+		Utilz::get_all_files_names_within_folder("FBXTemp", fbxConvFiles);
+
+		for (auto& f : fbxConvFiles)
+		{
+			auto a = IsAccepted(fbxAccepted, f);
+			if (a != nullptr)
+			{
+				std::string path = std::string(argv[2]) + "/" + a->map + "/" + Utilz::removeExtension(f.name) + "." + a->newExt;
+				if (a->newExt != "nil")
+					acceptedFiles.push_back(path);
+				auto idx = path.find_last_of("\\/");
+				auto path2 = path.substr(0, idx);
+				fs::create_directories(path2);
+
+				a->callback(f.fullPath.c_str(), path.c_str());
+			}
+		}
 
 		std::ofstream gE;
 		gE.open("rawLoaderEntries.txt", std::ios::trunc);
 		if (gE.is_open())
 		{
-			for (auto& f : files)
-				gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
+			for (auto& f : acceptedFiles)
+				gE << f << std::endl;
+			/*for (auto& f : files)
+					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
+			for (auto& f : fbxConvFiles)
+				if (Utilz::getExtension(f.name) != "log")
+					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;*/
 		}
 
-
+		fs::remove_all("FBXTemp");
 	}
 	
 	return 0;

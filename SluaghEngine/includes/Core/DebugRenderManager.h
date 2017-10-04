@@ -3,6 +3,7 @@
 
 #include "EntityManager.h"
 #include "TransformManager.h"
+#include "CollisionManager.h"
 #include <Utilz\GUID.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Graphics/IRenderer.h>
@@ -11,11 +12,16 @@
 #include <unordered_map>
 #include <vector>
 #include <random>
+#include <unordered_set>
 
 namespace SE
 {
 	namespace Core
 	{
+		struct Point3D
+		{
+			float x, y, z;
+		};
 		/**
 		*
 		* @brief This manager is used to render debug-related elements using line lists. Lazy creation is employed which means that if an entity does not have a DebugRender-component when any of the methods in this class are called, the component will be created without having to explicitly create a component.
@@ -27,7 +33,7 @@ namespace SE
 		class DebugRenderManager
 		{
 		public:
-			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager);
+			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager, CollisionManager* collisionManager);
 			~DebugRenderManager();
 			DebugRenderManager(const DebugRenderManager& other) = delete;
 			DebugRenderManager(const DebugRenderManager&& other) = delete;
@@ -64,21 +70,14 @@ namespace SE
 			* @details  The positions of the two points are given in local space. When rendered they will be transformed based on the transformation stored in the transform manager.
 			*			
 			* @param[in] entity Which entity.
-			* @param[in] x1 The x-coordinate of the the first point
-			* @param[in] y1 The y-coordinate of the the first point
-			* @param[in] z1 The z-coordinate of the the first point
-			* @param[in] x2 The x-coordinate of the the second point
-			* @param[in] y2 The y-coordinate of the the second point
-			* @param[in] z2 The z-coordinate of the the second point
+			* @param[in] a The first point
+			* @param[in] b The second point
 			*/
-			void DrawLine(const Entity& entity, float x1, float y1, float z1, float x2, float y2, float z2);
+			void DrawLine(const Entity& entity, const Point3D& a, const Point3D& b);
 
 
 		private:
-			struct Point3D
-			{
-				float x, y, z;
-			};
+			
 			struct LineSegment
 			{
 				Point3D a;
@@ -88,6 +87,7 @@ namespace SE
 			TransformManager* transformManager;
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
+			CollisionManager* collisionManager;
 
 			static const size_t maximumLinesToRender = 4096;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
@@ -95,9 +95,11 @@ namespace SE
 			int lineRenderVertexShaderHandle;
 			int lineRenderPixelShaderHandle;
 			bool dirty;
+			size_t lineCount;
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
-
+			//In case we don't leave it up to the caller to not enable the same entity twice
+			//std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
 			
 
 			int LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);

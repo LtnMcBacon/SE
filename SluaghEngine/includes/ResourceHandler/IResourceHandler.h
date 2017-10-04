@@ -2,7 +2,7 @@
 #define SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_
 #include <Utilz\GUID.h>
 #include <functional>
-#include <Utilz\Delegator.h>
+#include <Utilz\Delegate.h>
 
 #if defined DLL_EXPORT_RH
 #define DECLDIR __declspec(dllexport)
@@ -21,7 +21,7 @@ namespace SE
 			QUICK,
 			LAZY
 		};
-		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate; /**Return 0 on Success but not decrement refCount, 1 to decremeant refcount, -1 if error. */                  
 		typedef int(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
 		/**
 		*

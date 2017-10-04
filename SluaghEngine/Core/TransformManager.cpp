@@ -13,7 +13,7 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 	transformCapacity = 512;
 	transformCount = 0;
 	garbageCollectionIndex = 0;
-	const size_t bytes = transformCapacity * sizePerEntity;
+	//const size_t bytes = transformCapacity * sizePerEntity;
 	positions = new XMFLOAT3[transformCapacity];
 	rotations = new XMFLOAT3[transformCapacity];
 	scalings = new XMFLOAT3[transformCapacity];
@@ -22,6 +22,7 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 	Parent = new size_t[transformCapacity];
 	DirtyTransform = new size_t[transformCapacity];
 	Child = new size_t[transformCapacity];
+	inheritRotation = new uint8_t[transformCapacity];
 }
 
 SE::Core::TransformManager::~TransformManager()
@@ -34,6 +35,7 @@ SE::Core::TransformManager::~TransformManager()
 	delete[] Parent;
 	delete[] Child;
 	delete[] DirtyTransform;
+	delete[] inheritRotation;
 }
 
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
@@ -59,12 +61,13 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	DirtyTransform[index] = ~0u;
 	Child[index] = ~0u;
 	Parent[index] = ~0u;
+	inheritRotation[index] = 1u;
+	dirty[index] = 1u;
 
-	dirty[index] = true;
 	StopProfile;
 }
 
-void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child)
+void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child, bool rotation)
 {
 	StartProfile;
 	auto& findParent = entityToIndex.find(parent);
@@ -78,11 +81,18 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	// Setup Parent data
 	Child[findParent->second] = findChild->second;
 
-
 	// Setup child data
 	Parent[findChild->second] = findParent->second;
+	inheritRotation[findChild->second] = rotation ? 1u : 0u;
 	StopProfile;
 
+}
+
+void SE::Core::TransformManager::SetAsDirty(const Entity & e)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+	SetAsDirty(index);
 }
 
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& dir)
@@ -220,8 +230,13 @@ int SE::Core::TransformManager::GarbageCollection()
 			positions[iterator->second] = positions[transformCount];
 			rotations[iterator->second] = rotations[transformCount];
 			scalings[iterator->second] = scalings[transformCount];
+			dirty[iterator->second] = dirty[transformCount];
+			Parent[iterator->second] = Parent[transformCount];
+			Child[iterator->second] = Child[transformCount];
+			DirtyTransform[iterator->second] = DirtyTransform[transformCount];
+			inheritRotation[iterator->second] = inheritRotation[transformCount];
+
 			const Entity occupyingLastSlot = entities[transformCount];
-			const auto old = iterator;
 			entityToIndex[occupyingLastSlot] = iterator->second;
 			entities[iterator->second] = occupyingLastSlot;
 			entityToIndex.erase(iterator);
@@ -254,7 +269,12 @@ void SE::Core::TransformManager::Frame()
 	for (auto i : parentDeferred)
 	{
 		XMMATRIX local = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]]);
-		XMMATRIX parent = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.parentIndex]]);
+		XMMATRIX parent;
+		if (inheritRotation[i.Index])
+			parent = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.parentIndex]]);
+		else
+			parent = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[i.parentIndex]));
+		
 		auto newTrans = local*parent;
 		XMStoreFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]], newTrans);
 	}
@@ -292,7 +312,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 void SE::Core::TransformManager::ExpandTransforms()
 {
 	StartProfile;
-	const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
+	//const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
 	const uint32_t newCapacity = transformCapacity + transformCapacityIncrement;
 
 	XMFLOAT3* newPos = new XMFLOAT3[newCapacity];
@@ -303,6 +323,7 @@ void SE::Core::TransformManager::ExpandTransforms()
 	size_t* newParent = new size_t[newCapacity];
 	size_t* newDirtyTransform = new size_t[newCapacity];
 	size_t* newChild = new size_t[newCapacity];
+	uint8_t* newInheritRotation = new uint8_t[newCapacity];
 
 	memcpy(newPos, positions, sizeof(XMFLOAT3) * transformCount);
 	memcpy(newRot, rotations, sizeof(XMFLOAT3) * transformCount);
@@ -312,6 +333,7 @@ void SE::Core::TransformManager::ExpandTransforms()
 	memcpy(newParent, Parent, sizeof(size_t) * transformCount);
 	memcpy(newDirtyTransform, DirtyTransform, sizeof(size_t) * transformCount);
 	memcpy(newChild, Child, sizeof(size_t) * transformCount);
+	memcpy(newInheritRotation, inheritRotation, sizeof(uint8_t) * transformCount);
 
 	delete[] positions;
 	delete[] rotations;
@@ -321,6 +343,7 @@ void SE::Core::TransformManager::ExpandTransforms()
 	delete[] Parent;
 	delete[] DirtyTransform;
 	delete[] Child;
+	delete[] inheritRotation;
 
 	positions = newPos;
 	rotations = newRot;
@@ -330,6 +353,7 @@ void SE::Core::TransformManager::ExpandTransforms()
 	Parent = newParent;
 	DirtyTransform = newDirtyTransform;
 	Child = newChild;
+	inheritRotation = newInheritRotation;
 
 	transformCapacity = newCapacity;
 	ProfileReturnVoid;

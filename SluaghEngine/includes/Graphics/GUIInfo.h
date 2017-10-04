@@ -3,6 +3,7 @@
 #ifndef SE_GRAPHICS_GUI_INFO_H_
 #define SE_GRAPHICS_GUI_INFO_H_
 #include <DirectXMath.h>
+#include <Utilz\GUID.h>
 #include <ToolKit\SpriteFont.h>
 #include <ToolKit\SpriteBatch.h>
 
@@ -42,7 +43,7 @@ namespace SE
 			float rotation;	
 			float layerDepth;
 
-			inline size_t operator==(const GUITextureInfo& rhs) const
+			/*inline*/ size_t operator==(const GUITextureInfo& rhs) const
 			{
 				uint32_t stateChanges = 0;
 				stateChanges = (stateChanges << 1) | (pos.x != rhs.pos.x);
@@ -72,12 +73,6 @@ namespace SE
 		{
 			int textureHandle;
 			size_t refCount;
-		};
-
-		struct EntBindIDGUID
-		{
-			Utilz::GUID GUID;
-			size_t ID;
 		};
 	}
 }

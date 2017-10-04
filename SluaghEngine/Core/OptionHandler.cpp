@@ -63,10 +63,6 @@ namespace SE {
 				std::map<std::string, int> value;
 				value[optionName] = newValue;
 				optionMap[section] = value;
-				if (optionMap.size() > 0)
-				{
-					int hej = 0;
-				}
 				ProfileReturnVoid;
 			}
 			else
@@ -92,7 +88,7 @@ namespace SE {
 		void OptionHandler::Register(const Utilz::Delegate<void()>& delegat)
 		{
 			StartProfile;
-			optionEvent.Add(delegat);
+			optionEvent += delegat;
 			ProfileReturnVoid;
 		}
 

@@ -1,12 +1,17 @@
-#include <Renderer.h>
+#include "Renderer.h"
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
 
 #undef min
-using namespace SE;
+
+
 
 SE::Graphics::Renderer::Renderer()
 {
+	oncePerFrameBufferID = -1;
+	device = nullptr;
+	graphicResourceHandler = nullptr;
+	animationSystem = nullptr;
 }
 
 SE::Graphics::Renderer::~Renderer()
@@ -25,35 +30,34 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
-	
-	TargetOffset off;
-	off.shaderTarget[0] = true;
-	off.shaderTarget[1] = true;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 1;
-	off.offset[1] = 1;
-	off.offset[2] = 1;
 
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer), off, &oncePerFrameBufferID);
-	if (FAILED(hr))
+	animationSystem = new AnimationSystem();
+	
+
+
+	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
+	if (oncePerFrameBufferID < 0)
 	{
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
-	TargetOffset t = { {true, false, false},{2, 0, 0} };
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4) * maxDrawInstances, t, &instancedTransformsConstantBufferHandle);
-	if(FAILED(hr))
-	{
-		throw std::exception("Could not create OncePerObject constant buffer.\n");
-	}
-	hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), t, &singleTransformConstantBuffer);
-	if (FAILED(hr))
+
+	
+	singleTransformConstantBuffer = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4));
+	if (singleTransformConstantBuffer < 0)
 	{
 		throw std::exception("Could not create singleTransformConstantBuffer.\n");
 	}
 
-	graphicResourceHandler->BindConstantBuffer(oncePerFrameBufferID);
+	
 
 	graphicResourceHandler->CreateSamplerState();
+
+	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * lightBufferSize);
+	if (lightBufferID < 0)
+	{
+		throw std::exception("Could not create LightDataBuffer");
+	}
+
 
 	ProfileReturnConst( 0);
 }
@@ -66,12 +70,14 @@ void SE::Graphics::Renderer::Shutdown()
 	
 
 	delete graphicResourceHandler;
+	delete animationSystem;
 	delete device;
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	StartProfile;
+	renderJobLock.lock();
 	int32_t bucketIndex = -1;
 	const size_t renderBucketCount = renderBuckets.size();
 	for (size_t i = 0; i < renderBucketCount; ++i)
@@ -108,12 +114,14 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
+	renderJobLock.unlock();
 	ProfileReturnConst(jobID);
 }
 
-int Graphics::Renderer::DisableRendering(uint32_t jobID)
+int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
+	renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
@@ -130,11 +138,61 @@ int Graphics::Renderer::DisableRendering(uint32_t jobID)
 
 	freeJobIndices.push(jobID);
 
-
+	renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
+
+
+int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles)
+{
+	StartProfile;
+	renderJobLock.lock();
+	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
+	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+
+	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
+
+	DirectX::XMFLOAT4X4 transform = bucketOfRemoved.transforms[transformIndexOfRemoved];
+	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
+	bucketOfRemoved.transforms.pop_back();
+	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
+	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
+	bucketOfRemoved.jobsInBucket.pop_back();
+
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
+
+	int32_t bucketIndex = -1;
+	const size_t renderBucketCount = renderBuckets.size();
+	for (size_t i = 0; i < renderBucketCount; ++i)
+	{
+		if (renderBuckets[i].stateInfo - handles == 0)
+		{
+			bucketIndex = i;
+			break;
+		}
+	}
+	if (bucketIndex < 0)
+	{
+		bucketIndex = renderBuckets.size();
+		TargetOffset t = { { true, false, false },{ 2, 0, 0 } };
+		renderBuckets.push_back({ handles,{},{} });
+	}
+	const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+	renderBuckets[bucketIndex].transforms.push_back(transform);
+
+
+	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
+	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
+
+	renderJobLock.unlock();
+	ProfileReturnConst( 0);
+}
+
+
+int SE::Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 {
 	StartProfile;
 	uint32_t lineJobID;
@@ -156,7 +214,7 @@ int Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 	ProfileReturnConst(lineJobID);
 }
 
-int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
+int SE::Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 {
 	StartProfile;
 	freeLineRenderJobIndices.push(lineJobID);
@@ -164,7 +222,7 @@ int Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
+int SE::Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* transform)
 {
 	StartProfile;
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
@@ -174,7 +232,7 @@ int Graphics::Renderer::UpdateLineRenderJobTransform(uint32_t lineJobID, float* 
 	ProfileReturnConst(0);
 }
 
-int Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
+int SE::Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount)
 {
 	StartProfile;
 
@@ -238,11 +296,32 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 	return 0;
 }
 
+int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
+{
+	StartProfile;
+	renderLightJobs.push_back(handles);
+	ProfileReturn(renderLightJobs.size() - 1);
+}
+
+int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
+{
+	StartProfile;
+	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
+	renderLightJobs.pop_back();
+	ProfileReturn(renderLightJobs.size());
+}
+
+int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
+{
+	renderLightJobs[ID].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[ID].pos.w);
+	return 0;
+}
+
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	DirectX::XMFLOAT4X4 wo;
 	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
-	graphicResourceHandler->SetConstantBuffer(&wo, oncePerFrameBufferID);
+	graphicResourceHandler->UpdateConstantBuffer(&wo, sizeof(wo), oncePerFrameBufferID);
 
 	return 0;
 }
@@ -268,12 +347,23 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
+	// SetLightBuffer Start
+	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+	LightDataBuffer lightBufferData;
+	lightBufferData.size.x = renderLightJobs.size();
 
-
+	for (int lightNr = 0; lightNr < renderLightJobs.size(); lightNr++)
+	{
+		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
+	}
+	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
+	// SetLightBuffer end
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	graphicResourceHandler->BindConstantBuffer(instancedTransformsConstantBufferHandle);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -285,6 +375,8 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 	previousJob.vertexShader = -1;
+
+	renderJobLock.lock();
 	for(auto& bucket : renderBuckets)
 	{
 		const RenderObjectInfo& job = bucket.stateInfo;
@@ -327,20 +419,66 @@ int SE::Graphics::Renderer::Render() {
 			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
-		const size_t instanceCount = bucket.transforms.size();
-		for(int i = 0; i < instanceCount; i += maxDrawInstances)
-		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
-			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, instancedTransformsConstantBufferHandle);
-			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+		if(job.type == RenderObjectInfo::JobType::STATIC){
+
+			const size_t instanceCount = bucket.transforms.size();
+			int bindSlot;
+			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
+			int binsSlotInvers;
+			int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+			graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
+			for (int i = 0; i < instanceCount; i += maxDrawInstances)
+			{
+				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
+				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+			}
+
 		}
+
+		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
+
+			/*
+			int boneBindslot;
+			int worldBindslot;
+			const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
+			const int cWorldBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &worldBindslot);
+
+			graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
+
+			int drawCallCount = bucket.transforms.size();
+
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
+			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
+			*/
+		}
+
+		
 		previousJob = job;
 	}
+	renderJobLock.unlock();
+
 	/********** Render line jobs ************/
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindConstantBuffer(singleTransformConstantBuffer);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+
 	for(auto& lineJob : lineRenderJobs)
 	{
 		if (lineJob.verticesToDrawCount == 0)
@@ -399,37 +537,17 @@ void SE::Graphics::Renderer::DestroyVertexBuffer(int bufferHandle)
 	StopProfile;
 }
 
-int Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
+int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& description)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
 }
 
 
-int SE::Graphics::Renderer::CreateTransform()
+int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
-	int handle;
-	TargetOffset off;
-	off.shaderTarget[0] = true;
-	off.shaderTarget[1] = true;
-	off.shaderTarget[2] = true;
-	off.offset[0] = 2;
-	off.offset[1] = 2;
-	off.offset[2] = 2;
-	auto hr = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4), off, &handle);
-	if (FAILED(hr))
-		ProfileReturnConst(hr);
-	ProfileReturnConst(handle);
-}
-
-void SE::Graphics::Renderer::DestroyTransform(int transformHandle)
-{
-}
-
-int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
-{
-	StartProfile;
+	renderJobLock.lock();
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
@@ -438,11 +556,24 @@ int Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	const size_t transformIndex = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
 	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
-
+	renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
+int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
 
+	StartProfile;
+
+	auto& indices = jobIDToBucketAndTransformIndex[jobID];
+
+	auto& bucket = renderBuckets[indices.bucketIndex];
+
+	bucket.gBoneTransforms.resize(nrOfJoints);
+
+	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
+
+	ProfileReturnConst(0);
+}
 
 int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
@@ -454,13 +585,13 @@ int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSet
 	return handle;
 }
 
-int Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
+int SE::Graphics::Renderer::CreateDynamicVertexBuffer(size_t bytewidth, size_t vertexByteSize, void* initialData, size_t initialDataSize)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateDynamicVertexBuffer(bytewidth, vertexByteSize, initialData, initialDataSize));
 }
 
-int Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
+int SE::Graphics::Renderer::UpdateDynamicVertexBuffer(int handle, void* data, size_t totalSize, size_t sizePerElement)
 {
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->UpdateDynamicVertexBuffer(handle, data, totalSize, sizePerElement));
@@ -482,14 +613,33 @@ int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, s
 	ProfileReturn(0);
 }
 
-int SE::Graphics::Renderer::CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler)
+int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 {
-	resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<Renderer, &Renderer::RetFontData>(this));
+	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
 	return fonts.size();
 }
 
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 {
 	device->ResizeSwapChain((HWND)windowHandle);
+}
+
+
+int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
+
+	int handle;
+	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+	if (hr)
+		return hr;
+	return handle;
+}
+
+int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) {
+
+	int handle;
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, skeletonIndex, &handle);
+	if (hr)
+		return hr;
+	return handle;
 }
 

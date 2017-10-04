@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Graphics", "Graphics\Graphics.vcxproj", "{98A5895B-DA4E-43AD-8AD4-BC0916460BE1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{259CB2CB-6EEF-4825-893E-2BEE9413B7CD} = {259CB2CB-6EEF-4825-893E-2BEE9413B7CD}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio", "Audio\Audio.vcxproj", "{9E4CC31E-D283-4D5C-9F2C-2A337C47CDA3}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -41,6 +44,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj",
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileParser", "FileParser\FileParser.vcxproj", "{956A354F-6B9E-4142-9522-3D19F1C02FD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3} = {66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBX_Converter", "FBX_Converter\FBX_Converter.vcxproj", "{66E6EB03-00C6-4FEC-B7E8-46E242AD2AC3}"
 EndProject

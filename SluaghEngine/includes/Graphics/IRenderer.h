@@ -4,10 +4,20 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
-#include "GUIInfo.h"
+#include <Graphics\GUIInfo.h>
+#include <Graphics\LightInfo.h>
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
-#include <ResourceHandler\IResourceHandler.h>
+#include "AnimationStructs.h"
+#include "FileHeaders.h"
+
+#if defined DLL_EXPORT_RENDERER
+#define DECLDIR_R __declspec(dllexport)
+#else
+#define DECLDIR_R __declspec(dllimport)
+#endif
+
+
 namespace SE
 {
 	namespace Graphics
@@ -53,6 +63,16 @@ namespace SE
 			virtual int DisableRendering(uint32_t jobID) = 0;
 
 			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] handles The RenderObjectInfo to change to
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles) = 0;
+
+
+			/**
 			* @brief    Sets a render job
 			* @param[in] lineJob The job containing information about the job.
 			* @retval Returns a handle to the job on success.
@@ -84,6 +104,31 @@ namespace SE
 			* @endcode
 			*/
 			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+
+			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableLightRendering(const LightData & handles) = 0;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableLightRendering(size_t ID) = 0;
+			
 			/**
 			* @brief    Removes a line render job.
 			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
@@ -110,12 +155,12 @@ namespace SE
 			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
 
 			/**
-			* @brief    Removes a Text render job.
-			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+			virtual int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering
@@ -161,19 +206,6 @@ namespace SE
 			*/
 			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
 
-			/**
-			* @brief Create a transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			virtual int CreateTransform() = 0;
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			virtual void DestroyTransform(int transformHandle) = 0;
 			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
@@ -234,7 +266,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			virtual int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) = 0;
+			virtual int CreateTextFont(void * data, size_t size) = 0;
 
 			/**
 			* @brief Resizes the swapchain
@@ -242,12 +274,19 @@ namespace SE
 			* @endcode
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
+			
+			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
+
+			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
 			IRenderer(const IRenderer&& other) = delete;
 			IRenderer& operator=(const IRenderer& rhs) = delete;
 		};
+
+		DECLDIR_R IRenderer* CreateRenderer();
+
 	}
 }
 #endif

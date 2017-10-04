@@ -72,22 +72,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\Graphics\</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;</LibraryPath>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\Graphics\</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\Graphics\</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;</LibraryPath>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
-    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\Graphics\;</IncludePath>
+    <IncludePath>$(SolutionDir)includes\Utilz\;$(IncludePath);$(SolutionDir)External Dependencies\includes\FBX_SDK\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\Graphics\</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

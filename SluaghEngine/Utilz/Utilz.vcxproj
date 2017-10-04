@@ -140,12 +140,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Utilz\Camera.h" />
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
     <ClInclude Include="..\includes\Utilz\crc_table.h" />
-    <ClInclude Include="..\includes\Utilz\Delegator.h" />
+    <ClInclude Include="..\includes\Utilz\Delegate.h" />
+    <ClInclude Include="..\includes\Utilz\DelegateBase.h" />
     <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h" />
     <ClInclude Include="..\includes\Utilz\Event.h" />
     <ClInclude Include="..\includes\Utilz\GUID.h" />
@@ -160,7 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="DoubleEdgeStackAlloc.cpp" />

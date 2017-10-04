@@ -5,7 +5,7 @@
 #include <DirectXCollision.h>
 #include <random>
 #include <Utilz\GUID.h>
-#include <Utilz\Delegator.h>
+#include <Utilz\Delegate.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "TransformManager.h"
 #include <unordered_map>
@@ -33,7 +33,7 @@ namespace SE
 			CollisionManager(const CollisionManager&& other) = delete;
 			CollisionManager& operator=(const CollisionManager& other) = delete;
 
-
+			friend class DebugRenderManager;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -159,9 +159,12 @@ namespace SE
 
 			size_t defaultHierarchy;
 			BoundingHierarchy boundingHierarchy;
-			std::vector<BoundingHierarchyInfo> boundingIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingHierarchy;
+
+			std::vector<BoundingHierarchyInfo> boundingInfoIndex;
+
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingInfoIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingHierarchyIndex;
+
 
 			int LoadMesh(const Utilz::GUID& guid, void*data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);
