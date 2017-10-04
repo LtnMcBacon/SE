@@ -65,11 +65,11 @@ namespace SE
 			/**
 			* @brief    Changes vertex buffer handle for render job
 			* @param[in] jobID The ID of the job, gotten through EnableRendering
-			* @param[in] bufferHandle The buffer to change to.
+			* @param[in] handles The RenderObjectInfo to change to
 			* @retval 0 On success.
 			* @sa EnableRendering
 			*/
-			virtual int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) = 0;
+			virtual int UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles) = 0;
 
 
 			/**
