@@ -1,12 +1,4 @@
-Assets/GUI/GUITest.sei
-Assets/Font/moonhouse.spritefont
-Assets/Shaders/SimpleGS.hlsl
-Assets/Shaders/DebugLinePS.hlsl
-Assets/Shaders/SimpleGS.hlsl
-Assets/Shaders/SimplePS.hlsl
-Assets/Shaders/SimpleTexPS.hlsl
-Assets/Shaders/DebugLineVS.hlsl
-Assets/Shaders/SimpleVS.hlsl
+Assets/GUI/
 Assets/Shaders/SkinnedVS.hlsl
 Assets/Sounds/Cout.wav
 Assets/Sounds/Canary.wav
