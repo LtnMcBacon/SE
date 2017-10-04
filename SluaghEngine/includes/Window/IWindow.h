@@ -260,6 +260,11 @@ namespace SE
 			virtual void Frame() = 0;
 
 			/**
+			* @brief Start input recording
+			*/
+			virtual void StartRecording() = 0;
+
+			/**
 			* @brief Returns a pointer to the window handle
 			*/
 			virtual void* GetHWND() = 0;

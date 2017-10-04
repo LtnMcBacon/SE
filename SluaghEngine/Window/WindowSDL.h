@@ -5,6 +5,8 @@
 #include <Windows.h>
 #include <map>
 #include <vector>
+#include <Utilz\CircularFiFo.h>
+#include <fstream>
 namespace SE
 {
 	namespace Window
@@ -20,6 +22,8 @@ namespace SE
 			void Shutdown() override;
 
 			void Frame() override;
+
+			void StartRecording() override;
 
 			void* GetHWND() override;
 
@@ -82,8 +86,11 @@ namespace SE
 			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
-
-			
+			//record stuff
+			void RecordToFile();
+			std::ofstream recFile;
+			Utilz::CircularFiFo<SDL_Event, 256> circFiFo;
+			bool recording = false;
 		};
 
 

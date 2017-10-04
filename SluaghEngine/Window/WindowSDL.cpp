@@ -1,9 +1,12 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
+#include <thread>
+
 
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
+
 
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
@@ -213,7 +216,20 @@ void SE::Window::WindowSDL::Frame()
 			break;
 			}
 		}
+		//remove before pull request
+		assert(!(circFiFo.WasFull()));
+		if (recording)
+		{
+			circFiFo.push(ev);
+		}
 	}
+}
+
+void SE::Window::WindowSDL::StartRecording()
+{
+	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	recording = true;
+	std::thread recThread (&Window::WindowSDL::RecordToFile, this);
 }
 
 void* SE::Window::WindowSDL::GetHWND()
@@ -312,4 +328,18 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 		SDL_SetWindowSize(window, width, height);
 
 	return changed;
+}
+
+void SE::Window::WindowSDL::RecordToFile()
+{
+	while (recording)
+	{
+		if (!circFiFo.wasEmpty())
+		{
+			SDL_Event ev;
+			circFiFo.pop(ev);
+			void* var = &ev;
+			recFile.write((char*)var, sizeof(SDL_Event));
+		}
+	}
 }
