@@ -19,8 +19,10 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 
 	defaultHierarchy = 0;
-
+	boundingHierarchy.used++;
 	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
+
+
 		LoadMesh(defaultHierarchy, data, size);
 
 		return 1;
@@ -31,8 +33,6 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 SE::Core::CollisionManager::~CollisionManager()
 {
-	for(size_t i = 0; i < collisionData.used; i++)
-		collisionData.collisionWithAnyCallback[i].~Delegate();
 	delete collisionData.data;
 	delete boundingHierarchy.data;
 }
@@ -63,7 +63,6 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		transformManager->Create(entity);
 
-
 		// Load the mesh
 		{
 			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
@@ -81,11 +80,9 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
 
-				//auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
 				auto res = resourceHandler->LoadResource(mesh, [this, bIndex, newHI](const Utilz::GUID& mesh, void* data, size_t size) ->int {
 			
 					LoadMesh(newHI, data, size);
-					auto meshHeader = (Graphics::Mesh_Header*)data;
 
 					entityUpdateLock.lock();
 					for (auto& e : boundingInfo[bIndex].entities)
@@ -119,13 +116,12 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 	StopProfile;
 }
 
-void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, const CollideCallbackDelegate & callback)
+void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity)
 {
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
 		collisionData.collisionWithAny[find->second] = true;
-		collisionData.collisionWithAnyCallback[find->second] = callback;
 	}
 }
 
@@ -168,42 +164,40 @@ void SE::Core::CollisionManager::Frame()
 	StartProfile;
 	GarbageCollection();
 
-	// First update all bounding data
-	for (auto& dirty : dirtyEntites)
 	{
-		// TODO: Multithread
-		auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
-		auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
-		XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
-		mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);	
-		myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
-	}
-	// Now check if any of the newly updated entities collided with anything
-	for (auto& dirty : dirtyEntites)
-	{
-		if (collisionData.collisionWithAny[dirty.myIndex])
+		// First update all bounding data
+		for (auto& dirty : dirtyEntites)
 		{
-			auto& mySphere = collisionData.sphereWorld[dirty.myIndex]; // Already transformed
-			for (size_t i = 0; i < collisionData.used; i++)
+			// TODO: Multithread
+			auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
+			auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
+			XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
+			mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);
+			myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
+		}
+	}
+
+	{
+		// Now check if any of the newly updated entities collided with anything
+		for (auto& dirty : dirtyEntites)
+		{
+			if (collisionData.collisionWithAny[dirty.myIndex])
 			{
-				auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
-				if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere) )
+				auto& mySphere = collisionData.sphereWorld[dirty.myIndex]; // Already transformed
+				for (size_t i = 0; i < collisionData.used; i++)
 				{
-					collisionData.collisionWithAnyCallback[dirty.myIndex](collisionData.entity[dirty.myIndex], collisionData.entity[i]);
+					auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
+					if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere))
+					{
+						collideWithAny(collisionData.entity[dirty.myIndex], collisionData.entity[i]);
+					}
 				}
+
+
 			}
-
-
 		}
 	}
 	dirtyEntites.clear();
-	StopProfile;
-}
-
-void SE::Core::CollisionManager::UpdateEntity(const Entity & entity)
-{
-	StartProfile;
-	
 	StopProfile;
 }
 
@@ -236,7 +230,6 @@ void SE::Core::CollisionManager::Allocate(size_t size)
 	newData.sphereWorld = (BoundingSphere*)(newData.boundingIndex + newData.allocated);
 	newData.AABBWorld = (BoundingBox*)(newData.sphereWorld + newData.allocated);
 	newData.collisionWithAny = (uint8_t*)(newData.AABBWorld + newData.allocated);
-	newData.collisionWithAnyCallback = (CollideCallbackDelegate*)(newData.collisionWithAny + newData.allocated);
 
 
 	// Copy data
@@ -245,7 +238,6 @@ void SE::Core::CollisionManager::Allocate(size_t size)
 	memcpy(newData.sphereWorld, collisionData.sphereWorld, collisionData.used * sizeof(BoundingSphere));
 	memcpy(newData.AABBWorld, collisionData.AABBWorld, collisionData.used * sizeof(BoundingBox));
 	memcpy(newData.collisionWithAny, collisionData.collisionWithAny, collisionData.used * sizeof(uint8_t));
-	memcpy(newData.collisionWithAnyCallback, collisionData.collisionWithAnyCallback, collisionData.used * sizeof(CollideCallbackDelegate));
 
 	// Delete old data;
 	operator delete(collisionData.data);
@@ -267,7 +259,6 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	collisionData.entity[index] = last_entity;
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
-	collisionData.collisionWithAnyCallback[index] = collisionData.collisionWithAnyCallback[last];
 
 	// Replace the index for the last_entity 
 	entityToCollisionData[last_entity] = index;

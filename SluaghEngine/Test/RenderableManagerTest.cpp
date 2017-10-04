@@ -91,7 +91,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	info.textureFileNames = textures;
 	info.textureCount = 2;
 
-	mm.Create(mainC, info);
+	//mm.Create(mainC, info);
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("MCModell.mesh"));
 	rm.ToggleRenderableObject(mainC, true);

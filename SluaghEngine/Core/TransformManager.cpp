@@ -267,7 +267,7 @@ void SE::Core::TransformManager::Frame()
 			SetAsDirty(find->second);
 
 	}
-		
+	entityStack.clear();
 	queueLock.unlock();
 	dirtyTransforms.clear();
 	parentDeferred.clear();

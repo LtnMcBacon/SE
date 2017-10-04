@@ -56,26 +56,32 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto w = e.GetWindow();
 	auto& rm = e.GetRenderableManager();
 
+	col.RegisterCollideWithAnyCallback(Core::CollideCallback::Make<&Collide1>());
 
 	Core::CameraBindInfoStruct cInfo;
 	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
-	cInfo.posistion = { 0.0f, 0.0f, -1.0f };
+	cInfo.posistion = { 0.0f, 0.0f, -2.0f };
 	cm.Bind(camera, cInfo);
+	cm.SetActive(camera);
 
 	auto& block1 = em.Create();
-	col.CreateBoundingHierarchy(block1, "MCModell.mesh");
+	col.CreateBoundingHierarchy(block1, "Placeholder_Block.mesh");
 	rm.CreateRenderableObject(block1, "MCModell.mesh");
 	rm.ToggleRenderableObject(block1, true);
-	//drm.ToggleDebugRendering(block1, true);
+	
 
 	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
 	bool running = true;
 
 	while (running)
 	{
 		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
+		if (w->ButtonDown(ActionButton::Left))
+			tm.Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
 		e.Frame(0.01f);
+		drm.ToggleDebugRendering(block1, true);
 	}
 
 	e.Release();

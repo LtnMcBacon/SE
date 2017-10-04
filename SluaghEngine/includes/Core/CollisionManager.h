@@ -22,11 +22,11 @@ namespace SE
 		* @details To function properly the entity need a boundingbox created and a transform. And a function provided to be called on collision.
 		*
 		**/
+		typedef Utilz::Delegate<void(const Entity& hit, const Entity& hitter)> CollideCallback;
 
 		class CollisionManager
 		{
 		public:
-			typedef Utilz::Delegate<void(const Entity& hit, const Entity& hitter)> CollideCallbackDelegate;
 
 			CollisionManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager);
 			~CollisionManager();
@@ -66,7 +66,7 @@ namespace SE
 			* @param[in] callback The callback.
 			* @sa CollideCallbackDelegate
 			*/
-			void BindOnCollideWithAny(const Entity& entity, const CollideCallbackDelegate& callback);
+			void BindOnCollideWithAny(const Entity& entity);
 
 			/**
 			* @brief	Get the bounding Hierarchy of an entity
@@ -84,14 +84,17 @@ namespace SE
 			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
 
 
+			inline void RegisterCollideWithAnyCallback(const CollideCallback& callback)
+			{
+				collideWithAny = callback;
+			}
+
 			/**
 			* @brief	Called each frame, to update the state.
 			* @details The frame will keep the bounding objects up to date with the entities transform.
 			*/
 			void Frame();
 		private:
-			void UpdateEntity(const Entity& entity);
-
 			void SetDirty(const Entity& entity, size_t index);
 
 			/**
@@ -133,7 +136,7 @@ namespace SE
 			};
 			struct CollisionData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(DirectX::BoundingSphere) + sizeof(DirectX::BoundingBox) + sizeof(uint8_t) + sizeof(CollideCallbackDelegate);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(DirectX::BoundingSphere) + sizeof(DirectX::BoundingBox) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -142,7 +145,6 @@ namespace SE
 				DirectX::BoundingSphere* sphereWorld;
 				DirectX::BoundingBox* AABBWorld;
 				uint8_t* collisionWithAny;
-				CollideCallbackDelegate* collisionWithAnyCallback;
 			};
 
 			ResourceHandler::IResourceHandler* resourceHandler;
@@ -168,6 +170,8 @@ namespace SE
 
 			int LoadMesh(size_t newHI, void * data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);
+
+			CollideCallback collideWithAny;
 
 			std::mutex infoLock;
 			std::mutex entityUpdateLock;
