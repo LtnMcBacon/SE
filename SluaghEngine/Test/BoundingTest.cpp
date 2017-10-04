@@ -28,7 +28,6 @@ void Collide2(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
 	test = false;
 }
 
-
 bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 {
 	auto& e = Core::Engine::GetInstance();
