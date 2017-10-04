@@ -16,7 +16,6 @@
 SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
 	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
-
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
