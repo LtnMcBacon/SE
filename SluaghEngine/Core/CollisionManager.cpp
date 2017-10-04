@@ -333,7 +333,9 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 int SE::Core::CollisionManager::LoadMesh(size_t newHI, void * data, size_t size)
 {
 	StartProfile;
+	using namespace std::chrono_literals;
 
+	std::this_thread::sleep_for(1s);
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 
 	if (meshHeader->vertexLayout == 0) {
