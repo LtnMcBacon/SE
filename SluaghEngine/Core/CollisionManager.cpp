@@ -79,10 +79,6 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 			collisionData.boundingIndex[newEntry] = bIndex;
 			boundingInfoIndex[bIndex].refCount++;
-			
-
-			
-
 		}
 
 
