@@ -19,34 +19,61 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
+    <ClCompile Include="IBehaviour.cpp" />
+    <ClCompile Include="IComposite.cpp" />
+    <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
+    <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="RandomSelector.cpp" />
+    <ClCompile Include="RandomSequence.cpp" />
+    <ClCompile Include="Repeater.cpp" />
+    <ClCompile Include="RepeatUntilFail.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="Selector.cpp" />
+    <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="Succeeder.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
+    <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
+    <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
+    <ClInclude Include="..\includes\Gameplay\IComposite.h" />
+    <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
+    <ClInclude Include="..\includes\Gameplay\Inverter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Repeater.h" />
+    <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="..\includes\Gameplay\Selector.h" />
+    <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="Game.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

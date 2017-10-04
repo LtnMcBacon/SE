@@ -204,7 +204,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		reflection->GetResourceBindingDesc(i, &sibd);
 		if(sibd.Type == D3D_SIT_CBUFFER)
 		{
-			vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].bindSlot = sibd.BindPoint;
+			vShaders[index].constBufferNameToHandleAndBindSlot[sibd.Name].bindSlot = sibd.BindPoint;
 		}
 	}
 
@@ -226,7 +226,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
-			Utilz::Console::Print("Failed to reflect pixel shader.\n");
+		//	Utilz::Console::Print("Failed to reflect pixel shader.\n");
 			ProfileReturnConst(hr);
 		}
 		D3D11_SHADER_DESC shaderDesc;

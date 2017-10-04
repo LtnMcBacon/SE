@@ -4,7 +4,8 @@
 #include <cstdint>
 #include "TextureDesc.h"
 #include "RenderObjectInfo.h"
-#include "GUIInfo.h"
+#include <Graphics\GUIInfo.h>
+#include <Graphics\LightInfo.h>
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
 #include "AnimationStructs.h"
@@ -64,11 +65,11 @@ namespace SE
 			/**
 			* @brief    Changes vertex buffer handle for render job
 			* @param[in] jobID The ID of the job, gotten through EnableRendering
-			* @param[in] bufferHandle The buffer to change to.
+			* @param[in] handles The RenderObjectInfo to change to
 			* @retval 0 On success.
 			* @sa EnableRendering
 			*/
-			virtual int UpdateRenderingBuffer(uint32_t jobID, int bufferHandle) = 0;
+			virtual int UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles) = 0;
 
 
 			/**
@@ -103,6 +104,31 @@ namespace SE
 			* @endcode
 			*/
 			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			
+			/**
+			* @brief    Removes a Text render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+
+			/**
+			* @brief    Sets Light render jobs
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int EnableLightRendering(const LightData & handles) = 0;
+
+			/**
+			* @brief    Removes a Light render job.
+			* @param[in] handles The handles struct
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int DisableLightRendering(size_t ID) = 0;
+			
 			/**
 			* @brief    Removes a line render job.
 			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
@@ -129,12 +155,12 @@ namespace SE
 			virtual int UpdateLineRenderJobRange(uint32_t lineJobID, uint32_t startVertex, uint32_t vertexCount) = 0;
 
 			/**
-			* @brief    Removes a Text render job.
-			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @brief Updates the lightPos used for rendering
+			* @param[in] pos The pos to use.
+			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+			virtual int UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID) = 0;
 
 			/**
 			* @brief Updates the view matrix used for rendering

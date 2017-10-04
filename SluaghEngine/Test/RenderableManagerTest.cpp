@@ -83,7 +83,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	rm.ToggleRenderableObject(level, true);*/
 
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("TestDiffuse.sei"), Utilz::GUID("purewhite.sei") };
+	Utilz::GUID textures[] = { Utilz::GUID("TestNormal.sei"), Utilz::GUID("purewhite.sei") };
 	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;

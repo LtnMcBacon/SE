@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
+    <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
