@@ -19,23 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
-    <ClInclude Include="..\includes\Graphics\AnimationSystem.h" />
-    <ClInclude Include="..\includes\Graphics\DeviceManager.h" />
-    <ClInclude Include="..\includes\Graphics\GraphicResourceHandler.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
-    <ClInclude Include="..\includes\Graphics\LiveObjectReporter.h" />
-    <ClInclude Include="..\includes\Graphics\Renderer.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
+    <ClInclude Include="AnimationSystem.h" />
+    <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="GraphicResourceHandler.h" />
+    <ClInclude Include="LiveObjectReporter.h" />
+    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="GraphicResourceHandler.cpp" />
+    <ClCompile Include="IRenderer.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
@@ -47,26 +47,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -94,38 +94,38 @@
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
-    <TargetExt>.lib</TargetExt>
+    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,7 +133,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -157,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

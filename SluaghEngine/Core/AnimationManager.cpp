@@ -13,6 +13,7 @@ SE::Core::AnimationManager::AnimationManager(Graphics::IRenderer * renderer, Res
 
 SE::Core::AnimationManager::~AnimationManager()
 {
+	operator delete(animationData.data);
 }
 
 void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Utilz::GUID & skeleton)
@@ -151,10 +152,10 @@ void SE::Core::AnimationManager::GarbageCollection()
 
 int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void * data, size_t size)
 {
-	auto skelH = (Skeleton_Header*)data;
+	auto skelH = (Graphics::Skeleton_Header*)data;
 
 	// After the skeleton header, there will only be joints
-	JointAttributes* jointAttr = (JointAttributes*)(skelH + 1);
+	auto jointAttr = (Graphics::JointAttributes*)(skelH + 1);
 
 	const auto& index = guidToSkeletonIndex[skeleton];
 	auto handle = renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
@@ -167,7 +168,7 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void 
 
 int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, void * data, size_t size)
 {
-	auto animH = (Animation_Header*)data;
+	auto animH = (Graphics::Animation_Header*)data;
 
 	// After the animation header, there will only be matrices of type XMFLOAT4X4
 	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);

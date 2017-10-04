@@ -7,8 +7,16 @@
 #include "GUIInfo.h"
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
-#include <ResourceHandler\IResourceHandler.h>
-#include <Core\FileHeaders.h>
+#include "AnimationStructs.h"
+#include "FileHeaders.h"
+
+#if defined DLL_EXPORT_RENDERER
+#define DECLDIR_R __declspec(dllexport)
+#else
+#define DECLDIR_R __declspec(dllimport)
+#endif
+
+
 namespace SE
 {
 	namespace Graphics
@@ -52,6 +60,16 @@ namespace SE
 			* @sa EnableRendering
 			*/
 			virtual int DisableRendering(uint32_t jobID) = 0;
+
+			/**
+			* @brief    Changes vertex buffer handle for render job
+			* @param[in] jobID The ID of the job, gotten through EnableRendering
+			* @param[in] handles The RenderObjectInfo to change to
+			* @retval 0 On success.
+			* @sa EnableRendering
+			*/
+			virtual int UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles) = 0;
+
 
 			/**
 			* @brief    Sets a render job
@@ -163,19 +181,6 @@ namespace SE
 			virtual int CreateTexture(void* data, const TextureDesc& description) = 0;
 
 			/**
-			* @brief Create a transform.
-			* @retval transformHandle Returns a handle to the created transform.
-			* @retval -1 If something went wrong
-			* @endcode
-			*/
-			virtual int CreateTransform() = 0;
-			/**
-			* @brief Destroy a transform
-			* @param[in] transformHandle Handle to the transform to destroy.
-			* @endcode
-			*/
-			virtual void DestroyTransform(int transformHandle) = 0;
-			/**
 			* @brief Updates the transformation of a render job.
 			* @param[in] jobID The ID of the job to update.
 			* @param[in] transform The transfrom to apply to the job, an array of 16 floats in row major format.
@@ -235,7 +240,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			virtual int CreateTextFont(Utilz::GUID fontFile, ResourceHandler::IResourceHandler* resourceHandler) = 0;
+			virtual int CreateTextFont(void * data, size_t size) = 0;
 
 			/**
 			* @brief Resizes the swapchain
@@ -243,17 +248,19 @@ namespace SE
 			* @endcode
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
-
-			virtual int CreateSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints) = 0;
+			
+			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
 
 			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
-
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
 			IRenderer(const IRenderer&& other) = delete;
 			IRenderer& operator=(const IRenderer& rhs) = delete;
 		};
+
+		DECLDIR_R IRenderer* CreateRenderer();
+
 	}
 }
 #endif

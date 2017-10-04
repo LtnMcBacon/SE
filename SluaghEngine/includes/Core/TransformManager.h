@@ -47,10 +47,20 @@ namespace SE
 			* @brief    Bind an entity as a child to another entity. This will update the transform of the child when the parent change.
 			* @param[in] parent The parent entity
 			* @param[in] child The child entity.
+			* @param[in] rotation Wether or not rotation should be inherited.
 			* @warning A parent can only have one child. An entity with a child can not have a parent. An entity with a parent can not have a child.
 			*/
-			void BindChild(const Entity& parent, const Entity& child);
+			void BindChild(const Entity& parent, const Entity& child, bool rotation = true);
 			
+
+
+			/**
+			* @brief    Sets the entity as dirty.
+			* @param[in] e The entity to move
+			* @warning Create must be called before this method for a given entity.
+			*/
+			void SetAsDirty(const Entity& e);
+
 			/**
 			* @brief    Moves an entity along a vector.
 			* @param[in] e The entity to move
@@ -179,13 +189,13 @@ namespace SE
 			size_t *Parent; // Parent transform (whose reference system we are relative to).
 			size_t *Child;
 			size_t *DirtyTransform; // Use this to get other children
-
+			uint8_t* inheritRotation;
 
 			uint32_t transformCount;
 			uint32_t transformCapacity;
 			uint32_t garbageCollectionIndex;
 			static const size_t transformCapacityIncrement = 512;
-			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2;
+			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2 + sizeof(uint8_t);
 
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 

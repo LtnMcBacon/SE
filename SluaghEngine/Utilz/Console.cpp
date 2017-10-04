@@ -7,13 +7,15 @@ SE::Utilz::Console* SE::Utilz::Console::console = nullptr;
 
 void SE::Utilz::Console::Run()
 {
+	using namespace std::chrono_literals;
+
 	char buffer[256];
 	while (running)
 	{
 		backend->Getline(buffer, 256);
 		InterpretCommand(buffer);
 
-		Sleep(200);
+		std::this_thread::sleep_for(500ms);
 	}
 }
 
@@ -26,7 +28,7 @@ void SE::Utilz::Console::InterpretCommand(char * command)
 
 	if (argc > 0)
 	{
-		uint32_t hash = (uint32_t)std::hash<std::string>{}(argv[0]);
+		auto hash = std::hash<std::string>{}(argv[0]);
 
 		auto find = commands.find(hash);
 		if (find != commands.end())
@@ -131,7 +133,7 @@ void SE::Utilz::Console::Hide()
 /*Hash the identifier and add the command*/
 int SE::Utilz::Console::AddCommand(const DevConsole_Command& commandFunction, char * name, char * description)
 {
-		uint32_t hash = (uint32_t)std::hash<std::string>{}(name);			
+		auto hash = std::hash<std::string>{}(name);			
 		Console::console->commands[hash] = { commandFunction, name ,description };
 		return 0;
 }

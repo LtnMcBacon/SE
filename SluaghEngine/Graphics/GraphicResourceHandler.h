@@ -8,6 +8,8 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
+#include <Utilz/GUID.h>
+#include <map>
 
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
@@ -44,18 +46,18 @@ namespace SE {
 			VertexCount vertexBuffer;
 		};
 
-		struct ConstantData {
 
-			ConstantBuffer constantBuffer;
-			TargetOffset targetOffset;
-		};
 
 		struct VertexShaderData {
 
 			ID3D11VertexShader*		vertexShader;
 			ID3D11InputLayout*		inputLayout;
-			size_t bufferHandle[8];
-
+			struct HandleAndBindSlot
+			{
+				int handle;
+				int bindSlot;
+			};
+			std::map<Utilz::GUID, HandleAndBindSlot, Utilz::GUID::Compare> constBufferNameToHandleAndBindSlot;
 		};
 
 		struct PixelShaderData {
@@ -156,53 +158,56 @@ namespace SE {
 			*
 			*/
 			void RemoveVertexBuffer(int vertexBufferID);
+
+			/**
+			* @brief Retrieves the number of vertices stored in a vertex buffer.
+			* @param[in] vertexBufferID The handle of the vertex buffer
+			*/
 			size_t GetVertexCount(int vertexBufferID) const;
 
-			/**
-			* @brief	Adds a constant buffer
-			*
-			* @param[in] size The size to be given to the buffer
-			*
-			* @param[in] target A bool array to that holds the info for which shaders to bind the buffer to
-			*
-			* @param[in] offset A int array to that holds the info for which offset to bind the buffer to
-			*
-			* @param[in] constBufferID To return the ID of the buffer
-			*
-			* @retval S_OK Buffer creation succeded
-			*
-			* @warning Deprecated, use int CreateConstantBuffer(size_t size) instead
-			*
-			* @retval nonZero Creation failed
-			*
-			*/
-			HRESULT CreateConstantBuffer(size_t size, TargetOffset& targetOffset, int *constBufferID);
 
+			/**
+			* @brief Creates a constant buffer and returns a handle to it.
+			* @param[in] size The size of the to be created buffer.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
 			int CreateConstantBuffer(size_t size);
 
-			int GetConstantBufferID(int vertexShaderHandle, int bindSlot);
-
-			void BindConstantBufferAtSlot(int shaderType, int bindSlot, int cBufferHandleID);
+			/**
+			* @brief Returns a handle to the constant buffer in the shader specified by vertexShaderHandle with the name bufferName
+			* @param[in] vertexShaderHandle The vertex shader that declares the buffer
+			* @param[in] bufferName The name of the buffer
+			* @param[out] bindSlot The slot the buffer is bound to. Can be left as nullptr if this is not relevant.
+			* @retval handle On success
+			* @retval -1 On failure.
+			*/
+			int GetVSConstantBufferByName(int vertexShaderHandle, const Utilz::GUID& bufferName, int* bindSlot = nullptr);
 
 			/**
-			* @brief	Bind the constant buffer to the shaders.
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			*
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the vertex shader stage
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
 			*/
-			void BindConstantBuffer(int constBufferID);
+			void BindVSConstantBuffer(int constBufferHandle, int bindSlot);
+
+			enum class ShaderStage
+			{
+				VERTEX,
+				GEOMETRY,
+				PIXEL,
+				COMPUTE
+			};
 			/**
-			* @brief	Set constant buffer data
-			*
-			* @param[in] inData The data to be place in the buffer
-			*
-			* @param[in] constBufferID Tells which constant buffer to use
-			* @warning Deprecated, use UpdateConstantBuffer instead.
-			*
+			* @brief Binds the constant buffer specified by constBufferHandle to bindslot bindSlot to the shader stage specified by shaderStage.
+			* @param[in] shaderStage The shader stage to bind the constant buffer to.
+			* @param[in] constBufferHandle The handle of the constant buffer
+			* @param[in] bindSlot The slot to bind the constant buffer to.
+			* @retval void
 			*/
-			void SetConstantBuffer(void* inData, int constBufferID);
+			void BindConstantBuffer(ShaderStage shaderStage, int constBufferHandle, int bindSlot);
+
 
 			/**
 			* @brief	Updates the contents of a constant buffer.
@@ -302,7 +307,6 @@ namespace SE {
 
 			// Constant buffer specific data
 			std::vector<ConstantBuffer> cBuffers;
-			std::vector<TargetOffset> targetOffset;
 			std::stack<int> freeConstantBufferLocations;
 
 			//Shader resource views

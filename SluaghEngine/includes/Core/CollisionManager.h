@@ -159,9 +159,12 @@ namespace SE
 
 			size_t defaultHierarchy;
 			BoundingHierarchy boundingHierarchy;
-			std::vector<BoundingHierarchyInfo> boundingIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingHierarchy;
+
+			std::vector<BoundingHierarchyInfo> boundingInfoIndex;
+
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingInfoIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBoundingHierarchyIndex;
+
 
 			int LoadMesh(const Utilz::GUID& guid, void*data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);

@@ -13,7 +13,7 @@ SE::Graphics::AnimationSystem::~AnimationSystem() {
 
 }
 
-int SE::Graphics::AnimationSystem::AddSkeleton(SE::Core::JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
+int SE::Graphics::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
 
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0){

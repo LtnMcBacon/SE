@@ -64,7 +64,6 @@ namespace SE
 				Data* resourceData;
 				uint16_t* refCount;
 				State* state;
-				Utilz::GUID* extension;
 			};
 			struct ToLoadInfo
 			{

@@ -35,7 +35,7 @@ void OutputShaderErrorMessage(ID3DBlob* errorMessage,const wchar_t* shaderFilena
 
 	// Release the error message.
 	errorMessage->Release();
-	errorMessage = 0;
+	
 	return;
 }
 
@@ -78,7 +78,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 	data->Release();
 }
 
-int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)
+int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)const
 {
 
 	ID3DBlob* psBlob;
@@ -89,10 +89,7 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		Write(outFilename, psBlob);
 		return 0;
 	}
-	else
-	{
-		printf("%s\n", psBlobErr->GetBufferPointer());
-	}
+
 
 	ID3DBlob* gsBlob;
 	ID3DBlob* gsBlobErr;
@@ -102,10 +99,7 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		Write(outFilename, gsBlob);
 		return 0;
 	}
-	else
-	{
-		printf("%s\n", gsBlobErr->GetBufferPointer());
-	}
+
 
 	ID3DBlob* vsBlob;
 	ID3DBlob* vsBlobErr;
@@ -115,9 +109,11 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		Write(outFilename, vsBlob);
 		return 0;
 	}
-	else
-	{
-		printf("%s\n", vsBlobErr->GetBufferPointer());
-	}
+
+
+	printf("%s\n", psBlobErr->GetBufferPointer());
+	printf("%s\n", gsBlobErr->GetBufferPointer());
+	printf("%s\n", vsBlobErr->GetBufferPointer());
+	
 	return -1;
 }

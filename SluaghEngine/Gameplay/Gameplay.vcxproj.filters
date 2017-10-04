@@ -73,6 +73,12 @@
     <Filter Include="Header Files\IGameState\PauseState">
       <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Projectiles">
+      <UniqueIdentifier>{20d45af1-624a-4bbe-8bb0-30df9d94d30f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Projectiles">
+      <UniqueIdentifier>{a3501314-46aa-4280-a9f9-774854fd0a8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -154,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileData.h">
+      <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
