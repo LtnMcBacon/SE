@@ -77,14 +77,14 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	}
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
+	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 	rm.ToggleRenderableObject(floor, true);
 
-	coM.CreateBoundingHierarchy(floor, Utilz::GUID("pPlane1_Placeholder_Floor.mesh"));
+	coM.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-	auto Block = Utilz::GUID("pCube1_Placeholder_Block.mesh");
-	auto Arrow = Utilz::GUID("pPyramid2_Placeholder_Arrow.mesh");
+	auto Block = Utilz::GUID("Placeholder_Block.mesh");
+	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
 
@@ -126,14 +126,17 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
 	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("Mesh_MCModell.mesh"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
 
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
-	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, 1.570796, 1280 / 720.0f);
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+
+	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI / 3;

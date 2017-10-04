@@ -226,7 +226,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
-			Utilz::Console::Print("Failed to reflect pixel shader.\n");
+		//	Utilz::Console::Print("Failed to reflect pixel shader.\n");
 			ProfileReturnConst(hr);
 		}
 		D3D11_SHADER_DESC shaderDesc;
@@ -389,44 +389,7 @@ size_t GraphicResourceHandler::GetVertexCount(int vertexBufferID) const
 }
 
 
-HRESULT GraphicResourceHandler::CreateConstantBuffer(size_t size, TargetOffset& inTargetOffset, int *constBufferID)
-{
-	StartProfile;
-	D3D11_BUFFER_DESC bufferDesc;
-	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
-	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	bufferDesc.ByteWidth = size;
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bufferDesc.MiscFlags = 0;
-
-	//skapar constant buffer
-	ConstantBuffer tempBuffer;
-	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, NULL, &tempBuffer.constBuffer);
-	tempBuffer.size = size;
-
-	if (FAILED(hr))
-	{
-		ProfileReturnConst(hr);
-	}
-	if (freeConstantBufferLocations.size() == 0)
-	{
-		cBuffers.push_back(tempBuffer);
-		targetOffset.push_back(inTargetOffset);
-		*constBufferID = cBuffers.size() - 1;
-	}
-	else
-	{
-		auto top = freeConstantBufferLocations.top();
-		cBuffers[top] = tempBuffer;
-		targetOffset[top] = inTargetOffset;
-		*constBufferID = top;
-		freeConstantBufferLocations.pop();
-	}
-
-	ProfileReturnConst(hr);
-}
 
 int GraphicResourceHandler::CreateConstantBuffer(size_t size)
 {
@@ -482,30 +445,25 @@ void GraphicResourceHandler::BindVSConstantBuffer(int constBufferHandle, int bin
 	gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
 }
 
-void GraphicResourceHandler::BindConstantBuffer(int constBufferID)
+void GraphicResourceHandler::BindConstantBuffer(ShaderStage shaderStage, int constBufferHandle, int bindSlot)
 {
-	if (targetOffset.at(constBufferID).shaderTarget[0] == true)
+	switch(shaderStage)
 	{
-		gDeviceContext->VSSetConstantBuffers(targetOffset.at(constBufferID).offset[0], 1, &cBuffers[constBufferID].constBuffer);
-	}
-	if (targetOffset.at(constBufferID).shaderTarget[1] == true)
-	{
-		gDeviceContext->GSSetConstantBuffers(targetOffset.at(constBufferID).offset[1], 1, &cBuffers[constBufferID].constBuffer);
-	}
-	if (targetOffset.at(constBufferID).shaderTarget[2] == true)
-	{
-		gDeviceContext->PSSetConstantBuffers(targetOffset.at(constBufferID).offset[2], 1, &cBuffers[constBufferID].constBuffer);
+	case ShaderStage::VERTEX:
+		gDeviceContext->VSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::GEOMETRY:
+		gDeviceContext->GSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::PIXEL:
+		gDeviceContext->PSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
+	case ShaderStage::COMPUTE:
+		gDeviceContext->CSSetConstantBuffers(bindSlot, 1, &cBuffers[constBufferHandle].constBuffer);
+		break;
 	}
 }
 
-void GraphicResourceHandler::SetConstantBuffer(void* inData, int constBufferID)
-{
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	HRESULT hr = gDeviceContext->Map(cBuffers[constBufferID].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, inData, cBuffers[constBufferID].size);
-	gDeviceContext->Unmap(cBuffers[constBufferID].constBuffer, 0);
-
-}
 
 HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
 {

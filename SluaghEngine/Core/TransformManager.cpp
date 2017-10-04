@@ -13,7 +13,7 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 	transformCapacity = 512;
 	transformCount = 0;
 	garbageCollectionIndex = 0;
-	const size_t bytes = transformCapacity * sizePerEntity;
+	//const size_t bytes = transformCapacity * sizePerEntity;
 	positions = new XMFLOAT3[transformCapacity];
 	rotations = new XMFLOAT3[transformCapacity];
 	scalings = new XMFLOAT3[transformCapacity];
@@ -86,6 +86,13 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	inheritRotation[findChild->second] = rotation ? 1u : 0u;
 	StopProfile;
 
+}
+
+void SE::Core::TransformManager::SetAsDirty(const Entity & e)
+{
+	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	const uint32_t index = entityToIndex[e];
+	SetAsDirty(index);
 }
 
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& dir)
@@ -305,7 +312,7 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 void SE::Core::TransformManager::ExpandTransforms()
 {
 	StartProfile;
-	const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
+	//const uint32_t bytes = (transformCapacity + transformCapacityIncrement) * sizePerEntity;
 	const uint32_t newCapacity = transformCapacity + transformCapacityIncrement;
 
 	XMFLOAT3* newPos = new XMFLOAT3[newCapacity];

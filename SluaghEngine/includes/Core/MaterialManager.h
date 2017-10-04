@@ -7,14 +7,14 @@
 #include <Graphics\IRenderer.h>
 #include <map>
 #include <random>
+#include "RenderableManager.h"
+
 namespace SE
 {
 	namespace Core
 	{
 		class MaterialManager
 		{
-			friend class RenderableManager;
-
 		public:
 			struct CreateInfo
 			{
@@ -24,7 +24,7 @@ namespace SE
 				uint32_t textureCount;
 			};
 
-			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager);
+			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, RenderableManager* renderableManager);
 			~MaterialManager();
 			MaterialManager(const MaterialManager& other) = delete;
 			MaterialManager(const MaterialManager&& other) = delete;
@@ -57,6 +57,9 @@ namespace SE
 			*/
 			void GarbageCollection();
 
+			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
+
+			int LoadDefaultTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
@@ -73,7 +76,7 @@ namespace SE
 			struct TextureData
 			{
 				int textureHandle;
-				size_t refCount;
+				std::list<Entity> entities;
 			};
 			struct ShaderData
 			{
@@ -102,6 +105,7 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
+			RenderableManager* renderableManager;
 			std::default_random_engine generator;
 
 			MaterialData materialInfo;
@@ -111,6 +115,9 @@ namespace SE
 			int defaultShaderHandle;
 			Graphics::ShaderSettings defaultShaderReflection;
 
+
+			std::mutex entityToChangeLock;
+			std::mutex infoLock;
 		};
 	}
 }

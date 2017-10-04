@@ -1,13 +1,6 @@
 #include "ResourceHandler.h"
 #include <Profiler.h>
 #include "RawLoader.h"
-//#include <Utilz\Console.h>
-
-//#ifdef _DEBUG
-//#pragma comment(lib, "UtilzD.lib")
-//#else
-//#pragma comment(lib, "Utilz.lib")
-//#endif
 
 
 using namespace std::chrono_literals;
@@ -68,6 +61,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			//Utilz::Console::Print("Resource %u could not be found!\n", guid);
 			ProfileReturnConst(-1);
 		}
+
 
 		// Make sure we have enough memory.
 		if (resourceInfo.used + 1 > resourceInfo.allocated)
@@ -131,6 +125,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
 {
 	StartProfile;
+	infoLock.lock();
 	auto& find = guidToResourceInfoIndex.find(guid);
 	if (find == guidToResourceInfoIndex.end())
 	{
@@ -139,6 +134,7 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 			RemoveLoadJob(guid); // Remove the load job.
 
 	}
+	infoLock.unlock();
 	StopProfile;
 }
 
@@ -158,6 +154,8 @@ void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 	newData.refCount = (uint16_t*)(newData.resourceData + newData.allocated);
 	newData.state = (State*)(newData.refCount + newData.allocated);
 
+
+	infoLock.lock();
 	// Copy data
 	memcpy(newData.resourceData, resourceInfo.resourceData, resourceInfo.used * sizeof(Data));
 	memcpy(newData.refCount, resourceInfo.refCount, resourceInfo.used * sizeof(uint16_t));
@@ -166,7 +164,7 @@ void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 	// Delete old data;
 	operator delete(resourceInfo.data);
 	resourceInfo = newData;
-
+	infoLock.unlock();
 	StopProfile;
 }
 
@@ -217,7 +215,20 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 			{
 				toLoad.erase(job.guid);
 				toLoadLock.unlock();
-				job.callbacks(job.guid, data.data, data.size); // TODO: Fail check
+				auto rets = job.callbacks.Invoke(job.guid, data.data, data.size); // TODO: Fail check
+				infoLock.lock();
+				for (auto& r : rets)
+				{				
+					if (r == 1)
+					{
+						resourceInfo.refCount[job.resourceInfoIndex]--;
+					}
+					else if (r)
+					{
+						//Utilz::Console::Print("Error in resource callback GUID: %u, Error: %d.\n", job.guid, r);
+					}
+				}
+				infoLock.unlock();
 			}
 			else
 				toLoadLock.unlock();
@@ -236,7 +247,20 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 			{
 				toLoad.erase(job.guid);
 				toLoadLock.unlock();
-				job.callbacks(job.guid, data.data, data.size); // TODO: Fail check
+				auto rets = job.callbacks.Invoke(job.guid, data.data, data.size); // TODO: Fail check
+				infoLock.lock();
+				for (auto& r : rets)
+				{
+					if (r == 1)
+					{
+						resourceInfo.refCount[job.resourceInfoIndex]--;
+					}
+					else if (r)
+					{
+					//	Utilz::Console::Print("Error in resource callback GUID: %u, Error: %d.\n", job.guid, r);
+					}
+				}
+				infoLock.unlock();
 			}
 			else
 				toLoadLock.unlock();
@@ -298,10 +322,12 @@ int SE::ResourceHandler::ResourceHandler::InvokeCallback(const Utilz::GUID& guid
 {
 	StartProfile;
 	auto result = callback(guid, resourceInfo.resourceData[index].data, resourceInfo.resourceData[index].size);
-	if (result)
+	if (result == 1) // Tells the resourceHandler to decrease the refcount.
 	{
-		//Utilz::Console::Print("Error in resource callback, GUID: %u, Error: %d.\n", guid, result);
+		infoLock.lock();
 		resourceInfo.refCount[index]--;
+		infoLock.unlock();
+		ProfileReturnConst(0);
 	}
 
 	ProfileReturnConst(result);
