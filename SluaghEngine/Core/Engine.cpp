@@ -49,11 +49,12 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 
 	transformManager = new TransformManager(entityManager);
-	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager);
+	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, materialManager, animationManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, animationManager);
+	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
