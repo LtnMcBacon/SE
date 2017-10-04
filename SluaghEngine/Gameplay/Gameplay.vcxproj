@@ -32,6 +32,8 @@
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileFactory.cpp" />
+    <ClCompile Include="ProjectileManger.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -46,10 +48,12 @@
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
+    <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
+    <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Projectile.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

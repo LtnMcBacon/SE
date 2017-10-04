@@ -1,5 +1,5 @@
-#ifndef _SE_GAMEPLAY_PLAYER_UNIT_H_
-#define _SE_GAMEPLAY_PLAYER_UNIT_H_
+#ifndef _SE_GAMEPLAY_PROJECTILE_H_
+#define _SE_GAMEPLAY_PROJECTILE_H_
 
 #include "GameUnit.h"
 
@@ -100,14 +100,14 @@ namespace SE
 
 		private:
 			Projectile() {};
-			Projectile(const Projectile& other) = delete;
-			Projectile(const Projectile&& other) = delete;
+			//Projectile(const Projectile& other) = delete;
+			//Projectile(const Projectile&& other) = delete;
 			Projectile& operator=(const Projectile& rhs) = delete;
 
-			std::vector<std::function<bool(Projectile*)>> functionsToRun;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
 
-			std::vector<std::function<bool(Projectile*)>> onCollision;
-			std::vector<std::function<bool(Projectile*)>> onDeath;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
 
 			float extentX;
 			float extentY;
@@ -142,8 +142,13 @@ namespace SE
 
 		public:
 
-			Projectile(ProjectileData data);
+			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
 			~Projectile();
+
+			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)> func);
+			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)> func);
+			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)> func);
+
 		};
 
 	}

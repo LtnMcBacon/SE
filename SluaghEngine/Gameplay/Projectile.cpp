@@ -1,7 +1,5 @@
-#include "Projectile.h"
+#include <Gameplay\Projectile.h>
 #include <Profiler.h>
-#include "ProjectileData.h"
-#include <Core\CollisionManager.h>
 #include "Core/Engine.h"
 #include <Gameplay\ProjectileData.h>
 
@@ -47,10 +45,15 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 	if (collisionVecX != 0.0f || collisionVecY != 0.0f)
 	{
+		alive = false;
+
 		for (int i = 0; i < onCollision.size(); i++)
 		{
 			functionsToRun.push_back(onCollision[i]);
 		}
+
+		collisionVecX = 0.0f;
+		collisionVecY = 0.0f;
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
@@ -65,7 +68,7 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
-		if (!functionsToRun[i](this))
+		if (!functionsToRun[i](this, dt))
 		{
 			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
 			functionsToRun.pop_back();
@@ -123,12 +126,20 @@ void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 	StopProfile;
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data) :
+SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
 	GameUnit(data.startPosX, data.startPosY, 100)
 {
-	extentX = 0.25f; /*Should not be hardcoded! Obviously*/
-	extentY = 0.25f;
+	extentX = 0.1f; /*Should not be hardcoded! Obviously*/
+	extentY = 0.1f;
 	rotation = data.startRotation;
+
+	speed = projectileSpeed;
+	lifeTime = projectileLifeTime;
+	target = projectileTarget;
+
+	eventDamage = eventD;
+	eventHealing = eventH;
+	eventCondition = eventC;
 
 	UpdateBounding();
 
