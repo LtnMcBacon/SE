@@ -105,6 +105,9 @@
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="LightTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -193,6 +196,9 @@
     </ClInclude>
     <ClInclude Include="ProjectileTest.h">
       <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="LightTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
