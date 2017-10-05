@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Utilz\CircularFiFo.h" />
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
