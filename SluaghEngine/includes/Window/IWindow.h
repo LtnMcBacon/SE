@@ -16,12 +16,20 @@ namespace SE
 {
 	namespace Window
 	{
+		enum class WindowState
+		{
+			Regular,
+			Record,
+			Playback
+		};
+
 		struct InitializationInfo
 		{
 			std::string windowTitle;
 			bool fullScreen = false;
 			uint32_t width = 1280;
 			uint32_t height = 720;
+			WindowState winState = WindowState::Regular;
 		};
 
 		enum KeyCode
@@ -258,16 +266,6 @@ namespace SE
 			* @brief Polls for input
 			*/
 			virtual void Frame() = 0;
-
-			/**
-			* @brief Start input recording
-			*/
-			virtual void StartRecording() = 0;
-
-			/**
-			* @brief Loads input recording
-			*/
-			virtual void LoadRecording() = 0;
 
 			/**
 			* @brief Returns a pointer to the window handle

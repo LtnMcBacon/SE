@@ -105,7 +105,18 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RegFrame>(this);
+	if (info.winState == WindowState::Regular)
+	{
+		actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RegFrame>(this);
+	}
+	else if (info.winState == WindowState::Record)
+	{
+		StartRecording();
+	}
+	else if (info.winState == WindowState::Playback)
+	{
+		LoadRecording();
+	}
 
 	frame = 0;
 	arrayPos = 0;

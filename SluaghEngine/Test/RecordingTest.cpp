@@ -47,8 +47,15 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	//create a window pointer
 	SE::Window::IWindow* window = Window::CreateNewWindow();
 
+	SE::Window::InitializationInfo info;
+	info.windowTitle = "Recording";
+	info.fullScreen = false;
+	info.width = 1280;
+	info.height = 720;
+	info.winState = SE::Window::WindowState::Record;
+
 	//initiate window (display and input)
-	window->Initialize();
+	window->Initialize(info);
 
 	//bind keys
 	window->MapActionButton(0, SE::Window::KeyEscape);
@@ -67,7 +74,6 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 	bool running = true;
-	window->StartRecording();
 	while (running)
 	{
 		window->Frame();
@@ -96,8 +102,16 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	delete window;
 
 	window = Window::CreateNewWindow();
+
+	info;
+	info.windowTitle = "Recording";
+	info.fullScreen = false;
+	info.width = 1280;
+	info.height = 720;
+	info.winState = SE::Window::WindowState::Playback;
+
 	//initiate window (display and input)
-	window->Initialize();
+	window->Initialize(info);
 
 	////bind keys
 	window->MapActionButton(0, SE::Window::KeyEscape);
@@ -114,7 +128,6 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(8, SE::Window::KeyO);
 
 	running = true;
-	window->LoadRecording();
 	while (running)
 	{
 		window->Frame();

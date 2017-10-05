@@ -28,8 +28,7 @@ namespace SE
 			void RecordFrame();
 			void PlaybackFrame();
 
-			void StartRecording() override;
-			void LoadRecording() override;
+			
 
 			void* GetHWND() override;
 
@@ -112,6 +111,9 @@ namespace SE
 			size_t arrayPos;
 
 			Utilz::Delegate<void()> actualFrame;
+
+			void StartRecording();
+			void LoadRecording();
 		};
 
 
