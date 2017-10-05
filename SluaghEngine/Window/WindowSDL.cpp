@@ -1,7 +1,7 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
-
+#include <Profiler.h>
 
 
 #pragma comment(lib, "SDL2.lib")
@@ -20,6 +20,7 @@ SE::Window::WindowSDL::~WindowSDL()
 
 int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 {
+	StartProfile;
 	width = info.width;
 	height = info.height;
 	fullScreen = info.fullScreen;
@@ -120,7 +121,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 	frame = 0;
 	arrayPos = 0;
-	return 0;
+	ProfileReturnConst(0);
 }
 
 void SE::Window::WindowSDL::Shutdown()
@@ -145,6 +146,7 @@ void SE::Window::WindowSDL::Frame()
 
 void SE::Window::WindowSDL::RegFrame()
 {
+	StartProfile;
 	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
@@ -246,10 +248,12 @@ void SE::Window::WindowSDL::RegFrame()
 			}
 		}
 	}
+	StopProfile;
 }
 
 void SE::Window::WindowSDL::RecordFrame()
 {
+	StartProfile;
 	for (auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
@@ -357,10 +361,12 @@ void SE::Window::WindowSDL::RecordFrame()
 		circFiFo.push(inData);
 	}
 	frame++;
+	StopProfile;
 }
 
 void SE::Window::WindowSDL::PlaybackFrame()
 {
+	StartProfile;
 	while (playbackData[arrayPos].frame == frame)
 	{
 		switch (playbackData[arrayPos].recEvent.type)
@@ -458,19 +464,22 @@ void SE::Window::WindowSDL::PlaybackFrame()
 		arrayPos++;
 	}
 	frame++;
+	StopProfile;
 }
 
 void SE::Window::WindowSDL::StartRecording()
 {
+	StartProfile;
 	actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RecordFrame>(this);
 	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
 	recording = true;
 	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	StopProfile;
 }
 
 void SE::Window::WindowSDL::LoadRecording()
 {
-	
+	StartProfile;
 	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
 	if (playbackfile.is_open())
 	{
@@ -482,6 +491,7 @@ void SE::Window::WindowSDL::LoadRecording()
 		playback = true;
 		actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::PlaybackFrame>(this);
 	}
+	StopProfile;
 }
 
 void* SE::Window::WindowSDL::GetHWND()
@@ -561,6 +571,7 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 
 bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {
+	StartProfile;
 	bool changed = false;
 	if (inHeight != height)
 	{
@@ -579,7 +590,7 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 	if (changed == true)
 		SDL_SetWindowSize(window, width, height);
 
-	return changed;
+	ProfileReturn(changed);
 }
 
 void SE::Window::WindowSDL::RecordToFile()
