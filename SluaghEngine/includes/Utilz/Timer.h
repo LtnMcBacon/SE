@@ -27,7 +27,7 @@ namespace SE
 				int index = 0;
 				while (index < delegateVec.size())
 				{
-					if (curTime - delegateVec[index].startTime > delegateVec[index].delayTime)
+					if (std::chrono::duration_cast<std::chrono::seconds>(curTime - delegateVec[index].startTime) > delegateVec[index].delayTime)
 					{
 						delegateVec[index].delegateCall();
 						delegateVec.erase(delegateVec.begin() + index);
