@@ -161,7 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
-    <ClCompile Include="CircularFiFo.cpp" />
     <ClCompile Include="CMDConsole.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="DoubleEdgeStackAlloc.cpp" />
