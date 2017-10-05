@@ -268,6 +268,8 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+			DirectX::XMFLOAT4X4 newViewProjTransposed;
+
 
 			struct OncePerFrameConstantBuffer
 			{

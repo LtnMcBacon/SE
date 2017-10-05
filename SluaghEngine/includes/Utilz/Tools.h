@@ -48,6 +48,8 @@ namespace SE
 			DirectX::XMVECTOR getLocalRayDir(XMVECTOR rayD, XMMATRIX localM);
 
 			DirectX::XMVECTOR getLocalRayOrigin(XMVECTOR rayD, XMMATRIX localM);
+
+
 		};
 	}
 }

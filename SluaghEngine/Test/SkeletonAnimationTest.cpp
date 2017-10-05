@@ -3,6 +3,7 @@
 #include <Profiler.h>
 
 #include <Utilz\Timer.h>
+#include <Utilz\Tools.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -92,7 +93,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	mm.Create(mainC, info);
 
 	am.CreateSkeleton(mainC, Utilz::GUID("bakedTest.skel"));
-	am.AddAnimation(mainC, Utilz::GUID("IdleAnimation_bakedTest.anim"));
+	am.AddAnimation(mainC, Utilz::GUID("SwingAnimation_bakedTest.anim"));
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
@@ -101,6 +102,9 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 
 	bool running = true;
 	Utilz::Timer timer;
+	float radians = (180 * 3.14) / 180;
+
+	tm.Rotate(mainC, 0.0f, radians, 0.01f);
 
 	while (running)
 	{
@@ -123,9 +127,6 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 		if (handle->ButtonDown(ActionButton::Sink))
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 
-
-		//tm.Rotate(mainC, 0.0f, 0.0f, 0.01f);
-		//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
 		e.Frame(dt);
 	}
 

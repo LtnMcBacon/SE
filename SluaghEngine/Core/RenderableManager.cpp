@@ -380,6 +380,11 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 
 			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
 
+			if (v[i].weights[3] != 0) {
+
+				Utilz::Console::Print("Weight was not zero");
+			}
+
 			// The total weight could be very close to 1, or just over it, like for example 1.00012.
 			if (weight > 1.1) {
 

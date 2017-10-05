@@ -1008,7 +1008,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				const FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
 				// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
-				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() - 1 : 0;
+				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
 				CurrentAnimation.Keyframes.resize(numKeys);
 				CurrentAnimation.Length = numKeys;
 				logFile << "-------------------------------------------------------\n"
@@ -1020,18 +1020,26 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 
-					// Receive the value on the selected channel on the current keyframe
-					float translationX = static_cast<float>(translationCurveX->KeyGetValue(timeIndex));
-					float translationY = static_cast<float>(translationCurveY->KeyGetValue(timeIndex));
-					float translationZ = static_cast<float>(translationCurveZ->KeyGetValue(timeIndex));
-					
-					float rotationX = static_cast<float>(rotationCurveX->KeyGetValue(timeIndex));
-					float rotationY = static_cast<float>(rotationCurveY->KeyGetValue(timeIndex));
-					float rotationZ = static_cast<float>(rotationCurveZ->KeyGetValue(timeIndex));
-					
-					float scalingX = static_cast<float>(scalingCurveX->KeyGetValue(timeIndex));
-					float scalingY = static_cast<float>(scalingCurveY->KeyGetValue(timeIndex));
-					float scalingZ = static_cast<float>(scalingCurveZ->KeyGetValue(timeIndex));
+					FbxAnimCurveKey TranslationXKey = translationCurveX->KeyGet(timeIndex);
+					float translationX = TranslationXKey.GetValue();
+					FbxAnimCurveKey TranslationYKey = translationCurveY->KeyGet(timeIndex);
+					float translationY = TranslationYKey.GetValue();
+					FbxAnimCurveKey TranslationZKey = translationCurveZ->KeyGet(timeIndex);
+					float translationZ = TranslationZKey.GetValue();
+
+					FbxAnimCurveKey RotationXKey = rotationCurveX->KeyGet(timeIndex);
+					float rotationX = RotationXKey.GetValue();
+					FbxAnimCurveKey RotationYKey = rotationCurveY->KeyGet(timeIndex);
+					float rotationY = RotationYKey.GetValue();
+					FbxAnimCurveKey RotationZKey = rotationCurveZ->KeyGet(timeIndex);
+					float rotationZ = RotationZKey.GetValue();
+				
+					FbxAnimCurveKey ScalingXKey = scalingCurveX->KeyGet(timeIndex);
+					float scalingX = ScalingXKey.GetValue();
+					FbxAnimCurveKey ScalingYKey = scalingCurveY->KeyGet(timeIndex);
+					float scalingY = ScalingYKey.GetValue();
+					FbxAnimCurveKey ScalingZKey = scalingCurveZ->KeyGet(timeIndex);
+					float scalingZ = ScalingZKey.GetValue();
 
 					// Build the vectors for the global transform matrix
 					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };

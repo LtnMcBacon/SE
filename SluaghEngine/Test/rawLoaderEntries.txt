@@ -14,10 +14,7 @@ Assets/Sounds/Canary.wav
 Assets/Text/test.txt
 Assets/Text/test2.txt
 Assets/Text/test3.txt
-Assets/Animations/DanceAnimation_bakedTest.anim
-Assets/Animations/IdleAnimation_bakedTest.anim
-Assets/Animations/RunAnimation_bakedTest.anim
-Assets/Lights/bakedTest.light
+Assets/Animations/SwingUnbaked_bakedTest.anim
 Assets/Meshes/bakedTest.mesh
 Assets/Meshes/male_basemesh1.mesh
 Assets/Meshes/MCModell.mesh
@@ -26,4 +23,3 @@ Assets/Meshes/Placeholder_Block.mesh
 Assets/Meshes/Placeholder_Floor.mesh
 Assets/Skeletons/bakedTest.skel
 Assets/Textures/TestDiffuse.sei
-Assets/Textures/TestNormal.sei

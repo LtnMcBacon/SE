@@ -64,8 +64,8 @@ namespace SE
 
 			Skeleton() {
 
-				Hierarchy.reserve(19);
-				jointArray.resize(19);
+				Hierarchy.reserve(4);
+				jointArray.resize(4);
 			}
 		};
 
