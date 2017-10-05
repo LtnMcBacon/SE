@@ -11,7 +11,7 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", { this, &GUIManager::LoadFont });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -68,7 +68,7 @@ namespace SE {
 		int GUIManager::CreateTextFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource(fontFile, { this, &GUIManager::LoadFont });
 			
 			ProfileReturnConst(0);
 		}
@@ -80,7 +80,7 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[texFile].textureHandle = -1;
-				resourceHandler->LoadResource(texFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadTexture>(this)); 
+				resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
 				ProfileReturnConst(-1);
 			}
 			else if (textureGUID[texFile].textureHandle != -1)

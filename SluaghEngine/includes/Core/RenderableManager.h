@@ -56,7 +56,7 @@ namespace SE
 
 			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)
 			{
-				SetRenderObjectInfoEvent.Add(callback);
+				SetRenderObjectInfoEvent += callback;
 			}
 			/**
 			* @brief	Called each frame, to update the state.

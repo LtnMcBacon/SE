@@ -12,7 +12,7 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	_ASSERT(resourceHandler);
 	_ASSERT(transformManager);
 
-	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
+	transformManager->RegisterSetDirty({ this, &CollisionManager::SetDirty });
 
 	Allocate(128);
 	AllocateBH(64);
@@ -21,8 +21,6 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	defaultHierarchy = 0;
 	boundingHierarchy.used++;
 	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
-
-
 		LoadMesh(defaultHierarchy, data, size);
 
 		return 1;
@@ -73,31 +71,31 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
 					AllocateBH(boundingHierarchy.allocated*2); // TODO: Make thread safe
 
-				bIndex = boundingInfo.size();
+				auto cp = bIndex = boundingInfo.size();
 				boundingInfo.push_back({ defaultHierarchy }); // Setup the deafult info.
 				
 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
-
-				auto res = resourceHandler->LoadResource(mesh, [this, bIndex, newHI](const Utilz::GUID& mesh, void* data, size_t size) ->int {
+			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+				auto res = resourceHandler->LoadResource(mesh, [this, cp, newHI](auto mesh, auto data, auto size) ->int {
 			
-					LoadMesh(newHI, data, size);
 
+					LoadMesh(newHI, data, size);
+					boundingInfo[cp].index = newHI;
 					entityUpdateLock.lock();
-					for (auto& e : boundingInfo[bIndex].entities)
+					for (auto& e : boundingInfo[cp].entities)
 					{
 						infoLock.lock();
-						auto& find = entityToCollisionData.find(e);
-						_ASSERT(find != entityToCollisionData.end());
-						collisionData.boundingIndex[find->second] = newHI;
 						transformManager->SetAsDirty(e);
 						infoLock.unlock();
 					}
 					entityUpdateLock.unlock();
 
 					return 1;
-				});
+				}, true);
+
+
 				if (res)
 					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
 			
@@ -171,7 +169,7 @@ void SE::Core::CollisionManager::Frame()
 			// TODO: Multithread
 			auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
 			auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
-			XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
+			XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->GetCleanedTransforms()[dirty.transformIndex]);
 			mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);
 			myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
 		}
@@ -189,7 +187,10 @@ void SE::Core::CollisionManager::Frame()
 					auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
 					if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere))
 					{
-						collideWithAny(collisionData.entity[dirty.myIndex], collisionData.entity[i]);
+						auto& otherAABB = collisionData.AABBWorld[i]; // Already transformed
+						auto& myAABB = collisionData.AABBWorld[dirty.myIndex]; // Already transformed
+						if(myAABB.Intersects(otherAABB))
+							collideWithAny(collisionData.entity[dirty.myIndex], collisionData.entity[i]);
 					}
 				}
 

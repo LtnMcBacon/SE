@@ -141,7 +141,7 @@ void SE::Core::Engine::InitStartupOption()
 		renderer->ResizeSwapChain(window->GetHWND());
 	}
 
-	optionHandler->Register(Utilz::Delegate<void()>::Make<Engine, &Engine::OptionUpdate>(this));
+	optionHandler->Register({ this, &Engine::OptionUpdate });
 }
 
 void SE::Core::Engine::OptionUpdate()

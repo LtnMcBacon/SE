@@ -7,14 +7,14 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 {
 	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(Point3D));
 	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
-	auto res = resourceHandler->LoadResource(Utilz::GUID("DebugLinePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLinePixelShader>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("DebugLinePS.hlsl"), { this, &DebugRenderManager::LoadLinePixelShader });
 	if (res)
 		throw std::exception("Could not load line render pixel shader.");
-	res = resourceHandler->LoadResource(Utilz::GUID("DebugLineVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<DebugRenderManager, &DebugRenderManager::LoadLineVertexShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("DebugLineVS.hlsl"), { this, &DebugRenderManager::LoadLineVertexShader });
 	if (res)
 		throw std::exception("Could not load line render vertex shader.");
 
-	transformManager->SetDirty.Add<DebugRenderManager, &DebugRenderManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
 	
 }
 

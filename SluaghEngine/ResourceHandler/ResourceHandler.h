@@ -69,7 +69,7 @@ namespace SE
 			{
 				Utilz::GUID guid;
 				size_t resourceInfoIndex;
-				Utilz::Event<int(const Utilz::GUID&, void*data, size_t)> callbacks;
+				Utilz::Delegate<int(const Utilz::GUID&, void*data, size_t)> callback;
 				Behavior behavior;
 			};
 
@@ -85,7 +85,7 @@ namespace SE
 			ResourceInfo resourceInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToResourceInfoIndex;
 
-			std::map<Utilz::GUID, ToLoadInfo, Utilz::GUID::Compare> toLoad;
+			std::stack<ToLoadInfo> toLoad;
 			std::mutex toLoadLock;
 			std::mutex infoLock;
 			std::thread myThread;
