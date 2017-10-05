@@ -66,6 +66,8 @@ namespace SE
 			void UpdateRenderableObject(const Entity& entity);
 
 			void SetFillSolid(const Entity& entity, bool fillSolid);
+
+			void SetTransparency(const Entity& entity, bool transparency);
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -110,7 +112,8 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
-				bool wireframe = true;
+				bool fillSolid = true;
+				bool transparency = false;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;

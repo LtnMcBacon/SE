@@ -125,7 +125,8 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
-	info->wireframe = renderableObjectInfo.wireframe;
+	info->fillSolid = renderableObjectInfo.fillSolid;
+	info->transparency = renderableObjectInfo.transparency;
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
@@ -176,12 +177,30 @@ void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, bool fillS
 		if (renderableObjectInfo.visible[find->second] == true)
 		{
 			ToggleRenderableObject(entity, false);
-			renderableObjectInfo.wireframe = fillSolid;
+			renderableObjectInfo.fillSolid = fillSolid;
 			ToggleRenderableObject(entity, true);
 		}
 		else
 		{
-			renderableObjectInfo.wireframe = fillSolid;
+			renderableObjectInfo.fillSolid = fillSolid;
+		}
+	}
+}
+
+void SE::Core::RenderableManager::SetTransparency(const Entity & entity, bool transparency)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second] == true)
+		{
+			ToggleRenderableObject(entity, false);
+			renderableObjectInfo.transparency = transparency;
+			ToggleRenderableObject(entity, true);
+		}
+		else
+		{
+			renderableObjectInfo.transparency = transparency;
 		}
 	}
 }

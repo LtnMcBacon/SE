@@ -24,7 +24,8 @@ DeviceManager::DeviceManager() {
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
 	pDSState = nullptr;
-	blendState = nullptr;
+	blendSolidState = nullptr;
+	blendTransState = nullptr;
 	rasterSolidState = nullptr;
 	rasterWireState = nullptr;
 }
@@ -112,7 +113,8 @@ void DeviceManager::Shutdown() {
 	gDepthStencilView->Release();
 
 	gDeviceContext->Release();
-	blendState->Release();
+	blendSolidState->Release();
+	blendTransState->Release();
 	rasterSolidState->Release();
 	rasterWireState->Release();
 
@@ -360,6 +362,7 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 
 void DeviceManager::CreateBlendState()
 {
+	// Transparency off
 	D3D11_RENDER_TARGET_BLEND_DESC rendTarBlendState[8];
 	for (auto& rtbs : rendTarBlendState)
 	{
@@ -386,11 +389,39 @@ void DeviceManager::CreateBlendState()
 	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
 	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
 
-	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendState);
+	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendSolidState);
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
 
 	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
 	UINT sampleM = 0xffffffff;
-	gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
+	gDeviceContext->OMSetBlendState(blendSolidState, blendF, sampleM);
+
+	// Transparency on
+	for (auto& rtbs : rendTarBlendState)
+	{
+		rtbs.BlendEnable = true;
+		rtbs.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbs.DestBlend = D3D11_BLEND_ZERO;
+		rtbs.DestBlendAlpha = D3D11_BLEND_ZERO;
+		rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		rtbs.SrcBlend = D3D11_BLEND_ONE;
+		rtbs.SrcBlendAlpha = D3D11_BLEND_ONE;
+	}
+
+	blendStateDesc.AlphaToCoverageEnable = false;
+	blendStateDesc.IndependentBlendEnable = false;
+	blendStateDesc.RenderTarget[0] = rendTarBlendState[0];
+	blendStateDesc.RenderTarget[1] = rendTarBlendState[1];
+	blendStateDesc.RenderTarget[2] = rendTarBlendState[2];
+	blendStateDesc.RenderTarget[3] = rendTarBlendState[3];
+	blendStateDesc.RenderTarget[4] = rendTarBlendState[4];
+	blendStateDesc.RenderTarget[5] = rendTarBlendState[5];
+	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
+	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
+
+	hr = gDevice->CreateBlendState(&blendStateDesc, &blendTransState);
+	if (FAILED(hr))
+		throw std::exception("Could not create blend state");
 }

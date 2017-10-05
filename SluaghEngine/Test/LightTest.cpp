@@ -64,6 +64,7 @@ namespace SE
 			Core::Entity entity = em.Create();
 			const int numEnts = 50;
 			Core::Entity ents[numEnts];
+			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
 			Utilz::GUID textures[] = { Utilz::GUID("TestMesh_Diffuse.sei"), Utilz::GUID("purewhite.sei") };
 			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
@@ -72,6 +73,18 @@ namespace SE
 			info.shaderResourceNames = resourceNames;
 			info.textureFileNames = textures;
 			info.textureCount = 2;
+
+
+			for (int i = 0; i < 2; i++)
+			{
+				entsTrans[i] = em.Create();
+				mm.Create(entsTrans[i], info);
+				transformManager.Create(entsTrans[i], { (float)(i*3.0f),0.0f,(float)(i * 2.5f - 5.0f) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
+				//tm.Create(ents[i]);
+				rm.CreateRenderableObject(entsTrans[i], Utilz::GUID("MCModell.mesh"));
+				rm.ToggleRenderableObject(entsTrans[i], true);
+			}
+
 			for (int i = 0; i < numEnts; i++)
 			{
 				ents[i] = em.Create();
@@ -163,6 +176,9 @@ namespace SE
 
 			int full = oh.GetOption("Window", "fullScreen", 0);
 			bool toggle = true;
+			rm.SetTransparency(entsTrans[0], true);
+			rm.SetTransparency(entsTrans[1], true);
+
 			while (running)
 			{
 				timer.Tick();

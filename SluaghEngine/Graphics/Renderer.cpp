@@ -411,9 +411,13 @@ int SE::Graphics::Renderer::Render() {
 				}
 			}
 		}
-		if (previousJob.wireframe != job.wireframe)
+		if (previousJob.fillSolid != job.fillSolid)
 		{
-			device->SetRasterStateFill(job.wireframe);
+			device->SetRasterStateFill(job.fillSolid);
+		}
+		if (previousJob.transparency != job.transparency)
+		{
+			device->SetRasterStateFill(job.transparency);
 		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
@@ -517,7 +521,7 @@ int SE::Graphics::Renderer::Render() {
 	}
 
 	device->SetDepthStencilStateAndRS();
-	device->SetBlendState();
+	device->SetBlendTransparencyState(false);
 
 	device->Present();
 
