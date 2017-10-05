@@ -321,8 +321,8 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			rayD = DirectX::XMVector4Transform(rayD, viewM);
 			rayD = XMVector3Normalize(rayD);
 
-			float distance = 0.0f;
-			bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+			float distance = XMVectorGetY(rayO)/-XMVectorGetY(rayD);
+			//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
 
 			auto clickPos = rayO + rayD*distance;
 

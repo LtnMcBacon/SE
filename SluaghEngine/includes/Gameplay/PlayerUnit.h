@@ -145,6 +145,11 @@ namespace SE
 			*/
 			void UpdateMap(const char** mapForRoom);
 
+			/**
+			* @brief Updates the players rotation with given rotation
+			* @param [in] The new x angle in radians
+			* @param [in] The new y angle in radians
+			**/
 			void UpdatePlayerRotation(float camAngleX, float camAngleY);
 
 		private:
