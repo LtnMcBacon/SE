@@ -50,7 +50,7 @@ namespace SE
 				}
 				textureCount = 0;
 				topology = PrimitiveTopology::TRIANGLE_LIST;
-				wireframe = false;
+				wireframe = true;
 			}
 			inline RenderObjectInfo& operator=(const RenderObjectInfo& rhs)
 			{

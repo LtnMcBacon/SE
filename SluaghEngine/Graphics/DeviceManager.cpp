@@ -25,7 +25,8 @@ DeviceManager::DeviceManager() {
 	gDepthStencilView = nullptr;
 	pDSState = nullptr;
 	blendState = nullptr;
-	rasterState = nullptr;
+	rasterSolidState = nullptr;
+	rasterWireState = nullptr;
 }
 
 DeviceManager::~DeviceManager() {
@@ -81,11 +82,18 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	rasterizerState.MultisampleEnable = false;
 	rasterizerState.AntialiasedLineEnable = false;
 
-	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterState);
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterSolidState);
 	if (FAILED(hr))
 		throw "Fuck";
-	gDeviceContext->RSSetState(rasterState);
+	gDeviceContext->RSSetState(rasterSolidState);
 
+	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterWireState);
+	if (FAILED(hr))
+		throw "Fuck";
+
+	
 	ProfileReturnConst(hr);
 
 }
@@ -105,7 +113,8 @@ void DeviceManager::Shutdown() {
 
 	gDeviceContext->Release();
 	blendState->Release();
-	rasterState->Release();
+	rasterSolidState->Release();
+	rasterWireState->Release();
 
 #ifdef _DEBUG
 

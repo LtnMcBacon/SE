@@ -64,6 +64,8 @@ namespace SE
 			void Frame();
 
 			void UpdateRenderableObject(const Entity& entity);
+
+			void SetFillSolid(const Entity& entity, bool fillSolid);
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -108,6 +110,7 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
+				bool wireframe = true;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
