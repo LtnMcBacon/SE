@@ -112,6 +112,12 @@
     <Filter Include="Source Files\Projectiles">
       <UniqueIdentifier>{a3501314-46aa-4280-a9f9-774854fd0a8f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTreeFactory">
+      <UniqueIdentifier>{ed772730-0169-47e6-81fd-1ae5f62fcb19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Leaves">
+      <UniqueIdentifier>{ee7351ae-2a0b-4620-866a-39bedbe8e444}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -188,6 +194,9 @@
     </ClCompile>
     <ClCompile Include="Inverter.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviouralTreeFactory.cpp">
+      <Filter>Source Files\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +286,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h">
+      <Filter>Header Files\AI\BehaviouralTreeFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

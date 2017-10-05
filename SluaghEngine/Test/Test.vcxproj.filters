@@ -114,6 +114,9 @@
     <ClCompile Include="BehavioursTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
     <ClCompile Include="RecordingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="RecordingTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviouralTreeFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

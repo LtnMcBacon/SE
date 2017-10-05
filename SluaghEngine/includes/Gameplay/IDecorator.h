@@ -29,6 +29,8 @@ namespace SE
 		public:
 			IDecorator(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child);
 			~IDecorator() override;
+
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override = 0;
 		};
 	}
 }
