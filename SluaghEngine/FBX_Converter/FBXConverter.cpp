@@ -78,9 +78,6 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 	logFolder = folderName + "/Log/";
 	create_directory(logFolder);
 
-	logFolder = folderName + "/Log/";
-	create_directory(logFolder);
-
 	// Initialize the FBX loader and instruct it what types of data to load...
 	if (!InitializeFbxManager()) {
 

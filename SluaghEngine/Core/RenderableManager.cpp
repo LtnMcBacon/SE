@@ -66,14 +66,17 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		entityToRenderableObjectInfoIndex[entity] = newEntry;
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
+		renderableObjectInfo.visible[newEntry] = 0u;
+
+		// Transform binding
+		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
+
 
 		// Load the model
 		LoadResource(meshGUID, newEntry, async, behavior);
 
 
-		// Transform binding
-		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
-		renderableObjectInfo.visible[newEntry] = 0;
+
 
 	}
 	StopProfile;
@@ -83,16 +86,21 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 {
 	StartProfile;
 	// See so that the entity exist
+	infoLock.lock();
 	auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		//If the visibility state is switched to what it already is we dont do anything.
 		if ((bool)renderableObjectInfo.visible[find->second] == visible)
+		{
+			infoLock.unlock();
 			ProfileReturnVoid;
-		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
+		}
+			
+		renderableObjectInfo.visible[find->second] = visible ? 1u : 0u;
 		Graphics::RenderObjectInfo info;
 		CreateRenderObjectInfo(find->second, &info);
-		infoLock.lock();
+
 		if (visible)
 		{
 			const uint32_t jobID = renderer->EnableRendering(info);
@@ -104,8 +112,9 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		{
 			renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
-		infoLock.unlock();
+
 	}
+	infoLock.unlock();
 	ProfileReturnVoid;
 }
 
@@ -122,6 +131,8 @@ void SE::Core::RenderableManager::Frame()
 void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info)
 {
 	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
+	if (vBufferIndex > 1)
+		int i = 0;
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
@@ -363,6 +374,25 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	else {
 
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+
+		float weight = 0;
+		for (int i = 0; i < meshHeader->nrOfVertices; i++) {
+
+			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
+
+			// The total weight could be very close to 1, or just over it, like for example 1.00012.
+			if (weight > 1.1) {
+
+				Utilz::Console::Print("Vertex weights greater than 1");
+			}
+
+			// The total weight should never be lower than 0
+			else if (weight < 0) {
+
+				Utilz::Console::Print("Vertex weights lower than 0");
+			}
+		}
+
 		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 

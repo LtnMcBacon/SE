@@ -328,7 +328,7 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
 
-	currentEntityTimePos += 5;
+	currentEntityTimePos += 1;
 
 	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
@@ -470,12 +470,22 @@ int SE::Graphics::Renderer::Render() {
 			graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
 
-			int drawCallCount = bucket.transforms.size();
-			//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-			graphicResourceHandler->UpdateConstantBuffer(&identityMatrices[0], sizeof(DirectX::XMFLOAT4X4) * 19, cBoneBufferIndex);
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
-			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
-			
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+				graphicResourceHandler->UpdateConstantBuffer(&identityMatrices, sizeof(DirectX::XMFLOAT4X4) * 19, cBoneBufferIndex);
+				graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
+				device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
+			}
 		}
 
 		
