@@ -170,8 +170,20 @@ namespace SE {
 			}
 			inline void SetDepthStencilStateAndRS()
 			{
-				gDeviceContext->RSSetState(rasterState);
+				gDeviceContext->RSSetState(rasterSolidState);
 				gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+			}
+
+			inline void SetRasterStateFill(bool fillSolid)
+			{
+				if (fillSolid == true)
+				{
+					gDeviceContext->RSSetState(rasterSolidState);
+				}
+				else
+				{
+					gDeviceContext->RSSetState(rasterWireState);
+				}
 			}
 		private:
 
@@ -187,7 +199,8 @@ namespace SE {
 			ID3D11DepthStencilState * pDSState;
 
 			ID3D11BlendState*		blendState;
-			ID3D11RasterizerState * rasterState;
+			ID3D11RasterizerState * rasterSolidState;
+			ID3D11RasterizerState * rasterWireState;
 
 			D3D11_TEXTURE2D_DESC	gBB_Desc;
 			D3D_FEATURE_LEVEL		gFeatureLevel;
