@@ -45,7 +45,7 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && loadedTexts[entID[entity].ID].fontID > -1 && !entID[entity].show)
+				if (show && !entID[entity].show)
 				{
 					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
 					entID[entity].show = true;
