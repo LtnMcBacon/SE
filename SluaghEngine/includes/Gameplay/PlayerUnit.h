@@ -188,9 +188,28 @@ namespace SE
 				float waterResistance	= 1.f;
 				
 				int armorCap			= 3;
-				enum equippedArmorType		  { LIGHT, MEDIUM, HEAVY, NONE };
-				enum equippedWeaponType		  { CLOSE, RANGED, MAGIC, NONE };
-				enum equippedElementalType	  { FIRE, WATER, NATURE, NONE};
+				/**
+				* @breif	A class used to make scripting easier when changing the players armor type.
+				* @details	The class should be used for readablitity when switching items in the inventory.
+				*			The class does not inherit from other classes.
+				* @sa		*Coming* inventory.
+				**/
+				enum class equippedArmorType		  { LIGHT, MEDIUM, HEAVY, NONE };
+				/**
+				* @breif	A class used to make scripting easier when changing the players equipment.
+				* @details	The class should be used for readablitity when switching items in the inventory.
+				*			The class does not inherit from other classes.
+				* @sa		*Coming* weapons.
+				**/
+				enum class equippedWeaponType		  { CLOSE, RANGED, MAGIC, NONE };
+				/**
+				* @breif	A class used to make scripting easier when changing the players equipment.
+				* @details	The class should be used for readablitity when switching items in the inventory.
+				*			The class does not inherit from other classes.
+				* @sa		*Coming* skills.
+				**/
+				enum class equippedElementalType	  { FIRE, WATER, NATURE, NONE};
+
 				equippedArmorType armor		  = equippedArmorType::NONE;
 				equippedWeaponType weapon	  = equippedWeaponType::NONE;
 				equippedElementalType element = equippedElementalType::NONE;
