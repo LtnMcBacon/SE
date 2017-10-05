@@ -14,12 +14,20 @@ namespace SE
 {
 	namespace Window
 	{
+		enum class WindowState
+		{
+			Regular,
+			Record,
+			Playback
+		};
+
 		struct InitializationInfo
 		{
 			std::string windowTitle;
 			bool fullScreen = false;
 			uint32_t width = 1280;
 			uint32_t height = 720;
+			WindowState winState = WindowState::Regular;
 		};
 
 		enum KeyCode

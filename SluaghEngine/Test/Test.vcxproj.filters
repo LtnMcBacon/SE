@@ -114,6 +114,9 @@
     <ClCompile Include="BehavioursTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
+    <ClCompile Include="RecordingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="LightTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
