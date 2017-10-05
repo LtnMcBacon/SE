@@ -167,7 +167,6 @@
     <ClCompile Include="INIReader.cpp" />
     <ClCompile Include="MemoryMeasuring.cpp" />
     <ClCompile Include="StackAllocator.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

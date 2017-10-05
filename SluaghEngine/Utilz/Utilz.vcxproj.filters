@@ -80,9 +80,6 @@
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="INIReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
