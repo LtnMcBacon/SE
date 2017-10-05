@@ -411,6 +411,22 @@ int SE::Graphics::Renderer::Render() {
 				}
 			}
 		}
+		if (previousJob.wireframe != job.wireframe)
+		{
+			switch (job.topology)
+			{
+			case RenderObjectInfo::PrimitiveTopology::LINE_LIST:
+			{
+				device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+				break;
+			}
+			case RenderObjectInfo::PrimitiveTopology::POINT_LIST:
+			{
+				device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+				break;
+			}
+			}
+		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
