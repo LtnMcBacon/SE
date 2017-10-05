@@ -108,7 +108,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 	if (info.winState == WindowState::Regular)
 	{
-		actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RegFrame>(this);
+		currentFrameStrategy = &WindowSDL::RegFrame;
 	}
 	else if (info.winState == WindowState::Record)
 	{
@@ -141,7 +141,7 @@ void SE::Window::WindowSDL::Shutdown()
 
 void SE::Window::WindowSDL::Frame()
 {
-	actualFrame();
+	(*this.*currentFrameStrategy)();
 }
 
 void SE::Window::WindowSDL::RegFrame()
@@ -470,7 +470,7 @@ void SE::Window::WindowSDL::PlaybackFrame()
 void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
-	actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RecordFrame>(this);
+	currentFrameStrategy = &WindowSDL::RecordFrame;
 	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
 	recording = true;
 	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
@@ -489,7 +489,7 @@ void SE::Window::WindowSDL::LoadRecording()
 		playbackfile.read((char*)playbackData, size);
 		playbackfile.close();
 		playback = true;
-		actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::PlaybackFrame>(this);
+		currentFrameStrategy = &WindowSDL::LoadRecording;
 	}
 	StopProfile;
 }

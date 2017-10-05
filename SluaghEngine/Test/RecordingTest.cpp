@@ -66,9 +66,9 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(7, Window::KeyCode::KeyU);
 	window->MapActionButton(5, Window::KeyCode::MouseLeft);
 	window->MapActionButton(6, Window::KeyCode::MouseRight);
-	window->BindKeyPressCallback(2, Window::KeyCallback::Make<&KeyCall>());
-	window->BindMouseClickCallback(5, Window::MouseClickCallback::Make<&MouseCall>());
-	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
+	window->BindKeyPressCallback(2, &KeyCall);
+	window->BindMouseClickCallback(5, &MouseCall);
+	window->BindMouseMotionCallback(&MouseMotionCall);
 	window->MapActionButton(8, SE::Window::KeyO);
 
 
@@ -122,10 +122,12 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(7, Window::KeyCode::KeyU);
 	window->MapActionButton(5, Window::KeyCode::MouseLeft);
 	window->MapActionButton(6, Window::KeyCode::MouseRight);
-	window->BindKeyPressCallback(2, Window::KeyCallback::Make<&KeyCall>());
-	window->BindMouseClickCallback(5, Window::MouseClickCallback::Make<&MouseCall>());
-	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
+	window->BindKeyPressCallback(2, &KeyCall);
+	window->BindMouseClickCallback(5, &MouseCall);
+	window->BindMouseMotionCallback(&MouseMotionCall);
 	window->MapActionButton(8, SE::Window::KeyO);
+
+
 
 	running = true;
 	while (running)
