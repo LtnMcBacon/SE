@@ -56,6 +56,14 @@ namespace SE
 		public:
 			Selector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~Selector();
+
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				Selector* toPass = new Selector(enemyBlackboard, gameBlackboard);
+				for (auto child : myChildren)
+					toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
+				return toPass;
+			}
 			
 		};
 	}

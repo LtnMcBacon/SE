@@ -57,6 +57,13 @@ namespace SE
 			Sequence(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~Sequence();
 
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				Sequence* toPass = new Sequence(enemyBlackboard, gameBlackboard);
+				for (auto child : myChildren)
+					toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
+				return toPass;
+			}
 		};
 	}
 }

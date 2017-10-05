@@ -22,6 +22,8 @@ public:
 	{
 		this->myStatus = myStatus;
 	};
+
+
 protected:
 	inline Gameplay::Status Update() override
 	{
@@ -34,6 +36,12 @@ protected:
 		return myStatus;
 	}
 
+public:
+	IBehaviour* CopyBehaviour(Gameplay::GameBlackboard* gameBlackboard, Gameplay::EnemyBlackboard* enemyBlackboard) const
+	override
+	{
+		return nullptr;
+	};
 private:
 	int ticksBeforeSuccess;
 };

@@ -57,6 +57,13 @@ namespace SE
 			RandomSequence(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~RandomSequence();
 
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				RandomSequence* toPass = new RandomSequence(enemyBlackboard, gameBlackboard);
+				for (auto child : myChildren)
+					toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
+				return toPass;
+			}
 		};
 	}
 }

@@ -64,7 +64,7 @@ std::vector<Accepted> acceptedExt =
 		std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
 		dst << src.rdbuf();
 		dst.close();
-		src.close(); 
+		src.close();
 	} },
 	{ "gui", "sei", "GUI", [](const char* filename, const char* outFilename) {
 		printf("Parsing file: %s...\n", filename);
@@ -77,7 +77,15 @@ std::vector<Accepted> acceptedExt =
 			std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
 			dst << src.rdbuf();
 			dst.close();
-			src.close(); }}
+			src.close(); }},
+
+			{"SEFBT", "SEFBT", "BehaviouralTrees", [](const char* filename, const char* outFilename) {
+				std::ifstream  src(filename, std::ios::binary);
+				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+				dst << src.rdbuf();
+				dst.close();
+				src.close(); } }
+
 };
 
 std::vector<Accepted> fbxAccepted =

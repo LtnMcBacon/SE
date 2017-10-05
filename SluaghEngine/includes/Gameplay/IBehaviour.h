@@ -5,8 +5,8 @@ namespace SE
 {
 	namespace Gameplay
 	{
-		class EnemyBlackboard;
-		class GameBlackboard;
+		struct EnemyBlackboard;
+		struct GameBlackboard;
 
 		/**
 		*
@@ -115,6 +115,8 @@ namespace SE
 			*
 			*/
 			Status Tick();
+
+			virtual IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const = 0;
 
 
 		};
