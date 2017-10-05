@@ -162,7 +162,7 @@ namespace SE
 			while (running)
 			{
 				timer.Tick();
-				float dt = timer.GetDeltaMilliseconds();
+				float dt = timer.GetDelta();
 				if (w->ButtonPressed(ActionButton::Exit))
 					running = false;
 
@@ -216,7 +216,7 @@ namespace SE
 				}
 				if (w->ButtonPressed(ActionButton::FrameTime))
 				{
-					console->Print("Frametime: %f ms\n", timer.GetDeltaMilliseconds());
+					console->Print("Frametime: %f ms\n", timer.GetDelta());
 				}
 				engine.Frame(0.01f);
 			}
