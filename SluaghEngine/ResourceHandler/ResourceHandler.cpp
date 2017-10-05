@@ -99,7 +99,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			// Update the toLoad struct
 
 			if (async) { // Update the load job
-				UpdateLoadJob(toLoad[guid], callback, behavior);
+				CreateLoadJob(guid, index, callback, behavior);
 				ProfileReturnConst(0);
 			}
 			else // Since the load is sync we need to wait until the resource has been loaded.
@@ -191,7 +191,8 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 	{
 		StartProfile;
 		toLoadLock.lock();
-		auto job = toLoad.begin()->second;
+		auto job = toLoad.top();
+		toLoad.pop();
 		toLoadLock.unlock();
 
 		infoLock.lock();
@@ -209,50 +210,29 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 			infoLock.unlock();
 
 
-			toLoadLock.lock();
-			auto& find = toLoad.find(job.guid);
-			if (find != toLoad.end())
+			auto ret = job.callback(job.guid, data.data, data.size);
+			if (ret == 1)
 			{
-				toLoad.erase(job.guid);
-				toLoadLock.unlock();
-				std::vector<int> rets;
-				job.callbacks(job.guid, data.data, data.size, [&rets](size_t i, int* r) {rets.push_back(*r); }); 
 				infoLock.lock();
-				for (auto& r : rets)
-				{				
-					resourceInfo.refCount[job.resourceInfoIndex]--;
-				}
+				resourceInfo.refCount[job.resourceInfoIndex]--;
 				infoLock.unlock();
 			}
-			else
-				toLoadLock.unlock();
+
 		}
-		else if(state == State::Loaded) // Resource is loaded.
+		else if (state == State::Loaded) // Resource is loaded.
 		{
 			infoLock.lock();
 			Data data = resourceInfo.resourceData[job.resourceInfoIndex];
 			infoLock.unlock();
 
-
-
-			toLoadLock.lock();
-			auto& find = toLoad.find(job.guid);
-			if (find != toLoad.end())
+			auto ret = job.callback(job.guid, data.data, data.size);
+			if (ret == 1)
 			{
-				toLoad.erase(job.guid);
-				toLoadLock.unlock();
-				std::vector<int> rets;
-				job.callbacks(job.guid, data.data, data.size, [&rets](size_t i, int* r) {rets.push_back(*r); }); 
 				infoLock.lock();
-				for (auto& r : rets)
-				{
-					if (r == 1)
-						resourceInfo.refCount[job.resourceInfoIndex]--;
-				}
+				resourceInfo.refCount[job.resourceInfoIndex]--;
 				infoLock.unlock();
 			}
-			else
-				toLoadLock.unlock();
+
 		}
 		StopProfile;
 	}
@@ -262,12 +242,14 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 void SE::ResourceHandler::ResourceHandler::CreateLoadJob(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback, Behavior behavior)
 {
 	StartProfile;
-	toLoadLock.lock();
-	auto& tl = toLoad[guid];
+
+	ToLoadInfo tl;
 	tl.behavior = behavior;
-	tl.callbacks += callback;
+	tl.callback = callback;
 	tl.resourceInfoIndex = index;
 	tl.guid = guid;
+	toLoadLock.lock();
+	toLoad.push(tl);
 	toLoadLock.unlock();
 	StopProfile;
 }
@@ -275,21 +257,21 @@ void SE::ResourceHandler::ResourceHandler::CreateLoadJob(const Utilz::GUID& guid
 void SE::ResourceHandler::ResourceHandler::UpdateLoadJob(ToLoadInfo & loadInfo, const LoadResourceDelegate & callback, Behavior behavior)
 {
 	StartProfile;
-	toLoadLock.lock();
-	loadInfo.behavior = loadInfo.behavior == Behavior::QUICK ? Behavior::QUICK : behavior; // If someone already needs the resource quickly, make sure that we don't change it to lazy.
-	loadInfo.callbacks += callback;
-	toLoadLock.unlock();
+	//toLoadLock.lock();
+	//loadInfo.behavior = loadInfo.behavior == Behavior::QUICK ? Behavior::QUICK : behavior; // If someone already needs the resource quickly, make sure that we don't change it to lazy.
+	//loadInfo.callbacks += callback;
+	//toLoadLock.unlock();
 	StopProfile;
 }
 
 void SE::ResourceHandler::ResourceHandler::RemoveLoadJob(const Utilz::GUID & guid)
 {
 	StartProfile;
-	toLoadLock.lock();
-	toLoad.erase(guid);
-	auto index = guidToResourceInfoIndex[guid];
-	resourceInfo.state[index] = State::Dead;
-	toLoadLock.unlock();
+	//toLoadLock.lock();
+	//toLoad.erase(guid);
+	//auto index = guidToResourceInfoIndex[guid];
+	//resourceInfo.state[index] = State::Dead;
+	//toLoadLock.unlock();
 	StopProfile;
 }
 
@@ -304,6 +286,7 @@ int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size
 	}
 		
 	resourceInfo.state[index] = State::Loaded;
+	auto cb = callback;
 	ProfileReturn(InvokeCallback(guid, index, callback));
 }
 

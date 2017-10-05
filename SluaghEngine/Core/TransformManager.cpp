@@ -45,7 +45,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	auto& find = entityToIndex.find(e);
 	if (find != entityToIndex.end())
 	{
-		dirty[find->second] = 1;
+		dirty[find->second] = 1u;
 		ProfileReturnVoid;
 	}
 
@@ -90,9 +90,12 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 
 void SE::Core::TransformManager::SetAsDirty(const Entity & e)
 {
+	queueLock.lock();
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
 	const uint32_t index = entityToIndex[e];
-	SetAsDirty(index);
+	entityStack.push_back(e);
+	//SetAsDirty(index);
+	queueLock.unlock();
 }
 
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& dir)
@@ -256,6 +259,16 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 void SE::Core::TransformManager::Frame()
 {
 	StartProfile;
+	queueLock.lock();
+	for (auto& e : entityStack)
+	{
+		auto& find = entityToIndex.find(e);
+		if(find != entityToIndex.end())
+			SetAsDirty(find->second);
+
+	}
+	entityStack.clear();
+	queueLock.unlock();
 	dirtyTransforms.clear();
 	parentDeferred.clear();
 	for (size_t i = 0; i < transformCount; i++)

@@ -12,14 +12,14 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	defaultTextureHandle = 0;
 
 
-	renderableManager->RegisterToSetRenderObjectInfo(SetRenderObjectInfoDelegate::Make<MaterialManager, &MaterialManager::SetRenderObjectInfo>(this));
+	renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultShader>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), {this , &MaterialManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("TestDiffuse.sei", ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultTexture>(this));
+	res = resourceHandler->LoadResource("TestDiffuse.sei", { this, &MaterialManager::LoadDefaultTexture });
 	if (res)
 		throw std::exception("Could not load default texture.");
 
@@ -63,7 +63,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		shaderIndex = shaders.size();
 		shaders.push_back({ defaultShaderHandle, 0 });
 
-		auto res = resourceHandler->LoadResource(info.shader, ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+		auto res = resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
 		if (res)
 		{
 			Utilz::Console::Print("Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, res);
@@ -97,7 +97,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textures.push_back({ defaultTextureHandle });
 				entityToChangeLock.unlock();
 
-				resourceHandler->LoadResource(info.textureFileNames[i], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this), true);
+				resourceHandler->LoadResource(info.textureFileNames[i], { this, &MaterialManager::LoadTexture }, true);
 			}
 			else
 				entityToChangeLock.unlock();

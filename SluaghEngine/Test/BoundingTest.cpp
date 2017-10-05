@@ -19,14 +19,57 @@ SE::Test::BoundingTest::~BoundingTest()
 
 
 static bool test = false;
-void Collide1(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
-{
-	test = true;
-}
+static bool test2 = false;
 void Collide2(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
 {
-	test = false;
+	test2 = true;
 }
+
+void Collide1(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
+{
+	if (!test)
+	{
+		test = true;
+		auto& e = SE::Core::Engine::GetInstance();
+		auto& em = e.GetEntityManager();
+		auto& col = e.GetCollisionManager();
+		auto& tm = e.GetTransformManager();
+		auto& cm = e.GetCameraManager();
+		auto& drm = e.GetDebugRenderManager();
+		auto& om = e.GetOptionHandler();
+		auto& camera = em.Create();
+		auto w = e.GetWindow();
+		auto& rm = e.GetRenderableManager();
+
+		col.RegisterCollideWithAnyCallback(&Collide2);
+
+		auto& block2 = em.Create();
+		col.CreateBoundingHierarchy(block2, "MCModell.mesh");
+		rm.CreateRenderableObject(block2, "MCModell.mesh");
+		rm.ToggleRenderableObject(block2, true);
+		tm.SetPosition(block2, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
+
+		tm.SetPosition(hit, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+		em.Destroy(hitter);
+	}
+		
+}
+
+enum ActionButton
+{
+	Exit,
+	Hide,
+	Show,
+	Up,
+	Down,
+	Left,
+	Right,
+	Fullscreen,
+	Rise,
+	Sink
+};
+
 
 bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -35,59 +78,65 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto& em = e.GetEntityManager();
 	auto& col = e.GetCollisionManager();
 	auto& tm = e.GetTransformManager();
-	auto& ent = em.Create();
-	tm.Create(ent);
-	col.CreateBoundingHierarchy(ent, "Placeholder_Block.mesh");
-	
+	auto& cm = e.GetCameraManager();
+	auto& drm = e.GetDebugRenderManager();
+	auto& om = e.GetOptionHandler();
+	auto& camera = em.Create();
+	auto w = e.GetWindow();
+	auto& rm = e.GetRenderableManager();
 
-	auto& ent2 = em.Create();
-	tm.Create(ent2);
-	col.CreateBoundingHierarchy(ent2, "Placeholder_Block.mesh");
+	col.RegisterCollideWithAnyCallback(&Collide1);
 
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	cInfo.posistion = { 0.0f, 0.0f, -2.0f };
+	cm.Bind(camera, cInfo);
+	cm.SetActive(camera);
+
+	auto& block1 = em.Create();
+	col.CreateBoundingHierarchy(block1, "MCModell.mesh");
+	rm.CreateRenderableObject(block1, "MCModell.mesh");
+	rm.ToggleRenderableObject(block1, true);
+	tm.SetPosition(block1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
+
+	auto& block2 = em.Create();
+	col.CreateBoundingHierarchy(block2, "MCModell.mesh");	
+	rm.CreateRenderableObject(block2, "MCModell.mesh");
+	rm.ToggleRenderableObject(block2, true);
+	tm.SetPosition(block2, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
+
+	col.BindOnCollideWithAny(block1);
+
+
+	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
+	bool running = true;
 	test = false;
-
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
-
-	e.Frame(0.0f);
-
-	if (!test)
+	test2 = false;
+	bool su = false;
+	for(int i = 0; i < 500; i++)
 	{
-		console->Print("Did not collide in check 1. They should!\n");
-		return false;
-	}
-	test = true;
+		if (w->ButtonPressed(ActionButton::Exit))
+			running = false;
 
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
+		if(!test)
+			tm.Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
+		else if(test)
+		{
+			if(!test2)
+				tm.Move(block1, DirectX::XMFLOAT3(-0.01f, 0.0f, 0.0f));
+		}
+		e.Frame(0.01f);
+		drm.ToggleDebugRendering(block1, true);
+		drm.ToggleDebugRendering(block2, true);
 
-	tm.SetPosition(ent2, { 100.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Collided in check 2. Should not collide!\n");
-		return false;
-	}
-	
-	test = false;
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide1>());
-
-	tm.SetPosition(ent, { 100.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Did not collide in check 3. They should!\n");
-		return false;
-	}
-	test = true;
-	col.BindOnCollideWithAny(ent, Core::CollisionManager::CollideCallbackDelegate::Make<&Collide2>());
-
-	tm.SetPosition(ent, { 0.0f, 100.0f, 100.0f });
-	e.Frame(0.0f);
-	if (!test)
-	{
-		console->Print("Collided in check 4. Should not collide!\n");
-		return false;
+		if (test && test2)
+		{
+			su = true;
+		}
+			
 	}
 
 	e.Release();
-	return true;
+	return su;
 }

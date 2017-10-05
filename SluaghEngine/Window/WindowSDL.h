@@ -8,7 +8,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <fstream>
 #include <thread>
-#include <Utilz\Delegate.h>
+
 namespace SE
 {
 	namespace Window
@@ -110,7 +110,9 @@ namespace SE
 
 			size_t arrayPos;
 
-			Utilz::Delegate<void()> actualFrame;
+			typedef void(WindowSDL::*FrameStrategy)();
+
+			FrameStrategy currentFrameStrategy;
 
 			void StartRecording();
 			void LoadRecording();

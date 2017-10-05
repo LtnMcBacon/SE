@@ -10,7 +10,7 @@ namespace SE {
 			_ASSERT(renderer);
 			_ASSERT(transformManager);
 
-			transformManager->SetDirty.Add<LightManager, &LightManager::UpdateDirtyPos>(this);
+			transformManager->SetDirty += {this, &LightManager::UpdateDirtyPos};
 		}
 
 		LightManager::~LightManager()

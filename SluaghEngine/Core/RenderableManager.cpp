@@ -22,19 +22,19 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	_ASSERT(animationManager);
 
 	Allocate(128);
-	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), { this, &RenderableManager::LoadDefaultModel });
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadSkinnedShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 	StopProfile;
@@ -346,7 +346,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		bufferIndex = bufferInfo.size() - 1;
 		entityToChangeLock.unlock();
 
-		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), async, behavior);
+		auto res = resourceHandler->LoadResource(meshGUID, { this , &RenderableManager::LoadModel }, async, behavior);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 

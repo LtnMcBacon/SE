@@ -22,6 +22,7 @@ External*
 *.pdf
 *.ps
 *.bat
+rawLoaderEntries.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
