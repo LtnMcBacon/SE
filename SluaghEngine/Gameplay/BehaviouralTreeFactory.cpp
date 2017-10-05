@@ -236,7 +236,7 @@ bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 	}
 
 	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(guid,
-	ResourceHandler::LoadResourceDelegate::Make<BehaviouralTreeFactory, &BehaviouralTreeFactory::LoadTreeFromResourceHandler>(this));
+	{ this, &BehaviouralTreeFactory::LoadTreeFromResourceHandler });
 
 	if (done != -1)
 		ProfileReturnConst(true);
