@@ -1,16 +1,14 @@
 #ifndef SE_WINDOW_IWINDOW_H_
 #define SE_WINDOW_IWINDOW_H_
 
-#include <Utilz/Delegator.h>
-
+#include <Utilz/Delegate.h>
+#include <string>
 
 #if defined DLL_EXPORT_W
 #define DECLDIR __declspec(dllexport)
 #else
 #define DECLDIR __declspec(dllimport)
 #endif
-
-
 
 namespace SE
 {

@@ -145,7 +145,8 @@
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
     <ClInclude Include="..\includes\Utilz\crc_table.h" />
-    <ClInclude Include="..\includes\Utilz\Delegator.h" />
+    <ClInclude Include="..\includes\Utilz\Delegate.h" />
+    <ClInclude Include="..\includes\Utilz\DelegateBase.h" />
     <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h" />
     <ClInclude Include="..\includes\Utilz\Event.h" />
     <ClInclude Include="..\includes\Utilz\GUID.h" />
