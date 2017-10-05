@@ -30,6 +30,7 @@
 #include "LightTest.h"
 #include "BehavioursTest.h"
 #include "RecordingTest.h"
+#include "BehaviouralTreeFactoryTest.h"
 
 
 #ifdef _DEBUG
@@ -79,6 +80,7 @@ int main(int argc, char** argv)
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
 	AddTest(BehavioursTest);
+	AddTest(BehaviouralTreeFactoryTest);
 
 	AddTest(PickingTest);
 

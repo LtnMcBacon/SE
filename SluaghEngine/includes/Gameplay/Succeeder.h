@@ -30,6 +30,13 @@ namespace SE
 		public:
 			Succeeder(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child);
 			~Succeeder();
+
+			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+
+				return new Succeeder(enemyBlackboard, gameBlackboard, 
+					myChild->CopyBehaviour(gameBlackboard,	enemyBlackboard));
+			}
 		};
 
 	}

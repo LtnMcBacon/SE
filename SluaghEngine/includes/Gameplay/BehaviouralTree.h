@@ -12,7 +12,8 @@ namespace SE
 {
 	namespace Gameplay
 	{
-
+		struct GameBlackboard;
+		struct EnemyBlackboard;
 		class IBehaviour;
 
 		/**
@@ -28,8 +29,11 @@ namespace SE
 		**/
 		class BehaviouralTree
 		{
+		private:
+			BehaviouralTree() = delete;
 		public:
-			BehaviouralTree();
+			BehaviouralTree* CopyTree(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const;
+			BehaviouralTree(IBehaviour* root);
 			~BehaviouralTree();
 
 			/**

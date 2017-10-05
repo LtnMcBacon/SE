@@ -38,6 +38,12 @@ namespace SE
 		public:
 			Inverter(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child);
 			~Inverter() override;
+
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				return new Inverter(enemyBlackboard, gameBlackboard,
+					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard));
+			}
 		};
 
 		

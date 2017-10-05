@@ -1,16 +1,30 @@
 #include "BehaviouralTree.h"
+#include "IBehaviour.h"
+#include <Profiler.h>
+using namespace SE;
+using namespace Gameplay;
 
-
-
-SE::Gameplay::BehaviouralTree::BehaviouralTree()
+BehaviouralTree* BehaviouralTree::CopyTree(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const
 {
+	StartProfile;
+	IBehaviour* root = rootBehaviour->CopyBehaviour(gameBlackboard, enemyBlackboard);
+
+	ProfileReturn(new BehaviouralTree(root));
+	
 }
 
-
-SE::Gameplay::BehaviouralTree::~BehaviouralTree()
+BehaviouralTree::BehaviouralTree(IBehaviour* root) :
+	rootBehaviour(root)
 {
+
 }
 
-void SE::Gameplay::BehaviouralTree::Tick()
+BehaviouralTree::~BehaviouralTree()
 {
+	delete rootBehaviour;
+}
+
+void BehaviouralTree::Tick()
+{
+	rootBehaviour->Tick();
 }
