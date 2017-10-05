@@ -5,6 +5,10 @@
 #include <Windows.h>
 #include <map>
 #include <vector>
+#include <Utilz\CircularFiFo.h>
+#include <fstream>
+#include <thread>
+#include <Utilz\Delegate.h>
 namespace SE
 {
 	namespace Window
@@ -20,6 +24,11 @@ namespace SE
 			void Shutdown() override;
 
 			void Frame() override;
+			void RegFrame();
+			void RecordFrame();
+			void PlaybackFrame();
+
+			
 
 			void* GetHWND() override;
 
@@ -82,8 +91,29 @@ namespace SE
 			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
+			//record stuff
+			struct inputRecData
+			{
+				size_t frame;
+				SDL_Event recEvent;
+			};
 
-			
+			void RecordToFile();
+			std::ofstream recFile;
+			std::ifstream playbackfile;
+			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
+			bool recording = false;
+			bool playback = false;
+			inputRecData* playbackData;
+			std::thread recThread;
+			size_t frame;
+
+			size_t arrayPos;
+
+			Utilz::Delegate<void()> actualFrame;
+
+			void StartRecording();
+			void LoadRecording();
 		};
 
 

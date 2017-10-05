@@ -47,6 +47,7 @@ namespace SE
 			LiLight3,
 			ReLight4,
 			LiLight4,
+			ToggleWire
 		};
 
 		bool LightTest::Run(SE::Utilz::IConsoleBackend* console)
@@ -153,16 +154,19 @@ namespace SE
 			w->MapActionButton(ActionButton::LiLight3, Window::Key6);
 			w->MapActionButton(ActionButton::ReLight4, Window::Key7);
 			w->MapActionButton(ActionButton::LiLight4, Window::Key8);
+			w->MapActionButton(ActionButton::ToggleWire, Window::KeyT);
 
+			
 			bool running = true;
 			Utilz::Timer timer;
 			auto& oh = engine.GetOptionHandler();
 
 			int full = oh.GetOption("Window", "fullScreen", 0);
+			bool toggle = true;
 			while (running)
 			{
 				timer.Tick();
-				float dt = timer.GetDeltaMilliseconds();
+				float dt = timer.GetDelta();
 				if (w->ButtonPressed(ActionButton::Exit))
 					running = false;
 
@@ -199,6 +203,15 @@ namespace SE
 					lightManager.ToggleLight(light[4], false);
 				if (w->ButtonDown(ActionButton::LiLight4))
 					lightManager.ToggleLight(light[4], true);
+				if (w->ButtonDown(ActionButton::ToggleWire))
+				{
+					rm.SetFillSolid(ents[3], toggle);
+					if (toggle == true)
+						toggle = false;
+					else
+						toggle = true;
+				}
+					
 
 				if (w->ButtonPressed(ActionButton::Hide))
 				{
@@ -216,7 +229,7 @@ namespace SE
 				}
 				if (w->ButtonPressed(ActionButton::FrameTime))
 				{
-					console->Print("Frametime: %f ms\n", timer.GetDeltaMilliseconds());
+					console->Print("Frametime: %f ms\n", timer.GetDelta());
 				}
 				engine.Frame(0.01f);
 			}

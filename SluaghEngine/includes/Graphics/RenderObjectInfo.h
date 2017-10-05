@@ -35,6 +35,7 @@ namespace SE
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
 			JobType type;
 			uint8_t skeletonHandle;
+			bool wireframe;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;
@@ -49,6 +50,7 @@ namespace SE
 				}
 				textureCount = 0;
 				topology = PrimitiveTopology::TRIANGLE_LIST;
+				wireframe = true;
 			}
 			inline RenderObjectInfo& operator=(const RenderObjectInfo& rhs)
 			{
@@ -64,6 +66,7 @@ namespace SE
 				}
 				textureCount = rhs.textureCount;
 				topology = rhs.topology;
+				wireframe = rhs.wireframe;
 				return *this;
 			}
 			RenderObjectInfo(const RenderObjectInfo& rhs)
@@ -80,6 +83,7 @@ namespace SE
 				}
 				textureCount = rhs.textureCount;
 				topology = rhs.topology;
+				wireframe = rhs.wireframe;
 			}
 			RenderObjectInfo(RenderObjectInfo&& rhs)
 			{
@@ -95,6 +99,7 @@ namespace SE
 				}
 				textureCount = rhs.textureCount;
 				topology = rhs.topology;
+				wireframe = rhs.wireframe;
 			}
 			/**
 			* @brief Computes the difference between two RenderObjectInfo structs in terms of how many attributes are different. As such, a - b == b - a.
@@ -117,6 +122,7 @@ namespace SE
 				stateChanges = (stateChanges << 1) | (topology != rhs.topology);
 				stateChanges = (stateChanges << 1) | (type != rhs.type);
 				stateChanges = (stateChanges << 1) | (skeletonHandle != rhs.skeletonHandle);
+				stateChanges = (stateChanges << 1) | (wireframe != rhs.wireframe);
 				std::bitset<32> bits(stateChanges);
 				return bits.count() + std::abs((int)textureCount - (int)rhs.textureCount);
 			}

@@ -16,7 +16,6 @@
 SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
 	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
-
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
@@ -126,6 +125,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
+	info->wireframe = renderableObjectInfo.wireframe;
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
@@ -166,6 +166,24 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 		}
 	}
 	infoLock.unlock();
+}
+
+void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, bool fillSolid)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second] == true)
+		{
+			ToggleRenderableObject(entity, false);
+			renderableObjectInfo.wireframe = fillSolid;
+			ToggleRenderableObject(entity, true);
+		}
+		else
+		{
+			renderableObjectInfo.wireframe = fillSolid;
+		}
+	}
 }
 
 void SE::Core::RenderableManager::Allocate(size_t size)

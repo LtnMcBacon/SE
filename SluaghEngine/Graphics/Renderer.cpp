@@ -411,6 +411,10 @@ int SE::Graphics::Renderer::Render() {
 				}
 			}
 		}
+		if (previousJob.wireframe != job.wireframe)
+		{
+			device->SetRasterStateFill(job.wireframe);
+		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
