@@ -8,7 +8,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <fstream>
 #include <thread>
-#include <Utilz\Delegator.h>
+#include <Utilz\Delegate.h>
 namespace SE
 {
 	namespace Window
