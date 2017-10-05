@@ -8,8 +8,9 @@ DirectX::XMMATRIX SE::Tools::Tools::getLocalMatrix(XMMATRIX worldM, XMMATRIX inv
 
 DirectX::XMVECTOR SE::Tools::Tools::rayToView(int sx, int sy, float width, float height)
 {
-	float x = ((2.0f * sx / width) - 1.0f) / (1 / ((width / height)*tan(1.570796 / 2)));
-	float y = ((-2.0f * sy / height) + 1.0f) / (1 / tan(1.570796/2));
+	float x = ((2.0f * sx / width) - 1.0f) / (1.f / ((width / height)*tan(1.570796f / 2.f)));
+	float y = ((-2.0f * sy / height) + 1.0f) / (1.f / tan(1.570796f/2.f));
+
 	XMVECTOR ray = { x, y, 1.0f, 0.0f};
 	return ray;
 }

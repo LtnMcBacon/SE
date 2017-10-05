@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Utilz\CircularFiFo.h" />
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
@@ -166,7 +167,6 @@
     <ClCompile Include="INIReader.cpp" />
     <ClCompile Include="MemoryMeasuring.cpp" />
     <ClCompile Include="StackAllocator.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

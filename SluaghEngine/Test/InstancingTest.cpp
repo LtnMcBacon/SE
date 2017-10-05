@@ -82,7 +82,7 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 	while (running)
 	{
 		timer.Tick();
-		float dt = timer.GetDeltaMilliseconds();
+		float dt = timer.GetDelta();
 		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
 
@@ -112,7 +112,7 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 		}
 		if(w->ButtonPressed(ActionButton::FrameTime))
 		{
-			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDeltaMilliseconds());
+			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDelta());
 		}
 		engine.Frame(0.01f);
 	}

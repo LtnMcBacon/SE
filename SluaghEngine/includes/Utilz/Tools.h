@@ -12,8 +12,8 @@ namespace SE
 		/**
 		*
 		* @brief This class hold general tools that can be reused through out the project.
-		* @details The tools created in this library is for common use only, mathematical or other calculations that 
-		*		   could be used repeatedly during the project.
+		* @details The tools created in this library is for common use only, mathematical or other calculations
+		* that could be used repeatedly during the project.
 		**/
 
 		class Tools
@@ -38,7 +38,7 @@ namespace SE
 			**/
 			DirectX::XMVECTOR rayToView(int sx, int sy, float height, float width);
 			/**
-			* @breif  Takes your ray into local space for picking objects
+			* @breif  Takes your direction ray into local space for picking objects
 			* @detail Takes your ray from projection space into local space and calculates the new unit direction vector/normal
 			*         of your ray in local space.
 			* @Param[in] Your ray direction vector in projection space.
@@ -47,6 +47,13 @@ namespace SE
 			**/
 			DirectX::XMVECTOR getLocalRayDir(XMVECTOR rayD, XMMATRIX localM);
 
+			/**
+			* @breif  Takes your origin ray into local space for picking objects
+			* @detail Takes your ray from projection space into local space.
+			* @Param[in] Your ray Origin vector in projection space.
+			* @Param[in] Your local matrix.
+			* @retval return_value_1 returns your new origin vector.
+			**/
 			DirectX::XMVECTOR getLocalRayOrigin(XMVECTOR rayD, XMMATRIX localM);
 		};
 	}

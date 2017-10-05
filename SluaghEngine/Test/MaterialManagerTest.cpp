@@ -77,7 +77,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	while (running)
 	{
 		timer.Tick();
-		float dt = timer.GetDeltaMilliseconds();
+		float dt = timer.GetDelta();
 		if (w->ButtonPressed(ActionButton::Exit))
 			running = false;
 		
