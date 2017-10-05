@@ -7,6 +7,8 @@
 #include <vector>
 #include <Utilz\CircularFiFo.h>
 #include <fstream>
+#include <thread>
+#include <Utilz\Delegator.h>
 namespace SE
 {
 	namespace Window
@@ -22,8 +24,12 @@ namespace SE
 			void Shutdown() override;
 
 			void Frame() override;
+			void RegFrame();
+			void RecordFrame();
+			void PlaybackFrame();
 
 			void StartRecording() override;
+			void LoadRecording() override;
 
 			void* GetHWND() override;
 
@@ -87,10 +93,25 @@ namespace SE
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
 			//record stuff
+			struct inputRecData
+			{
+				size_t frame;
+				SDL_Event recEvent;
+			};
+
 			void RecordToFile();
 			std::ofstream recFile;
-			Utilz::CircularFiFo<SDL_Event, 256> circFiFo;
+			std::ifstream playbackfile;
+			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
 			bool recording = false;
+			bool playback = false;
+			inputRecData* playbackData;
+			std::thread recThread;
+			size_t frame;
+
+			size_t arrayPos;
+
+			Utilz::Delegate<void()> actualFrame;
 		};
 
 

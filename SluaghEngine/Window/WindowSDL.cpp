@@ -1,7 +1,7 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
-#include <thread>
+
 
 
 #pragma comment(lib, "SDL2.lib")
@@ -105,22 +105,40 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	
+	actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RegFrame>(this);
 
+	frame = 0;
+	arrayPos = 0;
 	return 0;
 }
 
 void SE::Window::WindowSDL::Shutdown()
 {
+	if (recording)
+	{
+		recording = false;
+		recThread.join();
+		recFile.close();
+	}
+	if (playback)
+	{
+		delete[] playbackData;
+	}
 	SDL_Quit();
 }
 
 void SE::Window::WindowSDL::Frame()
 {
+	actualFrame();
+}
+
+void SE::Window::WindowSDL::RegFrame()
+{
 	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
+	static int evCount = 0;
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
@@ -216,20 +234,243 @@ void SE::Window::WindowSDL::Frame()
 			break;
 			}
 		}
-		//remove before pull request
-		assert(!(circFiFo.WasFull()));
-		if (recording)
-		{
-			circFiFo.push(ev);
-		}
 	}
+}
+
+void SE::Window::WindowSDL::RecordFrame()
+{
+	for (auto& ks : actionToKeyState)
+	{
+		ks.second = (ks.second & KeyState::DOWN);
+	}
+	static int evCount = 0;
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev))
+	{
+		switch (ev.type)
+		{
+			case SDL_KEYUP:
+			{
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
+				break;
+			}
+			case SDL_KEYDOWN:
+			{
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+						if (pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(state->second);
+					if (downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
+							cb();
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEMOTION:
+			{
+				curMouseX = ev.motion.x;
+				curMouseY = ev.motion.y;
+				relMouseX = ev.motion.xrel;
+				relMouseY = ev.motion.yrel;
+				for (auto& cb : mouseMotionCallbacks)
+					cb(relMouseX, relMouseY, curMouseX, curMouseY);
+				break;
+			}
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+
+					mouseLeftDown = true;
+				}
+				else if (ev.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = true;
+				}
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEBUTTONUP:
+			{
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+					actionToKeyState[state->second] = UP;
+				}
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = false;
+				}
+				else if (ev.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = false;
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		inputRecData inData;
+		inData.recEvent = ev;
+		inData.frame = frame;
+		circFiFo.push(inData);
+	}
+	frame++;
+}
+
+void SE::Window::WindowSDL::PlaybackFrame()
+{
+	while (playbackData[arrayPos].frame == frame)
+	{
+		switch (playbackData[arrayPos].recEvent.type)
+		{
+			case SDL_KEYUP:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
+				break;
+			}
+			case SDL_KEYDOWN:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+						if (pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(state->second);
+					if (downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
+							cb();
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEMOTION:
+			{
+				curMouseX = playbackData[arrayPos].recEvent.motion.x;
+				curMouseY = playbackData[arrayPos].recEvent.motion.y;
+				relMouseX = playbackData[arrayPos].recEvent.motion.xrel;
+				relMouseY = playbackData[arrayPos].recEvent.motion.yrel;
+				for (auto& cb : mouseMotionCallbacks)
+					cb(relMouseX, relMouseY, curMouseX, curMouseY);
+				break;
+			}
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
+				{
+
+					mouseLeftDown = true;
+				}
+				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = true;
+				}
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEBUTTONUP:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
+				if (state != keyToAction.end())
+				{
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+					actionToKeyState[state->second] = UP;
+				}
+				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = false;
+				}
+				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = false;
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		arrayPos++;
+	}
+	frame++;
 }
 
 void SE::Window::WindowSDL::StartRecording()
 {
+	actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::RecordFrame>(this);
 	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
 	recording = true;
-	std::thread recThread (&Window::WindowSDL::RecordToFile, this);
+	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+}
+
+void SE::Window::WindowSDL::LoadRecording()
+{
+	
+	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
+	if (playbackfile.is_open())
+	{
+		std::streampos size = playbackfile.tellg();
+		playbackData = (inputRecData*)operator new(size);
+		playbackfile.seekg(0, std::ios::beg);
+		playbackfile.read((char*)playbackData, size);
+		playbackfile.close();
+		playback = true;
+		actualFrame = decltype(actualFrame)::Make<WindowSDL, &SE::Window::WindowSDL::PlaybackFrame>(this);
+	}
 }
 
 void* SE::Window::WindowSDL::GetHWND()
@@ -332,14 +573,17 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 
 void SE::Window::WindowSDL::RecordToFile()
 {
-	while (recording)
+	while (recording || !circFiFo.wasEmpty())
 	{
-		if (!circFiFo.wasEmpty())
+		while (!circFiFo.wasEmpty())
 		{
-			SDL_Event ev;
-			circFiFo.pop(ev);
-			void* var = &ev;
-			recFile.write((char*)var, sizeof(SDL_Event));
+			inputRecData evData;
+			circFiFo.top(evData);
+			void* var = &evData;
+			recFile.write((char*)var, sizeof(inputRecData));
+			circFiFo.pop();
 		}
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(100ms);
 	}
 }

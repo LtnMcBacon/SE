@@ -265,6 +265,11 @@ namespace SE
 			virtual void StartRecording() = 0;
 
 			/**
+			* @brief Loads input recording
+			*/
+			virtual void LoadRecording() = 0;
+
+			/**
 			* @brief Returns a pointer to the window handle
 			*/
 			virtual void* GetHWND() = 0;
