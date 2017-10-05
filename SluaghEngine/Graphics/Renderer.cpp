@@ -454,6 +454,13 @@ int SE::Graphics::Renderer::Render() {
 
 		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
 
+			std::vector<DirectX::XMFLOAT4X4>identityMatrices;
+			identityMatrices.resize(19);
+
+			for (int i = 0; i < 19; i++) {
+
+				DirectX::XMStoreFloat4x4(&identityMatrices[i], DirectX::XMMatrixIdentity());
+			}
 
 			int boneBindslot;
 			int worldBindslot;
@@ -464,8 +471,8 @@ int SE::Graphics::Renderer::Render() {
 			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
 
 			int drawCallCount = bucket.transforms.size();
-			bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-			graphicResourceHandler->UpdateConstantBuffer(&animationSystem->GetSkeleton(0).jointArray[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
+			//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+			graphicResourceHandler->UpdateConstantBuffer(&identityMatrices[0], sizeof(DirectX::XMFLOAT4X4) * 19, cBoneBufferIndex);
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
 			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
 			

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
