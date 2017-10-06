@@ -124,8 +124,8 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = lights.size() - 1;
-			const Entity& entity = ent[index];
-			const Entity& last_entity = ent[last];
+			const Entity entity = ent[index];
+			const Entity last_entity = ent[last];
 
 			// Copy the data
 			ent[index] = last_entity;
