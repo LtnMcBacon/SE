@@ -112,7 +112,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 			running = false;
 
 		timer.Tick();
-		float dt = timer.GetDeltaMilliseconds();
+		float dt = timer.GetDelta();
 
 		if (handle->ButtonDown(ActionButton::Up))
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });

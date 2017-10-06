@@ -98,7 +98,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	mm.Create(mainC, info, true);
 
-	rm.CreateRenderableObject(mainC, Utilz::GUID("MCModell.mesh"));
+	rm.CreateRenderableObject(mainC, Utilz::GUID("MCModell.mesh"), true);
 	rm.ToggleRenderableObject(mainC, true);
 
 	auto& l = em.Create();

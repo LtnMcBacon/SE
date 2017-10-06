@@ -328,9 +328,9 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
 
-	currentEntityTimePos += 1;
+	//currentEntityTimePos += 1;
 
-	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
+	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
@@ -359,8 +359,8 @@ int SE::Graphics::Renderer::Render() {
 	{
 		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
 	}
-	//graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
-	//graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
+	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
 
@@ -453,7 +453,7 @@ int SE::Graphics::Renderer::Render() {
 			{
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
 				//graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
