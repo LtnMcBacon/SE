@@ -328,7 +328,7 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
 
-	currentEntityTimePos += 1;
+	currentEntityTimePos += 0.1;
 
 	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 

@@ -11,7 +11,7 @@
 #include <fbxsdk.h>
 
 #include "Datatypes.h"
-#include "VertexType.h"
+#include "VertexStructs.h"
 
 #include <filesystem>
 
@@ -77,7 +77,7 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void GatherAnimationData(Mesh &pMesh);
-			void CreateKeyframe(Animation CurrentAnimation, int timeIndex, FbxAMatrix globalTransform);
+			void CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// MATERIAL/TEXTURE FUNCTIONS

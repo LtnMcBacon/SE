@@ -1020,26 +1020,19 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 
-					FbxAnimCurveKey TranslationXKey = translationCurveX->KeyGet(timeIndex);
-					float translationX = TranslationXKey.GetValue();
-					FbxAnimCurveKey TranslationYKey = translationCurveY->KeyGet(timeIndex);
-					float translationY = TranslationYKey.GetValue();
-					FbxAnimCurveKey TranslationZKey = translationCurveZ->KeyGet(timeIndex);
-					float translationZ = TranslationZKey.GetValue();
+					// Get the values on each channel
 
-					FbxAnimCurveKey RotationXKey = rotationCurveX->KeyGet(timeIndex);
-					float rotationX = RotationXKey.GetValue();
-					FbxAnimCurveKey RotationYKey = rotationCurveY->KeyGet(timeIndex);
-					float rotationY = RotationYKey.GetValue();
-					FbxAnimCurveKey RotationZKey = rotationCurveZ->KeyGet(timeIndex);
-					float rotationZ = RotationZKey.GetValue();
-				
-					FbxAnimCurveKey ScalingXKey = scalingCurveX->KeyGet(timeIndex);
-					float scalingX = ScalingXKey.GetValue();
-					FbxAnimCurveKey ScalingYKey = scalingCurveY->KeyGet(timeIndex);
-					float scalingY = ScalingYKey.GetValue();
-					FbxAnimCurveKey ScalingZKey = scalingCurveZ->KeyGet(timeIndex);
-					float scalingZ = ScalingZKey.GetValue();
+					float translationX = translationCurveX->KeyGetValue(timeIndex);
+					float translationY = translationCurveY->KeyGetValue(timeIndex);
+					float translationZ = translationCurveZ->KeyGetValue(timeIndex);
+
+					float rotationX = rotationCurveX->KeyGetValue(timeIndex);
+					float rotationY = rotationCurveY->KeyGetValue(timeIndex);
+					float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
+
+					float scalingX = scalingCurveX->KeyGetValue(timeIndex);
+					float scalingY = scalingCurveY->KeyGetValue(timeIndex);
+					float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
 
 					// Build the vectors for the global transform matrix
 					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
@@ -1080,31 +1073,31 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 }
 
-void SE::FBX::FBXConverter::CreateKeyframe(Animation CurrentAnimation, int timeIndex, FbxAMatrix globalTransform) {
+void SE::FBX::FBXConverter::CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform) {
 
 	CurrentAnimation.Keyframes[timeIndex].GlobalTransform = globalTransform;
 	CurrentAnimation.Keyframes[timeIndex].TimePos = (float)timeIndex;
 
 	// Gather translation from matrix
 	CurrentAnimation.Keyframes[timeIndex].Translation = XMFLOAT4(
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[0],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[1],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[2],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[3]);
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[0],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[1],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[2],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetT().mData[3]);
 
 	// Gather scale from matrix
 	CurrentAnimation.Keyframes[timeIndex].Scale = XMFLOAT4(
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[0],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[1],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[2],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[3]);
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[0],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[1],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[2],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetS().mData[3]);
 
 	// Gather rotation from matrix
 	CurrentAnimation.Keyframes[timeIndex].RotationQuat = XMFLOAT4(
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[0],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[1],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[2],
-		(float)CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[3]);
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[0],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[1],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[2],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[3]);
 }
 
 

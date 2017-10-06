@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "VertexType.h"
+#include "VertexStructs.h"
 
 using namespace std;
 using namespace DirectX;
