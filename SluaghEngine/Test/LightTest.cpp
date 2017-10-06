@@ -66,7 +66,8 @@ namespace SE
 			Core::Entity ents[numEnts];
 			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("TransparentTest.sei"), Utilz::GUID("purewhite.sei") };
+			Utilz::GUID textures[] = { Utilz::GUID("TransparentTest.sei") };
+			Utilz::GUID textures1[] = { Utilz::GUID("texture8.sei") };
 			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
@@ -85,6 +86,7 @@ namespace SE
 				rm.ToggleRenderableObject(entsTrans[i], true);
 			}
 
+			info.textureFileNames = textures1;
 			for (int i = 0; i < numEnts; i++)
 			{
 				ents[i] = em.Create();
@@ -99,7 +101,6 @@ namespace SE
 			for (int i = 0; i < 5; i++)
 			{
 				light[i] = em.Create();
-				transformManager.Create(light[i], DirectX::XMFLOAT3(20.0 * i, 0.0, 0.0));
 			}
 
 #pragma region LightDataSet
@@ -113,29 +114,29 @@ namespace SE
 
 			//Light 2
 			data.color = DirectX::XMFLOAT3(0.3, 0.8, 0.2);
-			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.pos = DirectX::XMFLOAT3(20.0, 0.0, 0.0);
 			data.radius = 10.0;
 			lightManager.AddLight(light[1], data);
 			lightManager.ToggleLight(light[1], true);
 
 			//Light 3
 			data.color = DirectX::XMFLOAT3(0.2, 0.1, 0.8);
-			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.pos = DirectX::XMFLOAT3(40.0, 0.0, 0.0);
 			data.radius = 10.0;
 			lightManager.AddLight(light[2], data);
 			lightManager.ToggleLight(light[2], true);
 
 			//Light 4
 			data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.2);
-			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.pos = DirectX::XMFLOAT3(60.0, 0.0, 0.0);
 			data.radius = 10.0;
 			lightManager.AddLight(light[3], data);
 			lightManager.ToggleLight(light[3], true);
 
 			//Light 5
 			data.color = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
-			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
-			data.radius = 100.0;
+			data.pos = DirectX::XMFLOAT3(80.0, -10.0, 0.0);
+			data.radius = 150.0;
 			lightManager.AddLight(light[4], data);
 			lightManager.ToggleLight(light[4], true);
 #pragma endregion LightDataSet

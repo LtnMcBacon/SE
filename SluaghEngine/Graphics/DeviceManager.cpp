@@ -378,8 +378,8 @@ void DeviceManager::CreateBlendState()
 	rtbs.DestBlend = D3D11_BLEND_ZERO;
 	rtbs.DestBlendAlpha = D3D11_BLEND_ZERO;
 	rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	rtbs.SrcBlend = D3D11_BLEND_ZERO;
-	rtbs.SrcBlendAlpha = D3D11_BLEND_ZERO;
+	rtbs.SrcBlend = D3D11_BLEND_ONE;
+	rtbs.SrcBlendAlpha = D3D11_BLEND_ONE;
 	}
 
 	// just default values right now
@@ -409,15 +409,15 @@ void DeviceManager::CreateBlendState()
 		rtbs.BlendEnable = true;
 		rtbs.BlendOp = D3D11_BLEND_OP_ADD;
 		rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbs.DestBlend = D3D11_BLEND_INV_DEST_COLOR;
-		rtbs.DestBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
+		rtbs.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		rtbs.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 		rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-		rtbs.SrcBlend = D3D11_BLEND_SRC_COLOR;
-		rtbs.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA_SAT;
+		rtbs.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		rtbs.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	}
 
 	D3D11_BLEND_DESC blendTransStateDesc;
-	blendTransStateDesc.AlphaToCoverageEnable = false;
+	blendTransStateDesc.AlphaToCoverageEnable = true;
 	blendTransStateDesc.IndependentBlendEnable = false;
 	blendTransStateDesc.RenderTarget[0] = rendTransBlendState[0];
 	blendTransStateDesc.RenderTarget[1] = rendTransBlendState[1];
