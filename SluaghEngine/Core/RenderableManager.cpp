@@ -67,8 +67,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
 		renderableObjectInfo.visible[newEntry] = 0u;
-		renderableObjectInfo.fillSolid[newEntry] = true;
-		renderableObjectInfo.transparency[newEntry] = false;
+		renderableObjectInfo.fillSolid[newEntry] = 1;
+		renderableObjectInfo.transparency[newEntry] = 0;
 
 		// Transform binding
 		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
