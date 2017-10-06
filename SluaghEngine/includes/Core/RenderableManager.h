@@ -103,7 +103,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(bool) + sizeof(bool);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -112,8 +112,8 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
-				bool fillSolid = true;
-				bool transparency = false;
+				bool* fillSolid;
+				bool* transparency;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;

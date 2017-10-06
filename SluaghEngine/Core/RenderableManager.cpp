@@ -67,6 +67,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
 		renderableObjectInfo.visible[newEntry] = 0u;
+		renderableObjectInfo.fillSolid[newEntry] = true;
+		renderableObjectInfo.transparency[newEntry] = false;
 
 		// Transform binding
 		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
@@ -136,8 +138,8 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
-	info->fillSolid = renderableObjectInfo.fillSolid;
-	info->transparency = renderableObjectInfo.transparency;
+	info->fillSolid = renderableObjectInfo.fillSolid[index];
+	info->transparency = renderableObjectInfo.transparency[index];
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
@@ -188,12 +190,12 @@ void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, bool fillS
 		if (renderableObjectInfo.visible[find->second] == true)
 		{
 			ToggleRenderableObject(entity, false);
-			renderableObjectInfo.fillSolid = fillSolid;
+			renderableObjectInfo.fillSolid[find->second] = fillSolid;
 			ToggleRenderableObject(entity, true);
 		}
 		else
 		{
-			renderableObjectInfo.fillSolid = fillSolid;
+			renderableObjectInfo.fillSolid[find->second] = fillSolid;
 		}
 	}
 }
@@ -206,12 +208,12 @@ void SE::Core::RenderableManager::SetTransparency(const Entity & entity, bool tr
 		if (renderableObjectInfo.visible[find->second] == true)
 		{
 			ToggleRenderableObject(entity, false);
-			renderableObjectInfo.transparency = transparency;
+			renderableObjectInfo.transparency[find->second] = transparency;
 			ToggleRenderableObject(entity, true);
 		}
 		else
 		{
-			renderableObjectInfo.transparency = transparency;
+			renderableObjectInfo.transparency[find->second] = transparency;
 		}
 	}
 }
@@ -234,6 +236,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
 	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
+	newData.fillSolid = (bool*)(newData.jobID + newData.allocated);
+	newData.transparency = (bool*)(newData.fillSolid + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
@@ -241,6 +245,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.topology, renderableObjectInfo.topology, renderableObjectInfo.used * sizeof(Graphics::RenderObjectInfo::PrimitiveTopology));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
+	memcpy(newData.fillSolid, renderableObjectInfo.fillSolid, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -269,8 +275,10 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
 	renderableObjectInfo.topology[index] = renderableObjectInfo.topology[last];
-	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];	
+	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 	renderableObjectInfo.jobID[index] = renderableObjectInfo.jobID[last];
+	renderableObjectInfo.fillSolid[index] = renderableObjectInfo.fillSolid[last];
+	renderableObjectInfo.transparency[index] = renderableObjectInfo.transparency[last];
 
 
 	// Replace the index for the last_entity 
