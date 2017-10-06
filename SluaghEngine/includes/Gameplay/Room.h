@@ -37,6 +37,12 @@ namespace SE
 			 * FlowField map and calculations
 			 * Function(s) to build the room
 			 */
+
+			struct LinePoint
+			{
+				float x, y;
+			};
+
 		public:
 			/**
 			*
@@ -197,6 +203,17 @@ namespace SE
 			* @brief	Function for checking if a line p1, p2 intersects another line q1,q2
 			*/
 			bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
+			//bool LineCollision(LinePo, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any wall
+			*/
+			void ProjectileAgainstWalls(Projectile& projectile);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any enemy
+			*/
+			void ProjectileAgainstEnemies(Projectile& projectile);
 
 		public:
 			Room(char map[25][25]);
@@ -323,6 +340,9 @@ namespace SE
 			*/
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
+			/**
+			* @brief	Checks collision for the projectiles against both the walls and the enemies
+			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
 		};
 

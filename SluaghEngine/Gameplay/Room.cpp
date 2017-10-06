@@ -191,93 +191,16 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
 	StartProfile;
-	bool collidedRight;
-	bool collidedLeft;
-	float xPower;
-	float yPower;
-	BoundingRect r;
-	CollisionData cData;
+	//bool collidedRight;
+	//bool collidedLeft;
+	//float xPower;
+	//float yPower;
+	//BoundingRect r;
+	//CollisionData cData;
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		r = projectiles[i].GetBoundingRect();
-		collidedLeft = false;
-		collidedRight = false;
-		xPower = 0.0f;
-		yPower = 0.0f;
-		cData = CollisionData();
-
-		if (projectiles[i].GetActive() != true)
-		{
-			continue;
-		}
-
-		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperLeftX, projectiles[i].GetBoundingRect().upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
-		{
-			collidedLeft = true;
-			cData.type = CollisionType::OBJECT;
-
-		}
-
-		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperRightX, projectiles[i].GetBoundingRect().upperRightY, 0.0f, 0.0f)) //check if front right corner of projectile is in a blocked square
-		{
-			collidedRight = true;
-			cData.type = CollisionType::OBJECT;
-		}
-
-		if (collidedLeft)
-		{
-			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), ceil(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // top line
-			{
-				yPower += 1.0f;
-			}
-			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), int(r.upperLeftY))) // bottom line
-			{
-				yPower -= 1.0f;
-			}
-
-			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, ceil(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // right line
-			{
-				xPower += 1.0f;
-			}
-			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), int(r.upperLeftX), ceil(r.upperLeftY))) // left line
-			{
-				xPower -= 1.0f;
-			}
-		}
-
-		if (collidedRight)
-		{
-			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), ceil(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // top line
-			{
-				yPower += 1.0f;
-			}
-			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), int(r.upperRightY))) // bottom line
-			{
-				yPower -= 1.0f;
-			}
-
-			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, ceil(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // right line
-			{
-				xPower += 1.0f;
-			}
-			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), int(r.upperRightX), ceil(r.upperRightY))) // left line
-			{
-				xPower -= 1.0f;
-			}
-		}
-
-		/*Normalize the movement vector*/
-		float moveTot = abs(xPower) + abs(yPower);
-		if (moveTot != 0.0f)
-		{
-			xPower /= moveTot;
-			yPower /= moveTot;
-		}
-		cData.xVec = xPower;
-		cData.yVec = yPower;
-
-		projectiles[i].SetCollisionData(cData);
+		ProjectileAgainstWalls(projectiles[i]);
 	}
 
 	StopProfile;
@@ -290,7 +213,7 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 	// special cases
 	int o1 = Orientation(p1X, p1Y, q1X, q1Y, p2X, p2Y);
 	int o2 = Orientation(p1X, p1Y, q1X, q1Y, q2X, q2Y);
-	int o3 = Orientation(p2X, p2Y, q2X, q2Y, p1X, p2Y);
+	int o3 = Orientation(p2X, p2Y, q2X, q2Y, p1X, p1Y);
 	int o4 = Orientation(p2X, p2Y, q2X, q2Y, q1X, q1Y);
 
 	// General case
@@ -315,6 +238,84 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false); // Doesn't fall in any of the above cases
+}
+
+void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
+{
+
+	bool collidedRight = false;
+	bool collidedLeft = false;
+	float xPower = 0.0f;
+	float yPower = 0.0f;
+	BoundingRect r = projectile.GetBoundingRect();
+	CollisionData cData;
+
+	if (CheckCollisionInRoom(r.upperLeftX, r.upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
+	{
+		collidedLeft = true;
+		cData.type = CollisionType::OBJECT;
+
+	}
+
+	if (CheckCollisionInRoom(r.upperRightX, r.upperRightY, 0.0f, 0.0f)) //check if front right corner of projectile is in a blocked square
+	{
+		collidedRight = true;
+		cData.type = CollisionType::OBJECT;
+	}
+
+	if (collidedLeft)
+	{
+		if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), ceil(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // top line
+		{
+			yPower += 1.0f;
+		}
+		else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), int(r.upperLeftY))) // bottom line
+		{
+			yPower -= 1.0f;
+		}
+
+		if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, ceil(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // right line
+		{
+			xPower += 1.0f;
+		}
+		else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), int(r.upperLeftX), ceil(r.upperLeftY))) // left line
+		{
+			xPower -= 1.0f;
+		}
+	}
+
+	if (collidedRight)
+	{
+		if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), ceil(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // top line
+		{
+			yPower += 1.0f;
+		}
+		else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), int(r.upperRightY))) // bottom line
+		{
+			yPower -= 1.0f;
+		}
+
+		if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, ceil(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // right line
+		{
+			xPower += 1.0f;
+		}
+		else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), int(r.upperRightX), ceil(r.upperRightY))) // left line
+		{
+			xPower -= 1.0f;
+		}
+	}
+
+	/*Normalize the collision vector*/
+	float moveTot = abs(xPower) + abs(yPower);
+	if (moveTot != 0.0f)
+	{
+		xPower /= moveTot;
+		yPower /= moveTot;
+	}
+	cData.xVec = xPower;
+	cData.yVec = yPower;
+
+	projectile.SetCollisionData(cData);
 }
 
 Room::Room(char map[25][25])
