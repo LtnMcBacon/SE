@@ -348,7 +348,6 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
 		{
 			actionInput.downSpace = true;
-			console->Print("action button pressed\n");
 		}
 
 		int arrowIndex = 0;

@@ -12,8 +12,8 @@ void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
 	/*
-	 * To be written/implemented
-	 */
+	* To be written/implemented
+	*/
 	pos playerPos;
 	playerPos.x = playerX;
 	playerPos.y = playerY;
@@ -25,8 +25,8 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 {
 	StartProfile;
 	/*
-	 * To be written/implemented
-	 */
+	* To be written/implemented
+	*/
 	StopProfile;
 }
 
@@ -47,7 +47,7 @@ void Room::UpdateAdjacentRooms(float dt)
 {
 	StartProfile;
 	for (auto room : adjacentRooms)
-		if(room)
+		if (room)
 			room->UpdateAIs(dt);
 	StopProfile;
 }
@@ -110,7 +110,7 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 		ProfileReturnConst(true);
 	}
 
-	
+
 	ProfileReturnConst(false);
 }
 
@@ -135,12 +135,12 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 
 
 
-	if(map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+	if (map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = -1;
 		collision = true;
 	}
-	else if(map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	else if (map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = 1;
 		collision = true;
@@ -157,34 +157,34 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 		collision = true;
 	}/*
 
-	if(map[xLeftAfterFloored][yDownAfterFloored])
-	{
-		xCollision = -1;
-		yCollision = -1;
-		collision = true;
-		
-	}
-	if(map[xLeftAfterFloored][yUpAfterFloored])
-	{
-		xCollision = -1;
-		yCollision = 1;
-		collision = true;
-		
-	}
-	if(map[xRightAfterFloored][yUpAfterFloored])
-	{
-		xCollision = 1;
-		yCollision = 1;
-		collision = true;
-		
-	}
-	if(map[xRightAfterFloored][yDownAfterFloored])
-	{
-		xCollision = 1;
-		yCollision = -1;
-		collision = true;
-		
-	}*/
+	 if(map[xLeftAfterFloored][yDownAfterFloored])
+	 {
+	 xCollision = -1;
+	 yCollision = -1;
+	 collision = true;
+
+	 }
+	 if(map[xLeftAfterFloored][yUpAfterFloored])
+	 {
+	 xCollision = -1;
+	 yCollision = 1;
+	 collision = true;
+
+	 }
+	 if(map[xRightAfterFloored][yUpAfterFloored])
+	 {
+	 xCollision = 1;
+	 yCollision = 1;
+	 collision = true;
+
+	 }
+	 if(map[xRightAfterFloored][yDownAfterFloored])
+	 {
+	 xCollision = 1;
+	 yCollision = -1;
+	 collision = true;
+
+	 }*/
 	ProfileReturn(collision);
 }
 
@@ -196,23 +196,33 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 	float xPower;
 	float yPower;
 	BoundingRect r;
+	CollisionData cData;
 
-	for(int i = 0; i < projectiles.size(); i++)
+	for (int i = 0; i < projectiles.size(); i++)
 	{
 		r = projectiles[i].GetBoundingRect();
 		collidedLeft = false;
 		collidedRight = false;
 		xPower = 0.0f;
 		yPower = 0.0f;
+		cData = CollisionData();
+
+		if (projectiles[i].GetActive() != true)
+		{
+			continue;
+		}
 
 		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperLeftX, projectiles[i].GetBoundingRect().upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
 		{
 			collidedLeft = true;
+			cData.type = CollisionType::OBJECT;
+
 		}
 
 		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperRightX, projectiles[i].GetBoundingRect().upperRightY, 0.0f, 0.0f)) //check if front right corner of projectile is in a blocked square
 		{
 			collidedRight = true;
+			cData.type = CollisionType::OBJECT;
 		}
 
 		if (collidedLeft)
@@ -256,6 +266,18 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 				xPower -= 1.0f;
 			}
 		}
+
+		/*Normalize the movement vector*/
+		float moveTot = abs(xPower) + abs(yPower);
+		if (moveTot != 0.0f)
+		{
+			xPower /= moveTot;
+			yPower /= moveTot;
+		}
+		cData.xVec = xPower;
+		cData.yVec = yPower;
+
+		projectiles[i].SetCollisionData(cData);
 	}
 
 	StopProfile;
@@ -289,7 +311,7 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 		ProfileReturnConst(true);
 
 	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
-	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y)) 
+	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y))
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false); // Doesn't fall in any of the above cases
@@ -302,11 +324,11 @@ Room::Room(char map[25][25])
 	start.x = start.y = 1.5f;
 	memcpy(this->map, map, 25 * 25 * sizeof(char));
 	bool foundStart = false;
-	for(int x = 0; x < 25 && !foundStart; x++)
+	for (int x = 0; x < 25 && !foundStart; x++)
 	{
-		for(int y= 0 ; y < 25 && !foundStart; y++)
+		for (int y = 0; y < 25 && !foundStart; y++)
 		{
-			if(!this->map[x][y])
+			if (!this->map[x][y])
 			{
 				start.x = x + 0.5f;
 				start.y = y + 0.5f;

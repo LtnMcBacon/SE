@@ -28,6 +28,13 @@ namespace SE
 			PLAYER
 		};
 
+		enum class CollisionType
+		{
+			NONE,
+			OBJECT,
+			ENEMY
+		};
+
 		enum class RotationStyle
 		{
 			NONE,
@@ -55,6 +62,15 @@ namespace SE
 
 			float lowerRightX;
 			float lowerRightY;
+
+			float radius;
+		};
+
+		struct CollisionData
+		{
+			float xVec = 0.0f;
+			float yVec = 0.0f;
+			CollisionType type = CollisionType::NONE;
 		};
 
 		class Projectile : public GameUnit
@@ -88,26 +104,17 @@ namespace SE
 			*/
 			void UpdateActions(float dt);
 
-			inline void SetCollisionVector(float x, float y)
+			inline void SetCollisionData(CollisionData data)
 			{
-				collisionVecX = x;
-				collisionVecY = y;
+				collisionData = data;
 			};
 
-			inline bool GetAlive()
-			{
-				return alive;
-			}
-			
 			inline BoundingRect GetBoundingRect()
 			{
 				return rect;
 			}
 
 		private:
-			//Projectile(const Projectile& other) = delete;
-			//Projectile(const Projectile&& other) = delete;
-			Projectile& operator=(const Projectile& rhs) = delete;
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
 
@@ -122,7 +129,7 @@ namespace SE
 
 			float speed;
 			float lifeTime;
-			bool alive = true;
+			bool active = true;
 
 			ValidTarget target; // what type of unit the enemy can hit
 
@@ -130,8 +137,7 @@ namespace SE
 			HealingEvent eventHealing; // event to be transfered on hit
 			ConditionEvent eventCondition; // event to be transfered on hit
 
-			float collisionVecX = 0.0f;
-			float collisionVecY = 0.0f;
+			CollisionData collisionData;
 
 			BoundingRect rect;
 
@@ -148,6 +154,9 @@ namespace SE
 		public:
 			Projectile();
 			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(const Projectile& other);
+			Projectile& operator=(const Projectile& other);
+			Projectile(Projectile&& other);
 			~Projectile();
 
 			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)> func);
@@ -187,6 +196,11 @@ namespace SE
 			inline void SetConditionEvent(ConditionEvent eventC)
 			{
 				eventCondition = eventC;
+			};
+
+			inline bool GetActive()
+			{
+				return active;
 			};
 
 		};

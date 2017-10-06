@@ -33,6 +33,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt * speed, yMovement * dt * speed);
+	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, 0.0f, rotation, 0.0f);
 
 	UpdateBounding();
 
@@ -43,22 +44,21 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 {
 	StartProfile;
 
-	if (collisionVecX != 0.0f || collisionVecY != 0.0f)
+	if (collisionData.type != CollisionType::NONE)
 	{
-		alive = false;
+		active = false;
 
 		for (int i = 0; i < onCollision.size(); i++)
 		{
 			functionsToRun.push_back(onCollision[i]);
 		}
 
-		collisionVecX = 0.0f;
-		collisionVecY = 0.0f;
+		collisionData = CollisionData();
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
 	{
-		alive = false;
+		active = false;
 
 		for (int i = 0; i < onDeath.size(); i++)
 		{
@@ -74,6 +74,8 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 			functionsToRun.pop_back();
 		}
 	}
+
+	lifeTime -= dt;
 
 	StopProfile;
 
@@ -140,6 +142,8 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	eventHealing = HealingEvent();
 	eventCondition = ConditionEvent();
 
+	rect.radius = sqrt(0.02);
+
 	UpdateBounding();
 }
 
@@ -158,8 +162,73 @@ SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float pr
 	eventHealing = eventH;
 	eventCondition = eventC;
 
+	rect.radius = sqrt(extentX*extentX + extentY*extentY);
+
 	UpdateBounding();
 
+}
+
+SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
+{
+	this->active = other.active;
+	this->collisionData = other.collisionData;
+	this->eventCondition = other.eventCondition;
+	this->eventDamage = other.eventDamage;
+	this->eventHealing = other.eventHealing;
+	this->extentX = other.extentX;
+	this->extentY = other.extentY;
+	this->functionsToRun = other.functionsToRun;
+	this->lifeTime = other.lifeTime;
+	this->onCollision = other.onCollision;
+	this->onDeath = other.onDeath;
+	this->rect = other.rect;
+	this->rotation = other.rotation;
+	this->rotData = other.rotData;
+	this->speed = other.speed;
+	this->target = other.target;
+}
+
+SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile & other)
+{
+	GameUnit::operator=(other);
+	this->active = other.active;
+	this->collisionData = other.collisionData;
+	this->eventCondition = other.eventCondition;
+	this->eventDamage = other.eventDamage;
+	this->eventHealing = other.eventHealing;
+	this->extentX = other.extentX;
+	this->extentY = other.extentY;
+	this->functionsToRun = other.functionsToRun;
+	this->lifeTime = other.lifeTime;
+	this->onCollision = other.onCollision;
+	this->onDeath = other.onDeath;
+	this->rect = other.rect;
+	this->rotation = other.rotation;
+	this->rotData = other.rotData;
+	this->speed = other.speed;
+	this->target = other.target;
+
+	return *this;
+}
+
+SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
+{
+	this->active = other.active;
+	this->collisionData = other.collisionData;
+	this->eventCondition = other.eventCondition;
+	this->eventDamage = other.eventDamage;
+	this->eventHealing = other.eventHealing;
+	this->extentX = other.extentX;
+	this->extentY = other.extentY;
+	this->functionsToRun = other.functionsToRun;
+	this->lifeTime = other.lifeTime;
+	this->onCollision = other.onCollision;
+	this->onDeath = other.onDeath;
+	this->rect = other.rect;
+	this->rotation = other.rotation;
+	this->rotData = other.rotData;
+	this->speed = other.speed;
+	this->target = other.target;
 }
 
 SE::Gameplay::Projectile::~Projectile()

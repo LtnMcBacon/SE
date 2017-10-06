@@ -155,7 +155,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y + 3.14159265 / 4;
 
 		//temp.extentsX = 0.1f;
 		//temp.extentsY = 0.1f;
@@ -210,7 +210,7 @@ void SE::Gameplay::PlayerUnit::calcStrChanges()
 			newStat.armorCap = 1;
 		}
 	}
-	else 
+	else
 	{
 		newStat.health = baseStat.health;
 		newStat.damage = baseStat.damage;
@@ -292,7 +292,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 SE::Gameplay::PlayerUnit::~PlayerUnit()
 {
 	StartProfile;
-	
+
 	this->DestroyEntity();
 
 	ProfileReturnVoid;

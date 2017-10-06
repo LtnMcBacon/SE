@@ -21,7 +21,19 @@ void SE::Gameplay::ProjectileManager::UpdateProjectileActions(float dt)
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		projectiles[i].UpdateActions(dt);
+		if (projectiles[i].GetActive() == true)
+			projectiles[i].UpdateActions(dt);
+
+		if (projectiles[i].GetActive() == false)
+		{
+			//SE::Core::Engine::GetInstance().GetRenderableManager().ToggleRenderableObject(projectiles[i].GetEntity(), false);
+			projectiles[i].DestroyEntity();
+			//std::swap(projectiles[i], projectiles[projectiles.size() - 1]);
+			projectiles[i] = projectiles.back();
+			//projectiles[projectiles.size() - 1].DestroyEntity();
+			projectiles.pop_back();
+		}
+
 	}
 
 	StopProfile;
@@ -48,7 +60,7 @@ SE::Gameplay::ProjectileManager::ProjectileManager()
 SE::Gameplay::ProjectileManager::~ProjectileManager()
 {
 	StartProfile;
-	
+
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		projectiles[i].DestroyEntity();
