@@ -65,7 +65,9 @@ namespace SE
 
 			void UpdateRenderableObject(const Entity& entity);
 
-			void SetFillSolid(const Entity& entity, bool fillSolid);
+			void SetFillSolid(const Entity& entity, uint8_t fillSolid);
+
+			void SetTransparency(const Entity& entity, uint8_t transparency);
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -101,7 +103,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -110,7 +112,8 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
-				bool wireframe = true;
+				uint8_t* fillSolid;
+				uint8_t* transparency;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;

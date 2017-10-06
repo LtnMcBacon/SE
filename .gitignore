@@ -24,6 +24,7 @@ External*
 *.bat
 rawLoaderEntries.txt
 FBXTemp/
+*Recording.bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -317,3 +318,4 @@ __pycache__/
 
 # Test output
 transformGarbageHist.txt
+/SluaghEngine/Test/FBXTemp
