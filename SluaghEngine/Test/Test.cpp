@@ -138,14 +138,14 @@ int main(int argc, char** argv)
 			auto& find = tests.find(SE::Utilz::GUID(argv[1]));
 			if (find != tests.end())
 			{
-				//try
+				try
 				{
 					bool result = std::get<1>(find->second)->Run(backend);
 					backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed\n");
 				}
-			//	catch (const std::exception& exe)
+				catch (const std::exception& exe)
 				{
-				//	backend->Print("%s Exeception: %s\n", std::get<0>(find->second), exe.what());
+					backend->Print("%s Exeception: %s\n", std::get<0>(find->second), exe.what());
 				}
 			}
 				
