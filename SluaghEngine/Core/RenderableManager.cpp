@@ -182,12 +182,12 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 	infoLock.unlock();
 }
 
-void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, bool fillSolid)
+void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, uint8_t fillSolid)
 {
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == true)
+		if (renderableObjectInfo.visible[find->second] == 1)
 		{
 			ToggleRenderableObject(entity, false);
 			renderableObjectInfo.fillSolid[find->second] = fillSolid;
@@ -200,12 +200,12 @@ void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, bool fillS
 	}
 }
 
-void SE::Core::RenderableManager::SetTransparency(const Entity & entity, bool transparency)
+void SE::Core::RenderableManager::SetTransparency(const Entity & entity, uint8_t transparency)
 {
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == true)
+		if (renderableObjectInfo.visible[find->second] == 1)
 		{
 			ToggleRenderableObject(entity, false);
 			renderableObjectInfo.transparency[find->second] = transparency;
@@ -236,8 +236,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
 	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
-	newData.fillSolid = (bool*)(newData.jobID + newData.allocated);
-	newData.transparency = (bool*)(newData.fillSolid + newData.allocated);
+	newData.fillSolid = (uint8_t*)(newData.jobID + newData.allocated);
+	newData.transparency = (uint8_t*)(newData.fillSolid + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));

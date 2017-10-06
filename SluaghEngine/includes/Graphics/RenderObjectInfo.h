@@ -35,8 +35,8 @@ namespace SE
 			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
 			JobType type;
 			uint8_t skeletonHandle;
-			bool fillSolid;
-			bool transparency;
+			uint8_t fillSolid;
+			uint8_t transparency;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;
@@ -51,8 +51,8 @@ namespace SE
 				}
 				textureCount = 0;
 				topology = PrimitiveTopology::TRIANGLE_LIST;
-				fillSolid = true;
-				transparency = false;
+				fillSolid = 1;
+				transparency = 0;
 			}
 			inline RenderObjectInfo& operator=(const RenderObjectInfo& rhs)
 			{

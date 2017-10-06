@@ -169,9 +169,9 @@ namespace SE {
 				gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 			}
 
-			inline void SetRasterStateFill(bool fillSolid)
+			inline void SetRasterStateFill(uint8_t fillSolid)
 			{
-				if (fillSolid == true)
+				if (fillSolid == 1)
 				{
 					gDeviceContext->RSSetState(rasterSolidState);
 				}
@@ -181,9 +181,9 @@ namespace SE {
 				}
 			}
 
-			inline void SetBlendTransparencyState(bool transparency)
+			inline void SetBlendTransparencyState(uint8_t transparency)
 			{
-				if (transparency == true)
+				if (transparency == 1)
 				{
 					UINT sampleM = 0xFF;
 					gDeviceContext->OMSetBlendState(blendTransState, NULL, sampleM);

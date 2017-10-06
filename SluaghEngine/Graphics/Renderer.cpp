@@ -375,10 +375,10 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 	previousJob.vertexShader = -1;
-	previousJob.fillSolid = true;
-	previousJob.transparency = false;
+	previousJob.fillSolid = 1;
+	previousJob.transparency = 0;
 
-	device->SetBlendTransparencyState(false);
+	device->SetBlendTransparencyState(0);
 
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -386,7 +386,7 @@ int SE::Graphics::Renderer::Render() {
 	renderJobLock.lock();
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
 	{
-		if (renderBuckets[iteration].stateInfo.transparency == false)
+		if (renderBuckets[iteration].stateInfo.transparency == 0)
 		{
 			previousJob = RenderABucket(renderBuckets[iteration], previousJob);
 		}
@@ -418,28 +418,28 @@ int SE::Graphics::Renderer::Render() {
 	///********END render line jobs************/
 
 
-	//if (renderTextureJobs.size())
-	//{
-	//	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
-	//	for (auto& job : renderTextureJobs)
-	//	{
-	//		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-	//	}
-	//	spriteBatch->End();
-	//}
-	//
-	//if (renderTextJobs.size())
-	//{
-	//	spriteBatch->Begin();
-	//	for (auto& job : renderTextJobs)
-	//	{
-	//		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-	//	}
-	//	spriteBatch->End();
-	//}
+	if (renderTextureJobs.size())
+	{
+		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+		for (auto& job : renderTextureJobs)
+		{
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		}
+		spriteBatch->End();
+	}
+	
+	if (renderTextJobs.size())
+	{
+		spriteBatch->Begin();
+		for (auto& job : renderTextJobs)
+		{
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		}
+		spriteBatch->End();
+	}
 
 	device->SetDepthStencilStateAndRS();
-	device->SetBlendTransparencyState(false);
+	device->SetBlendTransparencyState(0);
 
 	device->Present();
 
