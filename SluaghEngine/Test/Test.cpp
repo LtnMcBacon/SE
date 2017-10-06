@@ -32,6 +32,7 @@
 #include "RecordingTest.h"
 #include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
+#include "GarbageTest.h"
 
 
 #ifdef _DEBUG
@@ -88,6 +89,7 @@ int main(int argc, char** argv)
 
   
 	AddTest(ProjectileTest);
+	AddTest(GarbageTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
