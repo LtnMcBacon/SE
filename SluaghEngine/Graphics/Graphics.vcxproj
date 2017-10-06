@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
@@ -26,6 +27,7 @@
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
+    <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
     <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GraphicResourceHandler.h" />

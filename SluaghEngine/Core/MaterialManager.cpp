@@ -19,7 +19,7 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("TestDiffuse.sei", { this, &MaterialManager::LoadDefaultTexture });
+	res = resourceHandler->LoadResource("BlackPink.sei", { this, &MaterialManager::LoadDefaultTexture });
 	if (res)
 		throw std::exception("Could not load default texture.");
 
@@ -33,7 +33,7 @@ SE::Core::MaterialManager::~MaterialManager()
 	delete materialInfo.data;
 }
 
-void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
+void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
 	auto find = entityToMaterialInfo.find(entity);
@@ -97,7 +97,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textures.push_back({ defaultTextureHandle });
 				entityToChangeLock.unlock();
 
-				resourceHandler->LoadResource(info.textureFileNames[i], { this, &MaterialManager::LoadTexture }, true);
+				resourceHandler->LoadResource(info.textureFileNames[i], { this, &MaterialManager::LoadTexture }, async, behavior);
 			}
 			else
 				entityToChangeLock.unlock();

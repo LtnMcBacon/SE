@@ -430,8 +430,8 @@ int SE::Graphics::Renderer::Render() {
 			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
 			int binsSlotInvers;
-			int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
-			graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+			//int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+			//graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
 
 			std::vector<DirectX::XMFLOAT4X4> inversVec;
 			for (int i = 0; i < bucket.transforms.size(); i++)
@@ -447,7 +447,7 @@ int SE::Graphics::Renderer::Render() {
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
-				graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
+				//graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
 

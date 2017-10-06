@@ -154,7 +154,6 @@
   <ItemGroup>
     <ClInclude Include="..\includes\FBX_Converter\Datatypes.h" />
     <ClInclude Include="..\includes\FBX_Converter\FBXConverter.h" />
-    <ClInclude Include="..\includes\FBX_Converter\VertexType.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FBXConverter.cpp" />

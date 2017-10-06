@@ -17,7 +17,7 @@ namespace SE {
 		{
 		}
 		
-		int LightManager::AddLight(Entity entity, Graphics::LightData data)
+		int LightManager::AddLight(Entity entity, const AddLightInfo& data)
 		{
 			StartProfile;
 			// Check if the entity is alive
@@ -29,8 +29,13 @@ namespace SE {
 			if (fileLoaded == entID.end())
 			{
 				entID[entity].ID = lights.size();
-				lights.push_back(data);			
-				lights[lights.size() - 1].pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, data.pos.w);
+				Graphics::LightData d;
+				d.colour = { data.color.x, data.color.y, data.color.z, 1.0f };
+				d.pos = { data.pos.x, data.pos.y, data.pos.z, data.radius };
+				lights.push_back(d);			
+
+				transformManager->Create(entity, data.pos);
+
 				ent.push_back(entity);
 				ProfileReturnConst(0);
 			}
