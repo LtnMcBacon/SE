@@ -45,7 +45,7 @@ namespace SE
 		struct Rotation
 		{
 			RotationStyle style = RotationStyle::NONE;
-			float force;
+			float force = 0;
 		};
 
 		//stefan approves

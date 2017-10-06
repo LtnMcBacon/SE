@@ -7,7 +7,7 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 {
 	Rotation rot;
 
-	SE::Gameplay::Projectile temp(data, rot, 6.0f, 100.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
+	SE::Gameplay::Projectile temp(data, rot, 6.0f, 3.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
 	/*projectile.SetXPosition(data.startPosX);
 	projectile.SetYPosition(data.startPosY);
 	projectile.SetRotation(data.startRotation);

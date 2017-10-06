@@ -12,6 +12,9 @@ namespace SE
 			GarbageTest();
 			~GarbageTest();
 			bool Run(Utilz::IConsoleBackend* console);
+
+			bool MassiveTest(Utilz::IConsoleBackend* console);
+			bool ProjectilesIshTest(Utilz::IConsoleBackend* console);
 		};
 	}
 }

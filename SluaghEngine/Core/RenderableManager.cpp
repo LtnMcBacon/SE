@@ -123,8 +123,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 void SE::Core::RenderableManager::Frame()
 {
 	StartProfile;
-	GarbageCollection();
 	UpdateDirtyTransforms();
+	GarbageCollection();
 	ProfileReturnVoid;
 }
 
@@ -236,8 +236,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	infoLock.lock();
 	// Temp variables
 	size_t last = renderableObjectInfo.used - 1;
-	const Entity& entity = renderableObjectInfo.entity[index];
-	const Entity& last_entity = renderableObjectInfo.entity[last];
+	const Entity entity = renderableObjectInfo.entity[index];
+	const Entity last_entity = renderableObjectInfo.entity[last];
 
 	if(renderableObjectInfo.visible[index])
 		renderer->DisableRendering(renderableObjectInfo.jobID[index]);
