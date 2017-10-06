@@ -29,6 +29,7 @@
 #include "PickingTest.h"
 #include "LightTest.h"
 #include "BehavioursTest.h"
+#include "SkillTest.h"
 
 
 #ifdef _DEBUG
@@ -80,6 +81,7 @@ int main(int argc, char** argv)
 	AddTest(BehavioursTest);
 
 	AddTest(PickingTest);
+	AddTest(SkillTest);
 
   
 	AddTest(ProjectileTest);

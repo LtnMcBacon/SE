@@ -189,6 +189,9 @@
     <ClCompile Include="Inverter.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClCompile>
+    <ClCompile Include="SkillFactory.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -226,9 +229,6 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PauseState.h">
       <Filter>Header Files\IGameState\PauseState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
-      <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h">
       <Filter>Header Files\AI\BehaviouralTree</Filter>
@@ -277,6 +277,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillFactory.h">
+      <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -176,6 +176,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResourceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
+    <ClCompile Include="SkillTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
     <ClCompile Include="WindowTest.cpp" />
@@ -190,6 +191,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="EntityManagerTest.h" />
     <ClInclude Include="FlowFieldTest.h" />
     <ClInclude Include="GameStateTest.h" />
+    <ClInclude Include="SkillTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="INITest.h" />
     <ClInclude Include="InitGraphicsTest.h" />

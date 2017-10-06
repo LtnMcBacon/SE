@@ -2,13 +2,12 @@
 #define _SE_GAMEPLAY_PLAYER_UNIT_H_
 
 #include "GameUnit.h"
-
+#include "SkillFactory.h"
 
 namespace SE
 {
 	namespace Gameplay
 	{
-
 		struct ProjectileData;
 		/**
 		*
@@ -159,7 +158,7 @@ namespace SE
 			float rotMov[2] = {};
 
 		private:
-			struct stats
+			struct Stats
 			{
 				//std::string characterName;
 				int str = 5;
@@ -168,19 +167,19 @@ namespace SE
 
 				//str
 				float health			 = 100.f;
-				float damage			 = 10.f;
+				float damage			 = 1.f;
 				float meleeMultiplier	 = 1.f;
 				float physicalResistance = 1.f;
 
 				//agi
-				float rangedDamage		= 10.f;
+				float rangedDamage		= 1.f;
 				float rangedMultiplier  = 1.f;
 				float movementSpeed		= 1.f;
 				//float healBonus			= 1.f;
 				//float attackSpeed		= 1.f;
 
 				//whi
-				float magicDamage		= 10.f;
+				float magicDamage		= 1.f;
 				float magicMultiplier	= 1.f;
 				float magicResistance	= 1.f;
 				float natureResistance	= 1.f;
@@ -215,8 +214,8 @@ namespace SE
 				equippedElementalType element = equippedElementalType::NONE;
 
 			};
-			stats baseStat;
-			stats newStat;
+			Stats baseStat;
+			Stats newStat;
 
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
@@ -240,18 +239,48 @@ namespace SE
 			* @brief	  Changes the equipped armor type.
 			* @param [in] The new given armor type.
 			**/
-			void changeArmorType(stats::equippedArmorType armor);
+			void changeArmorType(Stats::equippedArmorType armor);
 			/**
 			* @brief	  Changes the equipped weapon type.
 			* @param [in] The new given weapon type.
 			**/
-			void changeWeaponType(stats::equippedWeaponType weapon);
+			void changeWeaponType(Stats::equippedWeaponType weapon);
 			/**
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(stats::equippedElementalType element);
-			
+			void changeElementType(Stats::equippedElementalType element);
+		
+		private:
+			struct Skill
+			{
+				std::string skillName = "";
+				enum class AtkType { SELFCAST, MELEE, RANGED, AREA };
+				enum class Element { NEUTRAL, MAGIC, FIRE, WATER, NATURE };
+				enum class Boon { NONE, DAMAGE, KNOCKBACK, STUN, LIFESTEAL, HEAL, PROTECTION, RESISTANCE, CASTSPEED, SWIFTNESS, SLOW, INVULNERABILITY };
+				enum class Bane { NONE, DAMAGE, STUN, BLOODLETTING, UNCOVER, WEAKNESS, SLOW };
+				enum class Animation { NONE, SWIPE, SHOOT }; // CAST
+				enum class Particle { NONE, FIRE, SMOKE, SPARKLE };
+
+				AtkType atkType = AtkType::MELEE;
+				Element element = Element::NEUTRAL;
+				Boon boon = Boon::NONE;
+				Bane bane = Bane::NONE;
+				Animation animation = Animation::SWIPE;
+				Particle particle = Particle::NONE;
+
+				float skillDamage = 0.f;
+				float effectValue = 0.f;
+				float range = 0.f;
+				float duration = 0.f;
+			};
+			std::vector<Skill> skills;
+			std::vector<Skill> aiSkills;
+			void addPlayerSkills();
+			void movePlayerSkillsToAI();
+			void flushSkills(std::vector<Skill> skills);
+
+			SkillFactory SF;
 
 		public:
 			
@@ -261,8 +290,4 @@ namespace SE
 
 	}
 }
-
-
-
-
 #endif

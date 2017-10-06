@@ -230,7 +230,6 @@ namespace SE
 				return (p->operator())(arg...);
 			} //lambda_stub
 
-			
 			typename Delegate_Base<RET(PARAMS...)>::InvocationElement invocation;
 
 		};

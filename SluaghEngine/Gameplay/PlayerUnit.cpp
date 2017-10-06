@@ -268,17 +268,22 @@ void SE::Gameplay::PlayerUnit::calcWhiChanges()
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::changeArmorType(stats::equippedArmorType armor)
+void SE::Gameplay::PlayerUnit::changeArmorType(Stats::equippedArmorType armor)
 {
 	newStat.armor = armor;
 }
-void SE::Gameplay::PlayerUnit::changeWeaponType(stats::equippedWeaponType weapon)
+void SE::Gameplay::PlayerUnit::changeWeaponType(Stats::equippedWeaponType weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(stats::equippedElementalType element)
+void SE::Gameplay::PlayerUnit::changeElementType(Stats::equippedElementalType element)
 {
 	newStat.element = element;
+}
+
+void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
+{
+	skills.clear();
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
