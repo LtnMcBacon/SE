@@ -55,6 +55,8 @@ namespace SE
 			* @retval return_value_1 returns your new origin vector.
 			**/
 			DirectX::XMVECTOR getLocalRayOrigin(XMVECTOR rayD, XMMATRIX localM);
+
+
 		};
 	}
 }

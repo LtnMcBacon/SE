@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;*/
 		}
 
-		fs::remove_all("FBXTemp");
+		//fs::remove_all("FBXTemp");
 	}
 	
 	return 0;

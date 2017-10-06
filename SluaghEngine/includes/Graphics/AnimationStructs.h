@@ -60,10 +60,12 @@ namespace SE
 		struct Skeleton {
 
 			std::vector<Joint> Hierarchy;
+			std::vector<DirectX::XMFLOAT4X4> jointArray;
 
 			Skeleton() {
 
-				Hierarchy.reserve(20);
+				Hierarchy.reserve(4);
+				jointArray.resize(4);
 			}
 		};
 
