@@ -185,15 +185,13 @@ namespace SE {
 			{
 				if (transparency == true)
 				{
-					float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
-					UINT sampleM = 0xffffffff;
-					gDeviceContext->OMSetBlendState(blendTransState, blendF, sampleM);
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendTransState, NULL, sampleM);
 				}
 				else
 				{
-					float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
-					UINT sampleM = 0xffffffff;
-					gDeviceContext->OMSetBlendState(blendSolidState, blendF, sampleM);
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
 				}
 			}
 		private:
@@ -208,6 +206,7 @@ namespace SE {
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
 			ID3D11DepthStencilState * pDSState;
+			ID3D11DepthStencilState * pDSNoWriterState;
 
 			ID3D11BlendState*		blendSolidState;
 			ID3D11BlendState*		blendTransState;

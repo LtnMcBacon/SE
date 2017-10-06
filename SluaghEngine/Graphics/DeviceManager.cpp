@@ -302,7 +302,13 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 
+	// Depth test parameters
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
+	// Create depth stencil state
+	gDevice->CreateDepthStencilState(&dsDesc, &pDSNoWriterState);
 
 
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
@@ -372,8 +378,8 @@ void DeviceManager::CreateBlendState()
 	rtbs.DestBlend = D3D11_BLEND_ZERO;
 	rtbs.DestBlendAlpha = D3D11_BLEND_ZERO;
 	rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	rtbs.SrcBlend = D3D11_BLEND_ONE;
-	rtbs.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtbs.SrcBlend = D3D11_BLEND_ZERO;
+	rtbs.SrcBlendAlpha = D3D11_BLEND_ZERO;
 	}
 
 	// just default values right now
@@ -393,35 +399,36 @@ void DeviceManager::CreateBlendState()
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
 
-	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
 	UINT sampleM = 0xffffffff;
-	gDeviceContext->OMSetBlendState(blendSolidState, blendF, sampleM);
+	gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
 
 	// Transparency on
-	for (auto& rtbs : rendTarBlendState)
+	D3D11_RENDER_TARGET_BLEND_DESC rendTransBlendState[8];
+	for (auto& rtbs : rendTransBlendState)
 	{
 		rtbs.BlendEnable = true;
 		rtbs.BlendOp = D3D11_BLEND_OP_ADD;
 		rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbs.DestBlend = D3D11_BLEND_ZERO;
-		rtbs.DestBlendAlpha = D3D11_BLEND_ZERO;
+		rtbs.DestBlend = D3D11_BLEND_INV_DEST_COLOR;
+		rtbs.DestBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
 		rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-		rtbs.SrcBlend = D3D11_BLEND_ONE;
-		rtbs.SrcBlendAlpha = D3D11_BLEND_ONE;
+		rtbs.SrcBlend = D3D11_BLEND_SRC_COLOR;
+		rtbs.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA_SAT;
 	}
 
-	blendStateDesc.AlphaToCoverageEnable = false;
-	blendStateDesc.IndependentBlendEnable = false;
-	blendStateDesc.RenderTarget[0] = rendTarBlendState[0];
-	blendStateDesc.RenderTarget[1] = rendTarBlendState[1];
-	blendStateDesc.RenderTarget[2] = rendTarBlendState[2];
-	blendStateDesc.RenderTarget[3] = rendTarBlendState[3];
-	blendStateDesc.RenderTarget[4] = rendTarBlendState[4];
-	blendStateDesc.RenderTarget[5] = rendTarBlendState[5];
-	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
-	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
+	D3D11_BLEND_DESC blendTransStateDesc;
+	blendTransStateDesc.AlphaToCoverageEnable = false;
+	blendTransStateDesc.IndependentBlendEnable = false;
+	blendTransStateDesc.RenderTarget[0] = rendTransBlendState[0];
+	blendTransStateDesc.RenderTarget[1] = rendTransBlendState[1];
+	blendTransStateDesc.RenderTarget[2] = rendTransBlendState[2];
+	blendTransStateDesc.RenderTarget[3] = rendTransBlendState[3];
+	blendTransStateDesc.RenderTarget[4] = rendTransBlendState[4];
+	blendTransStateDesc.RenderTarget[5] = rendTransBlendState[5];
+	blendTransStateDesc.RenderTarget[6] = rendTransBlendState[6];
+	blendTransStateDesc.RenderTarget[7] = rendTransBlendState[7];
 
-	hr = gDevice->CreateBlendState(&blendStateDesc, &blendTransState);
+	hr = gDevice->CreateBlendState(&blendTransStateDesc, &blendTransState);
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
 }

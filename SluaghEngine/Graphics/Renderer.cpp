@@ -375,6 +375,10 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 	previousJob.vertexShader = -1;
+	previousJob.fillSolid = true;
+	previousJob.transparency = false;
+
+	device->SetBlendTransparencyState(false);
 
 	renderJobLock.lock();
 	for(auto& bucket : renderBuckets)
@@ -417,7 +421,7 @@ int SE::Graphics::Renderer::Render() {
 		}
 		if (previousJob.transparency != job.transparency)
 		{
-			device->SetRasterStateFill(job.transparency);
+			device->SetBlendTransparencyState(job.transparency);
 		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);

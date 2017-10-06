@@ -66,7 +66,7 @@ namespace SE
 			Core::Entity ents[numEnts];
 			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("TestMesh_Diffuse.sei"), Utilz::GUID("purewhite.sei") };
+			Utilz::GUID textures[] = { Utilz::GUID("TransparentTest.sei"), Utilz::GUID("purewhite.sei") };
 			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
@@ -129,8 +129,8 @@ namespace SE
 			lightManager.ToggleLight(light[3], true);
 
 			//Light 5
-			data.colour = DirectX::XMFLOAT4(0.1, 0.8, 0.3, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.colour = DirectX::XMFLOAT4(0.4, 0.4, 0.4, 1.0);
+			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10000.0);
 			lightManager.AddLight(light[4], data);
 			lightManager.ToggleLight(light[4], true);
 #pragma endregion LightDataSet
