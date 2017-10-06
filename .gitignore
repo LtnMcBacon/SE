@@ -22,6 +22,8 @@ External*
 *.pdf
 *.ps
 *.bat
+rawLoaderEntries.txt
+FBXTemp/
 *Recording.bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)

@@ -103,34 +103,39 @@ namespace SE
 			}
 
 #pragma region LightDataSet
-			Graphics::LightData data;
+			Core::AddLightInfo data;
 			//Light 1
-			data.colour = DirectX::XMFLOAT4(1.0, 0.1, 0.1, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
+			data.color = DirectX::XMFLOAT3(1.0, 0.1, 0.1);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 30.0f;
 			lightManager.AddLight(light[0], data);
 			lightManager.ToggleLight(light[0], true);
 
 			//Light 2
-			data.colour = DirectX::XMFLOAT4(0.3, 0.8, 0.2, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.3, 0.8, 0.2);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[1], data);
 			lightManager.ToggleLight(light[1], true);
 
 			//Light 3
-			data.colour = DirectX::XMFLOAT4(0.2, 0.1, 0.8, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.2, 0.1, 0.8);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[2], data);
 			lightManager.ToggleLight(light[2], true);
 
 			//Light 4
-			data.colour = DirectX::XMFLOAT4(0.8, 0.1, 0.2, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.2);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[3], data);
 			lightManager.ToggleLight(light[3], true);
 
 			//Light 5
-			data.colour = DirectX::XMFLOAT4(0.4, 0.4, 0.4, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10000.0);
+			data.color = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 100.0;
 			lightManager.AddLight(light[4], data);
 			lightManager.ToggleLight(light[4], true);
 #pragma endregion LightDataSet

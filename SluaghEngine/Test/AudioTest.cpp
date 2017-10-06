@@ -70,17 +70,10 @@ namespace SE
 			else
 			{	
 				auto ent = e.GetEntityManager().Create();
-				auto& lightManager = e.GetLightManager();
 				auto& transformManager = e.GetTransformManager();
 				transformManager.Create(ent);
 
-				Graphics::LightData data;
-				data.colour = DirectX::XMFLOAT4(1.0, 0.5, 0.3, 0.2);
-				data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
-
-				lightManager.AddLight(ent, data);
-				lightManager.ToggleLight(ent, true);
-				//lightManager.RemoveLight(ent);
+	
 
 				auto entText = e.GetEntityManager().Create();
 				auto& guiManager = e.GetGUIManager();

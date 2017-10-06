@@ -268,6 +268,8 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+			DirectX::XMFLOAT4X4 newViewProjTransposed;
+
 
 			struct OncePerFrameConstantBuffer
 			{
@@ -287,6 +289,7 @@ namespace SE
 
 			GraphicResourceHandler* graphicResourceHandler;
 			AnimationSystem* animationSystem;
+			float currentEntityTimePos;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;

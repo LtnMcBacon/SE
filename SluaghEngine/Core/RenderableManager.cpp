@@ -22,19 +22,19 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	_ASSERT(animationManager);
 
 	Allocate(128);
-	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), { this, &RenderableManager::LoadDefaultModel });
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadSkinnedShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 	StopProfile;
@@ -66,14 +66,17 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		entityToRenderableObjectInfoIndex[entity] = newEntry;
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
+		renderableObjectInfo.visible[newEntry] = 0u;
+
+		// Transform binding
+		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
+
 
 		// Load the model
 		LoadResource(meshGUID, newEntry, async, behavior);
 
 
-		// Transform binding
-		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
-		renderableObjectInfo.visible[newEntry] = 0;
+
 
 	}
 	StopProfile;
@@ -83,16 +86,21 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 {
 	StartProfile;
 	// See so that the entity exist
+	infoLock.lock();
 	auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		//If the visibility state is switched to what it already is we dont do anything.
 		if ((bool)renderableObjectInfo.visible[find->second] == visible)
+		{
+			infoLock.unlock();
 			ProfileReturnVoid;
-		renderableObjectInfo.visible[find->second] = visible ? 1 : 0;
+		}
+			
+		renderableObjectInfo.visible[find->second] = visible ? 1u : 0u;
 		Graphics::RenderObjectInfo info;
 		CreateRenderObjectInfo(find->second, &info);
-		infoLock.lock();
+
 		if (visible)
 		{
 			const uint32_t jobID = renderer->EnableRendering(info);
@@ -104,8 +112,9 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		{
 			renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
-		infoLock.unlock();
+
 	}
+	infoLock.unlock();
 	ProfileReturnVoid;
 }
 
@@ -122,6 +131,8 @@ void SE::Core::RenderableManager::Frame()
 void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info)
 {
 	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
+	if (vBufferIndex > 1)
+		int i = 0;
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
@@ -365,7 +376,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		bufferIndex = bufferInfo.size() - 1;
 		entityToChangeLock.unlock();
 
-		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), async, behavior);
+		auto res = resourceHandler->LoadResource(meshGUID, { this , &RenderableManager::LoadModel }, async, behavior);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 
@@ -401,6 +412,30 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 	else {
 
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
+
+		float weight = 0;
+		for (int i = 0; i < meshHeader->nrOfVertices; i++) {
+
+			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
+
+			if (v[i].weights[3] != 0) {
+
+				Utilz::Console::Print("Weight was not zero");
+			}
+
+			// The total weight could be very close to 1, or just over it, like for example 1.00012.
+			if (weight > 1.1) {
+
+				Utilz::Console::Print("Vertex weights greater than 1");
+			}
+
+			// The total weight should never be lower than 0
+			else if (weight < 0) {
+
+				Utilz::Console::Print("Vertex weights lower than 0");
+			}
+		}
+
 		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 

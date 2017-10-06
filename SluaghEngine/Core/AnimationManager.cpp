@@ -44,7 +44,7 @@ void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Uti
 	{
 		skeletonHandle.push_back({ 0 });
 		skelIndex = skeletonHandle.size() -1 ;
-		auto res = resourceHandler->LoadResource(skeleton, ResourceHandler::LoadResourceDelegate::Make<AnimationManager, &AnimationManager::LoadSkeleton>(this));
+		auto res = resourceHandler->LoadResource(skeleton, { this, &AnimationManager::LoadSkeleton });
 		if (res)
 		{
 			Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", skeleton, res);
@@ -66,7 +66,7 @@ void SE::Core::AnimationManager::AddAnimation(const Entity & entity, const Utilz
 		ProfileReturnVoid;
 	}
 
-	auto res = resourceHandler->LoadResource(animation, ResourceHandler::LoadResourceDelegate::Make<AnimationManager, &AnimationManager::LoadAnimation>(this));
+	auto res = resourceHandler->LoadResource(animation, { this, &AnimationManager::LoadAnimation });
 	if (res)
 	{
 		Utilz::Console::Print("Could not load animation %u. Error: %d\n", animation, res);

@@ -1,8 +1,9 @@
-#include "RenderableManagerTest.h"
+#include "SkeletonAnimationTest.h"
 #include <Core\Engine.h>
 #include <Profiler.h>
 
 #include <Utilz\Timer.h>
+#include <Utilz\Tools.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -21,21 +22,21 @@ enum ActionButton
 	Right,
 	Fullscreen,
 	Rise,
-	Sink,
-	TL
+	Sink
 };
 
 
-SE::Test::RenderableManagerTest::RenderableManagerTest()
+SE::Test::SkeletonAnimationTest::SkeletonAnimationTest()
 {
 }
 
 
-SE::Test::RenderableManagerTest::~RenderableManagerTest()
+SE::Test::SkeletonAnimationTest::~SkeletonAnimationTest()
 {
+
 }
 
-bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 	auto& e = Core::Engine::GetInstance();
@@ -56,12 +57,13 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	auto& level = em.Create();
 	auto& mainC = em.Create();
 	auto& camera = em.Create();
-	auto& lm = e.GetLightManager();
 
 	auto handle = e.GetWindow();
 
 	tm.Create(level);
-
+	tm.Create(mainC);
+	tm.SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 	cm.Bind(camera);
 	cm.SetActive(camera);
 	tm.SetRotation(camera, 0.0f, 0.0f, 0.0f);
@@ -75,44 +77,34 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	handle->MapActionButton(ActionButton::Left, Window::KeyA);
 	handle->MapActionButton(ActionButton::Right, Window::KeyD);
 	handle->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
-	handle->MapActionButton(ActionButton::TL, Window::KeyLeft);
 
 	handle->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
 	handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
-	/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
-	rm.ToggleRenderableObject(level, true);*/
-
-	tm.Create(mainC);
-	tm.SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
-
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("texture8.sei")};
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex")};
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	Utilz::GUID textures[] = { Utilz::GUID("TestDiffuse.sei"), Utilz::GUID("purewhite.sei") };
+	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
 	info.shaderResourceNames = resourceNames;
 	info.textureFileNames = textures;
 	info.textureCount = 2;
 
-	mm.Create(mainC, info, true);
+	mm.Create(mainC, info);
 
-	rm.CreateRenderableObject(mainC, Utilz::GUID("MCModell.mesh"), true);
+	am.CreateSkeleton(mainC, Utilz::GUID("bakedTest.skel"));
+	am.AddAnimation(mainC, Utilz::GUID("SwingAnimation_bakedTest.anim"));
+
+	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
-
-	auto& l = em.Create();
-	Core::AddLightInfo d;
-	d.radius = 100.0f;
-	d.pos = { 0.0f, 5.0f, -5.0f };
-	d.color = { 1, 1,1 };
-	lm.AddLight(l, d);
-	lm.ToggleLight(l, true);
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
 	Utilz::Timer timer;
+	float radians = (180 * 3.14) / 180;
+
+	tm.Rotate(mainC, 0.0f, radians, 0.01f);
 
 	while (running)
 	{
@@ -120,24 +112,21 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 			running = false;
 
 		timer.Tick();
-		float dt = (float)timer.GetDelta();
+		float dt = timer.GetDelta();
 
 		if (handle->ButtonDown(ActionButton::Up))
-			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, 0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (handle->ButtonDown(ActionButton::Down))
-			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, -0.01f*dt });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
 		if (handle->ButtonDown(ActionButton::Right))
-			tm.Move(camera, DirectX::XMFLOAT3 { 0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
 		if (handle->ButtonDown(ActionButton::Left))
-			tm.Move(camera, DirectX::XMFLOAT3 { -0.01f*dt, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 		if (handle->ButtonDown(ActionButton::Rise))
-			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, -0.01f*dt, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
 		if (handle->ButtonDown(ActionButton::Sink))
-			tm.Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.01f*dt, 0.0f });
-		if (handle->ButtonDown(ActionButton::TL))
-			tm.Rotate(camera, 0.0f, 0.01f, 0.0f);
-		tm.Rotate(mainC, 0.0f, 0.01f, 0.0f);
-		//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
+			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
+
 		e.Frame(dt);
 	}
 

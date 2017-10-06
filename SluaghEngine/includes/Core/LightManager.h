@@ -15,6 +15,13 @@ namespace SE
 {
 	namespace Core
 	{
+
+		struct AddLightInfo
+		{
+			DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };
+			float radius = 1.0f;
+			DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
+		};
 		/**
 		*
 		* @brief This class is used to bind renderable text and texture to an entity.
@@ -28,7 +35,7 @@ namespace SE
 			LightManager(Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
 			~LightManager();		
 
-			int AddLight(Entity entity, Graphics::LightData data);
+			int AddLight(Entity entity, const AddLightInfo& data);
 
 			int RemoveLight(Entity entity);
 
