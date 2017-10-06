@@ -330,6 +330,11 @@ int SE::Graphics::Renderer::Render() {
 
 	currentEntityTimePos += 0.1;
 
+	if (currentEntityTimePos >= 60) {
+
+		currentEntityTimePos = 0;
+	}
+
 	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
 	// clear the back buffer
