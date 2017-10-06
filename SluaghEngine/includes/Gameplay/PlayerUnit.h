@@ -117,7 +117,7 @@ namespace SE
 			};
 
 			/**
-			* @brief	Update the players movement
+			* @brief	Update the players actions
 			*
 			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
 			* and perks then check new events that are created before they are deployed

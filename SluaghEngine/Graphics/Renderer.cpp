@@ -481,7 +481,7 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	const size_t bucketIndex = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const size_t transformIndex = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
-	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
+ 	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
 	renderJobLock.unlock();
 	ProfileReturnConst(0);
 }

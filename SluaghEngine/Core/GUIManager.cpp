@@ -150,8 +150,8 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = loadedTexts.size() - 1;
-			const Entity& entity = ent[index];
-			const Entity& last_entity = ent[last];
+			const Entity entity = ent[index];
+			const Entity last_entity = ent[last];
 
 			// Copy the data
 			ent[index] = last_entity;
@@ -171,8 +171,8 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = textureInfo.size() - 1;
-			const Entity& entity = textureEnt[index];
-			const Entity& last_entity = textureEnt[last];
+			const Entity entity = textureEnt[index];
+			const Entity last_entity = textureEnt[last];
 
 			// Copy the data
 			textureEnt[index] = last_entity;
