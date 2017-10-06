@@ -71,7 +71,7 @@ namespace SE
 				* {
 				*	//...
 				* }
-				* resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&Load>()); // Where load is a function
+				* resourceHandler->LoadResource("test.objtest", &Load); // Where load is a function
 				*
 				* //Class method
 				* class A
@@ -82,7 +82,8 @@ namespace SE
 				*  }
 				* void Run()
 				* {
-				*	resourceHandler->LoadResource(Utilz::GUID("test.objtest"), ResourceHandler::LoadResourceDelegate::Make<&A, A::Load>(this));
+				*	resourceHandler->LoadResource("test.objtest", {this, &A::Load});
+				*	resourceHandler->LoadResource("test.objtest", [](auto guid, auto data, auto size)->int{ //Do stuff//});
 				* }
 				* }
 				*
