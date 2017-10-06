@@ -6,7 +6,8 @@
 
 #include "AnimationSystem.h"
 #include <mutex>
-
+#include <Utilz\CircularFiFo.h>
+#include <thread>
 namespace SE
 {
 	namespace Graphics
@@ -320,12 +321,46 @@ namespace SE
 			int singleTransformConstantBuffer = -1;
 
 			/*********** END Line render job members **********/
+			
+
+			/*********** Renderjob Queues **************/
+			struct RenderJobStruct
+			{
+				uint32_t jobID;
+				RenderObjectInfo handles;
+			};
+			struct UpdateTransformStruct
+			{
+				uint32_t jobID;
+				DirectX::XMFLOAT4X4 transform;
+			};
+
+			std::mutex renderJobLock;
+			Utilz::CircularFiFo<RenderJobStruct> newJobs;
+			Utilz::CircularFiFo<uint32_t> removeJobs;
+			Utilz::CircularFiFo<RenderJobStruct> updateJobs;
+			Utilz::CircularFiFo<UpdateTransformStruct> updateTransforms;
+
+		
+			void AddNewRenderJobs();		
+			void UpdateRenderJobs();
+			void UpdateTransforms();
+			void RemoveRenderJobs();
+		
+			/*********** END Renderjob Queues **************/
+
+
+			/*********** Lightjob **************/
+
+			std::mutex lightLock;
+			std::vector<LightData> renderLightJobs;
+
+			/*********** END Renderjob Queues **************/
 
 			std::vector<RenderObjectInfo> renderJobs;
 			std::vector<TextGUI> renderTextJobs;
 			std::vector<GUITextureInfo> renderTextureJobs;
-			std::mutex renderJobLock;
-			std::vector<LightData> renderLightJobs;
+		
 			//std::map<size_t, size_t> lightID;
 
 			// fonts
@@ -334,6 +369,16 @@ namespace SE
 			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
 
 			static const int lightBufferSize = 20;
+
+
+			/*********** Threading **************/
+
+			bool running;
+			std::thread myThread;
+
+			void Frame();
+
+			/*********** END Threading **************/
 		};
 
 	}

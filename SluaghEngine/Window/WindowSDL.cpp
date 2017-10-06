@@ -599,10 +599,8 @@ void SE::Window::WindowSDL::RecordToFile()
 	{
 		while (!circFiFo.wasEmpty())
 		{
-			inputRecData evData;
-			circFiFo.top(evData);
-			void* var = &evData;
-			recFile.write((char*)var, sizeof(inputRecData));
+			const inputRecData& evData = circFiFo.top();
+			recFile.write((char*)&evData, sizeof(inputRecData));
 			circFiFo.pop();
 		}
 		using namespace std::chrono_literals;

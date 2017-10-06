@@ -6,7 +6,7 @@
 
 
 
-SE::Graphics::Renderer::Renderer()
+SE::Graphics::Renderer::Renderer() 
 {
 	oncePerFrameBufferID = -1;
 	device = nullptr;
@@ -57,12 +57,17 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
+	running = true;
+	//myThread = std::thread(&Renderer::Frame, this);
 
 	ProfileReturnConst( 0);
 }
 
 void SE::Graphics::Renderer::Shutdown()
 {
+	running = false;
+	//myThread.join();
+
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 
@@ -77,6 +82,26 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	StartProfile;
 	renderJobLock.lock();
+
+	uint32_t jobID;
+	if (freeJobIndices.size())
+	{
+		jobID = freeJobIndices.top();
+		freeJobIndices.pop();
+	}
+	else
+	{
+		jobID = static_cast<uint32_t>(jobIDToBucketAndTransformIndex.size());
+		jobIDToBucketAndTransformIndex.push_back({ 0,0 });
+	}
+	renderJobLock.unlock();
+
+	newJobs.push({ jobID, handles });
+
+	ProfileReturnConst(jobID);
+
+
+
 	int32_t bucketIndex = -1;
 	const size_t renderBucketCount = renderBuckets.size();
 	for (size_t i = 0; i < renderBucketCount; ++i)
@@ -98,7 +123,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
 	renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
 	
-	uint32_t jobID;
+//	uint32_t jobID;
 	if (freeJobIndices.size())
 	{
 		jobID = freeJobIndices.top();
@@ -120,6 +145,10 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
+	removeJobs.push(jobID);
+	ProfileReturnConst(0);
+
+
 	renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
@@ -146,6 +175,13 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderObjectInfo& handles)
 {
 	StartProfile;
+
+	updateJobs.push({ jobID, handles });
+
+	ProfileReturnConst(0);
+
+
+
 	renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
@@ -298,16 +334,23 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 {
 	StartProfile;
+	lightLock.lock();
+	int job = (int)renderLightJobs.size();
 	renderLightJobs.push_back(handles);
-	ProfileReturn(renderLightJobs.size() - 1);
+	lightLock.unlock();
+	
+	ProfileReturn(job);
 }
 
 int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
 {
 	StartProfile;
-	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
+	lightLock.lock();
+	size_t job = renderLightJobs.size() - 1;
+	renderLightJobs[ID] = renderLightJobs[job];
 	renderLightJobs.pop_back();
-	ProfileReturn(renderLightJobs.size());
+	lightLock.unlock();
+	ProfileReturn(int(job));
 }
 
 int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
@@ -318,9 +361,8 @@ int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t 
 
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
-	DirectX::XMFLOAT4X4 wo;
-	DirectX::XMStoreFloat4x4(&wo, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
-	graphicResourceHandler->UpdateConstantBuffer(&wo, sizeof(wo), oncePerFrameBufferID);
+	DirectX::XMStoreFloat4x4(&newViewProjTransposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
+	
 
 	return 0;
 }
@@ -331,6 +373,13 @@ int SE::Graphics::Renderer::Render() {
 	//currentEntityTimePos += 1;
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
+
+	AddNewRenderJobs();
+	UpdateRenderJobs();
+	UpdateTransforms();
+	RemoveRenderJobs();
+
+
 
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
@@ -373,10 +422,12 @@ int SE::Graphics::Renderer::Render() {
 	}
 	previousJob.bufferHandle = -1;
 	previousJob.pixelShader = -1;
-	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
+	previousJob.topology = RenderObjectInfo::PrimitiveTopology::NONE;
 	previousJob.vertexShader = -1;
 
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
+
+
 
 	renderJobLock.lock();
 	for(auto& bucket : renderBuckets)
@@ -569,6 +620,13 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
+	UpdateTransformStruct ut;
+	ut.jobID = jobID;
+	DirectX::XMMATRIX t = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	DirectX::XMStoreFloat4x4(&ut.transform, DirectX::XMMatrixTranspose(t));
+	updateTransforms.push(ut);
+	ProfileReturnConst(0);
+
 	renderJobLock.lock();
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
@@ -628,11 +686,168 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 	return handle;
 }
 
+void SE::Graphics::Renderer::AddNewRenderJobs()
+{
+	while (!newJobs.wasEmpty())
+	{
+		auto& job = newJobs.top();
+
+		int32_t bucketIndex = -1;
+		const size_t renderBucketCount = renderBuckets.size();
+		for (size_t i = 0; i < renderBucketCount; ++i)
+		{
+			if (renderBuckets[i].stateInfo - job.handles == 0)
+			{
+				bucketIndex = i;
+				break;
+			}
+		}
+		if (bucketIndex < 0)
+		{
+			bucketIndex = renderBuckets.size();
+			TargetOffset t = { { true, false, false },{ 2, 0, 0 } };
+			renderBuckets.push_back({ job.handles,{},{} });
+		}
+		const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+		DirectX::XMFLOAT4X4 identityMatrix;
+		DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
+		renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
+
+
+		const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+		renderJobLock.lock();
+		jobIDToBucketAndTransformIndex[job.jobID] = bucketAndTransformIndex;
+		renderJobLock.unlock();
+		renderBuckets[bucketIndex].jobsInBucket.push_back(job.jobID);
+		
+		newJobs.pop();
+	}
+}
+
+void SE::Graphics::Renderer::UpdateRenderJobs()
+{
+	while (!updateJobs.wasEmpty())
+	{
+		auto& job = updateJobs.top();
+		
+
+		renderJobLock.lock();
+		const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[job.jobID].bucketIndex;
+		const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[job.jobID].transformIndex;
+		renderJobLock.unlock();
+
+		auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
+
+		DirectX::XMFLOAT4X4 transform = bucketOfRemoved.transforms[transformIndexOfRemoved];
+		bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
+		bucketOfRemoved.transforms.pop_back();
+		const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
+		bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
+		bucketOfRemoved.jobsInBucket.pop_back();
+
+		renderJobLock.lock();
+		jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+		jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
+		renderJobLock.unlock();
+
+		int32_t bucketIndex = -1;
+		const size_t renderBucketCount = renderBuckets.size();
+		for (size_t i = 0; i < renderBucketCount; ++i)
+		{
+			if (renderBuckets[i].stateInfo - job.handles == 0)
+			{
+				bucketIndex = i;
+				break;
+			}
+		}
+		if (bucketIndex < 0)
+		{
+			bucketIndex = renderBuckets.size();
+			TargetOffset t = { { true, false, false },{ 2, 0, 0 } };
+			renderBuckets.push_back({ job.handles,{},{} });
+		}
+		const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+		renderBuckets[bucketIndex].transforms.push_back(transform);
+
+
+		const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+		renderJobLock.lock();
+		jobIDToBucketAndTransformIndex[job.jobID] = bucketAndTransformIndex;
+		renderJobLock.unlock();
+		renderBuckets[bucketIndex].jobsInBucket.push_back(job.jobID);
+
+		updateJobs.pop();
+
+	}
+}
+
+void SE::Graphics::Renderer::RemoveRenderJobs()
+{
+	while (!removeJobs.wasEmpty())
+	{
+		auto& jobID = removeJobs.top();
+
+
+		renderJobLock.lock();
+		if (jobID >= jobIDToBucketAndTransformIndex.size())
+			continue;
+
+		const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
+		const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+		renderJobLock.unlock();
+
+		auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
+
+		bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
+		bucketOfRemoved.transforms.pop_back();
+		const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
+		bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
+		bucketOfRemoved.jobsInBucket.pop_back();
+
+		renderJobLock.lock();
+		jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+		jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
+		renderJobLock.unlock();
+
+		freeJobIndices.push(jobID);
+
+		removeJobs.pop();
+	}
+
+}
+
+void SE::Graphics::Renderer::UpdateTransforms()
+{
+	while (!updateTransforms.wasEmpty())
+	{
+		auto& job = updateTransforms.top();
+
+		renderJobLock.lock();
+		const size_t bucketIndex = jobIDToBucketAndTransformIndex[job.jobID].bucketIndex;
+		const size_t transformIndex = jobIDToBucketAndTransformIndex[job.jobID].transformIndex;
+		renderJobLock.unlock();
+
+		renderBuckets[bucketIndex].transforms[transformIndex] = job.transform;
+
+
+		updateTransforms.pop();
+	}
+}
+
 int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
 	ProfileReturn(0);
+}
+
+void SE::Graphics::Renderer::Frame()
+{
+	while (running)
+	{
+		Render();
+	}
+
 }
 
 int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
