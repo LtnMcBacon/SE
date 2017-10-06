@@ -220,7 +220,7 @@ const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity&
 int SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
-	const uint32_t upperIndex = std::min(garbageCollectionIndex + 4, transformCount);
+	uint32_t upperIndex = std::min(garbageCollectionIndex + 4, transformCount);
 	const uint32_t priorCount = transformCount;
 
 	for(int i = garbageCollectionIndex; i < upperIndex; i++)
@@ -243,6 +243,7 @@ int SE::Core::TransformManager::GarbageCollection()
 			entityToIndex[occupyingLastSlot] = iterator->second;
 			entities[iterator->second] = occupyingLastSlot;
 			entityToIndex.erase(iterator);
+			upperIndex--;
 		}
 	}
 	garbageCollectionIndex = upperIndex;
@@ -291,6 +292,7 @@ void SE::Core::TransformManager::Frame()
 		auto newTrans = local*parent;
 		XMStoreFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]], newTrans);
 	}
+	GarbageCollection();
 	StopProfile;
 }
 

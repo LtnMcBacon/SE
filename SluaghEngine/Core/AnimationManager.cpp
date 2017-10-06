@@ -116,8 +116,8 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 	// Temp variables
 	size_t last = animationData.used - 1;
-	const Entity& entity = animationData.entity[index];
-	const Entity& last_entity = animationData.entity[last];
+	const Entity entity = animationData.entity[index];
+	const Entity last_entity = animationData.entity[last];
 
 	// Copy the data
 	animationData.entity[index] = last_entity;

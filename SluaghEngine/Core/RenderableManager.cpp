@@ -246,8 +246,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	StartProfile;
 	// Temp variables
 	size_t last = renderableObjectInfo.used - 1;
-	const Entity& entity = renderableObjectInfo.entity[index];
-	const Entity& last_entity = renderableObjectInfo.entity[last];
+	const Entity entity = renderableObjectInfo.entity[index];
+	const Entity last_entity = renderableObjectInfo.entity[last];
 
 	if(renderableObjectInfo.visible[index])
 		renderer->DisableRendering(renderableObjectInfo.jobID[index]);
