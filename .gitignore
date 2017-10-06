@@ -23,6 +23,7 @@ External*
 *.ps
 *.bat
 rawLoaderEntries.txt
+FBXTemp/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
