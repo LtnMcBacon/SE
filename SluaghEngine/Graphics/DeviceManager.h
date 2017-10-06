@@ -206,7 +206,6 @@ namespace SE {
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
 			ID3D11DepthStencilState * pDSState;
-			ID3D11DepthStencilState * pDSNoWriterState;
 
 			ID3D11BlendState*		blendSolidState;
 			ID3D11BlendState*		blendTransState;
