@@ -19,6 +19,12 @@
     <Filter Include="Header Files\GameplayTests">
       <UniqueIdentifier>{880c0fd5-2281-45c9-9378-38aa4e705cef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Gameplay Tests\AITests">
+      <UniqueIdentifier>{3ee2e062-5a24-447b-a85b-482474014045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameplayTests\AITests">
+      <UniqueIdentifier>{ef788659-82c9-41f5-9e1f-e23fccc8d075}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -99,6 +105,24 @@
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
+    <ClCompile Include="LightTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BehavioursTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonAnimationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -171,10 +195,28 @@
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="EnemyMovementTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BehavioursTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMovementTest.h">
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="ProjectileTest.h">
       <Filter>Header Files\GameplayTests</Filter>
+    </ClInclude>
+    <ClInclude Include="LightTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviouralTreeFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonAnimationTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

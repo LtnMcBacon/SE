@@ -68,14 +68,13 @@ namespace SE
 				return false;
 			}
 			else
-			{
-				// Object creation
+			{	
 				auto ent = e.GetEntityManager().Create();
-				e.GetRenderableManager().CreateRenderableObject(ent, Utilz::GUID("Placeholder_Arrow.obj"));
-				e.GetTransformManager().Create(ent);
-				e.GetRenderableManager().ToggleRenderableObject(ent, true);
+				auto& transformManager = e.GetTransformManager();
+				transformManager.Create(ent);
 
-				
+	
+
 				auto entText = e.GetEntityManager().Create();
 				auto& guiManager = e.GetGUIManager();
 

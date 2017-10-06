@@ -27,6 +27,11 @@
 #include "PlayerMovementTest.h"
 #include "ProjectileTest.h"
 #include "PickingTest.h"
+#include "LightTest.h"
+#include "BehavioursTest.h"
+#include "RecordingTest.h"
+#include "BehaviouralTreeFactoryTest.h"
+#include "SkeletonAnimationTest.h"
 
 
 #ifdef _DEBUG
@@ -49,7 +54,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 991;
+	//_crtBreakAlloc = 507;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -57,6 +62,7 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
+	AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
@@ -65,7 +71,8 @@ int main(int argc, char** argv)
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
-
+	AddTest(LightTest);
+	AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
@@ -74,8 +81,11 @@ int main(int argc, char** argv)
 	AddTest(RoomCreationTest);
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
+	AddTest(BehavioursTest);
+	AddTest(BehaviouralTreeFactoryTest);
 
 	AddTest(PickingTest);
+
   
 	AddTest(ProjectileTest);
   
@@ -126,14 +136,14 @@ int main(int argc, char** argv)
 			auto& find = tests.find(SE::Utilz::GUID(argv[1]));
 			if (find != tests.end())
 			{
-				try
+				//try
 				{
 					bool result = std::get<1>(find->second)->Run(backend);
 					backend->Print("Test %s %s\n\n", std::get<0>(find->second), result ? "succeeded" : "failed\n");
 				}
-				catch (const std::exception& exe)
+			//	catch (const std::exception& exe)
 				{
-					backend->Print("%s Exeception: %s\n", std::get<0>(find->second), exe.what());
+				//	backend->Print("%s Exeception: %s\n", std::get<0>(find->second), exe.what());
 				}
 			}
 				

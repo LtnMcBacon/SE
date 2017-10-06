@@ -19,12 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
+    <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
+    <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
+    <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
     <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GraphicResourceHandler.h" />
@@ -127,6 +131,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -135,6 +142,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -149,6 +159,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -163,6 +176,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

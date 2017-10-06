@@ -1,8 +1,8 @@
 #ifndef SE_WINDOW_IWINDOW_H_
 #define SE_WINDOW_IWINDOW_H_
 
-#include <Utilz/Delegator.h>
-
+#include <Utilz/Delegate.h>
+#include <string>
 
 #if defined DLL_EXPORT_W
 #define DECLDIR __declspec(dllexport)
@@ -10,18 +10,24 @@
 #define DECLDIR __declspec(dllimport)
 #endif
 
-
-
 namespace SE
 {
 	namespace Window
 	{
+		enum class WindowState
+		{
+			Regular,
+			Record,
+			Playback
+		};
+
 		struct InitializationInfo
 		{
 			std::string windowTitle;
 			bool fullScreen = false;
 			uint32_t width = 1280;
 			uint32_t height = 720;
+			WindowState winState = WindowState::Regular;
 		};
 
 		enum KeyCode

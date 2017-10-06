@@ -54,9 +54,9 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool show);
 
-			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate& callback)
+			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)
 			{
-				SetRenderObjectInfoEvent.Add(callback);
+				SetRenderObjectInfoEvent += callback;
 			}
 			/**
 			* @brief	Called each frame, to update the state.
@@ -64,6 +64,8 @@ namespace SE
 			void Frame();
 
 			void UpdateRenderableObject(const Entity& entity);
+
+			void SetFillSolid(const Entity& entity, bool fillSolid);
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -108,6 +110,7 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
+				bool wireframe = true;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;

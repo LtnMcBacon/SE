@@ -156,6 +156,8 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
   <ItemGroup>
     <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="AudioTest.cpp" />
+    <ClCompile Include="BehavioursTest.cpp" />
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="DebugRenderTest.cpp" />
     <ClCompile Include="EnemyMovementTest.cpp" />
@@ -166,14 +168,17 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="FlowFieldTest.cpp" />
     <ClCompile Include="InitGraphicsTest.cpp" />
     <ClCompile Include="InstancingTest.cpp" />
+    <ClCompile Include="LightTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
     <ClCompile Include="PickingTest.cpp" />
     <ClCompile Include="PlayerMovementTest.cpp" />
     <ClCompile Include="ProjectileTest.cpp" />
+    <ClCompile Include="RecordingTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResourceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
+    <ClCompile Include="SkeletonAnimationTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
     <ClCompile Include="WindowTest.cpp" />
@@ -181,6 +186,8 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
   <ItemGroup>
     <ClInclude Include="AllocatorTest.h" />
     <ClInclude Include="AudioTest.h" />
+    <ClInclude Include="BehaviouralTreeFactoryTest.h" />
+    <ClInclude Include="BehavioursTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="EnemyMovementTest.h" />
     <ClInclude Include="DebugRenderTest.h" />
@@ -191,14 +198,17 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="INITest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
     <ClInclude Include="InstancingTest.h" />
+    <ClInclude Include="LightTest.h" />
     <ClInclude Include="MaterialManagerTest.h" />
     <ClInclude Include="ObjLoaderTest.h" />
     <ClInclude Include="PickingTest.h" />
     <ClInclude Include="PlayerMovementTest.h" />
     <ClInclude Include="ProjectileTest.h" />
+    <ClInclude Include="RecordingTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResourceHandlerTest.h" />
     <ClInclude Include="RoomCreationTest.h" />
+    <ClInclude Include="SkeletonAnimationTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="WindowTest.h" />

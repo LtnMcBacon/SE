@@ -1,129 +1,139 @@
 #ifndef SE_UTILZ_EVENT_H_
 #define SE_UTILZ_EVENT_H_
-#include <list>
-#include "Delegator.h"
+#include "Delegate.h"
 #include <vector>
+#include <functional>
 
 namespace SE
 {
 	namespace Utilz
 	{
-		template<typename T>
-		class Event;
-
+		template <typename T> class Event;
 
 		/**
-		*
-		* @brief An object to register functions to and event.
-		*
-		* @details An event can register multiple functions.
-		* Create an event with ex:
-		* Event<int(int)> event;
-		* event.Add<&TestFunc>();
-		* Type t;
-		* event.Add<Type, &Type::Func>(&t);
-		* event(10);
-		*
-		**/
-		template<typename R, typename... Args>
-		class Event<R(Args...)>
+		*@brief A collection of delegates.
+		*/
+		template<typename RET, typename... PARAMS>
+		class Event<RET(PARAMS...)>
 		{
+			std::vector<Delegate<RET(PARAMS...)>> invokerList;
 		public:
 
 			/**
-			* @brief Invokes all registered functions.
-			* @sa Event
+			*@brief Register a delegate to the event.
+			* Example code:
+			* @code
+			* void foo(){cout << "Hello World" << endl;}
+			* void foo2(){cout << "Hello World" << endl;}
+			*class A
+			*{
+			* public:
+			* void foo(){cout << "Hello World" << endl};
+			*}
+			* Delegate<void()> del(&foo);
+			* ev += del;
+			* ev += &foo2;
+			* ev += [](){ cout << "Hello World" << endl;};
+			* ev += {&a, &A::foo};
+			* ev(); // Prints "Hello World" four times
+			* @endcode
 			*/
-			inline std::vector<R> Invoke(Args... args)
+			Event& operator+=(const Delegate<RET(PARAMS...)>& other)
 			{
-				std::vector<R> returns;
-				for (auto& deleg : delegates)
-					returns.push_back(deleg.Invoke(std::forward<Args>(args)...));
+				invokerList.push_back(other);
+				return *this;
+			}
 
-				return returns;
+			/**
+			*@brief No unregistering(for now).
+			*/
+			Event& operator-=(const Delegate<RET(PARAMS...)>& other) = delete;
+			//{
+			//	invokerList.remove(other);
+			//	return *this;
+			//}
+
+			/**
+			*@brief No eqaulity(for now).
+			*/
+			bool operator==(const Event<RET(PARAMS...)>& other) = delete;
+			/**
+			*@brief No copying(for now).
+			*/
+			Event& operator=(const Event<RET(PARAMS...)>& other) = delete;
+
+			/**
+			*@brief Invoke all the delegates. No return handling.
+			*/
+			inline void operator()(PARAMS... args)const
+			{
+				for (auto& i : invokerList)
+					i(std::forward<PARAMS>(args)...);
 			}
 
 
 			/**
-			* @brief Invokes all registered functions.
-			* @sa Event
+			*@brief Invoke all the delegates. With return handling.
+			* Example code:
+			* @code
+			* Event<int(int)> eve;
+			* eve += [](int i) {return i * 2; };
+			* int i = 5;
+			* eve += [i](int a) {return i + a; };
+			* 
+			* eve(1, [](size_t index, int* ret) {
+			* 	std::cout << *ret << std::endl;
+			* }); // Prints 2, 6
+			* @endcode
 			*/
-			inline void operator()(Args... args)
-			{
-				for (auto& deleg : delegates)
-					deleg.Invoke(std::forward<Args>(args)...);
-			}
+			template<typename HANDLER>
+			void operator()(PARAMS... param, HANDLER handler) const {
+				size_t index = 0;
+				for (auto& item : invokerList) {
+					RET value = item(std::forward<PARAMS>(param)...);
+					handler(index, &value);
+					++index;
+				} 
+			} 
 
 
-			/**
-			* @brief Register a delegate
-			*/
-			inline void Add(const Delegate<R(Args...)>& del)
-			{
-				delegates.push_back(del);
-
-			}
-			/** @brief Registers a function.
-			* @sa Event
-			*/
-			template<R(*Function)(Args...)>
-			inline void Add(void)
-			{
-				delegates.push_back(Delegate<R(Args...)>::Make<Function>());
-			}
-
-			/**
-			* @brief Registers a class method.
-			* @sa Event
-			*/
-			template<class C, R(C::*Function)(Args...)>
-			inline void Add(C* instance)
-			{
-				delegates.push_back(Delegate<R(Args...)>::Make<C, Function>(instance));
-			}
-
-			/**
-			* @brief Registers a const class method.
-			* @sa Event
-			*/
-			template<class C, R(C::*Function)(Args...) const>
-			inline void Add(const C* instance)
-			{
-				delegates.push_back(Delegate<R(Args...)>::Make<C, Function>(instance));
-			}
+			  /**
+			  *@brief Invoke all the delegates. With return handling.
+			  * Example code:
+			  * @code
+			  * Event<int(int)> eve;
+			  * eve += [](int i) {return i * 2; };
+			  * int i = 5;
+			  * eve += [i](int a) {return i + a; };
+			  *
+			  * eve(1, [](size_t index, int* ret) {
+			  * 	std::cout << *ret << std::endl;
+			  * }); // Prints 2, 6
+			  * @endcode
+			  */
+			void operator()(PARAMS... param, Delegate<void(size_t, RET*)> handler) const {
+				operator()<decltype(handler)>(param..., handler);
+			} 
 
 			/**
-			* @brief Removes a function.
-			* @sa Event
+			*@brief Invoke all the delegates. With return handling.
+			* Example code:
+			* @code
+			* Event<int(int)> eve;
+			* eve += [](int i) {return i * 2; };
+			* int i = 5;
+			* eve += [i](int a) {return i + a; };
+			*
+			* eve(1, [](size_t index, int* ret) {
+			* 	std::cout << *ret << std::endl;
+			* }); // Prints 2, 6
+			* @endcode
 			*/
-			template<R(*Function)(Args...)>
-			inline void Remove(void)
-			{
-				delegates.remove(Delegate<R(Args...)>::Make<Function>());
+			void operator()(PARAMS... param, std::function<void(size_t, RET*)> handler) const {
+				operator()<decltype(handler)>(param..., handler);
 			}
-
-			/**
-			* @brief Removes a class method.
-			* @sa Event
-			*/
-			template<class C, R(C::*Function)(Args...)>
-			inline void Remove(C* instance)
-			{
-				delegates.remove(Delegate<R(Args...)>::Make<C, Function>(instance));
-			}
-
-			/**
-			* @brief Removes a const class method.
-			* @sa Event
-			*/
-			template<class C, R(C::*Function)(Args...) const>
-			inline void Remove(const C* instance)
-			{
-				delegates.remove(Delegate<R(Args...)>::Make<C, Function>(instance));
-			}
-		private:
-			std::list<Delegate<R(Args...)>> delegates;
 		};
+
 	}
 }
-#endif
+#endif //SE_UTILZ_EVENT_H_

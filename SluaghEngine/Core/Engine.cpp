@@ -59,6 +59,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
+	lightManager = new LightManager(renderer, *entityManager, transformManager);
 
 	InitStartupOption();
 
@@ -69,6 +70,7 @@ int SE::Core::Engine::Frame(double dt)
 {
 	StartProfile;
 	guiManager->Frame();
+	lightManager->Frame();
 	transformManager->Frame();
 	renderableManager->Frame();
 	debugRenderManager->Frame(*perFrameStackAllocator);
@@ -85,10 +87,10 @@ int SE::Core::Engine::Frame(double dt)
 
 int SE::Core::Engine::Release()
 {
-	resourceHandler->Shutdown();
 	renderer->Shutdown();
 	window->Shutdown();
-	audioManager->Shutdown();	
+	audioManager->Shutdown();
+	resourceHandler->Shutdown();
 	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
@@ -107,6 +109,7 @@ int SE::Core::Engine::Release()
 	delete optionHandler;
 	delete perFrameStackAllocator;
 	delete guiManager;
+	delete lightManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
 	return 0;
 }
@@ -138,7 +141,7 @@ void SE::Core::Engine::InitStartupOption()
 		renderer->ResizeSwapChain(window->GetHWND());
 	}
 
-	optionHandler->Register(Utilz::Delegate<void()>::Make<Engine, &Engine::OptionUpdate>(this));
+	optionHandler->Register({ this, &Engine::OptionUpdate });
 }
 
 void SE::Core::Engine::OptionUpdate()

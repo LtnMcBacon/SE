@@ -1,5 +1,6 @@
 
 #include <FBXConverter.h>
+#include <Utilz\PathParsing.h>
 
 #pragma comment(lib, "libfbxsdk.lib")
 
@@ -39,10 +40,11 @@ void SE::FBX::FBXConverter::Deallocate() {
 
 }
 
-bool SE::FBX::FBXConverter::Load(string fileName, string exportFolder) {
+bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder) {
 
 	// Check if the FBX file was loaded properly
-
+	workingDirectory = Utilz::getPath(fileName);
+	Utilz::get_all_files_names_within_folder(workingDirectory, filesInWorkingDirectory);
 	if (!LoadFBXFormat(fileName, exportFolder)) {
 
 		cout << "\nFailed to load the FBX format. Verify that the path is correct.\nPress Enter to quit..." << endl;
@@ -65,7 +67,8 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 	// INITIALIZE FBX SDK MANAGER
 	//------------------------------------------------------------------------------//
 
-	fileName = removeExtension(getFilename(mainFileName));
+
+	fileName = Utilz::removeExtension(Utilz::getFilename(mainFileName));
 
 	//Path to export to (This must be the asset folder)
 	path pathName = exportFolder;
@@ -74,9 +77,6 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 	// Filesystem can create the folder directory for us given a path based on the previously entered path name
 	folderName = pathName.string();
 	create_directory(folderName);
-
-	logFolder = folderName + "/Log/";
-	create_directory(logFolder);
 
 	logFolder = folderName + "/Log/";
 	create_directory(logFolder);
@@ -1011,7 +1011,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				const FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
 				// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
-				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() - 1 : 0;
+				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
 				CurrentAnimation.Keyframes.resize(numKeys);
 				CurrentAnimation.Length = numKeys;
 				logFile << "-------------------------------------------------------\n"
@@ -1023,18 +1023,26 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 
-					// Receive the value on the selected channel on the current keyframe
-					float translationX = static_cast<float>(translationCurveX->KeyGetValue(timeIndex));
-					float translationY = static_cast<float>(translationCurveY->KeyGetValue(timeIndex));
-					float translationZ = static_cast<float>(translationCurveZ->KeyGetValue(timeIndex));
-					
-					float rotationX = static_cast<float>(rotationCurveX->KeyGetValue(timeIndex));
-					float rotationY = static_cast<float>(rotationCurveY->KeyGetValue(timeIndex));
-					float rotationZ = static_cast<float>(rotationCurveZ->KeyGetValue(timeIndex));
-					
-					float scalingX = static_cast<float>(scalingCurveX->KeyGetValue(timeIndex));
-					float scalingY = static_cast<float>(scalingCurveY->KeyGetValue(timeIndex));
-					float scalingZ = static_cast<float>(scalingCurveZ->KeyGetValue(timeIndex));
+					FbxAnimCurveKey TranslationXKey = translationCurveX->KeyGet(timeIndex);
+					float translationX = TranslationXKey.GetValue();
+					FbxAnimCurveKey TranslationYKey = translationCurveY->KeyGet(timeIndex);
+					float translationY = TranslationYKey.GetValue();
+					FbxAnimCurveKey TranslationZKey = translationCurveZ->KeyGet(timeIndex);
+					float translationZ = TranslationZKey.GetValue();
+
+					FbxAnimCurveKey RotationXKey = rotationCurveX->KeyGet(timeIndex);
+					float rotationX = RotationXKey.GetValue();
+					FbxAnimCurveKey RotationYKey = rotationCurveY->KeyGet(timeIndex);
+					float rotationY = RotationYKey.GetValue();
+					FbxAnimCurveKey RotationZKey = rotationCurveZ->KeyGet(timeIndex);
+					float rotationZ = RotationZKey.GetValue();
+				
+					FbxAnimCurveKey ScalingXKey = scalingCurveX->KeyGet(timeIndex);
+					float scalingX = ScalingXKey.GetValue();
+					FbxAnimCurveKey ScalingYKey = scalingCurveY->KeyGet(timeIndex);
+					float scalingY = ScalingYKey.GetValue();
+					FbxAnimCurveKey ScalingZKey = scalingCurveZ->KeyGet(timeIndex);
+					float scalingZ = ScalingZKey.GetValue();
 
 					// Build the vectors for the global transform matrix
 					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
@@ -1221,8 +1229,8 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			FbxFileTexture* textureFile = (FbxFileTexture*)materialTexture;
 
-			texture.texturePath = textureFile->GetFileName();
-			texture.textureName = removeExtension(getFilename(textureFile->GetFileName()));
+			texture.texturePath = Utilz::getFilename(textureFile->GetFileName());
+			texture.textureName = Utilz::removeExtension(Utilz::getFilename(textureFile->GetFileName()));
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1238,12 +1246,20 @@ bool SE::FBX::FBXConverter::ExportTexture(Texture &texture, string textureFolder
 	string textureName = texture.textureName;
 	string extension = "." + texturePath.substr(texturePath.find(".") + 1);
 
+	for (auto& f : filesInWorkingDirectory)
+	{
+		if (texturePath == f.name)
+		{
+			texturePath = f.fullPath;
+			break;
+		}
+	}
 	// Filesystem can copy the texture file for us, given a texture path and settings ( currently set to overwrite )
 	try {
 		copy_file(texturePath, textureFolder + textureName + extension, std::experimental::filesystem::copy_options::overwrite_existing);
 
 	} catch (filesystem_error& e) {
-		std::cout << "Could not copy texture: " << e.what() << '\n';
+		std::cout << "Could not copy texture: " << textureName  << e.what() << "\n";
 		return false;
 	}
 
@@ -1716,24 +1732,4 @@ void SE::FBX::FBXConverter::PrintMeshData(Mesh& mesh) {
 			<< "\nTexture Path: " << mesh.objectMaterial.textures[index].texturePath.c_str() << "\n\n";
 
 	}
-}
-
-string SE::FBX::FBXConverter::getFilename(string const& path) {
-
-	const size_t last_slash_idx = path.find_last_of("\\/");
-	if (std::string::npos != last_slash_idx)
-	{
-		return path.substr(last_slash_idx + 1);
-	}
-	return path;
-}
-
-string SE::FBX::FBXConverter::removeExtension(const string& path) {
-
-	const size_t period_idx = path.find_last_of('.');
-	if (std::string::npos != period_idx)
-	{
-		return path.substr(0, period_idx);
-	}
-	return path;
 }

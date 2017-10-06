@@ -13,7 +13,7 @@ SE::Core::CameraManager::CameraManager(Graphics::IRenderer* renderer, const Enti
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
 
-	transformManager->SetDirty.Add<CameraManager, &CameraManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &CameraManager::SetDirty};
 
 
 	Allocate(2);

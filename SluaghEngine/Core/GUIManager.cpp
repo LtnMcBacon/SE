@@ -1,14 +1,6 @@
 #include <Core\GUIManager.h>
 #include <Profiler.h>
-#include <Utilz\Console.h>
 #include <list>
-
-
-#ifdef _DEBUG
-#pragma comment(lib, "UtilzD.lib")
-#else
-#pragma comment(lib, "Utilz.lib")
-#endif
 
 namespace SE {
 	namespace Core {
@@ -19,7 +11,7 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", { this, &GUIManager::LoadFont });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -40,7 +32,7 @@ namespace SE {
 			if (inTextInfo.fontID >= guidToFont.size())
 				ProfileReturnVoid;
 			
-			entID[entity] = loadedTexts.size();
+			entID[entity].ID = loadedTexts.size();
 			ent.push_back(entity);
 			loadedTexts.push_back(inTextInfo);
 			ProfileReturnVoid;	
@@ -53,13 +45,15 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && loadedTexts[entID[entity]].fontID > -1)
+				if (show && !entID[entity].show)
 				{
-					renderer->EnableTextRendering(loadedTexts[entID[entity]]);
+					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
+					entID[entity].show = true;
 				}
-				else if (!show)
+				else if (!show && entID[entity].show)
 				{
-					renderer->DisableTextRendering(loadedTexts[entID[entity]]);
+					renderer->DisableTextRendering(loadedTexts[entID[entity].ID]);
+					entID[entity].show = false;
 				}
 				ProfileReturnVoid;
 			}
@@ -74,7 +68,7 @@ namespace SE {
 		int GUIManager::CreateTextFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource(fontFile, { this, &GUIManager::LoadFont });
 			
 			ProfileReturnConst(0);
 		}
@@ -86,7 +80,7 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[texFile].textureHandle = -1;
-				resourceHandler->LoadResource(texFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadTexture>(this)); 
+				resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
 				ProfileReturnConst(-1);
 			}
 			else if (textureGUID[texFile].textureHandle != -1)
@@ -124,13 +118,15 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1)
+				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1 && !entTextureID[entity].show)
 				{
 					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
+					entTextureID[entity].show = true;
 				}
-				else if (!show)
+				else if (!show && entTextureID[entity].show)
 				{
 					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
+					entTextureID[entity].show = false;
 				}
 				ProfileReturnVoid;
 			}
@@ -208,7 +204,7 @@ namespace SE {
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextRendering(loadedTexts[entID[ent[i]]]);
+					renderer->DisableTextRendering(loadedTexts[entID[ent[i]].ID]);
 					DestroyText(i);
 				}
 				garbage = true;

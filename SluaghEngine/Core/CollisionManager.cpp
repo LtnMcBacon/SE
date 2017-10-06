@@ -2,6 +2,8 @@
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
 using namespace DirectX;
 
 SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
@@ -10,20 +12,25 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 	_ASSERT(resourceHandler);
 	_ASSERT(transformManager);
 
-	transformManager->SetDirty.Add<CollisionManager, &CollisionManager::SetDirty>(this);
-
-	defaultHierarchy = 0;
-
-
+	transformManager->RegisterSetDirty({ this, &CollisionManager::SetDirty });
 
 	Allocate(128);
 	AllocateBH(64);
+
+
+	defaultHierarchy = 0;
+	boundingHierarchy.used++;
+	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
+		LoadMesh(defaultHierarchy, data, size);
+
+		return 1;
+	});
+
+
 }
 
 SE::Core::CollisionManager::~CollisionManager()
 {
-	for(size_t i = 0; i < collisionData.used; i++)
-		collisionData.collisionWithAnyCallback[i].~Delegate();
 	delete collisionData.data;
 	delete boundingHierarchy.data;
 }
@@ -52,25 +59,42 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 		entityToCollisionData[entity] = newEntry;
 		collisionData.entity[newEntry] = entity;
 
+		transformManager->Create(entity);
+
 		// Load the mesh
 		{
-			auto& findHi = guidToBoundingInfoIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
-			auto& bIndex = guidToBoundingInfoIndex[mesh];
-			if (findHi == guidToBoundingInfoIndex.end()) // If not created
+			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto& bIndex = guidToBoudningIndex[mesh];
+			if (findHi == guidToBoudningIndex.end()) // If not created
 			{
 				// Make sure we have enough memory.
 				if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
-					AllocateBH(boundingHierarchy.allocated + 10); // TODO: Make thread safe
+					AllocateBH(boundingHierarchy.allocated*2); // TODO: Make thread safe
 
-
-				boundingInfoIndex.push_back({ defaultHierarchy, 0 }); // Setup the deafult info.
-				bIndex = boundingInfoIndex.size() - 1;
+				auto cp = bIndex = boundingInfo.size();
+				boundingInfo.push_back({ defaultHierarchy }); // Setup the deafult info.
+				
 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
-				guidToBoundingHierarchyIndex[mesh] = newHI;
+			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+				auto res = resourceHandler->LoadResource(mesh, [this, cp, newHI](auto mesh, auto data, auto size) ->int {
+			
 
-				auto res = resourceHandler->LoadResource(mesh, ResourceHandler::LoadResourceDelegate::Make<CollisionManager, &CollisionManager::LoadMesh>(this));
+					LoadMesh(newHI, data, size);
+					boundingInfo[cp].index = newHI;
+					entityUpdateLock.lock();
+					for (auto& e : boundingInfo[cp].entities)
+					{
+						infoLock.lock();
+						transformManager->SetAsDirty(e);
+						infoLock.unlock();
+					}
+					entityUpdateLock.unlock();
+
+					return 1;
+				}, true);
+
 
 				if (res)
 					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
@@ -78,10 +102,10 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			}
 
 			collisionData.boundingIndex[newEntry] = bIndex;
-			boundingInfoIndex[bIndex].refCount++;
-			
-
-			
+			entityUpdateLock.lock();
+			boundingInfo[bIndex].entities.push_back(entity);
+			entityUpdateLock.unlock();
+			transformManager->SetAsDirty(entity);
 
 		}
 
@@ -90,13 +114,12 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 	StopProfile;
 }
 
-void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity, const CollideCallbackDelegate & callback)
+void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity)
 {
 	auto& find = entityToCollisionData.find(entity);
 	if (find != entityToCollisionData.end())
 	{
 		collisionData.collisionWithAny[find->second] = true;
-		collisionData.collisionWithAnyCallback[find->second] = callback;
 	}
 }
 
@@ -139,32 +162,40 @@ void SE::Core::CollisionManager::Frame()
 	StartProfile;
 	GarbageCollection();
 
-	// First update all bounding data
-	for (auto& dirty : dirtyEntites)
 	{
-		// TODO: Multithread
-		auto& mySphere = boundingHierarchy.sphere[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
-		auto& myAABB = boundingHierarchy.AABB[boundingInfoIndex[collisionData.boundingIndex[dirty.myIndex]].index];
-		XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->dirtyTransforms[dirty.transformIndex]);
-		mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);	
-		myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
-	}
-	// Now check if any of the newly updated entities collided with anything
-	for (auto& dirty : dirtyEntites)
-	{
-		if (collisionData.collisionWithAny[dirty.myIndex])
+		// First update all bounding data
+		for (auto& dirty : dirtyEntites)
 		{
-			auto& mySphere = collisionData.sphereWorld[dirty.myIndex]; // Already transformed
-			for (size_t i = 0; i < collisionData.used; i++)
+			// TODO: Multithread
+			auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
+			auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
+			XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->GetCleanedTransforms()[dirty.transformIndex]);
+			mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);
+			myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
+		}
+	}
+
+	{
+		// Now check if any of the newly updated entities collided with anything
+		for (auto& dirty : dirtyEntites)
+		{
+			if (collisionData.collisionWithAny[dirty.myIndex])
 			{
-				auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
-				if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere) )
+				auto& mySphere = collisionData.sphereWorld[dirty.myIndex]; // Already transformed
+				for (size_t i = 0; i < collisionData.used; i++)
 				{
-					collisionData.collisionWithAnyCallback[dirty.myIndex](collisionData.entity[dirty.myIndex], collisionData.entity[i]);
+					auto& otherSphere = collisionData.sphereWorld[i]; // Already transformed
+					if (dirty.myIndex != i  &&  mySphere.Intersects(otherSphere))
+					{
+						auto& otherAABB = collisionData.AABBWorld[i]; // Already transformed
+						auto& myAABB = collisionData.AABBWorld[dirty.myIndex]; // Already transformed
+						if(myAABB.Intersects(otherAABB))
+							collideWithAny(collisionData.entity[dirty.myIndex], collisionData.entity[i]);
+					}
 				}
+
+
 			}
-
-
 		}
 	}
 	dirtyEntites.clear();
@@ -200,7 +231,6 @@ void SE::Core::CollisionManager::Allocate(size_t size)
 	newData.sphereWorld = (BoundingSphere*)(newData.boundingIndex + newData.allocated);
 	newData.AABBWorld = (BoundingBox*)(newData.sphereWorld + newData.allocated);
 	newData.collisionWithAny = (uint8_t*)(newData.AABBWorld + newData.allocated);
-	newData.collisionWithAnyCallback = (CollideCallbackDelegate*)(newData.collisionWithAny + newData.allocated);
 
 
 	// Copy data
@@ -209,7 +239,6 @@ void SE::Core::CollisionManager::Allocate(size_t size)
 	memcpy(newData.sphereWorld, collisionData.sphereWorld, collisionData.used * sizeof(BoundingSphere));
 	memcpy(newData.AABBWorld, collisionData.AABBWorld, collisionData.used * sizeof(BoundingBox));
 	memcpy(newData.collisionWithAny, collisionData.collisionWithAny, collisionData.used * sizeof(uint8_t));
-	memcpy(newData.collisionWithAnyCallback, collisionData.collisionWithAnyCallback, collisionData.used * sizeof(CollideCallbackDelegate));
 
 	// Delete old data;
 	operator delete(collisionData.data);
@@ -231,7 +260,6 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	collisionData.entity[index] = last_entity;
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
-	collisionData.collisionWithAnyCallback[index] = collisionData.collisionWithAnyCallback[last];
 
 	// Replace the index for the last_entity 
 	entityToCollisionData[last_entity] = index;
@@ -293,15 +321,13 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 {
 }
 
-#include <Graphics\FileHeaders.h>
-#include <Graphics\VertexStructs.h>
 
-int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, size_t size)
+int SE::Core::CollisionManager::LoadMesh(size_t newHI, void * data, size_t size)
 {
 	StartProfile;
+	using namespace std::chrono_literals;
 
-	auto newHI = guidToBoundingHierarchyIndex[guid];
-
+	std::this_thread::sleep_for(1s);
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 
 	if (meshHeader->vertexLayout == 0) {
@@ -315,12 +341,6 @@ int SE::Core::CollisionManager::LoadMesh(const Utilz::GUID & guid, void * data, 
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 		CreateBoundingHierarchy(newHI, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
-
-	auto bIndex = guidToBoundingInfoIndex[guid];
-
-	boundingInfoIndex[bIndex].index = newHI;
-
-
 
 	ProfileReturnConst(0);
 }

@@ -7,7 +7,7 @@ namespace SE {
 			:resourceHandler(resourceHandler), entityManager(entityManager)
 		{
 
-			assert(resourceHandler);
+			_ASSERT(resourceHandler);
 
 		}
 
@@ -31,7 +31,7 @@ namespace SE {
 			auto fileLoaded = trackSound.find(soundFile);
 			if (fileLoaded == trackSound.end())
 			{
-				resourceHandler->LoadResource(soundFile, ResourceHandler::LoadResourceDelegate::Make<AudioManager, &AudioManager::retSoundData>(this));
+				resourceHandler->LoadResource(soundFile, { this, &AudioManager::retSoundData });
 				ProfileReturnConst(-1);
 			}
 			else

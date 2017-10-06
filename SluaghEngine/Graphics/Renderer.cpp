@@ -4,6 +4,8 @@
 
 #undef min
 
+
+
 SE::Graphics::Renderer::Renderer()
 {
 	oncePerFrameBufferID = -1;
@@ -30,8 +32,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
-	
-
+	currentEntityTimePos = 0;
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -49,6 +50,13 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	
 
 	graphicResourceHandler->CreateSamplerState();
+
+	lightBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * lightBufferSize);
+	if (lightBufferID < 0)
+	{
+		throw std::exception("Could not create LightDataBuffer");
+	}
+
 
 	ProfileReturnConst( 0);
 }
@@ -287,6 +295,27 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 	return 0;
 }
 
+int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
+{
+	StartProfile;
+	renderLightJobs.push_back(handles);
+	ProfileReturn(renderLightJobs.size() - 1);
+}
+
+int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
+{
+	StartProfile;
+	renderLightJobs[ID] = renderLightJobs[renderLightJobs.size() - 1];
+	renderLightJobs.pop_back();
+	ProfileReturn(renderLightJobs.size());
+}
+
+int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t ID)
+{
+	renderLightJobs[ID].pos = DirectX::XMFLOAT4(pos.x, pos.y, pos.z, renderLightJobs[ID].pos.w);
+	return 0;
+}
+
 int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 {
 	DirectX::XMFLOAT4X4 wo;
@@ -298,9 +327,13 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
+
+	//currentEntityTimePos += 1;
+
+	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
+
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
-
 
 	ID3D11RenderTargetView* views[] = { device->GetRTV() };
 	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
@@ -317,10 +350,20 @@ int SE::Graphics::Renderer::Render() {
 	1.0f, 
 	0);
 
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// SetLightBuffer Start
+	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+	LightDataBuffer lightBufferData;
+	lightBufferData.size.x = renderLightJobs.size();
 
-	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	for (int lightNr = 0; lightNr < renderLightJobs.size(); lightNr++)
+	{
+		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
+	}
+	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
+	// SetLightBuffer end
 	
+
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -332,6 +375,8 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 	previousJob.vertexShader = -1;
+
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	renderJobLock.lock();
 	for(auto& bucket : renderBuckets)
@@ -368,6 +413,10 @@ int SE::Graphics::Renderer::Render() {
 				}
 			}
 		}
+		if (previousJob.wireframe != job.wireframe)
+		{
+			device->SetRasterStateFill(job.wireframe);
+		}
 		if(previousJob.pixelShader != job.pixelShader || previousJob.vertexShader != job.vertexShader)
 			graphicResourceHandler->SetMaterial(job.vertexShader, job.pixelShader);
 		if(previousJob.bufferHandle != job.bufferHandle)
@@ -376,17 +425,36 @@ int SE::Graphics::Renderer::Render() {
 			if(previousJob.textureHandles[i] != job.textureHandles[i] || previousJob.textureBindings[i] != job.textureBindings[i])
 				graphicResourceHandler->BindShaderResourceView(job.textureHandles[i], job.textureBindings[i]);
 
+		int bindSlot;
+		auto viewProjHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerFrame", &bindSlot);
+		graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, bindSlot);
+
+		auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+		graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
+
 		if(job.type == RenderObjectInfo::JobType::STATIC){
 
 			const size_t instanceCount = bucket.transforms.size();
-			int bindSlot;
-			const int constBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
-			graphicResourceHandler->BindVSConstantBuffer(constBufferHandle, bindSlot);
+			
+			int binsSlotInvers;
+			//int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+			//graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
 			for (int i = 0; i < instanceCount; i += maxDrawInstances)
 			{
 				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, constBufferHandle);
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
+				//graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 			}
 
@@ -394,21 +462,32 @@ int SE::Graphics::Renderer::Render() {
 
 		else if (job.type == RenderObjectInfo::JobType::SKINNED) {
 
-			/*
 			int boneBindslot;
-			int worldBindslot;
 			const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
-			const int cWorldBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &worldBindslot);
-
 			graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
-			graphicResourceHandler->BindVSConstantBuffer(cWorldBufferIndex, worldBindslot);
 
-			int drawCallCount = bucket.transforms.size();
+			
+			std::vector<DirectX::XMFLOAT4X4> inversVec;
+			for (int i = 0; i < bucket.transforms.size(); i++)
+			{
+				DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+				invers = DirectX::XMMatrixInverse(nullptr, invers);
+				DirectX::XMFLOAT4X4 fInvers;
+				DirectX::XMStoreFloat4x4(&fInvers, invers);
+				inversVec.push_back(fInvers);
+			}
 
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * bucket.gBoneTransforms.size(), cBoneBufferIndex);
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[0], sizeof(DirectX::XMFLOAT4X4), cWorldBufferIndex);
-			device->GetDeviceContext()->Draw(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), 0);
-			*/
+			bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+			graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+
+			const size_t instanceCount = bucket.transforms.size();
+			for (int i = 0; i < instanceCount; i += maxDrawInstances)
+			{
+				const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+				const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;	
+				graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
+				device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+			}
 		}
 
 		
@@ -416,44 +495,44 @@ int SE::Graphics::Renderer::Render() {
 	}
 	renderJobLock.unlock();
 
-	/********** Render line jobs ************/
+	///********** Render line jobs ************/
 
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
-	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
 
-	for(auto& lineJob : lineRenderJobs)
-	{
-		if (lineJob.verticesToDrawCount == 0)
-			continue;
-		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
-		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
-		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
-		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
-	}
-	
-	/********END render line jobs************/
+	//for(auto& lineJob : lineRenderJobs)
+	//{
+	//	if (lineJob.verticesToDrawCount == 0)
+	//		continue;
+	//	graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+	//	graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	//}
+	//
+	///********END render line jobs************/
 
 
-	if (renderTextureJobs.size())
-	{
-		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
-		for (auto& job : renderTextureJobs)
-		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-		}
-		spriteBatch->End();
-	}
-	
-	if (renderTextJobs.size())
-	{
-		spriteBatch->Begin();
-		for (auto& job : renderTextJobs)
-		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-		}
-		spriteBatch->End();
-	}
+	//if (renderTextureJobs.size())
+	//{
+	//	spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+	//	for (auto& job : renderTextureJobs)
+	//	{
+	//		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	//	}
+	//	spriteBatch->End();
+	//}
+	//
+	//if (renderTextJobs.size())
+	//{
+	//	spriteBatch->Begin();
+	//	for (auto& job : renderTextJobs)
+	//	{
+	//		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	//	}
+	//	spriteBatch->End();
+	//}
 
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendState();

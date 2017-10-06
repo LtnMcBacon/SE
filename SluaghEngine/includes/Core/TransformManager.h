@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "EntityManager.h"
 #include <Utilz\Event.h>
+#include <mutex>
 
 namespace SE
 {
@@ -21,11 +22,11 @@ namespace SE
 		**/
 	//	class RenderableManager;
 		class TransformManager
-		{		
+		{
 			friend class RenderableManager;
-			friend class CollisionManager;
 			friend class CameraManager;
 			friend class DebugRenderManager;
+			friend class LightManager;
 		public:
 			TransformManager(EntityManager* em);
 			~TransformManager();
@@ -42,7 +43,7 @@ namespace SE
 			* @warning MUST BE CALLED BEFORE ANY OTHER METHOD FOR A GIVEN ENTITY.
 			*/
 			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
-			
+
 			/**
 			* @brief    Bind an entity as a child to another entity. This will update the transform of the child when the parent change.
 			* @param[in] parent The parent entity
@@ -51,7 +52,7 @@ namespace SE
 			* @warning A parent can only have one child. An entity with a child can not have a parent. An entity with a parent can not have a child.
 			*/
 			void BindChild(const Entity& parent, const Entity& child, bool rotation = true);
-			
+
 
 
 			/**
@@ -148,7 +149,7 @@ namespace SE
 			*/
 			const DirectX::XMFLOAT3& GetScale(const Entity& e) const;
 
-			
+
 			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const;
 
 			/**
@@ -167,6 +168,15 @@ namespace SE
 			*/
 			void Frame();
 
+			inline void RegisterSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>& callback)
+			{
+				SetDirty += callback;
+			}
+		
+			inline const DirectX::XMFLOAT4X4* GetCleanedTransforms()const
+			{
+				return &dirtyTransforms[0];
+			}
 		private:
 			void SetAsDirty(size_t index);
 
@@ -203,6 +213,8 @@ namespace SE
 
 			void ExpandTransforms();
 			
+			std::vector<Entity> entityStack;
+			std::mutex queueLock;
 		};
 	}
 }
