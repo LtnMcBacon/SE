@@ -158,8 +158,8 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	infoLock.lock();
 	// Temp variables
 	size_t last = materialInfo.used - 1;
-	const Entity& entity = materialInfo.entity[index];
-	const Entity& last_entity = materialInfo.entity[last];
+	const Entity entity = materialInfo.entity[index];
+	const Entity last_entity = materialInfo.entity[last];
 
 	// Copy the data
 	materialInfo.entity[index] = last_entity;

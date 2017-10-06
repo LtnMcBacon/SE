@@ -124,6 +124,11 @@ namespace SE
 				return (data[int(xCoord - lowerLeftCornerXCoord)][int(yCoord - lowerLeftCornerYCoord)].type == Type::BLOCKED);
 			};
 
+			inline float GetSideLength()
+			{
+				return sideLength;
+			};
+
 		};
 
 	}

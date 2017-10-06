@@ -3,6 +3,7 @@
 #include <vector>
 #include "EnemyUnit.h"
 #include "FlowField.h"
+#include "Projectile.h"
 
 namespace SE
 {
@@ -182,7 +183,20 @@ namespace SE
 			*/
 			void UpdateAdjacentRooms(float dt);
 
+			/**
+			* @brief	Helper function for line intersection
+			*/
+			bool OnSegment(float pX, float pY, float qX, float qY, float rX, float rY);
 
+			/**
+			* @brief	Helper function for line intersection
+			*/
+			int Orientation(float pX, float pY, float qX, float qY, float rX, float rY);
+
+			/**
+			* @brief	Function for checking if a line p1, p2 intersects another line q1,q2
+			*/
+			bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
 
 		public:
 			Room(char map[25][25]);
@@ -309,6 +323,7 @@ namespace SE
 			*/
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
+			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
 		};
 
 	}
