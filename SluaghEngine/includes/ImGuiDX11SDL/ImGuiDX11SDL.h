@@ -7,7 +7,11 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct SDL_Window;
 typedef union SDL_Event SDL_Event;
-IMGUI_API bool        ImGuiDX11SDL_Init(SDL_Window* window, ID3D11Device* device, ID3D11DeviceContext* device_context);
+
+#include <Window\IWindow.h>
+#include <Graphics\IRenderer.h>
+
+IMGUI_API bool        ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window);
 IMGUI_API bool		  ImGuiDX11SDL_ProcessEvent(SDL_Event* event);
 IMGUI_API void        ImGuiDX11SDL_Shutdown();
 IMGUI_API void        ImGuiDX11SDL_NewFrame();

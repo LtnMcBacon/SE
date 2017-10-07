@@ -5,12 +5,18 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
 
+#include <Imgui\imgui.h>
+#include <ImGuiDX11SDL\ImGuiDX11SDL.h>
+
+
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
 #pragma comment(lib, "WindowD.lib")
+#pragma comment(lib, "ImGuiDX11SDLD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
 #pragma comment(lib, "Window.lib")
+#pragma comment(lib, "ImGuiDX11SDL.lib");
 #endif
 
 
@@ -63,13 +69,26 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	InitStartupOption();
 
+	ImGuiDX11SDL_Init(renderer, window);
+
+	return 0;
+}
+
+int SE::Core::Engine::BeginFrame()
+{
+	if (frameBegun)
+		return -1;
+	frameBegun = true;
+	ImGuiDX11SDL_NewFrame();
+	renderer->BeginFrame();
 	return 0;
 }
 
 int SE::Core::Engine::Frame(double dt)
 {
 	StartProfile;
-	renderer->BeginFrame();
+	if (!frameBegun)
+		BeginFrame();
 	guiManager->Frame();
 	lightManager->Frame();
 	transformManager->Frame();
@@ -77,18 +96,22 @@ int SE::Core::Engine::Frame(double dt)
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	audioManager->Frame();
 	animationManager->Frame();
-	//debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
 	window->Frame();
 	cameraManager->Frame();
 	renderer->Render();
+	ImGui::Render();
 	renderer->EndFrame();
+	perFrameStackAllocator->ClearStackAlloc();
+	frameBegun = false;
 	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Release()
 {
+	ImGuiDX11SDL_Shutdown();
+	
 	renderer->Shutdown();
 	window->Shutdown();
 	audioManager->Shutdown();

@@ -499,6 +499,12 @@ void* SE::Window::WindowSDL::GetHWND()
 	return static_cast<void*>(hwnd);
 }
 
+void * SE::Window::WindowSDL::GetWindowImplementation(WindowImplementation implementation)
+{
+	_ASSERT(implementation == WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+	return window;
+}
+
 bool SE::Window::WindowSDL::ButtonDown(uint32_t actionButton) const
 {
 	return GetKeyState(actionButton) & DOWN;

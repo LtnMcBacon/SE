@@ -14,6 +14,10 @@ namespace SE
 {
 	namespace Window
 	{
+		enum class WindowImplementation
+		{
+			WINDOW_IMPLEMENTATION_SDL
+		};
 		enum class WindowState
 		{
 			Regular,
@@ -269,6 +273,14 @@ namespace SE
 			* @brief Returns a pointer to the window handle
 			*/
 			virtual void* GetHWND() = 0;
+
+			/**
+			* @brief Returns a pointer to the implementation specific window. In the case of SDL, it returns a SDL_Window*
+			* @param[in] implementation The implementation to get the window pointer from.
+			* @retval ptr Valid pointer on success
+			* @retval nullptr Nullptr if no such window exists.
+			*/
+			virtual void* GetWindowImplementation(WindowImplementation implementation) = 0;
 
 			/**
 			* @brief Checks whether or no the bound action button is down or not. An action button must be bound with MapActionButton before this method is called

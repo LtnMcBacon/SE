@@ -1,7 +1,7 @@
 #include "DebugRenderTest.h"
 #include <Core\Engine.h>
 #include <Utilz/Timer.h>
-
+#include <Imgui/imgui.h>
 SE::Test::DebugRenderManagerTest::DebugRenderManagerTest()
 {
 }
@@ -22,7 +22,8 @@ enum ActionButton
 	Fullscreen,
 	FrameTime,
 	Jiggle,
-	RemoveStuff
+	RemoveStuff,
+	Console
 };
 bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 {
@@ -95,6 +96,8 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
 	w->MapActionButton(ActionButton::Jiggle, Window::KeyJ);
 	w->MapActionButton(RemoveStuff, Window::KeyR);
+	w->MapActionButton(Console, Window::KeyC);
+	
 
 	bool running = true;
 	Utilz::Timer timer;
@@ -103,8 +106,11 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	int full = oh.GetOption("Window", "fullScreen", 0);
 	float jiggler = 0.0f;
 	uint32_t removeIndex = 0;
+	bool showConsole = false;
 	while (running)
 	{
+		engine.BeginFrame();
+		
 		timer.Tick();
 		float dt = timer.GetDelta();
 		if (w->ButtonPressed(ActionButton::Exit))
@@ -128,6 +134,16 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (removeIndex < numEnts && w->ButtonDown(RemoveStuff))
 			em.Destroy(ents[removeIndex++]);
 
+
+		if (w->ButtonPressed(ActionButton::Console))
+		{
+			showConsole = !showConsole;
+		}
+
+		if (showConsole)
+		{
+			ImGui::Text("I am the console.\n");
+		}
 
 
 		if (w->ButtonPressed(ActionButton::Hide))

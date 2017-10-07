@@ -19,7 +19,7 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("BlackPink.sei", { this, &MaterialManager::LoadDefaultTexture });
+	res = resourceHandler->LoadResource("TestDiffuse.sei", { this, &MaterialManager::LoadDefaultTexture });
 	if (res)
 		throw std::exception("Could not load default texture.");
 

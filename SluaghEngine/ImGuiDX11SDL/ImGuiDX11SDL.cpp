@@ -6,6 +6,14 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <Graphics\IRenderer.h>
+#include <Window\IWindow.h>
+
+#pragma comment(lib, "SDL2.lib")
+#pragma comment(lib, "SDL2main.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "d3d11.lib")
+
 // Data
 static double       g_Time = 0.0f;
 static bool         g_MousePressed[3] = { false, false, false };
@@ -488,11 +496,21 @@ void    ImGui_ImplDX11_InvalidateDeviceObjects()
 	if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
 }
 
-bool    ImGuiDX11SDL_Init(SDL_Window* window, ID3D11Device* device, ID3D11DeviceContext* device_context)
+bool    ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window)
 {
-	g_pd3dDevice = device;
-	g_pd3dDeviceContext = device_context;
-	g_SDLWindow = window;
+	struct DeviceInfo
+	{
+		ID3D11Device* device;
+		ID3D11DeviceContext* deviceContext;
+	};
+	DeviceInfo devInf = { nullptr, nullptr };
+	renderer->GetDeviceInfo(&devInf, sizeof(DeviceInfo));
+	_ASSERT(devInf.device);
+	_ASSERT(devInf.deviceContext);
+	g_pd3dDevice = devInf.device;
+	g_pd3dDeviceContext = devInf.deviceContext;
+	g_SDLWindow = (SDL_Window*)window->GetWindowImplementation(SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+	_ASSERT(g_SDLWindow);
 
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -522,7 +540,7 @@ bool    ImGuiDX11SDL_Init(SDL_Window* window, ID3D11Device* device, ID3D11Device
 #ifdef _WIN32
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
-	SDL_GetWindowWMInfo(window, &wmInfo);
+	SDL_GetWindowWMInfo(g_SDLWindow, &wmInfo);
 	io.ImeWindowHandle = wmInfo.info.win.window;
 	g_hWnd = wmInfo.info.win.window;
 #else
@@ -539,6 +557,8 @@ void ImGuiDX11SDL_Shutdown()
 	g_pd3dDevice = NULL;
 	g_pd3dDeviceContext = NULL;
 	g_hWnd = (HWND)0;
+	g_SDLWindow = nullptr;
+	g_Time = 0.0f;
 }
 
 void ImGuiDX11SDL_NewFrame()
@@ -548,6 +568,12 @@ void ImGuiDX11SDL_NewFrame()
 
 	ImGuiIO& io = ImGui::GetIO();
 
+	int w, h;
+	int display_w, display_h;
+	SDL_GetWindowSize(g_SDLWindow, &w, &h);
+	SDL_GL_GetDrawableSize(g_SDLWindow, &display_w, &display_h);
+	io.DisplaySize = ImVec2((float)w, (float)h);
+	io.DisplayFramebufferScale = ImVec2(w > 0 ? ((float)display_w / w) : 0, h > 0 ? ((float)display_h / h) : 0);
 
 
 	// Setup time step

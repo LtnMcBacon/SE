@@ -64,6 +64,15 @@ namespace SE
 			*/
 			int Init(const InitializationInfo& info);
 
+
+			/**
+			* @brief Begins the frame. If this call is never made before, Frame will call it
+			* @retval 0 On success
+			* @retval -1 If the frame has not ended before another call to frame
+			*/
+			int BeginFrame();
+
+
 			/**
 			* @brief    Updates the state of the Core, entity cleanup, input, etc.
 			*
@@ -253,6 +262,8 @@ namespace SE
 
 			GUIManager* guiManager;
 			LightManager* lightManager;
+
+			bool frameBegun;
 		};
 
 	}

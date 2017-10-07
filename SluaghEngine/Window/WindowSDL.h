@@ -31,7 +31,13 @@ namespace SE
 			
 
 			void* GetHWND() override;
-
+			/**
+			* @brief Returns a pointer to the SDL_Window
+			* @param[in] implementation The implementation to get the window pointer from.
+			* @retval ptr A pointer to the SDL_Window in use.
+			* @warning Aborts if implementation is not WINDOW_IMPLEMENTATION_SDL
+			*/
+			void* GetWindowImplementation(WindowImplementation implementation) override;
 			bool ButtonDown(uint32_t actionButton) const override;
 			bool ButtonPressed(uint32_t actionButton) const override;
 			bool ButtonUp(uint32_t actionButton) const override;
