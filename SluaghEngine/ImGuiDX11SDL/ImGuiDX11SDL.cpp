@@ -19,6 +19,7 @@ static double       g_Time = 0.0f;
 static bool         g_MousePressed[3] = { false, false, false };
 static float        g_MouseWheel = 0.0f;
 SDL_Window*			g_SDLWindow;
+SE::Window::IWindow* g_IWindow;
 
 
 static HWND                     g_hWnd = 0;
@@ -234,8 +235,10 @@ void ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data)
 	ctx->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
-bool  ImGuiDX11SDL_ProcessEvent(SDL_Event* event)
+void  ImGuiDX11SDL_ProcessEvents(void* ev, SE::Window::WindowImplementation windowImplementation)
 {
+	SDL_Event* event = (SDL_Event*)ev;
+	_ASSERT(windowImplementation == SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 	ImGuiIO& io = ImGui::GetIO();
 	switch (event->type)
 	{
@@ -245,19 +248,19 @@ bool  ImGuiDX11SDL_ProcessEvent(SDL_Event* event)
 			g_MouseWheel = 1;
 		if (event->wheel.y < 0)
 			g_MouseWheel = -1;
-		return true;
+		return;
 	}
 	case SDL_MOUSEBUTTONDOWN:
 	{
 		if (event->button.button == SDL_BUTTON_LEFT) g_MousePressed[0] = true;
 		if (event->button.button == SDL_BUTTON_RIGHT) g_MousePressed[1] = true;
 		if (event->button.button == SDL_BUTTON_MIDDLE) g_MousePressed[2] = true;
-		return true;
+		return;
 	}
 	case SDL_TEXTINPUT:
 	{
 		io.AddInputCharactersUTF8(event->text.text);
-		return true;
+		return;
 	}
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
@@ -268,10 +271,10 @@ bool  ImGuiDX11SDL_ProcessEvent(SDL_Event* event)
 		io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
 		io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
 		io.KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
-		return true;
+		return;
 	}
 	}
-	return false;
+	return;
 }
 
 
@@ -496,6 +499,18 @@ void    ImGui_ImplDX11_InvalidateDeviceObjects()
 	if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
 }
 
+static void KeyDownCallback(uint32_t actionButton, uint32_t sdlscancode)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	int key = sdlscancode & SDLK_SCANCODE_MASK;
+	io.KeysDown[key] = true;
+	io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+	io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+	io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+	io.KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+
+}
+
 bool    ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window)
 {
 	struct DeviceInfo
@@ -510,8 +525,12 @@ bool    ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow
 	g_pd3dDevice = devInf.device;
 	g_pd3dDeviceContext = devInf.deviceContext;
 	g_SDLWindow = (SDL_Window*)window->GetWindowImplementation(SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+	g_IWindow = window;
 	_ASSERT(g_SDLWindow);
 
+	window->RegisterOnEventCallback(ImGuiDX11SDL_ProcessEvents);
+	
+	
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.KeyMap[ImGuiKey_Tab] = SDLK_TAB;                     // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.

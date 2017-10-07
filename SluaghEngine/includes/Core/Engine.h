@@ -62,7 +62,7 @@ namespace SE
 			* @endcode
 			* @sa InitializationInfo, Release
 			*/
-			int Init(const InitializationInfo& info);
+			int Init(const InitializationInfo& info = InitializationInfo());
 
 
 			/**

@@ -12,7 +12,7 @@ typedef union SDL_Event SDL_Event;
 #include <Graphics\IRenderer.h>
 
 IMGUI_API bool        ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window);
-IMGUI_API bool		  ImGuiDX11SDL_ProcessEvent(SDL_Event* event);
+IMGUI_API void		  ImGuiDX11SDL_ProcessEvents(void* ev, SE::Window::WindowImplementation windowImplementation);
 IMGUI_API void        ImGuiDX11SDL_Shutdown();
 IMGUI_API void        ImGuiDX11SDL_NewFrame();
 

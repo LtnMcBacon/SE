@@ -53,6 +53,16 @@ namespace SE
 			void BindKeyDownCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void UnbindCallbacks() override;
+
+			/**
+			* @brief Calls the callback whenever an event, any event, happens. Calls the callback with a pointer to the SDL_Event as the parameter.
+			* @param[in] callback A delegate that is called when an event occurs
+			* @sa OnEventCallback
+			*/
+			bool RegisterOnEventCallback(const OnEventCallback& callback) override;
+
+
+			
 		
 			bool SetWindow(int height, int width, bool inFullscreen) override;
 		private:
@@ -85,6 +95,7 @@ namespace SE
 			std::map<uint32_t, std::vector<KeyCallback>> actionToKeyUpCallback;
 			std::map<uint32_t, std::vector<MouseClickCallback>> actionToMouseClickCallback;
 			std::vector<MouseMotionCallback> mouseMotionCallbacks;
+			std::vector<OnEventCallback> onEventCallbacks;
 
 			enum KeyState : uint32_t
 			{

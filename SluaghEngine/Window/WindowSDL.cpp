@@ -155,6 +155,8 @@ void SE::Window::WindowSDL::RegFrame()
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		switch(ev.type)
 		{
 		case SDL_KEYUP:
@@ -262,6 +264,7 @@ void SE::Window::WindowSDL::RecordFrame()
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev))
 	{
+		
 		switch (ev.type)
 		{
 			case SDL_KEYUP:
@@ -574,6 +577,14 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 		return 0;
 	return k->second;
 }
+
+bool SE::Window::WindowSDL::RegisterOnEventCallback(const OnEventCallback & callback)
+{
+	/*@TODO Add operator== to delegates so it can check for duplicates. The same callback shouldnt be registered twice unless the user does something he shouldn't.*/
+	onEventCallbacks.push_back(callback);
+	return true;
+}
+
 
 bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {

@@ -79,6 +79,7 @@ int SE::Core::Engine::BeginFrame()
 	if (frameBegun)
 		return -1;
 	frameBegun = true;
+	window->Frame();
 	ImGuiDX11SDL_NewFrame();
 	renderer->BeginFrame();
 	return 0;
@@ -98,7 +99,6 @@ int SE::Core::Engine::Frame(double dt)
 	animationManager->Frame();
 	materialManager->Frame();
 	collisionManager->Frame();
-	window->Frame();
 	cameraManager->Frame();
 	renderer->Render();
 	ImGui::Render();
