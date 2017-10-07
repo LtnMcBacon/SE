@@ -57,6 +57,22 @@ void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct &
 	StopProfile;
 }
 
+void SE::Core::CameraManager::UpdateCamera(const Entity & entity, const CameraBindInfoStruct & info)
+{
+	StartProfile;
+	const auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end() && entityManager.Alive(entity))
+	{
+		cameraData.dirty[find->second] = ~0U;
+		cameraData.fov[find->second] = info.fov;
+		cameraData.aspectRatio[find->second] = info.aspectRatio;
+		cameraData.nearPlane[find->second] = info.nearPlane;
+		cameraData.farPlane[find->second] = info.farPlance;
+	}
+
+	ProfileReturnVoid;
+}
+
 DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetView(const Entity & entity)
 {
 	StartProfile;

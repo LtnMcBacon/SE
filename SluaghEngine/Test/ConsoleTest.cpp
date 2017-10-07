@@ -58,7 +58,20 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			ShowExampleAppConsole(&consoleOn);
 
 		{
-			static float fov = 0.0f;
+			static CameraBindInfoStruct camInfo;
+			static float rotation[3] = { 0.0f, 0.0f, 0.0f };
+			static float translation[3] = { 0.0f, 0.0f, -5.0f };
+			
+			ImGui::Begin("Camera settings");
+			ImGui::SliderFloat("FOV", &camInfo.fov, 0.01f, 3.14f, "%.3f");
+			ImGui::Text("Translation");
+			ImGui::DragFloat3("Translation", translation, 0.25f, -10000.0f, 10000.0f, "%.2f");
+			ImGui::DragFloat3("Rotation", rotation, 6.28f / 360.0f, -3.14f, 3.14f, "%.2f");
+			ImGui::End();
+			cm.UpdateCamera(camera, camInfo);
+			tm.SetPosition(camera, { translation[0], translation[1], translation[2] });
+			tm.SetRotation(camera, rotation[0], rotation[1], rotation[2]);
+			
 		}
 
 		engine.Frame(dt);
