@@ -58,7 +58,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			ShowExampleAppConsole(&consoleOn);
 
 		{
-			static float fov = 
+			static float fov = 0.0f;
 		}
 
 		engine.Frame(dt);
