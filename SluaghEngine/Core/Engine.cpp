@@ -183,6 +183,8 @@ void SE::Core::Engine::OptionUpdate()
 	if (sizeChange == true)
 	{
 		renderer->ResizeSwapChain(window->GetHWND());
+		ImGuiDX11SDL_Shutdown();
+		ImGuiDX11SDL_Init(renderer, window);
 	}
 	
 	ProfileReturnVoid;
