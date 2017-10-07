@@ -164,6 +164,18 @@ namespace SE
 			int Render() override;
 
 			/**
+			* @brief Begins the frame. Clears the render target view.
+			* @retval 0 On success.
+			*/
+			int BeginFrame() override;
+
+			/*
+			* @brief Ends the frame. Presents the rendered scene to the screen.
+			* @retval 0 On success.
+			*/
+			int EndFrame() override;
+
+			/**
 			* @brief Creates a vertex buffer.
 			* @param[in] data The vertex data.
 			* @param[in] vertexCount Number of vertices

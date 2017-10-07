@@ -332,23 +332,7 @@ int SE::Graphics::Renderer::Render() {
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
-	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
-
-	ID3D11RenderTargetView* views[] = { device->GetRTV() };
-	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
-
-	// Clear the primary render target view using the specified color
-	device->GetDeviceContext()->ClearRenderTargetView(
-	device->GetRTV(), 
-	clearColor);
-
-	// Clear the standard depth stencil view
-	device->GetDeviceContext()->ClearDepthStencilView(
-	device->GetDepthStencil(), 
-	D3D11_CLEAR_DEPTH,  
-	1.0f, 
-	0);
+	
 
 	// SetLightBuffer Start
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
@@ -441,9 +425,31 @@ int SE::Graphics::Renderer::Render() {
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
-	device->Present();
+	
 
 	ProfileReturnConst(0);
+}
+
+int SE::Graphics::Renderer::BeginFrame()
+{
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
+
+	ID3D11RenderTargetView* views[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
+
+	// Clear the primary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(),	clearColor);
+
+	// Clear the standard depth stencil view
+	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
+	return 0;
+}
+
+int SE::Graphics::Renderer::EndFrame()
+{
+	device->Present();
+	return 0;
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, size_t stride)

@@ -178,6 +178,18 @@ namespace SE
 			virtual int Render() = 0;
 
 			/**
+			* @brief Begins the frame. Clears the render target view.
+			* @retval 0 On success.
+			*/
+			virtual int BeginFrame() = 0;
+
+			/*
+			* @brief Ends the frame. Presents the rendered scene to the screen.
+			* @retval 0 On success.
+			*/
+			virtual int EndFrame() = 0;
+
+			/**
 			* @brief Creates a vertex buffer.
 			* @param[in] data The vertex data.
 			* @param[in] vertexCount Number of vertices
