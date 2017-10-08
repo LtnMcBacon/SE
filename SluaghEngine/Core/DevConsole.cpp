@@ -10,10 +10,10 @@ SE::Core::DevConsole::DevConsole()
 	AddCommand(
 		[this](int argc, char** argv)
 	{
+		std::string toPrint = "";
 		for (auto& c : nameToCommand)
 		{
-			Print(c.second.name);
-			Print(c.second.description);
+			Print(c.second.name + "\n" + c.second.description);
 		}
 	},
 		"commands",
@@ -72,10 +72,10 @@ void SE::Core::DevConsole::Frame()
 	for (auto& m : messages)
 	{
 		ImVec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		if (m.channel == "error")
+		if (m.channel == "Error")
 			color = { 1.0f, 0.2f, 0.2f, 1.0f };
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
-		ImGui::TextUnformatted(m.message.c_str());
+		ImGui::TextUnformatted((m.channel + ": " +m.message).c_str());
 		ImGui::PopStyleColor();
 	}
 	ImGui::EndChild();
@@ -88,6 +88,7 @@ void SE::Core::DevConsole::Frame()
 		{
 			std::string commandstring = std::string(inputBuffer.data(), input_end - inputBuffer.data());
 			ExecuteCommand(commandstring);
+			commandHistory.push_back(commandstring);
 		}
 		inputBuffer[0] = '\0';
 	}

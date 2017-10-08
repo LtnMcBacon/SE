@@ -39,11 +39,13 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	{
 		EXIT,
 		TOGGLE_CONSOLE,
-		PRINT_MESSAGE
+		PRINT_MESSAGE,
+		PRINT_ERROR
 	};
 	window->MapActionButton(TOGGLE_CONSOLE, Window::Key1);
 	window->MapActionButton(EXIT, Window::KeyEscape);
 	window->MapActionButton(PRINT_MESSAGE, Window::Key2);
+	window->MapActionButton(PRINT_ERROR, Window::Key3);
 	Utilz::Timer timer;
 
 	bool run = true;
@@ -62,6 +64,8 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		}
 		if (window->ButtonPressed(PRINT_MESSAGE))
 			dc.Print("I am a message.\n");
+		if (window->ButtonPressed(PRINT_ERROR))
+			dc.Print("I am a message.\n", "Error");
 		if (window->ButtonPressed(EXIT))
 			run = false;
 		//if (consoleOn)
