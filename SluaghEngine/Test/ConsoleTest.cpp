@@ -20,6 +20,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	auto& tm = engine.GetTransformManager();
 	auto& cm = engine.GetCameraManager();
 	auto& rm = engine.GetRenderableManager();
+	auto& dc = engine.GetDevConsole();
 
 	Entity cube = em.Create();
 	Entity camera = em.Create();
@@ -32,18 +33,22 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	cm.Bind(camera, cbis);
 	cm.SetActive(camera);
 	
+	
 
 	enum Keys
 	{
 		EXIT,
-		TOGGLE_CONSOLE
+		TOGGLE_CONSOLE,
+		PRINT_MESSAGE
 	};
 	window->MapActionButton(TOGGLE_CONSOLE, Window::Key1);
 	window->MapActionButton(EXIT, Window::KeyEscape);
+	window->MapActionButton(PRINT_MESSAGE, Window::Key2);
 	Utilz::Timer timer;
 
 	bool run = true;
 	bool consoleOn = false;
+	dc.AddCommand([&run](int argc, char** argv) {run = false; }, "exit", "Exits the test");
 	while (run)
 	{
 		timer.Tick();
@@ -51,13 +56,18 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		engine.BeginFrame();
 
 		if (window->ButtonPressed(TOGGLE_CONSOLE))
-			consoleOn = !consoleOn;
+		{
+			//consoleOn = !consoleOn;
+			dc.Toggle();
+		}
+		if (window->ButtonPressed(PRINT_MESSAGE))
+			dc.Print("I am a message.\n");
 		if (window->ButtonPressed(EXIT))
 			run = false;
-		if (consoleOn)
-			ShowExampleAppConsole(&consoleOn);
+		//if (consoleOn)
+		//	ShowExampleAppConsole(&consoleOn);
 
-		{
+	/*	{
 			static CameraBindInfoStruct camInfo;
 			static float rotation[3] = { 0.0f, 0.0f, 0.0f };
 			static float translation[3] = { 0.0f, 0.0f, -5.0f };
@@ -72,7 +82,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			tm.SetPosition(camera, { translation[0], translation[1], translation[2] });
 			tm.SetRotation(camera, rotation[0], rotation[1], rotation[2]);
 			
-		}
+		}*/
 
 		engine.Frame(dt);
 	}

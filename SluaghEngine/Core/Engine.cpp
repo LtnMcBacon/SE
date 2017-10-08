@@ -70,7 +70,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	InitStartupOption();
 
 	ImGuiDX11SDL_Init(renderer, window);
-
+	devConsole = new DevConsole();
 	return 0;
 }
 
@@ -101,6 +101,7 @@ int SE::Core::Engine::Frame(double dt)
 	collisionManager->Frame();
 	cameraManager->Frame();
 	renderer->Render();
+	devConsole->Frame();
 	ImGui::Render();
 	renderer->EndFrame();
 	perFrameStackAllocator->ClearStackAlloc();
@@ -110,6 +111,7 @@ int SE::Core::Engine::Frame(double dt)
 
 int SE::Core::Engine::Release()
 {
+	delete devConsole;
 	ImGuiDX11SDL_Shutdown();
 	
 	renderer->Shutdown();

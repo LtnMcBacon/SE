@@ -13,6 +13,7 @@
 #include "AudioManager.h"
 #include "AnimationManager.h"
 #include "LightManager.h"
+#include "DevConsole.h"
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -229,6 +230,10 @@ namespace SE
 				return *animationManager;
 			}
 
+			inline DevConsole& GetDevConsole() const {
+				return *devConsole;
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -262,6 +267,8 @@ namespace SE
 
 			GUIManager* guiManager;
 			LightManager* lightManager;
+
+			DevConsole* devConsole;
 
 			bool frameBegun;
 		};
