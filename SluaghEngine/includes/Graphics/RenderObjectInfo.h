@@ -16,7 +16,8 @@ namespace SE
 				LINE_LIST,
 				LINE_STRIP,
 				TRIANGLE_LIST,
-				TRIANGLE_STRIP
+				TRIANGLE_STRIP,
+				NONE
 			};
 
 			enum class JobType : uint32_t 

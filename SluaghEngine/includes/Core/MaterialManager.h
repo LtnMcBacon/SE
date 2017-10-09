@@ -59,9 +59,8 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
 
-			int LoadDefaultTexture(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
-			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
+			int LoadTexture(void*data, size_t size);
 			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
 			
 			struct TextureBindings
@@ -86,21 +85,21 @@ namespace SE
 			};
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(TextureBindings) + sizeof(TextureIndices) + sizeof(uint32_t);
+				static const size_t size = sizeof(Entity) + sizeof(TextureBindings) + sizeof(TextureIndices) + sizeof(size_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				TextureBindings* textureBindings;
 				TextureIndices* textureIndices;
-				uint32_t* shaderIndex;
+				size_t* shaderIndex;
 			};
 
 
 			std::vector<ShaderData> shaders;
 			std::vector<TextureData> textures;
-			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToShaderIndex;
-			std::map<Utilz::GUID, uint32_t, Utilz::GUID::Compare> guidToTextureIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToShaderIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToTextureIndex;
 
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
@@ -115,9 +114,12 @@ namespace SE
 			int defaultShaderHandle;
 			Graphics::ShaderSettings defaultShaderReflection;
 
-
-			std::mutex entityToChangeLock;
-			std::mutex infoLock;
+			struct toUpdateStruct
+			{
+				size_t textureIndex;
+				int newHandle;
+			};
+			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};
 	}
 }

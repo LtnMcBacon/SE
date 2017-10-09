@@ -86,7 +86,7 @@ int SE::Core::Engine::Frame(double dt)
 	collisionManager->Frame();
 	window->Frame();
 	cameraManager->Frame();
-	renderer->Render();
+//renderer->Render();
 	ProfileReturnConst(0);
 }
 
