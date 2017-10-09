@@ -53,7 +53,8 @@ bool EnemyFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
 	desc[1].useVariation = true;
 	desc[1].nrOfEnemiesWithThisDescription = 10;
 
-	enemyFactory.CreateEnemies(desc, &blackBoard, testEnemies, 20);
+
+	enemyFactory.CreateEnemies(desc, &blackBoard, 20, testEnemies);
 
 	for(int i = 0; i < 10; i++)
 	{

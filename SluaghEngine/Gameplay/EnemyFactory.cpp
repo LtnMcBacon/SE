@@ -134,18 +134,18 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	ProfileReturn(createdEnemy);
 }
 
-void EnemyFactory::CreateEnemies(EnemyToCreateDescription* description, GameBlackboard* gameBlackboard,
-								 EnemyUnit** unitArray, int numberOfEnemies)
+void EnemyFactory::CreateEnemies(EnemyToCreateDescription* descriptions, GameBlackboard* gameBlackboard,
+								 int numberOfEnemies, EnemyUnit** unitArray)
 {
 	StartProfile;
 	int numberOfCreatedEnemies = 0;
 	int descCounter = 0;
 	while(numberOfCreatedEnemies != numberOfEnemies)
 	{
-		for(int i = 0; i < description[descCounter].nrOfEnemiesWithThisDescription; i++)
+		for(int i = 0; i < descriptions[descCounter].nrOfEnemiesWithThisDescription; i++)
 		{
-			unitArray[numberOfCreatedEnemies++] = CreateEnemy(description[descCounter].GUID,
-				gameBlackboard, description[descCounter].useVariation);
+			unitArray[numberOfCreatedEnemies++] = CreateEnemy(descriptions[descCounter].GUID,
+				gameBlackboard, descriptions[descCounter].useVariation);
 		}
 		descCounter++;
 	}
