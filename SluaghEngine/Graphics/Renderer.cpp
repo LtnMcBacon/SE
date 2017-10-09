@@ -66,7 +66,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	myThread.join();
+	if (myThread.joinable())
+		myThread.join();
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -591,6 +592,7 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 
 void SE::Graphics::Renderer::AddNewRenderJobs()
 {
+	StartProfile;
 	while (!newJobs.wasEmpty())
 	{
 		auto& job = newJobs.top();
@@ -625,10 +627,12 @@ void SE::Graphics::Renderer::AddNewRenderJobs()
 		
 		newJobs.pop();
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateRenderJobs()
 {
+	StartProfile;
 	while (!updateJobs.wasEmpty())
 	{
 		auto& job = updateJobs.top();
@@ -682,10 +686,12 @@ void SE::Graphics::Renderer::UpdateRenderJobs()
 		updateJobs.pop();
 
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::RemoveRenderJobs()
 {
+	StartProfile;
 	while (!removeJobs.wasEmpty())
 	{
 		auto& jobID = removeJobs.top();
@@ -716,11 +722,12 @@ void SE::Graphics::Renderer::RemoveRenderJobs()
 
 		removeJobs.pop();
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateTransforms()
 {
+	StartProfile;
 	while (!updateTransforms.wasEmpty())
 	{
 		auto& job = updateTransforms.top();
@@ -735,10 +742,12 @@ void SE::Graphics::Renderer::UpdateTransforms()
 
 		updateTransforms.pop();
 	}
+	StopProfile;
 }
 
 SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
 {
+	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
 	if (previousJob.topology != job.topology)
 	{
@@ -851,7 +860,7 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 	}
-	return job;
+	ProfileReturnConst( job);
 }
 
 int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
