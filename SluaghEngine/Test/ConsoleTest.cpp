@@ -49,8 +49,19 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	Utilz::Timer timer;
 
 	bool run = true;
+	bool cameraControls = false;
 	bool consoleOn = false;
 	dc.AddCommand([&run](int argc, char** argv) {run = false; }, "exit", "Exits the test");
+	dc.AddCommand([&cameraControls,&dc](int argc, char** argv)
+	{
+		if (argc == 1)
+			cameraControls = !cameraControls;
+		else if(argc == 2)
+			cameraControls = argv[1][0] == '1';
+		else
+			dc.Print("Invalid number of arguments passed to command: " + std::string("camera_control"), "Error");
+
+	}, "camera_control", "camera_control [0/1]\nTurns the camera controls on or off.\n If no argument is passed, the controls are toggled.");
 	while (run)
 	{
 		timer.Tick();
@@ -71,7 +82,8 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		//if (consoleOn)
 		//	ShowExampleAppConsole(&consoleOn);
 
-	/*	{
+		if(cameraControls)
+		{
 			static CameraBindInfoStruct camInfo;
 			static float rotation[3] = { 0.0f, 0.0f, 0.0f };
 			static float translation[3] = { 0.0f, 0.0f, -5.0f };
@@ -86,7 +98,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			tm.SetPosition(camera, { translation[0], translation[1], translation[2] });
 			tm.SetRotation(camera, rotation[0], rotation[1], rotation[2]);
 			
-		}*/
+		}
 
 		engine.Frame(dt);
 	}
