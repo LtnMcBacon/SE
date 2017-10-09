@@ -431,10 +431,11 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.transparency = 0;
 
 	device->SetBlendTransparencyState(0);
+	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
 
 	std::vector<size_t> transID;
-	renderJobLock.lock();
+
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
 	{
 		if (renderBuckets[iteration].stateInfo.transparency == 0)
@@ -448,7 +449,7 @@ int SE::Graphics::Renderer::Render() {
 	{
 		RenderABucket(renderBuckets[transID[iteration]], previousJob);
 	}
-	renderJobLock.unlock();
+
 
 	///********** Render line jobs ************/
 
@@ -799,11 +800,11 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 
 		const size_t instanceCount = bucket.transforms.size();
 
-		int binsSlotInvers;
-		//int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
-		//graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);
+		/*int binsSlotInvers;
+		int InversBufferHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "InversWorld", &binsSlotInvers);
+		graphicResourceHandler->BindVSConstantBuffer(InversBufferHandle, binsSlotInvers);*/
 
-		std::vector<DirectX::XMFLOAT4X4> inversVec;
+		/*std::vector<DirectX::XMFLOAT4X4> inversVec;
 		for (int i = 0; i < bucket.transforms.size(); i++)
 		{
 			DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
@@ -811,13 +812,13 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			DirectX::XMFLOAT4X4 fInvers;
 			DirectX::XMStoreFloat4x4(&fInvers, invers);
 			inversVec.push_back(fInvers);
-		}
+		}*/
 		for (int i = 0; i < instanceCount; i += maxDrawInstances)
 		{
 			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
-			//graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
+		//	graphicResourceHandler->UpdateConstantBuffer(&inversVec[i], mapSize, InversBufferHandle);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 
