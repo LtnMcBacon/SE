@@ -382,19 +382,19 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& guid, void* data, 
 
 			if (v[i].weights[3] != 0) {
 
-				Utilz::Console::Print("Weight was not zero");
+				//Utilz::Console::Print("Weight was not zero");
 			}
 
 			// The total weight could be very close to 1, or just over it, like for example 1.00012.
 			if (weight > 1.1) {
 
-				Utilz::Console::Print("Vertex weights greater than 1");
+				//Utilz::Console::Print("Vertex weights greater than 1");
 			}
 
 			// The total weight should never be lower than 0
 			else if (weight < 0) {
 
-				Utilz::Console::Print("Vertex weights lower than 0");
+				//Utilz::Console::Print("Vertex weights lower than 0");
 			}
 		}
 

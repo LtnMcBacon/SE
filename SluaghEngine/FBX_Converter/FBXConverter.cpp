@@ -873,10 +873,6 @@ void SE::FBX::FBXConverter::CreateBindPose(Mesh &pMesh) {
 
 	logFile.open(logFileName, ofstream::out);
 
-	unsigned int deformerCount = pMesh.meshNode->GetDeformerCount();	// A deformer is associated with manipulating geometry through clusters, which are the joints we're after
-
-	//FbxAMatrix geometryTransform = GetGeometryTransformation(node); // Geometric offset must be taken into account, even though it's often an identity matrix
-
 	// Get the number of joints in the hierarchy
 	int NUM_BONES = pMesh.skinNode->GetClusterCount();
 
