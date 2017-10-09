@@ -42,6 +42,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "FlowFieldMovementLeaf")
+	{
+		finishedBehaviour = CreateFlowFieldMovementLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -85,6 +89,13 @@ IBehaviour* BehaviouralTreeFactory::CreateLeaf(NodeData* dataArray, int nodeID)
 	StartProfile;
 
 	ProfileReturn(new SucceederLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+
+	ProfileReturn(new FlowFieldMovementLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)

@@ -24,6 +24,7 @@
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="Flowfield.cpp" />
+    <ClCompile Include="FlowFieldMovementLeaf.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
+    <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />

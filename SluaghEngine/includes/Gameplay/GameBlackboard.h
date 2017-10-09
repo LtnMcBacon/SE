@@ -5,7 +5,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
-		
+		class FlowField;
 		/**
 		*
 		* @brief The struct holding all the data the enemies should know from the gamestate.
@@ -42,6 +42,8 @@ namespace SE
 			float playerMovementY = 0.f;
 			float playerHealth = 0.f;
 			float deltaTime = 0.f;
+
+			FlowField* roomFlowField;
 			/*Player resistances here*/
 			/*Player attack data*/
 
