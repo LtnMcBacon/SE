@@ -88,7 +88,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	col.RegisterCollideWithAnyCallback(&Collide1);
 
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
 	cInfo.posistion = { 0.0f, 0.0f, -2.0f };
 	cm.Bind(camera, cInfo);
 	cm.SetActive(camera);

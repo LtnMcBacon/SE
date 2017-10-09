@@ -94,7 +94,7 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(const Entity& entity, int entSoundID);
-			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
+			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol);
 			void Frame();
 			void Shutdown();
 		private:

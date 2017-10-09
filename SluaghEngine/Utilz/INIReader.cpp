@@ -21,10 +21,10 @@ namespace SE
 
 		}
 
-		int INIReader::LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps)
+		int INIReader::LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps)
 		{
 			StartProfile;
-			std::map<std::string, int> values;
+			std::map<std::string, std::string> values;
 			std::ifstream myfile;
 			std::streampos size;
 			char *memblock;
@@ -107,7 +107,7 @@ namespace SE
 							currentPos++;
 						}
 					}
-					values[name] = std::stoi(value);
+					values[name] = value;
 				}	
 			}
 			maps[section] = values;
@@ -115,24 +115,24 @@ namespace SE
 			ProfileReturnConst(0);
 		}
 
-		int INIReader::WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps)
+		int INIReader::WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps)
 		{
 			StartProfile;
 			std::string memblock;
 
 			for (auto& mapsPair : maps)
 			{
-				std::map<std::string, int> values = maps[mapsPair.first];
+				std::map<std::string, std::string> values = maps[mapsPair.first];
 				memblock.push_back('[');
 				memblock.append(mapsPair.first);
 				memblock.push_back(']');
 				memblock.push_back('\n');
 				for (auto& valuesPair : values)
 				{
-					int outVal = values[valuesPair.first];
-					std::string name = valuesPair.first + " = ";
+					//std::string outVal = values[valuesPair.first];
+					std::string name = valuesPair.first + " = " + values[valuesPair.first];
 					memblock.append(name);
-					memblock.append(std::to_string(outVal));
+					//memblock.append(outVal);
 					memblock.push_back('\n');
 				}
 				memblock.push_back('\n');

@@ -76,9 +76,7 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 
 	bool running = true;
 	Utilz::Timer timer;
-	auto& oh = engine.GetOptionHandler();
 
-	int full = oh.GetOption("Window", "fullScreen", 0);
 	while (running)
 	{
 		timer.Tick();

@@ -58,7 +58,7 @@ namespace SE {
 			ProfileReturn(audioStream.RemoveSound(streamID));
 		}
 
-		void AudioHandler::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		void AudioHandler::SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol)
 		{
 			audioSound.SetSoundVol(volType, newVol);
 		}

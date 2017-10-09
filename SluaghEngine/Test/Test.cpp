@@ -63,11 +63,11 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
-	AddTest(SkeletonAnimationTest);
+	//AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
-	AddTest(InitGraphicsTest);
+	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);

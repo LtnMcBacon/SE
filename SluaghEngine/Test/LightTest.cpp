@@ -5,11 +5,9 @@
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #pragma comment(lib, "windowD.lib")
-#pragma comment(lib, "gameplayD.lib")
 #else
 #pragma comment(lib, "core.lib")
 #pragma comment(lib, "window.lib")
-#pragma comment(lib, "gameplay.lib")
 #endif
 
 namespace SE
@@ -176,9 +174,6 @@ namespace SE
 			
 			bool running = true;
 			Utilz::Timer timer;
-			auto& oh = engine.GetOptionHandler();
-
-			int full = oh.GetOption("Window", "fullScreen", 0);
 			bool toggle = true;
 			rm.SetTransparency(entsTrans[0], true);
 			rm.SetTransparency(entsTrans[1], true);
