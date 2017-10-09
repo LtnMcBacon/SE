@@ -126,6 +126,9 @@
     <ClCompile Include="GarbageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyFacotryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="GarbageTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

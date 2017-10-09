@@ -3,6 +3,8 @@
 #include "Flowfield.h"
 #include <Core\CollisionManager.h>
 #include "Core/Engine.h"
+#include <Gameplay/EnemyBlackboard.h>
+#include <Gameplay/BehaviouralTree.h>
 
 void SE::Gameplay::EnemyUnit::ResolveEvents()
 {
@@ -291,5 +293,7 @@ SE::Gameplay::EnemyUnit::~EnemyUnit()
 	/*
 	* Code body
 	*/
+	delete myBehaviouralTree;
+	delete myBlackboard;
 }
 
