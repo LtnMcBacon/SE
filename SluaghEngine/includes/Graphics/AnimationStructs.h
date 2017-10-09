@@ -44,6 +44,7 @@ namespace SE
 		struct Joint {
 
 			DirectX::XMMATRIX GlobalTx;
+			DirectX::XMMATRIX LocalTx;
 			DirectX::XMMATRIX inverseBindPoseMatrix;
 			unsigned int parentIndex;
 			std::vector<Animation> Animations;
@@ -64,8 +65,8 @@ namespace SE
 
 			Skeleton() {
 
-				Hierarchy.reserve(4);
-				jointArray.resize(4);
+				Hierarchy.reserve(30);
+				jointArray.resize(30);
 			}
 		};
 

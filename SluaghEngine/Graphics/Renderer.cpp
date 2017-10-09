@@ -58,7 +58,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	}
 
 	running = true;
-	myThread = std::thread(&Renderer::Frame, this);
+	//myThread = std::thread(&Renderer::Frame, this);
 
 	ProfileReturnConst( 0);
 }
@@ -66,7 +66,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	myThread.join();
+//	myThread.join();
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -377,14 +377,12 @@ int SE::Graphics::Renderer::Render() {
 		currentEntityTimePos = 0;
 	}
 
-	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
+	animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
 	AddNewRenderJobs();
 	UpdateRenderJobs();
 	UpdateTransforms();
 	RemoveRenderJobs();
-
-
 
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
@@ -801,6 +799,14 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
 
+	std::vector<DirectX::XMFLOAT4X4>identity;
+	identity.resize(4);
+
+	for (int i = 0; i < 4; i++) {
+
+		DirectX::XMStoreFloat4x4(&identity[i], DirectX::XMMatrixIdentity());
+	}
+
 	if (job.type == RenderObjectInfo::JobType::STATIC) {
 
 		const size_t instanceCount = bucket.transforms.size();
@@ -835,19 +841,8 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
 		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 
-
-		std::vector<DirectX::XMFLOAT4X4> inversVec;
-		for (int i = 0; i < bucket.transforms.size(); i++)
-		{
-			DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
-			invers = DirectX::XMMatrixInverse(nullptr, invers);
-			DirectX::XMFLOAT4X4 fInvers;
-			DirectX::XMStoreFloat4x4(&fInvers, invers);
-			inversVec.push_back(fInvers);
-		}
-
 		bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 30, cBoneBufferIndex);
 
 		const size_t instanceCount = bucket.transforms.size();
 		for (int i = 0; i < instanceCount; i += maxDrawInstances)

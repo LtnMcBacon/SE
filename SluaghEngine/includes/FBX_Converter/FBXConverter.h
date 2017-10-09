@@ -70,7 +70,8 @@ namespace SE
 
 			void GetSkeletonHierarchy(Mesh &pMesh);
 			void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
-			void CreateBindPose(Mesh &pMesh);
+			void CreateBindPoseManual(Mesh &pMesh);
+			void CreateBindPoseAutomatic(Mesh &pMesh);
 			void GatherWeights(Mesh &pMesh);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//

@@ -57,6 +57,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	auto& level = em.Create();
 	auto& mainC = em.Create();
 	auto& camera = em.Create();
+	auto& om = e.GetOptionHandler();
 
 	auto handle = e.GetWindow();
 
@@ -64,8 +65,12 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(mainC);
 	tm.SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
-	cm.Bind(camera);
-	cm.SetActive(camera);
+	
+	Core::CameraBindInfoStruct cInfo;
+	cInfo.aspectRatio = (float)om.GetOption("Window", "height", 640) / (float)om.GetOption("Window", "width", 800);
+	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
+	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
+
 	tm.SetRotation(camera, 0.0f, 0.0f, 0.0f);
 	tm.SetPosition(camera, { 0.0f, 1.0f, -5.0f });
 
