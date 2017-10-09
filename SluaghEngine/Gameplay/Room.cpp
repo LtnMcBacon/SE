@@ -52,21 +52,21 @@ void Room::UpdateAdjacentRooms(float dt)
 	StopProfile;
 }
 
-bool SE::Gameplay::Room::OnSegment(float pX, float pY, float qX, float qY, float rX, float rY)
+bool SE::Gameplay::Room::OnSegment(LinePoint p, LinePoint q, LinePoint r)
 {
 	StartProfile;
 
-	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
+	if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y))
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false);
 }
 
-int SE::Gameplay::Room::Orientation(float pX, float pY, float qX, float qY, float rX, float rY)
+int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 {
 	// See http://www.geeksforgeeks.org/orientation-3-ordered-points/
 	// for details of below formula.
-	int val = (qY - pY) * (rX - qX) - (qX - pX) * (rY - qY);
+	float val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
 	if (val == 0)
 		return 0;  // colinear
@@ -206,15 +206,15 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 	StopProfile;
 }
 
-bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y)
+bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
 	StartProfile;
 	// Find the four orientations needed for general and
 	// special cases
-	int o1 = Orientation(p1X, p1Y, q1X, q1Y, p2X, p2Y);
-	int o2 = Orientation(p1X, p1Y, q1X, q1Y, q2X, q2Y);
-	int o3 = Orientation(p2X, p2Y, q2X, q2Y, p1X, p1Y);
-	int o4 = Orientation(p2X, p2Y, q2X, q2Y, q1X, q1Y);
+	int o1 = Orientation(p1, q1, p2);
+	int o2 = Orientation(p1, q1, q2);
+	int o3 = Orientation(p2, q2, p1);
+	int o4 = Orientation(p2, q2, q1);
 
 	// General case
 	if (o1 != o2 && o3 != o4)
@@ -222,19 +222,19 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 
 	// Special Cases
 	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
-	if (o1 == 0 && OnSegment(p1X, p1Y, p2X, p2Y, q1X, q1Y))
+	if (o1 == 0 && OnSegment(p1, p2, q1))
 		ProfileReturnConst(true);
 
 	// p1, q1 and p2 are colinear and q2 lies on segment p1q1
-	if (o2 == 0 && OnSegment(p1X, p1Y, q2X, q2Y, q1X, q1Y))
+	if (o2 == 0 && OnSegment(p1, q2, q1))
 		ProfileReturnConst(true);
 
 	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
-	if (o3 == 0 && OnSegment(p2X, p2Y, p1X, p1Y, q2X, q2Y))
+	if (o3 == 0 && OnSegment(p2, p1, q2))
 		ProfileReturnConst(true);
 
 	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
-	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y))
+	if (o4 == 0 && OnSegment(p2, q1, q2))
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false); // Doesn't fall in any of the above cases
@@ -249,6 +249,28 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 	float yPower = 0.0f;
 	BoundingRect r = projectile.GetBoundingRect();
 	CollisionData cData;
+
+	//bool testBool;
+	//LinePoint p1(1, 1), q1(10, 1), p2(1,2), q2(10, 2);
+	//testBool = LineCollision(p1, q1, p2, q2);
+
+	//p1 = LinePoint(10, 0);
+	//q1 = LinePoint(0, 10);
+	//p2 = LinePoint(0, 0);
+	//q2 = LinePoint(10, 10);
+	//testBool = LineCollision(p1, q1, p2, q2);
+
+	//p1 = LinePoint(-5, -5);
+	//q1 = LinePoint(0, 0);
+	//p2 = LinePoint(1, 1);
+	//q2 = LinePoint(10, 10);
+	//testBool = LineCollision(p1, q1, p2, q2);
+
+	//p1 = LinePoint(5.13176918f, 4.86688519f);
+	//q1 = LinePoint(5.27319050f, 5.830650f);
+	//p2 = LinePoint(5, 5);
+	//q2 = LinePoint(6, 5);
+	//testBool = LineCollision(p1, q1, p2, q2);
 
 	if (CheckCollisionInRoom(r.upperLeftX, r.upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
 	{
@@ -265,20 +287,20 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 
 	if (collidedLeft)
 	{
-		if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), ceil(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // top line
+		if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // top line
 		{
 			yPower += 1.0f;
 		}
-		else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), int(r.upperLeftY))) // bottom line
+		else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)))) // bottom line
 		{
 			yPower -= 1.0f;
 		}
 
-		if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, ceil(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // right line
+		if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // right line
 		{
 			xPower += 1.0f;
 		}
-		else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), int(r.upperLeftX), ceil(r.upperLeftY))) // left line
+		else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)))) // left line
 		{
 			xPower -= 1.0f;
 		}
@@ -286,20 +308,20 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 
 	if (collidedRight)
 	{
-		if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), ceil(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // top line
+		if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), ceil(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // top line
 		{
 			yPower += 1.0f;
 		}
-		else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), int(r.upperRightY))) // bottom line
+		else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), int(r.upperRightY)))) // bottom line
 		{
 			yPower -= 1.0f;
 		}
 
-		if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, ceil(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // right line
+		if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(ceil(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // right line
 		{
 			xPower += 1.0f;
 		}
-		else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), int(r.upperRightX), ceil(r.upperRightY))) // left line
+		else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(int(r.upperRightX), ceil(r.upperRightY)))) // left line
 		{
 			xPower -= 1.0f;
 		}

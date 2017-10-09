@@ -155,7 +155,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y + 3.14159265 / 4;
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y + 3.14159265;
 
 		//temp.extentsX = 0.1f;
 		//temp.extentsY = 0.1f;
