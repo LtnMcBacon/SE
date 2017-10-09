@@ -33,6 +33,7 @@
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GraphicResourceHandler.h" />
     <ClInclude Include="LiveObjectReporter.h" />
+    <ClInclude Include="MemoryMeasuring.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +42,7 @@
     <ClCompile Include="GraphicResourceHandler.cpp" />
     <ClCompile Include="IRenderer.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
+    <ClCompile Include="MemoryMeasuring.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

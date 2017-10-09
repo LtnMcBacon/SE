@@ -10,7 +10,7 @@
 
 namespace SE
 {
-	namespace Utilz
+	namespace Graphics
 	{
 		class MemoryMeasuring
 		{
@@ -36,6 +36,15 @@ namespace SE
 			*
 			*/
 			int printUsage(SE::Utilz::IConsoleBackend* console);
+
+			inline size_t GetVRam() {
+				DXGI_QUERY_VIDEO_MEMORY_INFO info;
+				if (SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+				{
+					return info.CurrentUsage;
+				}
+				return 0;
+			};
 		private:
 			IDXGIFactory* dxgifactory = nullptr;
 			IDXGIAdapter3* dxgiAdapter3 = nullptr;
