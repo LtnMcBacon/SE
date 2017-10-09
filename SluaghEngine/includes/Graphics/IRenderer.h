@@ -11,6 +11,7 @@
 #include "AnimationStructs.h"
 #include "FileHeaders.h"
 
+
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
 #else
@@ -278,6 +279,14 @@ namespace SE
 			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
 
 			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
+
+			/**
+			* @brief	The amount of VRam currently used.
+			*
+			* @retval size_t The amount of VRam used in bytes.
+			*
+			*/
+			virtual size_t GetVRam() = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
