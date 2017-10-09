@@ -1,10 +1,10 @@
-#include <Utilz\MemoryMeasuring.h>
+#include "MemoryMeasuring.h"
 #include <Profiler.h>
 #include <string>
 
 namespace SE
 {
-	namespace Utilz
+	namespace Graphics
 	{
 		MemoryMeasuring::MemoryMeasuring()
 		{
@@ -49,9 +49,6 @@ namespace SE
 				auto memoryUsage = info.CurrentUsage / 1024 / 1024; //MiB
 				std::string memString = "Memory usage " + std::to_string(memoryUsage) + "\n";
 				console->Print(memString.c_str());
-				/*char msg[100];
-				sprintf_s(msg, "%d", memoryUsage);
-				MessageBoxA(0, msg, "", 0);*/
 				ProfileReturnConst(0);
 			}
 			ProfileReturnConst(-1);

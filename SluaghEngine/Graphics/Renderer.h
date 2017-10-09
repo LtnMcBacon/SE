@@ -6,6 +6,7 @@
 
 #include "AnimationSystem.h"
 #include <mutex>
+#include "MemoryMeasuring.h"
 
 namespace SE
 {
@@ -262,6 +263,10 @@ namespace SE
 
 			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
 
+			inline size_t GetVRam() override {
+				return memMeasure.GetVRam();
+			};
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -288,6 +293,7 @@ namespace SE
 
 			GraphicResourceHandler* graphicResourceHandler;
 			AnimationSystem* animationSystem;
+			MemoryMeasuring memMeasure;
 			float currentEntityTimePos;
 
 			/******** Instanced render job members ********/

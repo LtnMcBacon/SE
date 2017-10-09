@@ -1,7 +1,6 @@
 #include "AudioTest.h"
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
-#include <Utilz\MemoryMeasuring.h>
 #include <Utilz\Memory.h>
 
 #ifdef _DEBUG
@@ -27,8 +26,6 @@ namespace SE
 
 		bool AudioTest::Run(SE::Utilz::IConsoleBackend* console)
 		{		
-			Utilz::MemoryMeasuring mm;
-			mm.Init();
 			auto& e = Core::Engine::GetInstance();
 			auto& info = Core::Engine::InitializationInfo();
 			auto re = e.Init(info);
@@ -175,10 +172,10 @@ namespace SE
 				e.GetWindow()->MapActionButton(5, Window::KeyM);
 
 				console->Print("Start main loop!!\n");
+				auto ren = e.GetRenderer();
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
 					e.Frame(0.0f);
-					//mm.printUsage(console);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
@@ -234,7 +231,7 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(4) == true)
 					{
-						mm.printUsage(console);
+						console->Print("VRam: %d \n", Utilz::Memory::toMB(ren->GetVRam()));
 					}
 					if (e.GetWindow()->ButtonPressed(5) == true)
 					{
