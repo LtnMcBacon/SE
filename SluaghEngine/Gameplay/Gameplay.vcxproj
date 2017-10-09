@@ -22,6 +22,7 @@
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
+    <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
+    <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
@@ -83,7 +85,6 @@
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
-    <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="Game.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
