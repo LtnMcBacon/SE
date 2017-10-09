@@ -146,8 +146,6 @@ void SE::Core::RenderableManager::Frame()
 void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info)
 {
 	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
-	if (vBufferIndex > 1)
-		int i = 0;
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
@@ -174,7 +172,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	// Gather Renderobjectinfo from other managers
 	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
-	
 }
 
 void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
@@ -187,7 +184,6 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 			Graphics::RenderObjectInfo info;
 			CreateRenderObjectInfo(find->second, &info);
 			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
-			//transformManager->SetAsDirty(entity);
 		}
 	}
 }
@@ -277,7 +273,7 @@ void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 4U)
+	while (renderableObjectInfo.used > 0 && alive_in_row < 40U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);
@@ -300,12 +296,13 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	{
 		auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
 		if (find != entityToRenderableObjectInfoIndex.end())
-		{
-			auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
+		{			
 			if (renderableObjectInfo.visible[find->second])
+			{
+				auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
 				renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
+			}				
 		}
-	
 	}
 
 	dirtyEntites.clear();

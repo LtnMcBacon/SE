@@ -336,10 +336,10 @@ namespace SE
 			};
 
 			std::mutex renderJobLock;
-			Utilz::CircularFiFo<RenderJobStruct> newJobs;
-			Utilz::CircularFiFo<uint32_t> removeJobs;
-			Utilz::CircularFiFo<RenderJobStruct> updateJobs;
-			Utilz::CircularFiFo<UpdateTransformStruct> updateTransforms;
+			Utilz::CircularFiFo<RenderJobStruct, 1024> newJobs;
+			Utilz::CircularFiFo<uint32_t, 1024 > removeJobs;
+			Utilz::CircularFiFo<RenderJobStruct, 1024> updateJobs;
+			Utilz::CircularFiFo<UpdateTransformStruct, 1024> updateTransforms;
 
 		
 			void AddNewRenderJobs();		

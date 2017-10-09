@@ -14,6 +14,7 @@
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
 #include "ShaderSettings.h"
+#include <functional>
 
 namespace SE {
 
@@ -219,7 +220,25 @@ namespace SE {
 			*/
 			HRESULT UpdateConstantBuffer(void* data, size_t size, int id);
 
+			/**
+			* @brief	Updates the contents of a constant buffer.
+			*
+			* @param[in] id The ID of the constant buffer received from CreateConstantBuffer.
+			* @param[in] id The callback for copying.
+			* @retval S_OK on success.
+			*/
 
+			template<typename T>
+			HRESULT UpdateConstantBuffer(int id, const std::function<void(T*data)>& callback)
+			{
+				D3D11_MAPPED_SUBRESOURCE mappedData;
+				HRESULT hr = gDeviceContext->Map(cBuffers[id].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+				if (FAILED(hr))
+					return hr;
+				callback((T*)mappedData.pData);
+				gDeviceContext->Unmap(cBuffers[id].constBuffer, 0);
+				return hr;
+			}
 			/**
 			* @brief	Removes a constant buffer
 			* @param[in] constBufferID Tells which constant buffer to remove

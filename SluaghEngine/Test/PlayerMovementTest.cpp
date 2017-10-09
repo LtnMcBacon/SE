@@ -142,9 +142,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	minfo.textureFileNames = textures;
 	minfo.textureCount = 2;
 
-	mm.Create(player->GetEntity(), minfo);
+	mm.Create(player->GetEntity(), minfo, true);
 
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"), true);
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 
 	auto& l = em.Create();

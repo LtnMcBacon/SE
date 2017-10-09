@@ -58,7 +58,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	}
 
 	running = true;
-	//myThread = std::thread(&Renderer::Frame, this);
+	myThread = std::thread(&Renderer::Frame, this);
 
 	ProfileReturnConst( 0);
 }
@@ -66,7 +66,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	//myThread.join();
+	myThread.join();
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -400,15 +400,18 @@ int SE::Graphics::Renderer::Render() {
 	0);
 
 	// SetLightBuffer Start
+	lightLock.lock();
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 	LightDataBuffer lightBufferData;
-	lightBufferData.size.x = renderLightJobs.size();
 
-	for (int lightNr = 0; lightNr < renderLightJobs.size(); lightNr++)
-	{
-		lightBufferData.data[lightNr] = renderLightJobs[lightNr];
-	}
-	graphicResourceHandler->UpdateConstantBuffer(&lightBufferData, lightMappingSize, lightBufferID);
+	graphicResourceHandler->UpdateConstantBuffer<LightDataBuffer>(lightBufferID, [this](LightDataBuffer* data) {
+		data->size.x = renderLightJobs.size();
+		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
+	});
+
+	lightLock.unlock();
+
+	
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	

@@ -477,6 +477,8 @@ HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, in
 	ProfileReturnConst(hr);
 }
 
+
+
 void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)
 {
 	cBuffers[constBufferID].constBuffer->Release();
