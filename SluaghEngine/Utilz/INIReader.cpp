@@ -129,10 +129,8 @@ namespace SE
 				memblock.push_back('\n');
 				for (auto& valuesPair : values)
 				{
-					//std::string outVal = values[valuesPair.first];
 					std::string name = valuesPair.first + " = " + values[valuesPair.first];
 					memblock.append(name);
-					//memblock.append(outVal);
 					memblock.push_back('\n');
 				}
 				memblock.push_back('\n');
