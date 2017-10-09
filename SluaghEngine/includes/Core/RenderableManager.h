@@ -12,6 +12,7 @@
 #include <list>
 #include <mutex>
 #include <Utilz\Event.h>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -91,13 +92,11 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			int LoadDefaultModel(const Utilz::GUID& guid, void* data, size_t size);
-
 			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
 			int LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
 
-			int LoadModel(const Utilz::GUID& guid, void* data, size_t size);
+			int LoadModel(void* data, size_t size);
 			
 			void LoadResource(const Utilz::GUID& meshGUID, size_t index, bool async, ResourceHandler::Behavior behavior);
 		
@@ -125,7 +124,6 @@ namespace SE
 			struct DirtyEntityInfo
 			{
 				size_t transformIndex;
-				size_t renderableIndex;
 				Entity entity;
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
@@ -147,13 +145,15 @@ namespace SE
 				std::list<Entity> entities;
 			};
 
-			std::map<Utilz::GUID, Graphics::RenderObjectInfo::JobType, Utilz::GUID::Compare> guidToMeshType;
-
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
 
-			std::mutex entityToChangeLock;
-			std::mutex infoLock;
+			struct toUpdateStruct
+			{
+				size_t bufferIndex;
+				int newHandle;
+			};
+			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};
 	}
 }
