@@ -151,6 +151,7 @@
     <ClInclude Include="..\includes\Utilz\GUID.h" />
     <ClInclude Include="..\includes\Utilz\IConsoleBackend.h" />
     <ClInclude Include="..\includes\Utilz\INIReader.h" />
+    <ClInclude Include="..\includes\Utilz\Memory.h" />
     <ClInclude Include="..\includes\Utilz\MemoryMeasuring.h" />
     <ClInclude Include="..\includes\Utilz\PathParsing.h" />
     <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />

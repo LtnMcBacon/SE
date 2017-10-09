@@ -2,6 +2,7 @@
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
 #include <Utilz\MemoryMeasuring.h>
+#include <Utilz\Memory.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -170,6 +171,8 @@ namespace SE
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
 				e.GetWindow()->MapActionButton(2, Window::KeyS);
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
+				e.GetWindow()->MapActionButton(4, Window::KeyV);
+				e.GetWindow()->MapActionButton(5, Window::KeyM);
 
 				console->Print("Start main loop!!\n");
 				while (e.GetWindow()->ButtonPressed(0) != true)
@@ -228,6 +231,16 @@ namespace SE
 								i = 11;
 							}
 						}
+					}
+					if (e.GetWindow()->ButtonPressed(4) == true)
+					{
+						mm.printUsage(console);
+					}
+					if (e.GetWindow()->ButtonPressed(5) == true)
+					{
+						size_t physMem = Utilz::Memory::toMB(Utilz::Memory::GetPhysicalProcessMemory());
+						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
+						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
 				}
 				e.Release();
