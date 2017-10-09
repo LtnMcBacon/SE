@@ -489,7 +489,7 @@ void SE::Window::WindowSDL::LoadRecording()
 		playbackfile.read((char*)playbackData, size);
 		playbackfile.close();
 		playback = true;
-		currentFrameStrategy = &WindowSDL::LoadRecording;
+		currentFrameStrategy = &WindowSDL::PlaybackFrame;
 	}
 	StopProfile;
 }
