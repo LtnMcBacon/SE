@@ -143,9 +143,7 @@ namespace SE
 
 			
 
-			const auto camera = em.Create();
-			cm.Bind(camera);
-			cm.SetActive(camera);
+			Core::Entity camera = cm.GetActive();
 			transformManager.SetRotation(camera, 0.9f, 0.0f, 0.0f);
 			transformManager.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 

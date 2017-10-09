@@ -61,6 +61,11 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 	lightManager = new LightManager(renderer, *entityManager, transformManager);
 
+	//default camera
+	auto defEntCam = entityManager->Create();
+	cameraManager->Bind(defEntCam);
+	cameraManager->SetActive(defEntCam);
+
 	InitStartupOption();
 
 	return 0;
@@ -152,6 +157,14 @@ void SE::Core::Engine::OptionUpdate()
 	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
 	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
 	
+	//Set Camera
+	CameraBindInfoStruct camInfo;
+	camInfo.aspectRatio = optionHandler->GetOption("Camera", "aspectRatio", (800.0f / 640.0f));
+	camInfo.fov = optionHandler->GetOption("Camera", "fov", 1.570796f);
+	camInfo.nearPlane = optionHandler->GetOption("Camera", "nearPlane", 0.01f);
+	camInfo.farPlance = optionHandler->GetOption("Camera", "farPlance", 100.0f);
+	cameraManager->UpdateCamera(camInfo);
+
 	//Set Window and graphic
 	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
 
