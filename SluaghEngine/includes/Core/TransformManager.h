@@ -149,8 +149,35 @@ namespace SE
 			*/
 			const DirectX::XMFLOAT3& GetScale(const Entity& e) const;
 
-
+			/**
+			* @brief    Returns the transform of an entity.
+			* @param[in] e The entity.
+			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
+			*/
 			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const;
+
+			/**
+			* @brief    Returns the forward vector of the entity.
+			* @param[in] e The entity.
+			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
+			*/
+			const DirectX::XMFLOAT3 GetForward(const Entity& e)const;
+
+			/**
+			* @brief    Sets the forward vector of the entity.
+			* @param[in] e The entity.
+			* @param[in] forward The forward vector to set.
+			* @warning Create must be called before this method for a given entity. Also this operation is expensive; use sparingly.
+			*/
+			const void SetForward(const Entity& e, const DirectX::XMFLOAT3& forward);
+
+			/**
+			* @brief    Sets the forward vector of the entity.
+			* @param[in] e The entity.
+			* @param[in] forward The forward vector to set.
+			* @warning Create must be called before this method for a given entity. Also this operation is very expensive; use sparingly.
+			*/
+			const void SetForward(const Entity& e, const DirectX::XMVECTOR& forward);
 
 			/**
 			* @brief     Is called once per frame by the engine. Do not call this from outside the engine as it is unnecessary.
