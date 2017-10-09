@@ -300,6 +300,13 @@ namespace SE
 
 			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
 
+			/**
+			* @brief	The amount of VRam currently used.
+			*
+			* @retval size_t The amount of VRam used in bytes.
+			*
+			*/
+
 			virtual size_t GetVRam() = 0;
 		protected:
 			IRenderer() {};
