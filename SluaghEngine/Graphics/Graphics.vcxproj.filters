@@ -60,6 +60,9 @@
     <ClInclude Include="..\includes\Graphics\FileHeaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryMeasuring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IRenderer.cpp">
@@ -78,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AnimationSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryMeasuring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -78,6 +78,7 @@ void SE::Core::CameraManager::UpdateCamera(const Entity & entity, CameraBindInfo
 	StopProfile;
 }
 
+
 void SE::Core::CameraManager::UpdateCamera(CameraBindInfoStruct & info)
 {
 	StartProfile;
