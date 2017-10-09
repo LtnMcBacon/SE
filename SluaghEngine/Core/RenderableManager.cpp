@@ -13,13 +13,12 @@
 
 
 
-SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
-	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
+SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager)
+	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager)
 {
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
-	_ASSERT(animationManager);
 
 	Allocate(128);
 	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
@@ -41,9 +40,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
-	if (res)
-		throw std::exception("Could not load default skinned vertex shader.");
+
 	StopProfile;
 }
 
@@ -153,25 +150,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->vertexShader = defaultShader;
 	info->fillSolid = renderableObjectInfo.fillSolid[index];
 	info->transparency = renderableObjectInfo.transparency[index];
-
-	// Get the entity register from the animationManager
-	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
-
-	// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
-	if (entityIndex == animationManager->entityToIndex.end()) {
-
-		info->type = Graphics::RenderObjectInfo::JobType::STATIC;
-		info->vertexShader = defaultShader;
-	}
-
-	// Otherwise, there was an animated entity and we should use the skinned vertex shader
-	else {
-
-		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
-		auto skelIndex = animationManager->animationData.skeletonIndex[entityIndex->second];
-		info->skeletonHandle = animationManager->skeletonHandle[skelIndex];
-		info->vertexShader = skinnedShader;
-	}
 
 	// Gather Renderobjectinfo from other managers
 	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
@@ -338,14 +316,6 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	StopProfile;
 }
 
-int SE::Core::RenderableManager::LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size) {
-
-	StartProfile;
-	skinnedShader = renderer->CreateVertexShader(data, size);
-	if (skinnedShader == -1)
-		ProfileReturnConst(-1);
-	ProfileReturnConst(0);
-}
 
 int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
@@ -368,12 +338,12 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		bufferIndex = bufferInfo.size() - 1;
 		if (async)
 			int i = 0;
-		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex, async](auto guid, auto data, auto size) {
+		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex](auto guid, auto data, auto size) {
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
 				return -1;
 
-			bufferInfo[bufferIndex].bufferHandle = bufferHandle;
+			toUpdate.push({ bufferIndex, bufferHandle });
 			return 1;
 		}, async, behavior);
 		

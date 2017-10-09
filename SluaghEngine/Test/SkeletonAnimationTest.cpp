@@ -91,9 +91,12 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	info.textureCount = 2;
 
 	mm.Create(mainC, info);
-
-	am.CreateSkeleton(mainC, Utilz::GUID("bakedTest.skel"));
-	am.AddAnimation(mainC, Utilz::GUID("SwingAnimation_bakedTest.anim"));
+	Core::CreateAnimationInfo sai;
+	sai.skeleton = "bakedTest.skel";
+	sai.animationCount = 1;
+	Utilz::GUID anims[] = { "SwingAnimation_bakedTest.anim" };
+	sai.animations = anims;
+	am.CreateAnimation(mainC, sai);
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);

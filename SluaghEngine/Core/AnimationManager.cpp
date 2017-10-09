@@ -2,11 +2,19 @@
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
-SE::Core::AnimationManager::AnimationManager(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager)
-	:renderer(renderer), resourceHandler(resourceHandler), entityManager(entityManager)
+SE::Core::AnimationManager::AnimationManager(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, RenderableManager* renderableManager)
+	:renderer(renderer), resourceHandler(resourceHandler), entityManager(entityManager), renderableManager(renderableManager)
 {
 	_ASSERT(renderer);
 	_ASSERT(resourceHandler);
+	_ASSERT(renderableManager);
+
+	renderableManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::SetRenderObjectInfo });
+	skinnedShader = 0;
+	auto res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &AnimationManager::LoadSkinnedShader });
+	if (res)
+		throw std::exception("Could not load default skinned vertex shader.");
+
 
 	Allocate(10);
 }
@@ -16,7 +24,7 @@ SE::Core::AnimationManager::~AnimationManager()
 	operator delete(animationData.data);
 }
 
-void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Utilz::GUID & skeleton)
+void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Core::CreateAnimationInfo& info)
 {
 	StartProfile;
 	auto& find = entityToIndex.find(entity);
@@ -36,50 +44,146 @@ void SE::Core::AnimationManager::CreateSkeleton(const Entity & entity, const Uti
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
+	animationData.job[index] = -1;
 
-
-	auto& findSkeleton = guidToSkeletonIndex.find(skeleton);
-	auto& skelIndex = guidToSkeletonIndex[skeleton];
+	// Load skeleton
+	auto& findSkeleton = guidToSkeletonIndex.find(info.skeleton);
+	auto& skelIndex = guidToSkeletonIndex[info.skeleton];
 	if (findSkeleton == guidToSkeletonIndex.end())
 	{
-		skeletonHandle.push_back({ 0 });
-		skelIndex = skeletonHandle.size() -1 ;
-		auto res = resourceHandler->LoadResource(skeleton, { this, &AnimationManager::LoadSkeleton });
+
+		auto res = resourceHandler->LoadResource(info.skeleton, [this, &skelIndex](auto guid, auto data, auto size) {
+			skelIndex = LoadSkeleton(data, size);
+			if (skelIndex == -1)
+				return -1;
+			return 1;
+		});
 		if (res)
 		{
-			Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", skeleton, res);
+			Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", info.skeleton, res);
+			animationData.used--;
 			ProfileReturnVoid;
 		}
 	}
 
-
-
-}
-
-void SE::Core::AnimationManager::AddAnimation(const Entity & entity, const Utilz::GUID & animation)
-{
-	StartProfile;
-	auto& find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
+	// Load animations
+	for (size_t i = 0; i < info.animationCount; i++)
 	{
-		Utilz::Console::Print("Can not add animation to an entity without a skeleton\n");
-		ProfileReturnVoid;
+		auto& findSkelAnim = guidToSkelAnimationIndex.find(info.skeleton);
+		auto& skelAnimIndex = guidToSkelAnimationIndex[info.skeleton];
+		if (findSkeleton == guidToSkelAnimationIndex.end())
+		{
+			auto res = resourceHandler->LoadResource(info.skeleton, [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
+				skelAnimIndex = LoadAnimation(data, size);
+				if (skelAnimIndex == -1)
+					return -1;
+				return 1;
+			});
+			if (res)
+			{
+				Utilz::Console::Print("Could not load animation %u. Error: %d\n", info.skeleton, res);
+				ProfileReturnVoid;
+			}
+		}
+
 	}
 
-	auto res = resourceHandler->LoadResource(animation, { this, &AnimationManager::LoadAnimation });
-	if (res)
-	{
-		Utilz::Console::Print("Could not load animation %u. Error: %d\n", animation, res);
-		ProfileReturnVoid;
-	}
-
-
-
+	StopProfile;
 }
 
 void SE::Core::AnimationManager::Frame()
 {
 	GarbageCollection();
+}
+
+void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID & animation, float speed)
+{	
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& findSkelAnim = guidToSkelAnimationIndex.find(animation);
+		if (findSkelAnim != guidToSkelAnimationIndex.end())
+		{
+			Graphics::AnimationJobInfo info;
+			info.skeletonID = animationData.skeletonIndex[entityIndex->second];
+			info.animationID = findSkelAnim->second;
+			info.speed = speed;
+			
+			if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
+				renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
+			else
+			{
+				animationData.job[entityIndex->second] = renderer->StartAnimation(info); // Create a new animation job
+				renderableManager->UpdateRenderableObject(entity); // And update the renderable manager.
+			}
+		}
+
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
+{
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		if (animationData.job[entityIndex->second] >= 0)
+			renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);
+
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::Start(const Entity & entity)const
+{
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		if (animationData.job[entityIndex->second] >= 0)
+			renderer->StartAnimation(animationData.job[entityIndex->second]);
+
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::Pause(const Entity & entity)const
+{
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		if (animationData.job[entityIndex->second] >= 0)
+			renderer->PauseAnimation(animationData.job[entityIndex->second]);
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderObjectInfo * info)
+{
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+
+	// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
+	if (entityIndex == entityToIndex.end()) {
+		info->type = Graphics::RenderObjectInfo::JobType::STATIC;
+	}
+
+	// Otherwise, there was an animated entity and we should use the skinned vertex shader
+	else {
+
+		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
+		info->animationJob = animationData.job[entityIndex->second];
+		info->vertexShader = skinnedShader;
+	}
+	StopProfile;
 }
 
 void SE::Core::AnimationManager::Allocate(size_t size)
@@ -96,12 +200,12 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.skeletonIndex = (size_t*)(newData.entity + newData.size);
-	//newData.dirty = (size_t*)(newData.entity + newData.allocated);
-
+	newData.job = (int*)(newData.skeletonIndex + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(size_t));
+	memcpy(newData.job, animationData.job, animationData.used * sizeof(int));
 
 	// Delete old data;
 	operator delete(animationData.data);
@@ -122,6 +226,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 	// Copy the data
 	animationData.entity[index] = last_entity;
 	animationData.skeletonIndex[index] = animationData.skeletonIndex[last];
+	animationData.job[index] = animationData.job[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
@@ -150,30 +255,33 @@ void SE::Core::AnimationManager::GarbageCollection()
 	StopProfile;
 }
 
-int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void * data, size_t size)
+int SE::Core::AnimationManager::LoadSkeleton(void * data, size_t size)
 {
 	auto skelH = (Graphics::Skeleton_Header*)data;
 
 	// After the skeleton header, there will only be joints
 	auto jointAttr = (Graphics::JointAttributes*)(skelH + 1);
 
-	const auto& index = guidToSkeletonIndex[skeleton];
-	auto handle = renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
-	skeletonHandle[index] = handle;
-
-	animationData.skeletonIndex[index] = handle;
-
-	return 0;
+	return renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
 }
 
-int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, void * data, size_t size)
+int SE::Core::AnimationManager::LoadAnimation(void * data, size_t size)
 {
 	auto animH = (Graphics::Animation_Header*)data;
 
 	// After the animation header, there will only be matrices of type XMFLOAT4X4
 	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints, 0);
+	renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 
 	return 0;
+}
+
+int SE::Core::AnimationManager::LoadSkinnedShader(const Utilz::GUID & guid, void * data, size_t size)
+{
+	StartProfile;
+	skinnedShader = renderer->CreateVertexShader(data, size);
+	if (skinnedShader == -1)
+		ProfileReturnConst(-1);
+	ProfileReturnConst(0);
 }

@@ -259,9 +259,66 @@ namespace SE
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
 
-			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints);
+			/**
+			* @brief Create a skeleton
+			* @param[in] jointData The joint data.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints)override;
 
-			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
+			/**
+			* @brief Create an animation
+			* @param[in] matrices The animation keyframes
+			* @param[in] nrOfKeyframes The number of keyframes.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) override;
+
+			/**
+			* @brief Start a new animation job
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @retval -1 On fail.
+			* @retval handle The job id.
+			* @endcode
+			*/
+			int StartAnimation(const AnimationJobInfo& info) override;
+
+			/**
+			* @brief Update an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void UpdateAnimation(int job, const AnimationJobInfo& info)override;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] speed The speed
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void SetAnimationSpeed(int job, float speed) override;
+
+			/**
+			* @brief Start an animation job
+			* @param[in] job Which animation job to Start
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void StartAnimation(int job) override;
+
+			/**
+			* @brief Pause an animation job
+			* @param[in] job Which animation job to pause
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void PauseAnimation(int job) override;
 
 		private:
 			Renderer(const Renderer& other) = delete;

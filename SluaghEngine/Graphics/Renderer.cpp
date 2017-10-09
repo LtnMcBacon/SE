@@ -894,12 +894,33 @@ int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nr
 	return handle;
 }
 
-int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) {
+int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
 
 	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, skeletonIndex, &handle);
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, 0, &handle);
 	if (hr)
 		return hr;
 	return handle;
+}
+
+int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+{
+	return 0;
+}
+
+void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
+{
+}
+
+void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
+{
+}
+
+void SE::Graphics::Renderer::StartAnimation(int job)
+{
+}
+
+void SE::Graphics::Renderer::PauseAnimation(int job)
+{
 }
 

@@ -52,8 +52,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, animationManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager);
+	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
