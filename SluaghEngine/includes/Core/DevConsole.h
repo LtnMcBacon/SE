@@ -6,6 +6,7 @@
 #include <functional>
 #include <map>
 #include <chrono>
+#include <Graphics/IRenderer.h> //In order to plot VRAM usage.
 namespace SE
 {
 	namespace Core
@@ -14,7 +15,7 @@ namespace SE
 		class DevConsole
 		{
 		public:
-			DevConsole();
+			DevConsole(SE::Graphics::IRenderer* renderer);
 			~DevConsole();
 
 			/*
@@ -61,6 +62,11 @@ namespace SE
 				std::string message;
 				std::string channel;
 			};
+
+			
+			SE::Graphics::IRenderer* renderer;
+
+			DevConsole() = delete;
 			DevConsole(const DevConsole& other) = delete;
 			DevConsole(DevConsole&& other) = delete;
 			DevConsole& operator=(const DevConsole& other) = delete;

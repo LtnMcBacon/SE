@@ -1,9 +1,12 @@
 #include "DevConsole.h"
 #include <algorithm>
 #include <Imgui/imgui.h>
-
-SE::Core::DevConsole::DevConsole()
+#include <Utilz/Memory.h>
+#include <Graphics/IRenderer.h> //In order to plot VRAM usage.
+SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 {
+	_ASSERT(renderer);
+	this->renderer = renderer;
 	showConsole = false;
 	inputBuffer.resize(256);
 	commandHistoryIndex = -1;
@@ -60,11 +63,41 @@ void SE::Core::DevConsole::Frame()
 	if (!showConsole)
 		return;
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Dev console", &showConsole))
+	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
 		ImGui::End();
 		return;
 	}
+	
+	{
+		static bool plot_memory_usage;
+		if(ImGui::BeginMenuBar())
+		{
+			if(ImGui::BeginMenu("Debugging"))
+			{
+				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		
+
+		if(plot_memory_usage)
+		{
+			static const int samples = 256;
+			static float vram_usage[samples];
+			static float ram_usage[samples];
+			static int offset = 0;
+
+			vram_usage[offset] = ((float)renderer->GetVRam()) / (1024.0f * 1024.0f);
+			ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
+			offset = (offset + 1) % samples;
+			ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
+			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
+			ImGui::Separator();
+		}
+	}
+
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
 	ImGui::Separator();

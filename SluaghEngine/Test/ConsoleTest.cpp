@@ -40,12 +40,17 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		EXIT,
 		TOGGLE_CONSOLE,
 		PRINT_MESSAGE,
-		PRINT_ERROR
+		PRINT_ERROR,
+		ALLOCATE,
+		DEALLOCATE
 	};
 	window->MapActionButton(TOGGLE_CONSOLE, Window::Key1);
 	window->MapActionButton(EXIT, Window::KeyEscape);
 	window->MapActionButton(PRINT_MESSAGE, Window::Key2);
 	window->MapActionButton(PRINT_ERROR, Window::Key3);
+	window->MapActionButton(ALLOCATE, Window::KeyP);
+	window->MapActionButton(DEALLOCATE, Window::KeyO);
+	std::vector<std::string> graphTest;
 	Utilz::Timer timer;
 
 	bool run = true;
@@ -79,8 +84,17 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			dc.Print("I am a message.\n", "Error");
 		if (window->ButtonPressed(EXIT))
 			run = false;
-		//if (consoleOn)
-		//	ShowExampleAppConsole(&consoleOn);
+		
+		if (window->ButtonPressed(ALLOCATE))
+		{
+			graphTest.push_back("");
+			graphTest.back().resize(1024 * 1024*10, 'a');
+		}
+		if (window->ButtonPressed(DEALLOCATE))
+		{
+			if(graphTest.size())
+				graphTest.pop_back();
+		}
 
 		if(cameraControls)
 		{
@@ -102,7 +116,6 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 
 		engine.Frame(dt);
 	}
-
 
 
 	engine.Release();

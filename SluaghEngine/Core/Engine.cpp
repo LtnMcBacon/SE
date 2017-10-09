@@ -70,7 +70,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	InitStartupOption();
 
 	ImGuiDX11SDL_Init(renderer, window);
-	devConsole = new DevConsole();
+	devConsole = new DevConsole(renderer);
 	return 0;
 }
 
