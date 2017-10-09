@@ -198,6 +198,15 @@
     <ClCompile Include="BehaviouralTreeFactory.cpp">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileManger.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileFactory.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -282,6 +291,15 @@
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Projectile.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileManager.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h">
       <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h">

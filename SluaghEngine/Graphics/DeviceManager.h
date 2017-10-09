@@ -162,27 +162,36 @@ namespace SE {
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
-			inline ID3D11BlendState*	   GetBlendState() { return blendState; };
-			inline void SetBlendState() {
-				float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
-				UINT sampleM = 0xffffffff;
-				gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
-			}
+			inline ID3D11BlendState*	   GetBlendState() { return blendSolidState; };
 			inline void SetDepthStencilStateAndRS()
 			{
 				gDeviceContext->RSSetState(rasterSolidState);
 				gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 			}
 
-			inline void SetRasterStateFill(bool fillSolid)
+			inline void SetRasterStateFill(uint8_t fillSolid)
 			{
-				if (fillSolid == true)
+				if (fillSolid == 1)
 				{
 					gDeviceContext->RSSetState(rasterSolidState);
 				}
 				else
 				{
 					gDeviceContext->RSSetState(rasterWireState);
+				}
+			}
+
+			inline void SetBlendTransparencyState(uint8_t transparency)
+			{
+				if (transparency == 1)
+				{
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendTransState, NULL, sampleM);
+				}
+				else
+				{
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
 				}
 			}
 		private:
@@ -198,7 +207,8 @@ namespace SE {
 			ID3D11DepthStencilView*	gDepthStencilView;
 			ID3D11DepthStencilState * pDSState;
 
-			ID3D11BlendState*		blendState;
+			ID3D11BlendState*		blendSolidState;
+			ID3D11BlendState*		blendTransState;
 			ID3D11RasterizerState * rasterSolidState;
 			ID3D11RasterizerState * rasterWireState;
 

@@ -163,7 +163,6 @@ namespace SE
 			*/
 			int Render() override;
 
-
 			/**
 			* @brief Creates a vertex buffer.
 			* @param[in] data The vertex data.
@@ -312,6 +311,7 @@ namespace SE
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
+			RenderObjectInfo RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob);
 			/******** END Instanced render job members ********/
 
 			/*********** Line render job members **************/

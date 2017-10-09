@@ -253,8 +253,8 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 
 	// Temp variables
 	size_t last = collisionData.used - 1;
-	const Entity& entity = collisionData.entity[index];
-	const Entity& last_entity = collisionData.entity[last];
+	const Entity entity = collisionData.entity[index];
+	const Entity last_entity = collisionData.entity[last];
 
 	// Copy the data
 	collisionData.entity[index] = last_entity;

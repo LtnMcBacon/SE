@@ -27,5 +27,6 @@ bool SE::Core::Entity::operator==(const Entity& rhs) const
 
 size_t SE::Core::EntityHasher::operator()(const Entity& e) const
 {
-	return std::hash<uint32_t>()(e.id);
+	// No need for actual hashing
+	return e.id;
 }
