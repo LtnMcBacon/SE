@@ -311,5 +311,8 @@
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyFactory.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
