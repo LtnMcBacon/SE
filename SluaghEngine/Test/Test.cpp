@@ -33,6 +33,7 @@
 #include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
 #include "GarbageTest.h"
+#include "EnemyFactoryTest.h"
 
 
 #ifdef _DEBUG
@@ -84,6 +85,7 @@ int main(int argc, char** argv)
 	AddTest(GameStateTest);
 	AddTest(BehavioursTest);
 	AddTest(BehaviouralTreeFactoryTest);
+	AddTest(EnemyFactoryTest);
 
 	AddTest(PickingTest);
 
