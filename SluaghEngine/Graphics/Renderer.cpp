@@ -12,6 +12,7 @@ SE::Graphics::Renderer::Renderer()
 	device = nullptr;
 	graphicResourceHandler = nullptr;
 	animationSystem = nullptr;
+	memMeasure.Init();
 }
 
 SE::Graphics::Renderer::~Renderer()
