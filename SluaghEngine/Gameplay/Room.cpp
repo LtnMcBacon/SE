@@ -35,7 +35,7 @@ void Room::UpdateAIs(float dt)
 	StartProfile;
 	int collisionX = 0.0;
 	int collisionY = 0.0;
-	for (auto enemy : enemyEntities)
+	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
 
@@ -191,16 +191,14 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
 	StartProfile;
-	//bool collidedRight;
-	//bool collidedLeft;
-	//float xPower;
-	//float yPower;
-	//BoundingRect r;
-	//CollisionData cData;
+
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		ProjectileAgainstWalls(projectiles[i]);
+		if (ProjectileAgainstEnemies(projectiles[i]) == false)
+		{
+			ProjectileAgainstWalls(projectiles[i]);
+		}
 	}
 
 	StopProfile;
@@ -242,6 +240,7 @@ bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2,
 
 void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 {
+	StartProfile;
 
 	bool collidedRight = false;
 	bool collidedLeft = false;
@@ -249,28 +248,6 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 	float yPower = 0.0f;
 	BoundingRect r = projectile.GetBoundingRect();
 	CollisionData cData;
-
-	//bool testBool;
-	//LinePoint p1(1, 1), q1(10, 1), p2(1,2), q2(10, 2);
-	//testBool = LineCollision(p1, q1, p2, q2);
-
-	//p1 = LinePoint(10, 0);
-	//q1 = LinePoint(0, 10);
-	//p2 = LinePoint(0, 0);
-	//q2 = LinePoint(10, 10);
-	//testBool = LineCollision(p1, q1, p2, q2);
-
-	//p1 = LinePoint(-5, -5);
-	//q1 = LinePoint(0, 0);
-	//p2 = LinePoint(1, 1);
-	//q2 = LinePoint(10, 10);
-	//testBool = LineCollision(p1, q1, p2, q2);
-
-	//p1 = LinePoint(5.13176918f, 4.86688519f);
-	//q1 = LinePoint(5.27319050f, 5.830650f);
-	//p2 = LinePoint(5, 5);
-	//q2 = LinePoint(6, 5);
-	//testBool = LineCollision(p1, q1, p2, q2);
 
 	if (CheckCollisionInRoom(r.upperLeftX, r.upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
 	{
@@ -327,17 +304,128 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 		}
 	}
 
-	/*Normalize the collision vector*/
-	float moveTot = abs(xPower) + abs(yPower);
-	if (moveTot != 0.0f)
+	if (cData.type != CollisionType::NONE)
 	{
-		xPower /= moveTot;
-		yPower /= moveTot;
-	}
-	cData.xVec = xPower;
-	cData.yVec = yPower;
+		/*Normalize the collision vector*/
+		float moveTot = abs(xPower) + abs(yPower);
+		if (moveTot != 0.0f)
+		{
+			xPower /= moveTot;
+			yPower /= moveTot;
+		}
 
-	projectile.SetCollisionData(cData);
+		cData.xVec = xPower;
+		cData.yVec = yPower;
+
+		projectile.SetCollisionData(cData);
+	}
+
+	StopProfile;
+}
+
+int SE::Gameplay::Room::PointCollision(float x, float y)
+{
+	StartProfile;
+
+	for (int i = 0; i < enemyUnits.size(); i++)
+	{
+		//if (abs(p.GetXPosition() - enemyUnits[i]->GetXPosition()) < (p.GetExtentX() + enemyUnits[i]->GetExtent()) && abs(p.GetYPosition() - enemyUnits[i]->GetYPosition()) < (p.GetExtentY() + enemyUnits[i]->GetExtent()))
+		if(abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
+		{
+			ProfileReturnConst(i);
+		}
+	}
+
+	ProfileReturnConst(-1);
+}
+
+bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
+{
+	StartProfile;
+
+	bool collidedRight = false;
+	bool collidedLeft = false;
+	float xPower = 0.0f;
+	float yPower = 0.0f;
+	BoundingRect r = projectile.GetBoundingRect();
+	CollisionData cData;
+
+	if (PointCollision(r.upperLeftX, r.upperLeftY) != -1) //check if front left corner of projectile is in a blocked square
+	{
+		collidedLeft = true;
+		cData.type = CollisionType::ENEMY;
+	}
+
+	if (PointCollision(r.upperRightX, r.upperRightY) != -1) //check if front right corner of projectile is in a blocked square
+	{
+		collidedRight = true;
+		cData.type = CollisionType::ENEMY;
+	}
+
+	//if we at some point want to have a reflection vector from enemies as well then comment in the two sections below and change so that the two last points in the below calls corresponds to
+	//the lines formed by taking the centerpoint of the enemy we collided with and adding/subtracting the extent of the enemy
+
+	//if (collidedLeft)
+	//{
+	//	if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // top line
+	//	{
+	//		yPower += 1.0f;
+	//	}
+	//	else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)))) // bottom line
+	//	{
+	//		yPower -= 1.0f;
+	//	}
+
+	//	if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // right line
+	//	{
+	//		xPower += 1.0f;
+	//	}
+	//	else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)))) // left line
+	//	{
+	//		xPower -= 1.0f;
+	//	}
+	//}
+
+	//if (collidedRight)
+	//{
+	//	if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), ceil(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // top line
+	//	{
+	//		yPower += 1.0f;
+	//	}
+	//	else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), int(r.upperRightY)))) // bottom line
+	//	{
+	//		yPower -= 1.0f;
+	//	}
+
+	//	if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(ceil(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // right line
+	//	{
+	//		xPower += 1.0f;
+	//	}
+	//	else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(int(r.upperRightX), ceil(r.upperRightY)))) // left line
+	//	{
+	//		xPower -= 1.0f;
+	//	}
+	//}
+
+	if (cData.type != CollisionType::NONE)
+	{
+		///*Normalize the collision vector*/
+		//float moveTot = abs(xPower) + abs(yPower);
+		//if (moveTot != 0.0f)
+		//{
+		//	xPower /= moveTot;
+		//	yPower /= moveTot;
+		//}
+
+		//cData.xVec = xPower;
+		//cData.yVec = yPower;
+
+		projectile.SetCollisionData(cData);
+
+		ProfileReturnConst(true);
+	}
+
+	ProfileReturnConst(false);
 }
 
 Room::Room(char map[25][25])
@@ -360,14 +448,14 @@ Room::Room(char map[25][25])
 		}
 	}
 	roomField = new FlowField(map, 1.0f, start, 0.0f, 0.0f);
-	enemyEntities.reserve(5);
+	enemyUnits.reserve(5);
 	StopProfile;
 }
 
 Room::~Room()
 {
 	delete roomField;
-	for (auto enemy : enemyEntities)
+	for (auto enemy : enemyUnits)
 	{
 		enemy->DestroyEntity();
 		delete enemy;
@@ -377,7 +465,7 @@ Room::~Room()
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
-	enemyEntities.push_back(enemyToAdd);
+	enemyUnits.push_back(enemyToAdd);
 
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.

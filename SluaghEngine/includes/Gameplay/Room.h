@@ -29,7 +29,7 @@ namespace SE
 		private:
 			Room* adjacentRooms[4] = {};
 			char map[25][25];
-			std::vector<EnemyUnit*> enemyEntities;
+			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -218,10 +218,12 @@ namespace SE
 			*/
 			void ProjectileAgainstWalls(Projectile& projectile);
 
+			int PointCollision(float x, float y);
+
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
 			*/
-			void ProjectileAgainstEnemies(Projectile& projectile);
+			bool ProjectileAgainstEnemies(Projectile& projectile);
 
 		public:
 			Room(char map[25][25]);

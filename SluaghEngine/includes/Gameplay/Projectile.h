@@ -114,6 +114,16 @@ namespace SE
 				return rect;
 			}
 
+			inline float GetExtentX()
+			{
+				return extentX;
+			}
+
+			inline float GetExtentY()
+			{
+				return extentY;
+			}
+
 		private:
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;

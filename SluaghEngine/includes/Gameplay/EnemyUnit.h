@@ -134,7 +134,15 @@ namespace SE
 			 */
 			void AddForce(float force[2]);
 
+			inline float GetRadius()
+			{
+				return radius;
+			}
 
+			inline float GetExtent()
+			{
+				return extends;
+			}
 
 			enum class EnemyActions
 			{
@@ -152,6 +160,7 @@ namespace SE
 			const FlowField* flowFieldForRoom = nullptr;
 			float forcesToApply[2] = {};
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
+			float radius;
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;
