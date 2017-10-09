@@ -58,7 +58,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	}
 
 	running = true;
-	myThread = std::thread(&Renderer::Frame, this);
+	//myThread = std::thread(&Renderer::Frame, this);
 
 	ProfileReturnConst( 0);
 }
@@ -66,7 +66,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	myThread.join();
+	//myThread.join();
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -81,9 +81,10 @@ void SE::Graphics::Renderer::Shutdown()
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	StartProfile;
-	renderJobLock.lock();
-
 	uint32_t jobID;
+	/*renderJobLock.lock();
+
+	
 	if (freeJobIndices.size())
 	{
 		jobID = freeJobIndices.top();
@@ -98,7 +99,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 
 	newJobs.push({ jobID, handles });
 
-	ProfileReturnConst(jobID);
+	ProfileReturnConst(jobID);*/
 
 
 
@@ -138,18 +139,18 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst(jobID);
 }
 
 int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
-	removeJobs.push(jobID);
-	ProfileReturnConst(0);
+	//removeJobs.push(jobID);
+	//ProfileReturnConst(0);
 
 
-	renderJobLock.lock();
+	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
@@ -166,7 +167,7 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 
 	freeJobIndices.push(jobID);
 
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
@@ -176,13 +177,13 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 {
 	StartProfile;
 
-	updateJobs.push({ jobID, handles });
+//	updateJobs.push({ jobID, handles });
 
-	ProfileReturnConst(0);
+//	ProfileReturnConst(0);
 
 
 
-	renderJobLock.lock();
+	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
@@ -222,7 +223,7 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst( 0);
 }
 
@@ -334,10 +335,10 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 {
 	StartProfile;
-	lightLock.lock();
+	//lightLock.lock();
 	int job = (int)renderLightJobs.size();
 	renderLightJobs.push_back(handles);
-	lightLock.unlock();
+	//lightLock.unlock();
 	
 	ProfileReturn(job);
 }
@@ -345,11 +346,11 @@ int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
 {
 	StartProfile;
-	lightLock.lock();
+	//lightLock.lock();
 	size_t job = renderLightJobs.size() - 1;
 	renderLightJobs[ID] = renderLightJobs[job];
 	renderLightJobs.pop_back();
-	lightLock.unlock();
+	//lightLock.unlock();
 	ProfileReturn(int(job));
 }
 
@@ -374,10 +375,10 @@ int SE::Graphics::Renderer::Render() {
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
-	AddNewRenderJobs();
-	UpdateRenderJobs();
-	UpdateTransforms();
-	RemoveRenderJobs();
+	//AddNewRenderJobs();
+	//UpdateRenderJobs();
+	//UpdateTransforms();
+	//RemoveRenderJobs();
 
 
 
@@ -400,7 +401,7 @@ int SE::Graphics::Renderer::Render() {
 	0);
 
 	// SetLightBuffer Start
-	lightLock.lock();
+	//lightLock.lock();
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 	LightDataBuffer lightBufferData;
 
@@ -409,7 +410,7 @@ int SE::Graphics::Renderer::Render() {
 		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
 	});
 
-	lightLock.unlock();
+	//lightLock.unlock();
 
 	
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
@@ -525,14 +526,14 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
-	UpdateTransformStruct ut;
-	ut.jobID = jobID;
-	DirectX::XMMATRIX t = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
-	DirectX::XMStoreFloat4x4(&ut.transform, DirectX::XMMatrixTranspose(t));
-	updateTransforms.push(ut);
-	ProfileReturnConst(0);
+	//UpdateTransformStruct ut;
+	//ut.jobID = jobID;
+	//DirectX::XMMATRIX t = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	//DirectX::XMStoreFloat4x4(&ut.transform, DirectX::XMMatrixTranspose(t));
+	//updateTransforms.push(ut);
+	//ProfileReturnConst(0);
 
-	renderJobLock.lock();
+//	renderJobLock.lock();
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
@@ -541,7 +542,7 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	const size_t transformIndex = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
  	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
-	renderJobLock.unlock();
+	//renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
