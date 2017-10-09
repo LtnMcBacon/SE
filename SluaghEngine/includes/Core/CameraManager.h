@@ -31,6 +31,11 @@ namespace SE
 			void Bind(const Entity& entity, CameraBindInfoStruct& info = CameraBindInfoStruct());
 
 			/**
+			* @brief	Update a camera for the given entity.
+			*/
+			void UpdateCamera(const Entity& entity, CameraBindInfoStruct& info);
+
+			/**
 			* @brief Retrieves the  view matrix of the camera bound to entity in a row major format.
 			* @param[in] entity The entity which the camera is to be gotten from.
 			* @retval Returns the view matrix if the entity has a camera component. Returns an identity matrix otherwise.
