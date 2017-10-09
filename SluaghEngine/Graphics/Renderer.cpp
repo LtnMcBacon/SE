@@ -380,10 +380,9 @@ int SE::Graphics::Renderer::Render() {
 
 	device->SetBlendTransparencyState(0);
 
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(DirectX::XMFLOAT4X4), oncePerFrameBufferID);
 	std::vector<size_t> transID;
-	renderJobLock.lock();
+
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
 	{
 		if (renderBuckets[iteration].stateInfo.transparency == 0)
@@ -397,7 +396,6 @@ int SE::Graphics::Renderer::Render() {
 	{
 		RenderABucket(renderBuckets[transID[iteration]], previousJob);
 	}
-	renderJobLock.unlock();
 
 	///********** Render line jobs ************/
 
