@@ -75,7 +75,17 @@ void SE::Core::DevConsole::Frame()
 		if (m.channel == "Error")
 			color = { 1.0f, 0.2f, 0.2f, 1.0f };
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
-		ImGui::TextUnformatted((m.channel + ": " +m.message).c_str());
+		if(filter.IsActive())
+		{
+			if(filter.PassFilter(m.message.c_str()) || filter.PassFilter(m.channel.c_str()))
+			{
+				ImGui::TextUnformatted((m.channel + ": " + m.message).c_str());
+			}
+		}
+		else
+		{
+			ImGui::TextUnformatted((m.channel + ": " + m.message).c_str());
+		}	
 		ImGui::PopStyleColor();
 	}
 	ImGui::EndChild();
