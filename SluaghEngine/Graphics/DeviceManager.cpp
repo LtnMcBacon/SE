@@ -24,8 +24,10 @@ DeviceManager::DeviceManager() {
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
 	pDSState = nullptr;
-	blendState = nullptr;
-	rasterState = nullptr;
+	blendSolidState = nullptr;
+	blendTransState = nullptr;
+	rasterSolidState = nullptr;
+	rasterWireState = nullptr;
 }
 
 DeviceManager::~DeviceManager() {
@@ -81,11 +83,18 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	rasterizerState.MultisampleEnable = false;
 	rasterizerState.AntialiasedLineEnable = false;
 
-	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterState);
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterSolidState);
 	if (FAILED(hr))
 		throw "Fuck";
-	gDeviceContext->RSSetState(rasterState);
+	gDeviceContext->RSSetState(rasterSolidState);
 
+	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterWireState);
+	if (FAILED(hr))
+		throw "Fuck";
+
+	
 	ProfileReturnConst(hr);
 
 }
@@ -104,8 +113,10 @@ void DeviceManager::Shutdown() {
 	gDepthStencilView->Release();
 
 	gDeviceContext->Release();
-	blendState->Release();
-	rasterState->Release();
+	blendSolidState->Release();
+	blendTransState->Release();
+	rasterSolidState->Release();
+	rasterWireState->Release();
 
 #ifdef _DEBUG
 
@@ -291,9 +302,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 
-
-
-
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
@@ -351,6 +359,7 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 
 void DeviceManager::CreateBlendState()
 {
+	// Transparency off
 	D3D11_RENDER_TARGET_BLEND_DESC rendTarBlendState[8];
 	for (auto& rtbs : rendTarBlendState)
 	{
@@ -377,11 +386,40 @@ void DeviceManager::CreateBlendState()
 	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
 	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
 
-	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendState);
+	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendSolidState);
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
 
-	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
 	UINT sampleM = 0xffffffff;
-	gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
+	gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
+
+	// Transparency on
+	D3D11_RENDER_TARGET_BLEND_DESC rendTransBlendState[8];
+	for (auto& rtbs : rendTransBlendState)
+	{
+		rtbs.BlendEnable = true;
+		rtbs.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbs.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		rtbs.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		rtbs.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		rtbs.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	}
+
+	D3D11_BLEND_DESC blendTransStateDesc;
+	blendTransStateDesc.AlphaToCoverageEnable = true;
+	blendTransStateDesc.IndependentBlendEnable = false;
+	blendTransStateDesc.RenderTarget[0] = rendTransBlendState[0];
+	blendTransStateDesc.RenderTarget[1] = rendTransBlendState[1];
+	blendTransStateDesc.RenderTarget[2] = rendTransBlendState[2];
+	blendTransStateDesc.RenderTarget[3] = rendTransBlendState[3];
+	blendTransStateDesc.RenderTarget[4] = rendTransBlendState[4];
+	blendTransStateDesc.RenderTarget[5] = rendTransBlendState[5];
+	blendTransStateDesc.RenderTarget[6] = rendTransBlendState[6];
+	blendTransStateDesc.RenderTarget[7] = rendTransBlendState[7];
+
+	hr = gDevice->CreateBlendState(&blendTransStateDesc, &blendTransState);
+	if (FAILED(hr))
+		throw std::exception("Could not create blend state");
 }

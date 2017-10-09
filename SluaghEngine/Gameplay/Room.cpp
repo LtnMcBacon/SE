@@ -12,8 +12,8 @@ void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
 	/*
-	 * To be written/implemented
-	 */
+	* To be written/implemented
+	*/
 	pos playerPos;
 	playerPos.x = playerX;
 	playerPos.y = playerY;
@@ -25,8 +25,8 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 {
 	StartProfile;
 	/*
-	 * To be written/implemented
-	 */
+	* To be written/implemented
+	*/
 	StopProfile;
 }
 
@@ -47,9 +47,31 @@ void Room::UpdateAdjacentRooms(float dt)
 {
 	StartProfile;
 	for (auto room : adjacentRooms)
-		if(room)
+		if (room)
 			room->UpdateAIs(dt);
 	StopProfile;
+}
+
+bool SE::Gameplay::Room::OnSegment(float pX, float pY, float qX, float qY, float rX, float rY)
+{
+	StartProfile;
+
+	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
+		ProfileReturnConst(true);
+
+	ProfileReturnConst(false);
+}
+
+int SE::Gameplay::Room::Orientation(float pX, float pY, float qX, float qY, float rX, float rY)
+{
+	// See http://www.geeksforgeeks.org/orientation-3-ordered-points/
+	// for details of below formula.
+	int val = (qY - pY) * (rX - qX) - (qX - pX) * (rY - qY);
+
+	if (val == 0)
+		return 0;  // colinear
+
+	return (val > 0) ? 1 : 2; // clock or counterclock wise
 }
 
 void Room::Update(float dt, float playerX, float playerY)
@@ -88,7 +110,7 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 		ProfileReturnConst(true);
 	}
 
-	
+
 	ProfileReturnConst(false);
 }
 
@@ -113,12 +135,12 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 
 
 
-	if(map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+	if (map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = -1;
 		collision = true;
 	}
-	else if(map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	else if (map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = 1;
 		collision = true;
@@ -135,49 +157,178 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 		collision = true;
 	}/*
 
-	if(map[xLeftAfterFloored][yDownAfterFloored])
-	{
-		xCollision = -1;
-		yCollision = -1;
-		collision = true;
-		
-	}
-	if(map[xLeftAfterFloored][yUpAfterFloored])
-	{
-		xCollision = -1;
-		yCollision = 1;
-		collision = true;
-		
-	}
-	if(map[xRightAfterFloored][yUpAfterFloored])
-	{
-		xCollision = 1;
-		yCollision = 1;
-		collision = true;
-		
-	}
-	if(map[xRightAfterFloored][yDownAfterFloored])
-	{
-		xCollision = 1;
-		yCollision = -1;
-		collision = true;
-		
-	}*/
+	 if(map[xLeftAfterFloored][yDownAfterFloored])
+	 {
+	 xCollision = -1;
+	 yCollision = -1;
+	 collision = true;
+
+	 }
+	 if(map[xLeftAfterFloored][yUpAfterFloored])
+	 {
+	 xCollision = -1;
+	 yCollision = 1;
+	 collision = true;
+
+	 }
+	 if(map[xRightAfterFloored][yUpAfterFloored])
+	 {
+	 xCollision = 1;
+	 yCollision = 1;
+	 collision = true;
+
+	 }
+	 if(map[xRightAfterFloored][yDownAfterFloored])
+	 {
+	 xCollision = 1;
+	 yCollision = -1;
+	 collision = true;
+
+	 }*/
 	ProfileReturn(collision);
 }
 
-Room::Room(char map[25][25])	
+void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
+{
+	StartProfile;
+	bool collidedRight;
+	bool collidedLeft;
+	float xPower;
+	float yPower;
+	BoundingRect r;
+	CollisionData cData;
+
+	for (int i = 0; i < projectiles.size(); i++)
+	{
+		r = projectiles[i].GetBoundingRect();
+		collidedLeft = false;
+		collidedRight = false;
+		xPower = 0.0f;
+		yPower = 0.0f;
+		cData = CollisionData();
+
+		if (projectiles[i].GetActive() != true)
+		{
+			continue;
+		}
+
+		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperLeftX, projectiles[i].GetBoundingRect().upperLeftY, 0.0f, 0.0f)) //check if front left corner of projectile is in a blocked square
+		{
+			collidedLeft = true;
+			cData.type = CollisionType::OBJECT;
+
+		}
+
+		if (CheckCollisionInRoom(projectiles[i].GetBoundingRect().upperRightX, projectiles[i].GetBoundingRect().upperRightY, 0.0f, 0.0f)) //check if front right corner of projectile is in a blocked square
+		{
+			collidedRight = true;
+			cData.type = CollisionType::OBJECT;
+		}
+
+		if (collidedLeft)
+		{
+			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), ceil(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // top line
+			{
+				yPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), int(r.upperLeftY))) // bottom line
+			{
+				yPower -= 1.0f;
+			}
+
+			if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, ceil(r.upperLeftX), int(r.upperLeftY), ceil(r.upperLeftX), ceil(r.upperLeftY))) // right line
+			{
+				xPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerLeftX, r.lowerLeftY, r.upperLeftX, r.upperLeftY, int(r.upperLeftX), int(r.upperLeftY), int(r.upperLeftX), ceil(r.upperLeftY))) // left line
+			{
+				xPower -= 1.0f;
+			}
+		}
+
+		if (collidedRight)
+		{
+			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), ceil(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // top line
+			{
+				yPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), int(r.upperRightY))) // bottom line
+			{
+				yPower -= 1.0f;
+			}
+
+			if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, ceil(r.upperRightX), int(r.upperRightY), ceil(r.upperRightX), ceil(r.upperRightY))) // right line
+			{
+				xPower += 1.0f;
+			}
+			else if (LineCollision(r.lowerRightX, r.lowerRightY, r.upperRightX, r.upperRightY, int(r.upperRightX), int(r.upperRightY), int(r.upperRightX), ceil(r.upperRightY))) // left line
+			{
+				xPower -= 1.0f;
+			}
+		}
+
+		/*Normalize the movement vector*/
+		float moveTot = abs(xPower) + abs(yPower);
+		if (moveTot != 0.0f)
+		{
+			xPower /= moveTot;
+			yPower /= moveTot;
+		}
+		cData.xVec = xPower;
+		cData.yVec = yPower;
+
+		projectiles[i].SetCollisionData(cData);
+	}
+
+	StopProfile;
+}
+
+bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y)
+{
+	StartProfile;
+	// Find the four orientations needed for general and
+	// special cases
+	int o1 = Orientation(p1X, p1Y, q1X, q1Y, p2X, p2Y);
+	int o2 = Orientation(p1X, p1Y, q1X, q1Y, q2X, q2Y);
+	int o3 = Orientation(p2X, p2Y, q2X, q2Y, p1X, p2Y);
+	int o4 = Orientation(p2X, p2Y, q2X, q2Y, q1X, q1Y);
+
+	// General case
+	if (o1 != o2 && o3 != o4)
+		ProfileReturnConst(true);
+
+	// Special Cases
+	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
+	if (o1 == 0 && OnSegment(p1X, p1Y, p2X, p2Y, q1X, q1Y))
+		ProfileReturnConst(true);
+
+	// p1, q1 and p2 are colinear and q2 lies on segment p1q1
+	if (o2 == 0 && OnSegment(p1X, p1Y, q2X, q2Y, q1X, q1Y))
+		ProfileReturnConst(true);
+
+	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
+	if (o3 == 0 && OnSegment(p2X, p2Y, p1X, p1Y, q2X, q2Y))
+		ProfileReturnConst(true);
+
+	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
+	if (o4 == 0 && OnSegment(p2X, p2Y, q1X, q1Y, q2X, q2Y))
+		ProfileReturnConst(true);
+
+	ProfileReturnConst(false); // Doesn't fall in any of the above cases
+}
+
+Room::Room(char map[25][25])
 {
 	StartProfile;
 	pos start;
 	start.x = start.y = 1.5f;
 	memcpy(this->map, map, 25 * 25 * sizeof(char));
 	bool foundStart = false;
-	for(int x = 0; x < 25 && !foundStart; x++)
+	for (int x = 0; x < 25 && !foundStart; x++)
 	{
-		for(int y= 0 ; y < 25 && !foundStart; y++)
+		for (int y = 0; y < 25 && !foundStart; y++)
 		{
-			if(!this->map[x][y])
+			if (!this->map[x][y])
 			{
 				start.x = x + 0.5f;
 				start.y = y + 0.5f;
@@ -193,8 +344,11 @@ Room::Room(char map[25][25])
 Room::~Room()
 {
 	delete roomField;
-	for (auto AI : enemyEntities)
-		delete AI;
+	for (auto enemy : enemyEntities)
+	{
+		enemy->DestroyEntity();
+		delete enemy;
+	}
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)

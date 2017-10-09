@@ -22,19 +22,19 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	_ASSERT(animationManager);
 
 	Allocate(128);
-	transformManager->SetDirty.Add<RenderableManager, &RenderableManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
 	defaultMeshHandle = 0;
 	defaultShader = 0;
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultModel>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), { this, &RenderableManager::LoadDefaultModel });
 	if (res)
 		throw std::exception("Could not load default mesh.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadDefaultShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadSkinnedShader>(this));
+	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
 	if (res)
 		throw std::exception("Could not load default vertex shader.");
 	StopProfile;
@@ -67,6 +67,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
 		renderableObjectInfo.visible[newEntry] = 0u;
+		renderableObjectInfo.fillSolid[newEntry] = 1;
+		renderableObjectInfo.transparency[newEntry] = 0;
 
 		// Transform binding
 		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
@@ -123,8 +125,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 void SE::Core::RenderableManager::Frame()
 {
 	StartProfile;
-	GarbageCollection();
 	UpdateDirtyTransforms();
+	GarbageCollection();
 	ProfileReturnVoid;
 }
 
@@ -136,6 +138,8 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
+	info->fillSolid = renderableObjectInfo.fillSolid[index];
+	info->transparency = renderableObjectInfo.transparency[index];
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = animationManager->entityToIndex.find(renderableObjectInfo.entity[index]);
@@ -178,6 +182,42 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 	infoLock.unlock();
 }
 
+void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, uint8_t fillSolid)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second] == 1)
+		{
+			ToggleRenderableObject(entity, false);
+			renderableObjectInfo.fillSolid[find->second] = fillSolid;
+			ToggleRenderableObject(entity, true);
+		}
+		else
+		{
+			renderableObjectInfo.fillSolid[find->second] = fillSolid;
+		}
+	}
+}
+
+void SE::Core::RenderableManager::SetTransparency(const Entity & entity, uint8_t transparency)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second] == 1)
+		{
+			ToggleRenderableObject(entity, false);
+			renderableObjectInfo.transparency[find->second] = transparency;
+			ToggleRenderableObject(entity, true);
+		}
+		else
+		{
+			renderableObjectInfo.transparency[find->second] = transparency;
+		}
+	}
+}
+
 void SE::Core::RenderableManager::Allocate(size_t size)
 {
 	StartProfile;
@@ -196,6 +236,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
 	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
+	newData.fillSolid = (uint8_t*)(newData.jobID + newData.allocated);
+	newData.transparency = (uint8_t*)(newData.fillSolid + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
@@ -203,6 +245,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.topology, renderableObjectInfo.topology, renderableObjectInfo.used * sizeof(Graphics::RenderObjectInfo::PrimitiveTopology));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
+	memcpy(newData.fillSolid, renderableObjectInfo.fillSolid, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -217,8 +261,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	infoLock.lock();
 	// Temp variables
 	size_t last = renderableObjectInfo.used - 1;
-	const Entity& entity = renderableObjectInfo.entity[index];
-	const Entity& last_entity = renderableObjectInfo.entity[last];
+	const Entity entity = renderableObjectInfo.entity[index];
+	const Entity last_entity = renderableObjectInfo.entity[last];
 
 	if(renderableObjectInfo.visible[index])
 		renderer->DisableRendering(renderableObjectInfo.jobID[index]);
@@ -231,8 +275,10 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.bufferIndex[index] = renderableObjectInfo.bufferIndex[last];
 	renderableObjectInfo.topology[index] = renderableObjectInfo.topology[last];
-	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];	
+	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 	renderableObjectInfo.jobID[index] = renderableObjectInfo.jobID[last];
+	renderableObjectInfo.fillSolid[index] = renderableObjectInfo.fillSolid[last];
+	renderableObjectInfo.transparency[index] = renderableObjectInfo.transparency[last];
 
 
 	// Replace the index for the last_entity 
@@ -338,7 +384,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		bufferIndex = bufferInfo.size() - 1;
 		entityToChangeLock.unlock();
 
-		auto res = resourceHandler->LoadResource(meshGUID, ResourceHandler::LoadResourceDelegate::Make<RenderableManager, &RenderableManager::LoadModel>(this), async, behavior);
+		auto res = resourceHandler->LoadResource(meshGUID, { this , &RenderableManager::LoadModel }, async, behavior);
 		if (res)
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 

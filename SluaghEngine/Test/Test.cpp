@@ -29,7 +29,10 @@
 #include "PickingTest.h"
 #include "LightTest.h"
 #include "BehavioursTest.h"
+#include "RecordingTest.h"
+#include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
+#include "GarbageTest.h"
 
 
 #ifdef _DEBUG
@@ -52,7 +55,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 991;
+	//_crtBreakAlloc = 507;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -70,7 +73,7 @@ int main(int argc, char** argv)
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
 	AddTest(LightTest);
-
+	AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
@@ -80,11 +83,13 @@ int main(int argc, char** argv)
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
 	AddTest(BehavioursTest);
+	AddTest(BehaviouralTreeFactoryTest);
 
 	AddTest(PickingTest);
 
   
 	AddTest(ProjectileTest);
+	AddTest(GarbageTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);

@@ -1,9 +1,12 @@
 #include "WindowSDL.h"
 #include <SDL2/SDL_syswm.h>
 #include <exception>
+#include <Profiler.h>
+
 
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
+
 
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
@@ -17,6 +20,7 @@ SE::Window::WindowSDL::~WindowSDL()
 
 int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 {
+	StartProfile;
 	width = info.width;
 	height = info.height;
 	fullScreen = info.fullScreen;
@@ -102,22 +106,52 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	
+	if (info.winState == WindowState::Regular)
+	{
+		currentFrameStrategy = &WindowSDL::RegFrame;
+	}
+	else if (info.winState == WindowState::Record)
+	{
+		StartRecording();
+	}
+	else if (info.winState == WindowState::Playback)
+	{
+		LoadRecording();
+	}
 
-	return 0;
+	frame = 0;
+	arrayPos = 0;
+	ProfileReturnConst(0);
 }
 
 void SE::Window::WindowSDL::Shutdown()
 {
+	if (recording)
+	{
+		recording = false;
+		recThread.join();
+		recFile.close();
+	}
+	if (playback)
+	{
+		delete[] playbackData;
+	}
 	SDL_Quit();
 }
 
 void SE::Window::WindowSDL::Frame()
 {
+	(*this.*currentFrameStrategy)();
+}
+
+void SE::Window::WindowSDL::RegFrame()
+{
+	StartProfile;
 	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
+	static int evCount = 0;
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
@@ -214,6 +248,250 @@ void SE::Window::WindowSDL::Frame()
 			}
 		}
 	}
+	StopProfile;
+}
+
+void SE::Window::WindowSDL::RecordFrame()
+{
+	StartProfile;
+	for (auto& ks : actionToKeyState)
+	{
+		ks.second = (ks.second & KeyState::DOWN);
+	}
+	static int evCount = 0;
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev))
+	{
+		switch (ev.type)
+		{
+			case SDL_KEYUP:
+			{
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
+				break;
+			}
+			case SDL_KEYDOWN:
+			{
+				const auto state = keyToAction.find(ev.key.keysym.sym);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+						if (pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(state->second);
+					if (downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
+							cb();
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEMOTION:
+			{
+				curMouseX = ev.motion.x;
+				curMouseY = ev.motion.y;
+				relMouseX = ev.motion.xrel;
+				relMouseY = ev.motion.yrel;
+				for (auto& cb : mouseMotionCallbacks)
+					cb(relMouseX, relMouseY, curMouseX, curMouseY);
+				break;
+			}
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+
+					mouseLeftDown = true;
+				}
+				else if (ev.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = true;
+				}
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEBUTTONUP:
+			{
+				const auto state = keyToAction.find(ev.button.button);
+				if (state != keyToAction.end())
+				{
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+					actionToKeyState[state->second] = UP;
+				}
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = false;
+				}
+				else if (ev.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = false;
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		inputRecData inData;
+		inData.recEvent = ev;
+		inData.frame = frame;
+		circFiFo.push(inData);
+	}
+	frame++;
+	StopProfile;
+}
+
+void SE::Window::WindowSDL::PlaybackFrame()
+{
+	StartProfile;
+	while (playbackData[arrayPos].frame == frame)
+	{
+		switch (playbackData[arrayPos].recEvent.type)
+		{
+			case SDL_KEYUP:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
+				if (state != keyToAction.end())
+					actionToKeyState[state->second] = UP;
+				break;
+			}
+			case SDL_KEYDOWN:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+						if (pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(state->second);
+					if (downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
+							cb();
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEMOTION:
+			{
+				curMouseX = playbackData[arrayPos].recEvent.motion.x;
+				curMouseY = playbackData[arrayPos].recEvent.motion.y;
+				relMouseX = playbackData[arrayPos].recEvent.motion.xrel;
+				relMouseY = playbackData[arrayPos].recEvent.motion.yrel;
+				for (auto& cb : mouseMotionCallbacks)
+					cb(relMouseX, relMouseY, curMouseX, curMouseY);
+				break;
+			}
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
+				{
+
+					mouseLeftDown = true;
+				}
+				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = true;
+				}
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
+				if (state != keyToAction.end())
+				{
+					if (!(actionToKeyState[state->second] & DOWN))
+					{
+						actionToKeyState[state->second] = PRESSED;
+					}
+				}
+				break;
+			}
+			case SDL_MOUSEBUTTONUP:
+			{
+				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
+				if (state != keyToAction.end())
+				{
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+					actionToKeyState[state->second] = UP;
+				}
+				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
+				{
+					mouseLeftDown = false;
+				}
+				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
+				{
+					mouseRightDown = false;
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		arrayPos++;
+	}
+	frame++;
+	StopProfile;
+}
+
+void SE::Window::WindowSDL::StartRecording()
+{
+	StartProfile;
+	currentFrameStrategy = &WindowSDL::RecordFrame;
+	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	recording = true;
+	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	StopProfile;
+}
+
+void SE::Window::WindowSDL::LoadRecording()
+{
+	StartProfile;
+	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
+	if (playbackfile.is_open())
+	{
+		std::streampos size = playbackfile.tellg();
+		playbackData = (inputRecData*)operator new(size);
+		playbackfile.seekg(0, std::ios::beg);
+		playbackfile.read((char*)playbackData, size);
+		playbackfile.close();
+		playback = true;
+		currentFrameStrategy = &WindowSDL::PlaybackFrame;
+	}
+	StopProfile;
 }
 
 void* SE::Window::WindowSDL::GetHWND()
@@ -293,6 +571,7 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 
 bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {
+	StartProfile;
 	bool changed = false;
 	if (inHeight != height)
 	{
@@ -311,5 +590,22 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 	if (changed == true)
 		SDL_SetWindowSize(window, width, height);
 
-	return changed;
+	ProfileReturn(changed);
+}
+
+void SE::Window::WindowSDL::RecordToFile()
+{
+	while (recording || !circFiFo.wasEmpty())
+	{
+		while (!circFiFo.wasEmpty())
+		{
+			inputRecData evData;
+			circFiFo.top(evData);
+			void* var = &evData;
+			recFile.write((char*)var, sizeof(inputRecData));
+			circFiFo.pop();
+		}
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(100ms);
+	}
 }

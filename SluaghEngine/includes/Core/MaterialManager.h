@@ -36,7 +36,7 @@ namespace SE
 			* @param [in] guid The guid of the texture to use.
 			* @sa CreateInfo
 			*/
-			void Create(const Entity& entity, const CreateInfo& info);
+			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
 
 
 			/**

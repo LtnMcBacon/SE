@@ -3,6 +3,7 @@
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <Gameplay/ProjectileData.h>
+#include <Gameplay/ProjectileManager.h>
 #include <chrono>
 #include <Gameplay/PlayerUnit.h>
 #include <Profiler.h>
@@ -149,6 +150,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+
+	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -345,7 +348,6 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
 		{
 			actionInput.downSpace = true;
-			console->Print("action button pressed\n");
 		}
 
 		int arrowIndex = 0;
@@ -417,6 +419,13 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
 
+		projectileManager->AddProjectiles(newProjectiles);
+
+		projectileManager->UpdateProjectilePositions(dt);
+		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+		projectileManager->UpdateProjectileActions(dt);
+
+
 		playerPos.x = player->GetXPosition();
 		playerPos.y = player->GetYPosition();
 
@@ -439,6 +448,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 		e.Frame(dt);
 	}
+
+	delete projectileManager;
 
 	delete testRoom;
 	delete player;

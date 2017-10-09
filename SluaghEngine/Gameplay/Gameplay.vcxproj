@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BehaviouralTree.cpp" />
+    <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="Flowfield.cpp" />
@@ -40,6 +41,9 @@
     <ClCompile Include="RandomSequence.cpp" />
     <ClCompile Include="Repeater.cpp" />
     <ClCompile Include="RepeatUntilFail.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileFactory.cpp" />
+    <ClCompile Include="ProjectileManger.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
@@ -47,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
@@ -65,15 +70,19 @@
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Repeater.h" />
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h" />
+    <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
+    <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
+    <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="Game.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

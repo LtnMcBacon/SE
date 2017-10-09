@@ -101,7 +101,7 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	this->rotMov[0] = cosf(camAngleX);
-	this->rotMov[1] = sinf(camAngleX);
+	this->rotMov[1] = sinf(camAngleY);
 }
 
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
@@ -119,11 +119,6 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		xMovement -= 1.0f;
 	if (inputs.downD)
 		xMovement += 1.0f;
-	if (inputs.mouseRightDown)
-	{
-		xMovement = inputs.mousePosX - xPos;
-		yMovement = inputs.mousePosY - yPos;
-	}
 
 	float tempX = xMovement;
 	float tempY = yMovement;
@@ -131,6 +126,11 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	xMovement = tempX*rotMov[0] + tempY*rotMov[1];
 	yMovement = -tempX*rotMov[1] + tempY*rotMov[0];
 
+	if (inputs.mouseRightDown)
+	{
+		xMovement = inputs.mousePosX - xPos;
+		yMovement = inputs.mousePosY - yPos;
+	}
 	// Check for collision and update the movement based on it
 	CorrectCollision(dt, xMovement, yMovement);
 
@@ -149,25 +149,26 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
+	StartProfile;
+
 	if (input.downSpace)
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
-		temp.magnitudeX = sinf(temp.startRotation);
-		temp.magnitudeY = cosf(temp.startRotation);
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y + 3.14159265 / 4;
 
-		temp.extentsX = 0.1f;
-		temp.extentsY = 0.1f;
+		//temp.extentsX = 0.1f;
+		//temp.extentsY = 0.1f;
 
-		temp.maxLifeTime = 10.0f;
-		temp.speed = 2.0f;
-		temp.startPosX = this->xPos + 0.2 * temp.magnitudeX;
-		temp.startPosY = this->yPos + 0.2 * temp.magnitudeY;
+		//temp.maxLifeTime = 10.0f;
+		//temp.speed = 2.0f;
+		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
+		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
 
 		newProjectiles.push_back(temp);
 	}
 
+	StopProfile;
 
 }
 
@@ -186,6 +187,101 @@ void SE::Gameplay::PlayerUnit::UpdateMap(const char** mapForRoom)
 	StopProfile;
 }
 
+void SE::Gameplay::PlayerUnit::calcStrChanges()
+{
+	StartProfile;
+	if (baseStat.str > 5)
+	{
+		int increment = baseStat.str - 5;
+		newStat.health = baseStat.health * (1.f + (0.05f * increment));
+		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
+	}
+	else if (baseStat.str < 5)
+	{
+		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
+		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
+
+		if (baseStat.str <= 3)
+		{
+			newStat.armorCap = 2;
+		}
+		else if (baseStat.str == 1)
+		{
+			newStat.armorCap = 1;
+		}
+	}
+	else
+	{
+		newStat.health = baseStat.health;
+		newStat.damage = baseStat.damage;
+	}
+	StopProfile;
+}
+void SE::Gameplay::PlayerUnit::calcAgiChanges()
+{
+	StartProfile;
+	if (baseStat.agi > 5)
+	{
+		int increment = baseStat.agi - 5;
+		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
+		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
+	}
+	else if (baseStat.agi < 5)
+	{
+		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
+		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
+	}
+	else
+	{
+		newStat.rangedDamage = baseStat.rangedDamage;
+		newStat.movementSpeed = baseStat.movementSpeed;
+	}
+	StopProfile;
+}
+void SE::Gameplay::PlayerUnit::calcWhiChanges()
+{
+	StartProfile;
+	if (baseStat.whi > 5)
+	{
+		int increment = baseStat.whi - 5;
+		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
+		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
+		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
+		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
+		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
+	}
+	else if (baseStat.whi < 5)
+	{
+		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
+		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
+	}
+	else
+	{
+		newStat.magicDamage = baseStat.magicDamage;
+		newStat.magicResistance = baseStat.magicResistance;
+		newStat.natureResistance = baseStat.natureResistance;
+		newStat.fireResistance = baseStat.fireResistance;
+		newStat.waterResistance = baseStat.waterResistance;
+	}
+	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::changeArmorType(stats::equippedArmorType armor)
+{
+	newStat.armor = armor;
+}
+void SE::Gameplay::PlayerUnit::changeWeaponType(stats::equippedWeaponType weapon)
+{
+	newStat.weapon = weapon;
+}
+void SE::Gameplay::PlayerUnit::changeElementType(stats::equippedElementalType element)
+{
+	newStat.element = element;
+}
+
 SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
@@ -196,9 +292,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 SE::Gameplay::PlayerUnit::~PlayerUnit()
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
+
+	this->DestroyEntity();
+
 	ProfileReturnVoid;
 }
 

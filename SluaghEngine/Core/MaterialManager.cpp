@@ -12,14 +12,14 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	defaultTextureHandle = 0;
 
 
-	renderableManager->RegisterToSetRenderObjectInfo(SetRenderObjectInfoDelegate::Make<MaterialManager, &MaterialManager::SetRenderObjectInfo>(this));
+	renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultShader>(this));
+	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), {this , &MaterialManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("TestDiffuse.sei", ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadDefaultTexture>(this));
+	res = resourceHandler->LoadResource("BlackPink.sei", { this, &MaterialManager::LoadDefaultTexture });
 	if (res)
 		throw std::exception("Could not load default texture.");
 
@@ -33,7 +33,7 @@ SE::Core::MaterialManager::~MaterialManager()
 	delete materialInfo.data;
 }
 
-void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
+void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
 	auto find = entityToMaterialInfo.find(entity);
@@ -63,7 +63,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		shaderIndex = shaders.size();
 		shaders.push_back({ defaultShaderHandle, 0 });
 
-		auto res = resourceHandler->LoadResource(info.shader, ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadShader>(this));
+		auto res = resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
 		if (res)
 		{
 			Utilz::Console::Print("Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, res);
@@ -97,7 +97,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textures.push_back({ defaultTextureHandle });
 				entityToChangeLock.unlock();
 
-				resourceHandler->LoadResource(info.textureFileNames[i], ResourceHandler::LoadResourceDelegate::Make<MaterialManager, &MaterialManager::LoadTexture>(this), true);
+				resourceHandler->LoadResource(info.textureFileNames[i], { this, &MaterialManager::LoadTexture }, async, behavior);
 			}
 			else
 				entityToChangeLock.unlock();
@@ -158,8 +158,8 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	infoLock.lock();
 	// Temp variables
 	size_t last = materialInfo.used - 1;
-	const Entity& entity = materialInfo.entity[index];
-	const Entity& last_entity = materialInfo.entity[last];
+	const Entity entity = materialInfo.entity[index];
+	const Entity last_entity = materialInfo.entity[last];
 
 	// Copy the data
 	materialInfo.entity[index] = last_entity;

@@ -56,6 +56,12 @@ namespace SE
 		public:
 			Repeater(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child, uint_fast8_t repeatLimit);
 			~Repeater();
+
+			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				return new Repeater(enemyBlackboard, gameBlackboard,
+					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard), repeatLimit);
+			}
 		};
 	}
 }

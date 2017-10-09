@@ -40,6 +40,12 @@ namespace SE
 		public:
 			RepeatUntilFail(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, IBehaviour* child);
 			~RepeatUntilFail();
+
+			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				return new RepeatUntilFail(enemyBlackboard, gameBlackboard,
+					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard));
+			};
 		};
 	}
 }

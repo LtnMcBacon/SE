@@ -117,6 +117,15 @@
     <ClCompile Include="SkeletonAnimationTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GarbageTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -203,7 +212,16 @@
     <ClInclude Include="LightTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RecordingTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviouralTreeFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
     <ClInclude Include="SkeletonAnimationTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GarbageTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

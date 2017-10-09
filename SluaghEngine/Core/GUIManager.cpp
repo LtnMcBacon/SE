@@ -11,7 +11,7 @@ namespace SE {
 			_ASSERT(resourceHandler);
 			_ASSERT(renderer);
 
-			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", { this, &GUIManager::LoadFont });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -45,7 +45,7 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && loadedTexts[entID[entity].ID].fontID > -1 && !entID[entity].show)
+				if (show && !entID[entity].show)
 				{
 					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
 					entID[entity].show = true;
@@ -68,7 +68,7 @@ namespace SE {
 		int GUIManager::CreateTextFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = resourceHandler->LoadResource(fontFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadFont>(this));
+			auto ret = resourceHandler->LoadResource(fontFile, { this, &GUIManager::LoadFont });
 			
 			ProfileReturnConst(0);
 		}
@@ -80,7 +80,7 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[texFile].textureHandle = -1;
-				resourceHandler->LoadResource(texFile, ResourceHandler::LoadResourceDelegate::Make<GUIManager, &GUIManager::LoadTexture>(this)); 
+				resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
 				ProfileReturnConst(-1);
 			}
 			else if (textureGUID[texFile].textureHandle != -1)
@@ -150,8 +150,8 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = loadedTexts.size() - 1;
-			const Entity& entity = ent[index];
-			const Entity& last_entity = ent[last];
+			const Entity entity = ent[index];
+			const Entity last_entity = ent[last];
 
 			// Copy the data
 			ent[index] = last_entity;
@@ -171,8 +171,8 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = textureInfo.size() - 1;
-			const Entity& entity = textureEnt[index];
-			const Entity& last_entity = textureEnt[last];
+			const Entity entity = textureEnt[index];
+			const Entity last_entity = textureEnt[last];
 
 			// Copy the data
 			textureEnt[index] = last_entity;

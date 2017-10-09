@@ -47,6 +47,7 @@ namespace SE
 			LiLight3,
 			ReLight4,
 			LiLight4,
+			ToggleWire
 		};
 
 		bool LightTest::Run(SE::Utilz::IConsoleBackend* console)
@@ -63,14 +64,29 @@ namespace SE
 			Core::Entity entity = em.Create();
 			const int numEnts = 50;
 			Core::Entity ents[numEnts];
+			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("TestMesh_Diffuse.sei"), Utilz::GUID("purewhite.sei") };
+			Utilz::GUID textures[] = { Utilz::GUID("TransparentTest.sei") };
+			Utilz::GUID textures1[] = { Utilz::GUID("texture8.sei") };
 			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
 			info.shaderResourceNames = resourceNames;
 			info.textureFileNames = textures;
 			info.textureCount = 2;
+
+
+			for (int i = 0; i < 2; i++)
+			{
+				entsTrans[i] = em.Create();
+				mm.Create(entsTrans[i], info);
+				transformManager.Create(entsTrans[i], { (float)(i*3.0f),0.0f,(float)(i * 2.5f - 5.0f) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
+				//tm.Create(ents[i]);
+				rm.CreateRenderableObject(entsTrans[i], Utilz::GUID("MCModell.mesh"));
+				rm.ToggleRenderableObject(entsTrans[i], true);
+			}
+
+			info.textureFileNames = textures1;
 			for (int i = 0; i < numEnts; i++)
 			{
 				ents[i] = em.Create();
@@ -85,38 +101,42 @@ namespace SE
 			for (int i = 0; i < 5; i++)
 			{
 				light[i] = em.Create();
-				transformManager.Create(light[i], DirectX::XMFLOAT3(20.0 * i, 0.0, 0.0));
 			}
 
 #pragma region LightDataSet
-			Graphics::LightData data;
+			Core::AddLightInfo data;
 			//Light 1
-			data.colour = DirectX::XMFLOAT4(1.0, 0.1, 0.1, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 30.0);
+			data.color = DirectX::XMFLOAT3(1.0, 0.1, 0.1);
+			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+			data.radius = 30.0f;
 			lightManager.AddLight(light[0], data);
 			lightManager.ToggleLight(light[0], true);
 
 			//Light 2
-			data.colour = DirectX::XMFLOAT4(0.3, 0.8, 0.2, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.3, 0.8, 0.2);
+			data.pos = DirectX::XMFLOAT3(20.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[1], data);
 			lightManager.ToggleLight(light[1], true);
 
 			//Light 3
-			data.colour = DirectX::XMFLOAT4(0.2, 0.1, 0.8, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.2, 0.1, 0.8);
+			data.pos = DirectX::XMFLOAT3(40.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[2], data);
 			lightManager.ToggleLight(light[2], true);
 
 			//Light 4
-			data.colour = DirectX::XMFLOAT4(0.8, 0.1, 0.2, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.2);
+			data.pos = DirectX::XMFLOAT3(60.0, 0.0, 0.0);
+			data.radius = 10.0;
 			lightManager.AddLight(light[3], data);
 			lightManager.ToggleLight(light[3], true);
 
 			//Light 5
-			data.colour = DirectX::XMFLOAT4(0.1, 0.8, 0.3, 1.0);
-			data.pos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 10.0);
+			data.color = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
+			data.pos = DirectX::XMFLOAT3(80.0, -10.0, 0.0);
+			data.radius = 150.0;
 			lightManager.AddLight(light[4], data);
 			lightManager.ToggleLight(light[4], true);
 #pragma endregion LightDataSet
@@ -153,16 +173,22 @@ namespace SE
 			w->MapActionButton(ActionButton::LiLight3, Window::Key6);
 			w->MapActionButton(ActionButton::ReLight4, Window::Key7);
 			w->MapActionButton(ActionButton::LiLight4, Window::Key8);
+			w->MapActionButton(ActionButton::ToggleWire, Window::KeyT);
 
+			
 			bool running = true;
 			Utilz::Timer timer;
 			auto& oh = engine.GetOptionHandler();
 
 			int full = oh.GetOption("Window", "fullScreen", 0);
+			bool toggle = true;
+			rm.SetTransparency(entsTrans[0], true);
+			rm.SetTransparency(entsTrans[1], true);
+
 			while (running)
 			{
 				timer.Tick();
-				float dt = timer.GetDeltaMilliseconds();
+				float dt = timer.GetDelta();
 				if (w->ButtonPressed(ActionButton::Exit))
 					running = false;
 
@@ -199,6 +225,15 @@ namespace SE
 					lightManager.ToggleLight(light[4], false);
 				if (w->ButtonDown(ActionButton::LiLight4))
 					lightManager.ToggleLight(light[4], true);
+				if (w->ButtonDown(ActionButton::ToggleWire))
+				{
+					rm.SetFillSolid(ents[3], toggle);
+					if (toggle == true)
+						toggle = false;
+					else
+						toggle = true;
+				}
+					
 
 				if (w->ButtonPressed(ActionButton::Hide))
 				{
@@ -216,7 +251,7 @@ namespace SE
 				}
 				if (w->ButtonPressed(ActionButton::FrameTime))
 				{
-					console->Print("Frametime: %f ms\n", timer.GetDeltaMilliseconds());
+					console->Print("Frametime: %f ms\n", timer.GetDelta());
 				}
 				engine.Frame(0.01f);
 			}

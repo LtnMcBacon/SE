@@ -13,7 +13,7 @@ SE::Core::CameraManager::CameraManager(Graphics::IRenderer* renderer, const Enti
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
 
-	transformManager->SetDirty.Add<CameraManager, &CameraManager::SetDirty>(this);
+	transformManager->SetDirty += {this, &CameraManager::SetDirty};
 
 
 	Allocate(2);
@@ -229,8 +229,8 @@ void SE::Core::CameraManager::Destroy(size_t index)
 
 	// Temp variables
 	size_t last = cameraData.used - 1;
-	const Entity& entity = cameraData.entity[index];
-	const Entity& last_entity = cameraData.entity[last];
+	const Entity entity = cameraData.entity[index];
+	const Entity last_entity = cameraData.entity[last];
 
 	// Copy the data
 	cameraData.entity[index] = last_entity;

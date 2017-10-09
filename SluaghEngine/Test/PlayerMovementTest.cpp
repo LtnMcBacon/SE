@@ -51,6 +51,8 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& om = e.GetOptionHandler();
 	auto& caM = e.GetCameraManager();
 	auto& coM = e.GetCollisionManager();
+	auto& mm = e.GetMaterialManager();
+	auto& lm = e.GetLightManager();
 
 	Tools::Tools t;
 
@@ -123,14 +125,37 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
 
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
+
+
+
+	tm.Create(player->GetEntity());
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+//	tm.SetRotation(player->GetEntity(), 0.0f, 3.14f, 0.0f);
+	//tm.SetScale(player->GetEntity(), 1.f);
 
-	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"), true);
+	Core::MaterialManager::CreateInfo minfo;
+	Utilz::GUID textures[] = { Utilz::GUID("texture8.sei") };
+	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	minfo.shader = shader;
+	minfo.shaderResourceNames = resourceNames;
+	minfo.textureFileNames = textures;
+	minfo.textureCount = 2;
 
+	mm.Create(player->GetEntity(), minfo, true);
+
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
 	rm.ToggleRenderableObject(player->GetEntity(), true);
-	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
+	auto& l = em.Create();
+	Core::AddLightInfo d;
+	d.radius = 100.0f;
+	d.pos = { 0.0f, 5.0f, -5.0f };
+	d.color = { 1, 1,1 };
+	lm.AddLight(l, d);
+	lm.ToggleLight(l, true);
+
+	
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 	
 	Core::CameraBindInfoStruct cInfo;
@@ -321,8 +346,8 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			rayD = DirectX::XMVector4Transform(rayD, viewM);
 			rayD = XMVector3Normalize(rayD);
 
-			float distance = 0.0f;
-			bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+			float distance = XMVectorGetY(rayO)/-XMVectorGetY(rayD);
+			//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
 
 			auto clickPos = rayO + rayD*distance;
 

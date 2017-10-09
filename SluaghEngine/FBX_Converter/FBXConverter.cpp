@@ -1,5 +1,6 @@
 
 #include <FBXConverter.h>
+#include <Utilz\PathParsing.h>
 
 #pragma comment(lib, "libfbxsdk.lib")
 
@@ -39,10 +40,11 @@ void SE::FBX::FBXConverter::Deallocate() {
 
 }
 
-bool SE::FBX::FBXConverter::Load(string fileName, string exportFolder) {
+bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder) {
 
 	// Check if the FBX file was loaded properly
-
+	workingDirectory = Utilz::getPath(fileName);
+	Utilz::get_all_files_names_within_folder(workingDirectory, filesInWorkingDirectory);
 	if (!LoadFBXFormat(fileName, exportFolder)) {
 
 		cout << "\nFailed to load the FBX format. Verify that the path is correct.\nPress Enter to quit..." << endl;
@@ -65,7 +67,8 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 	// INITIALIZE FBX SDK MANAGER
 	//------------------------------------------------------------------------------//
 
-	fileName = removeExtension(getFilename(mainFileName));
+
+	fileName = Utilz::removeExtension(Utilz::getFilename(mainFileName));
 
 	//Path to export to (This must be the asset folder)
 	path pathName = exportFolder;
@@ -1215,8 +1218,8 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			FbxFileTexture* textureFile = (FbxFileTexture*)materialTexture;
 
-			texture.texturePath = textureFile->GetFileName();
-			texture.textureName = removeExtension(getFilename(textureFile->GetFileName()));
+			texture.texturePath = Utilz::getFilename(textureFile->GetFileName());
+			texture.textureName = Utilz::removeExtension(Utilz::getFilename(textureFile->GetFileName()));
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1232,12 +1235,20 @@ bool SE::FBX::FBXConverter::ExportTexture(Texture &texture, string textureFolder
 	string textureName = texture.textureName;
 	string extension = "." + texturePath.substr(texturePath.find(".") + 1);
 
+	for (auto& f : filesInWorkingDirectory)
+	{
+		if (texturePath == f.name)
+		{
+			texturePath = f.fullPath;
+			break;
+		}
+	}
 	// Filesystem can copy the texture file for us, given a texture path and settings ( currently set to overwrite )
 	try {
 		copy_file(texturePath, textureFolder + textureName + extension, std::experimental::filesystem::copy_options::overwrite_existing);
 
 	} catch (filesystem_error& e) {
-		std::cout << "Could not copy texture: " << e.what() << '\n';
+		std::cout << "Could not copy texture: " << textureName  << e.what() << "\n";
 		return false;
 	}
 
@@ -1710,24 +1721,4 @@ void SE::FBX::FBXConverter::PrintMeshData(Mesh& mesh) {
 			<< "\nTexture Path: " << mesh.objectMaterial.textures[index].texturePath.c_str() << "\n\n";
 
 	}
-}
-
-string SE::FBX::FBXConverter::getFilename(string const& path) {
-
-	const size_t last_slash_idx = path.find_last_of("\\/");
-	if (std::string::npos != last_slash_idx)
-	{
-		return path.substr(last_slash_idx + 1);
-	}
-	return path;
-}
-
-string SE::FBX::FBXConverter::removeExtension(const string& path) {
-
-	const size_t period_idx = path.find_last_of('.');
-	if (std::string::npos != period_idx)
-	{
-		return path.substr(0, period_idx);
-	}
-	return path;
 }

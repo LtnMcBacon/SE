@@ -51,7 +51,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	r->Initialize();
 	Utilz::GUID guid = Utilz::GUID("test.txt");
 	result = false;
-	auto res = r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
+	auto res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded.\n");
@@ -68,7 +68,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"),&Load, true);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded.\n");
@@ -86,7 +86,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
+	res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded again.\n");
@@ -101,7 +101,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"), &Load, true);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded again.\n");
@@ -119,13 +119,13 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	//*******************************
 	result = false;
 	result2 = false;
-	res = r->LoadResource(Utilz::GUID("test3.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load, true);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded.\n");
 		return false;
 	}
-	res = r->LoadResource(Utilz::GUID("test3.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load2>(), true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load2, true);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded again.\n");

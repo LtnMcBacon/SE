@@ -26,6 +26,21 @@ namespace SE
 			} type;
 
 			/*Int/Float for amount?*/
+			int amount;
+
+			DamageEvent()
+			{
+				source = DamageSources::DAMAGE_SOURCE_MELEE;
+				type = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+				amount = 1;
+			}
+
+			DamageEvent(DamageSources damageSource, DamageTypes damageType, int damageAmount)
+			{
+				source = damageSource;
+				type = damageType;
+				amount = damageAmount;
+			}
 		};
 
 		struct HealingEvent
@@ -41,7 +56,12 @@ namespace SE
 				CONDITION_TYPE_STUN,
 				CONDITION_TYPE_ROOT,
 				CONDITION_TYPE_HEALTH_SET /*How the hell do we fix this?*/
-			};
+			} type;
+
+			ConditionEvent(ConditionTypes conditionType = ConditionTypes::CONDITION_TYPE_NONE)
+			{
+				type = conditionType;
+			}
 		};
 
 	}

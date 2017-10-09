@@ -54,6 +54,12 @@
     <ClInclude Include="..\includes\Graphics\AnimationStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Graphics\VertexStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Graphics\FileHeaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IRenderer.cpp">
