@@ -454,20 +454,20 @@ int SE::Graphics::Renderer::Render() {
 
 	///********** Render line jobs ************/
 
-	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
-	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
 
-	//for(auto& lineJob : lineRenderJobs)
-	//{
-	//	if (lineJob.verticesToDrawCount == 0)
-	//		continue;
-	//	graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
-	//	graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
-	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
-	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
-	//}
-	//
+	for(auto& lineJob : lineRenderJobs)
+	{
+		if (lineJob.verticesToDrawCount == 0)
+			continue;
+		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	}
+	
 	///********END render line jobs************/
 
 
