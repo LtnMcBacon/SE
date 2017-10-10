@@ -5,6 +5,7 @@
 #include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 using namespace DirectX;
+#undef min
 
 SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
 	: resourceHandler(resourceHandler), entityManager(entityManager), transformManager(transformManager)
@@ -155,6 +156,39 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 
 	}	
 	ProfileReturnConst(false)
+}
+
+bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const
+{
+	StartProfile;
+	DirectX::FXMVECTOR origin = rayO;
+	DirectX::FXMVECTOR dir = rayD;
+	float minDistance = D3D11_FLOAT32_MAX;
+	int collisionWith = -1;
+	for(int i = 0; i < collisionData.used; i++)
+	{
+		auto& sphere = collisionData.sphereWorld[i];
+		float distance;
+		if(sphere.Intersects(rayO,rayD,distance))
+		{
+			auto& AABB = collisionData.AABBWorld[i];
+			float distBox;
+			if(AABB.Intersects(origin, dir, distBox))
+			{
+				float d = std::min(distance, distBox);
+				if(d < minDistance)
+				{
+					minDistance = d;
+					collisionWith = i;
+				}
+			}
+		}
+	}
+	if(collisionWith >= 0)
+	{
+		collidedEntity = collisionData.entity[collisionWith];
+	}
+	ProfileReturn(collisionWith >= 0);
 }
 
 void SE::Core::CollisionManager::Frame()

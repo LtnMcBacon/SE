@@ -62,7 +62,14 @@ namespace SE
 			bool RegisterOnEventCallback(const OnEventCallback& callback) override;
 
 
-			
+			/*
+			* @brief Returns the width of the window.
+			*/
+			int Width() const override;
+			/*
+			* @brief Returns the height of the window.
+			*/
+			int Height() const override;
 		
 			bool SetWindow(int inHeight, int inWidth, bool inFullscreen) override;
 		private:

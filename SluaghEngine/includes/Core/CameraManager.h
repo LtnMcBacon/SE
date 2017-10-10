@@ -70,6 +70,8 @@ namespace SE
 			* @retval Returns the combined view/projection matrix if the entity has a camera component. Returns an identity matrix otherwise.
 			*/
 			DirectX::XMFLOAT4X4 GetViewProjection(const Entity& entity);
+
+			void WorldSpaceRayFromScreenPos(int x, int y, int screenWidth, int screenHeight, DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction) const;
 			/**
 			* @brief	Set the camera as the active camera.
 			*/
