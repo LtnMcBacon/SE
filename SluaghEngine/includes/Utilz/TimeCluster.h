@@ -10,15 +10,28 @@ namespace SE
 		class TimeCluster
 		{
 		public:
+			/**
+			*
+			* @brief Start the timing
+			**/
 			void Start(const GUID& id)
 			{
 				timers[id].startTime = std::chrono::high_resolution_clock::now();
 			}
+
+			/**
+			*
+			* @brief Stop the timing
+			**/
 			void Stop(const GUID& id)
 			{
 				timers[id].stopTime = std::chrono::high_resolution_clock::now();
 			}
 
+			/**
+			*
+			* @brief Get the time
+			**/
 			template<typename TimeType = std::chrono::milliseconds>
 			float GetTime(const GUID& id)
 			{
