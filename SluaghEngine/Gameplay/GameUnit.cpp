@@ -72,7 +72,6 @@ void GameUnit::MoveEntity(float xMovement, float yMovement)
 	yPos += yMovement;
 	Core::Engine::GetInstance().GetTransformManager().SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
 	auto temp = Core::Engine::GetInstance().GetTransformManager().GetPosition(this->unitEntity);
-	int a = 10;
 	StopProfile;
 }
 

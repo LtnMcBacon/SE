@@ -67,7 +67,7 @@ std::string BehaviourToString(SE::Gameplay::Status status)
 	ProfileReturnConst("Something went wrong");
 }
 
-bool RunTest(std::string test, std::vector<SE::Gameplay::Status> &expectedValues, Gameplay::IBehaviour* toTest, SE::Utilz::IConsoleBackend* console)
+bool RunTest(const std::string& test, std::vector<SE::Gameplay::Status> &expectedValues, Gameplay::IBehaviour* toTest, SE::Utilz::IConsoleBackend* console)
 {
 	for (auto expected : expectedValues)
 	{
