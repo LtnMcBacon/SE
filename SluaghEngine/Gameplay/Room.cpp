@@ -35,7 +35,7 @@ void Room::UpdateAIs(float dt)
 	StartProfile;
 	/*int collisionX = 0.0;
 	int collisionY = 0.0;*/
-	for (auto enemy : enemyEntities)
+	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
 
