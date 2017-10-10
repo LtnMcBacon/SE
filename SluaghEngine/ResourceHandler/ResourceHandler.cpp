@@ -34,7 +34,8 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
 
 	running = false;
-	myThread.join();
+	if(myThread.joinable())
+		myThread.join();
 
 
 	for (size_t i = 0; i < resourceInfo.used; i++)
