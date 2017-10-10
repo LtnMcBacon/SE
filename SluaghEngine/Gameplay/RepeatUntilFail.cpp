@@ -4,7 +4,7 @@
 
 SE::Gameplay::Status SE::Gameplay::RepeatUntilFail::Update()
 {
-	StartProfile
+	StartProfile;
 	while (true)
 	{
 		myStatus = myChild->Tick();

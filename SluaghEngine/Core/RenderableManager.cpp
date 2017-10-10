@@ -16,11 +16,12 @@
 SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
 	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
+
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
 	_ASSERT(animationManager);
-
+	StartProfile;
 	Allocate(128);
 	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
 	defaultMeshHandle = 0;
@@ -44,6 +45,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
 	if (res)
 		throw std::exception("Could not load default skinned vertex shader.");
+
 	StopProfile;
 }
 
@@ -433,7 +435,7 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
-	return bufferHandle;
+	ProfileReturnConst( bufferHandle);
 }
 
 void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)
