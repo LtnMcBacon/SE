@@ -6,7 +6,7 @@ using namespace Gameplay;
 
 Status Succeeder::Update()
 {
-	StartProfile
+	StartProfile;
 	myChild->Tick();
 	ProfileReturn(myStatus);
 }

@@ -11,9 +11,7 @@ IComposite::IComposite(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBla
 
 void IComposite::AddChild(IBehaviour* childToAdd)
 {
-	StartProfile
 	myChildren.push_back(childToAdd);
-	StopProfile
 }
 
 IComposite::~IComposite()
