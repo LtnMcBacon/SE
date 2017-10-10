@@ -276,7 +276,7 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 	projectileish dummy(0.0f, 0.0f, -1, dummyEnt);*/
 
-	const int nrOfMaxProjectiles = 4;
+	//const int nrOfMaxProjectiles = 4;
 	//projectileish ourProjectiles[nrOfMaxProjectiles];
 	//int nrOfActiveProjectiles = 0;
 

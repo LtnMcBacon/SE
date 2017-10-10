@@ -61,14 +61,12 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 
 		if (!sample)
 		{
-			float distanceX = 0.f;
-			float distanceY = 0.f;
 			/*Right*/
 			myPos.x = xPos + 1.f;
 			myPos.y = yPos;
 			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			float distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
 			xMovementTot += xMovement / distanceX;
 			yMovementTot += yMovement / distanceX;
 
@@ -78,7 +76,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
 			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+			float distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
 			xMovementTot += xMovement / distanceX ;
 			yMovementTot += yMovement / distanceY ;
 
