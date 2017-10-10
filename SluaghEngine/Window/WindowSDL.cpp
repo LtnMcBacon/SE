@@ -313,6 +313,16 @@ bool SE::Window::WindowSDL::RegisterOnEventCallback(const OnEventCallback & call
 	return true;
 }
 
+int SE::Window::WindowSDL::Width() const
+{
+	return width;
+}
+
+int SE::Window::WindowSDL::Height() const
+{
+	return height;
+}
+
 
 bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {
