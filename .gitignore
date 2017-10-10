@@ -23,6 +23,7 @@ External*
 *.ps
 *.bat
 *.bin
+*.ini
 
 rawLoaderEntries.txt
 FBXTemp/

@@ -11,7 +11,7 @@ void Sequence::OnInitialization()
 
 Status Sequence::Update()
 {
-	StartProfile
+	StartProfile;
 	while(true)
 	{
 		Status childStatus = (*currentChild)->Tick();
