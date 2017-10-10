@@ -147,7 +147,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera);
+	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
 
@@ -260,10 +260,10 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
+	e.GetWindow()->MapActionButton(UP, Window::KeyW);
+	e.GetWindow()->MapActionButton(RIGHT, Window::KeyD);
+	e.GetWindow()->MapActionButton(DOWN, Window::KeyS);
+	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
 	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
 	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
 
@@ -315,28 +315,31 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
 		{
-			int mX = 0;
-			int mY = 0;
-			e.GetWindow()->GetMousePos(mX, mY);
-
-			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-			DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
-			DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
-			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
-
-			rayO = DirectX::XMVector4Transform(rayO, viewM);
-			rayD = DirectX::XMVector4Transform(rayD, viewM);
-			rayD = XMVector3Normalize(rayD);
-
-			float distance = 0.0f;
-			bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
-
-			auto clickPos = rayO + rayD*distance;
-
 			input.mouseRightDown = true;
-			input.mousePosX = DirectX::XMVectorGetX(clickPos);
-			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
 		}
+
+		int mX = 0;
+		int mY = 0;
+		e.GetWindow()->GetMousePos(mX, mY);
+
+		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
+		DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
+		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+
+		rayO = DirectX::XMVector4Transform(rayO, viewM);
+		rayD = DirectX::XMVector4Transform(rayD, viewM);
+		rayD = XMVector3Normalize(rayD);
+
+		//float distance = 0.0f;
+		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+		//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+
+		auto clickPos = rayO + rayD*distance;
+
+		input.mousePosX = DirectX::XMVectorGetX(clickPos);
+		input.mousePosY = DirectX::XMVectorGetZ(clickPos);
+
 		float totMov = abs(movX) + abs(movY);
 		if (totMov != 0.f)
 		{

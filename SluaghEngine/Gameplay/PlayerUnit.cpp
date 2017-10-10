@@ -142,6 +142,26 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		yMovement /= moveTot;
 	}
 
+	//------------------------
+
+	DirectX::XMFLOAT3 tempRot = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity);
+
+	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
+	DirectX::XMVECTOR mouseVector = {inputs.mousePosX - xPos, 0.0f, inputs.mousePosY - yPos, 0.0f};
+
+	int side;
+
+	if (inputs.mousePosX < xPos)
+		side = -1;
+	else
+		side = 1;
+
+	tempRot.y = side * DirectX::XMVectorGetY(DirectX::XMVector3AngleBetweenVectors(defaultVector, mouseVector));
+
+	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
+
+	//-----------------------
+
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
@@ -155,7 +175,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y - 3.14159265 / 4;
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
 
 		//temp.extentsX = 0.1f;
 		//temp.extentsY = 0.1f;
