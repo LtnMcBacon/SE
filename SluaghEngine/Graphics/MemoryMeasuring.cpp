@@ -30,6 +30,8 @@ namespace SE
 			{
 				IDXGIAdapter* firstAdapter;
 				ret_code = dxgifactory->EnumAdapters(0, &firstAdapter);
+				if (FAILED(ret_code))
+					throw std::exception("EnumAdapters failed in MemoryMeasuring.");
 
 				if (SUCCEEDED(firstAdapter->QueryInterface(__uuidof(IDXGIAdapter3), (void**)&dxgiAdapter3)))
 				{

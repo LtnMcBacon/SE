@@ -78,7 +78,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 	data->Release();
 }
 
-int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)const
+int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)
 {
 
 	ID3DBlob* psBlob;

@@ -48,7 +48,7 @@ namespace SE
 			void BindKeyUpCallback(uint32_t actionButton, const KeyCallback& callback) override;
 			void UnbindCallbacks() override;
 		
-			bool SetWindow(int height, int width, bool inFullscreen) override;
+			bool SetWindow(int inHeight, int inWidth, bool inFullscreen) override;
 		private:
 			
 
@@ -66,8 +66,8 @@ namespace SE
 			int relMouseX;
 			int relMouseY;
 
-			bool mouseLeftDown;
-			bool mouseRightDown;
+			bool mouseLeftDown = false;
+			bool mouseRightDown = false;
 
 			
 			std::map<uint32_t, uint32_t> keyToAction;
@@ -104,11 +104,11 @@ namespace SE
 			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
 			bool recording = false;
 			bool playback = false;
-			inputRecData* playbackData;
+			inputRecData* playbackData = nullptr;
 			std::thread recThread;
-			size_t frame;
+			size_t frame = 0;
 
-			size_t arrayPos;
+			size_t arrayPos = 0;
 
 			typedef void(WindowSDL::*FrameStrategy)();
 
