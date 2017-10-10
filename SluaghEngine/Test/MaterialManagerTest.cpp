@@ -73,7 +73,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
-	int full = oh.GetOption("Window", "fullScreen", 0);
+	bool full = oh.GetOptionBool("Window", "fullScreen", 0);
 	while (running)
 	{
 		timer.Tick();
@@ -89,7 +89,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 		if (w->ButtonPressed(ActionButton::Fullscreen))
 		{
 			full = full ? 0 : 1;
-			oh.SetOption("Window", "fullScreen", full);	
+			oh.SetOptionBool("Window", "fullScreen", full);
 			oh.Trigger();
 		}
 

@@ -79,8 +79,8 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 
 	Tools::Tools t;
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
+	float width = om.GetOptionUnsignedInt("Window", "width", 800);
+	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
 	//SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
@@ -287,8 +287,8 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 	Tools::Tools t;
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
+	float width = om.GetOptionUnsignedInt("Window", "width", 800);
+	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
 	const auto camera = em.Create();
 	cm.Bind(camera);

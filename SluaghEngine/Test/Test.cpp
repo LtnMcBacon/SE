@@ -33,6 +33,7 @@
 #include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
 #include "GarbageTest.h"
+#include "EnemyFactoryTest.h"
 
 
 #ifdef _DEBUG
@@ -63,11 +64,11 @@ int main(int argc, char** argv)
 	AddTest(WindowTest);
 	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
-	AddTest(SkeletonAnimationTest);
+	//AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
-	AddTest(InitGraphicsTest);
+	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
@@ -84,6 +85,7 @@ int main(int argc, char** argv)
 	AddTest(GameStateTest);
 	AddTest(BehavioursTest);
 	AddTest(BehaviouralTreeFactoryTest);
+	AddTest(EnemyFactoryTest);
 
 	AddTest(PickingTest);
 
