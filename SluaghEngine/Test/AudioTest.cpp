@@ -36,7 +36,7 @@ namespace SE
 			}
 			auto& audio = e.GetAudioManager();
 
-			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
+			if (audio.LoadSound(Utilz::GUID("BLoop.wav")) == 0)
 			{
 				console->Print("Sound already loaded??????\n");
 				e.Release();
@@ -44,14 +44,14 @@ namespace SE
 			}
 
 			int delay = 0;
-			while (audio.CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0 && delay < 10)
+			while (audio.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
 			{
 				delay++;
 			}
 
 			auto soundEnt = e.GetEntityManager().Create();
 			int soundID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
 			if (soundID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!\n");
@@ -182,7 +182,7 @@ namespace SE
 						{
 							if (soundID[i] == -1)
 							{
-								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::EffectSound);
 								if (soundID[i] == -2)
 								{
 									console->Print("No device!!!!!!\n");
