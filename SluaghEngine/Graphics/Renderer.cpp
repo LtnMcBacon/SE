@@ -119,11 +119,15 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 		TargetOffset t = { {true, false, false},{2, 0, 0} };
 		renderBuckets.push_back({ handles, {}, {} });	
 	}
-	const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+	const uint32_t transformIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].transforms.size());
 	DirectX::XMFLOAT4X4 identityMatrix;
 	DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
 	renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
 	
+	const uint32_t animationIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].animationJob.size());
+	renderBuckets[bucketIndex].animationJob.push_back(handles.animationJob);
+
+
 //	uint32_t jobID;
 	if (freeJobIndices.size())
 	{
@@ -136,7 +140,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 		jobIDToBucketAndTransformIndex.push_back({ 0,0 });
 	}
 	
-	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	const BucketAndTransformIndex bucketAndTransformIndex = { static_cast<uint32_t>(bucketIndex), transformIndex, animationIndex};
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 //	renderJobLock.unlock();
@@ -153,16 +157,22 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+	const uint32_t animationIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].animationIndex;
 
 	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
 
 	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
 	bucketOfRemoved.transforms.pop_back();
+
+	bucketOfRemoved.animationJob[animationIndexOfRemoved] = bucketOfRemoved.animationJob.back();
+	bucketOfRemoved.animationJob.pop_back();
+
 	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
 	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
 	bucketOfRemoved.jobsInBucket.pop_back();
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].animationIndex = animationIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
 
 	freeJobIndices.push(jobID);
@@ -186,17 +196,23 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+	const uint32_t animationIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].animationIndex;
 
 	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
 
 	DirectX::XMFLOAT4X4 transform = bucketOfRemoved.transforms[transformIndexOfRemoved];
 	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
 	bucketOfRemoved.transforms.pop_back();
+
+	bucketOfRemoved.animationJob[animationIndexOfRemoved] = bucketOfRemoved.animationJob.back();
+	bucketOfRemoved.animationJob.pop_back();
+
 	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
 	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
 	bucketOfRemoved.jobsInBucket.pop_back();
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].animationIndex = animationIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
 
 	int32_t bucketIndex = -1;
@@ -219,7 +235,11 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	renderBuckets[bucketIndex].transforms.push_back(transform);
 
 
-	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	const uint32_t animationIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].animationJob.size());
+	renderBuckets[bucketIndex].animationJob.push_back(handles.animationJob);
+
+
+	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex, animationIndex };
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 
@@ -545,21 +565,21 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	//renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
-
-int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
-
-	StartProfile;
-
-	auto& indices = jobIDToBucketAndTransformIndex[jobID];
-
-	auto& bucket = renderBuckets[indices.bucketIndex];
-
-	bucket.gBoneTransforms.resize(nrOfJoints);
-
-	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
-
-	ProfileReturnConst(0);
-}
+//
+//int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
+//
+//	StartProfile;
+//
+//	auto& indices = jobIDToBucketAndTransformIndex[jobID];
+//
+//	auto& bucket = renderBuckets[indices.bucketIndex];
+//
+//	bucket.gBoneTransforms.resize(nrOfJoints);
+//
+//	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
+//
+//	ProfileReturnConst(0);
+//}
 
 int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
@@ -827,6 +847,19 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
 
+		for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+		{
+			auto& ajob = jobIDToAnimationJob[bucket.animationJob[i]]; // Get the animation job from the renderjob in the bucket
+			if (ajob.animating) // If the animation is playing
+			{
+				ajob.timePos += ajob.speed; // TODO: Delta time.
+				animationSystem->UpdateAnimation(ajob.animationID, ajob.skeletonID, ajob.timePos);
+			}
+		}
+
+
+
+
 		int boneBindslot;
 		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
 		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
@@ -905,22 +938,32 @@ int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_
 
 int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
 {
-	return 0;
+	int job = static_cast<int>(jobIDToAnimationJob.size());
+	jobIDToAnimationJob.push_back(info);
+	return job;
 }
 
 void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
 {
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
 }
 
 void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
 {
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
 }
 
 void SE::Graphics::Renderer::StartAnimation(int job)
 {
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
 }
 
 void SE::Graphics::Renderer::PauseAnimation(int job)
 {
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 

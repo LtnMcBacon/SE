@@ -127,7 +127,7 @@ namespace SE
 				}
 				stateChanges = (stateChanges << 1) | (topology != rhs.topology);
 				stateChanges = (stateChanges << 1) | (type != rhs.type);
-				stateChanges = (stateChanges << 1) | (animationJob != rhs.animationJob);
+			//	stateChanges = (stateChanges << 1) | (animationJob != rhs.animationJob);
 				stateChanges = (stateChanges << 1) | (fillSolid != rhs.fillSolid);
 				stateChanges = (stateChanges << 1) | (transparency != rhs.transparency);
 				std::bitset<32> bits(stateChanges);
