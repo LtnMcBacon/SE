@@ -44,8 +44,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 		float yMovement;
 		float xMovementTot = previousMovement[0];
 		float yMovementTot = previousMovement[1];
-		float distanceX = 0.f;
-		float distanceY = 0.f;
+		
 
 		/*Sample from the 9 cells around us, starting with the center point
 		 * Add the movements from the cell to total movements (one for x, one for y)
@@ -67,7 +66,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 			myPos.y = yPos;
 			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+			float distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
 			xMovementTot += xMovement / distanceX;
 			yMovementTot += yMovement / distanceX;
 
@@ -77,7 +76,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
 
 			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+			float distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
 			xMovementTot += xMovement / distanceX ;
 			yMovementTot += yMovement / distanceY ;
 
@@ -182,8 +181,8 @@ bool SE::Gameplay::EnemyUnit::CorrectCollision(float dt, float &xMov, float &yMo
 	yMovementTot *= dt;
 
 
-	float sampleX = 0.f;
-	float sampleY = 0.f;
+	/*float sampleX = 0.f;
+	float sampleY = 0.f;*/
 
 	float localExtent = extends + 0.15;
 

@@ -152,8 +152,8 @@ void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.resourceData = static_cast<Data*>(newData.data);
-	newData.refCount = (uint16_t*)(newData.resourceData + newData.allocated);
-	newData.state = (State*)(newData.refCount + newData.allocated);
+	newData.refCount = reinterpret_cast<uint16_t*>(newData.resourceData + newData.allocated);
+	newData.state = reinterpret_cast<State*>(newData.refCount + newData.allocated);
 
 
 	infoLock.lock();

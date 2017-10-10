@@ -7,8 +7,8 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 {
 	StartProfile;
 
-	float xMovement;
-	float yMovement;
+	float xMovement = 0.0f;
+	float yMovement = 0.0f;
 
 	rotation += rotData.force;
 
