@@ -368,8 +368,6 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
 		bufferIndex = bufferInfo.size() - 1;
-		if (async)
-			int i = 0;
 		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex, async](auto guid, auto data, auto size) {
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
@@ -411,9 +409,9 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 	else {
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 
-		float weight = 0;
+		
 		for (uint32_t i = 0; i < meshHeader->nrOfVertices; i++) {
-
+			float weight = 0;
 			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
 
 			if (v[i].weights[3] != 0) {

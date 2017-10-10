@@ -11,7 +11,7 @@ namespace SE
 			HLSLParser();
 			~HLSLParser();
 
-			int Parse(const wchar_t* filename, const char* outFilename)const;
+			static int Parse(const wchar_t* filename, const char* outFilename);
 		};
 
 	}

@@ -484,7 +484,7 @@ void SE::Window::WindowSDL::LoadRecording()
 	if (playbackfile.is_open())
 	{
 		std::streampos size = playbackfile.tellg();
-		playbackData = (inputRecData*)operator new(size);
+		playbackData = static_cast<inputRecData*>(operator new(size));
 		playbackfile.seekg(0, std::ios::beg);
 		playbackfile.read((char*)playbackData, size);
 		playbackfile.close();

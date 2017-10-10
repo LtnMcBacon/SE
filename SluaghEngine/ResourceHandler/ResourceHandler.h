@@ -89,7 +89,7 @@ namespace SE
 			std::mutex toLoadLock;
 			std::mutex infoLock;
 			std::thread myThread;
-			bool running;
+			bool running = false;
 		};
 	}
 }
