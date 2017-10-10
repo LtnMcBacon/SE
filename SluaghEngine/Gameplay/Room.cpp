@@ -80,6 +80,17 @@ void Room::Update(float dt, float playerX, float playerY)
 	UpdateFlowField(playerX, playerY);
 	UpdateAdjacentRooms(dt);
 	UpdateAIs(dt);
+
+	for (int i = 0; i < enemyUnits.size(); i++)
+	{
+		if (!enemyUnits[i]->IsAlive())
+		{
+			delete enemyUnits[i];
+			enemyUnits[i] = enemyUnits.back();
+			enemyUnits.pop_back();
+		}
+	}
+
 	StopProfile;
 }
 
@@ -349,17 +360,24 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	float yPower = 0.0f;
 	BoundingRect r = projectile.GetBoundingRect();
 	CollisionData cData;
+	int enemyCollidedWith = -1;
 
-	if (PointCollision(r.upperLeftX, r.upperLeftY) != -1) //check if front left corner of projectile is in a blocked square
+	if ((enemyCollidedWith = PointCollision(r.upperLeftX, r.upperLeftY)) != -1) //check if front left corner of projectile is in a blocked square
 	{
 		collidedLeft = true;
 		cData.type = CollisionType::ENEMY;
 	}
-
-	if (PointCollision(r.upperRightX, r.upperRightY) != -1) //check if front right corner of projectile is in a blocked square
+	else if ((enemyCollidedWith = PointCollision(r.upperRightX, r.upperRightY)) != -1) //check if front right corner of projectile is in a blocked square
 	{
 		collidedRight = true;
 		cData.type = CollisionType::ENEMY;
+	}
+
+	if (enemyCollidedWith != -1)
+	{
+		enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
+		enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
+		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
 	}
 
 	//if we at some point want to have a reflection vector from enemies as well then comment in the two sections below and change so that the two last points in the below calls corresponds to

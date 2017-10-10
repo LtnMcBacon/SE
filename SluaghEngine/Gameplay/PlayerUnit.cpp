@@ -176,14 +176,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		ProjectileData temp;
 
 		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
-
-		//temp.extentsX = 0.1f;
-		//temp.extentsY = 0.1f;
-
-		//temp.maxLifeTime = 10.0f;
-		//temp.speed = 2.0f;
 		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
+		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 
 		newProjectiles.push_back(temp);
 	}
