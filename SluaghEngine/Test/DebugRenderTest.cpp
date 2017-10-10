@@ -96,13 +96,12 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(ActionButton::Jiggle, Window::KeyJ);
 	w->MapActionButton(RemoveStuff, Window::KeyR);
 
-	bool running = true;
+	
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
-	bool full = oh.GetOptionBool("Window", "fullScreen", 0);
-	float jiggler = 0.0f;
 	uint32_t removeIndex = 0;
+	bool running = true;
 	while (running)
 	{
 		timer.Tick();

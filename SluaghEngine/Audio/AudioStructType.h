@@ -56,7 +56,7 @@ namespace SE {
 			void *userData)
 		{
 			/* Cast data passed through stream to our structure. */
-			AudioOut *data = (AudioOut*)userData;
+			AudioOut *data = static_cast<AudioOut*>(userData);
 			float *out = (float*)outputBuffer;
 
 			unsigned int i;
@@ -98,7 +98,7 @@ namespace SE {
 			void *userData)
 		{
 			/* Cast data passed through stream to our structure. */
-			AudioOut *_data = (AudioOut*)userData;
+			AudioOut *_data = static_cast<AudioOut*>(userData);
 			float *_out = (float*)outputBuffer;
 
 			unsigned int _i;
