@@ -114,6 +114,31 @@ namespace SE
 				return rect;
 			}
 
+			inline float GetExtentX()
+			{
+				return extentX;
+			}
+
+			inline float GetExtentY()
+			{
+				return extentY;
+			}
+
+			inline DamageEvent GetProjectileDamageEvent()
+			{
+				return eventDamage;
+			}
+
+			inline HealingEvent GetProjectileHealingEvent()
+			{
+				return eventHealing;
+			}
+
+			inline ConditionEvent GetProjectileConditionEvent()
+			{
+				return eventCondition;
+			}
+
 		private:
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
