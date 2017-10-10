@@ -155,98 +155,7 @@ void SE::Window::WindowSDL::RegFrame()
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
-		switch(ev.type)
-		{
-		case SDL_KEYUP:
-			{
-				const auto state = keyToAction.find(ev.key.keysym.sym);
-				if (state != keyToAction.end())
-					actionToKeyState[state->second] = UP;
-				break;
-			}
-		case SDL_KEYDOWN:
-			{
-				const auto state = keyToAction.find(ev.key.keysym.sym);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
-						if(pressCallbacks != actionToKeyPressCallback.end())
-						{
-							for (auto& cb : pressCallbacks->second)
-								cb();
-						}
-					}
-					auto downCallbacks = actionToKeyDownCallback.find(state->second);
-					if(downCallbacks != actionToKeyDownCallback.end())
-					{
-						for (auto& cb : downCallbacks->second)
-							cb();
-					}
-				}
-				break;
-			}
-		case SDL_MOUSEMOTION:
-			{
-				curMouseX = ev.motion.x;
-				curMouseY = ev.motion.y;
-				relMouseX = ev.motion.xrel;
-				relMouseY = ev.motion.yrel;
-				for (auto& cb : mouseMotionCallbacks)
-					cb(relMouseX, relMouseY, curMouseX, curMouseY);
-				break;
-			}
-		case SDL_MOUSEBUTTONDOWN:
-			{
-				if(ev.button.button == SDL_BUTTON_LEFT)
-				{	
-					
-					mouseLeftDown = true;
-				}
-				else if(ev.button.button == SDL_BUTTON_RIGHT)
-				{	
-					mouseRightDown = true;
-				}
-				const auto state = keyToAction.find(ev.button.button);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-					}
-				}
-				break;
-			}
-		case SDL_MOUSEBUTTONUP:
-			{
-				const auto state = keyToAction.find(ev.button.button);
-				if (state != keyToAction.end())
-				{
-					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
-					if (mouseClickCallbacks != actionToMouseClickCallback.end())
-					{
-						for (auto& cb : mouseClickCallbacks->second)
-							cb(curMouseX, curMouseY);
-					}
-					actionToKeyState[state->second] = UP;
-				}
-				if (ev.button.button == SDL_BUTTON_LEFT)
-				{
-					mouseLeftDown = false;
-				}
-				else if (ev.button.button == SDL_BUTTON_RIGHT)
-				{
-					mouseRightDown = false;
-				}
-				break;
-			}
-		default:
-			{
-			break;
-			}
-		}
+		EventSwitch(ev);
 	}
 	StopProfile;
 }
@@ -262,98 +171,7 @@ void SE::Window::WindowSDL::RecordFrame()
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev))
 	{
-		switch (ev.type)
-		{
-			case SDL_KEYUP:
-			{
-				const auto state = keyToAction.find(ev.key.keysym.sym);
-				if (state != keyToAction.end())
-					actionToKeyState[state->second] = UP;
-				break;
-			}
-			case SDL_KEYDOWN:
-			{
-				const auto state = keyToAction.find(ev.key.keysym.sym);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
-						if (pressCallbacks != actionToKeyPressCallback.end())
-						{
-							for (auto& cb : pressCallbacks->second)
-								cb();
-						}
-					}
-					auto downCallbacks = actionToKeyDownCallback.find(state->second);
-					if (downCallbacks != actionToKeyDownCallback.end())
-					{
-						for (auto& cb : downCallbacks->second)
-							cb();
-					}
-				}
-				break;
-			}
-			case SDL_MOUSEMOTION:
-			{
-				curMouseX = ev.motion.x;
-				curMouseY = ev.motion.y;
-				relMouseX = ev.motion.xrel;
-				relMouseY = ev.motion.yrel;
-				for (auto& cb : mouseMotionCallbacks)
-					cb(relMouseX, relMouseY, curMouseX, curMouseY);
-				break;
-			}
-			case SDL_MOUSEBUTTONDOWN:
-			{
-				if (ev.button.button == SDL_BUTTON_LEFT)
-				{
-
-					mouseLeftDown = true;
-				}
-				else if (ev.button.button == SDL_BUTTON_RIGHT)
-				{
-					mouseRightDown = true;
-				}
-				const auto state = keyToAction.find(ev.button.button);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-					}
-				}
-				break;
-			}
-			case SDL_MOUSEBUTTONUP:
-			{
-				const auto state = keyToAction.find(ev.button.button);
-				if (state != keyToAction.end())
-				{
-					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
-					if (mouseClickCallbacks != actionToMouseClickCallback.end())
-					{
-						for (auto& cb : mouseClickCallbacks->second)
-							cb(curMouseX, curMouseY);
-					}
-					actionToKeyState[state->second] = UP;
-				}
-				if (ev.button.button == SDL_BUTTON_LEFT)
-				{
-					mouseLeftDown = false;
-				}
-				else if (ev.button.button == SDL_BUTTON_RIGHT)
-				{
-					mouseRightDown = false;
-				}
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
+		EventSwitch(ev);
 
 		inputRecData inData;
 		inData.recEvent = ev;
@@ -369,98 +187,7 @@ void SE::Window::WindowSDL::PlaybackFrame()
 	StartProfile;
 	while (playbackData[arrayPos].frame == frame)
 	{
-		switch (playbackData[arrayPos].recEvent.type)
-		{
-			case SDL_KEYUP:
-			{
-				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
-				if (state != keyToAction.end())
-					actionToKeyState[state->second] = UP;
-				break;
-			}
-			case SDL_KEYDOWN:
-			{
-				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.key.keysym.sym);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-						auto pressCallbacks = actionToKeyPressCallback.find(state->second);
-						if (pressCallbacks != actionToKeyPressCallback.end())
-						{
-							for (auto& cb : pressCallbacks->second)
-								cb();
-						}
-					}
-					auto downCallbacks = actionToKeyDownCallback.find(state->second);
-					if (downCallbacks != actionToKeyDownCallback.end())
-					{
-						for (auto& cb : downCallbacks->second)
-							cb();
-					}
-				}
-				break;
-			}
-			case SDL_MOUSEMOTION:
-			{
-				curMouseX = playbackData[arrayPos].recEvent.motion.x;
-				curMouseY = playbackData[arrayPos].recEvent.motion.y;
-				relMouseX = playbackData[arrayPos].recEvent.motion.xrel;
-				relMouseY = playbackData[arrayPos].recEvent.motion.yrel;
-				for (auto& cb : mouseMotionCallbacks)
-					cb(relMouseX, relMouseY, curMouseX, curMouseY);
-				break;
-			}
-			case SDL_MOUSEBUTTONDOWN:
-			{
-				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
-				{
-
-					mouseLeftDown = true;
-				}
-				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
-				{
-					mouseRightDown = true;
-				}
-				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
-				if (state != keyToAction.end())
-				{
-					if (!(actionToKeyState[state->second] & DOWN))
-					{
-						actionToKeyState[state->second] = PRESSED;
-					}
-				}
-				break;
-			}
-			case SDL_MOUSEBUTTONUP:
-			{
-				const auto state = keyToAction.find(playbackData[arrayPos].recEvent.button.button);
-				if (state != keyToAction.end())
-				{
-					auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
-					if (mouseClickCallbacks != actionToMouseClickCallback.end())
-					{
-						for (auto& cb : mouseClickCallbacks->second)
-							cb(curMouseX, curMouseY);
-					}
-					actionToKeyState[state->second] = UP;
-				}
-				if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_LEFT)
-				{
-					mouseLeftDown = false;
-				}
-				else if (playbackData[arrayPos].recEvent.button.button == SDL_BUTTON_RIGHT)
-				{
-					mouseRightDown = false;
-				}
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
+		EventSwitch(playbackData[arrayPos].recEvent);
 		arrayPos++;
 	}
 	frame++;
@@ -591,6 +318,102 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 		SDL_SetWindowSize(window, width, height);
 
 	ProfileReturn(changed);
+}
+
+void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
+{
+	switch (ev.type)
+	{
+		case SDL_KEYUP:
+		{
+			const auto state = keyToAction.find(ev.key.keysym.sym);
+			if (state != keyToAction.end())
+				actionToKeyState[state->second] = UP;
+			break;
+		}
+		case SDL_KEYDOWN:
+		{
+			const auto state = keyToAction.find(ev.key.keysym.sym);
+			if (state != keyToAction.end())
+			{
+				if (!(actionToKeyState[state->second] & DOWN))
+				{
+					actionToKeyState[state->second] = PRESSED;
+					auto pressCallbacks = actionToKeyPressCallback.find(state->second);
+					if (pressCallbacks != actionToKeyPressCallback.end())
+					{
+						for (auto& cb : pressCallbacks->second)
+							cb();
+					}
+				}
+				auto downCallbacks = actionToKeyDownCallback.find(state->second);
+				if (downCallbacks != actionToKeyDownCallback.end())
+				{
+					for (auto& cb : downCallbacks->second)
+						cb();
+				}
+			}
+			break;
+		}
+		case SDL_MOUSEMOTION:
+		{
+			curMouseX = ev.motion.x;
+			curMouseY = ev.motion.y;
+			relMouseX = ev.motion.xrel;
+			relMouseY = ev.motion.yrel;
+			for (auto& cb : mouseMotionCallbacks)
+				cb(relMouseX, relMouseY, curMouseX, curMouseY);
+			break;
+		}
+		case SDL_MOUSEBUTTONDOWN:
+		{
+			if (ev.button.button == SDL_BUTTON_LEFT)
+			{
+
+				mouseLeftDown = true;
+			}
+			else if (ev.button.button == SDL_BUTTON_RIGHT)
+			{
+				mouseRightDown = true;
+			}
+			const auto state = keyToAction.find(ev.button.button);
+			if (state != keyToAction.end())
+			{
+				if (!(actionToKeyState[state->second] & DOWN))
+				{
+					actionToKeyState[state->second] = PRESSED;
+				}
+			}
+			break;
+		}
+		case SDL_MOUSEBUTTONUP:
+		{
+			const auto state = keyToAction.find(ev.button.button);
+			if (state != keyToAction.end())
+			{
+				auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
+				if (mouseClickCallbacks != actionToMouseClickCallback.end())
+				{
+					for (auto& cb : mouseClickCallbacks->second)
+						cb(curMouseX, curMouseY);
+				}
+				actionToKeyState[state->second] = UP;
+			}
+			if (ev.button.button == SDL_BUTTON_LEFT)
+			{
+				mouseLeftDown = false;
+			}
+			else if (ev.button.button == SDL_BUTTON_RIGHT)
+			{
+				mouseRightDown = false;
+			}
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 }
 
 void SE::Window::WindowSDL::RecordToFile()
