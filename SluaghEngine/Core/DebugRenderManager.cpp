@@ -197,7 +197,7 @@ void SE::Core::DebugRenderManager::GarbageCollection()
 	StartProfile;
 	uint32_t alive_in_row = 0;
 	size_t activeJobs = entityToJobID.size();
-	while (activeJobs > 0 && alive_in_row < 4U)
+	while (activeJobs > 0 && alive_in_row < 40U)
 	{
 		const std::uniform_int_distribution<uint32_t> distribution(0U, activeJobs - 1U);
 		uint32_t i = distribution(generator);
