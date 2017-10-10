@@ -152,7 +152,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	timers.Stop("Running");
 
 	console->Print("Init: %f\n", timers.GetTime("Init"));
-	console->Print("Init: %f\n", timers.GetTime("Init"));
+	console->Print("Running: %f\n", timers.GetTime("Running"));
 
 	e.Release();
 	ProfileReturnConst(true);

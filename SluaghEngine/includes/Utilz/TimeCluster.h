@@ -1,6 +1,6 @@
 #ifndef SE_UTILZ_TIME_CLUSTER_H_
 #define SE_UTILZ_TIME_CLUSTER_H_
-#include <GUID.h>
+#include "GUID.h"
 #include <map>
 #include <chrono>
 namespace SE
