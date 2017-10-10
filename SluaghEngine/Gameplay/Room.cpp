@@ -33,9 +33,9 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
-	int collisionX = 0.0;
-	int collisionY = 0.0;
-	for (auto enemy : enemyUnits)
+	/*int collisionX = 0.0;
+	int collisionY = 0.0;*/
+	for (auto enemy : enemyEntities)
 	{
 		enemy->Update(dt);
 
@@ -132,10 +132,10 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	bool collision = false;
 	const int xLeftBeforeFloored = int(xCenterPositionBefore - xExtent);
 	const int xRightBeforeFloored = int(xCenterPositionBefore + xExtent);
-	const int xCenterBeforeFloored = int(xCenterPositionBefore);
+	//const int xCenterBeforeFloored = int(xCenterPositionBefore);
 	const int yUpBeforeFloored = int(yCenterPositionBefore + yExtent);
 	const int yDownBeforeFloored = int(yCenterPositionBefore - yExtent);
-	const int yCenterBeforeFloored = int(yCenterPositionBefore);
+	//const int yCenterBeforeFloored = int(yCenterPositionBefore);
 
 	const int xLeftAfterFloored = int(xCenterPositionAfter - xExtent);
 	const int xRightAfterFloored = int(xCenterPositionAfter + xExtent);

@@ -57,6 +57,9 @@
     <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DevConsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\EntityManager.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\LightManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\DevConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

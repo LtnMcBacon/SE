@@ -27,14 +27,14 @@ namespace SE
 			}
 
 			//Consumer only
-			inline bool top(Element& item)
+			inline const Element& top()
 			{
 				const auto current_head = head.load();
-				if (current_head == tail.load())
-					return false;   // empty queue
+				//if (current_head == tail.load())
+				//	return false;   // empty queue
 
-				item = buffer[current_head];
-				return true;
+				return buffer[current_head];
+				//return true;
 			}
 
 			//Consumer only
@@ -49,7 +49,7 @@ namespace SE
 			}
 
 			// Producer only
-			inline bool push(Element& item)
+			inline bool push(const Element& item)
 			{
 				auto current_tail = tail.load();
 				auto next_tail = (current_tail + 1) % Capacity;

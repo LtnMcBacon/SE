@@ -7,29 +7,31 @@
 #include "Behaviours.h"
 #include "BehaviouralTree.h"
 
-/*Found at: https://stackoverflow.com/questions/236129/most-elegant-way-to-split-a-string */
-template <typename Out>
-void split(const std::string& s, char delim, Out result)
+namespace
 {
-	StartProfile;
-	std::stringstream ss;
-	ss.str(s);
-	std::string item;
-	while (std::getline(ss, item, delim))
+	/*Found at: https://stackoverflow.com/questions/236129/most-elegant-way-to-split-a-string */
+	template <typename Out>
+	void split(const std::string& s, char delim, Out result)
 	{
-		*(result++) = item;
+		StartProfile;
+		std::stringstream ss;
+		ss.str(s);
+		std::string item;
+		while (std::getline(ss, item, delim))
+		{
+			*(result++) = item;
+		}
+		StopProfile;
 	}
-	StopProfile;
-}
 
-std::vector<std::string> split(const std::string& s, char delim)
-{
-	StartProfile;
-	std::vector<std::string> elems;
-	split(s, delim, std::back_inserter(elems));
-	ProfileReturn(elems);
+	std::vector<std::string> split(const std::string& s, char delim)
+	{
+		StartProfile;
+		std::vector<std::string> elems;
+		split(s, delim, std::back_inserter(elems));
+		ProfileReturn(elems);
+	}
 }
-
 using namespace SE;
 using namespace Gameplay;
 

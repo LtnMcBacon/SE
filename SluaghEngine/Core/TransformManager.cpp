@@ -92,9 +92,7 @@ void SE::Core::TransformManager::SetAsDirty(const Entity & e)
 {
 	queueLock.lock();
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
-	const uint32_t index = entityToIndex[e];
 	entityStack.push_back(e);
-	//SetAsDirty(index);
 	queueLock.unlock();
 }
 
@@ -215,6 +213,65 @@ const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity&
 	XMStoreFloat4x4(&transform, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x, pos.y, pos.z));
 	return transform;
 
+}
+
+const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e) const
+{
+	auto entry = entityToIndex.find(e);
+	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
+
+	auto forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[entry->second]));
+	XMFLOAT3 f;
+	XMStoreFloat3(&f, XMVector3TransformNormal(forward, rotation));
+
+	return f;
+}
+
+const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMFLOAT3 & forward)
+{
+	auto entry = entityToIndex.find(e);
+	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
+
+	XMVECTOR ndir = XMVector3Normalize(XMLoadFloat3(&forward));
+
+	XMVECTOR defaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+	XMVECTOR projToXZ = XMVector3Normalize(ndir - (defaultUp * XMVector3Dot(defaultUp, ndir)));
+	float angleY = XMVectorGetX(XMVector3Dot(projToXZ, defaultForward));
+
+	XMVECTOR projToZY = XMVector3Normalize(ndir - (defaultForward * XMVector3Dot(defaultForward, ndir)));
+	float angleX = XMVectorGetX(XMVector3Dot(projToZY, defaultForward));
+	float angleZ = XMVectorGetX(XMVector3Dot(projToZY, defaultUp));
+
+	rotations[entry->second].x = XMConvertToDegrees(angleX);
+	rotations[entry->second].y = XMConvertToDegrees(angleY);
+	rotations[entry->second].z = XMConvertToDegrees(angleZ);
+
+	SetAsDirty(entry->second);
+}
+
+const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMVECTOR & forward)
+{
+	auto entry = entityToIndex.find(e);
+	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
+
+	XMVECTOR defaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+	XMVECTOR projToXZ = XMVector3Normalize(forward - (defaultUp * XMVector3Dot(defaultUp, forward)));
+	float angleY = XMVectorGetX(XMVector3Dot(projToXZ, defaultForward));
+
+	XMVECTOR projToZY = XMVector3Normalize(forward - (defaultForward * XMVector3Dot(defaultForward, forward)));
+	float angleX = XMVectorGetX(XMVector3Dot(projToZY, defaultForward));
+	float angleZ = XMVectorGetX(XMVector3Dot(projToZY, defaultUp));
+
+	rotations[entry->second].x = XMConvertToDegrees(angleX);
+	rotations[entry->second].y = XMConvertToDegrees(angleY);
+	rotations[entry->second].z = XMConvertToDegrees(angleZ);
+
+	SetAsDirty(entry->second);
 }
 
 int SE::Core::TransformManager::GarbageCollection()

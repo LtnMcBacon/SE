@@ -12,6 +12,7 @@
 #include <list>
 #include <mutex>
 #include <Utilz\Event.h>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -65,7 +66,9 @@ namespace SE
 
 			void UpdateRenderableObject(const Entity& entity);
 
-			void SetFillSolid(const Entity& entity, bool fillSolid);
+			void SetFillSolid(const Entity& entity, uint8_t fillSolid);
+
+			void SetTransparency(const Entity& entity, uint8_t transparency);
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -89,19 +92,17 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			int LoadDefaultModel(const Utilz::GUID& guid, void* data, size_t size);
-
 			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
 			int LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
 
-			int LoadModel(const Utilz::GUID& guid, void* data, size_t size);
+			int LoadModel(void* data, size_t size);
 			
 			void LoadResource(const Utilz::GUID& meshGUID, size_t index, bool async, ResourceHandler::Behavior behavior);
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t);
+				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -110,7 +111,8 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
-				bool wireframe = true;
+				uint8_t* fillSolid;
+				uint8_t* transparency;
 			};
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
@@ -122,7 +124,6 @@ namespace SE
 			struct DirtyEntityInfo
 			{
 				size_t transformIndex;
-				size_t renderableIndex;
 				Entity entity;
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
@@ -144,13 +145,15 @@ namespace SE
 				std::list<Entity> entities;
 			};
 
-			std::map<Utilz::GUID, Graphics::RenderObjectInfo::JobType, Utilz::GUID::Compare> guidToMeshType;
-
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
 
-			std::mutex entityToChangeLock;
-			std::mutex infoLock;
+			struct toUpdateStruct
+			{
+				size_t bufferIndex;
+				int newHandle;
+			};
+			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};
 	}
 }
