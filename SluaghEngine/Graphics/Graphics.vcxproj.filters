@@ -83,9 +83,6 @@
     <ClCompile Include="AnimationSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CreateRenderJobsProfile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MemoryMeasuring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
