@@ -33,8 +33,8 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
-	int collisionX = 0.0;
-	int collisionY = 0.0;
+	/*int collisionX = 0.0;
+	int collisionY = 0.0;*/
 	for (auto enemy : enemyEntities)
 	{
 		enemy->Update(dt);
@@ -121,10 +121,10 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	bool collision = false;
 	const int xLeftBeforeFloored = int(xCenterPositionBefore - xExtent);
 	const int xRightBeforeFloored = int(xCenterPositionBefore + xExtent);
-	const int xCenterBeforeFloored = int(xCenterPositionBefore);
+	//const int xCenterBeforeFloored = int(xCenterPositionBefore);
 	const int yUpBeforeFloored = int(yCenterPositionBefore + yExtent);
 	const int yDownBeforeFloored = int(yCenterPositionBefore - yExtent);
-	const int yCenterBeforeFloored = int(yCenterPositionBefore);
+	//const int yCenterBeforeFloored = int(yCenterPositionBefore);
 
 	const int xLeftAfterFloored = int(xCenterPositionAfter - xExtent);
 	const int xRightAfterFloored = int(xCenterPositionAfter + xExtent);
@@ -191,20 +191,16 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
 	StartProfile;
-	bool collidedRight;
-	bool collidedLeft;
-	float xPower;
-	float yPower;
 	BoundingRect r;
 	CollisionData cData;
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		r = projectiles[i].GetBoundingRect();
-		collidedLeft = false;
-		collidedRight = false;
-		xPower = 0.0f;
-		yPower = 0.0f;
+		bool collidedLeft = false;
+		bool collidedRight = false;
+		float xPower = 0.0f;
+		float yPower = 0.0f;
 		cData = CollisionData();
 
 		if (projectiles[i].GetActive() != true)

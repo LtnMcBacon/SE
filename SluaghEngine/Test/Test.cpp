@@ -117,10 +117,10 @@ int main(int argc, char** argv)
 				backend->Print("\t\t %s\n", std::get<0>(t.second));
 		}
 		else if (std::string(argv[1]) == "-a")
-		{
-			bool allTest = true;
+		{		
 			try
 			{
+				bool allTest = true;
 				for (auto& t : tests)
 				{
 					backend->Print("Running test: %s...\n", std::get<0>(t.second));
