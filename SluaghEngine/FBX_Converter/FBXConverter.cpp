@@ -554,7 +554,9 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 		GetSkeletonHierarchy(pMesh);
 
 		// Create the bind pose for each joint in the hierarchy
-		CreateBindPoseAutomatic(pMesh);
+		//CreateBindPoseManual(pMesh);
+		//CreateBindPoseAutomatic(pMesh);
+		CreateBindPoseEvaluateGlobalTransform(pMesh);
 
 		// Gather the weights for the mesh
 		GatherWeights(pMesh);
@@ -910,7 +912,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 	pMesh.skeleton.hierarchy[0].LocalTransform = currentCluster->GetLink()->EvaluateLocalTransform(FBXSDK_TIME_INFINITE);
 	pMesh.skeleton.hierarchy[0].GlobalTransform = pMesh.skeleton.hierarchy[0].LocalTransform;
 	pMesh.skeleton.hierarchy[0].GlobalBindposeInverse = pMesh.skeleton.hierarchy[0].GlobalTransform.Inverse();
-
+	
 	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
 
 	// Loop through all the joints in the hierarchy
@@ -976,7 +978,47 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		currentCluster->GetTransformLinkMatrix(transformLinkMatrix); // The transformation of the cluster(joint) at binding time from joint space to world space
 
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
-		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
+
+		Print4x4Matrix(b.GlobalBindposeInverse);
+
+	}
+
+	logFile.close();
+}
+
+void SE::FBX::FBXConverter::CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh) {
+
+	string logFileName = logFolder + "/Log_" + "Bindposes_" + fileName + ".log";
+
+	logFile.open(logFileName, ofstream::out);
+
+	// Get the geometry transformation for this mesh
+	FbxAMatrix geometryTransform = GetGeometryTransformation(pMesh.meshNode->GetNode());
+
+	// Get the number of joints in the hierarchy
+	int NUM_BONES = pMesh.skinNode->GetClusterCount();
+
+	logFile << "Number of joints: " << NUM_BONES << endl;
+
+	// Loop through all the joints in the hierarchy
+	for (int i = 0; i < NUM_BONES; i++) {
+
+		// Receive the cluster node
+		FbxNode* node = pMesh.skinNode->GetCluster(i)->GetLink();
+
+		logFile << "-------------------------------------------------------\n"
+			<< "Joint: " << node->GetName() << "\nIndex:" << i <<
+			"\n-------------------------------------------------------\n";
+
+		// Get the bindpose by evaluating the global transform from the cluster node
+		FbxAMatrix bindpose = node->EvaluateGlobalTransform(FBXSDK_TIME_INFINITE);
+
+		// Create a reference to the currenct joint in the hierarchy to be processed
+		Joint &b = pMesh.skeleton.hierarchy[i];
+
+		// Inverse the bind pose
+		b.GlobalBindposeInverse = bindpose.Inverse();
 
 		Print4x4Matrix(b.GlobalBindposeInverse);
 
@@ -1063,7 +1105,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				const FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 				const FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 				const FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
+				
 				// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
 				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
 				CurrentAnimation.Keyframes.resize(numKeys);
@@ -1078,7 +1120,6 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					logFile << "Time: " << timeIndex + 1 << endl;
 
 					// Get the values on each channel
-
 					float translationX = translationCurveX->KeyGetValue(timeIndex);
 					float translationY = translationCurveY->KeyGetValue(timeIndex);
 					float translationZ = translationCurveZ->KeyGetValue(timeIndex);
@@ -1096,12 +1137,9 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
 					FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
-					FbxAMatrix globalTransform;
-
 					// Set the vectors for the global transform matrix (Build the keyframe)
-					globalTransform.SetT(translationVector);
-					globalTransform.SetR(rotationVector);
-					globalTransform.SetS(scalingVector);
+					FbxAMatrix globalTransform;
+					globalTransform.SetTRS(translationVector, rotationVector, scalingVector);
 
 					CreateKeyframe(CurrentAnimation, timeIndex, globalTransform);
 

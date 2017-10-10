@@ -842,7 +842,7 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 
 		bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 30, cBoneBufferIndex);
+		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
 
 		const size_t instanceCount = bucket.transforms.size();
 		for (int i = 0; i < instanceCount; i += maxDrawInstances)

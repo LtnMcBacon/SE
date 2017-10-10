@@ -102,36 +102,37 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonIndex, float timePos) {
 
 	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
-	std::vector<DirectX::XMFLOAT4X4> interpolatedJointTransforms;
+	std::vector<DirectX::XMFLOAT4X4> localTransform;
 
 	// Reserve the vectors to match the joint hierarchy size
-	interpolatedJointTransforms.reserve(skeletons[skeletonIndex].Hierarchy.size());
+	localTransform.reserve(skeletons[skeletonIndex].Hierarchy.size());
 
 	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
 	for (int i = 0; i < skeletons[skeletonIndex].Hierarchy.size(); i++) {
 
-		interpolatedJointTransforms.push_back(CalculateJointMatrix(i, animIndex, skeletons[skeletonIndex], timePos)); // check interpolations
+		localTransform.push_back(CalculateJointMatrix(i, animIndex, skeletons[skeletonIndex], timePos)); // check interpolations
 	}
 
 	Joint &root = skeletons[skeletonIndex].Hierarchy[0];
-	root.LocalTx = XMLoadFloat4x4(&interpolatedJointTransforms[0]);
+	root.LocalTx = XMLoadFloat4x4(&localTransform[0]);
 	root.GlobalTx = root.LocalTx;
-	XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[0], XMMatrixTranspose(root.inverseBindPoseMatrix * root.GlobalTx));
-
+	XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[0], XMMatrixTranspose(root.GlobalTx * root.inverseBindPoseMatrix));
+	
 	//With all the calculated matrices at our disposal, let's update the transformations in the secondary joint array
 	for (UINT i = 1; i < skeletons[skeletonIndex].Hierarchy.size(); i++) {
 
 		// Create a reference to the currenct joint to be processed
 		Joint &b = skeletons[skeletonIndex].Hierarchy[i];
 
-		b.LocalTx = XMLoadFloat4x4(&interpolatedJointTransforms[i]);
+		b.LocalTx = XMLoadFloat4x4(&localTransform[i]);
 
 		// Get the current joint LOCAL transformation at the current animation time pose
-		b.GlobalTx = b.LocalTx * skeletons[skeletonIndex].Hierarchy[b.parentIndex].GlobalTx;
+		b.GlobalTx = skeletons[skeletonIndex].Hierarchy[b.parentIndex].GlobalTx * b.LocalTx;
 
 		// Create the matrix by applying the inverse bind pose matrix on the global transformation
-		XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-
+		XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[i], XMMatrixTranspose(b.GlobalTx * b.inverseBindPoseMatrix));
+		
+		int a = 0;
 	}
 }
 

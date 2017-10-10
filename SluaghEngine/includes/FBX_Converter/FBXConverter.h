@@ -72,6 +72,7 @@ namespace SE
 			void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
 			void CreateBindPoseManual(Mesh &pMesh);
 			void CreateBindPoseAutomatic(Mesh &pMesh);
+			void CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh);
 			void GatherWeights(Mesh &pMesh);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
