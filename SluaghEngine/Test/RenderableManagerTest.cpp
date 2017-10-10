@@ -1,7 +1,7 @@
 #include "RenderableManagerTest.h"
 #include <Core\Engine.h>
 #include <Profiler.h>
-
+#include <Utilz\TimeCluster.h>
 #include <Utilz\Timer.h>
 
 #ifdef _DEBUG
@@ -38,6 +38,10 @@ SE::Test::RenderableManagerTest::~RenderableManagerTest()
 bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
+
+	Utilz::TimeCluster timers;
+
+	timers.Start("Init");
 	auto& e = Core::Engine::GetInstance();
 	auto re = e.Init(Core::Engine::InitializationInfo());
 	e.GetWindow();
@@ -112,8 +116,12 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
-	Utilz::Timer timer;
 
+
+
+	Utilz::Timer timer;
+	timers.Stop("Init");
+	timers.Start("Running");
 	while (running)
 	{
 		if (e.GetWindow()->ButtonPressed(0))
@@ -141,7 +149,10 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 		e.Frame(dt);
 	}
 
+	timers.Stop("Running");
 
+	console->Print("Init: %f\n", timers.GetTime("Init"));
+	console->Print("Init: %f\n", timers.GetTime("Init"));
 
 	e.Release();
 	ProfileReturnConst(true);
