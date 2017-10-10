@@ -13,6 +13,7 @@
 #include "AudioManager.h"
 #include "AnimationManager.h"
 #include "LightManager.h"
+#include "DevConsole.h"
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -62,7 +63,16 @@ namespace SE
 			* @endcode
 			* @sa InitializationInfo, Release
 			*/
-			int Init(const InitializationInfo& info);
+			int Init(const InitializationInfo& info = InitializationInfo());
+
+
+			/**
+			* @brief Begins the frame. If this call is never made before, Frame will call it
+			* @retval 0 On success
+			* @retval -1 If the frame has not ended before another call to frame
+			*/
+			int BeginFrame();
+
 
 			/**
 			* @brief    Updates the state of the Core, entity cleanup, input, etc.
@@ -220,6 +230,10 @@ namespace SE
 				return *animationManager;
 			}
 
+			inline DevConsole& GetDevConsole() const {
+				return *devConsole;
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -253,6 +267,10 @@ namespace SE
 
 			GUIManager* guiManager;
 			LightManager* lightManager;
+
+			DevConsole* devConsole;
+
+			bool frameBegun;
 		};
 
 	}

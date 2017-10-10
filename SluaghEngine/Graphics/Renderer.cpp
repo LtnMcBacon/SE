@@ -59,7 +59,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	}
 
 	running = true;
-	myThread = std::thread(&Renderer::Frame, this);
+	//myThread = std::thread(&Renderer::Frame, this);
 
 	ProfileReturnConst( 0);
 }
@@ -67,7 +67,10 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	myThread.join();
+
+//	if (myThread.joinable())
+		//myThread.join();
+
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -82,9 +85,10 @@ void SE::Graphics::Renderer::Shutdown()
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	StartProfile;
-	renderJobLock.lock();
-
 	uint32_t jobID;
+	/*renderJobLock.lock();
+
+	
 	if (freeJobIndices.size())
 	{
 		jobID = freeJobIndices.top();
@@ -99,7 +103,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 
 	newJobs.push({ jobID, handles });
 
-	ProfileReturnConst(jobID);
+	ProfileReturnConst(jobID);*/
 
 
 
@@ -139,18 +143,18 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst(jobID);
 }
 
 int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 {
 	StartProfile;
-	removeJobs.push(jobID);
-	ProfileReturnConst(0);
+	//removeJobs.push(jobID);
+	//ProfileReturnConst(0);
 
 
-	renderJobLock.lock();
+	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
@@ -167,7 +171,7 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 
 	freeJobIndices.push(jobID);
 
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
@@ -177,13 +181,13 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 {
 	StartProfile;
 
-	updateJobs.push({ jobID, handles });
+//	updateJobs.push({ jobID, handles });
 
-	ProfileReturnConst(0);
+//	ProfileReturnConst(0);
 
 
 
-	renderJobLock.lock();
+	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
@@ -223,7 +227,7 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 
-	renderJobLock.unlock();
+//	renderJobLock.unlock();
 	ProfileReturnConst( 0);
 }
 
@@ -335,10 +339,10 @@ int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handl
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 {
 	StartProfile;
-	lightLock.lock();
+	//lightLock.lock();
 	int job = (int)renderLightJobs.size();
 	renderLightJobs.push_back(handles);
-	lightLock.unlock();
+	//lightLock.unlock();
 	
 	ProfileReturn(job);
 }
@@ -346,11 +350,11 @@ int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
 int SE::Graphics::Renderer::DisableLightRendering(size_t ID)
 {
 	StartProfile;
-	lightLock.lock();
+	//lightLock.lock();
 	size_t job = renderLightJobs.size() - 1;
 	renderLightJobs[ID] = renderLightJobs[job];
 	renderLightJobs.pop_back();
-	lightLock.unlock();
+	//lightLock.unlock();
 	ProfileReturn(int(job));
 }
 
@@ -375,33 +379,16 @@ int SE::Graphics::Renderer::Render() {
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
-	AddNewRenderJobs();
-	UpdateRenderJobs();
-	UpdateTransforms();
-	RemoveRenderJobs();
+	//AddNewRenderJobs();
+	//UpdateRenderJobs();
+	//UpdateTransforms();
+	//RemoveRenderJobs();
 
 
 
-	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
-
-	ID3D11RenderTargetView* views[] = { device->GetRTV() };
-	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
-
-	// Clear the primary render target view using the specified color
-	device->GetDeviceContext()->ClearRenderTargetView(
-	device->GetRTV(), 
-	clearColor);
-
-	// Clear the standard depth stencil view
-	device->GetDeviceContext()->ClearDepthStencilView(
-	device->GetDepthStencil(), 
-	D3D11_CLEAR_DEPTH,  
-	1.0f, 
-	0);
 
 	// SetLightBuffer Start
-	lightLock.lock();
+	//lightLock.lock();
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 	LightDataBuffer lightBufferData;
 
@@ -410,7 +397,7 @@ int SE::Graphics::Renderer::Render() {
 		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
 	});
 
-	lightLock.unlock();
+	//lightLock.unlock();
 
 	
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
@@ -434,7 +421,6 @@ int SE::Graphics::Renderer::Render() {
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
-
 	std::vector<size_t> transID;
 
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
@@ -451,23 +437,22 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transID[iteration]], previousJob);
 	}
 
-
 	///********** Render line jobs ************/
 
-	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
-	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
 
-	//for(auto& lineJob : lineRenderJobs)
-	//{
-	//	if (lineJob.verticesToDrawCount == 0)
-	//		continue;
-	//	graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
-	//	graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
-	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
-	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
-	//}
-	//
+	for(auto& lineJob : lineRenderJobs)
+	{
+		if (lineJob.verticesToDrawCount == 0)
+			continue;
+		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	}
+	
 	///********END render line jobs************/
 
 
@@ -494,9 +479,43 @@ int SE::Graphics::Renderer::Render() {
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
-	device->Present();
+	
 
 	ProfileReturnConst(0);
+}
+
+int SE::Graphics::Renderer::BeginFrame()
+{
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
+
+	ID3D11RenderTargetView* views[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
+
+	// Clear the primary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(),	clearColor);
+
+	// Clear the standard depth stencil view
+	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
+	return 0;
+}
+
+int SE::Graphics::Renderer::EndFrame()
+{
+	device->Present();
+	return 0;
+}
+
+void SE::Graphics::Renderer::GetDeviceInfo(void * destination, size_t size)
+{
+	struct RetStruct
+	{
+		ID3D11Device* dev;
+		ID3D11DeviceContext* devcon;
+	};
+	_ASSERT(size == sizeof(RetStruct));
+	((RetStruct*)destination)->dev = device->GetDevice();
+	((RetStruct*)destination)->devcon = device->GetDeviceContext();
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, size_t stride)
@@ -526,14 +545,14 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;
-	UpdateTransformStruct ut;
-	ut.jobID = jobID;
-	DirectX::XMMATRIX t = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
-	DirectX::XMStoreFloat4x4(&ut.transform, DirectX::XMMatrixTranspose(t));
-	updateTransforms.push(ut);
-	ProfileReturnConst(0);
+	//UpdateTransformStruct ut;
+	//ut.jobID = jobID;
+	//DirectX::XMMATRIX t = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
+	//DirectX::XMStoreFloat4x4(&ut.transform, DirectX::XMMatrixTranspose(t));
+	//updateTransforms.push(ut);
+	//ProfileReturnConst(0);
 
-	renderJobLock.lock();
+//	renderJobLock.lock();
 	DirectX::XMMATRIX trans = DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)transform);
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(trans));
@@ -542,7 +561,7 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	const size_t transformIndex = jobIDToBucketAndTransformIndex[jobID].transformIndex;
 
  	renderBuckets[bucketIndex].transforms[transformIndex] = transposed;
-	renderJobLock.unlock();
+	//renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
 
@@ -594,6 +613,7 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 
 void SE::Graphics::Renderer::AddNewRenderJobs()
 {
+	StartProfile;
 	while (!newJobs.wasEmpty())
 	{
 		auto& job = newJobs.top();
@@ -628,10 +648,12 @@ void SE::Graphics::Renderer::AddNewRenderJobs()
 		
 		newJobs.pop();
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateRenderJobs()
 {
+	StartProfile;
 	while (!updateJobs.wasEmpty())
 	{
 		auto& job = updateJobs.top();
@@ -685,10 +707,12 @@ void SE::Graphics::Renderer::UpdateRenderJobs()
 		updateJobs.pop();
 
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::RemoveRenderJobs()
 {
+	StartProfile;
 	while (!removeJobs.wasEmpty())
 	{
 		auto& jobID = removeJobs.top();
@@ -719,11 +743,12 @@ void SE::Graphics::Renderer::RemoveRenderJobs()
 
 		removeJobs.pop();
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateTransforms()
 {
+	StartProfile;
 	while (!updateTransforms.wasEmpty())
 	{
 		auto& job = updateTransforms.top();
@@ -738,10 +763,12 @@ void SE::Graphics::Renderer::UpdateTransforms()
 
 		updateTransforms.pop();
 	}
+	StopProfile;
 }
 
 SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
 {
+	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
 	if (previousJob.topology != job.topology)
 	{
@@ -854,7 +881,7 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 	}
-	return job;
+	ProfileReturnConst( job);
 }
 
 void SE::Graphics::Renderer::Frame()
