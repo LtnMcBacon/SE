@@ -37,10 +37,6 @@ namespace SE
 			*/
 			void UpdateCamera(const Entity& entity, const CameraBindInfoStruct& info);
 
-			/**
-			* @brief	Update a camera for the given entity.
-			*/
-			void UpdateCamera(const Entity& entity, CameraBindInfoStruct& info);
 
 			/**
 			* @brief	Update the active camera.

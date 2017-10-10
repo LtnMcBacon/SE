@@ -27,7 +27,7 @@ SE::Core::CameraManager::~CameraManager()
 void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct & info)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
+	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 		ProfileReturnVoid;
 
@@ -60,7 +60,7 @@ void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct &
 void SE::Core::CameraManager::UpdateCamera(const Entity & entity, const CameraBindInfoStruct & info)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
+	auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 		ProfileReturnVoid;
 
@@ -164,7 +164,7 @@ DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewProjection(const Entity& ent
 void SE::Core::CameraManager::SetActive(const Entity & entity)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
+	auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 		ProfileReturnVoid;
 
@@ -212,7 +212,7 @@ void SE::Core::CameraManager::Frame()
 void SE::Core::CameraManager::SetDirty(const Entity & entity, size_t index)
 {
 	StartProfile;
-	auto& find = entityToIndex.find(entity);
+	auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 		ProfileReturnVoid;
 
