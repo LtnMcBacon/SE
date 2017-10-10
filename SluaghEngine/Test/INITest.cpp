@@ -19,7 +19,7 @@ namespace SE
 		bool INITest::Run(Utilz::IConsoleBackend* console)
 		{
 			Utilz::INIReader reader;
-			std::map<std::string, std::map<std::string, int>> maps;
+			std::map<std::string, std::map<std::string, std::string>> maps;
 			if (reader.LoadINI("Asset/temp.ini", maps) != 0)
 			{
 				console->Print("failed to load \n");

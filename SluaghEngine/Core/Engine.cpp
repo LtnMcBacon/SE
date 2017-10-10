@@ -67,6 +67,11 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 	lightManager = new LightManager(renderer, *entityManager, transformManager);
 
+	//default camera
+	auto defEntCam = entityManager->Create();
+	cameraManager->Bind(defEntCam);
+	cameraManager->SetActive(defEntCam);
+
 	InitStartupOption();
 
 	ImGuiDX11SDL_Init(renderer, window);
@@ -156,13 +161,23 @@ SE::Core::Engine::~Engine()
 void SE::Core::Engine::InitStartupOption()
 {
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol ,optionHandler->GetOption("Audio", "masterVolume", 100));
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
-	
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+
+	//Set Camera
+	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	CameraBindInfoStruct camInfo;
+	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	cameraManager->UpdateCamera(camInfo);
+
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
-	
+	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
+
 	if (sizeChange == true)
 	{
 		renderer->ResizeSwapChain(window->GetHWND());
@@ -175,12 +190,22 @@ void SE::Core::Engine::OptionUpdate()
 {
 	StartProfile;
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOption("Audio", "masterVolume", 100));
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
-	
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+
+	//Set Camera
+	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	CameraBindInfoStruct camInfo;
+	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	cameraManager->UpdateCamera(camInfo);
+
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
+	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
 
 	if (sizeChange == true)
 	{

@@ -134,7 +134,7 @@ namespace SE {
 			ProfileReturnConst(nullptr);
 		}
 
-		void AudioSound::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		void AudioSound::SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol)
 		{
 			switch (volType)
 			{

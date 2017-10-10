@@ -27,7 +27,7 @@ namespace SE
 			*
 			* @endcode
 			*/
-			int LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps);
+			int LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps);
 			/**
 			* @brief Writes to requested .ini file
 			*
@@ -39,7 +39,7 @@ namespace SE
 			*
 			* @endcode
 			*/
-			int WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps);
+			int WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps);
 		
 		};
 	}	//namespace SE

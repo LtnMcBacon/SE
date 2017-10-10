@@ -47,7 +47,7 @@ namespace SE {
 			*
 			*/
 			void* GetSample(int soundID, SoundIndexName soundType);
-			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
+			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol);
 			void Shutdown();
 
 		private:

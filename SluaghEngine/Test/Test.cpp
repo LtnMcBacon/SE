@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
-	AddTest(InitGraphicsTest);
+	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
