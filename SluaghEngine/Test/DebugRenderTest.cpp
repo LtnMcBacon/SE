@@ -100,7 +100,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
-	int full = oh.GetOption("Window", "fullScreen", 0);
+	bool full = oh.GetOptionBool("Window", "fullScreen", 0);
 	float jiggler = 0.0f;
 	uint32_t removeIndex = 0;
 	while (running)

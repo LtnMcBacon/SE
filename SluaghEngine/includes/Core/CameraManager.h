@@ -36,6 +36,11 @@ namespace SE
 			void UpdateCamera(const Entity& entity, CameraBindInfoStruct& info);
 
 			/**
+			* @brief	Update the active camera.
+			*/
+			void UpdateCamera(CameraBindInfoStruct& info);
+
+			/**
 			* @brief Retrieves the  view matrix of the camera bound to entity in a row major format.
 			* @param[in] entity The entity which the camera is to be gotten from.
 			* @retval Returns the view matrix if the entity has a camera component. Returns an identity matrix otherwise.
@@ -71,6 +76,13 @@ namespace SE
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame();
+
+			/**
+			*	@brief	Return the entity to the active camera (to allow usage of the default camera).
+			*/
+			Entity GetActive() {
+				return currentActive.entity;
+			}
 		private:
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
@@ -109,7 +121,12 @@ namespace SE
 				DirectX::XMFLOAT4X4* view;
 			};
 
-			size_t activeCamera;
+			struct ActiveCam
+			{
+				size_t activeCamera;
+				Entity entity;
+			};
+			ActiveCam currentActive;
 			CameraData cameraData;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToIndex;
 

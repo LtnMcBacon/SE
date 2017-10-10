@@ -54,8 +54,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	Tools::Tools t;
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
+	float width = om.GetOptionUnsignedInt("Window", "width", 800);
+	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
 	auto floor = em.Create();
 	const int numberOfBlocks = 25 * 25;
@@ -134,7 +134,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
 
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
