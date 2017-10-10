@@ -155,6 +155,8 @@ void SE::Window::WindowSDL::RegFrame()
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
 	}
 	StopProfile;
@@ -171,6 +173,8 @@ void SE::Window::WindowSDL::RecordFrame()
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev))
 	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
 
 		inputRecData inData;
@@ -211,7 +215,7 @@ void SE::Window::WindowSDL::LoadRecording()
 	if (playbackfile.is_open())
 	{
 		std::streampos size = playbackfile.tellg();
-		playbackData = (inputRecData*)operator new(size);
+		playbackData = static_cast<inputRecData*>(operator new(size));
 		playbackfile.seekg(0, std::ios::beg);
 		playbackfile.read((char*)playbackData, size);
 		playbackfile.close();
@@ -224,6 +228,12 @@ void SE::Window::WindowSDL::LoadRecording()
 void* SE::Window::WindowSDL::GetHWND()
 {
 	return static_cast<void*>(hwnd);
+}
+
+void * SE::Window::WindowSDL::GetWindowImplementation(WindowImplementation implementation)
+{
+	_ASSERT(implementation == WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+	return window;
 }
 
 bool SE::Window::WindowSDL::ButtonDown(uint32_t actionButton) const
@@ -295,6 +305,14 @@ uint32_t SE::Window::WindowSDL::GetKeyState(uint32_t actionButton) const
 		return 0;
 	return k->second;
 }
+
+bool SE::Window::WindowSDL::RegisterOnEventCallback(const OnEventCallback & callback)
+{
+	/*@TODO Add operator== to delegates so it can check for duplicates. The same callback shouldnt be registered twice unless the user does something he shouldn't.*/
+	onEventCallbacks.push_back(callback);
+	return true;
+}
+
 
 bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscreen)
 {

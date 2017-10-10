@@ -16,11 +16,12 @@
 SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager, AnimationManager* animationManager)
 	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager),  animationManager(animationManager)
 {
+
 	_ASSERT(resourceHandler);
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
 	_ASSERT(animationManager);
-
+	StartProfile;
 	Allocate(128);
 	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
 	defaultMeshHandle = 0;
@@ -44,6 +45,7 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	res = resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &RenderableManager::LoadSkinnedShader });
 	if (res)
 		throw std::exception("Could not load default skinned vertex shader.");
+
 	StopProfile;
 }
 
@@ -366,8 +368,6 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
 		bufferIndex = bufferInfo.size() - 1;
-		if (async)
-			int i = 0;
 		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex, async](auto guid, auto data, auto size) {
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
@@ -409,9 +409,9 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 	else {
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 
-		float weight = 0;
+		
 		for (uint32_t i = 0; i < meshHeader->nrOfVertices; i++) {
-
+			float weight = 0;
 			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
 
 			if (v[i].weights[3] != 0) {
@@ -435,7 +435,7 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
-	return bufferHandle;
+	ProfileReturnConst( bufferHandle);
 }
 
 void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)

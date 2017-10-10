@@ -13,7 +13,7 @@ void RandomSequence::OnInitialization()
 
 Status RandomSequence::Update()
 {
-	StartProfile
+	StartProfile;
 	while (true)
 	{
 		Status childStatus = (*currentChild)->Tick();

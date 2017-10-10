@@ -7,8 +7,8 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 {
 	StartProfile;
 
-	float xMovement;
-	float yMovement;
+	float xMovement = 0.0f;
+	float yMovement = 0.0f;
 
 	rotation += rotData.force;
 
@@ -119,12 +119,14 @@ void SE::Gameplay::Projectile::UpdateBounding()
 void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 {
 	StartProfile;
-	float s = sinf(rotation);
-	float c = cosf(rotation);
+	float s = sinf(-rotation);
+	float c = cosf(-rotation);
 
 	// rotate point
 	float xnew = xCoord * c - yCoord * s;
 	float ynew = xCoord * s + yCoord * c;
+	xCoord = xnew;
+	yCoord = ynew;
 	StopProfile;
 }
 

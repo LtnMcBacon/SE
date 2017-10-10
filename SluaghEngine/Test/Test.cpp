@@ -33,6 +33,7 @@
 #include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
 #include "GarbageTest.h"
+#include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
 
 
@@ -92,6 +93,7 @@ int main(int argc, char** argv)
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
+	AddTest(ConsoleTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
@@ -117,10 +119,10 @@ int main(int argc, char** argv)
 				backend->Print("\t\t %s\n", std::get<0>(t.second));
 		}
 		else if (std::string(argv[1]) == "-a")
-		{
-			bool allTest = true;
+		{		
 			try
 			{
+				bool allTest = true;
 				for (auto& t : tests)
 				{
 					backend->Print("Running test: %s...\n", std::get<0>(t.second));

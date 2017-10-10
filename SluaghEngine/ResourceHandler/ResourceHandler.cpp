@@ -34,7 +34,8 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
 
 	running = false;
-	myThread.join();
+	if(myThread.joinable())
+		myThread.join();
 
 
 	for (size_t i = 0; i < resourceInfo.used; i++)
@@ -150,9 +151,9 @@ void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 	newData.used = resourceInfo.used;
 
 	// Setup the new pointers
-	newData.resourceData = (Data*)newData.data;
-	newData.refCount = (uint16_t*)(newData.resourceData + newData.allocated);
-	newData.state = (State*)(newData.refCount + newData.allocated);
+	newData.resourceData = static_cast<Data*>(newData.data);
+	newData.refCount = reinterpret_cast<uint16_t*>(newData.resourceData + newData.allocated);
+	newData.state = reinterpret_cast<State*>(newData.refCount + newData.allocated);
 
 
 	infoLock.lock();
@@ -203,6 +204,9 @@ void SE::ResourceHandler::ResourceHandler::LoadAsync()
 		{
 			Data data;
 			auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size); // TODO: Fail check
+			if (result != 0)
+				throw std::exception("EnumAdapters failed in MemoryMeasuring.");
+
 
 			infoLock.lock();
 			resourceInfo.resourceData[job.resourceInfoIndex] = data;
