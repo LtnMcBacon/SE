@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{C4A1A015-422E-4F10-9300-26905EAC3EC3}</ProjectGuid>
-    <RootNamespace>Core</RootNamespace>
+    <ProjectGuid>{0D3D81EE-3751-4B86-9FEC-14546DB2ADEE}</ProjectGuid>
+    <RootNamespace>ImGuiDX11SDL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,41 +70,36 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\ImGuiDX11SDL;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)External Dependencies\lib\$(Platform);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\ImGuiDX11SDL;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)External Dependencies\lib\$(Platform);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\ImGuiDX11SDL;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)External Dependencies\lib\$(Platform);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\;$(SolutionDir)includes\ImGuiDX11SDL;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)External Dependencies\lib\$(Platform);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -112,7 +107,6 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +116,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -136,7 +129,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -144,40 +136,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationManager.cpp" />
-    <ClCompile Include="AudioManager.cpp" />
-    <ClCompile Include="CameraManager.cpp" />
-    <ClCompile Include="CollisionManager.cpp" />
-    <ClCompile Include="DebugRenderManager.cpp" />
-    <ClCompile Include="DevConsole.cpp" />
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityManager.cpp" />
-    <ClCompile Include="GUIManager.cpp" />
-    <ClCompile Include="LightManager.cpp" />
-    <ClCompile Include="MaterialManager.cpp" />
-    <ClCompile Include="OptionHandler.cpp" />
-    <ClCompile Include="RenderableManager.cpp" />
-    <ClCompile Include="TransformManager.cpp" />
+    <ClInclude Include="..\includes\ImGuiDX11SDL\ImGuiDX11SDL.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Core\AnimationManager.h" />
-    <ClInclude Include="..\includes\Core\AudioManager.h" />
-    <ClInclude Include="..\includes\Core\CameraManager.h" />
-    <ClInclude Include="..\includes\Core\CollisionManager.h" />
-    <ClInclude Include="..\includes\Core\DebugRenderManager.h" />
-    <ClInclude Include="..\includes\Core\DevConsole.h" />
-    <ClInclude Include="..\includes\Core\Engine.h" />
-    <ClInclude Include="..\includes\Core\Entity.h" />
-    <ClInclude Include="..\includes\Core\EntityManager.h" />
-    <ClInclude Include="..\includes\Core\GUIManager.h" />
-    <ClInclude Include="..\includes\Core\LightManager.h" />
-    <ClInclude Include="..\includes\Core\MaterialManager.h" />
-    <ClInclude Include="..\includes\Core\OptionHandler.h" />
-    <ClInclude Include="..\includes\Core\TransformManager.h" />
-    <ClInclude Include="..\includes\Core\RenderableManager.h" />
-    <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
-    <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="ImGuiDX11SDL.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

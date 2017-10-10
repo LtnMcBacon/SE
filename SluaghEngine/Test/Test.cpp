@@ -33,6 +33,7 @@
 #include "BehaviouralTreeFactoryTest.h"
 #include "SkeletonAnimationTest.h"
 #include "GarbageTest.h"
+#include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
 
 
@@ -92,6 +93,7 @@ int main(int argc, char** argv)
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
+	AddTest(ConsoleTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
