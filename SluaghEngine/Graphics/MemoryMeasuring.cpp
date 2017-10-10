@@ -21,7 +21,6 @@ namespace SE
 
 		int MemoryMeasuring::Init()
 		{
-			StartProfile;
 			HRESULT ret_code = ::CreateDXGIFactory(
 				__uuidof(IDXGIFactory),
 				reinterpret_cast<void**>(&dxgifactory));
@@ -33,25 +32,24 @@ namespace SE
 
 				if (SUCCEEDED(firstAdapter->QueryInterface(__uuidof(IDXGIAdapter3), (void**)&dxgiAdapter3)))
 				{
-					ProfileReturnConst(0);
+					return 0;
 				}
-				ProfileReturnConst(-1);
+				return -1;
 			}
-			ProfileReturnConst(-1);
+			return -1;
 		}
 
 		int MemoryMeasuring::printUsage(SE::Utilz::IConsoleBackend* console)
 		{
-			StartProfile;
 			DXGI_QUERY_VIDEO_MEMORY_INFO info;
 			if (SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
 			{
 				auto memoryUsage = info.CurrentUsage / 1024 / 1024; //MiB
 				std::string memString = "Memory usage " + std::to_string(memoryUsage) + "\n";
 				console->Print(memString.c_str());
-				ProfileReturnConst(0);
+				return 0;
 			}
-			ProfileReturnConst(-1);
+			return -1;
 		}
 
 	}

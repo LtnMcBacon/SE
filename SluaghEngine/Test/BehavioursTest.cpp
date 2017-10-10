@@ -48,7 +48,7 @@ private:
 
 std::string BehaviourToString(SE::Gameplay::Status status)
 {
-	StartProfile
+	StartProfile;
 	switch(status)
 	{
 	case SE::Gameplay::Status::BEHAVIOUR_SUCCESS:
