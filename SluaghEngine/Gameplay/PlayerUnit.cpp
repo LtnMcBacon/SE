@@ -21,8 +21,8 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	yMovementTot *= dt;
 
 
-	float sampleX = 0.f;
-	float sampleY = 0.f;
+	/*float sampleX = 0.f;
+	float sampleY = 0.f;*/
 
 	float localExtent = extends + 0.15;
 

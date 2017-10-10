@@ -44,8 +44,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 		float yMovement;
 		float xMovementTot = previousMovement[0];
 		float yMovementTot = previousMovement[1];
-		float distanceX = 0.f;
-		float distanceY = 0.f;
+		
 
 		/*Sample from the 9 cells around us, starting with the center point
 		 * Add the movements from the cell to total movements (one for x, one for y)
@@ -62,6 +61,8 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 
 		if (!sample)
 		{
+			float distanceX = 0.f;
+			float distanceY = 0.f;
 			/*Right*/
 			myPos.x = xPos + 1.f;
 			myPos.y = yPos;
@@ -182,8 +183,8 @@ bool SE::Gameplay::EnemyUnit::CorrectCollision(float dt, float &xMov, float &yMo
 	yMovementTot *= dt;
 
 
-	float sampleX = 0.f;
-	float sampleY = 0.f;
+	/*float sampleX = 0.f;
+	float sampleY = 0.f;*/
 
 	float localExtent = extends + 0.15;
 
