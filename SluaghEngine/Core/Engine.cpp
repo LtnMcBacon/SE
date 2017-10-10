@@ -30,6 +30,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+	StartProfile;
 	optionHandler = new OptionHandler();
 	optionHandler->Initialize("Config.ini");
 
@@ -42,16 +43,16 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	auto r = resourceHandler->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst( r);
 	r = window->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = renderer->Initialize(window->GetHWND());
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = audioManager->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 
 
 	transformManager = new TransformManager(entityManager);
@@ -76,18 +77,19 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	ImGuiDX11SDL_Init(renderer, window);
 	devConsole = new DevConsole(renderer);
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::BeginFrame()
 {
+	StartProfile;
 	if (frameBegun)
-		return -1;
+		ProfileReturnConst( -1);
 	frameBegun = true;
 	window->Frame();
 	ImGuiDX11SDL_NewFrame();
 	renderer->BeginFrame();
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Frame(double dt)
@@ -116,6 +118,7 @@ int SE::Core::Engine::Frame(double dt)
 
 int SE::Core::Engine::Release()
 {
+	StartProfile;
 	delete devConsole;
 	ImGuiDX11SDL_Shutdown();
 	
@@ -143,7 +146,7 @@ int SE::Core::Engine::Release()
 	delete guiManager;
 	delete lightManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
-	return 0;
+	ProfileReturnConst(0);
 }
 
 SE::Core::Engine::Engine()
