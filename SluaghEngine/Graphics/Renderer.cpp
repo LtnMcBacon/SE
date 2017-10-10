@@ -853,7 +853,7 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			if (ajob.animating) // If the animation is playing
 			{
 				ajob.timePos += ajob.speed; // TODO: Delta time.
-				animationSystem->UpdateAnimation(ajob.animationID, ajob.skeletonID, ajob.timePos);
+				animationSystem->UpdateAnimation(job.animationIndex, job.skeletonIndex, ajob.timePos);
 			}
 		}
 
@@ -875,8 +875,14 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			inversVec.push_back(fInvers);
 		}
 
-		bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
+
+		graphicResourceHandler->UpdateConstantBuffer<DirectX::XMFLOAT4X4>(cBoneBufferIndex, [](auto data) {
+
+		});
+
+
 
 		const size_t instanceCount = bucket.transforms.size();
 		for (int i = 0; i < instanceCount; i += maxDrawInstances)
@@ -938,9 +944,25 @@ int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_
 
 int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
 {
-	int job = static_cast<int>(jobIDToAnimationJob.size());
-	jobIDToAnimationJob.push_back(info);
+	int job = -1;
+	if (freeAnimationJobIndicies.size())
+	{
+		job = freeAnimationJobIndicies.top();
+		freeAnimationJobIndicies.pop();
+	}
+	else
+	{
+		job = static_cast<int>(jobIDToAnimationJob.size());
+		jobIDToAnimationJob.push_back(info);
+	}
+	
 	return job;
+}
+
+void SE::Graphics::Renderer::StopAnimation(int job)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	freeAnimationJobIndicies.push(job);
 }
 
 void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)

@@ -304,6 +304,13 @@ namespace SE
 			virtual int StartAnimation(const AnimationJobInfo& info) = 0;
 
 			/**
+			* @brief Stop an animation (This removes the job)
+			* @param[in] job The job top stop
+			* @endcode
+			*/
+			virtual void StopAnimation(int job) = 0;
+
+			/**
 			* @brief Update an animation job
 			* @param[in] job Which animation job to update
 			* @param[in] info Animation info
@@ -316,7 +323,6 @@ namespace SE
 			* @brief Set the speed of an animation job
 			* @param[in] job Which animation job to update
 			* @param[in] speed The speed
-			* @sa AnimationJobInfo
 			* @endcode
 			*/
 			virtual void SetAnimationSpeed(int job, float speed) = 0;
@@ -324,7 +330,6 @@ namespace SE
 			/**
 			* @brief Start an animation job
 			* @param[in] job Which animation job to Start
-			* @sa AnimationJobInfo
 			* @endcode
 			*/
 			virtual void StartAnimation(int job) = 0;
@@ -332,7 +337,6 @@ namespace SE
 			/**
 			* @brief Pause an animation job
 			* @param[in] job Which animation job to pause
-			* @sa AnimationJobInfo
 			* @endcode
 			*/
 			virtual void PauseAnimation(int job) = 0;

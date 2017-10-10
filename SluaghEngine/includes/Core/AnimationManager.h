@@ -76,12 +76,13 @@ namespace SE
 
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(int);
+				static const size_t size = sizeof(Entity) + sizeof(int) + sizeof(int) + sizeof(int);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				size_t* skeletonIndex;
+				int* skeletonIndex;
+				int* animationIndex;
 				int* job;
 			};
 			

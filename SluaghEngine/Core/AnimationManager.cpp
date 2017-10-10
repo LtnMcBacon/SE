@@ -107,10 +107,9 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		if (findSkelAnim != guidToSkelAnimationIndex.end())
 		{
 			Graphics::AnimationJobInfo info;
-			info.skeletonID = animationData.skeletonIndex[entityIndex->second];
-			info.animationID = findSkelAnim->second;
+			info.animating = false;
 			info.speed = speed;
-			
+			animationData.animationIndex[entityIndex->second] = findSkelAnim->second;
 			if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
 				renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
 			else
@@ -182,6 +181,8 @@ void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Grap
 		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
 		info->animationJob = animationData.job[entityIndex->second];
 		info->vertexShader = skinnedShader;
+		info->skeletonIndex = animationData.skeletonIndex[entityIndex->second];
+		info->animationIndex = 0;// animationData.
 	}
 	StopProfile;
 }
@@ -199,12 +200,14 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.skeletonIndex = (size_t*)(newData.entity + newData.size);
-	newData.job = (int*)(newData.skeletonIndex + newData.allocated);
+	newData.skeletonIndex = (int*)(newData.entity + newData.size);
+	newData.animationIndex = (int*)(newData.entity + newData.size);
+	newData.job = (int*)(newData.animationIndex + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
-	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(size_t));
+	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(int));
+	memcpy(newData.animationIndex, animationData.animationIndex, animationData.used * sizeof(int));
 	memcpy(newData.job, animationData.job, animationData.used * sizeof(int));
 
 	// Delete old data;

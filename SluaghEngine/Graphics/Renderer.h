@@ -287,6 +287,13 @@ namespace SE
 			int StartAnimation(const AnimationJobInfo& info) override;
 
 			/**
+			* @brief Stop an animation (This removes the job)
+			* @param[in] job The job top stop
+			* @endcode
+			*/
+			void StopAnimation(int job)override;
+
+			/**
 			* @brief Update an animation job
 			* @param[in] job Which animation job to update
 			* @param[in] info Animation info
@@ -429,7 +436,7 @@ namespace SE
 			/*********** Animation System **************/
 
 			AnimationSystem* animationSystem;
-
+			std::stack<int> freeAnimationJobIndicies;
 			std::vector<AnimationJobInfo> jobIDToAnimationJob;
 
 
