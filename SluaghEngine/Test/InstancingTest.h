@@ -1,4 +1,4 @@
-#
+#pragma once
 #ifndef SE_TEST_INSTANCING_TEST_H_
 #define SE_TEST_INSTANCING_TEST_H_
 #include "Test.h"

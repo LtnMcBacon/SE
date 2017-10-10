@@ -35,7 +35,6 @@ namespace SE
 				return false;
 			}
 			auto& audio = e.GetAudioManager();
-			auto& optHandler = Core::Engine::GetInstance().GetOptionHandler();
 
 			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
 			{
@@ -195,10 +194,6 @@ namespace SE
 								i = 11;
 							}
 						}
-						/*optHandler.SetOption("Window", "width", 800);
-						optHandler.SetOption("Window", "height", 600);
-						optHandler.SetOption("Window", "fullScreen", 0);
-						optHandler.Trigger();*/
 					}
 					if (e.GetWindow()->ButtonPressed(2) == true)
 					{
@@ -212,10 +207,6 @@ namespace SE
 								i = 11;
 							}
 						}
-						/*optHandler.SetOption("Window", "width", 1280);
-						optHandler.SetOption("Window", "height", 720);
-						optHandler.SetOption("Window", "fullScreen", 1);
-						optHandler.Trigger();*/
 					}
 					if (e.GetWindow()->ButtonPressed(3) == true)
 					{

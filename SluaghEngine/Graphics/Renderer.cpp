@@ -875,13 +875,6 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	return job;
 }
 
-int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
-	ProfileReturn(0);
-}
-
 void SE::Graphics::Renderer::Frame()
 {
 	while (running)

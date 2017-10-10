@@ -309,14 +309,14 @@ namespace SE
 			};
 
 			int oncePerFrameBufferID;
-			int lightBufferID;
+			int lightBufferID = -1;
 
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
 			AnimationSystem* animationSystem;
 			MemoryMeasuring memMeasure;
-			float currentEntityTimePos;
+			float currentEntityTimePos = 0.0f;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -393,14 +393,13 @@ namespace SE
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
-			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
 
 			static const int lightBufferSize = 20;
 
 
 			/*********** Threading **************/
 
-			bool running;
+			bool running = false;
 			std::thread myThread;
 
 			void Frame();

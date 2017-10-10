@@ -99,14 +99,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(Console, Window::KeyC);
 	
 
-	bool running = true;
+	
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 
-	bool full = oh.GetOptionBool("Window", "fullScreen", 0);
-	float jiggler = 0.0f;
 	uint32_t removeIndex = 0;
 	bool showConsole = false;
+	bool running = true;
 	while (running)
 	{
 		engine.BeginFrame();

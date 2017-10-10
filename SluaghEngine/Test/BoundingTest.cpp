@@ -110,14 +110,13 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 
 	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
-	bool running = true;
 	test = false;
 	test2 = false;
 	bool su = false;
 	for(int i = 0; i < 500; i++)
 	{
 		if (w->ButtonPressed(ActionButton::Exit))
-			running = false;
+			break;
 
 		if(!test)
 			tm.Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
