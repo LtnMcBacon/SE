@@ -161,7 +161,7 @@ SE::Core::Engine::~Engine()
 void SE::Core::Engine::InitStartupOption()
 {
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
 	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
@@ -192,7 +192,7 @@ void SE::Core::Engine::OptionUpdate()
 	//Set Sound Vol
 	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
 	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 
 	//Set Camera
 	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
