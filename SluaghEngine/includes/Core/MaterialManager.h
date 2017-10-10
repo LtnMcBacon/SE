@@ -65,11 +65,11 @@ namespace SE
 			
 			struct TextureBindings
 			{
-				uint8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
+				int8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 			struct TextureIndices
 			{
-				uint8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
+				int8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 
 			struct TextureData

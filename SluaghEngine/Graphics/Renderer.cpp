@@ -502,8 +502,9 @@ int SE::Graphics::Renderer::BeginFrame()
 
 int SE::Graphics::Renderer::EndFrame()
 {
+	StartProfile;
 	device->Present();
-	return 0;
+	ProfileReturnConst( 0);
 }
 
 void SE::Graphics::Renderer::GetDeviceInfo(void * destination, size_t size)

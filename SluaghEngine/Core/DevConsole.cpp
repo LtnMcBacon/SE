@@ -3,6 +3,8 @@
 #include <Imgui/imgui.h>
 #include <Utilz/Memory.h>
 #include <Graphics/IRenderer.h> //In order to plot VRAM usage.
+#include <Profiler.h>
+
 SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 {
 	_ASSERT(renderer);
@@ -60,13 +62,14 @@ void SE::Core::DevConsole::Toggle()
 
 void SE::Core::DevConsole::Frame()
 {
+	StartProfile;
 	if (!showConsole)
-		return;
+		ProfileReturnVoid;
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
 		ImGui::End();
-		return;
+		ProfileReturnVoid;
 	}
 	
 	{
@@ -140,6 +143,8 @@ void SE::Core::DevConsole::Frame()
 	if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 		ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 	ImGui::End();
+
+	ProfileReturnVoid;
 }
 
 int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
@@ -150,6 +155,8 @@ int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
 
 int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 {
+
+	StartProfile;
 	//AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
 	switch (data->EventFlag)
 	{
@@ -240,7 +247,7 @@ int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 		}
 	}
 	}
-	return 0;
+	ProfileReturnConst( 0);
 }
 
 void SE::Core::DevConsole::ExecuteCommand(std::string commandString)
