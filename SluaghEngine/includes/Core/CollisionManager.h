@@ -104,7 +104,15 @@ namespace SE
 			*/
 			void Frame();
 
-			bool GetBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
+			/*
+			 * @brief Gets the local bounding box for an entity. 
+			 * @param[in] entity The entity to retrive the bounding box from
+			 * @param[out] bb A pointer to where to store the bounding box.
+			 * @retval false The entity does not have a bounding box or nullptr was passed to bb.
+			 * @retval true The entity has a bounding box and it was stored in bb.
+			 *
+			 */
+			bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
 		private:
 			void SetDirty(const Entity& entity, size_t index);
 

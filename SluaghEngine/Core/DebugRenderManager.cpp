@@ -139,7 +139,7 @@ void SE::Core::DebugRenderManager::CreateBoundingBoxes()
 	for (int i = 0; i < awaitingBoundingBoxes.size(); i++)
 	{
 		DirectX::BoundingBox aabb;
-		const bool hasBounding = collisionManager->GetBoundingBox(awaitingBoundingBoxes[i], &aabb);
+		const bool hasBounding = collisionManager->GetLocalBoundingBox(awaitingBoundingBoxes[i], &aabb);
 		if (hasBounding && lineCount + 12 < maximumLinesToRender)
 		{
 			const auto& center = aabb.Center;

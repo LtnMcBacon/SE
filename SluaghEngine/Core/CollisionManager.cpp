@@ -236,7 +236,7 @@ void SE::Core::CollisionManager::Frame()
 	StopProfile;
 }
 
-bool SE::Core::CollisionManager::GetBoundingBox(const Entity& entity, DirectX::BoundingBox* bb)
+bool SE::Core::CollisionManager::GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb)
 {
 	StartProfile;
 	if (!bb)
