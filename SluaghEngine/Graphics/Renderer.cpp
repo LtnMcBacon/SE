@@ -33,7 +33,6 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
-	currentEntityTimePos = 0;
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
