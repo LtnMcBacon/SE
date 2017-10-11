@@ -42,6 +42,7 @@ namespace SE
 
 			void Start(const Entity& entity, const Utilz::GUID& animation, float speed);
 			void SetSpeed(const Entity& entity, float speed);
+			void SetKeyFrame(const Entity& entity, float keyFrame);
 			void Start(const Entity& entity)const;
 			void Pause(const Entity& entity)const;
 			

@@ -434,6 +434,7 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::NONE;
 	previousJob.vertexShader = -1;
+	previousJob.skeletonIndex = -1;
 	previousJob.fillSolid = 1;
 	previousJob.transparency = 0;
 
@@ -786,7 +787,7 @@ void SE::Graphics::Renderer::UpdateTransforms()
 	StopProfile;
 }
 
-SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
+SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob)
 {
 	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
@@ -917,9 +918,9 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 		};
 
 		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
-			for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+			for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
 			{
-				auto animationJobIndex = static_cast<size_t>(bucket.animationJob[i]);
+				auto animationJobIndex = bucket.animationJob[i];
 				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
 				{
 					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
@@ -940,9 +941,9 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
 
 		const size_t instanceCount = bucket.transforms.size();
-		for (int i = 0; i < instanceCount; i += maxDrawInstances)
+		for (int i = 0; i < instanceCount; i += 8)
 		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
@@ -1023,6 +1024,13 @@ void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
 {
 	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
 	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
+}
+
+void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 
 void SE::Graphics::Renderer::StartAnimation(int job)

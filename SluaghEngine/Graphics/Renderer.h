@@ -334,6 +334,14 @@ namespace SE
 			void SetAnimationSpeed(int job, float speed) override;
 
 			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] keyframe The keyframe
+			* @endcode
+			*/
+			void SetKeyFrame(int job, float keyframe);
+
+			/**
 			* @brief Start an animation job
 			* @param[in] job Which animation job to Start
 			* @sa AnimationJobInfo
@@ -389,7 +397,7 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
-				std::vector<uint32_t> animationJob;
+				std::vector<int> animationJob;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
@@ -400,7 +408,7 @@ namespace SE
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
-			RenderObjectInfo RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob);
+			RenderObjectInfo RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
 			/******** END Instanced render job members ********/
 
 			/*********** Line render job members **************/

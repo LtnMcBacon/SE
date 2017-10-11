@@ -66,14 +66,16 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Co
 		}
 	}
 
+	animationData.skeletonIndex[index] = skelIndex;
+
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
 	{
-		auto& findSkelAnim = guidToSkelAnimationIndex.find(info.skeleton);
-		auto& skelAnimIndex = guidToSkelAnimationIndex[info.skeleton];
+		auto& findSkelAnim = guidToSkelAnimationIndex.find(info.animations[i]);
+		auto& skelAnimIndex = guidToSkelAnimationIndex[info.animations[i]];
 		if (findSkelAnim == guidToSkelAnimationIndex.end())
 		{
-			auto res = resourceHandler->LoadResource(info.skeleton, [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
+			auto res = resourceHandler->LoadResource(info.animations[i], [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
 				skelAnimIndex = LoadAnimation(data, size);
 				if (skelAnimIndex == -1)
 					return -1;
@@ -107,7 +109,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		if (findSkelAnim != guidToSkelAnimationIndex.end())
 		{
 			Graphics::AnimationJobInfo info;
-			info.animating = false;
+			info.animating = true;
 			info.speed = speed;
 			info.timePos = 0.0f;
 			info.animationHandle = findSkelAnim->second;
@@ -133,6 +135,20 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	{
 		if (animationData.job[entityIndex->second] >= 0)
 			renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);
+
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFrame)
+{
+	StartProfile;
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		if (animationData.job[entityIndex->second] >= 0)
+			renderer->SetKeyFrame(animationData.job[entityIndex->second], keyFrame);
 
 	}
 	StopProfile;

@@ -5,6 +5,8 @@
 #include <Utilz\Timer.h>
 #include <Utilz\Tools.h>
 
+#include <Imgui\imgui.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -22,7 +24,9 @@ enum ActionButton
 	Right,
 	Fullscreen,
 	Rise,
-	Sink
+	Sink,
+	Stop,
+	Start
 };
 
 
@@ -58,7 +62,6 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	auto& mainC = em.Create();
 	auto& camera = em.Create();
 	auto& om = e.GetOptionHandler();
-
 	auto handle = e.GetWindow();
 
 	tm.Create(level);
@@ -82,6 +85,10 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	handle->MapActionButton(ActionButton::Left, Window::KeyA);
 	handle->MapActionButton(ActionButton::Right, Window::KeyD);
 	handle->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+
+	handle->MapActionButton(ActionButton::Stop, Window::KeyP);
+	handle->MapActionButton(ActionButton::Start, Window::KeyO);
+
 
 	handle->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
 	handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
@@ -108,6 +115,18 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
 
+
+	auto& c2 = em.Create();
+	tm.Create(c2, { 3.0f, 0.0f, 0.0f });
+	mm.Create(c2, info);
+	am.CreateAnimation(c2, sai);
+	am.Start(c2, "SwingAnimation_bakedTest.anim", 0.1f);
+	rm.CreateRenderableObject(c2, "bakedTest.mesh");
+	rm.ToggleRenderableObject(c2, true);
+
+
+
+
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
@@ -115,7 +134,8 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	float radians = (180 * 3.14) / 180;
 
 	tm.Rotate(mainC, 0.0f, radians, 0.01f);
-
+	static float keyframe = 0.0f;
+	static float speed = 0.0f;
 	while (running)
 	{
 		if (e.GetWindow()->ButtonPressed(0))
@@ -136,6 +156,26 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
 		if (handle->ButtonDown(ActionButton::Sink))
 			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
+
+		if (handle->ButtonDown(ActionButton::Stop))
+			am.Pause(c2);
+		if (handle->ButtonDown(ActionButton::Start))
+			am.Start(c2);
+
+
+
+
+		e.BeginFrame();
+
+		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
+			am.SetKeyFrame(c2, keyframe);
+		if (ImGui::SliderFloat("C2 Speed ", &speed, -1.0f, 1.0f))
+			am.SetSpeed(c2, speed);
+		if (ImGui::Button("Start"))
+			am.Start(c2);
+		if (ImGui::Button("Stop"))
+			am.Pause(c2);
+
 
 		e.Frame(dt);
 	}

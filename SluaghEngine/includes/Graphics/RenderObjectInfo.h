@@ -101,6 +101,7 @@ namespace SE
 				vertexShader = rhs.vertexShader;
 				type = rhs.type;
 				animationJob = rhs.animationJob;
+				skeletonIndex = rhs.skeletonIndex;
 				for (int i = 0; i < maxTextureBinds; ++i)
 				{
 					textureBindings[i] = rhs.textureBindings[i];

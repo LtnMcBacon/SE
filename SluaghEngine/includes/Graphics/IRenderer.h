@@ -349,6 +349,14 @@ namespace SE
 			virtual void SetAnimationSpeed(int job, float speed) = 0;
 
 			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] keyframe The keyframe
+			* @endcode
+			*/
+			virtual void SetKeyFrame(int job, float keyframe) = 0;
+
+			/**
 			* @brief Start an animation job
 			* @param[in] job Which animation job to Start
 			* @endcode
