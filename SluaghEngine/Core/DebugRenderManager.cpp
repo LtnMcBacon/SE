@@ -85,19 +85,20 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 			renderer->RemoveLineRenderJob(find->second);
 		entityToJobID.erase(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
-		//entityRendersBoundingVolume.erase(entity);
+		entityRendersBoundingVolume.erase(entity);
 	}
 	else
 	{
 		//In case we don't leave it up to the caller to not enable the same entity twice
-		/*const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
+		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())
 			ProfileReturnVoid;
-		entityRendersBoundingVolume.insert(entity);*/
+		entityRendersBoundingVolume.insert(entity);
 		bool found = false;
 		for (int i = 0; i < awaitingBoundingBoxes.size(); ++i)
 			if (awaitingBoundingBoxes[i] == entity)
 				found = true;
+		
 		if(!found)
 			awaitingBoundingBoxes.push_back(entity);
 	}

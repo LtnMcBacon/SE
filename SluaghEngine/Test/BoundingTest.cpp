@@ -130,7 +130,8 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 		
 		e.Frame(0.01f);
 		
-		
+		drm.ToggleDebugRendering(block1, true);
+		drm.ToggleDebugRendering(block2, true);
 		if (test && test2)
 		{
 			su = true;
