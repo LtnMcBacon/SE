@@ -238,10 +238,10 @@ namespace SE
 			/**
 			* @brief	returns the frame time for the requested manager/handler.
 			*
-			* @retval float Used time in ms.
+			* @retval float Used time in ns.
 			*
 			*/
-			inline float GetFrameTimeMS(Utilz::GUID ID)
+			inline float GetFrameTimeNS(Utilz::GUID ID)
 			{
 				return timeClus.GetTime<std::chrono::nanoseconds>(ID);
 			};

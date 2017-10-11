@@ -237,23 +237,23 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(6) == true)
 					{
-						console->Print("GUIManager: %f ns\n", e.GetFrameTimeMS("GUIManager"));
+						console->Print("GUIManager: %f ns\n", e.GetFrameTimeNS("GUIManager"));
 					}
 					if (e.GetWindow()->ButtonPressed(7) == true)
 					{
-						console->Print("TransformManager: %f ns\n", e.GetFrameTimeMS("TransformManager"));
+						console->Print("TransformManager: %f ns\n", e.GetFrameTimeNS("TransformManager"));
 					}
 					if (e.GetWindow()->ButtonPressed(8) == true)
 					{
-						console->Print("AudioManager: %f ns\n", e.GetFrameTimeMS("AudioManager"));
+						console->Print("AudioManager: %f ns\n", e.GetFrameTimeNS("AudioManager"));
 					}
 					if (e.GetWindow()->ButtonPressed(9) == true)
 					{
-						console->Print("GUIJob: %f ns\n", ren->GetFrameTimeMS("GUIJob"));
+						console->Print("GUIJob: %f ns\n", ren->GetFrameTimeNS("GUIJob"));
 					}
 					if (e.GetWindow()->ButtonPressed(10) == true)
 					{
-						console->Print("TextJob: %f ns\n", ren->GetFrameTimeMS("TextJob"));
+						console->Print("TextJob: %f ns\n", ren->GetFrameTimeNS("TextJob"));
 					}
 				}
 				e.Release();

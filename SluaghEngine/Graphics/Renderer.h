@@ -299,10 +299,10 @@ namespace SE
 			/**
 			* @brief	returns the time for the requested render job type.
 			*
-			* @retval float Used time in ms.
+			* @retval float Used time in ns.
 			*
 			*/
-			inline float GetFrameTimeMS(Utilz::GUID ID) override {
+			inline float GetFrameTimeNS(Utilz::GUID ID) override {
 				return timeClus.GetTime<std::chrono::nanoseconds>(ID);
 			};
 			

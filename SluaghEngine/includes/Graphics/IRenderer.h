@@ -311,10 +311,10 @@ namespace SE
 			/**
 			* @brief	returns the time for the requested render job type.
 			*
-			* @retval float Used time in ms.
+			* @retval float Used time in ns.
 			*
 			*/
-			virtual float GetFrameTimeMS(Utilz::GUID ID) = 0;
+			virtual float GetFrameTimeNS(Utilz::GUID ID) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
