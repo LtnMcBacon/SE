@@ -119,6 +119,9 @@ void SE::Core::DevConsole::Frame()
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
 	ImGui::Separator();
+	static bool scrollToBottom = false;
+	ImGui::Checkbox("Scroll to bottom", &scrollToBottom);
+	ImGui::Separator();
 	ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
 	for (auto& m : messages)
 	{
@@ -141,6 +144,8 @@ void SE::Core::DevConsole::Frame()
 		}	
 		ImGui::PopStyleColor();
 	}
+	if (scrollToBottom)
+		ImGui::SetScrollHere();
 	ImGui::EndChild();
 	ImGui::Separator();
 	if (ImGui::InputText("Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub, (void*)this))
