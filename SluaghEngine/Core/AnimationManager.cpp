@@ -71,7 +71,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Co
 	{
 		auto& findSkelAnim = guidToSkelAnimationIndex.find(info.skeleton);
 		auto& skelAnimIndex = guidToSkelAnimationIndex[info.skeleton];
-		if (findSkeleton == guidToSkelAnimationIndex.end())
+		if (findSkelAnim == guidToSkelAnimationIndex.end())
 		{
 			auto res = resourceHandler->LoadResource(info.skeleton, [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
 				skelAnimIndex = LoadAnimation(data, size);

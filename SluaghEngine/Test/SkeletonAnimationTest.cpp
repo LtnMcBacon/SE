@@ -67,7 +67,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 	
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "height", 640) / (float)om.GetOption("Window", "width", 800);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "height", 640) / (float)om.GetOptionUnsignedInt("Window", "width", 800);
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
@@ -102,6 +102,8 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	Utilz::GUID anims[] = { "SwingAnimation_bakedTest.anim" };
 	sai.animations = anims;
 	am.CreateAnimation(mainC, sai);
+	am.Start(mainC, "SwingAnimation_bakedTest.anim", 1.0f);
+
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
 	rm.ToggleRenderableObject(mainC, true);
