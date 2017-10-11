@@ -787,7 +787,7 @@ void SE::Graphics::Renderer::UpdateTransforms()
 	StopProfile;
 }
 
-void SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob)
+void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob)
 {
 	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;

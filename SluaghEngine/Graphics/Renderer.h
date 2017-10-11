@@ -417,7 +417,7 @@ namespace SE
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
-			void RenderObjectInfo RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
+			void RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
 			/******** END Instanced render job members ********/
 
 			/*********** Line render job members **************/
