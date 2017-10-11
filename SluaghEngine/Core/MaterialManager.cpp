@@ -101,7 +101,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textureIndex = textures.size();
 				textures.push_back({ defaultTextureHandle });
 
-				resourceHandler->LoadResource(info.textureFileNames[i], [this, textureIndex, async](auto guid, auto data, auto size) {
+				resourceHandler->LoadResource(info.textureFileNames[i], [this, textureIndex](auto guid, auto data, auto size) {
 					auto handle = LoadTexture(data, size);
 					if (handle == -1)
 						return ResourceHandler::InvokeReturn::Fail;
