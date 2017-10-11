@@ -825,7 +825,7 @@ void SE::Graphics::Renderer::RenderABucket(RenderBucket& bucket, const RenderObj
 	auto viewProjHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerFrame", &bindSlot);
 	if (viewProjHandle < 0)
 	{
-		errorLog.push_back("Constant buffer: OncePerFrame could not be found. Aborting job.\n");
+		errorLog.push_back("Constant buffer: 'OncePerFrame' could not be found. Aborting job.\n");
 		return;
 	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, bindSlot);
@@ -833,7 +833,7 @@ void SE::Graphics::Renderer::RenderABucket(RenderBucket& bucket, const RenderObj
 	auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 	if (oncePerObject < 0)
 	{
-		errorLog.push_back("Constant buffer: OncePerObject could not be found. Aborting job.\n");
+		errorLog.push_back("Constant buffer: 'OncePerObject' could not be found. Aborting job.\n");
 		return;
 	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
