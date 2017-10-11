@@ -130,6 +130,7 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus.Start("Renderer");
 	renderer->Render();
 	timeClus.Stop("Renderer");
+	GatherErrors();
 	timeClus.Start("DevConsole");
 	devConsole->Frame();
 	timeClus.Stop("DevConsole");
@@ -244,4 +245,13 @@ void SE::Core::Engine::OptionUpdate()
 	}
 	
 	ProfileReturnVoid;
+}
+
+void SE::Core::Engine::GatherErrors()
+{
+	auto& renderErrors = renderer->GetErrorLog();
+	for(auto& err : renderErrors)
+	{
+		devConsole->Print(err, "Graphics Error");
+	}
 }

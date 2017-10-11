@@ -379,6 +379,7 @@ int SE::Graphics::Renderer::Render() {
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
+	//If threading is enabled.
 	//AddNewRenderJobs();
 	//UpdateRenderJobs();
 	//UpdateTransforms();
@@ -387,22 +388,20 @@ int SE::Graphics::Renderer::Render() {
 
 
 
-	// SetLightBuffer Start
+	//Update the pointlights in the scene and bind them to the pixel shader stage.
 	//lightLock.lock();
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 	LightDataBuffer lightBufferData;
-
 	graphicResourceHandler->UpdateConstantBuffer<LightDataBuffer>(lightBufferID, [this](LightDataBuffer* data) {
 		data->size.x = renderLightJobs.size();
 		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
 	});
-
 	//lightLock.unlock();
-
-	
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
+	//The previousJob is necessary to see what state changes need to be performed when rendering
+	//the next bucket.
 	timeClus.Start("InstanceJob");
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
@@ -421,29 +420,30 @@ int SE::Graphics::Renderer::Render() {
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
-	std::vector<size_t> transID;
-
+	//First render all opaque geometry, then render partially transparent geometry.
+	std::vector<size_t> transparentIndices;
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
 	{
 		if (renderBuckets[iteration].stateInfo.transparency == 0)
 		{
-			previousJob = RenderABucket(renderBuckets[iteration], previousJob);
+			RenderABucket(renderBuckets[iteration], previousJob);
+			previousJob = renderBuckets[iteration].stateInfo;
 		}
 		else
-			transID.push_back(iteration);
+			transparentIndices.push_back(iteration);
 	}
-	for (auto iteration = 0; iteration < transID.size(); iteration++)
+	for (auto iteration = 0; iteration < transparentIndices.size(); iteration++)
 	{
-		RenderABucket(renderBuckets[transID[iteration]], previousJob);
+		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
+		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
 	timeClus.Stop("InstanceJob");
 
-	///********** Render line jobs ************/
+	///********** Render line jobs (primarily for debugging) ************/
 	timeClus.Start("LineJob");
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
-
 	for(auto& lineJob : lineRenderJobs)
 	{
 		if (lineJob.verticesToDrawCount == 0)
@@ -456,6 +456,8 @@ int SE::Graphics::Renderer::Render() {
 	timeClus.Stop("LineJob");
 	///********END render line jobs************/
 
+
+	//********* Render sprite overlays ********/
 	timeClus.Start("GUIJob");
 	if (renderTextureJobs.size())
 	{
@@ -467,6 +469,9 @@ int SE::Graphics::Renderer::Render() {
 		spriteBatch->End();
 	}
 	timeClus.Stop("GUIJob");
+	
+	
+	//******** Render text overlays *********/
 	timeClus.Start("TextJob");
 	if (renderTextJobs.size())
 	{
@@ -480,8 +485,6 @@ int SE::Graphics::Renderer::Render() {
 	timeClus.Stop("TextJob");
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
-
-	
 
 	ProfileReturnConst(0);
 }
@@ -499,6 +502,7 @@ int SE::Graphics::Renderer::BeginFrame()
 
 	// Clear the standard depth stencil view
 	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
+	errorLog.clear();
 	return 0;
 }
 
@@ -769,7 +773,7 @@ void SE::Graphics::Renderer::UpdateTransforms()
 	StopProfile;
 }
 
-SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
+void SE::Graphics::Renderer::RenderABucket(RenderBucket& bucket, const RenderObjectInfo& previousJob)
 {
 	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
@@ -802,6 +806,11 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 			break;
 		}
+		case RenderObjectInfo::PrimitiveTopology::NONE:
+		{
+			errorLog.push_back("A bucket with primitive topology NONE was present in the renderers job queue.");
+			break;
+		}
 		}
 	}
 	if (previousJob.fillSolid != job.fillSolid)
@@ -822,9 +831,19 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 
 	int bindSlot;
 	auto viewProjHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerFrame", &bindSlot);
+	if (viewProjHandle < 0)
+	{
+		errorLog.push_back("Constant buffer: 'OncePerFrame' could not be found. Aborting job.\n");
+		return;
+	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, bindSlot);
 
 	auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+	if (oncePerObject < 0)
+	{
+		errorLog.push_back("Constant buffer: 'OncePerObject' could not be found. Aborting job.\n");
+		return;
+	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
 
 	if (job.type == RenderObjectInfo::JobType::STATIC) {
@@ -884,7 +903,6 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 	}
-	ProfileReturnConst( job);
 }
 
 void SE::Graphics::Renderer::Frame()

@@ -46,7 +46,8 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		PRINT_ERROR,
 		ALLOCATE,
 		DEALLOCATE,
-		CLICK
+		CLICK,
+		SPAM_MESSAGES
 	};
 	window->MapActionButton(TOGGLE_CONSOLE, Window::Key1);
 	window->MapActionButton(EXIT, Window::KeyEscape);
@@ -55,6 +56,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	window->MapActionButton(ALLOCATE, Window::KeyP);
 	window->MapActionButton(DEALLOCATE, Window::KeyO);
 	window->MapActionButton(CLICK, Window::MouseLeft);
+	window->MapActionButton(SPAM_MESSAGES, Window::KeyI);
 	std::vector<std::string> graphTest;
 	Utilz::Timer timer;
 
@@ -99,6 +101,11 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		{
 			if(graphTest.size())
 				graphTest.pop_back();
+		}
+		if(window->ButtonDown(SPAM_MESSAGES))
+		{
+			static int spams = 0;
+			dc.Print("SPAMMALAMMA" + std::to_string(spams++));
 		}
 
 		if(window->ButtonPressed(CLICK))

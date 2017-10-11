@@ -308,6 +308,10 @@ namespace SE
 			*/
 			virtual size_t GetVRam() = 0;
 
+			/*
+			 * @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			 */
+			virtual std::vector<std::string>& GetErrorLog() = 0;
 			/**
 			* @brief	returns the time for the requested render job type.
 			*
