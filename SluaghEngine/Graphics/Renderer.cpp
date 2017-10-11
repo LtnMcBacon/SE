@@ -403,8 +403,8 @@ int SE::Graphics::Renderer::Render() {
 	//UpdateTransforms();
 	//RemoveRenderJobs();
 
-
-
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
 
 	// SetLightBuffer Start
 	//lightLock.lock();
@@ -844,6 +844,14 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
 
+	std::vector<DirectX::XMFLOAT4X4>identity;
+	identity.resize(4);
+
+	for (int i = 0; i < 4; i++) {
+
+		DirectX::XMStoreFloat4x4(&identity[i], DirectX::XMMatrixIdentity());
+	}
+
 	if (job.type == RenderObjectInfo::JobType::STATIC) {
 
 		const size_t instanceCount = bucket.transforms.size();
@@ -928,6 +936,8 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 		});
 
 
+		//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
 
 		const size_t instanceCount = bucket.transforms.size();
 		for (int i = 0; i < instanceCount; i += maxDrawInstances)

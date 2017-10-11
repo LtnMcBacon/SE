@@ -51,6 +51,7 @@ namespace SE
 		struct Joint {
 
 			DirectX::XMMATRIX GlobalTx;
+			DirectX::XMMATRIX LocalTx;
 			DirectX::XMMATRIX inverseBindPoseMatrix;
 			unsigned int parentIndex;
 			
