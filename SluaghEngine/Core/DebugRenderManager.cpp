@@ -73,7 +73,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 	ProfileReturnVoid;
 }
 
-void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bool enable)
+bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bool enable)
 {
 	StartProfile;
 	if (!enable)
@@ -92,7 +92,7 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())
-			ProfileReturnVoid;
+			ProfileReturnConst(false);
 		entityRendersBoundingVolume.insert(entity);
 		bool found = false;
 		for (int i = 0; i < awaitingBoundingBoxes.size(); ++i)
@@ -102,7 +102,7 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		if(!found)
 			awaitingBoundingBoxes.push_back(entity);
 	}
-	ProfileReturnVoid;
+	ProfileReturnConst(true);
 }
 
 void SE::Core::DebugRenderManager::DrawCross(const Entity& entity, float scale, float x, float y, float z)
