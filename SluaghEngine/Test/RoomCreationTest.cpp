@@ -208,7 +208,7 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool stepping = false;
 	bool running = true;
-	unsigned char counter = 0;
+	/*unsigned char counter = 0;*/
 	float dt = 1.0f / 60.0f;
 	while (running)
 	{

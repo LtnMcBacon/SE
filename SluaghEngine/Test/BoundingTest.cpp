@@ -88,7 +88,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	col.RegisterCollideWithAnyCallback(&Collide1);
 
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
 	cInfo.posistion = { 0.0f, 0.0f, -2.0f };
 	cm.Bind(camera, cInfo);
 	cm.SetActive(camera);
@@ -110,14 +110,13 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 
 	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
-	bool running = true;
 	test = false;
 	test2 = false;
 	bool su = false;
 	for(int i = 0; i < 500; i++)
 	{
 		if (w->ButtonPressed(ActionButton::Exit))
-			running = false;
+			break;
 
 		if(!test)
 			tm.Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));

@@ -120,7 +120,7 @@ namespace SE {
 			ProfileReturn(-1);
 		}
 
-		void AudioManager::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		void AudioManager::SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol)
 		{
 			audioHandler->SetSoundVol(volType, newVol);
 		}

@@ -79,9 +79,6 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 
 	Tools::Tools t;
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
-
 	//SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
 	//Core::CameraBindInfoStruct cInfo;
@@ -279,16 +276,13 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 	projectileish dummy(0.0f, 0.0f, -1, dummyEnt);*/
 
-	const int nrOfMaxProjectiles = 4;
-	projectileish ourProjectiles[nrOfMaxProjectiles];
-	int nrOfActiveProjectiles = 0;
+	//const int nrOfMaxProjectiles = 4;
+	//projectileish ourProjectiles[nrOfMaxProjectiles];
+	//int nrOfActiveProjectiles = 0;
 
 	
 
 	Tools::Tools t;
-
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
 
 	const auto camera = em.Create();
 	cm.Bind(camera);
