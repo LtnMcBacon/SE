@@ -226,6 +226,6 @@ void SE::Core::Engine::GatherErrors()
 	auto& renderErrors = renderer->GetErrorLog();
 	for(auto& err : renderErrors)
 	{
-		devConsole->Print(err, "Error");
+		devConsole->Print(err, "Graphics Error");
 	}
 }

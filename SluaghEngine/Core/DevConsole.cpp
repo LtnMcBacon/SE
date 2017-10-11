@@ -108,7 +108,9 @@ void SE::Core::DevConsole::Frame()
 	for (auto& m : messages)
 	{
 		ImVec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		if (m.channel == "Error")
+		std::string lowerCaseChannel = m.channel;
+		std::transform(lowerCaseChannel.begin(), lowerCaseChannel.end(), lowerCaseChannel.begin(), ::tolower);
+		if (lowerCaseChannel.find("error") != std::string::npos)
 			color = { 1.0f, 0.2f, 0.2f, 1.0f };
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
 		if(filter.IsActive())
