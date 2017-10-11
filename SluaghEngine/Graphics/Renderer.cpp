@@ -912,11 +912,18 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
 			{
 				auto animationJobIndex = static_cast<size_t>(bucket.animationJob[i]);
-				auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
-				if (ajob.animating) // If the animation is playing
-					ajob.timePos += ajob.speed; // TODO: Delta time.
+				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
+				{
+					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+					if (ajob.animating) // If the animation is playing
+						ajob.timePos += ajob.speed; // TODO: Delta time.
 
-				animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+					animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+				}
+				else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
+				{
+					// TODO:
+				}
 			}
 		});
 
