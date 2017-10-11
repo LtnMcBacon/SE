@@ -463,7 +463,7 @@ void GraphicResourceHandler::BindConstantBuffer(ShaderStage shaderStage, int con
 }
 
 
-HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
+HRESULT GraphicResourceHandler::UpdateConstantBuffer(const void* data, size_t size, int id)
 {
 	StartProfile;
 	D3D11_MAPPED_SUBRESOURCE mappedData;

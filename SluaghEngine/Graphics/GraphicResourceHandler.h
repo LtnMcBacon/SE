@@ -218,7 +218,7 @@ namespace SE {
 			* @param[in] id The ID of the constant buffer received from CreateConstantBuffer.
 			* @retval S_OK on success.
 			*/
-			HRESULT UpdateConstantBuffer(void* data, size_t size, int id);
+			HRESULT UpdateConstantBuffer(const void* data, size_t size, int id);
 
 			/**
 			* @brief	Updates the contents of a constant buffer.

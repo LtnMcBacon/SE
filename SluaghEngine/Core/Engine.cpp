@@ -108,6 +108,7 @@ int SE::Core::Engine::Frame(double dt)
 	collisionManager->Frame();
 	cameraManager->Frame();
 	renderer->Render();
+	GatherErrors();
 	devConsole->Frame();
 	ImGui::Render();
 	renderer->EndFrame();
@@ -218,4 +219,13 @@ void SE::Core::Engine::OptionUpdate()
 	}
 	
 	ProfileReturnVoid;
+}
+
+void SE::Core::Engine::GatherErrors()
+{
+	auto& renderErrors = renderer->GetErrorLog();
+	for(auto& err : renderErrors)
+	{
+		devConsole->Print(err, "Error");
+	}
 }
