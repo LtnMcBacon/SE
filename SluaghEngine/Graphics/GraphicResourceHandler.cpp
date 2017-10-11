@@ -120,6 +120,8 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 			const std::string semName(inputElementDesc.SemanticName);
 			if (semName == "SV_InstanceID")
 				continue;
+			if (semName == "SV_VertexID")
+				continue;
 			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
 				inputElementDesc.Format = DXGI_FORMAT_R32_FLOAT;
 			else if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)

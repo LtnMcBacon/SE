@@ -360,11 +360,20 @@ namespace SE
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
+			/*
+			* @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			*/
+			inline std::vector<std::string>& GetErrorLog() override{
+				return errorLog;
+			}
 
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
+
+			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
+			std::vector<std::string> errorLog;
 
 			DirectX::XMFLOAT4X4 newViewProjTransposed;
 
@@ -408,7 +417,7 @@ namespace SE
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
-			RenderObjectInfo RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
+			void RenderObjectInfo RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
 			/******** END Instanced render job members ********/
 
 			/*********** Line render job members **************/
