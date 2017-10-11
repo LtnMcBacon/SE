@@ -8,6 +8,8 @@ namespace SE
 	namespace Gameplay
 	{
 		class FlowField;
+		class BehaviouralTree;
+		struct EnemyBlackboard;
 		/**
 		*
 		* @brief The base class for all enemies
@@ -134,7 +136,15 @@ namespace SE
 			 */
 			void AddForce(float force[2]);
 
+			inline float GetRadius()
+			{
+				return radius;
+			}
 
+			inline float GetExtent()
+			{
+				return extends;
+			}
 
 			enum class EnemyActions
 			{
@@ -142,16 +152,36 @@ namespace SE
 				ENEMY_ACTION_MOVE
 			};
 
+			inline void SetEnemyBlackboard(EnemyBlackboard* blackboard)
+			{
+				myBlackboard = blackboard;
+			}
+
+			inline void SetBehaviouralTree(BehaviouralTree* behaviouralTree)
+			{
+				myBehaviouralTree = behaviouralTree;
+			}
+
+			inline void SetFlowField(const FlowField* roomFlowField)
+			{
+				flowFieldForRoom = roomFlowField;
+			}
+
 		private:
-			EnemyUnit() {};
+			EnemyUnit() = delete;
 			EnemyUnit(const EnemyUnit& other) = delete;
 			EnemyUnit(const EnemyUnit&& other) = delete;
 			EnemyUnit& operator=(const EnemyUnit& rhs) = delete;
 
 			EnemyActions entityAction = EnemyActions::ENEMY_ACTION_NOTHING;
+
+			EnemyBlackboard* myBlackboard;
+			BehaviouralTree* myBehaviouralTree;
+
 			const FlowField* flowFieldForRoom = nullptr;
 			float forcesToApply[2] = {};
 			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
+			float radius;
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;

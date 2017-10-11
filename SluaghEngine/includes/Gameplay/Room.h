@@ -29,7 +29,7 @@ namespace SE
 		private:
 			Room* adjacentRooms[4] = {};
 			char map[25][25];
-			std::vector<EnemyUnit*> enemyEntities;
+			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -37,6 +37,18 @@ namespace SE
 			 * FlowField map and calculations
 			 * Function(s) to build the room
 			 */
+
+			struct LinePoint
+			{
+				float x, y;
+
+				LinePoint(float xPos, float yPos)
+				{
+					x = xPos;
+					y = yPos;
+				}
+			};
+
 		public:
 			/**
 			*
@@ -186,17 +198,32 @@ namespace SE
 			/**
 			* @brief	Helper function for line intersection
 			*/
-			bool OnSegment(float pX, float pY, float qX, float qY, float rX, float rY);
+			//bool OnSegment(float pX, float pY, float qX, float qY, float rX, float rY);
+			bool OnSegment(LinePoint p, LinePoint q, LinePoint r);
 
 			/**
 			* @brief	Helper function for line intersection
 			*/
-			int Orientation(float pX, float pY, float qX, float qY, float rX, float rY);
+			//int Orientation(float pX, float pY, float qX, float qY, float rX, float rY);
+			int Orientation(LinePoint p, LinePoint q, LinePoint r);
 
 			/**
 			* @brief	Function for checking if a line p1, p2 intersects another line q1,q2
 			*/
-			bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
+			//bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
+			bool LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any wall
+			*/
+			void ProjectileAgainstWalls(Projectile& projectile);
+
+			int PointCollision(float x, float y);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any enemy
+			*/
+			bool ProjectileAgainstEnemies(Projectile& projectile);
 
 		public:
 			Room(char map[25][25]);
@@ -323,6 +350,9 @@ namespace SE
 			*/
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
+			/**
+			* @brief	Checks collision for the projectiles against both the walls and the enemies
+			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
 		};
 

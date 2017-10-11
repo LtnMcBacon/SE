@@ -126,6 +126,12 @@
     <ClCompile Include="GarbageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyFacotryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -222,6 +228,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GarbageTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

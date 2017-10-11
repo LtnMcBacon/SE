@@ -30,7 +30,7 @@ namespace SE {
 			StartProfile;
 			PaStream *tempStream = nullptr;
 			PaError err;
-			AudioOut *inSample = (AudioOut*)streamData;
+			AudioOut *inSample = static_cast<AudioOut*>(streamData);
 			
 			if (Pa_GetDeviceCount() > 0)
 			{

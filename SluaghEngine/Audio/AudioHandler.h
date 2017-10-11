@@ -75,7 +75,7 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID) override;
-			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol) override;
+			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol) override;
 			void Shutdown() override;
 		private:
 			Audio::AudioSound audioSound;

@@ -83,6 +83,16 @@ namespace SE
 			*/
 			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
 
+			/**
+			* @brief	Check if the entity is hit by a ray.
+			* @param[in] rayO The origin of the ray.
+			* @param[in] rayD The direction of the ray.
+			* @param[out] collidedEntity The entity that the ray collided with.
+			* @retval true Returns true if an entity was written to collidedEntity
+			* @retval false Returns false if the ray did not collide with an entity
+			*/
+			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const;
+
 
 			inline void RegisterCollideWithAnyCallback(const CollideCallback& callback)
 			{

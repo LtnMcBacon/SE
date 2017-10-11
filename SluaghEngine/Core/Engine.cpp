@@ -5,12 +5,18 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
 
+#include <Imgui\imgui.h>
+#include <ImGuiDX11SDL\ImGuiDX11SDL.h>
+
+
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
 #pragma comment(lib, "WindowD.lib")
+#pragma comment(lib, "ImGuiDX11SDLD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
 #pragma comment(lib, "Window.lib")
+#pragma comment(lib, "ImGuiDX11SDL.lib");
 #endif
 
 
@@ -24,6 +30,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+	StartProfile;
 	optionHandler = new OptionHandler();
 	optionHandler->Initialize("Config.ini");
 
@@ -36,16 +43,16 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	auto r = resourceHandler->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst( r);
 	r = window->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = renderer->Initialize(window->GetHWND());
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = audioManager->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 
 
 	transformManager = new TransformManager(entityManager);
@@ -61,14 +68,35 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
 	lightManager = new LightManager(renderer, *entityManager, transformManager);
 
+	//default camera
+	auto defEntCam = entityManager->Create();
+	cameraManager->Bind(defEntCam);
+	cameraManager->SetActive(defEntCam);
+
 	InitStartupOption();
 
-	return 0;
+	ImGuiDX11SDL_Init(renderer, window);
+	devConsole = new DevConsole(renderer);
+	ProfileReturnConst(0);
+}
+
+int SE::Core::Engine::BeginFrame()
+{
+	StartProfile;
+	if (frameBegun)
+		ProfileReturnConst( -1);
+	frameBegun = true;
+	window->Frame();
+	ImGuiDX11SDL_NewFrame();
+	renderer->BeginFrame();
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Frame(double dt)
 {
 	StartProfile;
+	if (!frameBegun)
+		BeginFrame();
 	guiManager->Frame();
 	lightManager->Frame();
 	transformManager->Frame();
@@ -76,17 +104,24 @@ int SE::Core::Engine::Frame(double dt)
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	audioManager->Frame();
 	animationManager->Frame();
-	//debugRenderManager->Frame(*perFrameStackAllocator);
 	materialManager->Frame();
 	collisionManager->Frame();
-	window->Frame();
 	cameraManager->Frame();
 	renderer->Render();
+	devConsole->Frame();
+	ImGui::Render();
+	renderer->EndFrame();
+	perFrameStackAllocator->ClearStackAlloc();
+	frameBegun = false;
 	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Release()
 {
+	StartProfile;
+	delete devConsole;
+	ImGuiDX11SDL_Shutdown();
+	
 	renderer->Shutdown();
 	window->Shutdown();
 	audioManager->Shutdown();
@@ -111,7 +146,7 @@ int SE::Core::Engine::Release()
 	delete guiManager;
 	delete lightManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
-	return 0;
+	ProfileReturnConst(0);
 }
 
 SE::Core::Engine::Engine()
@@ -129,13 +164,23 @@ SE::Core::Engine::~Engine()
 void SE::Core::Engine::InitStartupOption()
 {
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol ,optionHandler->GetOption("Audio", "masterVolume", 100));
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
-	
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+
+	//Set Camera
+	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	CameraBindInfoStruct camInfo;
+	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	cameraManager->UpdateCamera(camInfo);
+
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
-	
+	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
+
 	if (sizeChange == true)
 	{
 		renderer->ResizeSwapChain(window->GetHWND());
@@ -148,16 +193,28 @@ void SE::Core::Engine::OptionUpdate()
 {
 	StartProfile;
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOption("Audio", "masterVolume", 100));
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOption("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOption("Audio", "bakgroundVolume", 50));
-	
+	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+
+	//Set Camera
+	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	CameraBindInfoStruct camInfo;
+	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	cameraManager->UpdateCamera(camInfo);
+
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(optionHandler->GetOption("Window", "height", 720), optionHandler->GetOption("Window", "width", 1280), (bool)optionHandler->GetOption("Window", "fullScreen", 0));
+	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
 
 	if (sizeChange == true)
 	{
 		renderer->ResizeSwapChain(window->GetHWND());
+		ImGuiDX11SDL_Shutdown();
+		ImGuiDX11SDL_Init(renderer, window);
 	}
 	
 	ProfileReturnVoid;

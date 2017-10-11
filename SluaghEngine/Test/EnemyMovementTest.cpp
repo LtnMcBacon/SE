@@ -152,7 +152,7 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	e.GetWindow()->MapActionButton(1, Window::Key1);
 
 	bool running = true;
-	unsigned char counter = 0;
+	//unsigned char counter = 0;
 	float dt = 1.0f/60.0f;
 	while (running)
 	{

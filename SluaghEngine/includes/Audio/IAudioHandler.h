@@ -78,7 +78,7 @@ namespace SE {
 			*
 			*/
 			virtual int RemoveSound(int streamID) = 0;
-			virtual void SetSoundVol(SE::Audio::SoundVolType volType, int newVol) = 0;
+			virtual void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol) = 0;
 			virtual void Shutdown() = 0;
 		private:
 		};

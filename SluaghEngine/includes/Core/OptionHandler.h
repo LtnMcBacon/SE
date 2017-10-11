@@ -26,7 +26,7 @@ namespace SE {
 			*/
 			int Initialize(const std::string& filename);
 			/**
-			* @brief Return the value of requested option
+			* @brief Return the value of requested option as int
 			*
 			* @param[in] section The section in which to search
 			* @param[in] optionName The name of the option
@@ -37,7 +37,61 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			int GetOption(const std::string& section, const std::string& optionName, int defaultVal);
+			int GetOptionInt(const std::string& section, const std::string& optionName, int defaultVal);
+			/**
+			* @brief Return the value of requested option as unsigned int
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] defaultVal A default value to return if value can't be found
+			*
+			* @retval valueOfOption On success.
+			* @retval defaultVal On unsuccessful.
+			*
+			* @endcode
+			*/
+			size_t GetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t defaultVal);
+			/**
+			* @brief Return the value of requested option as bool
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] defaultVal A default value to return if value can't be found
+			*
+			* @retval valueOfOption On success.
+			* @retval defaultVal On unsuccessful.
+			*
+			* @endcode
+			*/
+			bool GetOptionBool(const std::string& section, const std::string& optionName, bool defaultVal);
+			/**
+			* @brief Return the value of requested option as string
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] defaultVal A default value to return if value can't be found
+			*
+			* @retval valueOfOption On success.
+			* @retval defaultVal On unsuccessful.
+			*
+			* @endcode
+			*/
+			std::string GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal);
+			/**
+			* @brief Return the value of requested option as double
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] defaultVal A default value to return if value can't be found
+			*
+			* @retval valueOfOption On success.
+			* @retval defaultVal On unsuccessful.
+			*
+			* @endcode
+			*/
+			double GetOptionDouble(const std::string& section, const std::string& optionName, double defaultVal);
+			
+			
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -47,7 +101,48 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOption(const std::string& section, const std::string& optionName, int newValue);
+			void SetOptionInt(const std::string& section, const std::string& optionName, int newValue);
+			/**
+			* @brief Sets the value of requested option
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] newValue The new value to set to the option
+			*
+			* @endcode
+			*/
+			void SetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t newValue);
+			/**
+			* @brief Sets the value of requested option
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] newValue The new value to set to the option
+			*
+			* @endcode
+			*/
+			void SetOptionBool(const std::string& section, const std::string& optionName, bool newValue);
+			/**
+			* @brief Sets the value of requested option
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] newValue The new value to set to the option
+			*
+			* @endcode
+			*/
+			void SetOptionString(const std::string& section, const std::string& optionName, std::string newValue);
+			/**
+			* @brief Sets the value of requested option
+			*
+			* @param[in] section The section in which to search
+			* @param[in] optionName The name of the option
+			* @param[in] newValue The new value to set to the option
+			*
+			* @endcode
+			*/
+			void SetOptionDouble(const std::string& section, const std::string& optionName, double newValue);
+			
 			/**
 			* @brief Return the value of requested option
 			*
@@ -74,7 +169,7 @@ namespace SE {
 			*/
 			void Trigger();
 		private:
-			std::map<std::string, std::map<std::string, int>> optionMap;
+			std::map<std::string, std::map<std::string, std::string>> optionMap;
 			Utilz::Event<void()> optionEvent;
 		};
 	}	//namespace Core

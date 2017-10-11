@@ -35,15 +35,15 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 	auto& om = e.GetOptionHandler();
 	Tools::Tools t;
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
+	float width = om.GetOptionUnsignedInt("Window", "width", 800);
+	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
 	auto floor = em.Create();
 	auto object = em.Create();
 
 	auto camera = em.Create();
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800)/(float)om.GetOption("Window", "height", 640);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800)/(float)om.GetOptionUnsignedInt("Window", "height", 640);
 	vm.Bind(camera, cInfo);
 	vm.SetActive(camera);
 

@@ -84,9 +84,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	ID3D11InputLayout* tempInputLayout = nullptr;
 	ID3D11VertexShader*	tempVertexShader = nullptr;
 
-	HRESULT hr = S_OK;
-
-	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
+	HRESULT hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
 		Utilz::Console::Print("Vertex Shader Error: Vertex Shader could not be created");
@@ -507,8 +505,7 @@ int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const Te
 	d.pSysMem = textureData;
 	d.SysMemPitch = description.width * 4;
 	d.SysMemSlicePitch = 0;
-	HRESULT hr = S_OK;
-	hr = gDevice->CreateTexture2D(&desc, &d, &texture);
+	HRESULT hr = gDevice->CreateTexture2D(&desc, &d, &texture);
 	if (FAILED(hr))
 	{
 		Utilz::Console::Print("Failed to create texture from data.\n");

@@ -148,7 +148,7 @@ bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 		uint32_t fails = 0;
 	};
 	std::map<uint32_t, Hist> histogram;
-	while(tm.ActiveTransforms() > 2048 - toRemove)
+	while(tm.ActiveTransforms() > 2048 - toRemove + 1)
 	{
 		if (tm.GarbageCollection() == 0)
 		{

@@ -12,6 +12,7 @@ SE::Graphics::Renderer::Renderer()
 	device = nullptr;
 	graphicResourceHandler = nullptr;
 	animationSystem = nullptr;
+	memMeasure.Init();
 }
 
 SE::Graphics::Renderer::~Renderer()
@@ -66,7 +67,10 @@ int SE::Graphics::Renderer::Initialize(void * window)
 void SE::Graphics::Renderer::Shutdown()
 {
 	running = false;
-	//myThread.join();
+
+//	if (myThread.joinable())
+		//myThread.join();
+
 
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -402,23 +406,6 @@ int SE::Graphics::Renderer::Render() {
 
 
 
-	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
-
-	ID3D11RenderTargetView* views[] = { device->GetRTV() };
-	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
-
-	// Clear the primary render target view using the specified color
-	device->GetDeviceContext()->ClearRenderTargetView(
-	device->GetRTV(), 
-	clearColor);
-
-	// Clear the standard depth stencil view
-	device->GetDeviceContext()->ClearDepthStencilView(
-	device->GetDepthStencil(), 
-	D3D11_CLEAR_DEPTH,  
-	1.0f, 
-	0);
 
 	// SetLightBuffer Start
 	//lightLock.lock();
@@ -454,7 +441,6 @@ int SE::Graphics::Renderer::Render() {
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
-
 	std::vector<size_t> transID;
 
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
@@ -470,7 +456,6 @@ int SE::Graphics::Renderer::Render() {
 	{
 		RenderABucket(renderBuckets[transID[iteration]], previousJob);
 	}
-
 
 	///********** Render line jobs ************/
 
@@ -514,9 +499,44 @@ int SE::Graphics::Renderer::Render() {
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
-	device->Present();
+	
 
 	ProfileReturnConst(0);
+}
+
+int SE::Graphics::Renderer::BeginFrame()
+{
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
+
+	ID3D11RenderTargetView* views[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
+
+	// Clear the primary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(),	clearColor);
+
+	// Clear the standard depth stencil view
+	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
+	return 0;
+}
+
+int SE::Graphics::Renderer::EndFrame()
+{
+	StartProfile;
+	device->Present();
+	ProfileReturnConst( 0);
+}
+
+void SE::Graphics::Renderer::GetDeviceInfo(void * destination, size_t size)
+{
+	struct RetStruct
+	{
+		ID3D11Device* dev;
+		ID3D11DeviceContext* devcon;
+	};
+	_ASSERT(size == sizeof(RetStruct));
+	((RetStruct*)destination)->dev = device->GetDevice();
+	((RetStruct*)destination)->devcon = device->GetDeviceContext();
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, size_t stride)
@@ -614,6 +634,7 @@ int SE::Graphics::Renderer::CreateVertexShader(void * data, size_t size)
 
 void SE::Graphics::Renderer::AddNewRenderJobs()
 {
+	StartProfile;
 	while (!newJobs.wasEmpty())
 	{
 		auto& job = newJobs.top();
@@ -648,10 +669,12 @@ void SE::Graphics::Renderer::AddNewRenderJobs()
 		
 		newJobs.pop();
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateRenderJobs()
 {
+	StartProfile;
 	while (!updateJobs.wasEmpty())
 	{
 		auto& job = updateJobs.top();
@@ -705,10 +728,12 @@ void SE::Graphics::Renderer::UpdateRenderJobs()
 		updateJobs.pop();
 
 	}
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::RemoveRenderJobs()
 {
+	StartProfile;
 	while (!removeJobs.wasEmpty())
 	{
 		auto& jobID = removeJobs.top();
@@ -739,11 +764,12 @@ void SE::Graphics::Renderer::RemoveRenderJobs()
 
 		removeJobs.pop();
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::Renderer::UpdateTransforms()
 {
+	StartProfile;
 	while (!updateTransforms.wasEmpty())
 	{
 		auto& job = updateTransforms.top();
@@ -758,10 +784,12 @@ void SE::Graphics::Renderer::UpdateTransforms()
 
 		updateTransforms.pop();
 	}
+	StopProfile;
 }
 
 SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
 {
+	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
 	if (previousJob.topology != job.topology)
 	{
@@ -893,14 +921,7 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 	}
-	return job;
-}
-
-int SE::Graphics::Renderer::RetFontData(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
-	ProfileReturn(0);
+	ProfileReturnConst( job);
 }
 
 void SE::Graphics::Renderer::Frame()

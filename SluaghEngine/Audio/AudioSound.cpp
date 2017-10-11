@@ -25,13 +25,13 @@ namespace SE {
 		namespace sfvirt {
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
-				AudioFile *data = (AudioFile*)user_data;
+				AudioFile *data = static_cast<AudioFile*>(user_data);
 				return data->size;
 			};
 
 			sf_count_t sf_vio_seek1(sf_count_t offset, int whence, void *user_data)
 			{
-				AudioFile *data = (AudioFile*)user_data;
+				AudioFile *data = static_cast<AudioFile*>(user_data);
 				if (whence == SEEK_CUR)
 				{
 					if (data->currentPos + offset < data->size && data->currentPos + offset >= 0)
@@ -52,7 +52,7 @@ namespace SE {
 
 			sf_count_t sf_vio_read1(void *ptr, sf_count_t count, void *user_data)
 			{
-				AudioFile *data = (AudioFile*)user_data;
+				AudioFile *data = static_cast<AudioFile*>(user_data);
 
 				if (data->currentPos + count < data->size)
 				{
@@ -76,7 +76,7 @@ namespace SE {
 
 			sf_count_t sf_vio_tell1(void *user_data)
 			{
-				AudioFile *data = (AudioFile*)user_data;
+				AudioFile *data = static_cast<AudioFile*>(user_data);
 				return data->currentPos;
 			};
 		}
@@ -134,7 +134,7 @@ namespace SE {
 			ProfileReturnConst(nullptr);
 		}
 
-		void AudioSound::SetSoundVol(SE::Audio::SoundVolType volType, int newVol)
+		void AudioSound::SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol)
 		{
 			switch (volType)
 			{

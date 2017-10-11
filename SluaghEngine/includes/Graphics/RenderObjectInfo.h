@@ -33,7 +33,7 @@ namespace SE
 			int8_t textureBindings[maxTextureBinds];
 			int8_t textureHandles[maxTextureBinds];
 			uint8_t textureCount;
-			PrimitiveTopology topology = PrimitiveTopology::TRIANGLE_LIST;
+			PrimitiveTopology topology;
 			JobType type;
 			int animationJob;
 			int skeletonIndex;

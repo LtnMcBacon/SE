@@ -14,6 +14,10 @@ namespace SE
 {
 	namespace Window
 	{
+		enum class WindowImplementation
+		{
+			WINDOW_IMPLEMENTATION_SDL
+		};
 		enum class WindowState
 		{
 			Regular,
@@ -227,10 +231,12 @@ namespace SE
 			KeyCount_
 		};
 
+
 		
 		typedef Utilz::Delegate<void(int x, int y)> MouseClickCallback;
 		typedef Utilz::Delegate<void(int xRelative, int yRelative, int xPos, int yPos)> MouseMotionCallback;
 		typedef  Utilz::Delegate<void()> KeyCallback;
+		typedef Utilz::Delegate<void(void* eventData, WindowImplementation windowImplementation)> OnEventCallback;
 		/**
 		*
 		* @brief The interface to any concrete window class. The window interface handles the window as well as messages sent to window. In other words it also handles keyboard/mouse input.
@@ -269,6 +275,25 @@ namespace SE
 			* @brief Returns a pointer to the window handle
 			*/
 			virtual void* GetHWND() = 0;
+
+			/**
+			* @brief Returns a pointer to the implementation specific window. In the case of SDL, it returns a SDL_Window*. This is here because Imgui needs the SDL_window for various things.
+			* @param[in] implementation The implementation to get the window pointer from.
+			* @retval ptr Valid pointer on success
+			* @retval nullptr Nullptr if no such window exists.
+			*/
+			virtual void* GetWindowImplementation(WindowImplementation implementation) = 0;
+
+			/**
+			* @brief Calls the callback whenever an event, any event, happens
+			* @param[in] callback A delegate that is called when an event occurs
+			* @retval true The callback was added
+			* @retval false The callback was already added, does not add it again.
+			* @sa OnEventCallback
+			*/
+			virtual bool RegisterOnEventCallback(const OnEventCallback& callback) = 0;
+
+			/*@TODO Add method to unregister a callback. Needs operator== for delegates for that. (OR returning handles to the callback but that's cumbersome)*/
 
 			/**
 			* @brief Checks whether or no the bound action button is down or not. An action button must be bound with MapActionButton before this method is called
@@ -331,6 +356,16 @@ namespace SE
 			*/
 			virtual void UnbindCallbacks() = 0;
 
+			/*
+			 * @brief Returns the width of the window.
+			 */
+			virtual int Width() const = 0;
+			/*
+			* @brief Returns the height of the window.
+			*/
+			virtual int Height() const = 0;
+
+			/*@TODO Add method to unregister a single callback. Needs operator== for delegates for that. (OR returning handles to the callback but that's cumbersome)*/
 
 			/**
 			* @brief Maps an action button to a certain key. An action button can be bound to several keys, but one key can only be bound to one action button. An action button is any user defined key represented as an unsigned integer.

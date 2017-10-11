@@ -92,9 +92,7 @@ void SE::Core::TransformManager::SetAsDirty(const Entity & e)
 {
 	queueLock.lock();
 	_ASSERT_EXPR(entityToIndex.find(e) != entityToIndex.end(), "Undefined entity referenced in transform manager");
-	const uint32_t index = entityToIndex[e];
 	entityStack.push_back(e);
-	//SetAsDirty(index);
 	queueLock.unlock();
 }
 

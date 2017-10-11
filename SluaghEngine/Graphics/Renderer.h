@@ -6,6 +6,7 @@
 
 #include "AnimationSystem.h"
 #include <mutex>
+#include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
 namespace SE
@@ -163,6 +164,27 @@ namespace SE
 			* @endcode
 			*/
 			int Render() override;
+
+			/**
+			* @brief Begins the frame. Clears the render target view.
+			* @retval 0 On success.
+			*/
+			int BeginFrame() override;
+
+			/*
+			* @brief Ends the frame. Presents the rendered scene to the screen.
+			* @retval 0 On success.
+			*/
+			int EndFrame() override;
+
+
+			/*
+			* @brief If the implementation of the renderer is DirectX11, destination points to a struct with a member for a pointer to the ID3D11Device as well as a pointer to the ID3D11DeviceContext
+			* @details This method is needed to instanciate third party libraries such as Imgui which needs to access the device and device context. Not very pretty but we need it...
+			* @param[in] destination A pointer to a struct that can hold whatever info Imgui needs. In the case of DX11, the struct has the structure {ID3D11Device*, ID3D11DeviceContext*}
+			* @param[in] size The size of the struct, used to validate that the void ptr points to a struct of sufficient size.
+			*/
+			void GetDeviceInfo(void* destination, size_t size) override;
 
 			/**
 			* @brief Creates a vertex buffer.
@@ -327,6 +349,10 @@ namespace SE
 			*/
 			void PauseAnimation(int job) override;
 
+			inline size_t GetVRam() override {
+				return memMeasure.GetVRam();
+			};
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -347,12 +373,14 @@ namespace SE
 			};
 
 			int oncePerFrameBufferID;
-			int lightBufferID;
+			int lightBufferID = -1;
 
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
-			float currentEntityTimePos;
+			AnimationSystem* animationSystem;
+			MemoryMeasuring memMeasure;
+			float currentEntityTimePos = 0.0f;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -428,7 +456,6 @@ namespace SE
 			// fonts
 			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
-			int RetFontData(const Utilz::GUID & guid, void * data, size_t size);
 
 			static const int lightBufferSize = 20;
 
@@ -442,7 +469,7 @@ namespace SE
 
 			/*********** End Animation System **************/
 
-			bool running;
+			bool running = false;
 			std::thread myThread;
 
 			void Frame();
