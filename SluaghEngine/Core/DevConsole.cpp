@@ -65,6 +65,12 @@ void SE::Core::DevConsole::Frame()
 	StartProfile;
 	if (!showConsole)
 		ProfileReturnVoid;
+
+	if(messages.size() == maxMessages)
+	{
+		//Keep half of the existing messages.
+		messages.erase(messages.begin(), messages.begin() + (maxMessages / 2));
+	}
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
@@ -147,6 +153,11 @@ void SE::Core::DevConsole::Frame()
 	ImGui::End();
 
 	ProfileReturnVoid;
+}
+
+void SE::Core::DevConsole::Clear()
+{
+	messages.clear();
 }
 
 int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
