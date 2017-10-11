@@ -26,7 +26,7 @@ namespace SE
 			int AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, int *animationID);
 
 			void UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at);
-			void CalculateJointMatrix(int jointIndex, const Animation& animation, const Skeleton &skeleton, float animTimePos, DirectX::XMMATRIX& out);
+			void CalculateJointMatrix(int jointIndex, const Animation& animation, float animTimePos, DirectX::XMMATRIX& out);
 			void ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out);
 			void ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out);
 			void Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out);

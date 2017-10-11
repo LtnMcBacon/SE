@@ -117,7 +117,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 
 	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
 	for (int i = 0; i < skeleton.Hierarchy.size(); i++) {
-		CalculateJointMatrix(i, animation, skeleton, timePos, interpolatedJointTransforms[i]); // check interpolations
+		CalculateJointMatrix(i, animation, timePos, interpolatedJointTransforms[i]); // check interpolations
 	}
 
 	//Joint &root = skeletons[skeletonIndex].Hierarchy[0];
@@ -146,7 +146,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, const Skeleton &skeleton, float animTimePos, DirectX::XMMATRIX& out) {
+void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) {
 
 	StartProfile;
 	// Animation has just started, so return the first keyframe
