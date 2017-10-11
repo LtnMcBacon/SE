@@ -23,20 +23,20 @@ namespace SE
 			~AnimationSystem();
 
 			int AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID);
-			int AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex, int *animationID);
+			int AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, int *animationID);
 
-			void UpdateAnimation(int animIndex, int skeletonIndex, float timePos);
-			DirectX::XMFLOAT4X4 CalculateJointMatrix(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos);
-			DirectX::XMFLOAT4X4 ReturnFirstFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton);
-			DirectX::XMFLOAT4X4 ReturnLastFrameMatrix(int jointIndex, int animIndex, Skeleton &skeleton);
-			DirectX::XMFLOAT4X4 Interpolate(int jointIndex, int animIndex, Skeleton &skeleton, float animTimePos);
+			void UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at);
+			void CalculateJointMatrix(int jointIndex, const Animation& animation, float animTimePos, DirectX::XMMATRIX& out);
+			void ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out);
+			void ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out);
+			void Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out);
 
 			inline Skeleton& GetSkeleton(int index) { return skeletons[index]; };
 
 		private:
 
 			std::vector<Skeleton> skeletons;
-
+			std::vector<Animation> animations;
 		};
 
 	}
