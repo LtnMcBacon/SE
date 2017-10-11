@@ -321,3 +321,4 @@ __pycache__/
 # Test output
 transformGarbageHist.txt
 /SluaghEngine/Test/FBXTemp
+*.ini
