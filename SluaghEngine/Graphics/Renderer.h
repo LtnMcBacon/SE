@@ -378,9 +378,7 @@ namespace SE
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
-			AnimationSystem* animationSystem;
 			MemoryMeasuring memMeasure;
-			float currentEntityTimePos = 0.0f;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
