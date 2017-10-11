@@ -18,6 +18,7 @@
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
 #include "GUIManager.h"
+#include <Utilz\TimeCluster.h>
 namespace SE
 {
 	namespace Core
@@ -234,6 +235,17 @@ namespace SE
 				return *devConsole;
 			}
 
+			/**
+			* @brief	returns the frame time for the requested manager/handler.
+			*
+			* @retval float Used time in ms.
+			*
+			*/
+			inline float GetFrameTimeMS(Utilz::GUID ID)
+			{
+				return timeClus.GetTime<std::chrono::nanoseconds>(ID);
+			};
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -270,6 +282,7 @@ namespace SE
 
 			DevConsole* devConsole;
 
+			Utilz::TimeCluster timeClus;
 			bool frameBegun;
 		};
 

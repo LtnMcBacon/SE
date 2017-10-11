@@ -306,8 +306,15 @@ namespace SE
 			* @retval size_t The amount of VRam used in bytes.
 			*
 			*/
-
 			virtual size_t GetVRam() = 0;
+
+			/**
+			* @brief	returns the time for the requested render job type.
+			*
+			* @retval float Used time in ms.
+			*
+			*/
+			virtual float GetFrameTimeMS(Utilz::GUID ID) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
