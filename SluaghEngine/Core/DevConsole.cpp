@@ -18,12 +18,21 @@ SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 		std::string toPrint = "";
 		for (auto& c : nameToCommand)
 		{
-			Print(c.second.name + "\n" + c.second.description);
+			Print(c.second.name + "\n" + c.second.description, "");
 		}
 	},
 		"commands",
 		"Lists all availible commands."
 
+		);
+
+	AddCommand(
+		[this](int argc, char** argv)
+	{
+		Clear();
+	},
+		"clear",
+		"Clears the console"
 		);
 }
 
