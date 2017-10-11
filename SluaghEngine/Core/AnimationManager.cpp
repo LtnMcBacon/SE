@@ -55,8 +55,8 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Co
 		auto res = resourceHandler->LoadResource(info.skeleton, [this, &skelIndex](auto guid, auto data, auto size) {
 			skelIndex = LoadSkeleton(data, size);
 			if (skelIndex == -1)
-				return -1;
-			return 1;
+				return ResourceHandler::InvokeReturn::Fail;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		});
 		if (res)
 		{
@@ -78,8 +78,8 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Co
 			auto res = resourceHandler->LoadResource(info.animations[i], [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
 				skelAnimIndex = LoadAnimation(data, size);
 				if (skelAnimIndex == -1)
-					return -1;
-				return 1;
+					return ResourceHandler::InvokeReturn::Fail;
+				return ResourceHandler::InvokeReturn::DecreaseRefcount;
 			});
 			if (res)
 			{
@@ -294,11 +294,11 @@ int SE::Core::AnimationManager::LoadAnimation(void * data, size_t size)
 	return renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }
 
-int SE::Core::AnimationManager::LoadSkinnedShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::AnimationManager::LoadSkinnedShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	skinnedShader = renderer->CreateVertexShader(data, size);
 	if (skinnedShader == -1)
-		ProfileReturnConst(-1);
-	ProfileReturnConst(0);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
