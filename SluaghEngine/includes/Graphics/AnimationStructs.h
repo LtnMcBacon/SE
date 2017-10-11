@@ -29,14 +29,21 @@ namespace SE
 			}
 		};
 
+		struct JointKeyFrame
+		{
+			std::vector<Keyframe> Keyframes;
+			JointKeyFrame()
+			{
+				Keyframes.reserve(60);
+			}
+		};
 		struct Animation {
 
-			std::vector<Keyframe> Keyframes;
+			std::vector<JointKeyFrame> Joints;
 			unsigned int Length;
 
 			Animation() {
-
-				Keyframes.reserve(60);
+				Joints.reserve(3);
 				Length = 0;
 			}
 		};
@@ -46,26 +53,21 @@ namespace SE
 			DirectX::XMMATRIX GlobalTx;
 			DirectX::XMMATRIX inverseBindPoseMatrix;
 			unsigned int parentIndex;
-			std::vector<Animation> Animations;
-
+			
 			Joint() {
 
 				GlobalTx = DirectX::XMMatrixIdentity();
 				inverseBindPoseMatrix = DirectX::XMMatrixIdentity();
 				int parentIndex = 0;
-				Animations.reserve(3);
 			}
 		};
 
 		struct Skeleton {
 
 			std::vector<Joint> Hierarchy;
-			std::vector<DirectX::XMFLOAT4X4> jointArray;
 
 			Skeleton() {
-
 				Hierarchy.reserve(4);
-				jointArray.resize(4);
 			}
 		};
 

@@ -873,24 +873,16 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	}
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
-
-		for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
-		{
-			auto animationJobIndex = static_cast<size_t>(bucket.animationJob[i]);
-			auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
-			if (ajob.animating) // If the animation is playing
-			{
-				ajob.timePos += ajob.speed; // TODO: Delta time.
-				animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos); // TODO: Should also pass the animationJobIndex // Also the update could perhaps map directly to VRAM.
-			}
-		}
-
-
-
-
 		int boneBindslot;
 		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
 		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+
+		
+
+
+
+
+
 
 
 		std::vector<DirectX::XMFLOAT4X4> inversVec;
@@ -906,8 +898,26 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
 		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
 
-		graphicResourceHandler->UpdateConstantBuffer<DirectX::XMFLOAT4X4>(cBoneBufferIndex, [](auto data) {
+	
 
+
+		// TODO: Change the hlsl code to fit.
+		// TODO: Should be updated with the instanceCount and maxDrawInstances
+		struct XMS
+		{
+			DirectX::XMFLOAT4X4 s[30];
+		};
+
+		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
+			for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+			{
+				auto animationJobIndex = static_cast<size_t>(bucket.animationJob[i]);
+				auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+				if (ajob.animating) // If the animation is playing
+					ajob.timePos += ajob.speed; // TODO: Delta time.
+
+				animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+			}
 		});
 
 
@@ -957,7 +967,7 @@ int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nr
 int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
 
 	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, 0, &handle);
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
 	if (hr)
 		return hr;
 	return handle;
