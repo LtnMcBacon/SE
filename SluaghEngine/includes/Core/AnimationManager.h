@@ -46,8 +46,8 @@ namespace SE
 			*/
 			void GarbageCollection();
 
-			int LoadSkeleton(const Utilz::GUID& skeleton, void*data, size_t size);
-			int LoadAnimation(const Utilz::GUID& animation, void * data, size_t size);
+			ResourceHandler::InvokeReturn LoadSkeleton(const Utilz::GUID& skeleton, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadAnimation(const Utilz::GUID& animation, void * data, size_t size);
 
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;

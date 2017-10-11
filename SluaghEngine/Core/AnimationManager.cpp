@@ -150,7 +150,7 @@ void SE::Core::AnimationManager::GarbageCollection()
 	StopProfile;
 }
 
-int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void * data, size_t size)
 {
 	auto skelH = (Graphics::Skeleton_Header*)data;
 
@@ -163,10 +163,10 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID & skeleton, void 
 
 	animationData.skeletonIndex[index] = handle;
 
-	return 0;
+	return ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
 
-int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, void * data, size_t size)
 {
 	auto animH = (Graphics::Animation_Header*)data;
 
@@ -175,5 +175,5 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID & animation, voi
 
 	renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints, 0);
 
-	return 0;
+	return ResourceHandler::InvokeReturn::DecreaseRefcount;
 }

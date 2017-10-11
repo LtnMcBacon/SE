@@ -30,8 +30,8 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), [this](auto guid, auto data, auto size) {
 		defaultMeshHandle = LoadModel(data, size);
 		if (defaultMeshHandle == -1)
-			return -1;
-		return 1;
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
 		throw std::exception("Could not load default mesh.");
@@ -340,22 +340,22 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	StopProfile;
 }
 
-int SE::Core::RenderableManager::LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size) {
+SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size) {
 
 	StartProfile;
 	skinnedShader = renderer->CreateVertexShader(data, size);
 	if (skinnedShader == -1)
-		ProfileReturnConst(-1);
-	ProfileReturnConst(0);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
 
-int SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	defaultShader = renderer->CreateVertexShader(data, size);
 	if (defaultShader == -1)
-		ProfileReturnConst( -1);
-	ProfileReturnConst( 0);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
 
 void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior)
@@ -368,13 +368,13 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
 		bufferIndex = bufferInfo.size() - 1;
-		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex, async](auto guid, auto data, auto size) {
+		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex, async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
-				return -1;
+				return ResourceHandler::InvokeReturn::Fail;
 
 			bufferInfo[bufferIndex].bufferHandle = bufferHandle;
-			return 1;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		}, async, behavior);
 		
 		

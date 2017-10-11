@@ -23,8 +23,8 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 		[this](auto guid, auto data, auto size) {
 		defaultTextureHandle = LoadTexture(data, size);
 		if (defaultTextureHandle == -1)
-			return -1;
-		return 1;
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
 		throw std::exception("Could not load default texture.");
@@ -104,11 +104,11 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				resourceHandler->LoadResource(info.textureFileNames[i], [this, textureIndex, async](auto guid, auto data, auto size) {
 					auto handle = LoadTexture(data, size);
 					if (handle == -1)
-						return -1;
+						return ResourceHandler::InvokeReturn::Fail;
 
 						toUpdate.push({ textureIndex, handle });
 
-					return 1;
+					return ResourceHandler::InvokeReturn::DecreaseRefcount;
 				}, async, behavior);
 			}
 
@@ -251,13 +251,13 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	}
 }
 
-int SE::Core::MaterialManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	defaultShaderHandle = renderer->CreatePixelShader(data, size, &defaultShaderReflection);
 	if (defaultShaderHandle == -1)
-		ProfileReturnConst(-1);
-	ProfileReturnConst(0);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
 
 int SE::Core::MaterialManager::LoadTexture(void * data, size_t size)
@@ -280,15 +280,15 @@ int SE::Core::MaterialManager::LoadTexture(void * data, size_t size)
 	
 }
 
-int SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	const size_t shaderIndex = guidToShaderIndex[guid];
 
 	auto handle = renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
 	if (handle == -1)
-		ProfileReturnConst(-1);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	shaders[shaderIndex].shaderHandle = handle;
 
-	ProfileReturnConst(0);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }

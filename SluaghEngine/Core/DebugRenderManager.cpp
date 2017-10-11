@@ -165,19 +165,19 @@ void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, const Point3D&
 
 
 
-int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	lineRenderVertexShaderHandle = renderer->CreateVertexShader(data, size);
-	ProfileReturn(lineRenderVertexShaderHandle < 0);
+	ProfileReturn(lineRenderVertexShaderHandle < 0 ? ResourceHandler::InvokeReturn::Fail : ResourceHandler::InvokeReturn::DecreaseRefcount);
 	
 }
 
-int SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
+SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
 	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
-	ProfileReturn(lineRenderPixelShaderHandle < 0);
+	ProfileReturn(lineRenderPixelShaderHandle < 0 ? ResourceHandler::InvokeReturn::Fail : ResourceHandler::InvokeReturn::DecreaseRefcount);
 	
 }
 

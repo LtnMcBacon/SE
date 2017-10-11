@@ -59,9 +59,9 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
 
-			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(void*data, size_t size);
-			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadShader(const Utilz::GUID& guid, void*data, size_t size);
 			
 			struct TextureBindings
 			{

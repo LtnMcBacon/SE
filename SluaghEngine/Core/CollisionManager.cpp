@@ -21,10 +21,10 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 	defaultHierarchy = 0;
 	boundingHierarchy.used++;
-	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
+	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size){
 		LoadMesh(defaultHierarchy, data, size);
 
-		return 1;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
 
@@ -79,7 +79,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
 			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-				auto res = resourceHandler->LoadResource(mesh, [this, cp, newHI](auto mesh, auto data, auto size) ->int {
+				auto res = resourceHandler->LoadResource(mesh, [this, cp, newHI](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
 			
 
 					LoadMesh(newHI, data, size);
@@ -93,7 +93,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 					}
 					entityUpdateLock.unlock();
 
-					return 1;
+					return ResourceHandler::InvokeReturn::DecreaseRefcount;
 				}, true);
 
 
