@@ -69,10 +69,8 @@ namespace SE
 			* @brief	Returns if entity is alive or not
 			*
 			* @details	if health is 0 returns false, else returns true
-
-			* @Warning health must be put to 0 else if it is negative entity will be considered alive.
 			*/
-			inline bool IsAlive() const { return !!this->health; };
+			inline bool IsAlive() const { return this->health > 0; };
 
 			/**
 			* @brief	Qeueu up damage events in vectors

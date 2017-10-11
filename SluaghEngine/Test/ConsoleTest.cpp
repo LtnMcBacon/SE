@@ -1,6 +1,7 @@
 #include "ConsoleTest.h"
 #include <Core\Engine.h>
 #include <Utilz\Timer.h>
+#include <sstream>
 using namespace SE;
 using namespace SE::Core;
 SE::Test::ConsoleTest::ConsoleTest()
@@ -21,6 +22,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	auto& cm = engine.GetCameraManager();
 	auto& rm = engine.GetRenderableManager();
 	auto& dc = engine.GetDevConsole();
+	auto& com = engine.GetCollisionManager();
 
 	Entity cube = em.Create();
 	Entity camera = em.Create();
@@ -28,6 +30,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(camera, { 0,0,-5.0f });
 	rm.CreateRenderableObject(cube, "Placeholder_Block.mesh");
 	rm.ToggleRenderableObject(cube, true);
+	com.CreateBoundingHierarchy(cube, "Placeholder_Block.mesh");
 	CameraBindInfoStruct cbis;
 	cbis.aspectRatio = 1280.0f / 720.0f;
 	cm.Bind(camera, cbis);
@@ -42,7 +45,8 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 		PRINT_MESSAGE,
 		PRINT_ERROR,
 		ALLOCATE,
-		DEALLOCATE
+		DEALLOCATE,
+		CLICK
 	};
 	window->MapActionButton(TOGGLE_CONSOLE, Window::Key1);
 	window->MapActionButton(EXIT, Window::KeyEscape);
@@ -50,6 +54,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	window->MapActionButton(PRINT_ERROR, Window::Key3);
 	window->MapActionButton(ALLOCATE, Window::KeyP);
 	window->MapActionButton(DEALLOCATE, Window::KeyO);
+	window->MapActionButton(CLICK, Window::MouseLeft);
 	std::vector<std::string> graphTest;
 	Utilz::Timer timer;
 
@@ -95,6 +100,23 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 			if(graphTest.size())
 				graphTest.pop_back();
 		}
+
+		if(window->ButtonPressed(CLICK))
+		{
+			int x, y;
+			DirectX::XMVECTOR dir;
+			DirectX::XMVECTOR ori;
+			window->GetMousePos(x, y);
+			cm.WorldSpaceRayFromScreenPos(x, y, window->Width(), window->Height(), ori, dir);
+			Entity ent;
+			if(com.Pick(ori, dir, ent))
+			{
+				std::stringstream ss;
+				ss << "Picked entity: " << ent.id;
+				dc.Print(ss.str(), "Picking");
+			}
+		}
+		
 
 		if(cameraControls)
 		{

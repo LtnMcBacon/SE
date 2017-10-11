@@ -9,9 +9,15 @@
 void SE::Gameplay::EnemyUnit::ResolveEvents()
 {
 	StartProfile;
-	/*
-	 * Code body
-	 */
+	
+	// only basic at the moment
+	for (int i = 0; i < DamageEventVector.size(); i++)
+	{
+		this->health -= DamageEventVector[i].amount;
+	}
+
+	DamageEventVector.clear();
+
 	ProfileReturnVoid;
 
 }
@@ -287,11 +293,12 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	sample(0)
 {
 	extends = 0.25f; /*Should not be hardcoded! Obviously*/
+	radius = sqrt(extends*extends + extends*extends);
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
-	
+	Core::Engine::GetInstance().GetEntityManager().Destroy(this->unitEntity);
 	/*
 	* Code body
 	*/

@@ -44,7 +44,10 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput* &Movement)
 		Movement->downD = true;
 	}
 
-	Input->GetMousePos(Movement->mousePosX, Movement->mousePosY);
+	int mX, mY;
+	Input->GetMousePos(mX, mY);
+	Movement->mousePosX = mX;
+	Movement->mousePosY = mY;
 
 }
 
