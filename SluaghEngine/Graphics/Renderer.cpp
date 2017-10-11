@@ -876,11 +876,12 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 
 		for (int i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
 		{
-			auto& ajob = jobIDToAnimationJob[bucket.animationJob[i]]; // Get the animation job from the renderjob in the bucket
+			auto animationJobIndex = static_cast<size_t>(bucket.animationJob[i]);
+			auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
 			if (ajob.animating) // If the animation is playing
 			{
 				ajob.timePos += ajob.speed; // TODO: Delta time.
-				animationSystem->UpdateAnimation(job.animationIndex, job.skeletonIndex, ajob.timePos);
+				animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos); // TODO: Should also pass the animationJobIndex // Also the update could perhaps map directly to VRAM.
 			}
 		}
 

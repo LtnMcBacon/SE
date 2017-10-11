@@ -110,9 +110,6 @@
     <ClInclude Include="..\includes\Core\LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Graphics\AnimationJobInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Core\DevConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>

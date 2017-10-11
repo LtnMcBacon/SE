@@ -109,7 +109,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 			Graphics::AnimationJobInfo info;
 			info.animating = false;
 			info.speed = speed;
-			animationData.animationIndex[entityIndex->second] = findSkelAnim->second;
+			info.timePos = 0.0f;
+			info.animationHandle = findSkelAnim->second;
 			if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
 				renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
 			else
@@ -182,7 +183,6 @@ void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Grap
 		info->animationJob = animationData.job[entityIndex->second];
 		info->vertexShader = skinnedShader;
 		info->skeletonIndex = animationData.skeletonIndex[entityIndex->second];
-		info->animationIndex = 0;// animationData.
 	}
 	StopProfile;
 }
@@ -201,13 +201,11 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.skeletonIndex = (int*)(newData.entity + newData.size);
-	newData.animationIndex = (int*)(newData.entity + newData.size);
-	newData.job = (int*)(newData.animationIndex + newData.allocated);
+	newData.job = (int*)(newData.skeletonIndex + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(int));
-	memcpy(newData.animationIndex, animationData.animationIndex, animationData.used * sizeof(int));
 	memcpy(newData.job, animationData.job, animationData.used * sizeof(int));
 
 	// Delete old data;

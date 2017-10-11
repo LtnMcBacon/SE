@@ -6,6 +6,7 @@ namespace SE
 	{
 		struct AnimationJobInfo
 		{
+			int animationHandle;
 			float speed;
 			float timePos;
 			bool animating;
