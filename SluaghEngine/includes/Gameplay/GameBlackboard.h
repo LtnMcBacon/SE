@@ -43,7 +43,7 @@ namespace SE
 			float playerHealth = 0.f;
 			float deltaTime = 0.f;
 
-			FlowField* roomFlowField;
+			const FlowField* roomFlowField;
 			/*Player resistances here*/
 			/*Player attack data*/
 

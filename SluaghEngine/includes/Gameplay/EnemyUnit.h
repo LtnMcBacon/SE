@@ -87,22 +87,6 @@ namespace SE
 			*/
 			virtual void PerformAction(float dt);
 
-			/**
-			* @brief	Hinder collision during movement
-			*
-			* @details	This function checks if the units new position after a move will cause a collision.
-			* If a move will cause a collision in x- or y-direction, then that direction-component will be nulled
-			* before further computation is done.
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in/out] xMov The x-component of the direction
-			* @param [in/out] yMov The y-component of the direction
-			*
-			* @retval True Collision occoured
-			* @retval False Collision didn't occour
-			*
-			*/
-			virtual bool CorrectCollision(float dt, float &xMov, float &yMov);
 
 		public:
 			/*Should flowfield be a part of EnemyUnit?
