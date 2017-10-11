@@ -34,7 +34,6 @@ namespace SE
 			CollisionManager(const CollisionManager&& other) = delete;
 			CollisionManager& operator=(const CollisionManager& other) = delete;
 
-			friend class DebugRenderManager;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -104,6 +103,8 @@ namespace SE
 			* @details The frame will keep the bounding objects up to date with the entities transform.
 			*/
 			void Frame();
+
+			bool GetBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
 		private:
 			void SetDirty(const Entity& entity, size_t index);
 

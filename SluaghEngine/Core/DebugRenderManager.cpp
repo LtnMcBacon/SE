@@ -26,6 +26,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 {
 	StartProfile;
 	GarbageCollection();
+	CreateBoundingBoxes();
 	if(dirty)
 	{
 		size_t bufferSize = 0;
@@ -89,48 +90,16 @@ void SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 	else
 	{
 		//In case we don't leave it up to the caller to not enable the same entity twice
-		/*
-		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
+		/*const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())
 			ProfileReturnVoid;
-		*/
-		const auto f = collisionManager->entityToCollisionData.find(entity);
-		if(f != collisionManager->entityToCollisionData.end() && lineCount + 12 < maximumLinesToRender)
-		{
-			const auto& aabb = collisionManager->collisionData.AABBWorld[f->second];
-
-			const auto& center = aabb.Center;
-			auto ex = aabb.Extents;
-			
-			const DirectX::XMFLOAT3 mic = { center.x - ex.x, center.y - ex.y, center.z - ex.z };
-			const DirectX::XMFLOAT3 mac = { center.x + ex.x, center.y + ex.y, center.z + ex.z };
-			ex.x *= 2;
-			ex.y *= 2;
-			ex.z *= 2;
-			const LineSegment lines[12] = {
-				{ {mic.x, mic.y, mic.z}, {mic.x + ex.x,mic.y,mic.z} },
-				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y,mic.z + ex.z } },
-				{ { mic.x + ex.x,mic.y,mic.z + ex.z }, { mic.x,mic.y,mic.z + ex.z } },
-				{ { mic.x,mic.y,mic.z + ex.z },{ mic.x,mic.y,mic.z} },
-
-				{ { mic.x,mic.y,mic.z },{ mic.x,mic.y + ex.y,mic.z } },
-				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y+ex.y,mic.z } },
-				{ { mic.x,mic.y,mic.z+ex.z },{ mic.x,mic.y+ex.y,mic.z + ex.z } },
-				{ { mic.x+ex.x,mic.y,mic.z+ex.z },{ mic.x +ex.x,mic.y+ex.y,mic.z+ex.z } },
-
-				{ { mac.x, mac.y, mac.z },{ mac.x - ex.x,mac.y,mac.z } },
-				{ { mac.x - ex.x, mac.y,mac.z },{ mac.x - ex.x,mac.y,mac.z - ex.z } },
-				{ { mac.x - ex.x,mac.y,mac.z - ex.z },{ mac.x,mac.y,mac.z - ex.z } },
-				{ { mac.x, mac.y, mac.z - ex.z },{ mac.x,mac.y,mac.z } }
-			};
-			auto& lineList = entityToLineList[entity];
-			for(int i = 0; i < 12; ++i)
-			{
-				lineList.push_back(lines[i]);
-			}
-			dirty = true;
-			lineCount += 12;
-		}
+		entityRendersBoundingVolume.insert(entity);*/
+		bool found = false;
+		for (int i = 0; i < awaitingBoundingBoxes.size(); ++i)
+			if (awaitingBoundingBoxes[i] == entity)
+				found = true;
+		if(!found)
+			awaitingBoundingBoxes.push_back(entity);
 	}
 	ProfileReturnVoid;
 }
@@ -163,6 +132,53 @@ void SE::Core::DebugRenderManager::DrawLine(const Entity& entity, const Point3D&
 	ProfileReturnVoid;
 }
 
+
+
+void SE::Core::DebugRenderManager::CreateBoundingBoxes()
+{
+	for (int i = 0; i < awaitingBoundingBoxes.size(); i++)
+	{
+		DirectX::BoundingBox aabb;
+		const bool hasBounding = collisionManager->GetBoundingBox(awaitingBoundingBoxes[i], &aabb);
+		if (hasBounding && lineCount + 12 < maximumLinesToRender)
+		{
+			const auto& center = aabb.Center;
+			auto ex = aabb.Extents;
+
+			const DirectX::XMFLOAT3 mic = { center.x - ex.x, center.y - ex.y, center.z - ex.z };
+			const DirectX::XMFLOAT3 mac = { center.x + ex.x, center.y + ex.y, center.z + ex.z };
+			ex.x *= 2;
+			ex.y *= 2;
+			ex.z *= 2;
+			const LineSegment lines[12] = {
+				{ { mic.x, mic.y, mic.z },{ mic.x + ex.x,mic.y,mic.z } },
+				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y,mic.z + ex.z } },
+				{ { mic.x + ex.x,mic.y,mic.z + ex.z },{ mic.x,mic.y,mic.z + ex.z } },
+				{ { mic.x,mic.y,mic.z + ex.z },{ mic.x,mic.y,mic.z } },
+
+				{ { mic.x,mic.y,mic.z },{ mic.x,mic.y + ex.y,mic.z } },
+				{ { mic.x + ex.x,mic.y,mic.z },{ mic.x + ex.x,mic.y + ex.y,mic.z } },
+				{ { mic.x,mic.y,mic.z + ex.z },{ mic.x,mic.y + ex.y,mic.z + ex.z } },
+				{ { mic.x + ex.x,mic.y,mic.z + ex.z },{ mic.x + ex.x,mic.y + ex.y,mic.z + ex.z } },
+
+				{ { mac.x, mac.y, mac.z },{ mac.x - ex.x,mac.y,mac.z } },
+				{ { mac.x - ex.x, mac.y,mac.z },{ mac.x - ex.x,mac.y,mac.z - ex.z } },
+				{ { mac.x - ex.x,mac.y,mac.z - ex.z },{ mac.x,mac.y,mac.z - ex.z } },
+				{ { mac.x, mac.y, mac.z - ex.z },{ mac.x,mac.y,mac.z } }
+			};
+			auto& lineList = entityToLineList[awaitingBoundingBoxes[i]];
+			for (int i = 0; i < 12; ++i)
+			{
+				lineList.push_back(lines[i]);
+			}
+			dirty = true;
+			lineCount += 12;
+			awaitingBoundingBoxes[i] = awaitingBoundingBoxes.back();
+			awaitingBoundingBoxes.pop_back();
+			--i;
+		}
+	}
+}
 
 
 int SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)

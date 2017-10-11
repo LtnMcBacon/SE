@@ -81,7 +81,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	auto& cm = e.GetCameraManager();
 	auto& drm = e.GetDebugRenderManager();
 	auto& om = e.GetOptionHandler();
-	auto& camera = em.Create();
+	auto camera = em.Create();
 	auto w = e.GetWindow();
 	auto& rm = e.GetRenderableManager();
 
@@ -93,20 +93,22 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 	cm.Bind(camera, cInfo);
 	cm.SetActive(camera);
 
-	auto& block1 = em.Create();
+	auto block1 = em.Create();
 	col.CreateBoundingHierarchy(block1, "MCModell.mesh");
 	rm.CreateRenderableObject(block1, "MCModell.mesh");
 	rm.ToggleRenderableObject(block1, true);
 	tm.SetPosition(block1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
 
-	auto& block2 = em.Create();
+	auto block2 = em.Create();
 	col.CreateBoundingHierarchy(block2, "MCModell.mesh");	
 	rm.CreateRenderableObject(block2, "MCModell.mesh");
 	rm.ToggleRenderableObject(block2, true);
 	tm.SetPosition(block2, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
 
 	col.BindOnCollideWithAny(block1);
-
+	
+	drm.ToggleDebugRendering(block1, true);
+	drm.ToggleDebugRendering(block2, true);
 
 	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
@@ -125,10 +127,10 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 			if(!test2)
 				tm.Move(block1, DirectX::XMFLOAT3(-0.01f, 0.0f, 0.0f));
 		}
+		
 		e.Frame(0.01f);
-		drm.ToggleDebugRendering(block1, true);
-		drm.ToggleDebugRendering(block2, true);
-
+		
+		
 		if (test && test2)
 		{
 			su = true;
