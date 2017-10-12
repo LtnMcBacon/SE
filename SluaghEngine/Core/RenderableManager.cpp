@@ -338,12 +338,15 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	{
 		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
 		bufferIndex = bufferInfo.size() - 1;
-		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
+		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
 				return ResourceHandler::InvokeReturn::Fail;
 
-			toUpdate.push({ bufferIndex, bufferHandle });
+			if (async)
+				toUpdate.push({ bufferIndex, bufferHandle });
+			else
+				bufferInfo[bufferIndex].bufferHandle = bufferHandle;
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		}, async, behavior);
 		
