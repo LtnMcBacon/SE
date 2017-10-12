@@ -101,7 +101,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textureIndex = textures.size();
 				textures.push_back({ defaultTextureHandle });
 
-				resourceHandler->LoadResource(info.textureFileNames[i], [this, textureIndex, async](auto guid, auto data, auto size) {
+				auto res = resourceHandler->LoadResource(info.textureFileNames[i], [this, textureIndex, async](auto guid, auto data, auto size) {
 					auto handle = LoadTexture(data, size);
 					if (handle == -1)
 						return -1;
@@ -110,6 +110,11 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 					return 1;
 				}, async, behavior);
+
+				if (res)
+				{
+					Utilz::Console::Print("Could not load texture. Using default instead. GUID: %u, Error: %d\n", info.textureFileNames[i], res);
+				}
 			}
 
 			textures[textureIndex].entities.push_back(entity);

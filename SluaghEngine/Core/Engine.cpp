@@ -11,10 +11,12 @@
 
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
+#pragma comment(lib, "GraphicsD.lib")
 #pragma comment(lib, "WindowD.lib")
 #pragma comment(lib, "ImGuiDX11SDLD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
 #pragma comment(lib, "ImGuiDX11SDL.lib");
 #endif

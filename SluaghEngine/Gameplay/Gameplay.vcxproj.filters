@@ -317,5 +317,8 @@
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\KeyBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
