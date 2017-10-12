@@ -11,7 +11,6 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	Allocate(128);
 	defaultTextureHandle = 0;
 
-
 	renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 
