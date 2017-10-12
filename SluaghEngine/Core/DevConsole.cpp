@@ -2,8 +2,10 @@
 #include <algorithm>
 #include <Imgui/imgui.h>
 #include <Utilz/Memory.h>
+#include <Utilz/TimeCluster.h>
 #include <Graphics/IRenderer.h> //In order to plot VRAM usage.
 #include <Profiler.h>
+#include "Engine.h"
 
 SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 {
@@ -89,11 +91,13 @@ void SE::Core::DevConsole::Frame()
 	
 	{
 		static bool plot_memory_usage;
+		static bool show_gpu_timings;
 		if(ImGui::BeginMenuBar())
 		{
 			if(ImGui::BeginMenu("Debugging"))
 			{
 				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
+				ImGui::MenuItem("Show GPU timings", nullptr, &show_gpu_timings);
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -113,6 +117,19 @@ void SE::Core::DevConsole::Frame()
 			ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 			ImGui::Separator();
+		}
+
+		if(show_gpu_timings)
+		{
+			SE::Utilz::TimeMap map;
+			
+			Core::Engine::GetInstance().GetProfilingInformation(map);
+			for(auto& m : map)
+			{
+				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+			}
+			
+			
 		}
 	}
 
