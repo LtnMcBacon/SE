@@ -141,7 +141,6 @@ namespace SE
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture3.rect = nullptr;	//not needed default nullptr
 
-
 				guiManager.Bind2D(entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3);
 				guiManager.ToggleRenderableTexture(entTexture3, true);
 
