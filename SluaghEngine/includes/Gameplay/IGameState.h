@@ -2,6 +2,8 @@
 #define _SE_GAMEPLAY_GAME_STATE_H
 #include <window/IWindow.h>
 
+#include <Gameplay\KeyBindings.h>
+
 namespace SE
 {
 	namespace Gameplay
@@ -48,7 +50,7 @@ namespace SE
 
 
 		protected:
-			Window::IWindow* Input;
+			Window::IWindow* input;
 
 		};
 

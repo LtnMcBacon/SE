@@ -10,7 +10,7 @@ GameOverState::GameOverState()
 
 GameOverState::GameOverState(Window::IWindow * Input)
 {
-	this->Input = Input;
+	this->input = Input;
 }
 
 GameOverState::~GameOverState()
@@ -23,7 +23,7 @@ IGameState::State GameOverState::Update(void* &passableInfo)
 	IGameState::State empty = State::GAME_OVER_STATE;
 
 	
-	if (Input->ButtonPressed(0))
+	if (input->ButtonPressed(0))
 	{
 			
 		empty = State::MAIN_MENU_STATE;

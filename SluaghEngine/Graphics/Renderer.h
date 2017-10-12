@@ -359,6 +359,12 @@ namespace SE
 			*/
 			void PauseAnimation(int job) override;
 
+			/**
+			* @brief	The amount of VRam currently used.
+			*
+			* @retval size_t The amount of VRam used in bytes.
+			*
+			*/
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};

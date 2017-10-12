@@ -3,6 +3,7 @@
 
 #include "IBehaviour.h"
 /*Leaves*/
+#include "FlowFieldMovementLeaf.h"
 #include "SucceederLeaf.h"
 
 /*Composites*/

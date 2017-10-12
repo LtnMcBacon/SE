@@ -5,8 +5,6 @@
 
 #undef min
 
-
-
 SE::Graphics::Renderer::Renderer() 
 {
 	oncePerFrameBufferID = -1;
@@ -431,6 +429,7 @@ int SE::Graphics::Renderer::Render() {
 	timeCluster->Start("Rendering");
 	//The previousJob is necessary to see what state changes need to be performed when rendering
 	//the next bucket.
+	timeClus.Start("InstanceJob");
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -466,11 +465,13 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
 		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
+	timeClus.Stop("InstanceJob");
 
 	timeCluster->Stop("Rendering");
 
 
 	///********** Render line jobs (primarily for debugging) ************/
+	timeClus.Start("LineJob");
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
@@ -483,10 +484,12 @@ int SE::Graphics::Renderer::Render() {
 		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
 		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
 	}
+	timeClus.Stop("LineJob");
 	///********END render line jobs************/
 
 
 	//********* Render sprite overlays ********/
+	timeClus.Start("GUIJob");
 	if (renderTextureJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
@@ -496,8 +499,11 @@ int SE::Graphics::Renderer::Render() {
 		}
 		spriteBatch->End();
 	}
+	timeClus.Stop("GUIJob");
+	
 	
 	//******** Render text overlays *********/
+	timeClus.Start("TextJob");
 	if (renderTextJobs.size())
 	{
 		spriteBatch->Begin();
@@ -507,7 +513,7 @@ int SE::Graphics::Renderer::Render() {
 		}
 		spriteBatch->End();
 	}
-
+	timeClus.Stop("TextJob");
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 

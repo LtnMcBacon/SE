@@ -184,9 +184,9 @@ namespace SE
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)> func);
-			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)> func);
-			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)> func);
+			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)>& func);
 
 			inline void SetRotation(float projectileRotation)
 			{
@@ -223,10 +223,36 @@ namespace SE
 				eventCondition = eventC;
 			};
 
+			inline void SetActive(bool value)
+			{
+				active = value;
+			}
+
+
 			inline bool GetActive()
 			{
 				return active;
 			};
+
+			inline float GetCollisionVectorX()
+			{
+				return collisionData.xVec;
+			}
+
+			inline float GetCollisionVectorY()
+			{
+				return collisionData.yVec;
+			}
+
+			inline CollisionType GetCollisionType()
+			{
+				return collisionData.type;
+			}
+
+			inline Rotation GetRotationStyle()
+			{
+				return rotData;
+			}
 
 		};
 
