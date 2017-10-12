@@ -44,7 +44,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh)
 {
 	StartProfile;
-	auto& find = entityToCollisionData.find(entity);
+	auto find = entityToCollisionData.find(entity);
 	if (find == entityToCollisionData.end())
 	{
 		// Check if the entity is alive
@@ -64,7 +64,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
 			auto& bIndex = guidToBoudningIndex[mesh];
 			if (findHi == guidToBoudningIndex.end()) // If not created
 			{
@@ -94,7 +94,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 					entityUpdateLock.unlock();
 
 					return 1;
-				}, true);
+				}, false);
 
 
 				if (res)
@@ -234,6 +234,22 @@ void SE::Core::CollisionManager::Frame()
 	}
 	dirtyEntites.clear();
 	StopProfile;
+}
+
+bool SE::Core::CollisionManager::GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb)
+{
+	StartProfile;
+	if (!bb)
+		ProfileReturnConst(false);
+	auto find = entityToCollisionData.find(entity);
+	if (find == entityToCollisionData.end())
+		ProfileReturnConst(false);
+
+	const size_t bIndex = collisionData.boundingIndex[find->second];
+	const size_t aabbIndex = boundingInfo[bIndex].index;
+	*bb = boundingHierarchy.AABB[aabbIndex];
+	return true;
+
 }
 
 void SE::Core::CollisionManager::SetDirty(const Entity & entity, size_t index)
