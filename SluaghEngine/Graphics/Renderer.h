@@ -222,7 +222,7 @@ namespace SE
 			*/
 			int UpdateTransform(uint32_t jobID, float* transform) override;
 
-			int UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints);
+			//int UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints);
 
 			/**
 			* @brief Create a pixel shader from raw data
@@ -281,18 +281,99 @@ namespace SE
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
 
-			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints);
+			/**
+			* @brief Create a skeleton
+			* @param[in] jointData The joint data.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints)override;
 
-			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex);
+			/**
+			* @brief Create an animation
+			* @param[in] matrices The animation keyframes
+			* @param[in] nrOfKeyframes The number of keyframes.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) override;
+
+			/**
+			* @brief Start a new animation job
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @retval -1 On fail.
+			* @retval handle The job id.
+			* @endcode
+			*/
+			int StartAnimation(const AnimationJobInfo& info) override;
+
+			/**
+			* @brief Stop an animation (This removes the job)
+			* @param[in] job The job top stop
+			* @endcode
+			*/
+			void StopAnimation(int job)override;
+
+			/**
+			* @brief Update an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void UpdateAnimation(int job, const AnimationJobInfo& info)override;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] speed The speed
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void SetAnimationSpeed(int job, float speed) override;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] keyframe The keyframe
+			* @endcode
+			*/
+			void SetKeyFrame(int job, float keyframe);
+
+			/**
+			* @brief Start an animation job
+			* @param[in] job Which animation job to Start
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void StartAnimation(int job) override;
+
+			/**
+			* @brief Pause an animation job
+			* @param[in] job Which animation job to pause
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			void PauseAnimation(int job) override;
 
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
+			/*
+			* @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			*/
+			inline std::vector<std::string>& GetErrorLog() override{
+				return errorLog;
+			}
 
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
+
+			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
+			std::vector<std::string> errorLog;
 
 			DirectX::XMFLOAT4X4 newViewProjTransposed;
 
@@ -314,9 +395,7 @@ namespace SE
 			DeviceManager* device;
 
 			GraphicResourceHandler* graphicResourceHandler;
-			AnimationSystem* animationSystem;
 			MemoryMeasuring memMeasure;
-			float currentEntityTimePos = 0.0f;
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -327,19 +406,18 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				/**<Whenever a job is removed the transform vector replaces the removed job's transform with the last added job's transform, as such we need a reverse lookup instead of iterating over all the jobs to find who had the bucket and transform index of the moved transform. The same index is used for this vector as for the transforms vector*/
 				std::vector<uint32_t> jobsInBucket;
-				std::vector<DirectX::XMFLOAT4X4> gBoneTransforms;
-				size_t nrOfJoints;
+				std::vector<int> animationJob;
 			};
 			std::vector<RenderBucket> renderBuckets;
 			struct BucketAndTransformIndex
 			{
 				uint32_t bucketIndex;
 				uint32_t transformIndex;
-				uint32_t boneIndex;
+				uint32_t animationIndex;
 			};
 			std::vector<BucketAndTransformIndex> jobIDToBucketAndTransformIndex;
 			std::stack<uint32_t> freeJobIndices;
-			RenderObjectInfo RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob);
+			void RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob);
 			/******** END Instanced render job members ********/
 
 			/*********** Line render job members **************/
@@ -397,7 +475,14 @@ namespace SE
 			static const int lightBufferSize = 20;
 
 
-			/*********** Threading **************/
+			/*********** Animation System **************/
+
+			AnimationSystem* animationSystem;
+			std::stack<int> freeAnimationJobIndicies;
+			std::vector<AnimationJobInfo> jobIDToAnimationJob;
+
+
+			/*********** End Animation System **************/
 
 			bool running = false;
 			std::thread myThread;

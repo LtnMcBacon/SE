@@ -10,7 +10,7 @@ void SE::Gameplay::RandomSelector::OnInitialization()
 
 SE::Gameplay::Status SE::Gameplay::RandomSelector::Update()
 {
-	StartProfile
+	StartProfile;
 	while (true)
 	{
 		myStatus = (*currentChild)->Tick();

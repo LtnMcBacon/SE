@@ -102,9 +102,6 @@
     <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyMovementTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
-    </ClCompile>
     <ClCompile Include="LightTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -131,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="ConsoleTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -161,6 +161,27 @@ DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetViewProjection(const Entity& ent
 	ProfileReturnConst(retMat);
 }
 
+void SE::Core::CameraManager::WorldSpaceRayFromScreenPos(int x, int y, int screenWidth, int screenHeight, DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction) const
+{
+	const size_t index = currentActive.activeCamera;
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(cameraData.fov[index], cameraData.aspectRatio[index], cameraData.nearPlane[index], cameraData.farPlane[index]);
+	XMFLOAT4X4 projF;
+	XMStoreFloat4x4(&projF, proj);
+	XMMATRIX view = XMLoadFloat4x4(&cameraData.view[index]);
+	XMMATRIX invView = XMMatrixInverse(nullptr, view);
+
+	float xNDC = ((2.0f * x) / screenWidth) - 1;
+	float yNDC = -(((2.0f * y) / screenHeight) - 1);
+
+	float xView = xNDC / projF._11;
+	float yView = yNDC / projF._22;
+	direction = XMVector3Normalize(XMVector4Transform(XMVectorSet(xView, yView, 1.0f, 0.0f), invView));
+	XMFLOAT3 pos = transformManager->GetPosition(currentActive.entity);
+	origin = XMVectorSet(pos.x, pos.y, pos.z, 1.0f);
+	
+
+}
+
 void SE::Core::CameraManager::SetActive(const Entity & entity)
 {
 	StartProfile;

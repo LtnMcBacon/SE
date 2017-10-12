@@ -356,6 +356,15 @@ namespace SE
 			*/
 			virtual void UnbindCallbacks() = 0;
 
+			/*
+			 * @brief Returns the width of the window.
+			 */
+			virtual int Width() const = 0;
+			/*
+			* @brief Returns the height of the window.
+			*/
+			virtual int Height() const = 0;
+
 			/*@TODO Add method to unregister a single callback. Needs operator== for delegates for that. (OR returning handles to the callback but that's cumbersome)*/
 
 			/**

@@ -5,6 +5,7 @@
 #include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 using namespace DirectX;
+#undef min
 
 SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
 	: resourceHandler(resourceHandler), entityManager(entityManager), transformManager(transformManager)
@@ -43,7 +44,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh)
 {
 	StartProfile;
-	auto& find = entityToCollisionData.find(entity);
+	auto find = entityToCollisionData.find(entity);
 	if (find == entityToCollisionData.end())
 	{
 		// Check if the entity is alive
@@ -63,7 +64,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
 			auto& bIndex = guidToBoudningIndex[mesh];
 			if (findHi == guidToBoudningIndex.end()) // If not created
 			{
@@ -93,7 +94,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 					entityUpdateLock.unlock();
 
 					return 1;
-				}, true);
+				}, false);
 
 
 				if (res)
@@ -157,6 +158,39 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 	ProfileReturnConst(false)
 }
 
+bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const
+{
+	StartProfile;
+	DirectX::FXMVECTOR origin = rayO;
+	DirectX::FXMVECTOR dir = rayD;
+	float minDistance = D3D11_FLOAT32_MAX;
+	int collisionWith = -1;
+	for(int i = 0; i < collisionData.used; i++)
+	{
+		auto& sphere = collisionData.sphereWorld[i];
+		float distance;
+		if(sphere.Intersects(rayO,rayD,distance))
+		{
+			auto& AABB = collisionData.AABBWorld[i];
+			float distBox;
+			if(AABB.Intersects(origin, dir, distBox))
+			{
+				float d = std::min(distance, distBox);
+				if(d < minDistance)
+				{
+					minDistance = d;
+					collisionWith = i;
+				}
+			}
+		}
+	}
+	if(collisionWith >= 0)
+	{
+		collidedEntity = collisionData.entity[collisionWith];
+	}
+	ProfileReturn(collisionWith >= 0);
+}
+
 void SE::Core::CollisionManager::Frame()
 {
 	StartProfile;
@@ -200,6 +234,22 @@ void SE::Core::CollisionManager::Frame()
 	}
 	dirtyEntites.clear();
 	StopProfile;
+}
+
+bool SE::Core::CollisionManager::GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb)
+{
+	StartProfile;
+	if (!bb)
+		ProfileReturnConst(false);
+	auto find = entityToCollisionData.find(entity);
+	if (find == entityToCollisionData.end())
+		ProfileReturnConst(false);
+
+	const size_t bIndex = collisionData.boundingIndex[find->second];
+	const size_t aabbIndex = boundingInfo[bIndex].index;
+	*bb = boundingHierarchy.AABB[aabbIndex];
+	return true;
+
 }
 
 void SE::Core::CollisionManager::SetDirty(const Entity & entity, size_t index)
