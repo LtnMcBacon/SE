@@ -1120,8 +1120,8 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				// Access the current value on each individual channel on the different curves at a given keyframe
 				for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
 
-					FbxTime currentTime;
-					currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);
+					/*FbxTime currentTime;
+					currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 
@@ -1129,32 +1129,36 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					//translationCurveX->Evaluate(currentTime, 0);
 					//translationCurveX->KeyGetValue(timeIndex);
 					
-					float translationX = translationCurveX->Evaluate(currentTime);
-					float translationY = translationCurveY->Evaluate(currentTime);
-					float translationZ = translationCurveZ->Evaluate(currentTime);
+					float translationX = translationCurveX->KeyGetValue(timeIndex);
+					float translationY = translationCurveY->KeyGetValue(timeIndex);
+					float translationZ = translationCurveZ->KeyGetValue(timeIndex);
 
-					float rotationX = rotationCurveX->Evaluate(currentTime);
-					float rotationY = rotationCurveY->Evaluate(currentTime);
-					float rotationZ = rotationCurveZ->Evaluate(currentTime);
+					float rotationX = rotationCurveX->KeyGetValue(timeIndex);
+					float rotationY = rotationCurveY->KeyGetValue(timeIndex);
+					float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
 
-					float scalingX = scalingCurveX->Evaluate(currentTime);
-					float scalingY = scalingCurveY->Evaluate(currentTime);
-					float scalingZ = scalingCurveZ->Evaluate(currentTime);
+					float scalingX = scalingCurveX->KeyGetValue(timeIndex);
+					float scalingY = scalingCurveY->KeyGetValue(timeIndex);
+					float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
 
 					// Build the vectors for the global transform matrix
 					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
 					FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
 					FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
+					FbxQuaternion quaternion;
+					quaternion.ComposeSphericalXYZ(rotationVector);
+
 					// Set the vectors for the global transform matrix (Build the keyframe)
 					FbxAMatrix localTransform;
-					localTransform.SetTRS(translationVector, rotationVector, scalingVector);
+					localTransform.SetTQS(translationVector, quaternion, scalingVector);
 
 					// The root joint uses its local transform as global. It has no parents. 
 					if (currentJointIndex == 0) {
 
-						// Get the root joint local transform
+						// Get the root joint local and global transform
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
+						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
 
 						// We can go ahead and create its global transformation without having to build it later
 						CreateKeyframe(CurrentAnimation, timeIndex, localTransform);
@@ -1215,7 +1219,6 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 			// Get the child and parent joint references
 			Joint &childBone = pMesh.skeleton.hierarchy[currentJointIndex];
 			Joint &parentBone = pMesh.skeleton.hierarchy[childBone.ParentIndex];
-
 			// Get number of animations
 			int animCount = childBone.Animations.size();
 
@@ -1225,7 +1228,7 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 				// Get child and parent joint animation references
 				Animation &childAnimation = childBone.Animations[animIndex];
 				Animation &parentAnimation = parentBone.Animations[animIndex];
-
+				
 				// Get length of animation
 				int keyframeCount = childBone.Animations[animIndex].Length;
 
@@ -1238,13 +1241,13 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 
 					// Store child and parent local transformations at the given time
 					FbxAMatrix childTransform = childAnimation.Keyframes[timeIndex].LocalTransform;
-					FbxAMatrix parentTransform = parentAnimation.Keyframes[timeIndex].LocalTransform;
+					FbxAMatrix parentTransform = parentAnimation.Keyframes[timeIndex].GlobalTransform;
 
 					// Multiply the joint parent transform and the child transform
-					FbxAMatrix globalTransform = parentTransform * childTransform;
+					childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
 
 					// CreateKeyframe sets the global transform at the given time for the current animation
-					CreateKeyframe(childAnimation, timeIndex, globalTransform);
+					CreateKeyframe(childAnimation, timeIndex, childAnimation.Keyframes[timeIndex].GlobalTransform);
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 					Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
@@ -1259,7 +1262,6 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 
 void SE::FBX::FBXConverter::CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform) {
 
-	CurrentAnimation.Keyframes[timeIndex].GlobalTransform = globalTransform;
 	CurrentAnimation.Keyframes[timeIndex].TimePos = (float)timeIndex;
 
 	// Gather translation from matrix
@@ -1278,10 +1280,10 @@ void SE::FBX::FBXConverter::CreateKeyframe(Animation &CurrentAnimation, int time
 
 	// Gather rotation from matrix
 	CurrentAnimation.Keyframes[timeIndex].RotationQuat = XMFLOAT4(
-		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetR().mData[0],
-		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetR().mData[1],
-		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetR().mData[2],
-		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetR().mData[3]);
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[0],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[1],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[2],
+		CurrentAnimation.Keyframes[timeIndex].GlobalTransform.GetQ().mData[3]);
 }
 
 
@@ -1618,7 +1620,10 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 
 			// Get the bindpose and joint parent index
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
-			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
+			XMFLOAT4X4 bindPoseMatrix;
+			
+			
+			XMStoreFloat4x4(&bindPoseMatrix, XMMatrixTranspose(XMLoadFloat4x4(&Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse))));
 
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
@@ -1659,9 +1664,12 @@ void SE::FBX::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton)
 				for (int currentKeyFrameIndex = 0; currentKeyFrameIndex < (int)currentAnimLength; currentKeyFrameIndex++) {
 
 					FbxAMatrix keyframe = skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes[currentKeyFrameIndex].GlobalTransform;
-					XMFLOAT4X4 jointGlobalTransform = Load4X4Transformations(keyframe);
+					auto jointGlobalTransform = XMLoadFloat4x4(& Load4X4Transformations(keyframe));
 
-					animationTransformations.push_back(jointGlobalTransform);
+					// Transpose the matrix from column major to row major
+					XMFLOAT4X4 jbt;
+					XMStoreFloat4x4(&jbt,XMMatrixTranspose( jointGlobalTransform));
+					animationTransformations.push_back(jbt);
 
 				}
 

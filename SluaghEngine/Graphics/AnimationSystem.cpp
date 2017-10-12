@@ -67,7 +67,7 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 				Keyframe currentKeyFrame;
 
 				// Get the keyframe matrix
-				DirectX::XMMATRIX keyFrameMatrix = DirectX::XMLoadFloat4x4(&matrices[j]);
+				DirectX::XMMATRIX keyFrameMatrix = DirectX::XMLoadFloat4x4(&matrices[j + i*nrOfKeyframes]);
 				currentKeyFrame.LocalTransform = keyFrameMatrix;
 
 				// Set the time pose
@@ -129,8 +129,11 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 		// Get the current joint GLOBAL transformation at the current animation time pose
 		b.GlobalTx = interpolatedJointTransforms[i];
 
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.GlobalTx * b.inverseBindPoseMatrix));
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
 
 		int a = 0;
 	}
