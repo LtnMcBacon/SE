@@ -450,12 +450,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+
+
+		Utilz::TimeMap times;
+		e.GetRenderer()->GetProfilingInformation(times);
+		for (auto& t : times)
+			console->Print("%s: %f\n", t.first.str, t.second);
 	}
 
 	delete projectileManager;
 
 	delete testRoom;
 	delete player;
+
+
+	
+
 	e.Release();
 
 	ProfileReturnConst(true)

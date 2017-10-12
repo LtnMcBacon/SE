@@ -1,26 +1,23 @@
 #ifndef SE_GRAPHICS_GPU_TIME_CLUSTER_H_
 #define SE_GRAPHICS_GPU_TIME_CLUSTER_H_
 #include <d3d11.h>
-#include <Utilz\CompileTimeStringHasher.h>
-#include <map>
+#include <Utilz\TimeCluster.h>
 namespace SE
 {
 	namespace Graphics
 	{
-		class GPUTimeCluster
+		class GPUTimeCluster : public Utilz::TimeCluster
 		{
 		public:
-			typedef std::map<Utilz::IDHash, float, Utilz::IDHash::Compare> TimeMap;
-
 
 
 			GPUTimeCluster(ID3D11Device* device, ID3D11DeviceContext* dc);
 			~GPUTimeCluster();
 
-			void Start(const Utilz::IDHash& id);
-			void Stop(const Utilz::IDHash& id);
+			void Start(const Utilz::IDHash& id)override;
+			void Stop(const Utilz::IDHash& id)override;
 			
-			void GetMap(TimeMap& map);
+			void GetMap(Utilz::TimeMap& map)override;
 
 		private:
 			

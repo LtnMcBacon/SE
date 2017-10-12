@@ -2,7 +2,7 @@
 //#include <chrono>
 
 
-SE::Graphics::GPUTimeCluster::GPUTimeCluster(ID3D11Device* device, ID3D11DeviceContext* dc) : device(device), dc(dc)
+SE::Graphics::GPUTimeCluster::GPUTimeCluster(ID3D11Device* device, ID3D11DeviceContext* dc) : SE::Utilz::TimeCluster(), device(device), dc(dc)
 {
 	_ASSERT_EXPR(device, "No device in GPUTimeCluster");
 	_ASSERT_EXPR(dc, "No deviceContext in GPUTimeCluster");
@@ -19,7 +19,6 @@ void SE::Graphics::GPUTimeCluster::Start(const Utilz::IDHash & id)
 	TimerSet& timer = timers[id];
 
 	_ASSERT_EXPR(timer.QueryStarted == false, "Tried to start a timer twice in GPUTimeCluster");
-	_ASSERT_EXPR(timer.QueryStarted == false, "Tried to start a timer twice in GPUTimeCluster");
 
 	if (timer.DisjointQuery[currentFrame] == nullptr)
 	{
@@ -30,6 +29,8 @@ void SE::Graphics::GPUTimeCluster::Start(const Utilz::IDHash & id)
 		HRESULT hr = device->CreateQuery(&desc, &timer.DisjointQuery[currentFrame]);
 		if (FAILED(hr))
 			throw std::exception("Could not create D3D11_QUERY_TIMESTAMP_DISJOINT");
+
+		desc.Query = D3D11_QUERY_TIMESTAMP;
 		hr = device->CreateQuery(&desc, &timer.TimestampStartQuery[currentFrame]);
 		if (FAILED(hr))
 			throw std::exception("Could not create D3D11_QUERY_TIMESTAMP.");
@@ -51,7 +52,6 @@ void SE::Graphics::GPUTimeCluster::Stop(const Utilz::IDHash & id)
 {
 	TimerSet& timer = timers[id];
 	_ASSERT_EXPR(timer.QueryStarted == true, "Tried to Stop a timer that was not Started in GPUTimeCluster");
-	_ASSERT_EXPR(timer.QueryFinished == false, "Tried to Stop a timer that was not Started in GPUTimeCluster");
 
 	// Get the end time stamp
 	dc->End(timer.TimestampEndQuery[currentFrame]);
@@ -101,7 +101,7 @@ float SE::Graphics::GPUTimeCluster::GetTime(TimerSet& timer)
 	return static_cast<float>(time);
 }
 
-void SE::Graphics::GPUTimeCluster::GetMap(TimeMap & map)
+void SE::Graphics::GPUTimeCluster::GetMap(Utilz::TimeMap & map)
 {
 	currentFrame = (currentFrame + 1) % QueryLatency;
 

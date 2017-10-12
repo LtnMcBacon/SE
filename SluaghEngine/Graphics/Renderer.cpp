@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include "GPUTimeCluster.h"
 
 #undef min
 
@@ -533,13 +534,6 @@ int SE::Graphics::Renderer::BeginFrame()
 int SE::Graphics::Renderer::EndFrame()
 {
 	StartProfile;
-
-	GPUTimeCluster::TimeMap map;
-	timeCluster->GetMap(map);
-
-
-
-
 	device->Present();
 	ProfileReturnConst( 0);
 }

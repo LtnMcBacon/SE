@@ -9,7 +9,7 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
-#include "GPUTimeCluster.h"
+#include <Utilz\TimeCluster.h>
 
 namespace SE
 {
@@ -369,6 +369,14 @@ namespace SE
 				return errorLog;
 			}
 
+			/**
+			* @brief	Return a map of with profiling information.
+			*
+			*/
+			inline void GetProfilingInformation(Utilz::TimeMap& map)override
+			{
+				timeCluster->GetMap(map);
+			}
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -494,7 +502,7 @@ namespace SE
 			/*********** END Threading **************/
 
 
-			GPUTimeCluster* timeCluster;
+			Utilz::TimeCluster* timeCluster;
 		};
 
 	}
