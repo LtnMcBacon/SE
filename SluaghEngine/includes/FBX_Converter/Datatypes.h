@@ -25,6 +25,7 @@ namespace SE
 		struct Keyframe { // Stores the attributes of a keyframe in an animation
 
 			FbxAMatrix GlobalTransform;
+			FbxAMatrix LocalTransform;
 			float TimePos;
 			XMFLOAT4 Translation;
 			XMFLOAT4 Scale;
@@ -45,8 +46,8 @@ namespace SE
 			int ParentIndex;
 
 			FbxAMatrix GlobalBindposeInverse;
-			FbxAMatrix LocalTransform;
 			FbxAMatrix GlobalTransform;
+			FbxAMatrix LocalTransform;
 			vector<Animation> Animations;
 
 			FbxNode* Node;

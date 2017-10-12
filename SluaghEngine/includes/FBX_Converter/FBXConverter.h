@@ -80,6 +80,7 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void GatherAnimationData(Mesh &pMesh);
+			void BuildGlobalKeyframes(Mesh &pMesh);
 			void CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
