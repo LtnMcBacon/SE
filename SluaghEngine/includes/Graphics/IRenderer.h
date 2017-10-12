@@ -10,6 +10,7 @@
 #include "LineRenderJob.h"
 #include "AnimationStructs.h"
 #include "FileHeaders.h"
+#include "AnimationJobInfo.h"
 
 
 #if defined DLL_EXPORT_RENDERER
@@ -296,9 +297,78 @@ namespace SE
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
 			
+			/**
+			* @brief Create a skeleton
+			* @param[in] jointData The joint data.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
 			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
 
-			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
+			/**
+			* @brief Create an animation
+			* @param[in] matrices The animation keyframes
+			* @param[in] nrOfKeyframes The number of keyframes.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) = 0;
+
+			/**
+			* @brief Start a new animation job
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @retval -1 On fail.
+			* @retval handle The job id.
+			* @endcode
+			*/
+			virtual int StartAnimation(const AnimationJobInfo& info) = 0;
+
+			/**
+			* @brief Stop an animation (This removes the job)
+			* @param[in] job The job top stop
+			* @endcode
+			*/
+			virtual void StopAnimation(int job) = 0;
+
+			/**
+			* @brief Update an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			virtual void UpdateAnimation(int job, const AnimationJobInfo& info) = 0;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] speed The speed
+			* @endcode
+			*/
+			virtual void SetAnimationSpeed(int job, float speed) = 0;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] keyframe The keyframe
+			* @endcode
+			*/
+			virtual void SetKeyFrame(int job, float keyframe) = 0;
+
+			/**
+			* @brief Start an animation job
+			* @param[in] job Which animation job to Start
+			* @endcode
+			*/
+			virtual void StartAnimation(int job) = 0;
+
+			/**
+			* @brief Pause an animation job
+			* @param[in] job Which animation job to pause
+			* @endcode
+			*/
+			virtual void PauseAnimation(int job) = 0;
 
 			/**
 			* @brief	The amount of VRam currently used.
