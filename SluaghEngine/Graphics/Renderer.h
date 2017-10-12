@@ -9,6 +9,7 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
+#include <Utilz\TimeCluster.h>
 namespace SE
 {
 	namespace Graphics
@@ -357,6 +358,12 @@ namespace SE
 			*/
 			void PauseAnimation(int job) override;
 
+			/**
+			* @brief	The amount of VRam currently used.
+			*
+			* @retval size_t The amount of VRam used in bytes.
+			*
+			*/
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
@@ -366,6 +373,17 @@ namespace SE
 			inline std::vector<std::string>& GetErrorLog() override{
 				return errorLog;
 			}
+
+			/**
+			* @brief	returns the time for the requested render job type.
+			*
+			* @retval float Used time in ns.
+			*
+			*/
+			inline float GetFrameTimeNS(Utilz::GUID ID) override {
+				return timeClus.GetTime<std::chrono::nanoseconds>(ID);
+			};
+			
 
 		private:
 			Renderer(const Renderer& other) = delete;
@@ -490,6 +508,7 @@ namespace SE
 			void Frame();
 
 			/*********** END Threading **************/
+			Utilz::TimeCluster timeClus;
 		};
 
 	}
