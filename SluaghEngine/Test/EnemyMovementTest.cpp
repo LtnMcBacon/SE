@@ -2,8 +2,10 @@
 #include <Core\Engine.h>
 #include <Gameplay/Flowfield.h>
 #include <Gameplay/EnemyUnit.h>
+#include <Gameplay/GameBlackboard.h>
 #include <chrono>
 #include <Profiler.h>
+#include "Gameplay/EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -131,7 +133,17 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 	}
 	Gameplay::EnemyUnit* enemies[10];
-	for(int i = 0; i < 10; i++)
+	Gameplay::EnemyFactory eFactory;
+	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
+	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::GameBlackboard blackBoard;
+	blackBoard.roomFlowField = &flowField;
+	Gameplay::EnemyFactory::EnemyToCreateDescription desc;
+	desc.GUID = enemyGUID;
+	desc.nrOfEnemiesWithThisDescription = 10;
+	desc.useVariation = true;
+	eFactory.CreateEnemies(&desc, &blackBoard, 10, enemies);
+	for (int i = 0; i < 10; i++)
 	{
 		pos enemyPos;
 		do
@@ -139,11 +151,15 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.x = rand() % 25;
 			enemyPos.y = rand() % 25;
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
-		enemies[i] = new Gameplay::EnemyUnit(&flowField, enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemies[i]->GetEntity(), Arrow);
+
+		enemies[i]->SetXPosition(enemyPos.x + .5f);
+		enemies[i]->SetYPosition(enemyPos.y + .5f);
+
+		//new Gameplay::enemies[i]Unit(testRoom->GetFlowFieldMap(), enemies[i]Pos.x + .5f, enemies[i]Pos.y + .5f, 10.0f);
+		rm.CreateRenderableObject(enemies[i]->GetEntity(), Block);
 		rm.ToggleRenderableObject(enemies[i]->GetEntity(), true);
-		tm.SetPosition(enemies[i]->GetEntity(), DirectX::XMFLOAT3(enemyPos.x + .5f, 0.5f, enemyPos.y + .5f));
 		tm.SetRotation(enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+		tm.SetScale(enemies[i]->GetEntity(), 0.5f);
 	}
 
 
@@ -156,7 +172,9 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	float dt = 1.0f/60.0f;
 	while (running)
 	{
-		
+
+		/*Only thing needed right now*/
+		blackBoard.deltaTime = dt;
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
 		if(e.GetWindow()->ButtonPressed(1))

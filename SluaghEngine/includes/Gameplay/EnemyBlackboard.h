@@ -5,7 +5,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
-		class Enemy;
+		class EnemyUnit;
 
 
 		/**
@@ -38,8 +38,11 @@ namespace SE
 
 			};
 
-			Enemy* ownerPointer;
+			EnemyUnit* ownerPointer;
 			/*Insert ptr to currently running task here*/
+
+			float previousMovement[2] = {};
+			float extents;
 
 		};
 	}

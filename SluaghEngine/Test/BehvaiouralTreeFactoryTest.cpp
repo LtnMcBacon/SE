@@ -31,10 +31,22 @@ bool BehaviouralTreeFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
 	
 	passing &= factory.LoadTree(Utilz::GUID("data.SEFBT"));
 
+	passing &= factory.LoadTree(Utilz::GUID("FlowFieldMovement.SEFBT"));
+
 	Gameplay::GameBlackboard gameBlackboard;
 	Gameplay::EnemyBlackboard enemyBlackboard;
 
 	auto test = factory.BuildBehaviouralTree(Utilz::GUID("data.SEFBT"), &gameBlackboard, &enemyBlackboard);
+	if (test == nullptr)
+	{
+		passing &= false;
+	}
+	else
+	{
+		delete test;
+	}
+
+	test = factory.BuildBehaviouralTree(Utilz::GUID("FlowFieldMovement.SEFBT"), &gameBlackboard, &enemyBlackboard);
 	if (test == nullptr)
 	{
 		passing &= false;
