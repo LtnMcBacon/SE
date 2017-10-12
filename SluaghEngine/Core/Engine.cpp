@@ -137,12 +137,9 @@ int SE::Core::Engine::Frame(double dt)
 	renderer->Render();
 	timeClus->Stop("Renderer");
 	GatherErrors();
-	timeClus->Start("DevConsole");
 	devConsole->Frame();
-	timeClus->Stop("DevConsole");
-	timeClus->Start("ImGui::Render");
+
 	ImGui::Render();
-	timeClus->Stop("ImGui::Render");
 	renderer->EndFrame();
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
