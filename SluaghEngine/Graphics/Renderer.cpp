@@ -12,6 +12,7 @@ SE::Graphics::Renderer::Renderer()
 	device = nullptr;
 	graphicResourceHandler = nullptr;
 	animationSystem = nullptr;
+	timeCluster = nullptr;
 	memMeasure.Init();
 }
 
@@ -57,6 +58,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
+	timeCluster = new GPUTimeCluster(device->GetDevice(), device->GetDeviceContext());
+
 	running = true;
 	//myThread = std::thread(&Renderer::Frame, this);
 
@@ -75,7 +78,7 @@ void SE::Graphics::Renderer::Shutdown()
 	device->Shutdown();
 
 	
-
+	delete timeCluster;
 	delete graphicResourceHandler;
 	delete animationSystem;
 	delete device;
@@ -421,6 +424,10 @@ int SE::Graphics::Renderer::Render() {
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
+
+
+
+	timeCluster->Start("Rendering");
 	//The previousJob is necessary to see what state changes need to be performed when rendering
 	//the next bucket.
 	RenderObjectInfo previousJob;
@@ -458,6 +465,9 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
 		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
+
+	timeCluster->Stop("Rendering");
+
 
 	///********** Render line jobs (primarily for debugging) ************/
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -523,6 +533,13 @@ int SE::Graphics::Renderer::BeginFrame()
 int SE::Graphics::Renderer::EndFrame()
 {
 	StartProfile;
+
+	GPUTimeCluster::TimeMap map;
+	timeCluster->GetMap(map);
+
+
+
+
 	device->Present();
 	ProfileReturnConst( 0);
 }

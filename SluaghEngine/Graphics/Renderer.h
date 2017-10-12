@@ -9,6 +9,8 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
+#include "GPUTimeCluster.h"
+
 namespace SE
 {
 	namespace Graphics
@@ -490,6 +492,9 @@ namespace SE
 			void Frame();
 
 			/*********** END Threading **************/
+
+
+			GPUTimeCluster* timeCluster;
 		};
 
 	}
