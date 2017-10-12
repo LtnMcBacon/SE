@@ -48,8 +48,10 @@ namespace SE
 			* @brief	Enable/disable debug rendering of the object. If the object has a bounding box it will also be rendered. Additional debug rendering can also be added to the entity such as crosses and lines.
 			* @param[in] entity Which entity.
 			* @param[in] enable True to enable, false to disable
+			* @retval true Success.
+			* @retval false The bounding box was not found or is already being rendererd.
 			*/
-			void ToggleDebugRendering(const Entity& entity, bool enable);
+			bool ToggleDebugRendering(const Entity& entity, bool enable);
 
 			/**
 			* @brief	Draws a cross on the entity.
@@ -89,6 +91,10 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			CollisionManager* collisionManager;
 
+			/**<The collision manager loads in the bounding boxes asynchronously. If ToggleDebugRendering is called before the BB is loaded, the entity gets put in this vector for the time being.*/
+			std::vector<Entity> awaitingBoundingBoxes;
+			void CreateBoundingBoxes();
+
 			static const size_t maximumLinesToRender = 4096;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
 			int dynamicVertexBufferHandle;
@@ -99,7 +105,7 @@ namespace SE
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
 			//In case we don't leave it up to the caller to not enable the same entity twice
-			//std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
+			std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
 			
 
 			ResourceHandler::InvokeReturn LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
