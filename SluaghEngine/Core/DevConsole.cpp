@@ -18,12 +18,21 @@ SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 		std::string toPrint = "";
 		for (auto& c : nameToCommand)
 		{
-			Print(c.second.name + "\n" + c.second.description);
+			Print(c.second.name + "\n" + c.second.description, "");
 		}
 	},
 		"commands",
 		"Lists all availible commands."
 
+		);
+
+	AddCommand(
+		[this](int argc, char** argv)
+	{
+		Clear();
+	},
+		"clear",
+		"Clears the console"
 		);
 }
 
@@ -65,6 +74,12 @@ void SE::Core::DevConsole::Frame()
 	StartProfile;
 	if (!showConsole)
 		ProfileReturnVoid;
+
+	if(messages.size() == maxMessages)
+	{
+		//Keep half of the existing messages.
+		messages.erase(messages.begin(), messages.begin() + (maxMessages / 2));
+	}
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
@@ -104,11 +119,16 @@ void SE::Core::DevConsole::Frame()
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
 	ImGui::Separator();
+	static bool scrollToBottom = false;
+	ImGui::Checkbox("Scroll to bottom", &scrollToBottom);
+	ImGui::Separator();
 	ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
 	for (auto& m : messages)
 	{
 		ImVec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		if (m.channel == "Error")
+		std::string lowerCaseChannel = m.channel;
+		std::transform(lowerCaseChannel.begin(), lowerCaseChannel.end(), lowerCaseChannel.begin(), ::tolower);
+		if (lowerCaseChannel.find("error") != std::string::npos)
 			color = { 1.0f, 0.2f, 0.2f, 1.0f };
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
 		if(filter.IsActive())
@@ -124,6 +144,8 @@ void SE::Core::DevConsole::Frame()
 		}	
 		ImGui::PopStyleColor();
 	}
+	if (scrollToBottom)
+		ImGui::SetScrollHere();
 	ImGui::EndChild();
 	ImGui::Separator();
 	if (ImGui::InputText("Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub, (void*)this))
@@ -145,6 +167,11 @@ void SE::Core::DevConsole::Frame()
 	ImGui::End();
 
 	ProfileReturnVoid;
+}
+
+void SE::Core::DevConsole::Clear()
+{
+	messages.clear();
 }
 
 int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)

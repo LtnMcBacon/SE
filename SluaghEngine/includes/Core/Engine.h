@@ -250,6 +250,8 @@ namespace SE
 			*/
 			void OptionUpdate();
 
+			void GatherErrors();
+
 			EntityManager* entityManager;
 			Graphics::IRenderer* renderer;
 			Window::IWindow* window;

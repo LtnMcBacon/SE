@@ -59,8 +59,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, animationManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager);
+	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
@@ -108,6 +108,7 @@ int SE::Core::Engine::Frame(double dt)
 	collisionManager->Frame();
 	cameraManager->Frame();
 	renderer->Render();
+	GatherErrors();
 	devConsole->Frame();
 	ImGui::Render();
 	renderer->EndFrame();
@@ -218,4 +219,13 @@ void SE::Core::Engine::OptionUpdate()
 	}
 	
 	ProfileReturnVoid;
+}
+
+void SE::Core::Engine::GatherErrors()
+{
+	auto& renderErrors = renderer->GetErrorLog();
+	for(auto& err : renderErrors)
+	{
+		devConsole->Print(err, "Graphics Error");
+	}
 }

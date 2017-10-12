@@ -33,7 +33,6 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
-	currentEntityTimePos = 0;
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -123,11 +122,15 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 		TargetOffset t = { {true, false, false},{2, 0, 0} };
 		renderBuckets.push_back({ handles, {}, {} });	
 	}
-	const size_t transformIndex = renderBuckets[bucketIndex].transforms.size();
+	const uint32_t transformIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].transforms.size());
 	DirectX::XMFLOAT4X4 identityMatrix;
 	DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
 	renderBuckets[bucketIndex].transforms.push_back(identityMatrix);
 	
+	const uint32_t animationIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].animationJob.size());
+	renderBuckets[bucketIndex].animationJob.push_back(handles.animationJob);
+
+
 //	uint32_t jobID;
 	if (freeJobIndices.size())
 	{
@@ -140,7 +143,7 @@ int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 		jobIDToBucketAndTransformIndex.push_back({ 0,0 });
 	}
 	
-	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	const BucketAndTransformIndex bucketAndTransformIndex = { static_cast<uint32_t>(bucketIndex), transformIndex, animationIndex};
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 //	renderJobLock.unlock();
@@ -157,16 +160,22 @@ int SE::Graphics::Renderer::DisableRendering(uint32_t jobID)
 	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+	const uint32_t animationIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].animationIndex;
 
 	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
 
 	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
 	bucketOfRemoved.transforms.pop_back();
+
+	bucketOfRemoved.animationJob[animationIndexOfRemoved] = bucketOfRemoved.animationJob.back();
+	bucketOfRemoved.animationJob.pop_back();
+
 	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
 	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
 	bucketOfRemoved.jobsInBucket.pop_back();
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].animationIndex = animationIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
 
 	freeJobIndices.push(jobID);
@@ -190,17 +199,23 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	//renderJobLock.lock();
 	const uint32_t bucketIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].bucketIndex;
 	const uint32_t transformIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].transformIndex;
+	const uint32_t animationIndexOfRemoved = jobIDToBucketAndTransformIndex[jobID].animationIndex;
 
 	auto& bucketOfRemoved = renderBuckets[bucketIndexOfRemoved];
 
 	DirectX::XMFLOAT4X4 transform = bucketOfRemoved.transforms[transformIndexOfRemoved];
 	bucketOfRemoved.transforms[transformIndexOfRemoved] = bucketOfRemoved.transforms.back();
 	bucketOfRemoved.transforms.pop_back();
+
+	bucketOfRemoved.animationJob[animationIndexOfRemoved] = bucketOfRemoved.animationJob.back();
+	bucketOfRemoved.animationJob.pop_back();
+
 	const uint32_t jobThatReplacedOld = bucketOfRemoved.jobsInBucket.back();
 	bucketOfRemoved.jobsInBucket[transformIndexOfRemoved] = jobThatReplacedOld;
 	bucketOfRemoved.jobsInBucket.pop_back();
 
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].transformIndex = transformIndexOfRemoved;
+	jobIDToBucketAndTransformIndex[jobThatReplacedOld].animationIndex = animationIndexOfRemoved;
 	jobIDToBucketAndTransformIndex[jobThatReplacedOld].bucketIndex = bucketIndexOfRemoved;
 
 	int32_t bucketIndex = -1;
@@ -223,7 +238,11 @@ int SE::Graphics::Renderer::UpdateRenderingBuffer(uint32_t jobID, const RenderOb
 	renderBuckets[bucketIndex].transforms.push_back(transform);
 
 
-	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex };
+	const uint32_t animationIndex = static_cast<uint32_t>(renderBuckets[bucketIndex].animationJob.size());
+	renderBuckets[bucketIndex].animationJob.push_back(handles.animationJob);
+
+
+	const BucketAndTransformIndex bucketAndTransformIndex = { bucketIndex, transformIndex, animationIndex };
 	jobIDToBucketAndTransformIndex[jobID] = bucketAndTransformIndex;
 	renderBuckets[bucketIndex].jobsInBucket.push_back(jobID);
 
@@ -379,31 +398,31 @@ int SE::Graphics::Renderer::Render() {
 
 	//animationSystem->UpdateAnimation(0, 0, currentEntityTimePos);
 
+	//If threading is enabled.
 	//AddNewRenderJobs();
 	//UpdateRenderJobs();
 	//UpdateTransforms();
 	//RemoveRenderJobs();
 
+	// clear the back buffer
+	float clearColor[] = { 0, 0, 1, 1 };
 
 
 
-	// SetLightBuffer Start
+	//Update the pointlights in the scene and bind them to the pixel shader stage.
 	//lightLock.lock();
 	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 	LightDataBuffer lightBufferData;
-
 	graphicResourceHandler->UpdateConstantBuffer<LightDataBuffer>(lightBufferID, [this](LightDataBuffer* data) {
 		data->size.x = renderLightJobs.size();
 		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
 	});
-
 	//lightLock.unlock();
-
-	
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
-
+	//The previousJob is necessary to see what state changes need to be performed when rendering
+	//the next bucket.
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -415,34 +434,35 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.pixelShader = -1;
 	previousJob.topology = RenderObjectInfo::PrimitiveTopology::NONE;
 	previousJob.vertexShader = -1;
+	previousJob.skeletonIndex = -1;
 	previousJob.fillSolid = 1;
 	previousJob.transparency = 0;
 
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
-	std::vector<size_t> transID;
-
+	//First render all opaque geometry, then render partially transparent geometry.
+	std::vector<size_t> transparentIndices;
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
 	{
 		if (renderBuckets[iteration].stateInfo.transparency == 0)
 		{
-			previousJob = RenderABucket(renderBuckets[iteration], previousJob);
+			RenderABucket(renderBuckets[iteration], previousJob);
+			previousJob = renderBuckets[iteration].stateInfo;
 		}
 		else
-			transID.push_back(iteration);
+			transparentIndices.push_back(iteration);
 	}
-	for (auto iteration = 0; iteration < transID.size(); iteration++)
+	for (auto iteration = 0; iteration < transparentIndices.size(); iteration++)
 	{
-		RenderABucket(renderBuckets[transID[iteration]], previousJob);
+		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
+		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
 
-	///********** Render line jobs ************/
-
+	///********** Render line jobs (primarily for debugging) ************/
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
-
 	for(auto& lineJob : lineRenderJobs)
 	{
 		if (lineJob.verticesToDrawCount == 0)
@@ -452,10 +472,10 @@ int SE::Graphics::Renderer::Render() {
 		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
 		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
 	}
-	
 	///********END render line jobs************/
 
 
+	//********* Render sprite overlays ********/
 	if (renderTextureJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
@@ -466,6 +486,7 @@ int SE::Graphics::Renderer::Render() {
 		spriteBatch->End();
 	}
 	
+	//******** Render text overlays *********/
 	if (renderTextJobs.size())
 	{
 		spriteBatch->Begin();
@@ -478,8 +499,6 @@ int SE::Graphics::Renderer::Render() {
 
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
-
-	
 
 	ProfileReturnConst(0);
 }
@@ -497,6 +516,7 @@ int SE::Graphics::Renderer::BeginFrame()
 
 	// Clear the standard depth stencil view
 	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
+	errorLog.clear();
 	return 0;
 }
 
@@ -565,21 +585,21 @@ int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 	//renderJobLock.unlock();
 	ProfileReturnConst(0);
 }
-
-int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
-
-	StartProfile;
-
-	auto& indices = jobIDToBucketAndTransformIndex[jobID];
-
-	auto& bucket = renderBuckets[indices.bucketIndex];
-
-	bucket.gBoneTransforms.resize(nrOfJoints);
-
-	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
-
-	ProfileReturnConst(0);
-}
+//
+//int SE::Graphics::Renderer::UpdateBoneTransform(uint32_t jobID, float* transforms, size_t nrOfJoints) {
+//
+//	StartProfile;
+//
+//	auto& indices = jobIDToBucketAndTransformIndex[jobID];
+//
+//	auto& bucket = renderBuckets[indices.bucketIndex];
+//
+//	bucket.gBoneTransforms.resize(nrOfJoints);
+//
+//	memcpy(&bucket.gBoneTransforms[indices.boneIndex], transforms, nrOfJoints * sizeof(DirectX::XMFLOAT4X4));
+//
+//	ProfileReturnConst(0);
+//}
 
 int SE::Graphics::Renderer::CreatePixelShader(void* data, size_t size, ShaderSettings* reflection)
 {
@@ -767,7 +787,7 @@ void SE::Graphics::Renderer::UpdateTransforms()
 	StopProfile;
 }
 
-SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucket bucket, const RenderObjectInfo& previousJob)
+void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const RenderObjectInfo& previousJob)
 {
 	StartProfile;
 	const RenderObjectInfo& job = bucket.stateInfo;
@@ -800,6 +820,11 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 			break;
 		}
+		case RenderObjectInfo::PrimitiveTopology::NONE:
+		{
+			errorLog.push_back("A bucket with primitive topology NONE was present in the renderers job queue.");
+			break;
+		}
 		}
 	}
 	if (previousJob.fillSolid != job.fillSolid)
@@ -820,10 +845,28 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 
 	int bindSlot;
 	auto viewProjHandle = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerFrame", &bindSlot);
+	if (viewProjHandle < 0)
+	{
+		errorLog.push_back("Constant buffer: 'OncePerFrame' could not be found. Aborting job.\n");
+		return;
+	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, bindSlot);
 
 	auto oncePerObject = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "OncePerObject", &bindSlot);
+	if (oncePerObject < 0)
+	{
+		errorLog.push_back("Constant buffer: 'OncePerObject' could not be found. Aborting job.\n");
+		return;
+	}
 	graphicResourceHandler->BindVSConstantBuffer(oncePerObject, bindSlot);
+
+	std::vector<DirectX::XMFLOAT4X4>identity;
+	identity.resize(4);
+
+	for (int i = 0; i < 4; i++) {
+
+		DirectX::XMStoreFloat4x4(&identity[i], DirectX::XMMatrixIdentity());
+	}
 
 	if (job.type == RenderObjectInfo::JobType::STATIC) {
 
@@ -854,10 +897,16 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 	}
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
-
 		int boneBindslot;
 		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
 		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+
+		
+
+
+
+
+
 
 
 		std::vector<DirectX::XMFLOAT4X4> inversVec;
@@ -870,19 +919,51 @@ SE::Graphics::RenderObjectInfo SE::Graphics::Renderer::RenderABucket(RenderBucke
 			inversVec.push_back(fInvers);
 		}
 
-		bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
+
+	
+
+
+		// TODO: Change the hlsl code to fit.
+		// TODO: Should be updated with the instanceCount and maxDrawInstances
+		struct XMS
+		{
+			DirectX::XMFLOAT4X4 s[30];
+		};
+
+		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
+			for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+			{
+				auto animationJobIndex = bucket.animationJob[i];
+				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
+				{
+					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+					if (ajob.animating) // If the animation is playing
+						ajob.timePos += ajob.speed; // TODO: Delta time.
+
+					animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+				}
+				else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
+				{
+					// TODO:
+				}
+			}
+		});
+
+
+		//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
 
 		const size_t instanceCount = bucket.transforms.size();
-		for (int i = 0; i < instanceCount; i += maxDrawInstances)
+		for (int i = 0; i < instanceCount; i += 8)
 		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)maxDrawInstances);
+			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
 			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
 			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
 			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
 		}
 	}
-	ProfileReturnConst( job);
 }
 
 void SE::Graphics::Renderer::Frame()
@@ -915,12 +996,66 @@ int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nr
 	return handle;
 }
 
-int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) {
+int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
 
 	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, skeletonIndex, &handle);
+	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
 	if (hr)
 		return hr;
 	return handle;
+}
+
+int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+{
+	int job = -1;
+	if (freeAnimationJobIndicies.size())
+	{
+		job = freeAnimationJobIndicies.top();
+		freeAnimationJobIndicies.pop();
+	}
+	else
+	{
+		job = static_cast<int>(jobIDToAnimationJob.size());
+		jobIDToAnimationJob.push_back(info);
+	}
+	
+	return job;
+}
+
+void SE::Graphics::Renderer::StopAnimation(int job)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	freeAnimationJobIndicies.push(job);
+}
+
+void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
+}
+
+void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
+}
+
+void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+}
+
+void SE::Graphics::Renderer::StartAnimation(int job)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
+}
+
+void SE::Graphics::Renderer::PauseAnimation(int job)
+{
+	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 

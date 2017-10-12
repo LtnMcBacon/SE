@@ -70,7 +70,9 @@ namespace SE
 
 			void GetSkeletonHierarchy(Mesh &pMesh);
 			void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
-			void CreateBindPose(Mesh &pMesh);
+			void CreateBindPoseManual(Mesh &pMesh);
+			void CreateBindPoseAutomatic(Mesh &pMesh);
+			void CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh);
 			void GatherWeights(Mesh &pMesh);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -78,7 +80,7 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void GatherAnimationData(Mesh &pMesh);
-			void CreateKeyframe(Animation CurrentAnimation, int timeIndex, FbxAMatrix globalTransform);
+			void CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// MATERIAL/TEXTURE FUNCTIONS
