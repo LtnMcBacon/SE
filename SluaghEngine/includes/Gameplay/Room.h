@@ -354,6 +354,17 @@ namespace SE
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
+
+			inline void GetMap(char toReturn[25][25])
+			{
+				for (int i = 0; i < 25; i++)
+				{
+					for (int j = 0; j < 25; j++)
+					{
+						toReturn[i][j] = map[i][j];
+					}
+				}
+			}
 		};
 
 	}

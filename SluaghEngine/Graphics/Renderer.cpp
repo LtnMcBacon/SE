@@ -4,8 +4,6 @@
 
 #undef min
 
-
-
 SE::Graphics::Renderer::Renderer() 
 {
 	oncePerFrameBufferID = -1;

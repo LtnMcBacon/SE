@@ -151,7 +151,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
 	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
 
@@ -298,22 +298,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if (e.GetWindow()->ButtonDown(MoveDir::UP))
 		{
-			input.downW = true;
+			input.upButton = true;
 			movY += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::DOWN))
 		{
-			input.downS = true;
+			input.downButton = true;
 			movY -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
 		{
-			input.downD = true;
+			input.rightButton = true;
 			movX += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
 		{
-			input.downA = true;
+			input.leftButton = true;
 			movX -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
@@ -350,10 +350,10 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			movY /= totMov;
 		}
 
-		Gameplay::PlayerUnit::ActionInput actionInput(false);
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
 		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
 		{
-			actionInput.downSpace = true;
+			actionInput.skill1Button = true;
 		}
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;

@@ -144,8 +144,6 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	const int yDownAfterFloored = int(yCenterPositionAfter - yExtent);
 
 
-
-
 	if (map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = -1;
