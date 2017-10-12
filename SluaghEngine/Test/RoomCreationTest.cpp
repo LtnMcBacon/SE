@@ -4,6 +4,8 @@
 #include <Gameplay/Room.h>
 #include <chrono>
 #include <Profiler.h>
+#include "Gameplay/GameBlackboard.h"
+#include "Gameplay/EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -175,6 +177,11 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 	}
 	
+	Gameplay::EnemyFactory eFactory;
+	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
+	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::GameBlackboard blackBoard;
+	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
@@ -183,21 +190,18 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.x = rand() % 25;
 			enemyPos.y = rand() % 25;
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
-		
-		Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+
+		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+		enemy->SetXPosition(enemyPos.x + .5f);
+		enemy->SetYPosition(enemyPos.y + .5f);
+
+		//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
 		rm.CreateRenderableObject(enemy->GetEntity(), Block);
 		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
 	}
-
-	Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), 1 + .5f, 22 + .5f, 10.0f);
-	rm.CreateRenderableObject(enemy->GetEntity(), Block);
-	rm.ToggleRenderableObject(enemy->GetEntity(), true);
-	tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-	tm.SetScale(enemy->GetEntity(), 0.5f);
-	testRoom->AddEnemyToRoom(enemy);
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(1, Window::Key1);
@@ -212,6 +216,8 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 	float dt = 1.0f / 60.0f;
 	while (running)
 	{
+		/*Only thing needed right now*/
+		blackBoard.deltaTime = dt;
 
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
