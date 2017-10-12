@@ -39,7 +39,7 @@ namespace SE
 
 
 			/**
-			* @brief	Create a LEaf Node with the data given on position nodeID in dataArray.
+			* @brief	Create a Leaf Node with the data given on position nodeID in dataArray.
 			*
 			* @warning Not properly created! Will be divided into many kind of leaves!
 			* Right now only returns a "SucceederLeaf", that always succeed.
@@ -47,6 +47,14 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateLeaf(NodeData* dataArray, int nodeID);
+
+
+			/**
+			* @brief	Create a FlowFieldMovementLeaf Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/IBehaviour* CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
 
