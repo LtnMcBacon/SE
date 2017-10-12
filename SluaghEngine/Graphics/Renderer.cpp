@@ -2,7 +2,7 @@
 #include <Profiler.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "GPUTimeCluster.h"
-
+#include <Utilz\CPUTimeCluster.h>
 #undef min
 
 SE::Graphics::Renderer::Renderer() 
@@ -11,7 +11,6 @@ SE::Graphics::Renderer::Renderer()
 	device = nullptr;
 	graphicResourceHandler = nullptr;
 	animationSystem = nullptr;
-	timeCluster = nullptr;
 	memMeasure.Init();
 }
 
@@ -57,7 +56,8 @@ int SE::Graphics::Renderer::Initialize(void * window)
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
-	timeCluster = new GPUTimeCluster(device->GetDevice(), device->GetDeviceContext());
+	timeCluster.push_back(new GPUTimeCluster(device->GetDevice(), device->GetDeviceContext()));
+	timeCluster.push_back(new Utilz::CPUTimeCluster);
 
 	running = true;
 	//myThread = std::thread(&Renderer::Frame, this);
@@ -76,8 +76,8 @@ void SE::Graphics::Renderer::Shutdown()
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 
-	
-	delete timeCluster;
+	for(auto& t : timeCluster)
+		delete t;
 	delete graphicResourceHandler;
 	delete animationSystem;
 	delete device;
@@ -426,10 +426,10 @@ int SE::Graphics::Renderer::Render() {
 
 
 
-	timeCluster->Start("Rendering");
+	timeCluster[GPUTimer]->Start("Rendering-GPU");
 	//The previousJob is necessary to see what state changes need to be performed when rendering
 	//the next bucket.
-	timeClus.Start("InstanceJob");
+	timeCluster[CPUTimer]->Start("Rendering-CPU");
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -465,13 +465,14 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
 		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
-	timeClus.Stop("InstanceJob");
-
-	timeCluster->Stop("Rendering");
+	timeCluster[CPUTimer]->Stop("Rendering-CPU");
+	timeCluster[GPUTimer]->Stop("Rendering-GPU");
 
 
 	///********** Render line jobs (primarily for debugging) ************/
-	timeClus.Start("LineJob");
+
+	timeCluster[GPUTimer]->Start("LineJob-GPU");
+	timeCluster[CPUTimer]->Start("LineJob-CPU");
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
@@ -484,12 +485,15 @@ int SE::Graphics::Renderer::Render() {
 		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
 		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
 	}
-	timeClus.Stop("LineJob");
+	timeCluster[CPUTimer]->Stop("LineJob-CPU");
+	timeCluster[GPUTimer]->Stop("LineJob-GPU");
+
 	///********END render line jobs************/
 
 
 	//********* Render sprite overlays ********/
-	timeClus.Start("GUIJob");
+	timeCluster[GPUTimer]->Start("GUIJob-GPU");
+	timeCluster[CPUTimer]->Start("GUIJob-CPU");
 	if (renderTextureJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
@@ -499,11 +503,13 @@ int SE::Graphics::Renderer::Render() {
 		}
 		spriteBatch->End();
 	}
-	timeClus.Stop("GUIJob");
+	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
+	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
 	
-	
+
 	//******** Render text overlays *********/
-	timeClus.Start("TextJob");
+	timeCluster[GPUTimer]->Start("TextJob-GPU");
+	timeCluster[CPUTimer]->Start("TextJob-CPU");
 	if (renderTextJobs.size())
 	{
 		spriteBatch->Begin();
@@ -513,7 +519,8 @@ int SE::Graphics::Renderer::Render() {
 		}
 		spriteBatch->End();
 	}
-	timeClus.Stop("TextJob");
+	timeCluster[CPUTimer]->Stop("TextJob-CPU");
+	timeCluster[GPUTimer]->Stop("TextJob-GPU");
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 

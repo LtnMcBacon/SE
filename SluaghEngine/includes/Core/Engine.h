@@ -236,15 +236,13 @@ namespace SE
 			}
 
 			/**
-			* @brief	returns the frame time for the requested manager/handler.
-			*
-			* @retval float Used time in ns.
+			* @brief	Return a map of with profiling information.
 			*
 			*/
-			inline float GetFrameTimeNS(Utilz::GUID ID)
-			{
-				return timeClus.GetTime<std::chrono::nanoseconds>(ID);
-			};
+			inline void GetProfilingInformation(Utilz::TimeMap& map) {
+				timeClus->GetMap(map);
+				renderer->GetProfilingInformation(map);
+			}
 
 		private:
 			Engine();
@@ -284,7 +282,7 @@ namespace SE
 
 			DevConsole* devConsole;
 
-			Utilz::TimeCluster timeClus;
+			Utilz::TimeCluster* timeClus;
 			bool frameBegun;
 		};
 

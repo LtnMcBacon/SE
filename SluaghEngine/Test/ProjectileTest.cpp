@@ -457,10 +457,10 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		e.Frame(dt);
 
 
-		Utilz::TimeMap times;
-		e.GetRenderer()->GetProfilingInformation(times);
+	/*	Utilz::TimeMap times;
+		e.GetProfilingInformation(times);
 		for (auto& t : times)
-			console->Print("%s: %f\n", t.first.str, t.second);
+			console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 
 	delete projectileManager;

@@ -1,0 +1,11 @@
+Mesh:Placeholder_Block.mesh
+BehaviouralTree:data.SEFBT
+Damage:10
+DamageVariation:5
+Health:15
+HealthVariation:5
+PhysicalResistance:0
+MagicalResistance:0
+NatureResistance:0
+FireResistance:0
+WaterResistance:0

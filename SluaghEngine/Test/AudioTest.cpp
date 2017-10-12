@@ -234,7 +234,7 @@ namespace SE
 						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
-					if (e.GetWindow()->ButtonPressed(6) == true)
+				/*	if (e.GetWindow()->ButtonPressed(6) == true)
 					{
 						console->Print("GUIManager: %f ns\n", e.GetFrameTimeNS("GUIManager"));
 					}
@@ -253,7 +253,7 @@ namespace SE
 					if (e.GetWindow()->ButtonPressed(10) == true)
 					{
 						console->Print("TextJob: %f ns\n", ren->GetFrameTimeNS("TextJob"));
-					}
+					}*/
 				}
 				e.Release();
 				return true;

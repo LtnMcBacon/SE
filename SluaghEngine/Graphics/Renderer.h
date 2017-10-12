@@ -381,7 +381,8 @@ namespace SE
 			*/
 			inline void GetProfilingInformation(Utilz::TimeMap& map)override
 			{
-				timeCluster->GetMap(map);
+				for(auto& t : timeCluster)
+					t->GetMap(map);
 			}
 		private:
 			Renderer(const Renderer& other) = delete;
@@ -507,8 +508,9 @@ namespace SE
 
 			/*********** END Threading **************/
 
-
-			Utilz::TimeCluster* timeCluster;
+			static const uint8_t GPUTimer = 0;
+			static const uint8_t CPUTimer = 1;
+			std::vector<Utilz::TimeCluster*> timeCluster;
 		};
 
 	}

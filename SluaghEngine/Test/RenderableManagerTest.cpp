@@ -153,7 +153,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	Utilz::TimeMap times;
 	timers.GetMap(times);
-	e.GetRenderer()->GetProfilingInformation(times);
+	e.GetProfilingInformation(times);
 	for(auto& t: times)
 		console->Print("%s: %f\n", t.first.str, t.second);
 
