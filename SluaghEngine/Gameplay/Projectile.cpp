@@ -10,18 +10,19 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float xMovement = 0.0f;
 	float yMovement = 0.0f;
 
-	rotation += rotData.force;
+	//rotation += rotData.force;
+	rotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y + rotData.force;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
 		xMovement = sinf(rotation);
 		yMovement = cosf(rotation);
 	}
-	else if (rotData.style == RotationStyle::PLAYER)
-	{
-		xMovement = cosf(rotation);
-		yMovement = sinf(rotation);
-	}
+	//else if (rotData.style == RotationStyle::PLAYER)
+	//{
+	//	xMovement = cosf(rotation);
+	//	yMovement = sinf(rotation);
+	//}
 
 	/*Normalize the movement vector*/
 	float moveTot = abs(xMovement) + abs(yMovement);
@@ -53,7 +54,6 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 			functionsToRun.push_back(onCollision[i]);
 		}
 
-		collisionData = CollisionData();
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
@@ -74,6 +74,8 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 			functionsToRun.pop_back();
 		}
 	}
+
+	collisionData = CollisionData();
 
 	lifeTime -= dt;
 
@@ -155,6 +157,7 @@ SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float pr
 	extentX = 0.1f; /*Should not be hardcoded! Obviously*/
 	extentY = 0.1f;
 	rotation = data.startRotation;
+	rotData = rot;
 
 	speed = projectileSpeed;
 	lifeTime = projectileLifeTime;
@@ -240,5 +243,20 @@ SE::Gameplay::Projectile::~Projectile()
 	* Code body
 	*/
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::Projectile::AddContinuousFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+{
+	functionsToRun.push_back(func);
+}
+
+void SE::Gameplay::Projectile::AddCollisionFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+{
+	onCollision.push_back(func);
+}
+
+void SE::Gameplay::Projectile::AddDeathFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+{
+	onDeath.push_back(func);
 }
 

@@ -69,6 +69,7 @@
     <ClInclude Include="..\includes\Gameplay\IComposite.h" />
     <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
     <ClInclude Include="..\includes\Gameplay\Inverter.h" />
+    <ClInclude Include="..\includes\Gameplay\KeyBindings.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />

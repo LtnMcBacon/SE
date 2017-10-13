@@ -10,7 +10,7 @@ CharacterCreationState::CharacterCreationState()
 }
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
-	this->Input = Input;
+	this->input = Input;
 }
 CharacterCreationState::~CharacterCreationState()
 {
@@ -22,15 +22,13 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 
-	
-	if (Input->ButtonPressed(0))
+	if (input->ButtonPressed(0))
 	{
-			
 		empty = State::MAIN_MENU_STATE;
 	}
 		
 
-		/*Code*/
+	/*Code*/
 
 	
 

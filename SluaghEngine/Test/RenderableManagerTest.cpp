@@ -1,7 +1,7 @@
 #include "RenderableManagerTest.h"
 #include <Core\Engine.h>
 #include <Profiler.h>
-#include <Utilz\TimeCluster.h>
+#include <Utilz\CpuTimeCluster.h>
 #include <Utilz\Timer.h>
 
 #ifdef _DEBUG
@@ -39,7 +39,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 
-	Utilz::TimeCluster timers;
+	Utilz::CPUTimeCluster timers;
 
 	timers.Start("Init");
 	auto& e = Core::Engine::GetInstance();
@@ -151,8 +151,15 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 
 	timers.Stop("Running");
 
-	console->Print("Init: %f\n", timers.GetTime("Init"));
-	console->Print("Running: %f\n", timers.GetTime("Running"));
+	Utilz::TimeMap times;
+	timers.GetMap(times);
+	e.GetProfilingInformation(times);
+	for(auto& t: times)
+		console->Print("%s: %f\n", t.first.str, t.second);
+
+
+
+
 
 	e.Release();
 	ProfileReturnConst(true);

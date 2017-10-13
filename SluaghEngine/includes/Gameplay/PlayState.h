@@ -1,7 +1,16 @@
 #ifndef _SE_GAMEPLAY_PLAY_STATE_H
 #define _SE_GAMEPLAY_PLAY_STATE_H
+
+#include <vector>
+
+#include <Core\Entity.h>
+
 #include "IGameState.h"
 #include "PlayerUnit.h"
+#include "Room.h"
+#include <Gameplay\ProjectileManager.h>
+#include <Gameplay\Projectile.h>
+#include <Gameplay\ProjectileData.h>
 
 namespace SE 
 {
@@ -36,14 +45,27 @@ namespace SE
 			* @warning Not fully implemented.
 			*
 			*/
-			State Update(void* passableInfo);
+			State Update(void*& passableInfo);
 
-			void UpdateInput(PlayerUnit::MovementInput* &Movement);
+			
 
 			
 		private:
 			void InitializeRooms();
 			void InitializePlayer();
+			void InitializeOther();
+
+			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
+			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
+
+			Core::Entity cam;
+			Core::Entity dummy;
+			PlayerUnit* player;
+			std::vector<Room> rooms;
+			Room* currentRoom = nullptr;
+
+			ProjectileManager* projectileManager;
+
 		protected:
 
 		};

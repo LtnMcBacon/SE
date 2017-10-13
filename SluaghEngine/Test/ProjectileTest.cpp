@@ -151,7 +151,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
 	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
 
@@ -259,7 +259,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		DOWN = 5,
 		LEFT = 6,
 		RIGHT_MOUSE = 7,
-		SPACE = 8
+		SPACE = 8,
+		CONSOLE = 9
 	};
 
 
@@ -269,6 +270,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
 	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
 	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
+	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
 
 	pos playerPos;
 	playerPos.x = 1.5f;
@@ -298,27 +300,31 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if (e.GetWindow()->ButtonDown(MoveDir::UP))
 		{
-			input.downW = true;
+			input.upButton = true;
 			movY += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::DOWN))
 		{
-			input.downS = true;
+			input.downButton = true;
 			movY -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
 		{
-			input.downD = true;
+			input.rightButton = true;
 			movX += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
 		{
-			input.downA = true;
+			input.leftButton = true;
 			movX -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
 		{
 			input.mouseRightDown = true;
+		}
+		if(e.GetWindow()->ButtonPressed(MoveDir::CONSOLE))
+		{
+			e.GetDevConsole().Toggle();
 		}
 
 		int mX = 0;
@@ -350,10 +356,10 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			movY /= totMov;
 		}
 
-		Gameplay::PlayerUnit::ActionInput actionInput(false);
-		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
 		{
-			actionInput.downSpace = true;
+			actionInput.skill1Button = true;
 		}
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
@@ -455,12 +461,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+
+
+	/*	Utilz::TimeMap times;
+		e.GetProfilingInformation(times);
+		for (auto& t : times)
+			console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 
 	delete projectileManager;
 
 	delete testRoom;
 	delete player;
+
+
+	
+
 	e.Release();
 
 	ProfileReturnConst(true)

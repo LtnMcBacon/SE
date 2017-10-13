@@ -141,7 +141,6 @@ namespace SE
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture3.rect = nullptr;	//not needed default nullptr
 
-
 				guiManager.Bind2D(entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3);
 				guiManager.ToggleRenderableTexture(entTexture3, true);
 
@@ -169,6 +168,11 @@ namespace SE
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
 				e.GetWindow()->MapActionButton(4, Window::KeyV);
 				e.GetWindow()->MapActionButton(5, Window::KeyM);
+				e.GetWindow()->MapActionButton(6, Window::Key1);
+				e.GetWindow()->MapActionButton(7, Window::Key2);
+				e.GetWindow()->MapActionButton(8, Window::Key3);
+				e.GetWindow()->MapActionButton(9, Window::Key4);
+				e.GetWindow()->MapActionButton(10, Window::Key5);
 
 				console->Print("Start main loop!!\n");
 				auto ren = e.GetRenderer();
@@ -230,6 +234,26 @@ namespace SE
 						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
+				/*	if (e.GetWindow()->ButtonPressed(6) == true)
+					{
+						console->Print("GUIManager: %f ns\n", e.GetFrameTimeNS("GUIManager"));
+					}
+					if (e.GetWindow()->ButtonPressed(7) == true)
+					{
+						console->Print("TransformManager: %f ns\n", e.GetFrameTimeNS("TransformManager"));
+					}
+					if (e.GetWindow()->ButtonPressed(8) == true)
+					{
+						console->Print("AudioManager: %f ns\n", e.GetFrameTimeNS("AudioManager"));
+					}
+					if (e.GetWindow()->ButtonPressed(9) == true)
+					{
+						console->Print("GUIJob: %f ns\n", ren->GetFrameTimeNS("GUIJob"));
+					}
+					if (e.GetWindow()->ButtonPressed(10) == true)
+					{
+						console->Print("TextJob: %f ns\n", ren->GetFrameTimeNS("TextJob"));
+					}*/
 				}
 				e.Release();
 				return true;
