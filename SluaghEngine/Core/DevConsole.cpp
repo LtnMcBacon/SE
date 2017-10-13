@@ -97,7 +97,7 @@ void SE::Core::DevConsole::Frame()
 			if(ImGui::BeginMenu("Debugging"))
 			{
 				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
-				ImGui::MenuItem("Show GPU timings", nullptr, &show_gpu_timings);
+				ImGui::MenuItem("Show frame timings", nullptr, &show_gpu_timings);
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
