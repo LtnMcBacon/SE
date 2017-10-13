@@ -80,7 +80,7 @@ namespace SE
 
 				// Text creation
 				Graphics::TextGUI guiText;
-				guiText.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiText.effect = DirectX::SpriteEffects_None;
 				guiText.fontID = 0;
 				guiText.text = L"Is this pizza heaven????";
@@ -97,7 +97,7 @@ namespace SE
 				// GUI texture creation
 				auto entTexture = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture;
-				guiTexture.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture.effect = DirectX::SpriteEffects_FlipBoth;
 				guiTexture.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture.layerDepth = 0;
@@ -114,7 +114,7 @@ namespace SE
 				// GUI texture creation2
 				auto entTexture2 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture2;
-				guiTexture2.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture2.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture2.effect = DirectX::SpriteEffects_FlipHorizontally;
 				guiTexture2.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture2.layerDepth = 0;
@@ -131,7 +131,7 @@ namespace SE
 				// GUI texture creation3
 				auto entTexture3 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture3;
-				guiTexture3.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture3.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture3.effect = DirectX::SpriteEffects_FlipVertically;
 				guiTexture3.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture3.layerDepth = 0;
@@ -147,7 +147,7 @@ namespace SE
 				// GUI texture creation4
 				auto entTexture4 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture4;
-				guiTexture4.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture4.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture4.effect = DirectX::SpriteEffects_None;
 				guiTexture4.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture4.layerDepth = 0;

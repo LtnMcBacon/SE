@@ -110,7 +110,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT3 colour) {
+			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -174,7 +174,7 @@ namespace SE
 			};
 
 			// sets for texture
-			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT3 colour) {
+			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour) {
 				// chexk if entity exist in texture
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())

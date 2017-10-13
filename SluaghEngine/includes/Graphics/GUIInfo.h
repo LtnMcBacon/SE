@@ -22,26 +22,28 @@ namespace SE
 			size_t fontID;
 			int hashString;
 			std::wstring text;		
-			DirectX::XMFLOAT3 colour;
+			DirectX::XMFLOAT4 colour;
 			DirectX::XMFLOAT2 pos;
 			DirectX::XMFLOAT2 origin;			
 			DirectX::XMFLOAT2 scale;
 			DirectX::SpriteEffects effect;
 			float rotation;		
 			float layerDepth;
+			bool anchor = false;
 		};
 
 		struct GUITextureInfo
 		{
 			int textureID = 0;
 			DirectX::XMFLOAT2 pos;
-			DirectX::XMFLOAT3 colour;
+			DirectX::XMFLOAT4 colour;
 			DirectX::XMFLOAT2 origin;
 			DirectX::XMFLOAT2 scale;
 			DirectX::SpriteEffects effect;
 			RECT* rect = nullptr;
 			float rotation;	
 			float layerDepth;
+			bool anchor = false;
 
 			/*inline*/ size_t operator==(const GUITextureInfo& rhs) const
 			{
@@ -62,7 +64,9 @@ namespace SE
 				stateChanges = (stateChanges << 1) | (colour.x != rhs.colour.x);
 				stateChanges = (stateChanges << 1) | (colour.y != rhs.colour.y);
 				stateChanges = (stateChanges << 1) | (colour.z != rhs.colour.z);
+				stateChanges = (stateChanges << 1) | (colour.w != rhs.colour.w);
 				stateChanges = (stateChanges << 1) | (effect != rhs.effect);
+				stateChanges = (stateChanges << 1) | (anchor != rhs.anchor);
 				if (stateChanges != 0)
 					return false;
 				return true;

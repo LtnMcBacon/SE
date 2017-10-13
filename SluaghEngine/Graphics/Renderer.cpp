@@ -499,7 +499,7 @@ int SE::Graphics::Renderer::Render() {
 		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
@@ -515,7 +515,7 @@ int SE::Graphics::Renderer::Render() {
 		spriteBatch->Begin();
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
