@@ -88,6 +88,7 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 			// Push back the animation at the current joint in the given skeleton
 			currentAnimation.Joints.push_back(jointKeyFrame);
 		}
+
 		*animationID = animations.size();
 		animations.push_back(currentAnimation);
 		
@@ -128,9 +129,6 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 		
 		// Get the current joint GLOBAL transformation at the current animation time pose
 		b.GlobalTx = interpolatedJointTransforms[i];
-
-		XMFLOAT4X4 temp;
-		XMStoreFloat4x4(&temp, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
@@ -203,7 +201,7 @@ void SE::Graphics::AnimationSystem::Interpolate(const JointKeyFrame& joint, floa
 	float kFirst = joint.Keyframes[currentFrameIndex].TimePos;
 	float kLast = joint.Keyframes[currentFrameIndex + 1].TimePos;
 
-	// Though the interpolation percent will be mainly responsible of returning a slightly changed matrix
+	// The interpolation percent will be mainly responsible of returning a slightly changed matrix
 	float interpolationPercent = (animTimePos - kFirst) / (kLast - kFirst);
 
 	XMVECTOR kFirstScale = XMLoadFloat4(&joint.Keyframes[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.

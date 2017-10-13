@@ -555,8 +555,8 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 
 		// Create the bind pose for each joint in the hierarchy
 		//CreateBindPoseManual(pMesh);
-		//CreateBindPoseAutomatic(pMesh);
-		CreateBindPoseEvaluateGlobalTransform(pMesh);
+		CreateBindPoseAutomatic(pMesh);
+		//CreateBindPoseEvaluateGlobalTransform(pMesh);
 
 		// Gather the weights for the mesh
 		GatherWeights(pMesh);
@@ -1103,7 +1103,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 				FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 				FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
+				
 				// Scaling curves (Should always be 1)
 				FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 				FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -1146,6 +1146,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
 					FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
+					// Compose the quaternion from euler angles
 					FbxQuaternion quaternion;
 					quaternion.ComposeSphericalXYZ(rotationVector);
 
@@ -1159,9 +1160,6 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 						// Get the root joint local and global transform
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
 						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
-
-						// We can go ahead and create its global transformation without having to build it later
-						CreateKeyframe(CurrentAnimation, timeIndex, localTransform);
 
 						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
 					}
@@ -1219,6 +1217,7 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 			// Get the child and parent joint references
 			Joint &childBone = pMesh.skeleton.hierarchy[currentJointIndex];
 			Joint &parentBone = pMesh.skeleton.hierarchy[childBone.ParentIndex];
+
 			// Get number of animations
 			int animCount = childBone.Animations.size();
 
@@ -1245,9 +1244,6 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 
 					// Multiply the joint parent transform and the child transform
 					childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
-
-					// CreateKeyframe sets the global transform at the given time for the current animation
-					CreateKeyframe(childAnimation, timeIndex, childAnimation.Keyframes[timeIndex].GlobalTransform);
 
 					logFile << "Time: " << timeIndex + 1 << endl;
 					Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
@@ -1620,10 +1616,9 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 
 			// Get the bindpose and joint parent index
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
-			XMFLOAT4X4 bindPoseMatrix;
+			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
 			
-			
-			XMStoreFloat4x4(&bindPoseMatrix, XMMatrixTranspose(XMLoadFloat4x4(&Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse))));
+			//XMStoreFloat4x4(&bindPoseMatrix, XMMatrixTranspose(XMLoadFloat4x4(&Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse))));
 
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
@@ -1668,7 +1663,7 @@ void SE::FBX::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton)
 
 					// Transpose the matrix from column major to row major
 					XMFLOAT4X4 jbt;
-					XMStoreFloat4x4(&jbt,XMMatrixTranspose( jointGlobalTransform));
+					XMStoreFloat4x4(&jbt,jointGlobalTransform);
 					animationTransformations.push_back(jbt);
 
 				}
