@@ -107,7 +107,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,7 +119,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +137,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,7 +155,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

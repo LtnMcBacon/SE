@@ -77,7 +77,7 @@ namespace SE {
 			else
 			{
 				memset(out, 0, framesPerBuffer * data->sample->info.channels);
-				for (i = 0; i < (framesPerBuffer * (data->pData.currentPos + 1) * data->sample->info.channels) - (data->sample->info.frames * data->sample->info.channels) - 1; i++)
+				for (i = 0; i < (framesPerBuffer * (data->pData.currentPos + 1) * data->sample->info.channels) - (data->sample->info.frames * data->sample->info.channels); i++)
 				{
 					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{
@@ -104,7 +104,30 @@ namespace SE {
 			unsigned int _i;
 			(void)inputBuffer; /* Prevent unused variable warning. */
 
-			if ((framesPerBuffer * _data->pData.currentPos * _data->sample->info.channels) + framesPerBuffer * _data->sample->info.channels <= _data->sample->info.frames * _data->sample->info.channels)
+			if (framesPerBuffer * _data->pData.currentPos >= _data->sample->info.frames / 2)
+				return paComplete;
+
+			for (_i = 0; _i<framesPerBuffer; _i++)
+			{
+				if (_data->pData.currentPos * framesPerBuffer + _i < _data->sample->info.frames)
+				{
+					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					{
+						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
+					}
+				}
+				else
+				{
+					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					{
+						*_out++ = 0.0f;
+					}
+				}
+			}
+			_data->pData.currentPos++;
+			return paContinue;
+
+			/*if (framesPerBuffer * _data->pData.currentPos < _data->sample->info.frames - framesPerBuffer)
 			{
 				for (_i = 0; _i<framesPerBuffer; _i++)
 				{
@@ -114,21 +137,21 @@ namespace SE {
 					}
 				}
 				_data->pData.currentPos++;
-				return 0;
+				return paContinue;
 			}
 			else
 			{
 				memset(_out, 0, framesPerBuffer * _data->sample->info.channels);
-				for (_i = 0; _i < (framesPerBuffer * (_data->pData.currentPos + 1) * _data->sample->info.channels) - (_data->sample->info.frames * _data->sample->info.channels) - 1; _i++)
+				for (_i = 0; _i < (framesPerBuffer * _data->pData.currentPos * _data->sample->info.channels) + framesPerBuffer * _data->sample->info.channels - (_data->sample->info.frames * _data->sample->info.channels) - 1; _i++)
 				{
 					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
 					{
 						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
 					}
 				}
-				return 1;
+				return paComplete;
 			}
-			return 1;
+			return paComplete;*/
 		};
 
 	}	//namespace Audio

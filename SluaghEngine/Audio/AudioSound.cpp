@@ -1,37 +1,16 @@
 #include "AudioSound.h"
 #include <Profiler.h>
 
-namespace SE {
-	namespace Audio {
-		AudioSound::AudioSound()
-		{
-			masterVol = 0;
-			effectVol = 0;
-			bakgroundVol = 0;
-		}
-
-		AudioSound::~AudioSound()
-		{
-			
-		}
-
-		int AudioSound::Initialize()
-		{
-			StartProfile;
-			sampleStack.InitStackAlloc(100000000);
-			ProfileReturnConst(0);
-		}
-
-		namespace sfvirt {
+namespace sfvirt {
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 				return data->size;
 			};
 
 			sf_count_t sf_vio_seek1(sf_count_t offset, int whence, void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 				if (whence == SEEK_CUR)
 				{
 					if (data->currentPos + offset < data->size && data->currentPos + offset >= 0)
@@ -52,7 +31,7 @@ namespace SE {
 
 			sf_count_t sf_vio_read1(void *ptr, sf_count_t count, void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 
 				if (data->currentPos + count < data->size)
 				{
@@ -76,12 +55,35 @@ namespace SE {
 
 			sf_count_t sf_vio_tell1(void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 				return data->currentPos;
 			};
 		}
 
-		int AudioSound::LoadSound(AudioFile* sound)
+
+
+namespace SE {
+	namespace Audio {
+		AudioSound::AudioSound()
+		{
+			masterVol = 0;
+			effectVol = 0;
+			bakgroundVol = 0;
+		}
+
+		AudioSound::~AudioSound()
+		{
+			
+		}
+
+		int AudioSound::Initialize()
+		{
+			StartProfile;
+			sampleStack.InitStackAlloc(100000000);
+			ProfileReturnConst(0);
+		}
+
+		size_t AudioSound::LoadSound(AudioFile* sound)
 		{
 			StartProfile;
 			SF_VIRTUAL_IO sfvirtual;

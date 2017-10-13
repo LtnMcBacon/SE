@@ -96,8 +96,8 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].text = text;
-					loadedTexts[entID[entity].ID].hashString = std::hash<std::wstring>()(text);
+					loadedTexts[fileLoaded->second.ID].text = text;
+					loadedTexts[fileLoaded->second.ID].hashString = std::hash<std::wstring>()(text);
 				}
 			};
 
@@ -106,7 +106,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].fontID = fontID;
+					loadedTexts[fileLoaded->second.ID].fontID = fontID;
 				}
 			};
 
@@ -115,7 +115,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].colour = colour;
+					loadedTexts[fileLoaded->second.ID].colour = colour;
 				}
 			};
 			
@@ -124,7 +124,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].pos = pos;
+					loadedTexts[fileLoaded->second.ID].pos = pos;
 				}
 			};
 			
@@ -133,7 +133,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].origin = origin;
+					loadedTexts[fileLoaded->second.ID].origin = origin;
 				}
 			};
 			
@@ -142,7 +142,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].scale = scale;
+					loadedTexts[fileLoaded->second.ID].scale = scale;
 				}
 			};
 			
@@ -151,7 +151,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].effect = effect;
+					loadedTexts[fileLoaded->second.ID].effect = effect;
 				}
 			};
 			
@@ -160,7 +160,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].rotation = rotation;
+					loadedTexts[fileLoaded->second.ID].rotation = rotation;
 				}
 			};
 			
@@ -169,7 +169,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[entID[entity].ID].layerDepth = layerDepth;
+					loadedTexts[fileLoaded->second.ID].layerDepth = layerDepth;
 				}
 			};
 
@@ -179,7 +179,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].colour = colour;
+					textureInfo[fileLoaded->second.ID].colour = colour;
 				}
 			};
 
@@ -188,7 +188,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].pos = pos;
+					textureInfo[fileLoaded->second.ID].pos = pos;
 				}
 			};
 
@@ -197,7 +197,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].origin = origin;
+					textureInfo[fileLoaded->second.ID].origin = origin;
 				}
 			};
 
@@ -206,7 +206,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].scale = scale;
+					textureInfo[fileLoaded->second.ID].scale = scale;
 				}
 			};
 
@@ -215,7 +215,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].effect = effect;
+					textureInfo[fileLoaded->second.ID].effect = effect;
 				}
 			};
 
@@ -224,7 +224,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].rotation = rotation;
+					textureInfo[fileLoaded->second.ID].rotation = rotation;
 				}
 			};
 
@@ -233,7 +233,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].layerDepth = layerDepth;
+					textureInfo[fileLoaded->second.ID].layerDepth = layerDepth;
 				}
 			};
 
@@ -243,10 +243,10 @@ namespace SE
 				auto guidLoaded = textureGUID.find(guid);
 				if (fileLoaded != entTextureID.end() && guidLoaded != textureGUID.end())
 				{
-					textureGUID[entTextureID[entity].GUID].refCount--;
-					entTextureID[entity].GUID = guid;
-					textureInfo[entTextureID[entity].ID].textureID = textureGUID[guid].textureHandle;
-					textureGUID[guid].refCount++;
+					textureGUID[fileLoaded->second.GUID].refCount--;
+					fileLoaded->second.GUID = guid;
+					textureInfo[fileLoaded->second.ID].textureID = guidLoaded->second.textureHandle;
+					guidLoaded->second.refCount++;
 				}
 			};
 
@@ -255,7 +255,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[entTextureID[entity].ID].rect = rect;
+					textureInfo[fileLoaded->second.ID].rect = rect;
 				}
 			};
 

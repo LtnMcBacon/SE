@@ -36,7 +36,7 @@ namespace SE {
 			* @retval 0+ Sound sample ID
 			*
 			*/
-			int LoadSound(AudioFile* sound);
+			size_t LoadSound(AudioFile* sound);
 			/**
 			* @brief	Returns the requested sample
 			*
