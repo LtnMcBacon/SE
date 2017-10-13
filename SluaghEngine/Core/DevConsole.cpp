@@ -122,8 +122,31 @@ void SE::Core::DevConsole::Frame()
 		if(show_gpu_timings)
 		{
 			SE::Utilz::TimeMap map;
-			
 			Core::Engine::GetInstance().GetProfilingInformation(map);
+			static float maxFrameTime = 0.0f;
+			static float minFrameTime = 999999999.0f;
+			static float avg100Frames = 0.0f;
+			static float runningSum = 0.0f;
+			static size_t frameCounter = 0;
+			const auto frame = map.find("Frame");
+			if(frame != map.end())
+			{
+				runningSum += frame->second;
+				if (frame->second < minFrameTime)
+					minFrameTime = frame->second;
+				if (frame->second > maxFrameTime)
+					maxFrameTime = frame->second;
+				if (frameCounter >= 100)
+				{
+					avg100Frames = runningSum / frameCounter;
+					frameCounter = 0;
+					runningSum = 0.0f;
+				}
+
+			}
+			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
+			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
+			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
 			for(auto& m : map)
 			{
 				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
