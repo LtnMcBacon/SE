@@ -3,6 +3,7 @@
 
 #include <Utilz/GUID.h>
 #include <map>
+#include <ResourceHandler\IResourceHandler.h>
 
 namespace SE
 {
@@ -57,7 +58,7 @@ namespace SE
 			* @param[out] size The size of the data recieved from the file.
 			*
 			*/
-			int LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
+			ResourceHandler::InvokeReturn LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
 			
 
 		public:

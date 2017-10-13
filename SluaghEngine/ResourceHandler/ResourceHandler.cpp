@@ -25,7 +25,9 @@ int SE::ResourceHandler::ResourceHandler::Initialize()
 	Allocate(128);
 
 	running = true;
-	myThread = std::thread(&ResourceHandler::Run, this);
+
+	toLoadThread = std::thread(&ResourceHandler::ToLoadThreadEntry, this);
+	toInvokeThread = std::thread(&ResourceHandler::ToInvokeThreadEntry, this);
 
 	ProfileReturnConst(0);
 }
@@ -34,8 +36,11 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
 
 	running = false;
-	if(myThread.joinable())
-		myThread.join();
+	if(toLoadThread.joinable())
+		toLoadThread.join();
+
+	if(toInvokeThread.joinable())
+		toInvokeThread.join();
 
 
 	for (size_t i = 0; i < resourceInfo.used; i++)
@@ -74,7 +79,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		resourceInfo.resourceData[index].data = nullptr;
 
 		if (async) { // We create a load job
-			CreateLoadJob(guid, index, callback, behavior);
+			toLoad.push({ guid, index, callback, behavior });
 			ProfileReturnConst(0);
 		}
 		else {
@@ -88,7 +93,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		{
 
 			if (async) { // Since the load is async we make a load job that will call the callback.			
-				CreateLoadJob(guid, index, callback, behavior);
+				toInvoke.push({ guid, index, callback, behavior });
 				ProfileReturnConst(0);
 			}
 			else { // Invoke the callback
@@ -100,7 +105,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			// Update the toLoad struct
 
 			if (async) { // Update the load job
-				CreateLoadJob(guid, index, callback, behavior);
+				toInvoke.push({ guid, index, callback, behavior });
 				ProfileReturnConst(0);
 			}
 			else // Since the load is sync we need to wait until the resource has been loaded.
@@ -111,8 +116,10 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		}
 		else // The resource is dead, the refCount reached 0 before the load was completed.
 		{
+			resourceInfo.state[index] = State::Loading;
+			resourceInfo.refCount[index] = 1;
 			if (async) { // We create a load job
-				CreateLoadJob(guid, index, callback, behavior);
+				toLoad.push({ guid, index, callback, behavior });
 				ProfileReturnConst(0);
 			}
 			else {
@@ -123,19 +130,35 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	StopProfile;
 }
 
+int SE::ResourceHandler::ResourceHandler::LoadResources(const LoadStruct & toLoad, bool async, Behavior behavior)
+{
+	StartProfile;
+	// Make sure all resources exist.
+	for (size_t i = 0; i < toLoad.guidCount; i++)
+		if (!toLoad.resourceToLoad || !diskLoader->Exist(toLoad.resourceToLoad[i]))
+			ProfileReturnConst(-1);
+
+
+
+
+
+	ProfileReturnConst(0);
+}
+
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
 {
 	StartProfile;
-	infoLock.lock();
+
 	auto& find = guidToResourceInfoIndex.find(guid);
 	if (find == guidToResourceInfoIndex.end())
 	{
+		infoLock.lock();
 		resourceInfo.refCount[find->second]--;
 		if (resourceInfo.refCount[find->second] == 0 && resourceInfo.state[find->second] == State::Loading) // If no one want the resource any more and isn't loaded yet.
-			RemoveLoadJob(guid); // Remove the load job.
-
+			resourceInfo.state[find->second] = State::Dead;
+		infoLock.unlock();
 	}
-	infoLock.unlock();
+	
 	StopProfile;
 }
 
@@ -173,138 +196,107 @@ void SE::ResourceHandler::ResourceHandler::Destroy(size_t index)
 {
 }
 
-void SE::ResourceHandler::ResourceHandler::Run()
-{
-	StartProfile;
-
-	while (running)
-	{		
-			LoadAsync();
-			std::this_thread::sleep_for(66ms);
-	}
-	StopProfile;
-}
-
-void SE::ResourceHandler::ResourceHandler::LoadAsync()
-{
-
-	while (toLoad.size()) // Do we need to load anything.
-	{
-		StartProfile;
-		toLoadLock.lock();
-		auto job = toLoad.top();
-		toLoad.pop();
-		toLoadLock.unlock();
-
-		infoLock.lock();
-		auto state = resourceInfo.state[job.resourceInfoIndex];		
-		infoLock.unlock();
-
-		if (state == State::Loading) // Resource is not loaded yet
-		{
-			Data data;
-			auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size); // TODO: Fail check
-			if (result != 0)
-				throw std::exception("EnumAdapters failed in MemoryMeasuring.");
-
-
-			infoLock.lock();
-			resourceInfo.resourceData[job.resourceInfoIndex] = data;
-			resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
-			infoLock.unlock();
-
-
-			auto ret = job.callback(job.guid, data.data, data.size);
-			if (ret == 1)
-			{
-				infoLock.lock();
-				resourceInfo.refCount[job.resourceInfoIndex]--;
-				infoLock.unlock();
-			}
-
-		}
-		else if (state == State::Loaded) // Resource is loaded.
-		{
-			infoLock.lock();
-			Data data = resourceInfo.resourceData[job.resourceInfoIndex];
-			infoLock.unlock();
-
-			auto ret = job.callback(job.guid, data.data, data.size);
-			if (ret == 1)
-			{
-				infoLock.lock();
-				resourceInfo.refCount[job.resourceInfoIndex]--;
-				infoLock.unlock();
-			}
-
-		}
-		StopProfile;
-	}
-	
-}
-
-void SE::ResourceHandler::ResourceHandler::CreateLoadJob(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback, Behavior behavior)
-{
-	StartProfile;
-
-	ToLoadInfo tl;
-	tl.behavior = behavior;
-	tl.callback = callback;
-	tl.resourceInfoIndex = index;
-	tl.guid = guid;
-	toLoadLock.lock();
-	toLoad.push(tl);
-	toLoadLock.unlock();
-	StopProfile;
-}
-
-void SE::ResourceHandler::ResourceHandler::UpdateLoadJob(ToLoadInfo & loadInfo, const LoadResourceDelegate & callback, Behavior behavior)
-{
-	StartProfile;
-	//toLoadLock.lock();
-	//loadInfo.behavior = loadInfo.behavior == Behavior::QUICK ? Behavior::QUICK : behavior; // If someone already needs the resource quickly, make sure that we don't change it to lazy.
-	//loadInfo.callbacks += callback;
-	//toLoadLock.unlock();
-	StopProfile;
-}
-
-void SE::ResourceHandler::ResourceHandler::RemoveLoadJob(const Utilz::GUID & guid)
-{
-	StartProfile;
-	//toLoadLock.lock();
-	//toLoad.erase(guid);
-	//auto index = guidToResourceInfoIndex[guid];
-	//resourceInfo.state[index] = State::Dead;
-	//toLoadLock.unlock();
-	StopProfile;
-}
-
 int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
 {
 	StartProfile;
-	auto result = diskLoader->LoadResource(guid, &resourceInfo.resourceData[index].data, &resourceInfo.resourceData[index].size);
+	Data data;
+	auto result = diskLoader->LoadResource(guid, &data.data, &data.size);
 	if (result)
-	{
-	//	Utilz::Console::Print("Could not load resource GUID: %u, Error: %d.\n", guid, result);
 		ProfileReturnConst(result);
-	}
 		
+	infoLock.lock();
+	resourceInfo.resourceData[index] = data;
 	resourceInfo.state[index] = State::Loaded;
-	auto cb = callback;
+	infoLock.unlock();
 	ProfileReturn(InvokeCallback(guid, index, callback));
 }
 
 int SE::ResourceHandler::ResourceHandler::InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
 {
 	StartProfile;
+
 	auto result = callback(guid, resourceInfo.resourceData[index].data, resourceInfo.resourceData[index].size);
-	if (result == 1) // Tells the resourceHandler to decrease the refcount.
+
+	switch (result)
 	{
+	case SE::ResourceHandler::InvokeReturn::Fail:
+		ProfileReturnConst(-1);
+		break;
+	case SE::ResourceHandler::InvokeReturn::DecreaseRefcount:
 		infoLock.lock();
 		resourceInfo.refCount[index]--;
 		infoLock.unlock();
-		ProfileReturnConst(0);
+		break;
 	}
+	ProfileReturnConst(0);
+}
 
-	ProfileReturnConst(result);
+void SE::ResourceHandler::ResourceHandler::ToLoadThreadEntry()
+{
+	while (running)
+	{
+		while (running && !toLoad.wasEmpty())
+		{
+			const auto& job = toLoad.top();
+
+			infoLock.lock();
+			auto state = resourceInfo.state[job.resourceInfoIndex];
+			infoLock.unlock();
+
+			if (state == State::Loading) // Resource is not loaded yet
+			{
+				Data data;
+				auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size);
+				if (!result)
+				{
+					infoLock.lock();
+					resourceInfo.resourceData[job.resourceInfoIndex] = data;
+					resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
+					infoLock.unlock();			
+					job.callback;
+					toInvoke.push(job);
+				}			
+			}
+			else
+			{
+				int i = 0;
+			}
+
+			toLoad.pop();
+		}
+		std::this_thread::sleep_for(100ms);
+	}
+}
+
+void SE::ResourceHandler::ResourceHandler::ToInvokeThreadEntry()
+{
+	while (running)
+	{
+		while (running && !toInvoke.wasEmpty())
+		{
+			const auto& job = toInvoke.top();
+
+			infoLock.lock();
+			auto state = resourceInfo.state[job.resourceInfoIndex];
+			infoLock.unlock();
+
+
+			switch (state)
+			{
+			case SE::ResourceHandler::ResourceHandler::State::Loaded:
+				InvokeCallback(job.guid, job.resourceInfoIndex, job.callback);
+				toInvoke.pop();
+				break;
+			case SE::ResourceHandler::ResourceHandler::State::Loading:
+				std::this_thread::sleep_for(10ms);
+				break;
+			case SE::ResourceHandler::ResourceHandler::State::Dead:
+				toInvoke.pop();
+				break;
+			default:
+				break;
+			}
+		}
+		std::this_thread::sleep_for(100ms);
+	}
 }

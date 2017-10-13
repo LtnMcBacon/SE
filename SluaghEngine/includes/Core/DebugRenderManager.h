@@ -108,8 +108,8 @@ namespace SE
 			std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
 			
 
-			int LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
-			int LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size);
+			ResourceHandler::InvokeReturn LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
+			ResourceHandler::InvokeReturn LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size);
 
 			void SetDirty(const Entity & entity, size_t index);
 

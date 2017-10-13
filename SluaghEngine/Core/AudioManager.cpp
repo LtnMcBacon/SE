@@ -18,11 +18,11 @@ namespace SE {
 			ProfileReturn(audioHandler->Initialize());
 		}
 
-		int AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
+		ResourceHandler::InvokeReturn AudioManager::retSoundData(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
 			trackSound[guid] = audioHandler->LoadSound(data, size);
-			ProfileReturn(0);
+			ProfileReturn(ResourceHandler::InvokeReturn::Success);
 		}
 
 		int AudioManager::LoadSound(Utilz::GUID soundFile)
