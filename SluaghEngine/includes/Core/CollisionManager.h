@@ -10,7 +10,7 @@
 #include "TransformManager.h"
 #include <unordered_map>
 #include <map>
-#include <mutex>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -49,7 +49,7 @@ namespace SE
 			* @param[in] p1 The lower front left corner.
 			* @param[in] p2 The upper back right corner.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2);
+			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2, bool async, ResourceHandler::Behavior behavior);
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -57,7 +57,7 @@ namespace SE
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh);
+			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
 
 			/**
 			* @brief	Bind a callback that will be called if the given entity collides with any other entity.
@@ -192,8 +192,14 @@ namespace SE
 
 			CollideCallback collideWithAny;
 
-			std::mutex infoLock;
-			std::mutex entityUpdateLock;
+
+			struct ToUpdate
+			{
+				size_t boundingHierarchyIndex;
+				size_t index;
+			};
+
+			Utilz::CircularFiFo<ToUpdate> toUpdate;
 		};
 	}
 }

@@ -262,13 +262,13 @@ namespace SE
 
 			void Shutdown();
 		private:
-			int LoadFont(const Utilz::GUID& font, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
 
 
 			void GarbageCollection();
 			void DestroyText(size_t index);
 			void DestroyTexture(size_t index);
-			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			struct EntBindIDGUID
 			{

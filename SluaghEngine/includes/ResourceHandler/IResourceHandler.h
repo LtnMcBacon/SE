@@ -16,13 +16,32 @@ namespace SE
 {
 	namespace ResourceHandler
 	{
+
+
+		struct LoadStruct
+		{
+			size_t guidCount;
+			Utilz::GUID* resourceToLoad;
+		};
+
+		enum class InvokeReturn : uint8_t
+		{
+			Success,
+			Fail,
+			DecreaseRefcount,
+			Hold
+		};
+		typedef Utilz::Delegate<InvokeReturn(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
+
+		
+
+
 		enum class Behavior : uint8_t
 		{
 			QUICK,
 			LAZY
 		};
-		typedef Utilz::Delegate<int(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate; /**Return 0 on Success but not decrement refCount, 1 to decremeant refcount, -1 if error. */
-		typedef int(*LoadResourceFunctionTemplate) (const Utilz::GUID& guid, void* data, size_t size);
+
 		/**
 		*
 		* @brief Resource Handler Interface
@@ -60,7 +79,7 @@ namespace SE
 			* @param[in] guid The GUID of the resource to be loaded.
 			* @param[in] callback A delegate that is called when the data has been loaded.
 			* @param[in] async If the resource should be loaded with async.
-			* @param[in] behavior QUICK will prioritize the resource. LAZY will try to load the resource at regular intervals.
+			* @param[in] behavior QUICK will prioritize the resource, ignoring the memory limit. LAZY will try to load the resource at regular intervals and try to not go over the memory limit.
 			*
 			* @retval 0 On success.
 			* Example code:
@@ -87,9 +106,13 @@ namespace SE
 			* }
 			*
 			* @endcode
+			* @sa InvokeReturn
 			* @sa LoadResourceDelegate
 			*/
 			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
+
+			virtual int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
+
 
 			/**
 			* @brief	Unload the given resource
