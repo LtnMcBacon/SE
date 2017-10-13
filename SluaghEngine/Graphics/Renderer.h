@@ -9,6 +9,8 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
+#include <Utilz\TimeCluster.h>
+
 namespace SE
 {
 	namespace Graphics
@@ -357,6 +359,12 @@ namespace SE
 			*/
 			void PauseAnimation(int job) override;
 
+			/**
+			* @brief	The amount of VRam currently used.
+			*
+			* @retval size_t The amount of VRam used in bytes.
+			*
+			*/
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
@@ -367,6 +375,15 @@ namespace SE
 				return errorLog;
 			}
 
+			/**
+			* @brief	Return a map of with profiling information.
+			*
+			*/
+			inline void GetProfilingInformation(Utilz::TimeMap& map)override
+			{
+				for(auto& t : timeCluster)
+					t->GetMap(map);
+			}
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -490,6 +507,10 @@ namespace SE
 			void Frame();
 
 			/*********** END Threading **************/
+
+			static const uint8_t GPUTimer = 0;
+			static const uint8_t CPUTimer = 1;
+			std::vector<Utilz::TimeCluster*> timeCluster;
 		};
 
 	}

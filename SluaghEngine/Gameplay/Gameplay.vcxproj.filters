@@ -323,6 +323,9 @@
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\KeyBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>

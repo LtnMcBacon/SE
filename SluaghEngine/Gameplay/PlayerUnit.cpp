@@ -111,13 +111,13 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	float yMovement = 0.f;
 
 	// Handle input and apply movement
-	if (inputs.downW)
+	if (inputs.upButton)
 		yMovement += 1.0f;
-	if (inputs.downS)
+	if (inputs.downButton)
 		yMovement -= 1.0f;
-	if (inputs.downA)
+	if (inputs.leftButton)
 		xMovement -= 1.0f;
-	if (inputs.downD)
+	if (inputs.rightButton)
 		xMovement += 1.0f;
 
 	float tempX = xMovement;
@@ -171,7 +171,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
-	if (input.downSpace)
+	if (input.skill1Button)
 	{
 		ProjectileData temp;
 

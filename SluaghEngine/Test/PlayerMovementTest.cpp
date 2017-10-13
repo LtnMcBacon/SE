@@ -316,22 +316,22 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if(e.GetWindow()->ButtonDown(MoveDir::UP))
 		{
-			input.downW = true;
+			input.upButton = true;
 			movY += 1.0f;
 		}
 		if(e.GetWindow()->ButtonDown(MoveDir::DOWN))
 		{
-			input.downS = true;
+			input.downButton = true;
 			movY -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
 		{
-			input.downD = true;
+			input.rightButton = true;
 			movX += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
 		{
-			input.downA = true;
+			input.leftButton = true;
 			movX -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))

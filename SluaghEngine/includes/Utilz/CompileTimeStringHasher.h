@@ -11,6 +11,7 @@ namespace SE
 {
 	namespace Utilz
 	{
+
 		template<size_t idx>
 		constexpr uint32_t crc32(const char * str)
 		{
@@ -23,6 +24,22 @@ namespace SE
 		{
 			return 0xFFFFFFFF;
 		}
+
+		struct IDHash
+		{
+			struct Compare
+			{
+				inline bool operator() (const IDHash& lhs, const IDHash& rhs) const
+				{
+					return lhs.hash < rhs.hash;
+				}
+			};
+
+			constexpr IDHash(const char* str) : hash(COMPILE_TIME_CRC32_STR(str)), str(str) {};
+
+			uint32_t hash;
+			const char* str;
+		};
 	}
 }
 

@@ -4,17 +4,19 @@
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
-
+#include <Utilz\CPUTimeCluster.h>
 #include <Imgui\imgui.h>
 #include <ImGuiDX11SDL\ImGuiDX11SDL.h>
 
 
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
+#pragma comment(lib, "GraphicsD.lib")
 #pragma comment(lib, "WindowD.lib")
 #pragma comment(lib, "ImGuiDX11SDLD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
 #pragma comment(lib, "ImGuiDX11SDL.lib");
 #endif
@@ -77,6 +79,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	ImGuiDX11SDL_Init(renderer, window);
 	devConsole = new DevConsole(renderer);
+
+	timeClus = new Utilz::CPUTimeCluster;
+
+
 	ProfileReturnConst(0);
 }
 
@@ -97,19 +103,42 @@ int SE::Core::Engine::Frame(double dt)
 	StartProfile;
 	if (!frameBegun)
 		BeginFrame();
+	timeClus->Start("GUIManager");
 	guiManager->Frame();
+	timeClus->Stop("GUIManager");
+	timeClus->Start("LightManager");
 	lightManager->Frame();
+	timeClus->Stop("LightManager");
+	timeClus->Start("TransformManager");
 	transformManager->Frame();
+	timeClus->Stop("TransformManager");
+	timeClus->Start("RenderableManager");
 	renderableManager->Frame();
+	timeClus->Stop("RenderableManager");
+	timeClus->Start("DebugRenderManager");
 	debugRenderManager->Frame(*perFrameStackAllocator);
+	timeClus->Stop("DebugRenderManager");
+	timeClus->Start("AudioManager");
 	audioManager->Frame();
+	timeClus->Stop("AudioManager");
+	timeClus->Start("AnimationManager");
 	animationManager->Frame();
+	timeClus->Stop("AnimationManager");
+	timeClus->Start("MaterialManager");
 	materialManager->Frame();
+	timeClus->Stop("MaterialManager");
+	timeClus->Start("CollisionManager");
 	collisionManager->Frame();
+	timeClus->Stop("CollisionManager");
+	timeClus->Start("CameraManager");
 	cameraManager->Frame();
+	timeClus->Stop("CameraManager");
+	timeClus->Start("Renderer");
 	renderer->Render();
+	timeClus->Stop("Renderer");
 	GatherErrors();
 	devConsole->Frame();
+
 	ImGui::Render();
 	renderer->EndFrame();
 	perFrameStackAllocator->ClearStackAlloc();
@@ -120,6 +149,9 @@ int SE::Core::Engine::Frame(double dt)
 int SE::Core::Engine::Release()
 {
 	StartProfile;
+
+	delete timeClus;
+
 	delete devConsole;
 	ImGuiDX11SDL_Shutdown();
 	
@@ -154,6 +186,7 @@ SE::Core::Engine::Engine()
 {
 	entityManager = nullptr;
 	transformManager = nullptr;
+	timeClus = nullptr;
 }
 
 SE::Core::Engine::~Engine()
