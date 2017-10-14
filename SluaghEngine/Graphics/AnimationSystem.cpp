@@ -67,7 +67,7 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 				Keyframe currentKeyFrame;
 
 				// Get the keyframe matrix
-				DirectX::XMMATRIX keyFrameMatrix = DirectX::XMLoadFloat4x4(&matrices[j]);
+				DirectX::XMMATRIX keyFrameMatrix = DirectX::XMLoadFloat4x4(&matrices[j + i*nrOfKeyframes]);
 				currentKeyFrame.LocalTransform = keyFrameMatrix;
 
 				// Set the time pose
@@ -88,6 +88,7 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 			// Push back the animation at the current joint in the given skeleton
 			currentAnimation.Joints.push_back(jointKeyFrame);
 		}
+
 		*animationID = animations.size();
 		animations.push_back(currentAnimation);
 		
@@ -105,7 +106,6 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
-
 	auto& skeleton = skeletons[skeletonIndex];
 	auto& animation = animations[animIndex];
 
@@ -117,30 +117,22 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 
 	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
 	for (int i = 0; i < skeleton.Hierarchy.size(); i++) {
+
 		CalculateJointMatrix(i, animation, timePos, interpolatedJointTransforms[i]); // check interpolations
 	}
-
-	//Joint &root = skeletons[skeletonIndex].Hierarchy[0];
-//	root.LocalTx = XMLoadFloat4x4(&localTransform[0]);
-	//root.GlobalTx = root.LocalTx;
-	//XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[0], XMMatrixTranspose(root.GlobalTx * root.inverseBindPoseMatrix));
 	
 	//With all the calculated matrices at our disposal, let's update the transformations in the secondary joint array
 	for (UINT i = 0; i < skeleton.Hierarchy.size(); i++) {
 
 		// Create a reference to the currenct joint to be processed
 		Joint &b = skeleton.Hierarchy[i];
-
-	//	b.LocalTx = XMLoadFloat4x4(&localTransform[i]);
-
-		// Get the current joint LOCAL transformation at the current animation time pose
-	//	b.GlobalTx = XMLoadFloat4x4(&interpolatedJointTransforms[i]);
-	//	b.GlobalTx = skeletons[skeletonIndex].Hierarchy[b.parentIndex].GlobalTx * b.LocalTx;
-
-		// Create the matrix by applying the inverse bind pose matrix on the global transformation
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * interpolatedJointTransforms[i]));
-		//XMStoreFloat4x4(&skeletons[skeletonIndex].jointArray[i], XMMatrixTranspose(b.GlobalTx * b.inverseBindPoseMatrix));
 		
+		// Get the current joint GLOBAL transformation at the current animation time pose
+		b.GlobalTx = interpolatedJointTransforms[i];
+
+		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+
 		int a = 0;
 	}
 	StopProfile;
@@ -209,7 +201,7 @@ void SE::Graphics::AnimationSystem::Interpolate(const JointKeyFrame& joint, floa
 	float kFirst = joint.Keyframes[currentFrameIndex].TimePos;
 	float kLast = joint.Keyframes[currentFrameIndex + 1].TimePos;
 
-	// Though the interpolation percent will be mainly responsible of returning a slightly changed matrix
+	// The interpolation percent will be mainly responsible of returning a slightly changed matrix
 	float interpolationPercent = (animTimePos - kFirst) / (kLast - kFirst);
 
 	XMVECTOR kFirstScale = XMLoadFloat4(&joint.Keyframes[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.

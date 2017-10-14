@@ -65,7 +65,7 @@ namespace SE
 
 			int LoadSkeleton(void*data, size_t size);
 			int LoadAnimation(void * data, size_t size);
-			int LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
+			ResourceHandler::InvokeReturn LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
 			int skinnedShader;
 
 
