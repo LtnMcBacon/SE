@@ -213,26 +213,32 @@ void SE::Core::TransformManager::SetScale(const Entity & e, const DirectX::XMFLO
 
 const DirectX::XMFLOAT3& SE::Core::TransformManager::GetPosition(const Entity& e) const
 {
-	
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	return data.positions[index];
 }
 
 const DirectX::XMFLOAT3& SE::Core::TransformManager::GetRotation(const Entity& e) const
 {
-	
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	return data.rotations[index];
 }
 
 const DirectX::XMFLOAT3& SE::Core::TransformManager::GetScale(const Entity& e) const
 {
-
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	return data.rotations[index];
 }
 
 const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity& e) const
 {
-	auto entry = entityToIndex.find(e);
-	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
-	auto& pos = positions[entry->second];
-	auto& rot = rotations[entry->second];
-	auto& scale = scalings[entry->second];
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	const auto& pos = data.positions[index];
+	const auto& rot = data.rotations[index];
+	const auto& scale = data.scalings[index];
 	XMFLOAT4X4 transform;
 	XMStoreFloat4x4(&transform, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x, pos.y, pos.z));
 	return transform;
