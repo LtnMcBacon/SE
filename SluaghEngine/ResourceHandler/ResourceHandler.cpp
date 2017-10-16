@@ -193,6 +193,8 @@ void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
 		{
 			freed += resourceInfo.resourceData[i].size;
 			toFree.push_back(i);
+			if (freed >= addedSize)
+				break;
 		}
 	
 	}
