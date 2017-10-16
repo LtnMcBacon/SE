@@ -108,10 +108,10 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	Core::CreateAnimationInfo sai;
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "SwingAnimation_bakedTest.anim" };
+	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
 	sai.animations = anims;
 	am.CreateAnimation(mainC, sai);
-	am.Start(mainC, "SwingAnimation_bakedTest.anim", 1.0f);
+	am.Start(mainC, "IdleAnimation_bakedTest.anim", 1.0f);
 
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
