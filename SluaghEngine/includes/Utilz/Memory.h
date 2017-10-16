@@ -44,39 +44,39 @@ namespace SE
 			}
 			constexpr unsigned long long toKB(unsigned long long bytes)
 			{
-				return bytes / 1024;
+				return bytes / 1024u;
 			}
 			constexpr unsigned long long toMB(unsigned long long bytes)
 			{
-				return bytes / 1024 / 1024;
+				return bytes / 1024u / 1024u;
 			}
 			constexpr unsigned long long toGB(unsigned long long bytes)
 			{
-				return bytes / 1024 / 1024 / 1024;
+				return bytes / 1024u / 1024u / 1024u;
 			}
 			constexpr unsigned long long toTB(unsigned long long bytes)
 			{
-				return bytes / 1024 / 1024 / 1024 / 1024;
+				return bytes / 1024u / 1024u / 1024u / 1024u;
 			}
 
 			constexpr unsigned long long operator "" kb(unsigned long long _Val)
 			{
-				return _Val * 1024;
+				return _Val * 1024u;
 			}
 
 			constexpr unsigned long long operator "" mb(unsigned long long _Val)
 			{
-				return _Val * 1024 * 1024;
+				return _Val * 1024u * 1024u;
 			}
 
 			constexpr unsigned long long operator "" gb(unsigned long long _Val)
 			{
-				return _Val * 1024 * 1024 * 1024;
+				return _Val * 1024u * 1024u * 1024u;
 			}
 
 			constexpr unsigned long long operator "" tb(unsigned long long _Val)
 			{
-				return _Val * 1024 * 1024 * 1024 * 1024;
+				return _Val * 1024u * 1024u * 1024u * 1024u;
 			}
 		}
 			
