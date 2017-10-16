@@ -4,6 +4,8 @@
 #include "GameUnit.h"
 #include <Gameplay\Projectile.h>
 #include <Gameplay\ProjectileData.h>
+#include <Gameplay\Room.h>
+#include <Gameplay\PlayerUnit.h>
 
 namespace SE
 {
@@ -18,6 +20,12 @@ namespace SE
 		*
 		**/
 
+		struct BehaviourPointers
+		{
+			Room** currentRoom;
+			PlayerUnit* player;
+		};
+
 		class ProjectileFactory
 		{
 		private:
@@ -31,6 +39,8 @@ namespace SE
 				ON_COLLISION,
 				ON_DEATH
 			};
+
+			BehaviourPointers ptrs;
 
 		public:
 
@@ -66,14 +76,19 @@ namespace SE
 			void AddRotationModifier(Projectile& projectile, TypeOfFunction type, float rotationModifier);
 
 			/**
-			* @brief	Adds rotation invertion behaviour to the projectile (does not work as inteded at the moment)
+			* @brief	Adds rotation invertion behaviour to the projectile (acts weird, not fully functioning)
 			*/
 			void AddRotationInvertion(Projectile& projectile, TypeOfFunction type, float intervall);
 
 			/**
-			* @brief	Adds lifetime behaviour to the projectile (does not work as inteded at the moment)
+			* @brief	Adds lifetime behaviour to the projectile
 			*/
 			void AddLifeTime(Projectile& projectile, TypeOfFunction type, float timeToIncrease);
+
+			/**
+			* @brief	Adds Targeting behaviour to the projectile
+			*/
+			void AddTargeting(Projectile& projectile, TypeOfFunction type, float rotPerSecond);
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
@@ -85,6 +100,11 @@ namespace SE
 
 			ProjectileFactory();
 			~ProjectileFactory();
+
+			inline void SetBehaviourPtrs(BehaviourPointers bPtrs)
+			{
+				ptrs = bPtrs;
+			};
 
 		};
 

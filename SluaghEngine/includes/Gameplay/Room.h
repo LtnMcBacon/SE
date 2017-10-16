@@ -355,6 +355,11 @@ namespace SE
 			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
 
+			/**
+			* @brief	finds the closest enemy to xPos and yPos nad sets xReturn and yReturn to that enemies position, if no enemies exist then false is returned
+			*/
+			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
+
 			inline void GetMap(char toReturn[25][25])
 			{
 				for (int i = 0; i < 25; i++)

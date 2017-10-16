@@ -65,7 +65,7 @@ namespace SE
 
 		public:
 
-			ProjectileManager();
+			ProjectileManager(BehaviourPointers bPtrs);
 			~ProjectileManager();
 
 			inline std::vector<Projectile>& GetAllProjectiles()
