@@ -384,7 +384,7 @@ void SE::Core::TransformManager::Allocate(size_t count)
 void SE::Core::TransformManager::Destroy(const size_t index)
 {
 	_ASSERT(index < data.used);
-	lookUpTable[index] = -1;
+	lookUpTable[data.entities[index].Index()] = -1;
 	const int32_t last = data.used - 1;
 
 	if(data.parentIndex[index] >= 0)
@@ -430,7 +430,7 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 	data.flags[index] = data.flags[last];
 	--data.used;
 
-	lookUpTable[last] = index;
+	lookUpTable[data.entities[last].Index()] = index;
 
 	//The entity we replaced the destroyed entity with might have had parent/siblings/children.
 	//Fix those relations.
