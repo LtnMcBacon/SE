@@ -205,7 +205,6 @@ namespace SE
 				return &dirtyTransforms[0];
 			}
 		private:
-			void SetAsDirty(size_t index);
 
 			void UpdateTransform(size_t index);
 
@@ -213,11 +212,11 @@ namespace SE
 
 			enum TransformFlags : uint16_t
 			{
-				DIRTY = 1 << 0,
-				INHERIT_TRANSLATION = 1 << 1,
-				INHERIT_SCALE = 1 << 2,
-				INHERIT_ROTATION = 1 << 3,
-				INHERIT_ALL = 7U
+				INHERIT_TRANSLATION = 1 << 0,
+				INHERIT_SCALE = 1 << 1,
+				INHERIT_ROTATION = 1 << 2,
+				INHERIT_ALL = 7U,
+				DIRTY = 1 << 3
 			};
 
 
