@@ -36,6 +36,8 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 		delete[] lookUpTable;
 		lookUpTable = newTable;
 	}
+	if (lookUpTable[e.Index()] != -1)
+		ProfileReturnVoid;
 	if (data.used == data.allocated)
 		Allocate(data.allocated + std::min(data.allocated, size_t(256)));
 
@@ -330,4 +332,60 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	data = newData;
 	ProfileReturnVoid;
 }
+
+void SE::Core::TransformManager::Destroy(const Entity& entity)
+{
+	_ASSERT(entity.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[entity.Index()];
+	lookUpTable[index] = -1;
+	const int32_t last = data.used - 1;
+
+	if(data.parentIndex[index] >= 0)
+	{
+		//If destroyed entity is the first child
+		//Parent's first child becomes first sibling if it exists
+		//Otherwise parents child becomes -1 if there are no siblings
+		if(data.childIndex[data.parentIndex[index]] == index)
+		{
+			data.childIndex[data.parentIndex[index]] = data.siblingIndex[index]; //Will be -1 if no siblings
+		}
+		else
+		{
+			//If this entity is not the first child, we must find the sibling that points to this entity
+			int32_t sibling = data.childIndex[data.parentIndex[index]];
+			while (data.siblingIndex[sibling] != index)
+				sibling = data.siblingIndex[sibling];
+			data.siblingIndex[sibling] = data.siblingIndex[data.siblingIndex[sibling]];
+		}
+	}
+	//If there is no parent, there are no siblings.
+	//If we have children, those children lose their parent :(
+	if(data.childIndex[index] >= 0)
+	{
+		int32_t child = data.childIndex[index];
+		int32_t nextChild = data.siblingIndex[child];
+		while(child != -1)
+		{
+			data.parentIndex[child] = -1;
+			child = nextChild;
+			nextChild = data.siblingIndex[child];
+		}
+	}
+	
+
+	data.entities[index] = data.entities[last];
+	data.positions[index] = data.positions[last];
+	data.rotations[index] = data.rotations[last];
+	data.scalings[index] = data.scalings[last];
+	data.childIndex[index] = data.childIndex[last];
+	data.siblingIndex[index] = data.siblingIndex[last];
+	data.parentIndex[index] = data.parentIndex[last];
+	data.flags[index] = data.flags[last];
+	--data.used;
+
+	lookUpTable[last] = index;
+
+
+}
+
 

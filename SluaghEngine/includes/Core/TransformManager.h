@@ -262,7 +262,7 @@ namespace SE
 			int32_t* lookUpTable;
 			size_t lookUpTableSize;
 			void Allocate(size_t count);
-			void Destroy(size_t index);
+			void Destroy(const Entity& entity);
 			
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 
