@@ -108,10 +108,10 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	Core::CreateAnimationInfo sai;
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "SwingAnimation_bakedTest.anim" };
+	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
 	sai.animations = anims;
 	am.CreateAnimation(mainC, sai);
-	am.Start(mainC, "SwingAnimation_bakedTest.anim", 1.0f);
+	am.Start(mainC, "IdleAnimation_bakedTest.anim", 1.0f);
 
 
 	rm.CreateRenderableObject(mainC, Utilz::GUID("bakedTest.mesh"));
@@ -125,7 +125,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	tm.Create(c2, { 3.0f, 0.0f, 0.0f });
 	mm.Create(c2, info);
 	am.CreateAnimation(c2, sai);
-	am.Start(c2, "SwingAnimation_bakedTest.anim", 0.1f);
+	am.Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
 	rm.CreateRenderableObject(c2, "bakedTest.mesh");
 
 	col.CreateBoundingHierarchy(c2, "bakedTest.mesh");
@@ -141,7 +141,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	Utilz::Timer timer;
 	float radians = (180 * 3.14) / 180;
 
-	tm.Rotate(mainC, 0.0f, radians, 0.01f);
+	//tm.Rotate(mainC, 0.0f, radians, 0.01f);
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
 
