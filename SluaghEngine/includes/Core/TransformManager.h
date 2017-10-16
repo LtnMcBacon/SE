@@ -209,13 +209,6 @@ namespace SE
 
 			void UpdateTransform(size_t index);
 
-			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
-			struct PD
-			{
-				size_t Index;
-				size_t parentIndex;
-			};
-			std::vector<PD> parentDeferred;
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 
 			enum TransformFlags : uint16_t
