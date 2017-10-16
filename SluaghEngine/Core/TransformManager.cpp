@@ -189,19 +189,25 @@ void SE::Core::TransformManager::SetRotation(const Entity& e, float pitch, float
 {
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-	float pitchDiff = pitch - data.rotations[index].x;
-	float yawDiff = yaw - data.rotations[index].y;
-	float rollDiff = roll -data.rotations[index].z;
+	const float pitchDiff = pitch - data.rotations[index].x;
+	const float yawDiff = yaw - data.rotations[index].y;
+	const float rollDiff = roll -data.rotations[index].z;
 	Rotate(e, pitchDiff, yawDiff, rollDiff);
 }
 
 void SE::Core::TransformManager::SetScale(const Entity& e, float scale)
 {
-	
+	SetScale(e, { scale, scale, scale });
 }
 
 void SE::Core::TransformManager::SetScale(const Entity & e, const DirectX::XMFLOAT3 & scale)
 {
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	const float xDiff = scale.x / data.scalings[index].x;
+	const float yDiff = scale.y / data.scalings[index].y;
+	const float zDiff = scale.z / data.scalings[index].z;
+	Scale(e, { xDiff, yDiff, zDiff });
 
 }
 
