@@ -58,12 +58,22 @@ namespace SE
 			/**
 			* @brief	Adds speed changing behaviour to the projectile
 			*/
-			void AddSpeedChange(Projectile& projectile, TypeOfFunction type, float speedModifier);
+			void AddSpeedModifier(Projectile& projectile, TypeOfFunction type, float speedModifier);
 
 			/**
-			* @brief	Adds rotation invertion behaviour to the projectile
+			* @brief	Adds rotation changing behaviour to the projectile
+			*/
+			void AddRotationModifier(Projectile& projectile, TypeOfFunction type, float rotationModifier);
+
+			/**
+			* @brief	Adds rotation invertion behaviour to the projectile (does not work as inteded at the moment)
 			*/
 			void AddRotationInvertion(Projectile& projectile, TypeOfFunction type, float intervall);
+
+			/**
+			* @brief	Adds lifetime behaviour to the projectile (does not work as inteded at the moment)
+			*/
+			void AddLifeTime(Projectile& projectile, TypeOfFunction type, float timeToIncrease);
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile

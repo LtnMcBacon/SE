@@ -239,11 +239,11 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
 	XMVECTOR projToXZ = XMVector3Normalize(ndir - (defaultUp * XMVector3Dot(defaultUp, ndir)));
-	float angleY = XMVectorGetX(XMVector3Dot(projToXZ, defaultForward));
+	float angleY = acosf(XMVectorGetX(XMVector3Dot(projToXZ, defaultForward)));
 
 	XMVECTOR projToZY = XMVector3Normalize(ndir - (defaultForward * XMVector3Dot(defaultForward, ndir)));
-	float angleX = XMVectorGetX(XMVector3Dot(projToZY, defaultForward));
-	float angleZ = XMVectorGetX(XMVector3Dot(projToZY, defaultUp));
+	float angleX = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultForward)));
+	float angleZ = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultUp)));
 
 	rotations[entry->second].x = (angleX);
 	rotations[entry->second].y = (angleY);
@@ -261,11 +261,13 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
 	XMVECTOR projToXZ = XMVector3Normalize(forward - (defaultUp * XMVector3Dot(defaultUp, forward)));
-	float angleY = XMVectorGetX(XMVector3Dot(projToXZ, defaultForward));
+	float angleY = acosf(XMVectorGetX(XMVector3Dot(projToXZ, defaultForward)));
+	if (XMVectorGetX(projToXZ) < 0)
+		angleY = -angleY;
 
 	XMVECTOR projToZY = XMVector3Normalize(forward - (defaultForward * XMVector3Dot(defaultForward, forward)));
-	float angleX = XMVectorGetX(XMVector3Dot(projToZY, defaultForward));
-	float angleZ = XMVectorGetX(XMVector3Dot(projToZY, defaultUp));
+	float angleX = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultForward)));
+	float angleZ = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultUp)));
 
 	rotations[entry->second].x = (angleX);
 	rotations[entry->second].y = (angleY);

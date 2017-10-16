@@ -7,9 +7,9 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 {
 	StartProfile;
 	Rotation rot;
-	rot.force = 0.04f;
+	rot.force = 0.0f;
 
-	SE::Gameplay::Projectile temp(data, rot, 6.0f, 3.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
+	SE::Gameplay::Projectile temp(data, rot, 6.0f, 5.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
 
 	auto& e = Core::Engine::GetInstance();
 	auto& em = e.GetEntityManager();
@@ -25,6 +25,9 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 
 	AddBounce(temp, TypeOfFunction::ON_COLLISION);
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
+	//AddRotationModifier(temp, TypeOfFunction::CONTINUOUS, 0.2f);
+	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
+	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
 
 	ProfileReturnConst(temp);
 
@@ -41,19 +44,52 @@ void SE::Gameplay::ProjectileFactory::AddBounce(Projectile& projectile, TypeOfFu
 		DirectX::XMVECTOR newDir = DirectX::XMVector3Reflect({ currentDir.x, currentDir.y, currentDir.z, 0.0f }, { p->GetCollisionVectorX(), 0.0f, p->GetCollisionVectorY(), 0.0f });
 		Core::Engine::GetInstance().GetTransformManager().SetForward(p->GetEntity(), newDir);
 		p->SetActive(true);
-		p->UpdateMovement(dt);
-		p->UpdateMovement(dt);
+		//p->UpdateMovement(dt);
+		//p->UpdateMovement(dt);
 		return false;
 	};
 
 	AddBehaviourToProjectile(projectile, type, bounce);
 }
 
+void SE::Gameplay::ProjectileFactory::AddSpeedModifier(Projectile & projectile, TypeOfFunction type, float speedModifier)
+{
+	auto speed = [speedModifier](Projectile* p, float dt) -> bool
+	{
+		float speed = p->GetSpeed();
+		speed += speed * dt * speedModifier;
+		p->SetSpeed(speed);
+
+		return true;
+	};
+
+	AddBehaviourToProjectile(projectile, type, speed);
+}
+
+void SE::Gameplay::ProjectileFactory::AddRotationModifier(Projectile & projectile, TypeOfFunction type, float rotationModifier)
+{
+	auto rotation = [rotationModifier](Projectile* p, float dt) -> bool
+	{
+		Rotation rotation = p->GetRotationStyle();
+		rotation.force += rotation.force * dt * rotationModifier;
+		p->SetRotationStyle(rotation);
+
+		return true;
+	};
+
+	AddBehaviourToProjectile(projectile, type, rotation);
+}
+
 void SE::Gameplay::ProjectileFactory::AddRotationInvertion(Projectile & projectile, TypeOfFunction type, float intervall)
 {
-	auto inverter = [intervall](Projectile* p, float dt) -> bool
+	BehaviourData data;
+	data.f = intervall;
+
+	int dataIndex = projectile.AddBehaviourData(data);
+
+	auto inverter = [dataIndex, intervall](Projectile* p, float dt) -> bool
 	{
-		static float timer = intervall;
+		float& timer = p->GetBehaviourData(dataIndex).f;
 
 		timer -= dt;
 
@@ -69,6 +105,22 @@ void SE::Gameplay::ProjectileFactory::AddRotationInvertion(Projectile & projecti
 	};
 
 	AddBehaviourToProjectile(projectile, type, inverter);
+}
+
+void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeOfFunction type, float timeToIncrease)
+{
+
+	auto timeIncreaser = [timeToIncrease](Projectile* p, float dt) -> bool
+	{
+		float lifeTime = p->GetLifeTime();
+		lifeTime += timeToIncrease;
+		p->SetLifeTime(lifeTime);
+		p->SetActive(true);
+
+		return false;
+	};
+
+	AddBehaviourToProjectile(projectile, type, timeIncreaser);
 }
 
 void SE::Gameplay::ProjectileFactory::AddBehaviourToProjectile(Projectile & p, TypeOfFunction type, std::function<bool(Projectile*projectile, float dt)> func)

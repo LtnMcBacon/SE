@@ -121,8 +121,8 @@ void SE::Gameplay::Projectile::UpdateBounding()
 void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 {
 	StartProfile;
-	float s = sinf(-rotation);
-	float c = cosf(-rotation);
+	float s = sinf(-Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y);
+	float c = cosf(-Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y);
 
 	// rotate point
 	float xnew = xCoord * c - yCoord * s;
@@ -183,6 +183,7 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -204,6 +205,7 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -226,6 +228,7 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -239,9 +242,7 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 SE::Gameplay::Projectile::~Projectile()
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
+	
 	ProfileReturnVoid;
 }
 
@@ -260,3 +261,13 @@ void SE::Gameplay::Projectile::AddDeathFunction(std::function<bool(Projectile*pr
 	onDeath.push_back(func);
 }
 
+int SE::Gameplay::Projectile::AddBehaviourData(BehaviourData data)
+{
+	behaviourData.push_back(data);
+	return behaviourData.size() - 1;
+}
+
+SE::Gameplay::BehaviourData& SE::Gameplay::Projectile::GetBehaviourData(int index)
+{
+	return behaviourData[index];
+}
