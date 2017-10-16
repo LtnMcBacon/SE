@@ -373,6 +373,37 @@ void SE::Core::TransformManager::UpdateTransform(size_t index)
 	StopProfile;
 }
 
+void SE::Core::TransformManager::Allocate(size_t count)
+{
+	StartProfile;
+	_ASSERT(count > data.allocated);
+
+	TransformData newData;
+	newData.allocated = count;
+	newData.data = operator new(count * TransformData::size);
+	newData.used = data.used;
+
+	newData.entities = (Entity*)newData.data;
+	newData.positions = (XMFLOAT3*)(newData.entities + count);
+	newData.rotations = (XMFLOAT3*)(newData.positions + count);
+	newData.scalings = (XMFLOAT3*)(newData.rotations + count);
+	newData.childIndex = (int32_t*)(newData.scalings + count);
+	newData.siblingIndex = (int32_t*)(newData.childIndex + count);
+	newData.flags = (TransformFlags*)(newData.siblingIndex + count);
+
+	memcpy(newData.entities, data.entities, data.used * sizeof(Entity));
+	memcpy(newData.positions, data.positions, data.used * sizeof(XMFLOAT3));
+	memcpy(newData.rotations, data.rotations, data.used * sizeof(XMFLOAT3));
+	memcpy(newData.scalings, data.scalings, data.used * sizeof(XMFLOAT3));
+	memcpy(newData.childIndex, data.childIndex, data.used * sizeof(int32_t));
+	memcpy(newData.siblingIndex, data.siblingIndex, data.used * sizeof(int32_t));
+	memcpy(newData.flags, data.flags, data.used * sizeof(TransformFlags));
+
+	operator delete(data.data);
+	data = newData;
+	ProfileReturnVoid;
+}
+
 void SE::Core::TransformManager::ExpandTransforms()
 {
 	StartProfile;

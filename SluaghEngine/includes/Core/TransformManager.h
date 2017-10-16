@@ -233,6 +233,34 @@ namespace SE
 			static const size_t transformCapacityIncrement = 512;
 			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2 + sizeof(uint8_t);
 
+			enum class TransformFlags : uint16_t
+			{
+				DIRTY = 1 << 0,
+				INHERIT_TRANSLATION = 1 << 1,
+				INHERIT_SCALE = 1 << 2,
+				INHERIT_ROTATION = 1 << 3,
+				INHERIT_ALL = 7U
+			};
+
+			struct TransformData
+			{
+				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 2 + sizeof(TransformFlags);
+				size_t allocated = 0;
+				size_t used = 0;
+				void* data = nullptr;
+				Entity* entities = nullptr;
+				DirectX::XMFLOAT3* positions = nullptr;
+				DirectX::XMFLOAT3* rotations = nullptr;
+				DirectX::XMFLOAT3* scalings = nullptr;
+				int32_t* childIndex = nullptr;
+				int32_t* siblingIndex = nullptr;
+				TransformFlags* flags = nullptr;
+			};
+			
+			TransformData data;
+			void Allocate(size_t count);
+			void Destroy(size_t index);
+			
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
