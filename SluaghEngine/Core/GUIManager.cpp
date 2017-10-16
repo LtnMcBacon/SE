@@ -60,7 +60,9 @@ namespace SE {
 				{
 					size_t tempJobID = renderer->DisableTextRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
-					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					entID[textJobobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					textJobobToEnt[fileLoaded->second.jobID] = textJobobToEnt[tempJobID];
+					textJobobToEnt.erase(tempJobID);
 				}
 				ProfileReturnVoid;
 			}

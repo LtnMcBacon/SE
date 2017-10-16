@@ -77,7 +77,7 @@ namespace SE {
 			else
 			{
 				memset(out, 0, framesPerBuffer * data->sample->info.channels);
-				for (i = 0; i < (framesPerBuffer * (data->pData.currentPos + 1) * data->sample->info.channels) - (data->sample->info.frames * data->sample->info.channels) - 1; i++)
+				for (i = 0; i < (data->sample->info.frames - framesPerBuffer * data->pData.currentPos); i++)
 				{
 					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{
@@ -119,7 +119,7 @@ namespace SE {
 			else
 			{
 				memset(out, 0, framesPerBuffer * data->sample->info.channels);
-				for (i = 0; i < (framesPerBuffer * (data->pData.currentPos + 1) * data->sample->info.channels) - (data->sample->info.frames * data->sample->info.channels) - 1; i++)
+				for (i = 0; i < (data->sample->info.frames - framesPerBuffer * data->pData.currentPos); i++)
 				{
 					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{

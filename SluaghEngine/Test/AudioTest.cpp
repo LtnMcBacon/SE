@@ -44,15 +44,22 @@ namespace SE
 				return false;
 			}
 
+			if (audio.LoadSound(Utilz::GUID("BLoop.wav")) == 0)
+			{
+				console->Print("Sound already loaded??????\n");
+				e.Release();
+				return false;
+			}
+
 			int delay = 0;
-			while (audio.CheckIfLoaded(Utilz::GUID("Canary.wav")) == 0 && delay < 10)
+			while (audio.CheckIfLoaded(Utilz::GUID("Canary.wav")) == 0 && audio.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
 			{
 				delay++;
 			}
 
 			auto soundEnt = e.GetEntityManager().Create();
 			int soundID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("Canary.wav"), Audio::SoundIndexName::BakgroundSound);
+			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
 			if (soundID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!\n");
@@ -202,11 +209,11 @@ namespace SE
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] == -1)
 							{
-								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Canary.wav"), Audio::SoundIndexName::BakgroundSound);
+								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Canary.wav"), Audio::SoundIndexName::EffectSound);
 								if (soundID[i] == -2)
 								{
 									console->Print("No device!!!!!!\n");
@@ -221,7 +228,7 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(2) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] != -1)
 							{
@@ -234,7 +241,7 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(3) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] != -1)
 							{
