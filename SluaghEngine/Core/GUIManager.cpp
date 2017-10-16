@@ -33,7 +33,7 @@ namespace SE {
 				ProfileReturnVoid;
 			
 			entID[entity].ID = loadedTexts.size();
-			ent.push_back(entity);
+			textEnt.push_back(entity);
 			loadedTexts.push_back(inTextInfo);
 			if (!loadedTexts[loadedTexts.size() - 1].anchor)
 			{
@@ -52,7 +52,7 @@ namespace SE {
 			{
 				if (show && !fileLoaded->second.show)
 				{
-					renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
+					fileLoaded->second.jobID = renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
 					textJobobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
 				}
@@ -131,17 +131,47 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1 && !entTextureID[entity].show)
+				if (show && textureGUID[fileLoaded->second.GUID].textureHandle != -1 && !fileLoaded->second.show)
 				{
-					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
-					entTextureID[entity].show = true;
+					fileLoaded->second.jobID = renderer->EnableTextureRendering(textureInfo[fileLoaded->second.ID]);
+					jobToEnt[fileLoaded->second.jobID] = entity;
+					fileLoaded->second.show = true;
 				}
-				else if (!show && entTextureID[entity].show)
+				else if (!show && fileLoaded->second.show)
 				{
-					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
-					entTextureID[entity].show = false;
+					size_t tempJobID = renderer->DisableTextureRendering(fileLoaded->second.ID);
+					fileLoaded->second.show = false;
+					entTextureID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 				}
 				ProfileReturnVoid;
+			}
+			StopProfile;
+		}
+
+		void GUIManager::updateGUI()
+		{
+			StartProfile;
+			if (textureInfo.size() > 0)
+			{
+				for (auto& entity : textureEnt)
+				{
+					if (!textureInfo[entTextureID[entity].ID].anchor && entTextureID[entity].show)
+					{
+						ToggleRenderableTexture(entity, false);
+						ToggleRenderableTexture(entity, true);
+					}
+				}
+			}
+			if (loadedTexts.size() > 0)
+			{
+				for (auto& entity : textEnt)
+				{
+					if (!loadedTexts[entID[entity].ID].anchor && entID[entity].show)
+					{
+						ToggleRenderableText(entity, false);
+						ToggleRenderableText(entity, true);
+					}
+				}
 			}
 			StopProfile;
 		}
@@ -163,18 +193,18 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = loadedTexts.size() - 1;
-			const Entity entity = ent[index];
-			const Entity last_entity = ent[last];
+			const Entity entity = textEnt[index];
+			const Entity last_entity = textEnt[last];
 
 			// Copy the data
-			ent[index] = last_entity;
+			textEnt[index] = last_entity;
 			loadedTexts[index] = loadedTexts[last];
 			entID[last_entity] = entID[entity];
 
 			// Remove last spot 
 			entID.erase(entity);
 			loadedTexts.pop_back();
-			ent.pop_back();
+			textEnt.pop_back();
 
 			StopProfile;	
 		}
@@ -211,13 +241,13 @@ namespace SE {
 				{
 					std::uniform_int_distribution<uint32_t> distribution(0U, loadedTexts.size() - 1U);
 					uint32_t i = distribution(generator);
-					if (entityManager.Alive(ent[i]))
+					if (entityManager.Alive(textEnt[i]))
 					{
 						alive_in_row++;
 						continue;
 					}
 					alive_in_row = 0;
-					ToggleRenderableText(ent[i], false);
+					ToggleRenderableText(textEnt[i], false);
 					DestroyText(i);
 				}
 				garbage = true;

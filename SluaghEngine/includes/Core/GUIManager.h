@@ -271,6 +271,12 @@ namespace SE
 				width = inWidth;
 			}
 
+			/**
+			* @brief Resets all GUI to be rescaled to new resolution
+			* @endcode
+			*/
+			void updateGUI();
+
 			void Shutdown();
 		private:
 			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
@@ -297,17 +303,16 @@ namespace SE
 			};
 
 			// Text variables
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
 			std::unordered_map<Entity, showID, EntityHasher> entID;
 			std::vector<Graphics::TextGUI> loadedTexts;
-			std::vector<Entity> ent;
+			std::vector<Entity> textEnt;
 			std::map<size_t, Entity> textJobobToEnt;
 
 			//Texture variables
 			std::unordered_map<Entity, EntBindIDGUID, EntityHasher> entTextureID;
-			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
+			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;		
 			std::map<size_t, Entity> jobToEnt;
-
 			std::vector<Graphics::GUITextureInfo> textureInfo;
 			std::vector<Entity> textureEnt;
 

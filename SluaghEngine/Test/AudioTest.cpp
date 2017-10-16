@@ -97,8 +97,8 @@ namespace SE
 				guiTexture.effect = DirectX::SpriteEffects_FlipBoth;
 				guiTexture.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture.layerDepth = 0;
-				guiTexture.origin = DirectX::XMFLOAT2(-640.0, -360.0);
-				guiTexture.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture.origin = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture.pos = DirectX::XMFLOAT2(940.0, 560.0);
 				guiTexture.rotation = 0;
 				guiTexture.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture.rect = nullptr;	//not needed default nullptr
@@ -114,8 +114,8 @@ namespace SE
 				guiTexture2.effect = DirectX::SpriteEffects_FlipHorizontally;
 				guiTexture2.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture2.layerDepth = 0;
-				guiTexture2.origin = DirectX::XMFLOAT2(-640.0, 0.0);
-				guiTexture2.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture2.origin = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture2.pos = DirectX::XMFLOAT2(940.0, 200.0);
 				guiTexture2.rotation = 0;
 				guiTexture2.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture2.rect = nullptr;	//not needed default nullptr
@@ -132,7 +132,7 @@ namespace SE
 				guiTexture3.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture3.layerDepth = 0;
 				guiTexture3.origin = DirectX::XMFLOAT2(0.0, 0.0);
-				guiTexture3.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture3.pos = DirectX::XMFLOAT2(300.0, 200.0);
 				guiTexture3.rotation = 0;
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture3.rect = nullptr;	//not needed default nullptr
@@ -147,8 +147,8 @@ namespace SE
 				guiTexture4.effect = DirectX::SpriteEffects_None;
 				guiTexture4.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture4.layerDepth = 0;
-				guiTexture4.origin = DirectX::XMFLOAT2(0.0, -360.0);
-				guiTexture4.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture4.origin = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture4.pos = DirectX::XMFLOAT2(300.0, 560.0);
 				guiTexture4.rotation = 0;
 				guiTexture4.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture4.rect = nullptr;	//not needed default nullptr
