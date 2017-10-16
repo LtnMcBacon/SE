@@ -258,8 +258,8 @@ namespace SE
 			};
 			
 			TransformData data;
-			int32_t* lookUpTable = nullptr;
-			size_t lookUpTableSize = 0;
+			int32_t* lookUpTable;
+			size_t lookUpTableSize;
 			void Allocate(size_t count);
 			void Destroy(size_t index);
 			

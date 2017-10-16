@@ -9,7 +9,11 @@ using namespace DirectX;
 SE::Core::TransformManager::TransformManager(EntityManager* em)
 {
 	entityManager = em;
-
+	Allocate(512);
+	lookUpTableSize = 512;
+	lookUpTable = new int32_t[lookUpTableSize];
+	memset(lookUpTable, -1, sizeof(int32_t) * lookUpTableSize);
+	
 	
 }
 
