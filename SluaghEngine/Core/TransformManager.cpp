@@ -247,13 +247,12 @@ const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity&
 
 const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e) const
 {
-	//auto entry = entityToIndex.find(e);
-	//_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
-
-	auto forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	//auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[entry->second]));
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	const auto forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	const auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[index]));
 	XMFLOAT3 f;
-	//XMStoreFloat3(&f, XMVector3TransformNormal(forward, rotation));
+	XMStoreFloat3(&f, XMVector3TransformNormal(forward, rotation));
 
 	return f;
 }
