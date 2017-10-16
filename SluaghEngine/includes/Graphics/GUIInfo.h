@@ -77,6 +77,8 @@ namespace SE
 		{
 			int textureHandle;
 			size_t refCount;
+			size_t height;
+			size_t width;
 		};
 	}
 }

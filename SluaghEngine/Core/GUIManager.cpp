@@ -256,6 +256,8 @@ namespace SE {
 				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			textureGUID[guid].textureHandle = handle;
 			textureGUID[guid].refCount = 0;
+			textureGUID[guid].height = td.height;
+			textureGUID[guid].width = td.width;
 
 			ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 		}

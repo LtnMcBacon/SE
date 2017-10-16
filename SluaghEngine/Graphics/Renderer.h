@@ -84,20 +84,20 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int EnableTextureRendering(const GUITextureInfo & handles) override;
+			size_t EnableTextureRendering(const GUITextureInfo & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextureRendering(const GUITextureInfo& handles) override;
+			size_t DisableTextureRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Light render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
 			int EnableLightRendering(const LightData & handles) override;

@@ -329,31 +329,36 @@ size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
 	ProfileReturn(job);
 }
 
-int SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
+size_t SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
 {
+	StartProfile;
+	int job = (int)renderTextureJobs.size();
 	renderTextureJobs.push_back(handles);
-	return 0;
+	if (!renderTextureJobs[job].anchor)
+	{
+		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		float height = gBB_Desc.Height;
+		float width = gBB_Desc.Width;
+		if (renderTextureJobs[job].rect != nullptr)
+		{
+			renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
+			renderTextureJobs[job].rect->top = renderTextureJobs[job].rect->top * height;
+			renderTextureJobs[job].rect->right = renderTextureJobs[job].rect->right * width;
+			renderTextureJobs[job].rect->left = renderTextureJobs[job].rect->left * width;
+		}
+		renderTextureJobs[job].scale = DirectX::XMFLOAT2(renderTextureJobs[job].scale.x * width, renderTextureJobs[job].scale.y * height);
+		renderTextureJobs[job].pos = DirectX::XMFLOAT2(renderTextureJobs[job].pos.x * width, renderTextureJobs[job].pos.y * height);
+	}
+	ProfileReturn(int(job));
 }
 
-int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handles)
+size_t SE::Graphics::Renderer::DisableTextureRendering(const size_t & jobID)
 {
-	const int size = renderTextureJobs.size();
-	int at = -1;
-	for (size_t i = 0; i < size; ++i)
-	{
-		if (handles == renderTextureJobs[i])
-		{
-			at = i;
-			break;
-		}
-	}
-	if (at >= 0)
-	{
-		for (int i = at; i < size - 1; ++i)
-			renderTextureJobs[i] = renderTextureJobs[i + 1];
-		renderTextureJobs.pop_back();
-	}
-	return 0;
+	StartProfile;
+	size_t job = renderTextureJobs.size() - 1;
+	renderTextureJobs[jobID] = renderTextureJobs[job];
+	renderTextureJobs.pop_back();
+	ProfileReturn(int(job));
 }
 
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
