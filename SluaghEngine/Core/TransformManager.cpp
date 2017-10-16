@@ -1,6 +1,7 @@
 #include <TransformManager.h>
 #include <algorithm>
 #include <Profiler.h>
+#include "Engine.h"
 
 #undef min
 #undef max
@@ -47,10 +48,11 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 		}
 		else
 		{
-			//The same entity has been created twice. (This is OK, just return)
+			//The exact same entity has been created twice. (This is OK, just return)
 			ProfileReturnVoid;
 		}
 	}
+
 	if (data.used == data.allocated)
 		Allocate(data.allocated + std::min(data.allocated, size_t(256)));
 
@@ -114,7 +116,7 @@ void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& 
 	//Recursive function so no profiler
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-
+	
 	data.positions[index].x += dir.x;
 	data.positions[index].y += dir.y;
 	data.positions[index].z += dir.z;
@@ -395,7 +397,8 @@ void SE::Core::TransformManager::Allocate(size_t count)
 void SE::Core::TransformManager::Destroy(const size_t index)
 {
 	_ASSERT(index < data.used);
-	lookUpTable[data.entities[index].Index()] = -1;
+	_ASSERT(index == lookUpTable[data.entities[index].Index()]);
+	const int32_t lookUpIndexOfRemoved = data.entities[index].Index();
 	const int32_t last = data.used - 1;
 
 	if(data.parentIndex[index] >= 0)
@@ -430,18 +433,26 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 		}
 	}
 	
-
-	data.entities[index] = data.entities[last];
-	data.positions[index] = data.positions[last];
-	data.rotations[index] = data.rotations[last];
-	data.scalings[index] = data.scalings[last];
-	data.childIndex[index] = data.childIndex[last];
-	data.siblingIndex[index] = data.siblingIndex[last];
-	data.parentIndex[index] = data.parentIndex[last];
-	data.flags[index] = data.flags[last];
+	if (index != last)
+	{
+		lookUpTable[data.entities[index].Index()] = -1;
+		data.entities[index] = data.entities[last];
+		data.positions[index] = data.positions[last];
+		data.rotations[index] = data.rotations[last];
+		data.scalings[index] = data.scalings[last];
+		data.childIndex[index] = data.childIndex[last];
+		data.siblingIndex[index] = data.siblingIndex[last];
+		data.parentIndex[index] = data.parentIndex[last];
+		data.flags[index] = data.flags[last];
+		lookUpTable[data.entities[last].Index()] = index;
+	}
+	else
+	{
+		lookUpTable[data.entities[index].Index()] = -1;
+	}
 	--data.used;
-
-	lookUpTable[data.entities[last].Index()] = index;
+	
+	
 
 	//The entity we replaced the destroyed entity with might have had parent/siblings/children.
 	//Fix those relations.
