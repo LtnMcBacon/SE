@@ -108,7 +108,7 @@ namespace SE {
 				std::stack<int> freeStreamID;
 			};
 
-			int retSoundData(const Utilz::GUID& guid, void* data, size_t size);
+			ResourceHandler::InvokeReturn retSoundData(const Utilz::GUID& guid, void* data, size_t size);
 			Audio::IAudioHandler* audioHandler;
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;
 			std::unordered_map<Entity, EntityToSound, EntityHasher> entToSounds;

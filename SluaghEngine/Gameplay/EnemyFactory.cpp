@@ -43,11 +43,11 @@ namespace
 		return std::stoi(GetLineData(line));
 	}
 }
-int EnemyFactory::LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
+ResourceHandler::InvokeReturn EnemyFactory::LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
 {
 	StartProfile;
 	if (!size)
-		ProfileReturnConst(-1);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	std::string const EnemyFileData((char*)data, size);
 	auto lineByLineData = split(EnemyFileData, '\n');
 
@@ -88,14 +88,14 @@ int EnemyFactory::LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* da
 	loadedEnemy.waterResistance = GetLineDataAsInt(line);
 
 	if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
-		ProfileReturnConst(-1);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 
 	/*Load mesh here?*/
 
 	enemyData[GUID] = loadedEnemy;
 
 	/*Return 0 for success, -1 for fail, 1 for refcount*/
-	ProfileReturnConst(1);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
 
 EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlackboard, bool useVariation)

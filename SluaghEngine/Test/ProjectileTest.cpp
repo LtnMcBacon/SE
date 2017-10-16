@@ -259,7 +259,8 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		DOWN = 5,
 		LEFT = 6,
 		RIGHT_MOUSE = 7,
-		SPACE = 8
+		SPACE = 8,
+		CONSOLE = 9
 	};
 
 
@@ -269,6 +270,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
 	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
 	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
+	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
 
 	pos playerPos;
 	playerPos.x = 1.5f;
@@ -320,6 +322,10 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			input.mouseRightDown = true;
 		}
+		if(e.GetWindow()->ButtonPressed(MoveDir::CONSOLE))
+		{
+			e.GetDevConsole().Toggle();
+		}
 
 		int mX = 0;
 		int mY = 0;
@@ -351,7 +357,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 
 		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
-		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
+		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
 		{
 			actionInput.skill1Button = true;
 		}
@@ -455,12 +461,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+
+
+	/*	Utilz::TimeMap times;
+		e.GetProfilingInformation(times);
+		for (auto& t : times)
+			console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 
 	delete projectileManager;
 
 	delete testRoom;
 	delete player;
+
+
+	
+
 	e.Release();
 
 	ProfileReturnConst(true)

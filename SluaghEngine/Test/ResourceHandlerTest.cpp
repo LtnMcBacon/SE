@@ -21,7 +21,7 @@ ResourceHandlerTest::~ResourceHandlerTest()
 }
 static bool result = false;
 static bool result2 = false;
-int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+SE::ResourceHandler::InvokeReturn Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
 	std::string r = (char*)data;
 	if (r.substr(0, size) == "1337")
@@ -29,9 +29,9 @@ int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 		result = true;
 	}
 
-	return 0;
+	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
-int Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
+SE::ResourceHandler::InvokeReturn Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
 	std::string r = (char*)data;
 	if (r.substr(0, size) == "1337")
@@ -39,7 +39,7 @@ int Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 		result2 = true;
 	}
 
-	return 0;
+	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
 bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 {

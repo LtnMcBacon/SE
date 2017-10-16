@@ -163,6 +163,7 @@ namespace SE {
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
 			inline ID3D11BlendState*	   GetBlendState() { return blendSolidState; };
+			
 			inline void SetDepthStencilStateAndRS()
 			{
 				gDeviceContext->RSSetState(rasterSolidState);

@@ -92,7 +92,7 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
+			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
 			int LoadModel(void* data, size_t size);
 			
