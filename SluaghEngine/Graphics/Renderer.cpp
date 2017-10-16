@@ -498,33 +498,22 @@ int SE::Graphics::Renderer::Render() {
 	//********* Render sprite overlays ********/
 	timeCluster[GPUTimer]->Start("GUIJob-GPU");
 	timeCluster[CPUTimer]->Start("GUIJob-CPU");
-	if (renderTextureJobs.size())
+	if (renderTextureJobs.size() && renderTextJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
 			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 		}
-		spriteBatch->End();
-	}
-	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
-	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
-	
 
-	//******** Render text overlays *********/
-	timeCluster[GPUTimer]->Start("TextJob-GPU");
-	timeCluster[CPUTimer]->Start("TextJob-CPU");
-	if (renderTextJobs.size())
-	{
-		spriteBatch->Begin();
 		for (auto& job : renderTextJobs)
 		{
 			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
-	timeCluster[CPUTimer]->Stop("TextJob-CPU");
-	timeCluster[GPUTimer]->Stop("TextJob-GPU");
+	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
+	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
