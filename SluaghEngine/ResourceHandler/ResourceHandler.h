@@ -7,6 +7,7 @@
 #include <mutex>
 #include <stack>
 #include <Utilz\Event.h>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -30,6 +31,7 @@ namespace SE
 			void Shutdown();
 
 			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK);
+			int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK);
 			void UnloadResource(const Utilz::GUID& guid);
 		
 		private:
@@ -48,7 +50,6 @@ namespace SE
 				Loading,
 				Dead
 			};
-			void Run();
 
 			struct Data
 			{
@@ -65,18 +66,8 @@ namespace SE
 				uint16_t* refCount;
 				State* state;
 			};
-			struct ToLoadInfo
-			{
-				Utilz::GUID guid;
-				size_t resourceInfoIndex;
-				Utilz::Delegate<int(const Utilz::GUID&, void*data, size_t)> callback;
-				Behavior behavior;
-			};
+		
 
-			void LoadAsync();
-			void CreateLoadJob(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback, Behavior behavior);
-			void UpdateLoadJob(ToLoadInfo& loadInfo, const LoadResourceDelegate& callback, Behavior behavior);
-			void RemoveLoadJob(const Utilz::GUID& guid);
 			int LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
 			int InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
 
@@ -85,11 +76,40 @@ namespace SE
 			ResourceInfo resourceInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToResourceInfoIndex;
 
-			std::stack<ToLoadInfo> toLoad;
-			std::mutex toLoadLock;
-			std::mutex infoLock;
-			std::thread myThread;
+
 			bool running = false;
+
+			struct ToLoadInfo
+			{
+				Utilz::GUID guid;
+				size_t resourceInfoIndex;
+				LoadResourceDelegate callback;
+				Behavior behavior;
+			};
+
+			/****************	To Load info	*****************/
+			
+
+			Utilz::CircularFiFo<ToLoadInfo> toLoad;
+			std::thread toLoadThread;
+
+			void ToLoadThreadEntry();
+
+
+			/****************	END To Load info	*****************/
+
+
+			/****************	To Invoke info	*****************/
+
+			Utilz::CircularFiFo<ToLoadInfo> toInvoke;
+			std::thread toInvokeThread;
+
+			void ToInvokeThreadEntry();
+
+
+			/****************	END To Callback info	*****************/
+			std::mutex infoLock;
+
 		};
 	}
 }

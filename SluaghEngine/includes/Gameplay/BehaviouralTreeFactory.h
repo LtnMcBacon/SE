@@ -3,6 +3,7 @@
 #include <map>
 #include "Utilz/GUID.h"
 #include <vector>
+#include <ResourceHandler\IResourceHandler.h>
 
 namespace SE
 {
@@ -140,7 +141,7 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
-			int LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
+			ResourceHandler::InvokeReturn LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
 		public:
 
 			/**
