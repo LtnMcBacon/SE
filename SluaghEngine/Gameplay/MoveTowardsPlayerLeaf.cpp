@@ -27,6 +27,12 @@ SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 
 	auto& forward = transformManager->GetForward(enemyPtr->GetEntity());
 
+	float forwardX = forward.x;
+	float forwardY = forward.z;
+	float forwardTot = abs(forwardX) + abs(forwardY);
+	forwardX /= forwardTot;
+	forwardY /= forwardTot;
+
 	float moveX = playerX - enemyX;
 	float moveY = playerY - enemyY;
 
@@ -37,28 +43,39 @@ SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 		moveY /= moveTot;
 	}
 
-	auto angle = DirectX::XMVectorGetX(DirectX::XMVector2AngleBetweenVectors(
-		DirectX::XMLoadFloat3(&forward), { moveX, 1.0f, moveY, 1.0f }));
+	DirectX::XMFLOAT3 tempRot = transformManager->GetRotation(enemyPtr->GetEntity());
 
+	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
+	DirectX::XMVECTOR mouseVector = { moveX, 0.0f, moveY, 0.0f };
+
+
+	int side;
+
+	if (playerX < enemyX)
+		side = -1;
+	else
+		side = 1;
+
+	float rotationAmmount = DirectX::XMVectorGetY(
+			DirectX::XMVector3AngleBetweenVectors(
+				defaultVector, mouseVector)
+	);
+	float currentRotation = tempRot.y;
+
+	rotationAmmount = abs(rotationAmmount - currentRotation);
 	
-
-	if(angle < 0)
+	if (rotationAmmount > 0.00025)
 	{
-		if(abs(angle) < rotationSpeed*dt)
-		{
-			angle = -rotationSpeed*dt;
-		}
+		if (rotationAmmount > rotationSpeed*dt)
+			rotationAmmount = rotationSpeed*dt;
+		rotationAmmount *= side;
+		transformManager->SetRotation(enemyPtr->GetEntity(),
+			tempRot.x, tempRot.y+rotationAmmount, tempRot.z);
 	}
 	else
 	{
-		if (abs(angle) > rotationSpeed*dt)
-		{
-			angle = rotationSpeed*dt;
-		}
+		int a = 0;
 	}
-	if (angle > 0.025f || angle < 0.025f)
-		transformManager->Rotate(enemyPtr->GetEntity(), 0.f, angle, 0.f);
-
 	enemyPtr->MoveEntity(moveX*dt, moveY*dt);
 
 	return Status::BEHAVIOUR_SUCCESS;

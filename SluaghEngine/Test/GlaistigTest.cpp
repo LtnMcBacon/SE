@@ -242,7 +242,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
 	rm.CreateRenderableObject(enemy->GetEntity(), Block);
 	rm.ToggleRenderableObject(enemy->GetEntity(), true);
-	tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+	tm.SetRotation(enemy->GetEntity(), 0, 0, 0);
 	tm.SetScale(enemy->GetEntity(), 0.5f);
 	testRoom->AddEnemyToRoom(enemy);
 	

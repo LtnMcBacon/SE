@@ -18,6 +18,7 @@ GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 {
 	this->unitEntity = Core::Engine::GetInstance().GetEntityManager().Create();
 	Core::Engine::GetInstance().GetTransformManager().Create(this->unitEntity, DirectX::XMFLOAT3(xPos, 0.f, yPos));
+	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, 0.f, 0.f, 0.f);
 }
 
 GameUnit::~GameUnit()
