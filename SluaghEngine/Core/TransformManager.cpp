@@ -143,6 +143,7 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 			XMVECTOR rotatedVector = XMVector3Transform(parentToChild, rot);
 			XMVECTOR newPos = parentPos + rotatedVector;
 			XMVECTOR translationVector = newPos - childPos;
+
 			Move(data.entities[child], translationVector);
 			Rotate(data.entities[child], pitch, yaw, roll);
 		}
@@ -152,27 +153,51 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 
 void SE::Core::TransformManager::Scale(const Entity& e, float scale)
 {
-	
+	Scale(e, { scale, scale, scale });
 }
 
 void SE::Core::TransformManager::Scale(const Entity & e, const DirectX::XMFLOAT3 & scale)
 {
-	
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+
+	data.scalings[index].x *= scale.x;
+	data.scalings[index].y *= scale.y;
+	data.scalings[index].z *= scale.z;
+
+	int32_t child = data.childIndex[index];
+	while(child != -1)
+	{
+		if(data.flags[child] & TransformFlags::INHERIT_SCALE)
+			Scale(data.entities[child], scale);
+		child = data.siblingIndex[child];
+	}
 }
 
 void SE::Core::TransformManager::SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos)
 {
-	
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	XMVECTOR position = XMLoadFloat3(&data.positions[index]);
+	XMVECTOR newPos = XMLoadFloat3(&pos);
+	XMVECTOR translation = newPos - position;
+	Move(e, translation);
+
 }
 
 void SE::Core::TransformManager::SetRotation(const Entity& e, float pitch, float yaw, float roll)
 {
-
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	float pitchDiff = pitch - data.rotations[index].x;
+	float yawDiff = yaw - data.rotations[index].y;
+	float rollDiff = roll -data.rotations[index].z;
+	Rotate(e, pitchDiff, yawDiff, rollDiff);
 }
 
 void SE::Core::TransformManager::SetScale(const Entity& e, float scale)
 {
-
+	
 }
 
 void SE::Core::TransformManager::SetScale(const Entity & e, const DirectX::XMFLOAT3 & scale)
