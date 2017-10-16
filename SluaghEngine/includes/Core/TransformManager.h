@@ -258,6 +258,8 @@ namespace SE
 			};
 			
 			TransformData data;
+			int32_t* lookUpTable = nullptr;
+			size_t lookUpTableSize = 0;
 			void Allocate(size_t count);
 			void Destroy(size_t index);
 			
@@ -265,7 +267,7 @@ namespace SE
 
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 
-			void ExpandTransforms();
+		
 			
 			std::vector<Entity> entityStack;
 			std::mutex queueLock;
