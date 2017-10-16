@@ -45,15 +45,17 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && !entID[entity].show)
+				if (show && !fileLoaded->second.show)
 				{
-					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
-					entID[entity].show = true;
+					renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
+					textJobobToEnt[fileLoaded->second.jobID] = entity;
+					fileLoaded->second.show = true;
 				}
-				else if (!show && entID[entity].show)
+				else if (!show && fileLoaded->second.show)
 				{
-					renderer->DisableTextRendering(loadedTexts[entID[entity].ID]);
-					entID[entity].show = false;
+					size_t tempJobID = renderer->DisableTextRendering(fileLoaded->second.jobID);
+					fileLoaded->second.show = false;
+					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 				}
 				ProfileReturnVoid;
 			}
@@ -204,7 +206,7 @@ namespace SE {
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextRendering(loadedTexts[entID[ent[i]].ID]);
+					ToggleRenderableText(ent[i], false);
 					DestroyText(i);
 				}
 				garbage = true;
@@ -221,7 +223,7 @@ namespace SE {
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextureRendering(textureInfo[entTextureID[textureEnt[i]].ID]);
+					ToggleRenderableTexture(textureEnt[i], false);
 					DestroyTexture(i);
 				}
 				garbage = false;

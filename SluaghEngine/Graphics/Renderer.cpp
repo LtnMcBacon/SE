@@ -303,31 +303,30 @@ int SE::Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_
 	ProfileReturnConst(0);
 }
 
-int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
+size_t SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
 {
+	StartProfile;
+	int job = (int)renderTextJobs.size();
 	renderTextJobs.push_back(handles);
+	if (!renderTextJobs[job].anchor)
+	{
+		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		size_t height = gBB_Desc.Height;
+		size_t width = gBB_Desc.Width;
+		renderTextJobs[job].scale = DirectX::XMFLOAT2(renderTextJobs[job].scale.x * width, renderTextJobs[job].scale.y * height);
+		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
+	}
+	ProfileReturn(job);
 	return 0;
 }
 
-int SE::Graphics::Renderer::DisableTextRendering(const TextGUI& handles)
+size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
 {
-	const int size = renderTextJobs.size();
-	int at = -1;
-	for (size_t i = 0; i < size; ++i)
-	{
-		if (handles.hashString == renderTextJobs[i].hashString)
-		{
-			at = i;
-			break;
-		}
-	}
-	if (at >= 0)
-	{
-		for (int i = at; i < size - 1; ++i)
-			renderTextJobs[i] = renderTextJobs[i + 1];
-		renderTextJobs.pop_back();
-	}
-	return 0;
+	StartProfile;
+	size_t job = renderTextJobs.size() - 1;
+	renderTextJobs[jobID] = renderTextJobs[job];
+	renderTextJobs.pop_back();
+	ProfileReturn(job);
 }
 
 int SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)

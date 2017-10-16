@@ -259,6 +259,17 @@ namespace SE
 				}
 			};
 
+			/**
+			* @brief Sets the default height and width to be used in GUI scale calc
+			* @param[in] inHeight The height.
+			* @param[in] inWidth The width.
+			* @endcode
+			*/
+			void SetDefaultScale(float inHeight, float inWidth)
+			{
+				height = inHeight;
+				width = inWidth;
+			}
 
 			void Shutdown();
 		private:
@@ -274,12 +285,14 @@ namespace SE
 			{
 				Utilz::GUID GUID;
 				size_t ID;
+				size_t jobID;
 				bool show = false;
 			};
 
 			struct showID
 			{
 				size_t ID;
+				size_t jobID;
 				bool show = false;
 			};
 
@@ -287,11 +300,13 @@ namespace SE
 			std::unordered_map<Entity, showID, EntityHasher> entID;
 			std::vector<Graphics::TextGUI> loadedTexts;
 			std::vector<Entity> ent;
+			std::map<size_t, Entity> textJobobToEnt;
 
 			//Texture variables
 			std::unordered_map<Entity, EntBindIDGUID, EntityHasher> entTextureID;
 			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
+			std::map<size_t, Entity> jobToEnt;
 
 			std::vector<Graphics::GUITextureInfo> textureInfo;
 			std::vector<Entity> textureEnt;
@@ -301,6 +316,9 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
+
+			float height = 720.0;
+			float width = 1280.0;
 
 			bool garbage = false;
 		};

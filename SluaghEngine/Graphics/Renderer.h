@@ -65,18 +65,18 @@ namespace SE
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int EnableTextRendering(const TextGUI & handles) override;
+			size_t EnableTextRendering(const TextGUI & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextRendering(const TextGUI& handles) override;
+			size_t DisableTextRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Text render jobs

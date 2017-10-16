@@ -195,6 +195,10 @@ namespace SE {
 					gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
 				}
 			}
+
+			inline D3D11_TEXTURE2D_DESC GetTexDesc() {
+				return gBB_Desc;
+			}
 		private:
 
 			ID3D11Device*			gDevice;
