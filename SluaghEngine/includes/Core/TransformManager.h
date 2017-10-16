@@ -233,7 +233,7 @@ namespace SE
 			static const size_t transformCapacityIncrement = 512;
 			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2 + sizeof(uint8_t);
 
-			enum class TransformFlags : uint16_t
+			enum TransformFlags : uint16_t
 			{
 				DIRTY = 1 << 0,
 				INHERIT_TRANSLATION = 1 << 1,
@@ -242,9 +242,10 @@ namespace SE
 				INHERIT_ALL = 7U
 			};
 
+
 			struct TransformData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 3 + sizeof(TransformFlags);
+				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 3 + sizeof(int16_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -255,7 +256,7 @@ namespace SE
 				int32_t* childIndex = nullptr;
 				int32_t* siblingIndex = nullptr;
 				int32_t* parentIndex = nullptr;
-				TransformFlags* flags = nullptr;
+				int16_t* flags = nullptr;
 			};
 			
 			TransformData data;

@@ -58,6 +58,31 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child, bool rotation)
 {
 	StartProfile;
+	_ASSERT(parent.Index() < lookUpTableSize);
+	_ASSERT(child.Index() < lookUpTableSize);
+
+	int32_t parentIndex = lookUpTable[parent.Index()];
+	int32_t childIndex = lookUpTable[child.Index()];
+
+	data.parentIndex[childIndex] = parentIndex;
+	//There might already be children under the parent.
+	if(data.childIndex[parentIndex] >= 0)
+	{
+		//If so, put the child as the last sibling.
+		int32_t sibling = data.childIndex[parentIndex];
+		while(data.siblingIndex[sibling] != -1)
+		{
+			sibling = data.siblingIndex[sibling];
+		}
+		data.siblingIndex[sibling] = childIndex;
+	}
+	else
+	{
+		data.childIndex[parentIndex] = childIndex;
+	}
+
+	if (rotation)
+		data.flags[childIndex] |= TransformFlags::INHERIT_ROTATION;
 
 	ProfileReturnVoid;
 
@@ -318,7 +343,7 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	newData.childIndex = (int32_t*)(newData.scalings + count);
 	newData.siblingIndex = (int32_t*)(newData.childIndex + count);
 	newData.parentIndex = (int32_t*)(newData.siblingIndex + count);
-	newData.flags = (TransformFlags*)(newData.parentIndex + count);
+	newData.flags = (int16_t*)(newData.parentIndex + count);
 
 	memcpy(newData.entities, data.entities, data.used * sizeof(Entity));
 	memcpy(newData.positions, data.positions, data.used * sizeof(XMFLOAT3));
@@ -327,7 +352,7 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	memcpy(newData.childIndex, data.childIndex, data.used * sizeof(int32_t));
 	memcpy(newData.siblingIndex, data.siblingIndex, data.used * sizeof(int32_t));
 	memcpy(newData.parentIndex, data.parentIndex, data.used * sizeof(int32_t));
-	memcpy(newData.flags, data.flags, data.used * sizeof(TransformFlags));
+	memcpy(newData.flags, data.flags, data.used * sizeof(int16_t));
 
 	operator delete(data.data);
 	data = newData;
@@ -385,6 +410,31 @@ void SE::Core::TransformManager::Destroy(const Entity& entity)
 	--data.used;
 
 	lookUpTable[last] = index;
+
+	//The entity we replaced the destroyed entity with might have had parent/siblings/children.
+	//Fix those relations.
+	if(data.parentIndex[index] >= 0)
+	{
+		if (data.childIndex[data.parentIndex[index]] == last)
+			data.childIndex[data.parentIndex[index]] = index;
+		else
+		{
+			int32_t sibling = data.childIndex[data.parentIndex[index]];
+			while (data.siblingIndex[sibling] != last)
+				sibling = data.siblingIndex[sibling];
+			data.siblingIndex[sibling] = index;
+		}
+	}
+	//Fix children
+	if(data.childIndex[index] >= 0)
+	{
+		int32_t child = data.childIndex[index];
+		while (child != -1)
+		{
+			data.parentIndex[child] = index;
+			child = data.siblingIndex[child];
+		}
+	}
 
 
 }
