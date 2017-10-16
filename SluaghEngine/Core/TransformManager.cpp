@@ -259,18 +259,14 @@ const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e)
 
 const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMFLOAT3 & forward)
 {
-	//auto entry = entityToIndex.find(e);
-	//_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
-
 	XMVECTOR ndir = XMVector3Normalize(XMLoadFloat3(&forward));
 	SetForward(e, ndir);
-
 }
 
 const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMVECTOR & forward)
 {
-	auto entry = entityToIndex.find(e);
-	_ASSERT_EXPR(entry != entityToIndex.end(), "Undefined entity referenced in transform manager");
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
 
 	XMVECTOR defaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -288,11 +284,11 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	if (XMVectorGetZ(projToZY) < 0)
 		angleZ = -angleZ;
 
-	//rotations[entry->second].x = angleX;
-	//rotations[entry->second].y = angleY;
-	//rotations[entry->second].z = angleZ;
+	data.rotations[index].x = angleX;
+	data.rotations[index].y = angleY;
+	data.rotations[index].z = angleZ;
 
-	SetAsDirty(entry->second);
+	SetAsDirty(index);
 }
 
 int SE::Core::TransformManager::GarbageCollection()
