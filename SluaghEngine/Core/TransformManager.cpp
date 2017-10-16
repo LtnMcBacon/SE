@@ -27,7 +27,26 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
 	StartProfile;
+	const uint32_t lookUpTableIndex = e.Index();
+	if(lookUpTableIndex >= lookUpTableSize)
+	{
+		int32_t* newTable = new int32_t[lookUpTableSize + std::min(lookUpTableSize, size_t(512))];
+		memcpy(newTable, lookUpTable, sizeof(int32_t) * lookUpTableSize);
+		memset(newTable + lookUpTableSize, -1, std::min(lookUpTableSize, size_t(512)));
+		delete[] lookUpTable;
+		lookUpTable = newTable;
+	}
+	if (data.used == data.allocated)
+		Allocate(data.allocated + std::min(data.allocated, size_t(256)));
 
+	lookUpTable[lookUpTableIndex] = data.used;
+	data.entities[data.used] = e;
+	data.positions[data.used] = pos;
+	data.rotations[data.used] = rotation;
+	data.scalings[data.used] = scale;
+	data.childIndex[data.used] = -1;
+	data.siblingIndex[data.used] = -1;
+	data.flags[data.used] = TransformFlags::DIRTY;
 
 	ProfileReturnVoid;
 }
