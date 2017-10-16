@@ -50,6 +50,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	data.siblingIndex[data.used] = -1;
 	data.parentIndex[data.used] = -1;
 	data.flags[data.used] = TransformFlags::DIRTY;
+	++data.used;
 
 	ProfileReturnVoid;
 }
