@@ -43,7 +43,7 @@ namespace SE
 			unsigned int Length;
 
 			Animation() {
-				Joints.reserve(3);
+				Joints.reserve(19);
 				Length = 0;
 			}
 		};
@@ -68,7 +68,7 @@ namespace SE
 			std::vector<Joint> Hierarchy;
 
 			Skeleton() {
-				Hierarchy.reserve(4);
+				Hierarchy.reserve(19);
 			}
 		};
 
