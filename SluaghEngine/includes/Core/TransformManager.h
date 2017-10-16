@@ -5,6 +5,7 @@
 #include "EntityManager.h"
 #include <Utilz\Event.h>
 #include <mutex>
+#include <random>
 
 namespace SE
 {
@@ -263,8 +264,8 @@ namespace SE
 			int32_t* lookUpTable;
 			size_t lookUpTableSize;
 			void Allocate(size_t count);
-			void Destroy(const Entity& entity);
-			
+			void Destroy(const size_t index);
+			std::default_random_engine generator;
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;

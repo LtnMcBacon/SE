@@ -294,35 +294,19 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 int SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
-	//uint32_t upperIndex = std::min(garbageCollectionIndex + 4, transformCount);
-	//const uint32_t priorCount = transformCount;
-
-	//for(int i = garbageCollectionIndex; i < upperIndex; i++)
-	//{
-	//	auto iterator = entityToIndex.begin();
-	//	std::advance(iterator, i);
-	//	if(!entityManager->Alive(iterator->first))
-	//	{
-	//		--transformCount;
-	//		positions[iterator->second] = positions[transformCount];
-	//		rotations[iterator->second] = rotations[transformCount];
-	//		scalings[iterator->second] = scalings[transformCount];
-	//		dirty[iterator->second] = dirty[transformCount];
-	//		Parent[iterator->second] = Parent[transformCount];
-	//		Child[iterator->second] = Child[transformCount];
-	//		DirtyTransform[iterator->second] = DirtyTransform[transformCount];
-	//		inheritRotation[iterator->second] = inheritRotation[transformCount];
-
-	//		const Entity occupyingLastSlot = entities[transformCount];
-	//		entityToIndex[occupyingLastSlot] = iterator->second;
-	//		entities[iterator->second] = occupyingLastSlot;
-	//		entityToIndex.erase(iterator);
-	//		upperIndex--;
-	//	}
-	//}
-	//garbageCollectionIndex = upperIndex;
-	//if (garbageCollectionIndex >= transformCount)
-	//	garbageCollectionIndex = 0;
+	uint32_t aliveInRow = 0;
+	while(data.used > 0 && aliveInRow < 40U)
+	{
+		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
+		size_t i = distribution(generator);
+		if(entityManager->Alive(data.entities[i]))
+		{
+			++aliveInRow;
+			continue;
+		}
+		aliveInRow = 0;
+		Destroy(i);
+	}
 	ProfileReturnConst(0);
 }
 
@@ -431,10 +415,9 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	ProfileReturnVoid;
 }
 
-void SE::Core::TransformManager::Destroy(const Entity& entity)
+void SE::Core::TransformManager::Destroy(const size_t index)
 {
-	_ASSERT(entity.Index() < lookUpTableSize);
-	const int32_t index = lookUpTable[entity.Index()];
+	_ASSERT(index < data.used);
 	lookUpTable[index] = -1;
 	const int32_t last = data.used - 1;
 
