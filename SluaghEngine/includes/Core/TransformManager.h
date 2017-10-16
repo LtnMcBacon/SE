@@ -20,7 +20,6 @@ namespace SE
 		* @sa EntityManager
 		*
 		**/
-	//	class RenderableManager;
 		class TransformManager
 		{
 			friend class RenderableManager;
