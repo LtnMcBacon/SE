@@ -104,29 +104,6 @@ namespace SE {
 			unsigned int i;
 			(void)inputBuffer; /* Prevent unused variable warning. */
 
-			/*if (framesPerBuffer * _data->pData.currentPos >= _data->sample->info.frames)
-				return paComplete;
-
-			for (_i = 0; _i<framesPerBuffer; _i++)
-			{
-				if (_data->pData.currentPos * framesPerBuffer + _i < _data->sample->info.frames)
-				{
-					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
-					{
-						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
-					}
-				}
-				else
-				{
-					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
-					{
-						*_out++ = 0.0f;
-					}
-				}
-			}
-			_data->pData.currentPos++;
-			return paContinue;*/
-
 			if (framesPerBuffer * data->pData.currentPos < data->sample->info.frames - framesPerBuffer)
 			{
 				for (i = 0; i<framesPerBuffer; i++)
