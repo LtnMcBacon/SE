@@ -35,6 +35,11 @@ namespace SE {
 			entID[entity].ID = loadedTexts.size();
 			ent.push_back(entity);
 			loadedTexts.push_back(inTextInfo);
+			if (!loadedTexts[loadedTexts.size() - 1].anchor)
+			{
+				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
+				loadedTexts[loadedTexts.size() - 1].scale = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].scale.x / width, loadedTexts[loadedTexts.size() - 1].scale.y / height);
+			}
 			ProfileReturnVoid;	
 		}
 
@@ -108,6 +113,12 @@ namespace SE {
 				textureEnt.push_back(entity);
 				textureInfo.push_back(texInfo);
 				textureInfo[textureInfo.size() - 1].textureID = textureGUID[texFile].textureHandle;
+				if (!textureInfo[textureInfo.size() - 1].anchor)
+				{
+					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[texFile].width / 2, textureGUID[texFile].height / 2);
+					textureInfo[textureInfo.size() - 1].pos = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].pos.x / width, textureInfo[textureInfo.size() - 1].pos.y / height);
+					textureInfo[textureInfo.size() - 1].scale = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].scale.x / width, textureInfo[textureInfo.size() - 1].scale.y / height);
+				}
 				ProfileReturnConst(0);
 			}
 			ProfileReturnConst(-1);
