@@ -20,6 +20,7 @@ SE::Core::TransformManager::TransformManager(EntityManager* em)
 SE::Core::TransformManager::~TransformManager()
 {
 	operator delete(data.data);
+	delete[] lookUpTable;
 }
 
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
