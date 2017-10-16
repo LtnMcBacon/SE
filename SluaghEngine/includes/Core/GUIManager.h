@@ -224,7 +224,14 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].rotation = rotation;
+					if (fileLoaded->second.show == true)
+					{
+						ToggleRenderableTexture(entity, false);
+						textureInfo[fileLoaded->second.ID].rotation = rotation;
+						ToggleRenderableTexture(entity, true);
+					}
+					else
+						textureInfo[fileLoaded->second.ID].rotation = rotation;
 				}
 			};
 

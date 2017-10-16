@@ -2,6 +2,7 @@
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
 #include <Utilz\Memory.h>
+#include <Utilz\Timer.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -73,6 +74,7 @@ namespace SE
 
 				// Load textures for GUI
 				guiManager.Create2D(Utilz::GUID("GUITest.sei"));
+				guiManager.Create2D(Utilz::GUID("TransparentTest.sei"));
 
 				// Text creation
 				Graphics::TextGUI guiText;
@@ -157,6 +159,22 @@ namespace SE
 				guiManager.Bind2D(entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4);
 				guiManager.ToggleRenderableTexture(entTexture4, true);
 
+				// GUI texture creation5
+				auto entTexture5 = e.GetEntityManager().Create();
+				Graphics::GUITextureInfo guiTexture5;
+				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiTexture5.effect = DirectX::SpriteEffects_None;
+				guiTexture5.textureID = 0;	// Not needed gets set in the bind function
+				guiTexture5.layerDepth = 0;
+				guiTexture5.pos = DirectX::XMFLOAT2(800.0, 400.0);
+				guiTexture5.rotation = DirectX::XM_PIDIV2;
+				guiTexture5.scale = DirectX::XMFLOAT2(0.5, 0.5);
+				guiTexture5.rect = nullptr;	//not needed default nullptr
+
+
+				guiManager.Bind2D(entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5);
+				guiManager.ToggleRenderableTexture(entTexture5, true);
+
 #pragma endregion GUI
 
 
@@ -167,17 +185,20 @@ namespace SE
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
 				e.GetWindow()->MapActionButton(4, Window::KeyV);
 				e.GetWindow()->MapActionButton(5, Window::KeyM);
-				e.GetWindow()->MapActionButton(6, Window::Key1);
-				e.GetWindow()->MapActionButton(7, Window::Key2);
-				e.GetWindow()->MapActionButton(8, Window::Key3);
-				e.GetWindow()->MapActionButton(9, Window::Key4);
-				e.GetWindow()->MapActionButton(10, Window::Key5);
+				e.GetWindow()->MapActionButton(11, Window::KeyU);
+				e.GetWindow()->MapActionButton(12, Window::KeyJ);
 
 				console->Print("Start main loop!!\n");
 				auto ren = e.GetRenderer();
+				auto& opt = e.GetOptionHandler();
+				Utilz::Timer time;
+				time.Tick();
+				float rotation = 0.0;
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-					e.Frame(0.0f);
+					rotation += 0.0002 * time.GetDelta();
+					guiManager.SetTextureRotation(entTexture5, rotation);
+					guiManager.SetTextureRotation(entTexture4, rotation);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
@@ -233,6 +254,20 @@ namespace SE
 						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
+					if (e.GetWindow()->ButtonPressed(11) == true)
+					{
+						opt.SetOptionUnsignedInt("Window", "height", 720);
+						opt.SetOptionUnsignedInt("Window", "width", 1280);
+						opt.Trigger();
+					}
+					if (e.GetWindow()->ButtonPressed(12) == true)
+					{
+						opt.SetOptionUnsignedInt("Window", "height", 540);
+						opt.SetOptionUnsignedInt("Window", "width", 860);
+						opt.Trigger();
+					}
+					e.Frame(time.GetDelta());
+					time.Tick();
 				}
 				e.Release();
 				return true;

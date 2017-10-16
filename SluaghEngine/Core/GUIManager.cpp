@@ -139,9 +139,11 @@ namespace SE {
 				}
 				else if (!show && fileLoaded->second.show)
 				{
-					size_t tempJobID = renderer->DisableTextureRendering(fileLoaded->second.ID);
+					size_t tempJobID = renderer->DisableTextureRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
 					entTextureID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					jobToEnt[fileLoaded->second.jobID] = jobToEnt[tempJobID];
+					jobToEnt.erase(tempJobID);
 				}
 				ProfileReturnVoid;
 			}
