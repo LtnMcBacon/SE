@@ -1,5 +1,6 @@
 #include "AudioSound.h"
 #include <Profiler.h>
+#include <Utilz\Memory.h>
 
 namespace SE {
 	namespace Audio {
@@ -18,7 +19,8 @@ namespace SE {
 		int AudioSound::Initialize()
 		{
 			StartProfile;
-			sampleStack.InitStackAlloc(100000000);
+			using namespace Utilz::Memory;
+			sampleStack.InitStackAlloc(20mb);
 			ProfileReturnConst(0);
 		}
 

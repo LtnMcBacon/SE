@@ -1,5 +1,6 @@
 #include "ResourceHandlerTest.h"
 #include <ResourceHandler\IResourceHandler.h>
+#include <Utilz\Memory.h>
 
 #include <string>
 #ifdef _DEBUG
@@ -11,6 +12,8 @@
 #include <Profiler.h>
 
 using namespace SE::Test;
+using namespace SE::Utilz::Memory;
+
 ResourceHandlerTest::ResourceHandlerTest()
 {
 }
@@ -48,7 +51,16 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	ResourceHandler::IResourceHandler* r = ResourceHandler::CreateResourceHandler();
 
-	r->Initialize();
+	r->Initialize({10mb});
+
+	r->LoadResource("texture8.sei", [](auto guid, auto data, auto size) {
+		std::this_thread::sleep_for(100ms);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+	if (Utilz::Memory::IsUnderLimit(10mb))
+		return false;
+
 	Utilz::GUID guid = Utilz::GUID("test.txt");
 	result = false;
 	auto res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
@@ -140,6 +152,9 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	}
 	r->Shutdown();
 	delete r;
+
+	if (!Utilz::Memory::IsUnderLimit(10mb))
+		return false;
 
 	ProfileReturnConst(true);
 }

@@ -41,9 +41,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
+
 	
 
-	auto r = resourceHandler->Initialize();
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256 * 1024 * 1024), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize();
