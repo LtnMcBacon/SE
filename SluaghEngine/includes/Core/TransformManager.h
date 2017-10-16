@@ -218,22 +218,6 @@ namespace SE
 			std::vector<PD> parentDeferred;
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 
-			Entity* entities;
-			DirectX::XMFLOAT3* positions;
-			DirectX::XMFLOAT3* rotations;
-			DirectX::XMFLOAT3* scalings;
-			uint8_t* dirty;
-			size_t *Parent; // Parent transform (whose reference system we are relative to).
-			size_t *Child;
-			size_t *DirtyTransform; // Use this to get other children
-			uint8_t* inheritRotation;
-
-			uint32_t transformCount;
-			uint32_t transformCapacity;
-			uint32_t garbageCollectionIndex;
-			static const size_t transformCapacityIncrement = 512;
-			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2 + sizeof(uint8_t);
-
 			enum TransformFlags : uint16_t
 			{
 				DIRTY = 1 << 0,
