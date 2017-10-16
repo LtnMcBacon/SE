@@ -44,33 +44,23 @@ SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 	}
 
 	DirectX::XMFLOAT3 tempRot = transformManager->GetRotation(enemyPtr->GetEntity());
+	DirectX::XMFLOAT3 tempForward = transformManager->GetForward(enemyPtr->GetEntity());
 
 	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
-	DirectX::XMVECTOR mouseVector = { moveX, 0.0f, moveY, 0.0f };
+	DirectX::XMFLOAT3 mouseVector(moveX, 0.0f, moveY);// = { moveX, 0.0f, moveY, 0.0f };
 
 
-	int side;
+	int side = 1;
 
-	if (playerX < enemyX)
-		side = -1;
-	else
-		side = 1;
-
-	float rotationAmmount = DirectX::XMVectorGetY(
-			DirectX::XMVector3AngleBetweenVectors(
-				defaultVector, mouseVector)
-	);
-	float currentRotation = tempRot.y;
-
-	rotationAmmount = abs(rotationAmmount - currentRotation);
+	float rotationAmmount = atan2f(tempForward.z, tempForward.x) - atan2f(mouseVector.z, mouseVector.x);
 	
-	if (rotationAmmount > 0.00025)
+	if (abs(rotationAmmount) > 0.00025)
 	{
-		if (rotationAmmount > rotationSpeed*dt)
-			rotationAmmount = rotationSpeed*dt;
-		rotationAmmount *= side;
-		transformManager->SetRotation(enemyPtr->GetEntity(),
-			tempRot.x, tempRot.y+rotationAmmount, tempRot.z);
+		
+		
+		
+		transformManager->Rotate(enemyPtr->GetEntity(),
+			0.f, rotationAmmount, 0.f);
 	}
 	else
 	{
