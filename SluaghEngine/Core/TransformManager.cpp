@@ -338,47 +338,34 @@ void SE::Core::TransformManager::Frame()
 	//		
 	//	}
 	//}
-	//for (auto i : parentDeferred)
-	//{
-	//	XMMATRIX local = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]]);
-	//	XMMATRIX parent;
-	//	if (inheritRotation[i.Index])
-	//		parent = XMLoadFloat4x4(&dirtyTransforms[DirtyTransform[i.parentIndex]]);
-	//	else
-	//		parent = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[i.parentIndex]));
-	//	
-	//	auto newTrans = local*parent;
-	//	XMStoreFloat4x4(&dirtyTransforms[DirtyTransform[i.Index]], newTrans);
-	//}
+
 	GarbageCollection();
 	StopProfile;
 }
 
 inline void SE::Core::TransformManager::SetAsDirty(size_t index)
 {
-	//dirty[index] = 1u;
-	//if (Parent[index] != ~0u)
-	//	dirty[Parent[index]] = 1u;
-	//if (Child[index] != ~0u)
-	//	dirty[Child[index]] = 1u;
+	_ASSERT(index < data.used);
+	data.flags[index] |= TransformFlags::DIRTY;
+	int32_t child = data.childIndex[index];
+	while (child != -1)
+	{
+		SetAsDirty(data.entities[child]);
+		child = data.siblingIndex[child];
+	}
 
 }
 
 void SE::Core::TransformManager::UpdateTransform(size_t index)
 {
 	StartProfile;
-	//XMFLOAT4X4 transform;
-	//auto translation = XMMatrixTranslationFromVector(XMLoadFloat3(&positions[index]));
-	//auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotations[index]));
-	//auto scale = XMMatrixScalingFromVector(XMLoadFloat3(&scalings[index]));
-	//XMStoreFloat4x4(&transform, scale*rotation*translation);
-	//dirtyTransforms.push_back(transform);
-	//auto ti = dirtyTransforms.size() - 1;
-	//DirtyTransform[index] = ti;
-	//if (Parent[index] != ~0u)
-	//	parentDeferred.push_back({ index, Parent[index] });
-	//SetDirty(entities[index], ti);
-	//dirty[index] = false;
+	XMFLOAT4X4 transform;
+	const auto& translation = XMMatrixTranslationFromVector(XMLoadFloat3(&data.positions[index]));
+	const auto& rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[index]));
+	const auto& scale = XMMatrixScalingFromVector(XMLoadFloat3(&data.scalings[index]));
+	XMStoreFloat4x4(&transform, scale*rotation*translation);
+	dirtyTransforms.push_back(transform);
+	data.flags[index] = ~TransformFlags::DIRTY & data.flags[index];
 	StopProfile;
 }
 
