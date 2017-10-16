@@ -92,6 +92,7 @@ int SE::Core::Engine::BeginFrame()
 	if (frameBegun)
 		ProfileReturnConst( -1);
 	frameBegun = true;
+	timeClus->Start("Frame");
 	window->Frame();
 	ImGuiDX11SDL_NewFrame();
 	renderer->BeginFrame();
@@ -137,6 +138,7 @@ int SE::Core::Engine::Frame(double dt)
 	renderer->Render();
 	timeClus->Stop("Renderer");
 	GatherErrors();
+	timeClus->Stop("Frame");
 	devConsole->Frame();
 
 	ImGui::Render();
