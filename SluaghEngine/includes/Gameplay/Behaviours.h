@@ -3,6 +3,7 @@
 
 #include "IBehaviour.h"
 /*Leaves*/
+#include "MoveTowardsPlayerLeaf.h"
 #include "FlowFieldMovementLeaf.h"
 #include "SucceederLeaf.h"
 

@@ -35,6 +35,7 @@
 #include "GarbageTest.h"
 #include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
+#include "GlaistigTest.h"
 
 
 #ifdef _DEBUG
@@ -87,6 +88,7 @@ int main(int argc, char** argv)
 	AddTest(BehavioursTest);
 	AddTest(BehaviouralTreeFactoryTest);
 	AddTest(EnemyFactoryTest);
+	AddTest(GlaistigTest);
 
 	AddTest(PickingTest);
 

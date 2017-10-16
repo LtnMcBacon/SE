@@ -1,0 +1,37 @@
+#ifndef SE_GAMEPLAY_MOVE_TOWARDS_PLAYER_LEAF_H
+#define SE_GAMEPLAY_MOVE_TOWARDS_PLAYER_LEAF_H
+#include "IBehaviour.h"
+#include "Core/TransformManager.h"
+
+namespace SE
+{
+	namespace Core
+	{
+		class TransformManager;
+	}
+	namespace Gameplay
+	{
+		class MoveTowardsPlayerLeaf : public IBehaviour
+		{
+		private:
+			MoveTowardsPlayerLeaf() = delete;
+			Core::TransformManager* transformManager;
+			float rotationSpeed = DirectX::XM_PI;
+		public:
+			MoveTowardsPlayerLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
+			~MoveTowardsPlayerLeaf();
+
+
+			Status Update() override;
+
+			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				return new MoveTowardsPlayerLeaf(enemyBlackboard, gameBlackboard);
+			};
+		};
+	}
+}
+
+
+#endif
+

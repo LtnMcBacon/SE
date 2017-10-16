@@ -55,8 +55,16 @@ namespace SE
 			*
 			*
 			* @sa CreateTreeFromNodeData
-			*/IBehaviour* CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID);
+			*/
+			IBehaviour* CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create a MoveTowardsPlayer Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMoveTowardsPlayerLeaf(NodeData* node_data, int node_id);
 			/*Create Composites*/
 
 			/**
