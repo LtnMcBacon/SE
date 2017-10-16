@@ -26,10 +26,10 @@ namespace SE
 			*
 			* @brief Get the time for one timer
 			**/
-			template<typename TimeType = std::chrono::milliseconds>
+			template<typename Ratio = std::milli>
 			inline float GetTime(const Utilz::IDHash& id)
 			{
-				return static_cast<float>(std::chrono::duration_cast<TimeType>(timers[id].stopTime - timers[id].startTime).count());
+				return std::chrono::duration<float, Ratio>(timers[id].stopTime - timers[id].startTime).count();
 			}
 
 
