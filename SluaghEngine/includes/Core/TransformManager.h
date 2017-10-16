@@ -244,7 +244,7 @@ namespace SE
 
 			struct TransformData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 2 + sizeof(TransformFlags);
+				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 3 + sizeof(TransformFlags);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -254,6 +254,7 @@ namespace SE
 				DirectX::XMFLOAT3* scalings = nullptr;
 				int32_t* childIndex = nullptr;
 				int32_t* siblingIndex = nullptr;
+				int32_t* parentIndex = nullptr;
 				TransformFlags* flags = nullptr;
 			};
 			

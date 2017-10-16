@@ -46,6 +46,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	data.scalings[data.used] = scale;
 	data.childIndex[data.used] = -1;
 	data.siblingIndex[data.used] = -1;
+	data.parentIndex[data.used] = -1;
 	data.flags[data.used] = TransformFlags::DIRTY;
 
 	ProfileReturnVoid;
@@ -313,7 +314,8 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	newData.scalings = (XMFLOAT3*)(newData.rotations + count);
 	newData.childIndex = (int32_t*)(newData.scalings + count);
 	newData.siblingIndex = (int32_t*)(newData.childIndex + count);
-	newData.flags = (TransformFlags*)(newData.siblingIndex + count);
+	newData.parentIndex = (int32_t*)(newData.siblingIndex + count);
+	newData.flags = (TransformFlags*)(newData.parentIndex + count);
 
 	memcpy(newData.entities, data.entities, data.used * sizeof(Entity));
 	memcpy(newData.positions, data.positions, data.used * sizeof(XMFLOAT3));
@@ -321,6 +323,7 @@ void SE::Core::TransformManager::Allocate(size_t count)
 	memcpy(newData.scalings, data.scalings, data.used * sizeof(XMFLOAT3));
 	memcpy(newData.childIndex, data.childIndex, data.used * sizeof(int32_t));
 	memcpy(newData.siblingIndex, data.siblingIndex, data.used * sizeof(int32_t));
+	memcpy(newData.parentIndex, data.parentIndex, data.used * sizeof(int32_t));
 	memcpy(newData.flags, data.flags, data.used * sizeof(TransformFlags));
 
 	operator delete(data.data);
