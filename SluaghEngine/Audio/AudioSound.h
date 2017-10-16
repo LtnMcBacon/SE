@@ -11,6 +11,8 @@
 #pragma comment(lib, "utilz.lib")
 #endif
 
+static bool readType = false;
+
 namespace SE {
 	namespace Audio {
 		
@@ -37,6 +39,7 @@ namespace SE {
 			*
 			*/
 			size_t LoadSound(AudioFile* sound);
+			size_t LoadSound2();
 			/**
 			* @brief	Returns the requested sample
 			*

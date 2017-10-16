@@ -166,12 +166,12 @@ copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)
     <ClCompile Include="IAudioHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Audio\AudioTypeDefs.h" />
     <ClInclude Include="..\includes\Audio\IAudioHandler.h" />
     <ClInclude Include="AudioHandler.h" />
     <ClInclude Include="AudioSound.h" />
     <ClInclude Include="AudioStream.h" />
     <ClInclude Include="AudioStructType.h" />
-    <ClInclude Include="AudioTypeDefs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
