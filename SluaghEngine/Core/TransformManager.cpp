@@ -38,8 +38,19 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 		delete[] lookUpTable;
 		lookUpTable = newTable;
 	}
-	if (lookUpTable[e.Index()] != -1)
-		ProfileReturnVoid;
+	if (lookUpTable[lookUpTableIndex] != -1)
+	{
+		//The Garbage collection might not have catched up with the creation
+		if(e.Gen() != data.entities[lookUpTable[lookUpTableIndex]].Gen())
+		{
+			Destroy(lookUpTable[lookUpTableIndex]);
+		}
+		else
+		{
+			//The same entity has been created twice. (This is OK, just return)
+			ProfileReturnVoid;
+		}
+	}
 	if (data.used == data.allocated)
 		Allocate(data.allocated + std::min(data.allocated, size_t(256)));
 
