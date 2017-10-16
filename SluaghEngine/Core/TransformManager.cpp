@@ -97,27 +97,67 @@ void SE::Core::TransformManager::SetAsDirty(const Entity & e)
 
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMFLOAT3& dir)
 {
+	//Recursive function so no profiler
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
 
+	data.positions[index].x += dir.x;
+	data.positions[index].y += dir.y;
+	data.positions[index].z += dir.z;
+	data.flags[index] |= TransformFlags::DIRTY;
+
+	int32_t child = data.childIndex[index];
+	while(child != -1)
+	{
+		if(data.flags[child] & TransformFlags::INHERIT_TRANSLATION)
+			Move(data.entities[child], dir);
+		child = data.siblingIndex[child];
+	}
+	
 }
 
 void SE::Core::TransformManager::Move(const Entity& e, const DirectX::XMVECTOR& dir)
 {
-
+	XMFLOAT3 fdir;
+	XMStoreFloat3(&fdir, dir);
+	Move(e, fdir);
 }
 
 void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw, float roll)
 {
+	_ASSERT(e.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[e.Index()];
+	data.rotations[index].x += pitch;
+	data.rotations[index].y += yaw;
+	data.rotations[index].z += roll;
 
+	int32_t child = data.childIndex[index];
+	while (child != -1)
+	{
+		if(data.flags[child] & TransformFlags::INHERIT_ROTATION)
+		{
+			XMVECTOR childPos = XMLoadFloat3(&data.positions[child]); XMVectorSetW(childPos, 1.0f);
+			XMVECTOR parentPos = XMLoadFloat3(&data.positions[index]); XMVectorSetW(parentPos, 1.0f);
+			XMVECTOR parentToChild = childPos - parentPos;
+			XMMATRIX rot = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+			XMVECTOR rotatedVector = XMVector3Transform(parentToChild, rot);
+			XMVECTOR newPos = parentPos + rotatedVector;
+			XMVECTOR translationVector = newPos - childPos;
+			Move(data.entities[child], translationVector);
+			Rotate(data.entities[child], pitch, yaw, roll);
+		}
+		child = data.siblingIndex[child];
+	}
 }
 
 void SE::Core::TransformManager::Scale(const Entity& e, float scale)
 {
-
+	
 }
 
 void SE::Core::TransformManager::Scale(const Entity & e, const DirectX::XMFLOAT3 & scale)
 {
-
+	
 }
 
 void SE::Core::TransformManager::SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos)
