@@ -298,7 +298,7 @@ int SE::Core::TransformManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
 		size_t i = distribution(generator);
-		if(!entityManager->Alive(data.entities[i]))
+		if(entityManager->Alive(data.entities[i]))
 		{
 			++aliveInRow;
 			continue;
