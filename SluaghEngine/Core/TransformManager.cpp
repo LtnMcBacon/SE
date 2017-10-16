@@ -61,8 +61,8 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	_ASSERT(parent.Index() < lookUpTableSize);
 	_ASSERT(child.Index() < lookUpTableSize);
 
-	int32_t parentIndex = lookUpTable[parent.Index()];
-	int32_t childIndex = lookUpTable[child.Index()];
+	const int32_t parentIndex = lookUpTable[parent.Index()];
+	const int32_t childIndex = lookUpTable[child.Index()];
 
 	data.parentIndex[childIndex] = parentIndex;
 	//There might already be children under the parent.
