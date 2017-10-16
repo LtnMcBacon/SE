@@ -284,11 +284,7 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	if (XMVectorGetZ(projToZY) < 0)
 		angleZ = -angleZ;
 
-	data.rotations[index].x = angleX;
-	data.rotations[index].y = angleY;
-	data.rotations[index].z = angleZ;
-
-	SetAsDirty(index);
+	SetRotation(e, angleX, angleY, angleZ);
 }
 
 int SE::Core::TransformManager::GarbageCollection()
