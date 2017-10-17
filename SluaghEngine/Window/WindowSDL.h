@@ -147,7 +147,7 @@ namespace SE
 			void RecordToFile();
 			std::ofstream recFile;
 			std::ifstream playbackfile;
-			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
+			Utilz::CircularFiFo<inputRecData, 512> circFiFo;
 			bool recording = false;
 			bool playback = false;
 			std::vector<inputRecData> playbackData;

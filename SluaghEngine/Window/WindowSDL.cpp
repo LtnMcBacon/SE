@@ -180,9 +180,8 @@ void SE::Window::WindowSDL::RecordFrame()
 	{
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
-		EventSwitch(ev);		
+		EventSwitch(ev);
 		inData.events.push_back(ev);
-				
 	}
 	inData.nrOfEvent = inData.events.size();
 	circFiFo.push(inData);
@@ -221,11 +220,14 @@ void SE::Window::WindowSDL::StartRecording()
 void SE::Window::WindowSDL::LoadRecording()
 {
 	StartProfile;
-	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary);
+	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
 	if (playbackfile.is_open())
 	{
 		SDL_Event ev;
-		while (!playbackfile.eof())
+		size_t size = playbackfile.tellg();
+		size_t recordedSize = 0;
+		playbackfile.seekg(0, std::ios::beg);
+		while (recordedSize < size)//!playbackfile.eof())
 		{
 			inputRecData tempRecData;
 			playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
@@ -235,6 +237,7 @@ void SE::Window::WindowSDL::LoadRecording()
 				playbackfile.read((char*)&ev, sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
+			recordedSize += sizeof(float) + sizeof(size_t) + sizeof(SDL_Event) * tempRecData.nrOfEvent;
 			playbackData.push_back(tempRecData);
 		}
 		playbackfile.close();
@@ -476,7 +479,6 @@ void SE::Window::WindowSDL::RecordToFile()
 			circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(100ms);
+		std::this_thread::sleep_for(10ms);
 	}
-	int hej = 0;
 }
