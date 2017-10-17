@@ -77,7 +77,7 @@ bool SE::Test::TransformTest::Run(Utilz::IConsoleBackend* console)
 	{
 		thirds[i] = em.Create();
 		tm.Create(thirds[i], { (float)i, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.25f, 0.25f, 0.25f });
-		tm.BindChild(seconds[i], thirds[i], true, true);
+		tm.BindChild(seconds[i], thirds[i], true, false);
 		rm.CreateRenderableObject(thirds[i], Block);
 		rm.ToggleRenderableObject(thirds[i], true);
 	}
