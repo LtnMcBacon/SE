@@ -151,7 +151,6 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		return false;
 	}
 
-
 	//*******************************
 
 	bool tt = false;
