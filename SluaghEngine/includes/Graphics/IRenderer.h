@@ -388,6 +388,12 @@ namespace SE
 			*
 			*/
 			virtual void GetProfilingInformation(Utilz::TimeMap& map) = 0;
+
+			/**
+			* @brief	Enables bloom post-effect.
+			*
+			*/
+			virtual int EnableBloom(int handleHorizontal, int handleVertical) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

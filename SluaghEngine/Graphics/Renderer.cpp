@@ -1076,3 +1076,11 @@ void SE::Graphics::Renderer::PauseAnimation(int job)
 	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 
+int EnableBloom(int handleHorizontal, int handleVertical)
+{
+	int status = -1;
+
+
+
+	return status;
+}

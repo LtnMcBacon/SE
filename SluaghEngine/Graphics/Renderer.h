@@ -384,6 +384,9 @@ namespace SE
 				for(auto& t : timeCluster)
 					t->GetMap(map);
 			}
+
+			int EnableBloom(int handleHorizontal, int handleVertical);
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
