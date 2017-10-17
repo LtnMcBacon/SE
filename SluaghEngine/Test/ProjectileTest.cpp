@@ -379,6 +379,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 
 		tm.Rotate(rotatingBox2, 0.0f, dt * 6.28, 0.0f);
+		tm.Rotate(rotatingBox3, 0.0f, dt*3.14, 0.0f);
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
