@@ -259,6 +259,18 @@ namespace SE
 			*/
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
 
+
+			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateComputeShader(void* data, size_t size) = 0;
+
+
 			/**
 			* @brief Create a vertex buffer with CPU write access
 			* @param[in] bytewidth The size of the buffer
