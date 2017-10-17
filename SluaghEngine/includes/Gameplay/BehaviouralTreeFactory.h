@@ -28,7 +28,6 @@ namespace SE
 
 			};
 			/*Create from type*/
-
 			/**
 			* @brief	Read the type of the node and call the correct "Create" function.
 			* 
@@ -64,7 +63,48 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
-			IBehaviour* CreateMoveTowardsPlayerLeaf(NodeData* node_data, int node_id);
+			IBehaviour* CreateMoveTowardsPlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTimerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a RangeToPlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID);
+
 			/*Create Composites*/
 
 			/**

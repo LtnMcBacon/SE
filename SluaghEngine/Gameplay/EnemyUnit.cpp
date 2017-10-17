@@ -11,11 +11,13 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 	StartProfile;
 	
 	// only basic at the moment
-	for (int i = 0; i < DamageEventVector.size(); i++)
+	if (!myBlackboard->invurnerable)
 	{
-		this->health -= DamageEventVector[i].amount;
+		for (int i = 0; i < DamageEventVector.size(); i++)
+		{
+			this->health -= DamageEventVector[i].amount;
+		}
 	}
-
 	DamageEventVector.clear();
 
 	ProfileReturnVoid;
@@ -33,6 +35,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
+		myBlackboard->checkedThisFrame = false;
 		myBehaviouralTree->Tick();
 	}
 	ProfileReturnVoid;

@@ -6,6 +6,11 @@
 #include "MoveTowardsPlayerLeaf.h"
 #include "FlowFieldMovementLeaf.h"
 #include "SucceederLeaf.h"
+#include "TimerCondition.h"
+#include "RangeToPlayerCondition.h"
+#include "ObstacleOnPositionCondition.h"
+#include "MakeVulnerableLeaf.h"
+#include "MakeInvulnerableLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

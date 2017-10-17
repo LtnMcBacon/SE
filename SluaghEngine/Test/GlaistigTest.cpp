@@ -244,6 +244,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	rm.ToggleRenderableObject(enemy->GetEntity(), true);
 	tm.SetRotation(enemy->GetEntity(), 0, 0, 0);
 	tm.SetScale(enemy->GetEntity(), 0.5f);
+	tm.SetPosition(enemy->GetEntity(), { enemy->GetXPosition(), 0.f, enemy->GetYPosition() });
 	testRoom->AddEnemyToRoom(enemy);
 	
 

@@ -16,7 +16,7 @@ namespace SE
 		private:
 			MoveTowardsPlayerLeaf() = delete;
 			Core::TransformManager* transformManager;
-			float rotationSpeed = DirectX::XM_PIDIV2;
+			float rotationSpeed = DirectX::XM_2PI;
 		public:
 			MoveTowardsPlayerLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~MoveTowardsPlayerLeaf();

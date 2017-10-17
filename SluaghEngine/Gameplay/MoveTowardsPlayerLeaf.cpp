@@ -3,6 +3,8 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyUnit.h"
 #include "Core/Engine.h"
+#include <Profiler.h>
+
 
 SE::Gameplay::MoveTowardsPlayerLeaf::MoveTowardsPlayerLeaf(EnemyBlackboard * enemyBlackboard, GameBlackboard * gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
@@ -17,6 +19,7 @@ SE::Gameplay::MoveTowardsPlayerLeaf::~MoveTowardsPlayerLeaf()
 
 SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 {
+	StartProfile;
 	auto enemyPtr = enemyBlackboard->ownerPointer;
 	float enemyX = enemyPtr->GetXPosition();
 	float enemyY = enemyPtr->GetYPosition();
@@ -54,19 +57,24 @@ SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 
 	float rotationAmmount = atan2f(tempForward.z, tempForward.x) - atan2f(mouseVector.z, mouseVector.x);
 	
-	if (abs(rotationAmmount) > 0.00025)
+	/*Convert to 0 -> 2PI*/
+	if (rotationAmmount < 0)
+		rotationAmmount = DirectX::XM_2PI + rotationAmmount;
+
+	/*If the rotation needed is greater than PI, we should rotate counter clockwise*/
+	if (rotationAmmount > DirectX::XM_PI)
+		side = -1;
+	
+	if (rotationAmmount > 0.00025)
 	{
-		
-		
-		
+		if (rotationAmmount > rotationSpeed*dt)
+			rotationAmmount = rotationSpeed*dt;
+		rotationAmmount *= side;
 		transformManager->Rotate(enemyPtr->GetEntity(),
-			0.f, rotationAmmount, 0.f);
+			0, rotationAmmount, 0);
 	}
-	else
-	{
-		int a = 0;
-	}
+
 	enemyPtr->MoveEntity(moveX*dt, moveY*dt);
 
-	return Status::BEHAVIOUR_SUCCESS;
+	ProfileReturnConst(Status::BEHAVIOUR_SUCCESS);
 }

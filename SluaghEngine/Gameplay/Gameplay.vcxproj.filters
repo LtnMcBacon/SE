@@ -121,6 +121,12 @@
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves">
       <UniqueIdentifier>{5f0829e5-22ff-4147-ab4b-cea835a40ea2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions">
+      <UniqueIdentifier>{998bc404-ca4b-4f07-8682-76369c7ddee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions">
+      <UniqueIdentifier>{5ccee9dd-5d6a-4b97-8427-04c4ade1b510}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -217,6 +223,21 @@
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="RangeToPlayerCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="ObstacleOnPositionCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="MakeInvulnerableLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="MakeVulnerableLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
   </ItemGroup>
@@ -333,6 +354,21 @@
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\TimerCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RangeToPlayerCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
