@@ -76,6 +76,8 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	bool running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");
@@ -132,6 +134,8 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");

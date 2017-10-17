@@ -8,6 +8,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <fstream>
 #include <thread>
+#include <Utilz\Timer.h>
 
 namespace SE
 {
@@ -72,6 +73,27 @@ namespace SE
 			int Height() const override;
 		
 			bool SetWindow(int inHeight, int inWidth, bool inFullscreen) override;
+			/**
+			* @brief Tells window to update time
+			*/
+			inline void UpdateTime() override {
+				if (!playback)
+					time.Tick();
+				else
+					recordDelta;
+			};
+			/**
+			* @brief Gets delta time from window
+			*
+			* @retval float Returns time int milliseconds
+			*/
+			inline float GetDelta() const override
+			{
+				if (!playback)
+					return time.GetDelta();
+				else
+					return recordDelta;
+			};
 		private:
 			void EventSwitch(SDL_Event ev);
 
@@ -118,9 +140,11 @@ namespace SE
 			//record stuff
 			struct inputRecData
 			{
-				size_t frame;
-				SDL_Event recEvent;
+				float dTime;
+				size_t nrOfEvent;
+				std::vector<SDL_Event> events;
 			};
+
 
 			void RecordToFile();
 			std::ofstream recFile;
@@ -128,11 +152,11 @@ namespace SE
 			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
 			bool recording = false;
 			bool playback = false;
-			inputRecData* playbackData = nullptr;
+			float recordDelta = 0.0;
+			std::vector<inputRecData> playbackData;
 			std::thread recThread;
 			size_t frame = 0;
 
-			size_t arrayPos = 0;
 
 			typedef void(WindowSDL::*FrameStrategy)();
 
@@ -140,6 +164,8 @@ namespace SE
 
 			void StartRecording();
 			void LoadRecording();
+
+			Utilz::Timer time;
 		};
 
 

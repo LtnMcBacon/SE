@@ -391,6 +391,17 @@ namespace SE
 			*/
 			virtual bool SetWindow(int height, int width, bool inFullscreen) = 0;
 
+			/**
+			* @brief Tells window to update time
+			*/
+			virtual void UpdateTime() = 0;
+			/**
+			* @brief Gets delta time from window
+			*
+			* @retval float Returns time int milliseconds
+			*/
+			virtual float GetDelta() const = 0;
+
 		};
 
 		DECLDIR IWindow* CreateNewWindow();
