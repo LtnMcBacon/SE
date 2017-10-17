@@ -156,5 +156,6 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	if (!Utilz::Memory::IsUnderLimit(10_mb))
 		return false;
 
+
 	ProfileReturnConst(true);
 }
