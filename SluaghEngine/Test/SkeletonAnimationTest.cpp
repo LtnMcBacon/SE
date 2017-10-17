@@ -186,7 +186,6 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 
 
 		e.BeginFrame();
-
 		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			am.SetKeyFrame(entityToChange, keyframe);
 		if (ImGui::SliderFloat("C2 Speed ", &speed, -1.0f, 1.0f))

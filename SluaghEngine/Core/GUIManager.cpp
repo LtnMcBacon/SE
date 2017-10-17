@@ -139,10 +139,10 @@ namespace SE {
 			loadedTexts.clear();
 		}
 
-		int GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
+		ResourceHandler::InvokeReturn GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
 			guidToFont[font] = renderer->CreateTextFont(data, size);
-			return 0;
+			return ResourceHandler::InvokeReturn::Success;
 		}
 
 		void GUIManager::DestroyText(size_t index)
@@ -229,22 +229,22 @@ namespace SE {
 			StopProfile;
 		}
 
-		int GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
+		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
 			Graphics::TextureDesc td;
 			memcpy(&td, data, sizeof(td));
 			/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
 			if (td.width * td.height * 4 != size - sizeof(td))
-				ProfileReturnConst(-1);
+				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			void* rawTextureData = ((char*)data) + sizeof(td);
 			auto handle = renderer->CreateTexture(rawTextureData, td);
 			if (handle == -1)
-				ProfileReturnConst(-1);
+				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			textureGUID[guid].textureHandle = handle;
 			textureGUID[guid].refCount = 0;
 
-			ProfileReturnConst(0);
+			ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 		}
 
 	}
