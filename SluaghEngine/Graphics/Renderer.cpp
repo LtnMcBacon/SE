@@ -500,7 +500,7 @@ int SE::Graphics::Renderer::Render() {
 	timeCluster[CPUTimer]->Start("GUIJob-CPU");
 	if (renderTextureJobs.size() && renderTextJobs.size())
 	{
-		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
 			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
