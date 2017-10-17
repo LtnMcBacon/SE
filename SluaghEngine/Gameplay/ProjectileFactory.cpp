@@ -37,6 +37,9 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	parameters[0].behaviour.f = 60.0f * 0.08f;
 	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
 
+	parameters[0].behaviour.f = 0.5f;
+	parameters[0].behaviour.projectileOwner = &data.ownerUnit;
+	AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, LifeStealBehaviour(parameters));
 
 	ProfileReturnConst(temp);
 
@@ -142,10 +145,33 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 				unit->AddConditionEvent(cEvent);
 			}
 
-		return true;
+		return false;
 	};
 
 	return StunOwnerUnit;
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	std::weak_ptr<GameUnit*> ownerPtr = *parameters[0].behaviour.projectileOwner;
+	float percent = parameters[0].behaviour.f;
+	auto LifeSteal = [ownerPtr, percent](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::ENEMY)
+			if (auto owner = ownerPtr.lock())
+			{
+				auto unit = *owner.get();
+				HealingEvent hEvent;
+				hEvent.amount = p->GetProjectileDamageEvent().amount*percent;
+				hEvent.type = HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT;
+				unit->AddHealingEvent(hEvent);
+			}
+
+		return false;
+	};
+
+	return LifeSteal;
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
@@ -205,6 +231,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 	//AddBehaviourToProjectile(projectile, type, targeter);
 }
+
 
 void SE::Gameplay::ProjectileFactory::AddBehaviourToProjectile(Projectile & p, TypeOfFunction type, std::function<bool(Projectile*projectile, float dt)> func)
 {

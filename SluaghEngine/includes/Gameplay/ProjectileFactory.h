@@ -115,7 +115,12 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> TargetClosestEnemyBehaviour(std::vector<BehaviourParameter> parameters/*float rotPerSecond*/);
 
-
+			/**
+			* @brief Add stun ownerUnit behaviour to the projectile
+			*/
+			std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> LifeStealBehaviour(
+				std::vector<BehaviourParameter> parameters
+			);
 
 			/**
 			 * @brief Add stun ownerUnit behaviour to the projectile

@@ -72,6 +72,7 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 		{
 			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
 			functionsToRun.pop_back();
+			i--;
 		}
 	}
 

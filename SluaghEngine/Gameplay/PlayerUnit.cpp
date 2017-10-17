@@ -23,6 +23,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 			stunDuration += 0.4f;
 		}
 	}
+
+	for(auto healing : HealingEventVector)
+	{
+		health += healing.amount;
+	}
 	
 
 	ProfileReturnVoid;

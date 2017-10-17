@@ -46,6 +46,12 @@ namespace SE
 		struct HealingEvent
 		{
 			/*What is needed?*/
+			float amount;
+			enum class SourceType
+			{
+				SOURCE_TYPE_ENEMY_DEATH,
+				SOURCE_TYPE_ENEMY_HIT
+			}type;
 		};
 
 		struct ConditionEvent
