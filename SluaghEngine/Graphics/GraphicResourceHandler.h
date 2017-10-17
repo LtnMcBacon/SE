@@ -61,6 +61,11 @@ namespace SE {
 			std::map<Utilz::GUID, HandleAndBindSlot, Utilz::GUID::Compare> constBufferNameToHandleAndBindSlot;
 		};
 
+		struct GeometryShaderData {
+
+			ID3D11GeometryShader*	geometryShader;
+		};
+
 		struct PixelShaderData {
 
 			ID3D11PixelShader*		pixelShader;
@@ -116,6 +121,18 @@ namespace SE {
 			*/
 			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
 
+
+			/*
+			* @brief CreateGeometryShader initalizes a geometry shader
+			* @param[in] gDevice The ID3D11Device pointer
+			* @param[in] data Pointer to the blob
+			* @param[in] size Size of the blob
+			* @param[in] int The geometry shader ID 
+			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
+			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
+			*/
+			HRESULT CreateGeometryShader(ID3D11Device* gDevice, void* data, size_t size, int *geometryShaderID);
+
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
 			* @details It's necessary to unbind from previous render call before rendering to avoid errors
@@ -131,6 +148,12 @@ namespace SE {
 			*/
 			void SetMaterial(int vertexID, int pixelID);
 
+			/**
+			* @brief SetGeometryShader sets the default geometry shader
+			* @details Required for the particle system to render a quad from a point
+			* @endcode
+			*/
+			void SetGeometryShader(int geometryID);
 			/**
 			* @brief	Creates a vertexbuffer with the inputData
 			*
@@ -315,6 +338,10 @@ namespace SE {
 			// Vertex shader specific data
 			std::vector<VertexShaderData>vShaders;
 			std::stack<int>freeVertexShaderLocations;
+
+			//Geometry shader specific data
+			std::vector<GeometryShaderData>gShaders;
+			std::stack<int>freeGeometryShaderLocations;
 
 			// Pixel shader specific data
 			std::vector<PixelShaderData>pShaders;

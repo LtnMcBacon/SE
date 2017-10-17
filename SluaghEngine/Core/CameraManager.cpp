@@ -217,10 +217,12 @@ void SE::Core::CameraManager::Frame()
 			XMStoreFloat4x4(&cameraData.view[currentActive.activeCamera], view);
 			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[currentActive.activeCamera], cameraData.aspectRatio[currentActive.activeCamera], cameraData.nearPlane[currentActive.activeCamera], cameraData.farPlane[currentActive.activeCamera]);
 
+			XMFLOAT4X4 viewFloat;
+			XMStoreFloat4x4(&viewFloat, view);
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
 			renderer->UpdateView((float*)&viewProjMatrix);
-
+			renderer->UpdateViewMatrix((float*)&viewFloat);
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		} 
 

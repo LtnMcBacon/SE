@@ -119,12 +119,22 @@ namespace SE
 			*/
 			int AddLineRenderJob(const LineRenderJob& lineJob) override;
 
+
+			/*
+			* @brief Set a particle render job
+			* @param[in] particleJob Contains information about the particle job
+			* @retval Returns a handle to the job on success
+			*/
+			int AddParticleSystemJob(const ParticleSystemJob & particleJob);
+			
+		
 			/**
 			* @brief    Removes a line render job.
 			* @param[in] lineJobID The ID of the job, gotten through return value of AddLineRenderJob
 			* @retval 0 On success.
 			* @sa EnableRendering
 			*/
+
 			int RemoveLineRenderJob(uint32_t lineJobID) override;
 
 			/**
@@ -160,6 +170,14 @@ namespace SE
 			*/
 			int UpdateView(float* viewMatrix) override;
 
+			/**
+			* @brief Updates the view matrix used for rendering
+			* @details The method UpdateView actually updates the viewProj while UpdateViewMatrix only updates the viewMatrix
+			* @param[in] viewMatrix The view matrix to use, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			* @endcode
+			*/
+			int UpdateViewMatrix(float* viewMatrix) override;
 			/**
 			* @brief Renders the scene
 			* @retval return_value_0 Returns 0 On success.
@@ -268,6 +286,16 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+
+			/**
+			* @brief Create a geometry shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateGeometryShader(void* data, size_t size) override;
 
 			/**
 			* @brief Create a new fomt
@@ -393,7 +421,11 @@ namespace SE
 			std::vector<std::string> errorLog;
 
 			DirectX::XMFLOAT4X4 newViewProjTransposed;
+			DirectX::XMFLOAT4X4 newViewMatrixTransposed;
 
+			struct ParticleConstantBuffer {
+				DirectX::XMFLOAT4X4 viewMatrix;
+			};
 
 			struct OncePerFrameConstantBuffer
 			{
@@ -405,7 +437,7 @@ namespace SE
 				DirectX::XMFLOAT4 size;
 				LightData data[20];
 			};
-
+			int particleConstantBufferID;
 			int oncePerFrameBufferID;
 			int lightBufferID = -1;
 
@@ -471,6 +503,11 @@ namespace SE
 		
 			/*********** END Renderjob Queues **************/
 
+			/********* Particlejob ************************/
+
+			std::vector<ParticleSystemJob> particleSystemVec;
+			
+			/**************END Particle system job******************/
 
 			/*********** Lightjob **************/
 

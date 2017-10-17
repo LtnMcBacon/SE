@@ -12,7 +12,7 @@
 #include "FileHeaders.h"
 #include "AnimationJobInfo.h"
 #include <Utilz\TimeCluster.h>
-
+#include "ParticleSystemJob.h"
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
 #else
@@ -83,6 +83,13 @@ namespace SE
 			*/
 			virtual int AddLineRenderJob(const LineRenderJob& lineJob) = 0;
 
+			/*
+			* @brief Set a particle render job
+			* @param[in] particleJob Contains information about the particle job
+			* @retval Returns a handle to the job on success
+			*/
+			virtual int AddParticleSystemJob(const ParticleSystemJob& particleJob) = 0;
+			
 			/**
 			* @brief    Sets a Text render jobs
 			* @param[in] handles The handles struct
@@ -173,6 +180,15 @@ namespace SE
 			virtual int UpdateView(float* viewMatrix) = 0;
 
 			/**
+			* @brief Updates the view matrix used for rendering
+			* @details The method UpdateView actually updates the viewProj while UpdateViewMatrix only updates the viewMatrix
+			* @param[in] viewMatrix The view matrix to use, an array of 16 floats in row major format.
+			* @retval 0 On success.
+			* @endcode
+			*/
+			virtual int UpdateViewMatrix(float* viewMatrix) = 0;
+
+			/**
 			* @brief Renders the scene
 			* @retval 0 On success.
 			* @endcode
@@ -248,6 +264,16 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreatePixelShader(void* data, size_t size, ShaderSettings* reflection = nullptr) = 0;
+
+			/*
+			* @brief Create a geometry shader from raw data
+			* @param[in] data A pointer to shader blob
+			* @param[in] size The size of the shader blob
+			* @retval handle On success.
+			* @retval -1 Something went wrong
+			* @endcode
+			*/
+			virtual int CreateGeometryShader(void* data, size_t size) = 0;
 
 			/**
 			* @brief Create a vertex shader from raw data

@@ -38,7 +38,11 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	{
 		throw std::exception("Could not create OncePerFrameConstantBuffer");
 	}
-
+	particleConstantBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(ParticleConstantBuffer));
+	if (particleConstantBufferID < 0)
+	{
+		throw std::exception("Could not create ParticleConstantBuffer");
+	}
 	
 	singleTransformConstantBuffer = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4X4));
 	if (singleTransformConstantBuffer < 0)
@@ -275,6 +279,18 @@ int SE::Graphics::Renderer::AddLineRenderJob(const LineRenderJob& lineJob)
 	ProfileReturnConst(lineJobID);
 }
 
+int SE::Graphics::Renderer::AddParticleSystemJob(const ParticleSystemJob & particleJob)
+{
+	int particleJobID = particleSystemVec.size();
+
+	particleSystemVec.push_back(particleJob);
+
+	return particleJobID;
+}
+
+
+
+
 int SE::Graphics::Renderer::RemoveLineRenderJob(uint32_t lineJobID)
 {
 	StartProfile;
@@ -393,6 +409,12 @@ int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
 	return 0;
 }
 
+int SE::Graphics::Renderer::UpdateViewMatrix(float * viewMatrix)
+{
+	DirectX::XMStoreFloat4x4(&newViewMatrixTransposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
+	return 0;
+}
+
 int SE::Graphics::Renderer::Render() {
 	StartProfile;
 
@@ -447,7 +469,7 @@ int SE::Graphics::Renderer::Render() {
 
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
-
+	graphicResourceHandler->UpdateConstantBuffer(&newViewMatrixTransposed, sizeof(newViewMatrixTransposed), particleConstantBufferID);
 	//First render all opaque geometry, then render partially transparent geometry.
 	std::vector<size_t> transparentIndices;
 	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
@@ -490,7 +512,24 @@ int SE::Graphics::Renderer::Render() {
 
 	///********END render line jobs************/
 
-
+	//* Render particle jobs *//
+	
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::GEOMETRY, oncePerFrameBufferID, 1);
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::GEOMETRY, particleConstantBufferID, 3);
+	for (size_t i = 0; i < particleSystemVec.size(); i++)
+	{
+		int particleTransformSlot;
+		int bufferHandle = graphicResourceHandler->GetVSConstantBufferByName(particleSystemVec[i].geometryShaderHandle, "OncePerObject", &particleTransformSlot);
+		graphicResourceHandler->UpdateConstantBuffer(&particleSystemVec[i].transform, sizeof(DirectX::XMFLOAT4X4), bufferHandle);
+		graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::VERTEX, bufferHandle, particleTransformSlot);
+		graphicResourceHandler->SetVertexBuffer(particleSystemVec[i].vertexBufferHandle);
+		graphicResourceHandler->SetMaterial(particleSystemVec[i].vertexShaderHandle, particleSystemVec[i].pixelShaderHandle);
+		graphicResourceHandler->SetGeometryShader(particleSystemVec[i].geometryShaderHandle);
+		device->GetDeviceContext()->Draw(particleSystemVec[i].vertexCount, 0);
+	}
+	
+	//********* End render particle jobs*************//
 	//********* Render sprite overlays ********/
 	timeCluster[GPUTimer]->Start("GUIJob-GPU");
 	timeCluster[CPUTimer]->Start("GUIJob-CPU");
@@ -997,6 +1036,15 @@ void SE::Graphics::Renderer::Frame()
 		Render();
 	}
 
+}
+
+int SE::Graphics::Renderer::CreateGeometryShader(void * data, size_t size)
+{
+	int handle;
+	auto hr = graphicResourceHandler->CreateGeometryShader(device->GetDevice(), data, size, &handle);
+	if (hr)
+		return hr;
+	return handle;
 }
 
 int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
