@@ -252,7 +252,7 @@ const DirectX::XMFLOAT3& SE::Core::TransformManager::GetScale(const Entity& e) c
 {
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-	return data.rotations[index];
+	return data.scalings[index];
 }
 
 const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity& e) const
