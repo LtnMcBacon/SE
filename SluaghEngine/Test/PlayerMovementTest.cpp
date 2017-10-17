@@ -6,6 +6,8 @@
 #include <Gameplay/PlayerUnit.h>
 #include <Profiler.h>
 #include <Utilz\Tools.h>
+#include "Gameplay/EnemyFactory.h"
+#include "Gameplay/GameBlackboard.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -215,7 +217,11 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			}
 		}
 	}
-
+	Gameplay::EnemyFactory eFactory;
+	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
+	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::GameBlackboard blackBoard;
+	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
@@ -225,20 +231,17 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.y = rand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
-		Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+		enemy->SetXPosition(enemyPos.x + .5f);
+		enemy->SetYPosition(enemyPos.y + .5f);
+	
+			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
 		rm.CreateRenderableObject(enemy->GetEntity(), Block);
 		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
 	}
-
-	Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), 1 + .5f, 22 + .5f, 10.0f);
-	rm.CreateRenderableObject(enemy->GetEntity(), Block);
-	rm.ToggleRenderableObject(enemy->GetEntity(), true);
-	tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-	tm.SetScale(enemy->GetEntity(), 0.5f);
-	testRoom->AddEnemyToRoom(enemy);
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(1, Window::Key1);
@@ -286,22 +289,22 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if(e.GetWindow()->ButtonDown(MoveDir::UP))
 		{
-			input.downW = true;
+			input.upButton = true;
 			movY += 1.0f;
 		}
 		if(e.GetWindow()->ButtonDown(MoveDir::DOWN))
 		{
-			input.downS = true;
+			input.downButton = true;
 			movY -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
 		{
-			input.downD = true;
+			input.rightButton = true;
 			movX += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
 		{
-			input.downA = true;
+			input.leftButton = true;
 			movX -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
@@ -405,6 +408,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		playerPos.x = player->GetXPosition();
 		playerPos.y = player->GetYPosition();
+
+		/*Only thing needed for enemy movement!*/
+		blackBoard.deltaTime = dt;
 
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;

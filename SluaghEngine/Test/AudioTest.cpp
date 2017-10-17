@@ -2,6 +2,7 @@
 #include <Core\Engine.h>
 #include <portaudio\portaudio.h>
 #include <Utilz\Memory.h>
+#include <Utilz\Timer.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -36,7 +37,14 @@ namespace SE
 			}
 			auto& audio = e.GetAudioManager();
 
-			if (audio.LoadSound(Utilz::GUID("Cout.wav")) == 0)
+			if (audio.LoadSound(Utilz::GUID("Canary.wav")) == 0)
+			{
+				console->Print("Sound already loaded??????\n");
+				e.Release();
+				return false;
+			}
+
+			if (audio.LoadSound(Utilz::GUID("BLoop.wav")) == 0)
 			{
 				console->Print("Sound already loaded??????\n");
 				e.Release();
@@ -44,14 +52,14 @@ namespace SE
 			}
 
 			int delay = 0;
-			while (audio.CheckIfLoaded(Utilz::GUID("Cout.wav")) == 0 && delay < 10)
+			while (audio.CheckIfLoaded(Utilz::GUID("Canary.wav")) == 0 && audio.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
 			{
 				delay++;
 			}
 
 			auto soundEnt = e.GetEntityManager().Create();
 			int soundID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+			soundID[0] = audio.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
 			if (soundID[0] == -1)
 			{
 				console->Print("Sound is not loaded!!!!!!!!\n");
@@ -66,21 +74,18 @@ namespace SE
 			}
 			else
 			{	
-				auto ent = e.GetEntityManager().Create();
-				auto& transformManager = e.GetTransformManager();
-				transformManager.Create(ent);
-
-	
+#pragma region GUI
 
 				auto entText = e.GetEntityManager().Create();
 				auto& guiManager = e.GetGUIManager();
 
 				// Load textures for GUI
 				guiManager.Create2D(Utilz::GUID("GUITest.sei"));
+				guiManager.Create2D(Utilz::GUID("TransparentTest.sei"));
 
 				// Text creation
 				Graphics::TextGUI guiText;
-				guiText.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiText.effect = DirectX::SpriteEffects_None;
 				guiText.fontID = 0;
 				guiText.text = L"Is this pizza heaven????";
@@ -97,12 +102,11 @@ namespace SE
 				// GUI texture creation
 				auto entTexture = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture;
-				guiTexture.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture.effect = DirectX::SpriteEffects_FlipBoth;
 				guiTexture.textureID = 0;	// Not needed gets set in the bind function
-				guiTexture.layerDepth = 0;
-				guiTexture.origin = DirectX::XMFLOAT2(-640.0, -360.0);
-				guiTexture.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture.layerDepth = 0.1;
+				guiTexture.pos = DirectX::XMFLOAT2(940.0, 560.0);
 				guiTexture.rotation = 0;
 				guiTexture.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture.rect = nullptr;	//not needed default nullptr
@@ -114,12 +118,11 @@ namespace SE
 				// GUI texture creation2
 				auto entTexture2 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture2;
-				guiTexture2.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture2.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture2.effect = DirectX::SpriteEffects_FlipHorizontally;
 				guiTexture2.textureID = 0;	// Not needed gets set in the bind function
-				guiTexture2.layerDepth = 0;
-				guiTexture2.origin = DirectX::XMFLOAT2(-640.0, 0.0);
-				guiTexture2.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture2.layerDepth = 0.1;
+				guiTexture2.pos = DirectX::XMFLOAT2(940.0, 200.0);
 				guiTexture2.rotation = 0;
 				guiTexture2.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture2.rect = nullptr;	//not needed default nullptr
@@ -131,16 +134,14 @@ namespace SE
 				// GUI texture creation3
 				auto entTexture3 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture3;
-				guiTexture3.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture3.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture3.effect = DirectX::SpriteEffects_FlipVertically;
 				guiTexture3.textureID = 0;	// Not needed gets set in the bind function
-				guiTexture3.layerDepth = 0;
-				guiTexture3.origin = DirectX::XMFLOAT2(0.0, 0.0);
-				guiTexture3.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture3.layerDepth = 0.1;
+				guiTexture3.pos = DirectX::XMFLOAT2(300.0, 200.0);
 				guiTexture3.rotation = 0;
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture3.rect = nullptr;	//not needed default nullptr
-
 
 				guiManager.Bind2D(entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3);
 				guiManager.ToggleRenderableTexture(entTexture3, true);
@@ -148,12 +149,11 @@ namespace SE
 				// GUI texture creation4
 				auto entTexture4 = e.GetEntityManager().Create();
 				Graphics::GUITextureInfo guiTexture4;
-				guiTexture4.colour = DirectX::XMFLOAT3(0.5, 0.5, 0.4);
+				guiTexture4.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture4.effect = DirectX::SpriteEffects_None;
 				guiTexture4.textureID = 0;	// Not needed gets set in the bind function
-				guiTexture4.layerDepth = 0;
-				guiTexture4.origin = DirectX::XMFLOAT2(0.0, -360.0);
-				guiTexture4.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiTexture4.layerDepth = 0.1;
+				guiTexture4.pos = DirectX::XMFLOAT2(300.0, 560.0);
 				guiTexture4.rotation = 0;
 				guiTexture4.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture4.rect = nullptr;	//not needed default nullptr
@@ -162,6 +162,25 @@ namespace SE
 				guiManager.Bind2D(entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4);
 				guiManager.ToggleRenderableTexture(entTexture4, true);
 
+				// GUI texture creation5
+				auto entTexture5 = e.GetEntityManager().Create();
+				Graphics::GUITextureInfo guiTexture5;
+				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiTexture5.effect = DirectX::SpriteEffects_None;
+				guiTexture5.textureID = 0;	// Not needed gets set in the bind function
+				guiTexture5.layerDepth = 0;
+				guiTexture5.pos = DirectX::XMFLOAT2(800.0, 400.0);
+				guiTexture5.rotation = DirectX::XM_PIDIV2;
+				guiTexture5.scale = DirectX::XMFLOAT2(0.5, 0.5);
+				guiTexture5.rect = nullptr;	//not needed default nullptr
+
+
+				guiManager.Bind2D(entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5);
+				guiManager.ToggleRenderableTexture(entTexture5, true);
+
+#pragma endregion GUI
+
+
 				audio.StreamSound(soundEnt, soundID[0]);
 				e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 				e.GetWindow()->MapActionButton(1, Window::KeyW);
@@ -169,20 +188,28 @@ namespace SE
 				e.GetWindow()->MapActionButton(3, Window::KeyR);
 				e.GetWindow()->MapActionButton(4, Window::KeyV);
 				e.GetWindow()->MapActionButton(5, Window::KeyM);
+				e.GetWindow()->MapActionButton(11, Window::KeyU);
+				e.GetWindow()->MapActionButton(12, Window::KeyJ);
 
 				console->Print("Start main loop!!\n");
 				auto ren = e.GetRenderer();
+				auto& opt = e.GetOptionHandler();
+				Utilz::Timer time;
+				time.Tick();
+				float rotation = 0.0;
 				while (e.GetWindow()->ButtonPressed(0) != true)
 				{
-					e.Frame(0.0f);
+					rotation += 0.0002 * time.GetDelta();
+					guiManager.SetTextureRotation(entTexture5, rotation);
+					guiManager.SetTextureRotation(entTexture4, rotation);
 					
 					if (e.GetWindow()->ButtonPressed(1) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] == -1)
 							{
-								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Cout.wav"), Audio::SoundIndexName::EffectSound);
+								soundID[i] = audio.CreateStream(soundEnt, Utilz::GUID("Canary.wav"), Audio::SoundIndexName::EffectSound);
 								if (soundID[i] == -2)
 								{
 									console->Print("No device!!!!!!\n");
@@ -197,7 +224,7 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(2) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] != -1)
 							{
@@ -210,7 +237,7 @@ namespace SE
 					}
 					if (e.GetWindow()->ButtonPressed(3) == true)
 					{
-						for (int i = 0; i < 10; i++)
+						for (int i = 1; i < 10; i++)
 						{
 							if (soundID[i] != -1)
 							{
@@ -230,6 +257,20 @@ namespace SE
 						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
+					if (e.GetWindow()->ButtonPressed(11) == true)
+					{
+						opt.SetOptionUnsignedInt("Window", "height", 720);
+						opt.SetOptionUnsignedInt("Window", "width", 1280);
+						opt.Trigger();
+					}
+					if (e.GetWindow()->ButtonPressed(12) == true)
+					{
+						opt.SetOptionUnsignedInt("Window", "height", 1080);
+						opt.SetOptionUnsignedInt("Window", "width", 1920);
+						opt.Trigger();
+					}
+					e.Frame(time.GetDelta());
+					time.Tick();
 				}
 				e.Release();
 				return true;

@@ -8,6 +8,8 @@
 #include <Gameplay/PlayerUnit.h>
 #include <Profiler.h>
 #include <Utilz\Tools.h>
+#include "Gameplay/GameBlackboard.h"
+#include "Gameplay/EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -147,9 +149,9 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera);
+	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
 	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
 
@@ -220,7 +222,11 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			}
 		}
 	}
-
+	Gameplay::EnemyFactory eFactory;
+	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
+	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::GameBlackboard blackBoard;
+	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
@@ -230,20 +236,17 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			enemyPos.y = rand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
-		Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+		enemy->SetXPosition(enemyPos.x + .5f);
+		enemy->SetYPosition(enemyPos.y + .5f);
+
+		//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
 		rm.CreateRenderableObject(enemy->GetEntity(), Block);
 		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
 	}
-
-	Gameplay::EnemyUnit* enemy = new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), 1 + .5f, 22 + .5f, 10.0f);
-	rm.CreateRenderableObject(enemy->GetEntity(), Block);
-	rm.ToggleRenderableObject(enemy->GetEntity(), true);
-	tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-	tm.SetScale(enemy->GetEntity(), 0.5f);
-	testRoom->AddEnemyToRoom(enemy);
 
 	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
 	e.GetWindow()->MapActionButton(1, Window::Key1);
@@ -256,16 +259,18 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		DOWN = 5,
 		LEFT = 6,
 		RIGHT_MOUSE = 7,
-		SPACE = 8
+		SPACE = 8,
+		CONSOLE = 9
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
+	e.GetWindow()->MapActionButton(UP, Window::KeyW);
+	e.GetWindow()->MapActionButton(RIGHT, Window::KeyD);
+	e.GetWindow()->MapActionButton(DOWN, Window::KeyS);
+	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
 	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
 	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
+	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
 
 	pos playerPos;
 	playerPos.x = 1.5f;
@@ -295,48 +300,55 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		if (e.GetWindow()->ButtonDown(MoveDir::UP))
 		{
-			input.downW = true;
+			input.upButton = true;
 			movY += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::DOWN))
 		{
-			input.downS = true;
+			input.downButton = true;
 			movY -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
 		{
-			input.downD = true;
+			input.rightButton = true;
 			movX += 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
 		{
-			input.downA = true;
+			input.leftButton = true;
 			movX -= 1.0f;
 		}
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
 		{
-			int mX = 0;
-			int mY = 0;
-			e.GetWindow()->GetMousePos(mX, mY);
-
-			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-			DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
-			DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
-			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
-
-			rayO = DirectX::XMVector4Transform(rayO, viewM);
-			rayD = DirectX::XMVector4Transform(rayD, viewM);
-			rayD = XMVector3Normalize(rayD);
-
-			float distance = 0.0f;
-			/*bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);*/
-
-			auto clickPos = rayO + rayD*distance;
-
 			input.mouseRightDown = true;
-			input.mousePosX = DirectX::XMVectorGetX(clickPos);
-			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
 		}
+		if(e.GetWindow()->ButtonPressed(MoveDir::CONSOLE))
+		{
+			e.GetDevConsole().Toggle();
+		}
+
+		int mX = 0;
+		int mY = 0;
+		e.GetWindow()->GetMousePos(mX, mY);
+
+		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
+		DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
+		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+
+		rayO = DirectX::XMVector4Transform(rayO, viewM);
+		rayD = DirectX::XMVector4Transform(rayD, viewM);
+		rayD = XMVector3Normalize(rayD);
+
+		//float distance = 0.0f;
+		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+		//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+
+		auto clickPos = rayO + rayD*distance;
+
+		input.mousePosX = DirectX::XMVectorGetX(clickPos);
+		input.mousePosY = DirectX::XMVectorGetZ(clickPos);
+
 		float totMov = abs(movX) + abs(movY);
 		if (totMov != 0.f)
 		{
@@ -344,11 +356,13 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			movY /= totMov;
 		}
 
-		Gameplay::PlayerUnit::ActionInput actionInput(false);
-		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
 		{
-			actionInput.downSpace = true;
+			actionInput.skill1Button = true;
 		}
+		/*Only thing needed right now*/
+		blackBoard.deltaTime = dt;
 
 		int arrowIndex = 0;
 		for (int x = 0; x < 25; x++)
@@ -447,12 +461,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+
+
+	/*	Utilz::TimeMap times;
+		e.GetProfilingInformation(times);
+		for (auto& t : times)
+			console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 
 	delete projectileManager;
 
 	delete testRoom;
 	delete player;
+
+
+	
+
 	e.Release();
 
 	ProfileReturnConst(true)

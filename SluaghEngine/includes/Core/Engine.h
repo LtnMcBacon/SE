@@ -18,6 +18,7 @@
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
 #include "GUIManager.h"
+#include <Utilz\TimeCluster.h>
 namespace SE
 {
 	namespace Core
@@ -234,6 +235,15 @@ namespace SE
 				return *devConsole;
 			}
 
+			/**
+			* @brief	Return a map of with profiling information.
+			*
+			*/
+			inline void GetProfilingInformation(Utilz::TimeMap& map) {
+				timeClus->GetMap(map);
+				renderer->GetProfilingInformation(map);
+			}
+
 		private:
 			Engine();
 			Engine(const Engine& other) = delete;
@@ -249,6 +259,8 @@ namespace SE
 			* @brief    Function that gets called when options has changed
 			*/
 			void OptionUpdate();
+
+			void GatherErrors();
 
 			EntityManager* entityManager;
 			Graphics::IRenderer* renderer;
@@ -270,6 +282,7 @@ namespace SE
 
 			DevConsole* devConsole;
 
+			Utilz::TimeCluster* timeClus;
 			bool frameBegun;
 		};
 

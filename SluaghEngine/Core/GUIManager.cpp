@@ -33,8 +33,13 @@ namespace SE {
 				ProfileReturnVoid;
 			
 			entID[entity].ID = loadedTexts.size();
-			ent.push_back(entity);
+			textEnt.push_back(entity);
 			loadedTexts.push_back(inTextInfo);
+			if (!loadedTexts[loadedTexts.size() - 1].anchor)
+			{
+				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
+				loadedTexts[loadedTexts.size() - 1].scale = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].scale.x / width, loadedTexts[loadedTexts.size() - 1].scale.y / height);
+			}
 			ProfileReturnVoid;	
 		}
 
@@ -45,15 +50,19 @@ namespace SE {
 			auto fileLoaded = entID.find(entity);
 			if (fileLoaded != entID.end())
 			{
-				if (show && !entID[entity].show)
+				if (show && !fileLoaded->second.show)
 				{
-					renderer->EnableTextRendering(loadedTexts[entID[entity].ID]);
-					entID[entity].show = true;
+					fileLoaded->second.jobID = renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
+					textJobobToEnt[fileLoaded->second.jobID] = entity;
+					fileLoaded->second.show = true;
 				}
-				else if (!show && entID[entity].show)
+				else if (!show && fileLoaded->second.show)
 				{
-					renderer->DisableTextRendering(loadedTexts[entID[entity].ID]);
-					entID[entity].show = false;
+					size_t tempJobID = renderer->DisableTextRendering(fileLoaded->second.jobID);
+					fileLoaded->second.show = false;
+					entID[textJobobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					textJobobToEnt[fileLoaded->second.jobID] = textJobobToEnt[tempJobID];
+					textJobobToEnt.erase(tempJobID);
 				}
 				ProfileReturnVoid;
 			}
@@ -106,6 +115,12 @@ namespace SE {
 				textureEnt.push_back(entity);
 				textureInfo.push_back(texInfo);
 				textureInfo[textureInfo.size() - 1].textureID = textureGUID[texFile].textureHandle;
+				if (!textureInfo[textureInfo.size() - 1].anchor)
+				{
+					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[texFile].width / 2, textureGUID[texFile].height / 2);
+					textureInfo[textureInfo.size() - 1].pos = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].pos.x / width, textureInfo[textureInfo.size() - 1].pos.y / height);
+					textureInfo[textureInfo.size() - 1].scale = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].scale.x / width, textureInfo[textureInfo.size() - 1].scale.y / height);
+				}
 				ProfileReturnConst(0);
 			}
 			ProfileReturnConst(-1);
@@ -118,17 +133,49 @@ namespace SE {
 			auto fileLoaded = entTextureID.find(entity);
 			if (fileLoaded != entTextureID.end())
 			{
-				if (show && textureGUID[entTextureID[entity].GUID].textureHandle != -1 && !entTextureID[entity].show)
+				if (show && textureGUID[fileLoaded->second.GUID].textureHandle != -1 && !fileLoaded->second.show)
 				{
-					renderer->EnableTextureRendering(textureInfo[entTextureID[entity].ID]);
-					entTextureID[entity].show = true;
+					fileLoaded->second.jobID = renderer->EnableTextureRendering(textureInfo[fileLoaded->second.ID]);
+					jobToEnt[fileLoaded->second.jobID] = entity;
+					fileLoaded->second.show = true;
 				}
-				else if (!show && entTextureID[entity].show)
+				else if (!show && fileLoaded->second.show)
 				{
-					renderer->DisableTextureRendering(textureInfo[entTextureID[entity].ID]);
-					entTextureID[entity].show = false;
+					size_t tempJobID = renderer->DisableTextureRendering(fileLoaded->second.jobID);
+					fileLoaded->second.show = false;
+					entTextureID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					jobToEnt[fileLoaded->second.jobID] = jobToEnt[tempJobID];
+					jobToEnt.erase(tempJobID);
 				}
 				ProfileReturnVoid;
+			}
+			StopProfile;
+		}
+
+		void GUIManager::updateGUI()
+		{
+			StartProfile;
+			if (textureInfo.size() > 0)
+			{
+				for (auto& entity : textureEnt)
+				{
+					if (!textureInfo[entTextureID[entity].ID].anchor && entTextureID[entity].show)
+					{
+						ToggleRenderableTexture(entity, false);
+						ToggleRenderableTexture(entity, true);
+					}
+				}
+			}
+			if (loadedTexts.size() > 0)
+			{
+				for (auto& entity : textEnt)
+				{
+					if (!loadedTexts[entID[entity].ID].anchor && entID[entity].show)
+					{
+						ToggleRenderableText(entity, false);
+						ToggleRenderableText(entity, true);
+					}
+				}
 			}
 			StopProfile;
 		}
@@ -139,10 +186,10 @@ namespace SE {
 			loadedTexts.clear();
 		}
 
-		int GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
+		ResourceHandler::InvokeReturn GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
 			guidToFont[font] = renderer->CreateTextFont(data, size);
-			return 0;
+			return ResourceHandler::InvokeReturn::Success;
 		}
 
 		void GUIManager::DestroyText(size_t index)
@@ -150,18 +197,18 @@ namespace SE {
 			StartProfile;
 			// Temp variables
 			size_t last = loadedTexts.size() - 1;
-			const Entity entity = ent[index];
-			const Entity last_entity = ent[last];
+			const Entity entity = textEnt[index];
+			const Entity last_entity = textEnt[last];
 
 			// Copy the data
-			ent[index] = last_entity;
+			textEnt[index] = last_entity;
 			loadedTexts[index] = loadedTexts[last];
 			entID[last_entity] = entID[entity];
 
 			// Remove last spot 
 			entID.erase(entity);
 			loadedTexts.pop_back();
-			ent.pop_back();
+			textEnt.pop_back();
 
 			StopProfile;	
 		}
@@ -198,13 +245,13 @@ namespace SE {
 				{
 					std::uniform_int_distribution<uint32_t> distribution(0U, loadedTexts.size() - 1U);
 					uint32_t i = distribution(generator);
-					if (entityManager.Alive(ent[i]))
+					if (entityManager.Alive(textEnt[i]))
 					{
 						alive_in_row++;
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextRendering(loadedTexts[entID[ent[i]].ID]);
+					ToggleRenderableText(textEnt[i], false);
 					DestroyText(i);
 				}
 				garbage = true;
@@ -221,7 +268,7 @@ namespace SE {
 						continue;
 					}
 					alive_in_row = 0;
-					renderer->DisableTextureRendering(textureInfo[entTextureID[textureEnt[i]].ID]);
+					ToggleRenderableTexture(textureEnt[i], false);
 					DestroyTexture(i);
 				}
 				garbage = false;
@@ -229,22 +276,24 @@ namespace SE {
 			StopProfile;
 		}
 
-		int GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
+		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
 			Graphics::TextureDesc td;
 			memcpy(&td, data, sizeof(td));
 			/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
 			if (td.width * td.height * 4 != size - sizeof(td))
-				ProfileReturnConst(-1);
+				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			void* rawTextureData = ((char*)data) + sizeof(td);
 			auto handle = renderer->CreateTexture(rawTextureData, td);
 			if (handle == -1)
-				ProfileReturnConst(-1);
+				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			textureGUID[guid].textureHandle = handle;
 			textureGUID[guid].refCount = 0;
+			textureGUID[guid].height = td.height;
+			textureGUID[guid].width = td.width;
 
-			ProfileReturnConst(0);
+			ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 		}
 
 	}

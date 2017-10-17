@@ -10,7 +10,8 @@
 #include "LineRenderJob.h"
 #include "AnimationStructs.h"
 #include "FileHeaders.h"
-
+#include "AnimationJobInfo.h"
+#include <Utilz\TimeCluster.h>
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -85,34 +86,34 @@ namespace SE
 			/**
 			* @brief    Sets a Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextRendering(const TextGUI & handles) = 0;
+			virtual size_t EnableTextRendering(const TextGUI & handles) = 0;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextRendering(const TextGUI& handles) = 0;
+			virtual size_t DisableTextRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			virtual size_t EnableTextureRendering(const GUITextureInfo & handles) = 0;
 			
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+			virtual size_t DisableTextureRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Light render jobs
@@ -296,9 +297,78 @@ namespace SE
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
 			
+			/**
+			* @brief Create a skeleton
+			* @param[in] jointData The joint data.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
 			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
 
-			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, size_t skeletonIndex) = 0;
+			/**
+			* @brief Create an animation
+			* @param[in] matrices The animation keyframes
+			* @param[in] nrOfKeyframes The number of keyframes.
+			* @param[in] nrOfJoints The number of joints.
+			* @endcode
+			*/
+			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) = 0;
+
+			/**
+			* @brief Start a new animation job
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @retval -1 On fail.
+			* @retval handle The job id.
+			* @endcode
+			*/
+			virtual int StartAnimation(const AnimationJobInfo& info) = 0;
+
+			/**
+			* @brief Stop an animation (This removes the job)
+			* @param[in] job The job top stop
+			* @endcode
+			*/
+			virtual void StopAnimation(int job) = 0;
+
+			/**
+			* @brief Update an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] info Animation info
+			* @sa AnimationJobInfo
+			* @endcode
+			*/
+			virtual void UpdateAnimation(int job, const AnimationJobInfo& info) = 0;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] speed The speed
+			* @endcode
+			*/
+			virtual void SetAnimationSpeed(int job, float speed) = 0;
+
+			/**
+			* @brief Set the speed of an animation job
+			* @param[in] job Which animation job to update
+			* @param[in] keyframe The keyframe
+			* @endcode
+			*/
+			virtual void SetKeyFrame(int job, float keyframe) = 0;
+
+			/**
+			* @brief Start an animation job
+			* @param[in] job Which animation job to Start
+			* @endcode
+			*/
+			virtual void StartAnimation(int job) = 0;
+
+			/**
+			* @brief Pause an animation job
+			* @param[in] job Which animation job to pause
+			* @endcode
+			*/
+			virtual void PauseAnimation(int job) = 0;
 
 			/**
 			* @brief	The amount of VRam currently used.
@@ -306,8 +376,18 @@ namespace SE
 			* @retval size_t The amount of VRam used in bytes.
 			*
 			*/
-
 			virtual size_t GetVRam() = 0;
+
+			/*
+			 * @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			 */
+			virtual std::vector<std::string>& GetErrorLog() = 0;
+
+			/**
+			* @brief	Return a map of with profiling information.
+			*
+			*/
+			virtual void GetProfilingInformation(Utilz::TimeMap& map) = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

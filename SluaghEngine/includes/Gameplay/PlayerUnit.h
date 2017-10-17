@@ -60,26 +60,26 @@ namespace SE
 
 			struct MovementInput
 			{
-				bool downW;
-				bool downA;
-				bool downS;
-				bool downD;
+				bool upButton;
+				bool leftButton;
+				bool downButton;
+				bool rightButton;
 				
 				bool mouseRightDown;
-				int mousePosX;
-				int mousePosY;
+				float mousePosX;
+				float mousePosY;
 
 				MovementInput()
 				{
 					
 				}
 
-				MovementInput(bool w, bool a, bool s, bool d, bool mouseRD, float mouseX, float mouseY)
+				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
 				{
-					downW = w;
-					downA = a;
-					downS = s;
-					downD = d;
+					upButton = up;
+					leftButton = left;
+					downButton = down;
+					rightButton = right;
 
 					mouseRightDown = mouseRD;
 					mousePosX = mouseX;
@@ -103,16 +103,18 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool downSpace;
+				bool skill1Button;
+				bool skill2Button;
 
 				ActionInput()
 				{
 
 				}
 
-				ActionInput(bool space)
+				ActionInput(bool skill1, bool skill2)
 				{
-					downSpace = space;
+					skill1Button = skill1;
+					skill2Button = skill2;
 				}
 			};
 

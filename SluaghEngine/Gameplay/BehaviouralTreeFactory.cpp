@@ -44,6 +44,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "FlowFieldMovementLeaf")
+	{
+		finishedBehaviour = CreateFlowFieldMovementLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -87,6 +91,13 @@ IBehaviour* BehaviouralTreeFactory::CreateLeaf(NodeData* dataArray, int nodeID)
 	StartProfile;
 
 	ProfileReturn(new SucceederLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+
+	ProfileReturn(new FlowFieldMovementLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
@@ -186,7 +197,7 @@ bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, Nod
 	
 }
 
-int BehaviouralTreeFactory::LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
+ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
 {
 	StartProfile;
 
@@ -220,11 +231,11 @@ int BehaviouralTreeFactory::LoadTreeFromResourceHandler(const Utilz::GUID& GUID,
 	if(!CreateTreeFromNodeData(GUID, dataArray, numberOfNodes))
 	{
 		delete[] dataArray;
-		ProfileReturnConst(-1);
+		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	}
 	/*Return 0 for success, -1 for fail, 1 for refcount*/
 	delete[] dataArray;
-	ProfileReturnConst(1);
+	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
 
 bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)

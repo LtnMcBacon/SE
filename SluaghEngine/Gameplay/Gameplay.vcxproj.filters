@@ -118,6 +118,9 @@
     <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Leaves">
       <UniqueIdentifier>{ee7351ae-2a0b-4620-866a-39bedbe8e444}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves">
+      <UniqueIdentifier>{5f0829e5-22ff-4147-ab4b-cea835a40ea2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -209,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="EnemyFactory.cpp">
       <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowFieldMovementLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +322,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h">
       <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\KeyBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

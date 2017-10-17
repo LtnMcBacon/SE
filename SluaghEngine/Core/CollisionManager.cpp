@@ -5,6 +5,7 @@
 #include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 using namespace DirectX;
+#undef min
 
 SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
 	: resourceHandler(resourceHandler), entityManager(entityManager), transformManager(transformManager)
@@ -20,10 +21,10 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 	defaultHierarchy = 0;
 	boundingHierarchy.used++;
-	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size) ->int{
+	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size){
 		LoadMesh(defaultHierarchy, data, size);
 
-		return 1;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
 
@@ -36,14 +37,14 @@ SE::Core::CollisionManager::~CollisionManager()
 }
 
 
-void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const DirectX::XMFLOAT3 & p1, const DirectX::XMFLOAT3 & p2)
+void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const DirectX::XMFLOAT3 & p1, const DirectX::XMFLOAT3 & p2, bool async, ResourceHandler::Behavior behavior)
 {
 }
 
-void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh)
+void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
-	auto& find = entityToCollisionData.find(entity);
+	auto find = entityToCollisionData.find(entity);
 	if (find == entityToCollisionData.end())
 	{
 		// Check if the entity is alive
@@ -63,7 +64,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		// Load the mesh
 		{
-			auto& findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
+			auto findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
 			auto& bIndex = guidToBoudningIndex[mesh];
 			if (findHi == guidToBoudningIndex.end()) // If not created
 			{
@@ -78,22 +79,21 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
 			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-				auto res = resourceHandler->LoadResource(mesh, [this, cp, newHI](auto mesh, auto data, auto size) ->int {
+				auto res = resourceHandler->LoadResource(mesh, [this,newHI, cp,async](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
 			
 
-					LoadMesh(newHI, data, size);
-					boundingInfo[cp].index = newHI;
-					entityUpdateLock.lock();
-					for (auto& e : boundingInfo[cp].entities)
-					{
-						infoLock.lock();
-						transformManager->SetAsDirty(e);
-						infoLock.unlock();
-					}
-					entityUpdateLock.unlock();
+					auto res = LoadMesh(newHI, data, size);
+					if (res)
+						return ResourceHandler::InvokeReturn::Fail;
 
-					return 1;
-				}, true);
+					if (async)
+						toUpdate.push({ newHI, cp });
+					else
+						boundingInfo[cp].index = newHI;
+
+
+					return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				}, async, behavior);
 
 
 				if (res)
@@ -101,11 +101,11 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			
 			}
 
-			collisionData.boundingIndex[newEntry] = bIndex;
-			entityUpdateLock.lock();
+			collisionData.boundingIndex[newEntry] = bIndex;		
 			boundingInfo[bIndex].entities.push_back(entity);
-			entityUpdateLock.unlock();
-			transformManager->SetAsDirty(entity);
+
+			if(!async)
+				transformManager->SetAsDirty(entity);
 
 		}
 
@@ -157,6 +157,39 @@ bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX
 	ProfileReturnConst(false)
 }
 
+bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const
+{
+	StartProfile;
+	DirectX::FXMVECTOR origin = rayO;
+	DirectX::FXMVECTOR dir = rayD;
+	float minDistance = D3D11_FLOAT32_MAX;
+	int collisionWith = -1;
+	for(int i = 0; i < collisionData.used; i++)
+	{
+		auto& sphere = collisionData.sphereWorld[i];
+		float distance;
+		if(sphere.Intersects(rayO,rayD,distance))
+		{
+			auto& AABB = collisionData.AABBWorld[i];
+			float distBox;
+			if(AABB.Intersects(origin, dir, distBox))
+			{
+				float d = std::min(distance, distBox);
+				if(d < minDistance)
+				{
+					minDistance = d;
+					collisionWith = i;
+				}
+			}
+		}
+	}
+	if(collisionWith >= 0)
+	{
+		collidedEntity = collisionData.entity[collisionWith];
+	}
+	ProfileReturn(collisionWith >= 0);
+}
+
 void SE::Core::CollisionManager::Frame()
 {
 	StartProfile;
@@ -199,7 +232,37 @@ void SE::Core::CollisionManager::Frame()
 		}
 	}
 	dirtyEntites.clear();
+
+	// See if any new boundingHierarchies have finished loading. (We do this last because the transform manager need to update the transform.
+	while (!toUpdate.wasEmpty())
+	{
+		auto& t = toUpdate.top();
+
+		boundingInfo[t.index].index = t.boundingHierarchyIndex;
+		for (auto& e : boundingInfo[t.index].entities)
+			transformManager->SetAsDirty(e);
+
+		toUpdate.pop();
+	}
+
+
 	StopProfile;
+}
+
+bool SE::Core::CollisionManager::GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb)
+{
+	StartProfile;
+	if (!bb)
+		ProfileReturnConst(false);
+	auto find = entityToCollisionData.find(entity);
+	if (find == entityToCollisionData.end())
+		ProfileReturnConst(false);
+
+	const size_t bIndex = collisionData.boundingIndex[find->second];
+	const size_t aabbIndex = boundingInfo[bIndex].index;
+	*bb = boundingHierarchy.AABB[aabbIndex];
+	return true;
+
 }
 
 void SE::Core::CollisionManager::SetDirty(const Entity & entity, size_t index)
@@ -255,6 +318,9 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	size_t last = collisionData.used - 1;
 	const Entity entity = collisionData.entity[index];
 	const Entity last_entity = collisionData.entity[last];
+
+	boundingInfo[collisionData.boundingIndex[index]].entities.remove(entity); // Refcount
+
 
 	// Copy the data
 	collisionData.entity[index] = last_entity;
@@ -325,9 +391,7 @@ void SE::Core::CollisionManager::DestroyBH(size_t index)
 int SE::Core::CollisionManager::LoadMesh(size_t newHI, void * data, size_t size)
 {
 	StartProfile;
-	using namespace std::chrono_literals;
 
-	std::this_thread::sleep_for(1s);
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 
 	if (meshHeader->vertexLayout == 0) {

@@ -33,7 +33,9 @@ namespace SE
 			/**
 			* @brief	Create a texture for the entity. This is for mesh with no submeshes.
 			* @param [in] entity The entity to bind the texture to.
-			* @param [in] guid The guid of the texture to use.
+			* @param [in] info The info used when creating the material.
+			* @param [in] async If the resource should be streamed.
+			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
 			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
@@ -59,17 +61,17 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
 
-			int LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(void*data, size_t size);
-			int LoadShader(const Utilz::GUID& guid, void*data, size_t size);
+			ResourceHandler::InvokeReturn LoadShader(const Utilz::GUID& guid, void*data, size_t size);
 			
 			struct TextureBindings
 			{
-				uint8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
+				int8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 			struct TextureIndices
 			{
-				uint8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
+				int8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
 			};
 
 			struct TextureData

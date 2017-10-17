@@ -10,7 +10,7 @@
 #include "TransformManager.h"
 #include <unordered_map>
 #include <map>
-#include <mutex>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -34,7 +34,6 @@ namespace SE
 			CollisionManager(const CollisionManager&& other) = delete;
 			CollisionManager& operator=(const CollisionManager& other) = delete;
 
-			friend class DebugRenderManager;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -50,7 +49,7 @@ namespace SE
 			* @param[in] p1 The lower front left corner.
 			* @param[in] p2 The upper back right corner.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2);
+			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2, bool async, ResourceHandler::Behavior behavior);
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -58,7 +57,7 @@ namespace SE
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh);
+			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
 
 			/**
 			* @brief	Bind a callback that will be called if the given entity collides with any other entity.
@@ -83,6 +82,16 @@ namespace SE
 			*/
 			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
 
+			/**
+			* @brief	Check if the entity is hit by a ray.
+			* @param[in] rayO The origin of the ray.
+			* @param[in] rayD The direction of the ray.
+			* @param[out] collidedEntity The entity that the ray collided with.
+			* @retval true Returns true if an entity was written to collidedEntity
+			* @retval false Returns false if the ray did not collide with an entity
+			*/
+			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const;
+
 
 			inline void RegisterCollideWithAnyCallback(const CollideCallback& callback)
 			{
@@ -94,6 +103,16 @@ namespace SE
 			* @details The frame will keep the bounding objects up to date with the entities transform.
 			*/
 			void Frame();
+
+			/*
+			 * @brief Gets the local bounding box for an entity. 
+			 * @param[in] entity The entity to retrive the bounding box from
+			 * @param[out] bb A pointer to where to store the bounding box.
+			 * @retval false The entity does not have a bounding box or nullptr was passed to bb.
+			 * @retval true The entity has a bounding box and it was stored in bb.
+			 *
+			 */
+			bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
 		private:
 			void SetDirty(const Entity& entity, size_t index);
 
@@ -173,8 +192,14 @@ namespace SE
 
 			CollideCallback collideWithAny;
 
-			std::mutex infoLock;
-			std::mutex entityUpdateLock;
+
+			struct ToUpdate
+			{
+				size_t boundingHierarchyIndex;
+				size_t index;
+			};
+
+			Utilz::CircularFiFo<ToUpdate> toUpdate;
 		};
 	}
 }

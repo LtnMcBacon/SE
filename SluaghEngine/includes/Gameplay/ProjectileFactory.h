@@ -20,6 +20,18 @@ namespace SE
 
 		class ProjectileFactory
 		{
+		private:
+
+			/**
+			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
+			*/
+			enum class TypeOfFunction
+			{
+				CONTINUOUS,
+				ON_COLLISION,
+				ON_DEATH
+			};
+
 		public:
 
 			/**
@@ -37,6 +49,26 @@ namespace SE
 			ProjectileFactory(const ProjectileFactory& other) = delete;
 			ProjectileFactory(const ProjectileFactory&& other) = delete;
 			ProjectileFactory& operator=(const ProjectileFactory& rhs) = delete;
+
+			/**
+			* @brief	Adds bounce behaviour to the projectile
+			*/
+			void AddBounce(Projectile& projectile, TypeOfFunction type);
+
+			/**
+			* @brief	Adds speed changing behaviour to the projectile
+			*/
+			void AddSpeedChange(Projectile& projectile, TypeOfFunction type, float speedModifier);
+
+			/**
+			* @brief	Adds rotation invertion behaviour to the projectile
+			*/
+			void AddRotationInvertion(Projectile& projectile, TypeOfFunction type, float intervall);
+
+			/**
+			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
+			*/
+			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, std::function<bool(Projectile* projectile, float dt)> func);
 
 
 		public:

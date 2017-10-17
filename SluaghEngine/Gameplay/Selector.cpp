@@ -11,7 +11,7 @@ void Selector::OnInitialization()
 
 Status Selector::Update()
 {
-	StartProfile
+	StartProfile;
 	while (true)
 	{
 		myStatus = (*currentChild)->Tick();

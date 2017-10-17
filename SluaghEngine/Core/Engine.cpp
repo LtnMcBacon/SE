@@ -4,17 +4,19 @@
 #include <Window\IWindow.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Profiler.h>
-
+#include <Utilz\CPUTimeCluster.h>
 #include <Imgui\imgui.h>
 #include <ImGuiDX11SDL\ImGuiDX11SDL.h>
 
 
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
+#pragma comment(lib, "GraphicsD.lib")
 #pragma comment(lib, "WindowD.lib")
 #pragma comment(lib, "ImGuiDX11SDLD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
 #pragma comment(lib, "ImGuiDX11SDL.lib");
 #endif
@@ -30,6 +32,7 @@ SE::Core::Engine& SE::Core::Engine::GetInstance()
 
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
+	StartProfile;
 	optionHandler = new OptionHandler();
 	optionHandler->Initialize("Config.ini");
 
@@ -42,24 +45,24 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	auto r = resourceHandler->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst( r);
 	r = window->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = renderer->Initialize(window->GetHWND());
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 	r = audioManager->Initialize();
 	if (r)
-		return r;
+		ProfileReturnConst(r);
 
 
 	transformManager = new TransformManager(entityManager);
 	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager, animationManager);
+	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager);
+	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
@@ -76,18 +79,24 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	ImGuiDX11SDL_Init(renderer, window);
 	devConsole = new DevConsole(renderer);
-	return 0;
+
+	timeClus = new Utilz::CPUTimeCluster;
+
+
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::BeginFrame()
 {
+	StartProfile;
 	if (frameBegun)
-		return -1;
+		ProfileReturnConst( -1);
 	frameBegun = true;
+	timeClus->Start("Frame");
 	window->Frame();
 	ImGuiDX11SDL_NewFrame();
 	renderer->BeginFrame();
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::Engine::Frame(double dt)
@@ -95,18 +104,43 @@ int SE::Core::Engine::Frame(double dt)
 	StartProfile;
 	if (!frameBegun)
 		BeginFrame();
+	timeClus->Start("GUIManager");
 	guiManager->Frame();
+	timeClus->Stop("GUIManager");
+	timeClus->Start("LightManager");
 	lightManager->Frame();
+	timeClus->Stop("LightManager");
+	timeClus->Start("TransformManager");
 	transformManager->Frame();
+	timeClus->Stop("TransformManager");
+	timeClus->Start("RenderableManager");
 	renderableManager->Frame();
+	timeClus->Stop("RenderableManager");
+	timeClus->Start("DebugRenderManager");
 	debugRenderManager->Frame(*perFrameStackAllocator);
+	timeClus->Stop("DebugRenderManager");
+	timeClus->Start("AudioManager");
 	audioManager->Frame();
+	timeClus->Stop("AudioManager");
+	timeClus->Start("AnimationManager");
 	animationManager->Frame();
+	timeClus->Stop("AnimationManager");
+	timeClus->Start("MaterialManager");
 	materialManager->Frame();
+	timeClus->Stop("MaterialManager");
+	timeClus->Start("CollisionManager");
 	collisionManager->Frame();
+	timeClus->Stop("CollisionManager");
+	timeClus->Start("CameraManager");
 	cameraManager->Frame();
+	timeClus->Stop("CameraManager");
+	timeClus->Start("Renderer");
 	renderer->Render();
+	timeClus->Stop("Renderer");
+	GatherErrors();
+	timeClus->Stop("Frame");
 	devConsole->Frame();
+
 	ImGui::Render();
 	renderer->EndFrame();
 	perFrameStackAllocator->ClearStackAlloc();
@@ -116,6 +150,10 @@ int SE::Core::Engine::Frame(double dt)
 
 int SE::Core::Engine::Release()
 {
+	StartProfile;
+
+	delete timeClus;
+
 	delete devConsole;
 	ImGuiDX11SDL_Shutdown();
 	
@@ -143,13 +181,14 @@ int SE::Core::Engine::Release()
 	delete guiManager;
 	delete lightManager;
 	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
-	return 0;
+	ProfileReturnConst(0);
 }
 
 SE::Core::Engine::Engine()
 {
 	entityManager = nullptr;
 	transformManager = nullptr;
+	timeClus = nullptr;
 }
 
 SE::Core::Engine::~Engine()
@@ -161,7 +200,7 @@ SE::Core::Engine::~Engine()
 void SE::Core::Engine::InitStartupOption()
 {
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
 	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
@@ -192,7 +231,7 @@ void SE::Core::Engine::OptionUpdate()
 	//Set Sound Vol
 	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
 	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 100));
+	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 
 	//Set Camera
 	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
@@ -212,7 +251,17 @@ void SE::Core::Engine::OptionUpdate()
 		renderer->ResizeSwapChain(window->GetHWND());
 		ImGuiDX11SDL_Shutdown();
 		ImGuiDX11SDL_Init(renderer, window);
+		guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;
+}
+
+void SE::Core::Engine::GatherErrors()
+{
+	auto& renderErrors = renderer->GetErrorLog();
+	for(auto& err : renderErrors)
+	{
+		devConsole->Print(err, "Graphics Error");
+	}
 }

@@ -111,13 +111,13 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	float yMovement = 0.f;
 
 	// Handle input and apply movement
-	if (inputs.downW)
+	if (inputs.upButton)
 		yMovement += 1.0f;
-	if (inputs.downS)
+	if (inputs.downButton)
 		yMovement -= 1.0f;
-	if (inputs.downA)
+	if (inputs.leftButton)
 		xMovement -= 1.0f;
-	if (inputs.downD)
+	if (inputs.rightButton)
 		xMovement += 1.0f;
 
 	float tempX = xMovement;
@@ -142,6 +142,26 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		yMovement /= moveTot;
 	}
 
+	//------------------------
+
+	DirectX::XMFLOAT3 tempRot = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity);
+
+	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
+	DirectX::XMVECTOR mouseVector = {inputs.mousePosX - xPos, 0.0f, inputs.mousePosY - yPos, 0.0f};
+
+	int side;
+
+	if (inputs.mousePosX < xPos)
+		side = -1;
+	else
+		side = 1;
+
+	tempRot.y = side * DirectX::XMVectorGetY(DirectX::XMVector3AngleBetweenVectors(defaultVector, mouseVector));
+
+	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
+
+	//-----------------------
+
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
@@ -151,19 +171,14 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
-	if (input.downSpace)
+	if (input.skill1Button)
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y + 3.14159265 / 4;
-
-		//temp.extentsX = 0.1f;
-		//temp.extentsY = 0.1f;
-
-		//temp.maxLifeTime = 10.0f;
-		//temp.speed = 2.0f;
+		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
+		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 
 		newProjectiles.push_back(temp);
 	}

@@ -5,9 +5,11 @@
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <unordered_map>
+#include "RenderableManager.h"
 #include <Graphics\FileHeaders.h>
-
+#include <list>
 #include <random>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -17,22 +19,37 @@ namespace SE
 		{
 			Move
 		};
+
+		struct CreateAnimationInfo
+		{
+			Utilz::GUID skeleton;
+			size_t animationCount;
+			Utilz::GUID* animations;
+		};
+
 		class AnimationManager
 		{
-			// We make the animation manager a friend to the RenderableManager so we can reach private data from this manager in RenderableManager
-			friend class RenderableManager;
 		public:
-			AnimationManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager);
+			AnimationManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, RenderableManager* renderableManager);
 			~AnimationManager();
 
-			void CreateSkeleton(const Entity& entity, const Utilz::GUID& skeleton);
-			void AddAnimation(const Entity& entity, const Utilz::GUID& animation);
+			void CreateAnimation(const Entity& entity, const CreateAnimationInfo& info);
 
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame();
+
+			void Start(const Entity& entity, const Utilz::GUID& animation, float speed);
+			void SetSpeed(const Entity& entity, float speed);
+			void SetKeyFrame(const Entity& entity, float keyFrame);
+			void Start(const Entity& entity)const;
+			void Pause(const Entity& entity)const;
+			
 		private:
+			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
+
+
 			/**
 			* @brief	Allocate more memory
 			*/
@@ -46,31 +63,35 @@ namespace SE
 			*/
 			void GarbageCollection();
 
-			int LoadSkeleton(const Utilz::GUID& skeleton, void*data, size_t size);
-			int LoadAnimation(const Utilz::GUID& animation, void * data, size_t size);
+			int LoadSkeleton(void*data, size_t size);
+			int LoadAnimation(void * data, size_t size);
+			ResourceHandler::InvokeReturn LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
+			int skinnedShader;
+
 
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
 			const EntityManager& entityManager;
+			RenderableManager* renderableManager;
 			std::default_random_engine generator;
 
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity);
+				static const size_t size = sizeof(Entity) + sizeof(int) + sizeof(int);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				size_t* skeletonIndex;
+				int* skeletonIndex;
+				int* job;
 			};
 			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-			std::vector<int> skeletonHandle;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToSkeletonIndex;
 
-
+			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkeletonIndex;
+			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkelAnimationIndex;
 		};
 	}
 }

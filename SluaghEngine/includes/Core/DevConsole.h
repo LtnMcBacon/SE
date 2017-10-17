@@ -49,6 +49,11 @@ namespace SE
 			* @brief Draws the console if the console is visible.
 			*/
 			void Frame();
+
+			/*
+			 * @brief Clears messages printed in the console.
+			 */
+			void Clear();
 		private:
 			struct CommandData
 			{
@@ -63,7 +68,9 @@ namespace SE
 				std::string channel;
 			};
 
-			
+			/**<The maximum number of messages to be visible in the console.*/
+			static const size_t maxMessages = 1024;
+
 			SE::Graphics::IRenderer* renderer;
 
 			DevConsole() = delete;

@@ -2,7 +2,11 @@
 #include <algorithm>
 #include <Imgui/imgui.h>
 #include <Utilz/Memory.h>
+#include <Utilz/TimeCluster.h>
 #include <Graphics/IRenderer.h> //In order to plot VRAM usage.
+#include <Profiler.h>
+#include "Engine.h"
+
 SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 {
 	_ASSERT(renderer);
@@ -16,12 +20,21 @@ SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 		std::string toPrint = "";
 		for (auto& c : nameToCommand)
 		{
-			Print(c.second.name + "\n" + c.second.description);
+			Print(c.second.name + "\n" + c.second.description, "");
 		}
 	},
 		"commands",
 		"Lists all availible commands."
 
+		);
+
+	AddCommand(
+		[this](int argc, char** argv)
+	{
+		Clear();
+	},
+		"clear",
+		"Clears the console"
 		);
 }
 
@@ -60,22 +73,31 @@ void SE::Core::DevConsole::Toggle()
 
 void SE::Core::DevConsole::Frame()
 {
+	StartProfile;
 	if (!showConsole)
-		return;
+		ProfileReturnVoid;
+
+	if(messages.size() == maxMessages)
+	{
+		//Keep half of the existing messages.
+		messages.erase(messages.begin(), messages.begin() + (maxMessages / 2));
+	}
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
 		ImGui::End();
-		return;
+		ProfileReturnVoid;
 	}
 	
 	{
 		static bool plot_memory_usage;
+		static bool show_gpu_timings;
 		if(ImGui::BeginMenuBar())
 		{
 			if(ImGui::BeginMenu("Debugging"))
 			{
 				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
+				ImGui::MenuItem("Show frame timings", nullptr, &show_gpu_timings);
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -96,16 +118,57 @@ void SE::Core::DevConsole::Frame()
 			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 			ImGui::Separator();
 		}
+
+		if(show_gpu_timings)
+		{
+			SE::Utilz::TimeMap map;
+			Core::Engine::GetInstance().GetProfilingInformation(map);
+			static float maxFrameTime = 0.0f;
+			static float minFrameTime = 999999999.0f;
+			static float avg100Frames = 0.0f;
+			static float runningSum = 0.0f;
+			static size_t frameCounter = 0;
+			const auto frame = map.find("Frame");
+			if(frame != map.end())
+			{
+				runningSum += frame->second;
+				if (frame->second < minFrameTime)
+					minFrameTime = frame->second;
+				if (frame->second > maxFrameTime)
+					maxFrameTime = frame->second;
+				if (frameCounter >= 100)
+				{
+					avg100Frames = runningSum / frameCounter;
+					frameCounter = 0;
+					runningSum = 0.0f;
+				}
+
+			}
+			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
+			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
+			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+			for(auto& m : map)
+			{
+				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+			}
+			
+			
+		}
 	}
 
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
 	ImGui::Separator();
+	static bool scrollToBottom = false;
+	ImGui::Checkbox("Scroll to bottom", &scrollToBottom);
+	ImGui::Separator();
 	ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
 	for (auto& m : messages)
 	{
 		ImVec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		if (m.channel == "Error")
+		std::string lowerCaseChannel = m.channel;
+		std::transform(lowerCaseChannel.begin(), lowerCaseChannel.end(), lowerCaseChannel.begin(), ::tolower);
+		if (lowerCaseChannel.find("error") != std::string::npos)
 			color = { 1.0f, 0.2f, 0.2f, 1.0f };
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
 		if(filter.IsActive())
@@ -121,6 +184,8 @@ void SE::Core::DevConsole::Frame()
 		}	
 		ImGui::PopStyleColor();
 	}
+	if (scrollToBottom)
+		ImGui::SetScrollHere();
 	ImGui::EndChild();
 	ImGui::Separator();
 	if (ImGui::InputText("Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub, (void*)this))
@@ -140,6 +205,13 @@ void SE::Core::DevConsole::Frame()
 	if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 		ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 	ImGui::End();
+
+	ProfileReturnVoid;
+}
+
+void SE::Core::DevConsole::Clear()
+{
+	messages.clear();
 }
 
 int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
@@ -150,6 +222,8 @@ int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
 
 int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 {
+
+	StartProfile;
 	//AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
 	switch (data->EventFlag)
 	{
@@ -240,7 +314,7 @@ int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 		}
 	}
 	}
-	return 0;
+	ProfileReturnConst( 0);
 }
 
 void SE::Core::DevConsole::ExecuteCommand(std::string commandString)

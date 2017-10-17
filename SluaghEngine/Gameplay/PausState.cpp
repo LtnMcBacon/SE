@@ -9,7 +9,7 @@ PauseState::PauseState()
 
 PauseState::PauseState(Window::IWindow* Input)
 {
-	this->Input = Input;
+	this->input = Input;
 }
 
 PauseState::~PauseState()
@@ -28,7 +28,7 @@ IGameState::State PauseState::Update(void* &passableInfo)
 	*(int*)passableInfo +=1;
 
 
-	if (Input->ButtonPressed(0))
+	if (input->ButtonPressed(0))
 	{
 		empty = State::MAIN_MENU_STATE;
 	}

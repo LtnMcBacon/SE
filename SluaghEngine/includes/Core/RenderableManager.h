@@ -8,7 +8,6 @@
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
 #include "TransformManager.h"
-#include "AnimationManager.h"
 #include <list>
 #include <mutex>
 #include <Utilz\Event.h>
@@ -31,7 +30,7 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager, AnimationManager* animationManager);
+			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -69,6 +68,7 @@ namespace SE
 			void SetFillSolid(const Entity& entity, uint8_t fillSolid);
 
 			void SetTransparency(const Entity& entity, uint8_t transparency);
+
 		private:
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
@@ -92,9 +92,7 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			int LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
-
-			int LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
+			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
 			int LoadModel(void* data, size_t size);
 			
@@ -118,7 +116,6 @@ namespace SE
 			Graphics::IRenderer* renderer;
 			const EntityManager& entityManager;
 			TransformManager* transformManager;
-			AnimationManager* animationManager;
 			std::default_random_engine generator;	
 
 			struct DirtyEntityInfo
@@ -133,8 +130,6 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-
-			int skinnedShader;
 			int defaultShader;
 			int defaultMeshHandle;
 
