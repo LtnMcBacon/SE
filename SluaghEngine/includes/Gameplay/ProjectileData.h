@@ -3,6 +3,8 @@
 #include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
+#include <memory>
+
 namespace SE
 {
 	namespace Gameplay
@@ -24,6 +26,8 @@ namespace SE
 			DamageEvent eventDamage; // event to be transfered on hit
 			HealingEvent eventHealing; // event to be transfered on hit
 			ConditionEvent eventCondition; // event to be transfered on hit
+			
+			std::weak_ptr<GameUnit*> ownerUnit;
 		};
 		
 	}

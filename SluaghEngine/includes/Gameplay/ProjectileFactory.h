@@ -22,6 +22,8 @@ namespace SE
 		{
 		private:
 
+			struct BehaviourParameter{};
+
 			/**
 			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
 			*/
@@ -69,6 +71,13 @@ namespace SE
 			* @brief	Adds rotation invertion behaviour to the projectile (does not work as inteded at the moment)
 			*/
 			void AddRotationInvertion(Projectile& projectile, TypeOfFunction type, float intervall);
+
+			/**
+			 * @brief Add stun ownerUnit behaviour to the projectile
+			 */
+			std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> StunOwnerUnitBehaviour(
+				std::vector<BehaviourParameter> parameters
+			);
 
 			/**
 			* @brief	Adds lifetime behaviour to the projectile (does not work as inteded at the moment)

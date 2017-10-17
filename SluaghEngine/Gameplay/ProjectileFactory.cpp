@@ -107,6 +107,17 @@ void SE::Gameplay::ProjectileFactory::AddRotationInvertion(Projectile & projecti
 	AddBehaviourToProjectile(projectile, type, inverter);
 }
 
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	auto StunOwnerUnit = [](Projectile* p, float dt) -> bool
+	{
+
+	};
+
+	return StunOwnerUnit;
+}
+
 void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeOfFunction type, float timeToIncrease)
 {
 

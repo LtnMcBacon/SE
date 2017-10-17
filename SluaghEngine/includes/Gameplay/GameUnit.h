@@ -3,6 +3,8 @@
 #include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
+#include <memory>
+
 namespace SE
 {
 	namespace Gameplay
@@ -19,7 +21,7 @@ namespace SE
 		* @sa Enemy, Player.
 		*
 		**/
-		class GameUnit
+		class GameUnit : public std::enable_shared_from_this<GameUnit>
 		{
 		public:
 			GameUnit();
@@ -169,7 +171,9 @@ namespace SE
 			float xPos;
 			float yPos;
 
+
 			/*Functions to move the GameUnit*/
+			std::shared_ptr<GameUnit*> mySelf;
 			
 			
 			std::vector<DamageEvent> DamageEventVector;

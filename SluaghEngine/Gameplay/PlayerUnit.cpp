@@ -5,6 +5,24 @@
 #include <Core\CollisionManager.h>
 #include "Core/Engine.h"
 
+void SE::Gameplay::PlayerUnit::ResolveEvents()
+{
+	StartProfile;
+
+	// only basic at the moment
+	
+	for (int i = 0; i < DamageEventVector.size(); i++)
+	{
+		this->health -= DamageEventVector[i].amount;
+	}
+	
+	
+
+	ProfileReturnVoid;
+
+}
+
+
 bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yMov)
 {
 	StartProfile;
@@ -170,7 +188,6 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-
 	if (input.skill1Button)
 	{
 		ProjectileData temp;
@@ -179,10 +196,10 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
-
+		temp.ownerUnit = mySelf;
 		newProjectiles.push_back(temp);
 	}
-
+	ResolveEvents();
 	StopProfile;
 
 }
