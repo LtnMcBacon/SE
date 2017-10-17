@@ -77,7 +77,8 @@ namespace SE {
 		int AudioSound::Initialize()
 		{
 			StartProfile;
-			sampleStack.InitStackAlloc(100000000);
+			using namespace Utilz::Memory;
+			sampleStack.InitStackAlloc(20_mb);
 			ProfileReturnConst(0);
 		}
 
