@@ -165,8 +165,9 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 			XMVECTOR newPos = parentPos + rotatedVector;
 			XMVECTOR translationVector = newPos - childPos;
 
-			Move(data.entities[child], translationVector);
 			Rotate(data.entities[child], pitch, yaw, roll);
+			Move(data.entities[child], translationVector);
+			
 		}
 		child = data.siblingIndex[child];
 	}
@@ -277,6 +278,17 @@ const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e)
 	XMStoreFloat3(&f, XMVector3TransformNormal(forward, rotation));
 
 	return f;
+}
+
+DirectX::XMFLOAT3 SE::Core::TransformManager::GetRight(const Entity& e) const
+{
+	XMVECTOR defRight = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	XMFLOAT3 rot = GetRotation(e);
+	XMMATRIX rotm = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot));
+	XMVECTOR right = XMVector3TransformNormal(defRight, rotm);
+	XMFLOAT3 r;
+	XMStoreFloat3(&r, right);
+	return r;
 }
 
 const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMFLOAT3 & forward)

@@ -164,6 +164,13 @@ namespace SE
 			const DirectX::XMFLOAT3 GetForward(const Entity& e)const;
 
 			/**
+			* @brief    Returns the rightward pointing vector of the entity.
+			* @param[in] e The entity.
+			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
+			*/
+			DirectX::XMFLOAT3 GetRight(const Entity& e) const;
+
+			/**
 			* @brief    Sets the forward vector of the entity.
 			* @param[in] e The entity.
 			* @param[in] forward The forward vector to set.
