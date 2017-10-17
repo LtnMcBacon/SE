@@ -46,7 +46,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	auto r = resourceHandler->Initialize();
 	if (r)
 		ProfileReturnConst( r);
-	r = window->Initialize();
+	r = window->Initialize(info.winInfo);
 	if (r)
 		ProfileReturnConst(r);
 	r = renderer->Initialize(window->GetHWND());

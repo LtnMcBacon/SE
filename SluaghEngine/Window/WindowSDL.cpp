@@ -175,7 +175,7 @@ void SE::Window::WindowSDL::RecordFrame()
 	}
 	SDL_Event ev;
 	inputRecData inData;
-	inData.dTime = time.GetDelta();
+	inData.dTime = time.GetDelta<std::ratio<1, 1>>();
 	while (SDL_PollEvent(&ev))
 	{
 		for (auto& onEvent : onEventCallbacks)
@@ -481,4 +481,5 @@ void SE::Window::WindowSDL::RecordToFile()
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(10ms);
 	}
+	frame = 0;
 }

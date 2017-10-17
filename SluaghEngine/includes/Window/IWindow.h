@@ -398,7 +398,7 @@ namespace SE
 			/**
 			* @brief Gets delta time from window
 			*
-			* @retval float Returns time int milliseconds
+			* @retval float Returns time int seconds
 			*/
 			virtual float GetDelta() const = 0;
 

@@ -83,12 +83,12 @@ namespace SE
 			/**
 			* @brief Gets delta time from window
 			*
-			* @retval float Returns time int milliseconds
+			* @retval float Returns time int seconds
 			*/
 			inline float GetDelta() const override
 			{
 				if (!playback)
-					return time.GetDelta();
+					return time.GetDelta<std::ratio<1, 1>>();
 				else
 					return playbackData[frame].dTime;
 			};

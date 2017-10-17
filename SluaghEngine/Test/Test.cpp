@@ -35,6 +35,7 @@
 #include "GarbageTest.h"
 #include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
+#include "RecordingProjectileTest.h"
 
 
 #ifdef _DEBUG
@@ -69,6 +70,7 @@ int main(int argc, char** argv)
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
+	AddTest(RecordingProjectileTest);
 	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
