@@ -150,11 +150,55 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		backend->Print("Load timed out for test3.txt\n");
 		return false;
 	}
-	r->Shutdown();
-	delete r;
+
+
+	//*******************************
+
+	bool tt = false;
+	bool tt2 = false;
+	res = r->LoadResource("test4.txt", [r, &tt, &tt2](auto guid, auto data, auto size)
+	{
+		auto re = r->LoadResource("test.txt", [&tt](auto guid, auto data, auto size) {
+			tt = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
+
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+
+		re = r->LoadResource("test5.txt", [&tt2](auto guid, auto data, auto size) {
+			tt2 = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		}, true);
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+
+	timeOut = 0;
+	while (!tt2 && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
+	if (!result)
+	{
+		backend->Print("Load timed out for test5.txt\n");
+		return false;
+	}
+
+
+
+	if(res || !tt || !tt2)
+	{
+		backend->Print("Recursive load failed.\n");
+		return false;
+	}
+
+
 
 	if (!Utilz::Memory::IsUnderLimit(10_mb))
 		return false;
+
+	r->Shutdown();
+	delete r;
 
 	ProfileReturnConst(true);
 }

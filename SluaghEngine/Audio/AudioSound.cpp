@@ -1,6 +1,7 @@
 #include "AudioSound.h"
 #include <Profiler.h>
 #include <fstream>
+#include <Utilz\Memory.h>
 namespace sfvirt {
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
