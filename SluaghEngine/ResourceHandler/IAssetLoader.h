@@ -35,8 +35,7 @@ namespace SE
 			* @brief Load a resource.
 			*
 			* @param[in] guid The GUID of the resource to load.
-			* @param[out] data A pointer where to put the data.
-			* @param[out] size The size of the read data.
+			* @param[out] data A pointer where to put the data.			
 			*
 			* @retval 0 On success
 			* @retval -1 Read failed.
@@ -48,24 +47,26 @@ namespace SE
 			* @code
 			*	void* data;
 			*	size_t size;
-			*	loader->LoadResource(guid, &data, &size);
+			*	if(loader->Exist(guid, &size))
+			*		loader->LoadResource(guid, &data);
 			* @endcode
 			*/
-			virtual int LoadResource(const Utilz::GUID& guid, void** data, size_t* size)const = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, void** data)const = 0;
 
 			/**
 			* @brief	Check if the asset can be loaded from this loader.
 			*
-			* @details	Return true if the resource can be loaded with this loader
+			* @details	Returns true if the resource can be loaded with this loader
 			* false otherwise.
 			*
 			* @param[in] guid GUID of the resource.
+			* @param[out] size The size of the resource.
 			*
 			* @retval true Resource can be loaded
 			* @retval false Resource can not be loaded
 			*
 			*/
-			virtual bool Exist(const Utilz::GUID& guid)const = 0;
+			virtual bool Exist(const Utilz::GUID& guid, size_t* size)const = 0;
 		protected:
 			IAssetLoader() {};
 			IAssetLoader(const IAssetLoader& other) = delete;

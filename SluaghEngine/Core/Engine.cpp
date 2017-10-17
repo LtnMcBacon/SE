@@ -41,9 +41,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
+
 	
 
-	auto r = resourceHandler->Initialize();
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize();
@@ -251,6 +252,7 @@ void SE::Core::Engine::OptionUpdate()
 		renderer->ResizeSwapChain(window->GetHWND());
 		ImGuiDX11SDL_Shutdown();
 		ImGuiDX11SDL_Init(renderer, window);
+		guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;

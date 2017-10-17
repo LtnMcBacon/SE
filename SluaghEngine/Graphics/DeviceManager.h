@@ -162,7 +162,7 @@ namespace SE {
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
-			inline ID3D11BlendState*	   GetBlendState() { return blendSolidState; };
+			inline ID3D11BlendState*	   GetBlendState() { return blendTransState; };
 			
 			inline void SetDepthStencilStateAndRS()
 			{
@@ -194,6 +194,10 @@ namespace SE {
 					UINT sampleM = 0xFF;
 					gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
 				}
+			}
+
+			inline D3D11_TEXTURE2D_DESC GetTexDesc() {
+				return gBB_Desc;
 			}
 		private:
 

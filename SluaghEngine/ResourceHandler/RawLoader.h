@@ -35,7 +35,6 @@ namespace SE
 			*
 			* @param[in] guid The GUID of the resource to load.
 			* @param[out] data A pointer where to put the data.
-			* @param[out] size The size of the read data.
 			*
 			* @retval 0 On success
 			* @retval -1 Read failed.
@@ -47,26 +46,28 @@ namespace SE
 			* @code
 			*	void* data;
 			*	size_t size;
-			*	loader->LoadResource(guid, &data, &size);
+			*	if(loader->Exist(guid, &size))
+			*		loader->LoadResource(guid, &data);
 			* @endcode
 			*/
-			int LoadResource(const Utilz::GUID& guid, void** data, size_t* size)const;
+			int LoadResource(const Utilz::GUID& guid, void** data)const override;
 
 			/**
 			* @brief	Check if the asset can be loaded from this loader.
 			*
-			* @details	Return true if the resource can be loaded with this loader
+			* @details	Returns true if the resource can be loaded with this loader
 			* false otherwise.
 			*
 			* @param[in] guid GUID of the resource.
+			* @param[out] size The size of the resource.
 			*
 			* @retval true Resource can be loaded
 			* @retval false Resource can not be loaded
 			*
 			*/
-			bool Exist(const Utilz::GUID& guid)const;
+			bool Exist(const Utilz::GUID& guid, size_t* size)const override;
 		private:
-			std::map<Utilz::GUID, std::tuple<Utilz::GUID, std::string>, Utilz::GUID::Compare> resourceEntires;
+			std::map<Utilz::GUID, std::tuple<Utilz::GUID, std::string, size_t>, Utilz::GUID::Compare> resourceEntires;
 		};
 	}
 }

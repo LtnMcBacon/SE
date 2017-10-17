@@ -2,6 +2,7 @@
 #include <Profiler.h>
 #include "RawLoader.h"
 #include <vector>
+#include <Utilz\Memory.h>
 
 using namespace std::chrono_literals;
 
@@ -15,9 +16,21 @@ SE::ResourceHandler::ResourceHandler::~ResourceHandler()
 {
 }
 
-int SE::ResourceHandler::ResourceHandler::Initialize()
+int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& initInfo)
 {
 	StartProfile;
+	this->initInfo = initInfo;
+
+	switch (initInfo.unloadingStrat)
+	{
+	case UnloadingStrategy::Linear:
+		Unload = &ResourceHandler::LinearUnload;
+		break;
+	default:
+		Unload = &ResourceHandler::LinearUnload;
+		break;
+	}
+
 	diskLoader = new RawLoader;
 	diskLoader->Initialize();
 	_ASSERT(diskLoader);
@@ -45,11 +58,14 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 
 	for (size_t i = 0; i < resourceInfo.used; i++)
 	{
-		if(resourceInfo.resourceData[i].data)
-			operator delete(resourceInfo.resourceData[i].data);
+		operator delete(resourceInfo.resourceData[i].data);
 	}
 	operator delete(resourceInfo.data);
 	delete diskLoader;
+}
+
+void SE::ResourceHandler::ResourceHandler::UpdateInfo(const InitializationInfo & initInfo)
+{
 }
 
 int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool async, Behavior behavior)
@@ -62,7 +78,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	if (find == guidToResourceInfoIndex.end()) //If resource is not registered.
 	{
 
-		if (!diskLoader->Exist(guid)) // Make sure we can load the resource.
+		if (!diskLoader->Exist(guid, nullptr)) // Make sure we can load the resource.
 		{
 			//Utilz::Console::Print("Resource %u could not be found!\n", guid);
 			ProfileReturnConst(-1);
@@ -135,7 +151,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResources(const LoadStruct & toLoa
 	StartProfile;
 	// Make sure all resources exist.
 	for (size_t i = 0; i < toLoad.guidCount; i++)
-		if (!toLoad.resourceToLoad || !diskLoader->Exist(toLoad.resourceToLoad[i]))
+		if (!toLoad.resourceToLoad || !diskLoader->Exist(toLoad.resourceToLoad[i], nullptr))
 			ProfileReturnConst(-1);
 
 
@@ -161,6 +177,47 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 	
 	StopProfile;
 }
+
+void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
+{
+	StartProfile;
+	if (Utilz::Memory::IsUnderLimit(initInfo.maxMemory, addedSize))
+		ProfileReturnVoid;
+
+	size_t freed = 0;
+	std::vector<size_t> toFree;
+	for (size_t i = 0; i < resourceInfo.used; i++)
+	{
+	
+		if (resourceInfo.state[i] == State::Loaded && resourceInfo.refCount[i] == 0)
+		{
+			freed += resourceInfo.resourceData[i].size;
+			toFree.push_back(i);
+			if (freed >= addedSize)
+				break;
+		}
+	
+	}
+	if (Utilz::Memory::IsUnderLimit(initInfo.maxMemory + freed, addedSize))
+	{
+		infoLock.lock();
+		for (auto& i : toFree)
+		{
+			if (resourceInfo.state[i] == State::Loaded && resourceInfo.refCount[i] == 0)
+			{
+				operator delete(resourceInfo.resourceData[i].data);
+				resourceInfo.resourceData[i].data = nullptr;
+				resourceInfo.state[i] = State::Dead;
+
+			}
+
+		}
+		infoLock.unlock();
+	}
+	
+	ProfileReturnVoid;
+}
+
 
 void SE::ResourceHandler::ResourceHandler::Allocate(size_t size)
 {
@@ -200,7 +257,12 @@ int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size
 {
 	StartProfile;
 	Data data;
-	auto result = diskLoader->LoadResource(guid, &data.data, &data.size);
+
+	diskLoader->Exist(guid, &data.size);
+
+	(*this.*Unload)(data.size);
+
+	auto result = diskLoader->LoadResource(guid, &data.data);
 	if (result)
 		ProfileReturnConst(result);
 		
@@ -246,16 +308,21 @@ void SE::ResourceHandler::ResourceHandler::ToLoadThreadEntry()
 			if (state == State::Loading) // Resource is not loaded yet
 			{
 				Data data;
-				auto result = diskLoader->LoadResource(job.guid, &data.data, &data.size);
-				if (!result)
+
+				if (diskLoader->Exist(job.guid, &data.size))
 				{
-					infoLock.lock();
-					resourceInfo.resourceData[job.resourceInfoIndex] = data;
-					resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
-					infoLock.unlock();			
-					job.callback;
-					toInvoke.push(job);
-				}			
+					(*this.*Unload)(data.size);
+					auto result = diskLoader->LoadResource(job.guid, &data.data);
+					if (!result)
+					{
+						infoLock.lock();
+						resourceInfo.resourceData[job.resourceInfoIndex] = data;
+						resourceInfo.state[job.resourceInfoIndex] = State::Loaded;
+						infoLock.unlock();
+						job.callback;
+						toInvoke.push(job);
+					}
+				}					
 			}
 			else
 			{
