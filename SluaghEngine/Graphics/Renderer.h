@@ -270,6 +270,17 @@ namespace SE
 			int CreateVertexShader(void* data, size_t size) override;
 
 			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateComputeShader(void* data, size_t size) override;
+
+
+			/**
 			* @brief Create a new fomt
 			* @retval 0+ Font ID
 			* @retval -1 Something went wrong.
