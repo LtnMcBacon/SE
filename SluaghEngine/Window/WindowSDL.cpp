@@ -173,7 +173,6 @@ void SE::Window::WindowSDL::RecordFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
 	inputRecData inData;
 	inData.dTime = time.GetDelta();
@@ -195,9 +194,14 @@ void SE::Window::WindowSDL::RecordFrame()
 void SE::Window::WindowSDL::PlaybackFrame()
 {
 	StartProfile;
-
+	for (auto& ks : actionToKeyState)
+	{
+		ks.second = (ks.second & KeyState::DOWN);
+	}
 	for (auto& ev : playbackData[frame].events)
 	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
 	}		
 	frame++;
@@ -474,4 +478,5 @@ void SE::Window::WindowSDL::RecordToFile()
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(100ms);
 	}
+	int hej = 0;
 }

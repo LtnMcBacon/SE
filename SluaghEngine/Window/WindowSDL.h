@@ -79,8 +79,6 @@ namespace SE
 			inline void UpdateTime() override {
 				if (!playback)
 					time.Tick();
-				else
-					recordDelta;
 			};
 			/**
 			* @brief Gets delta time from window
@@ -92,7 +90,7 @@ namespace SE
 				if (!playback)
 					return time.GetDelta();
 				else
-					return recordDelta;
+					return playbackData[frame].dTime;
 			};
 		private:
 			void EventSwitch(SDL_Event ev);
@@ -152,7 +150,6 @@ namespace SE
 			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
 			bool recording = false;
 			bool playback = false;
-			float recordDelta = 0.0;
 			std::vector<inputRecData> playbackData;
 			std::thread recThread;
 			size_t frame = 0;
