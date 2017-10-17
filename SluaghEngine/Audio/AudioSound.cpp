@@ -60,7 +60,6 @@ namespace sfvirt {
 			};
 		}
 
-
 namespace SE {
 	namespace Audio {
 		AudioSound::AudioSound()
