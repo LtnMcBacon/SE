@@ -16,6 +16,13 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		this->health -= DamageEventVector[i].amount;
 	}
 	
+	for(auto condition : ConditionEventVector)
+	{
+		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+		{
+			stunDuration += 0.4f;
+		}
+	}
 	
 
 	ProfileReturnVoid;
@@ -125,6 +132,13 @@ void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAn
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
+	if(stunDuration > 0)
+	{
+		stunDuration -= dt;
+		if (stunDuration < 0)
+			stunDuration = 0.f;
+		ProfileReturnVoid;
+	}
 	float xMovement = 0.f;
 	float yMovement = 0.f;
 
@@ -200,6 +214,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newProjectiles.push_back(temp);
 	}
 	ResolveEvents();
+	ClearConditionEvents();
+	ClearDamageEvents();
+	ClearHealingEvents();
 	StopProfile;
 
 }

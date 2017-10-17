@@ -171,6 +171,8 @@ namespace SE
 			float xPos;
 			float yPos;
 
+			float stunDuration;
+
 
 			/*Functions to move the GameUnit*/
 			std::shared_ptr<GameUnit*> mySelf;

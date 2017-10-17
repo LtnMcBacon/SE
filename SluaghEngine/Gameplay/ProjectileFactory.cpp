@@ -2,6 +2,7 @@
 #include <Profiler.h>
 #include <Core\CollisionManager.h>
 #include "Core/Engine.h"
+#include "EnemyUnit.h"
 
 SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(ProjectileData data)
 {
@@ -26,14 +27,18 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
 	parameters.resize(3);
 
+	parameters[0].behaviour.projectileOwner = &data.ownerUnit;
+	AddBehaviourToProjectile(temp, TypeOfFunction::ON_DEATH, StunOwnerUnitBehaviour(parameters));
+
 	AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, BounceBehaviour(parameters));
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
 	//AddRotationModifier(temp, TypeOfFunction::CONTINUOUS, 0.2f);
 	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
 	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
 
-	parameters[0].f = 60.0f * 0.08f;
+	parameters[0].behaviour.f = 60.0f * 0.08f;
 	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
+
 
 	ProfileReturnConst(temp);
 
@@ -60,7 +65,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::SpeedModifierBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
-	float speedModifier = parameters[0].f;
+	float speedModifier = parameters[0].behaviour.f;
 
 	auto speed = [speedModifier](Projectile* p, float dt) -> bool
 	{
@@ -78,7 +83,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationModifierBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
-	float rotationModifier = parameters[0].f;
+	float rotationModifier = parameters[0].behaviour.f;
 
 	auto rotation = [rotationModifier](Projectile* p, float dt) -> bool
 	{
@@ -97,10 +102,10 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationInvertionBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	BehaviourData data;
-	float intervall = parameters[0].f;
+	float intervall = parameters[0].behaviour.f;
 	data.f = intervall;
 
-	int dataIndex = parameters[1].projectile->AddBehaviourData(data);
+	int dataIndex = parameters[1].behaviour.projectile->AddBehaviourData(data);
 
 	auto inverter = [dataIndex, intervall](Projectile* p, float dt) -> bool
 	{
@@ -127,37 +132,28 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	auto StunOwnerUnit = [](Projectile* p, float dt) -> bool
+	std::weak_ptr<GameUnit*> ownerPtr = *parameters[0].behaviour.projectileOwner;
+	auto StunOwnerUnit = [ownerPtr](Projectile* p, float dt) -> bool
 	{
+		if(p->GetCollisionType() == CollisionType::ENEMY)
+			if(auto owner = ownerPtr.lock())
+			{
+				auto unit = *owner.get();
+				ConditionEvent cEvent;
+				cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+				unit->AddConditionEvent(cEvent);
+			}
 
+		return true;
 	};
 
 	return StunOwnerUnit;
 }
 
-void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeOfFunction type, float timeToIncrease)
-{
-	float timeToIncrease = parameters[0].f;
-
-	auto timeIncreaser = [timeToIncrease](Projectile* p, float dt) -> bool
-	{
-		float lifeTime = p->GetLifeTime();
-		lifeTime += timeToIncrease;
-		p->SetLifeTime(lifeTime);
-		p->SetActive(true);
-
-		return false;
-	};
-
-	return timeIncreaser;
-
-	//AddBehaviourToProjectile(projectile, type, timeIncreaser);
-}
-
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	Room* currentRoom = *ptrs.currentRoom;
-	float rotPerSecond = parameters[0].f;
+	float rotPerSecond = parameters[0].behaviour.f;
 
 	auto targeter = [currentRoom, rotPerSecond](Projectile* p, float dt) -> bool
 	{

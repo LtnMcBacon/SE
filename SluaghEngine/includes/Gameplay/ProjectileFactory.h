@@ -32,14 +32,27 @@ namespace SE
 
 			struct BehaviourParameter
 			{
-				union
+				union BehaviourUnion
 				{
+					BehaviourUnion()
+					{
+						
+					}
+					~BehaviourUnion()
+					{
+						
+					}
 					float f;
 					int i;
 					bool b;
 					//std::function<bool(Projectile* projectile, float dt)> func;
 					Projectile* projectile;
-				};
+					std::weak_ptr<GameUnit*>* projectileOwner;
+
+
+				}behaviour;
+				BehaviourParameter() {};
+				~BehaviourParameter() {};
 			};
 
 			/**
@@ -115,10 +128,7 @@ namespace SE
 			* @brief	Adds Targeting closest enemy behaviour to the projectile
 			*/
 			std::function<bool(Projectile* projectile, float dt)> TimeCondition(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func*/);
-			/**
-			* @brief	Adds lifetime behaviour to the projectile (does not work as inteded at the moment)
-			*/
-				void AddLifeTime(Projectile& projectile, TypeOfFunction type, float timeToIncrease);
+			
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
 			*/
