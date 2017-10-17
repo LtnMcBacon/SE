@@ -11,6 +11,12 @@
 #include <unordered_map>
 #include <random>
 
+#ifdef _DEBUG
+#pragma comment(lib, "audioD.lib")
+#else
+#pragma comment(lib, "audio.lib")
+#endif
+
 namespace SE {
 	namespace Core {
 
