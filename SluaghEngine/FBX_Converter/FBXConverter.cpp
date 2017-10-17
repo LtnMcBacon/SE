@@ -1607,18 +1607,21 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 		// Define the ofstream 
 		ofstream outBinary(binaryFile, std::ios::binary);
 
+		// Define the number of joints
 		uint32_t nrOfJoints = (uint32_t)skeleton.hierarchy.size();
 
 		// Write the skeleton header
 		outBinary.write(reinterpret_cast<char*>(&nrOfJoints), sizeof(uint32_t));
+
+		FbxAMatrix scaling;
+		FbxVector4 scale = { 1.0f, 1.0f, -1.0f };
+		scaling.SetS(scale);
 
 		for (int jointIndex = 0; jointIndex < skeleton.hierarchy.size(); jointIndex++) {
 
 			// Get the bindpose and joint parent index
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
 			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
-			
-			//XMStoreFloat4x4(&bindPoseMatrix, XMMatrixTranspose(XMLoadFloat4x4(&Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse))));
 
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
