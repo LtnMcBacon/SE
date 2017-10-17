@@ -30,6 +30,18 @@ namespace SE
 		{
 		private:
 
+			struct BehaviourParameter
+			{
+				union
+				{
+					float f;
+					int i;
+					bool b;
+					//std::function<bool(Projectile* projectile, float dt)> func;
+					Projectile* projectile;
+				};
+			};
+
 			/**
 			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
 			*/
@@ -63,32 +75,39 @@ namespace SE
 			/**
 			* @brief	Adds bounce behaviour to the projectile
 			*/
-			void AddBounce(Projectile& projectile, TypeOfFunction type);
+			std::function<bool(Projectile* projectile, float dt)> BounceBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
 			* @brief	Adds speed changing behaviour to the projectile
 			*/
-			void AddSpeedModifier(Projectile& projectile, TypeOfFunction type, float speedModifier);
+			std::function<bool(Projectile* projectile, float dt)> SpeedModifierBehaviour(std::vector<BehaviourParameter> parameters/*float speedModifier*/);
 
 			/**
 			* @brief	Adds rotation changing behaviour to the projectile
 			*/
-			void AddRotationModifier(Projectile& projectile, TypeOfFunction type, float rotationModifier);
+			std::function<bool(Projectile* projectile, float dt)> RotationModifierBehaviour(std::vector<BehaviourParameter> parameters/*float rotationModifier*/);
 
 			/**
 			* @brief	Adds rotation invertion behaviour to the projectile (acts weird, not fully functioning)
 			*/
-			void AddRotationInvertion(Projectile& projectile, TypeOfFunction type, float intervall);
+			std::function<bool(Projectile* projectile, float dt)> RotationInvertionBehaviour(std::vector<BehaviourParameter> parameters/*float intervall, Projectile* projectile*/);
 
 			/**
 			* @brief	Adds lifetime behaviour to the projectile
 			*/
-			void AddLifeTime(Projectile& projectile, TypeOfFunction type, float timeToIncrease);
+			std::function<bool(Projectile* projectile, float dt)> LifeTimeBehaviour(std::vector<BehaviourParameter> parameters/*float timeToIncrease*/);
 
 			/**
 			* @brief	Adds Targeting closest enemy behaviour to the projectile
 			*/
-			void AddTargetClosestEnemy(Projectile& projectile, TypeOfFunction type, float rotPerSecond);
+			std::function<bool(Projectile* projectile, float dt)> TargetClosestEnemyBehaviour(std::vector<BehaviourParameter> parameters/*float rotPerSecond*/);
+
+
+
+			/**
+			* @brief	Adds Targeting closest enemy behaviour to the projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> TimeCondition(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func*/);
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile

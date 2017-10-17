@@ -23,18 +23,23 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(temp.GetEntity(), true);
 
-	AddBounce(temp, TypeOfFunction::ON_COLLISION);
+	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
+	parameters.resize(3);
+
+	AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, BounceBehaviour(parameters));
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
 	//AddRotationModifier(temp, TypeOfFunction::CONTINUOUS, 0.2f);
 	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
 	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
-	AddTargetClosestEnemy(temp, TypeOfFunction::CONTINUOUS, 60.0f * 0.08f);
+
+	parameters[0].f = 60.0f * 0.08f;
+	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
 
 	ProfileReturnConst(temp);
 
 }
 
-void SE::Gameplay::ProjectileFactory::AddBounce(Projectile& projectile, TypeOfFunction type)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::BounceBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	auto bounce = [](Projectile* p, float dt) -> bool
 	{
@@ -45,16 +50,18 @@ void SE::Gameplay::ProjectileFactory::AddBounce(Projectile& projectile, TypeOfFu
 		DirectX::XMVECTOR newDir = DirectX::XMVector3Reflect({ currentDir.x, currentDir.y, currentDir.z, 0.0f }, { p->GetCollisionVectorX(), 0.0f, p->GetCollisionVectorY(), 0.0f });
 		Core::Engine::GetInstance().GetTransformManager().SetForward(p->GetEntity(), newDir);
 		p->SetActive(true);
-		//p->UpdateMovement(dt);
-		//p->UpdateMovement(dt);
 		return false;
 	};
 
-	AddBehaviourToProjectile(projectile, type, bounce);
+	return bounce;
+
+	//AddBehaviourToProjectile(projectile, type, bounce);
 }
 
-void SE::Gameplay::ProjectileFactory::AddSpeedModifier(Projectile & projectile, TypeOfFunction type, float speedModifier)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::SpeedModifierBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	float speedModifier = parameters[0].f;
+
 	auto speed = [speedModifier](Projectile* p, float dt) -> bool
 	{
 		float speed = p->GetSpeed();
@@ -64,11 +71,15 @@ void SE::Gameplay::ProjectileFactory::AddSpeedModifier(Projectile & projectile, 
 		return true;
 	};
 
-	AddBehaviourToProjectile(projectile, type, speed);
+	return speed;
+
+	//AddBehaviourToProjectile(projectile, type, speed);
 }
 
-void SE::Gameplay::ProjectileFactory::AddRotationModifier(Projectile & projectile, TypeOfFunction type, float rotationModifier)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationModifierBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	float rotationModifier = parameters[0].f;
+
 	auto rotation = [rotationModifier](Projectile* p, float dt) -> bool
 	{
 		Rotation rotation = p->GetRotationStyle();
@@ -78,15 +89,18 @@ void SE::Gameplay::ProjectileFactory::AddRotationModifier(Projectile & projectil
 		return true;
 	};
 
-	AddBehaviourToProjectile(projectile, type, rotation);
+	return rotation;
+
+	//AddBehaviourToProjectile(projectile, type, rotation);
 }
 
-void SE::Gameplay::ProjectileFactory::AddRotationInvertion(Projectile & projectile, TypeOfFunction type, float intervall)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationInvertionBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	BehaviourData data;
+	float intervall = parameters[0].f;
 	data.f = intervall;
 
-	int dataIndex = projectile.AddBehaviourData(data);
+	int dataIndex = parameters[1].projectile->AddBehaviourData(data);
 
 	auto inverter = [dataIndex, intervall](Projectile* p, float dt) -> bool
 	{
@@ -105,11 +119,14 @@ void SE::Gameplay::ProjectileFactory::AddRotationInvertion(Projectile & projecti
 		return true;
 	};
 
-	AddBehaviourToProjectile(projectile, type, inverter);
+	return inverter;
+
+	//AddBehaviourToProjectile(projectile, type, inverter);
 }
 
-void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeOfFunction type, float timeToIncrease)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::LifeTimeBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	float timeToIncrease = parameters[0].f;
 
 	auto timeIncreaser = [timeToIncrease](Projectile* p, float dt) -> bool
 	{
@@ -121,12 +138,15 @@ void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeO
 		return false;
 	};
 
-	AddBehaviourToProjectile(projectile, type, timeIncreaser);
+	return timeIncreaser;
+
+	//AddBehaviourToProjectile(projectile, type, timeIncreaser);
 }
 
-void SE::Gameplay::ProjectileFactory::AddTargetClosestEnemy(Projectile & projectile, TypeOfFunction type, float rotPerSecond)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	Room* currentRoom = *ptrs.currentRoom;
+	float rotPerSecond = parameters[0].f;
 
 	auto targeter = [currentRoom, rotPerSecond](Projectile* p, float dt) -> bool
 	{
@@ -176,7 +196,9 @@ void SE::Gameplay::ProjectileFactory::AddTargetClosestEnemy(Projectile & project
 		return true;
 	};
 
-	AddBehaviourToProjectile(projectile, type, targeter);
+	return targeter;
+
+	//AddBehaviourToProjectile(projectile, type, targeter);
 }
 
 void SE::Gameplay::ProjectileFactory::AddBehaviourToProjectile(Projectile & p, TypeOfFunction type, std::function<bool(Projectile*projectile, float dt)> func)
