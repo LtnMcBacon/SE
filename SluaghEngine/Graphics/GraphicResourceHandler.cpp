@@ -299,14 +299,14 @@ HRESULT SE::Graphics::GraphicResourceHandler::CreateComputeShader(ID3D11Device *
 	{
 		ProfileReturnConst(hr);
 	}
-	if (freePixelShaderLocations.size() == 0)
+	if (freeComputeShaderLocations.size() == 0)
 	{
 		cShaders.push_back({ temp });
 		*computeShaderID = cShaders.size() - 1;
 	}
 	else
 	{
-		auto top = freePixelShaderLocations.top();
+		auto top = freeComputeShaderLocations.top();
 		cShaders[top].shader = temp;
 		*computeShaderID = top;
 		freeComputeShaderLocations.pop();
