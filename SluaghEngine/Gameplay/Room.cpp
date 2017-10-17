@@ -2,11 +2,13 @@
 #include "Profiler.h"
 #include <d3d11.h>
 #include <cassert>
-
+#include <Core\Engine.h>
+#include <math.h>
 
 using namespace SE;
 using namespace Gameplay;
-
+#undef max
+#undef min
 
 void Room::UpdateFlowField(float playerX, float playerY)
 {
@@ -56,7 +58,9 @@ bool SE::Gameplay::Room::OnSegment(float pX, float pY, float qX, float qY, float
 {
 	StartProfile;
 
-	if (qX <= max(pX, rX) && qX >= min(pX, rX) && qY <= max(pY, rY) && qY >= min(pY, rY))
+	
+
+	if (qX <= std::max(pX, rX) && qX >= std::min(pX, rX) && qY <= std::max(pY, rY) && qY >= std::min(pY, rY))
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false);
@@ -92,20 +96,20 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 	const int yDownFloored = int(floor(yCenterPosition - yExtent));
 
 
-	if (map[xLeftFloored][yDownFloored])
+	if (tileValues[xLeftFloored][yDownFloored])
 	{
 		ProfileReturnConst(true);
 	}
-	if (map[xLeftFloored][yUpFloored])
+	if (tileValues[xLeftFloored][yUpFloored])
 	{
 		ProfileReturnConst(true);
 	}
 
-	if (map[xRightFloored][yUpFloored])
+	if (tileValues[xRightFloored][yUpFloored])
 	{
 		ProfileReturnConst(true);
 	}
-	if (map[xRightFloored][yDownFloored])
+	if (tileValues[xRightFloored][yDownFloored])
 	{
 		ProfileReturnConst(true);
 	}
@@ -135,50 +139,50 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 
 
 
-	if (map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+	if (tileValues[xLeftAfterFloored][yDownBeforeFloored] || tileValues[xLeftAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = -1;
 		collision = true;
 	}
-	else if (map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	else if (tileValues[xRightAfterFloored][yDownBeforeFloored] || tileValues[xRightAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = 1;
 		collision = true;
 	}
 
-	if (map[xRightBeforeFloored][yUpAfterFloored] || map[xLeftBeforeFloored][yUpAfterFloored])
+	if (tileValues[xRightBeforeFloored][yUpAfterFloored] || tileValues[xLeftBeforeFloored][yUpAfterFloored])
 	{
 		yCollision = 1;
 		collision = true;
 	}
-	else if (map[xRightBeforeFloored][yDownAfterFloored] || map[xLeftBeforeFloored][yDownAfterFloored])
+	else if (tileValues[xRightBeforeFloored][yDownAfterFloored] || tileValues[xLeftBeforeFloored][yDownAfterFloored])
 	{
 		yCollision = -1;
 		collision = true;
 	}/*
 
-	 if(map[xLeftAfterFloored][yDownAfterFloored])
+	 if(tileValues[xLeftAfterFloored][yDownAfterFloored])
 	 {
 	 xCollision = -1;
 	 yCollision = -1;
 	 collision = true;
 
 	 }
-	 if(map[xLeftAfterFloored][yUpAfterFloored])
+	 if(tileValues[xLeftAfterFloored][yUpAfterFloored])
 	 {
 	 xCollision = -1;
 	 yCollision = 1;
 	 collision = true;
 
 	 }
-	 if(map[xRightAfterFloored][yUpAfterFloored])
+	 if(tileValues[xRightAfterFloored][yUpAfterFloored])
 	 {
 	 xCollision = 1;
 	 yCollision = 1;
 	 collision = true;
 
 	 }
-	 if(map[xRightAfterFloored][yDownAfterFloored])
+	 if(tileValues[xRightAfterFloored][yDownAfterFloored])
 	 {
 	 xCollision = 1;
 	 yCollision = -1;
@@ -313,18 +317,20 @@ bool SE::Gameplay::Room::LineCollision(float p1X, float p1Y, float p2X, float p2
 	ProfileReturnConst(false); // Doesn't fall in any of the above cases
 }
 
-Room::Room(char map[25][25])
+Room::Room()
 {
 	StartProfile;
 	pos start;
+	loadfromFile();
+
 	start.x = start.y = 1.5f;
-	memcpy(this->map, map, 25 * 25 * sizeof(char));
+	//memcpy(this->tileValues, tileValues, 25 * 25 * sizeof(char));
 	bool foundStart = false;
 	for (int x = 0; x < 25 && !foundStart; x++)
 	{
 		for (int y = 0; y < 25 && !foundStart; y++)
 		{
-			if (!this->map[x][y])
+			if (!this->tileValues[x][y])
 			{
 				start.x = x + 0.5f;
 				start.y = y + 0.5f;
@@ -332,8 +338,10 @@ Room::Room(char map[25][25])
 			}
 		}
 	}
-	roomField = new FlowField(map, 1.0f, start, 0.0f, 0.0f);
+	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyEntities.reserve(5);
+
+	
 	StopProfile;
 }
 
@@ -359,4 +367,25 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	ProfileReturnConst(true);
 }
 
+void Room::loadfromFile()
+{
+	StartProfile;
+	
+	Core::Engine::GetInstance().GetResourceHandler()->LoadResource("test2.raw", [this](auto GUID, void* data, size_t size){
+		/*temporary stores values from file*/
+		int* in = (int*)data;
 
+		int counter = 0; 
+		for (int i = 0; i < 25; i++)
+		{
+			for (int j = 0; j < 25; j++)
+			{
+				tileValues[i][j] = (in[counter] / 255); 
+				counter++; 
+			}
+		}
+		return 0;
+	});
+	
+	StopProfile; 
+}

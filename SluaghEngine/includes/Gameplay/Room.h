@@ -31,6 +31,8 @@ namespace SE
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyEntities;
 			FlowField* roomField;
+
+
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
@@ -38,6 +40,11 @@ namespace SE
 			 * Function(s) to build the room
 			 */
 		public:
+
+			/*@brief store values from raw file*/
+			/*@warning may replace "char map" ????*/
+			char tileValues[25][25];
+
 			/**
 			*
 			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
@@ -198,9 +205,15 @@ namespace SE
 			*/
 			bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
 
+			/**
+			* @brief	Function for loding in a raw file to the rooms
+			*/
+			void loadfromFile(); 
+
 		public:
-			Room(char map[25][25]);
+			Room();
 			~Room();
+			
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
