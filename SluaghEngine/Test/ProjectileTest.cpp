@@ -153,7 +153,11 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
+	SE::Gameplay::BehaviourPointers temp;
+	temp.currentRoom = &testRoom;
+	temp.player = player;
+
+	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -227,7 +231,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		pos enemyPos;
 		do
@@ -357,7 +361,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 
 		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
-		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
+		if (e.GetWindow()->ButtonPressed(MoveDir::SPACE))
 		{
 			actionInput.skill1Button = true;
 		}

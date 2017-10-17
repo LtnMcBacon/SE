@@ -22,11 +22,15 @@ PlayState::PlayState(Window::IWindow* Input)
 {
 	this->input = Input;
 
-	projectileManager = new ProjectileManager();
-
 	InitializeRooms();
 	InitializePlayer();
 	InitializeOther();
+
+	BehaviourPointers temp;
+	temp.currentRoom = &currentRoom;
+	temp.player = player;
+	
+	projectileManager = new ProjectileManager(temp);
 }
 
 PlayState::~PlayState()
