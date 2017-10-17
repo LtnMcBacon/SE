@@ -251,6 +251,7 @@ void SE::Core::Engine::OptionUpdate()
 		renderer->ResizeSwapChain(window->GetHWND());
 		ImGuiDX11SDL_Shutdown();
 		ImGuiDX11SDL_Init(renderer, window);
+		guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;
