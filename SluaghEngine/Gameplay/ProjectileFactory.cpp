@@ -27,8 +27,6 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
 	parameters.resize(3);
 
-	parameters[0].behaviour.projectileOwner = &data.ownerUnit;
-	AddBehaviourToProjectile(temp, TypeOfFunction::ON_DEATH, StunOwnerUnitBehaviour(parameters));
 
 	AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, BounceBehaviour(parameters));
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
