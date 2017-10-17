@@ -131,7 +131,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 		b.GlobalTx = interpolatedJointTransforms[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx * XMMatrixScaling(-1, 1, 1)));
 
 		int a = 0;
 	}
