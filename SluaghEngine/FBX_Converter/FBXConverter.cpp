@@ -1613,10 +1613,6 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 		// Write the skeleton header
 		outBinary.write(reinterpret_cast<char*>(&nrOfJoints), sizeof(uint32_t));
 
-		FbxAMatrix scaling;
-		FbxVector4 scale = { 1.0f, 1.0f, -1.0f };
-		scaling.SetS(scale);
-
 		for (int jointIndex = 0; jointIndex < skeleton.hierarchy.size(); jointIndex++) {
 
 			// Get the bindpose and joint parent index
@@ -1770,7 +1766,7 @@ void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
 	// Get the translation and rotation from the matrix to be processed
 	FbxVector4 translation = matrix.GetT();
-	FbxVector4 rotation = matrix.GetR();
+	FbxQuaternion rotation = matrix.GetQ();
 
 	// To convert to DirectX left handed coordinate system, we negate the z-translation and xy rotation in the matrix
 
@@ -1779,7 +1775,7 @@ void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
 	// Update the matrix with the converted translation and rotation
 	matrix.SetT(translation);
-	matrix.SetR(rotation);
+	matrix.SetQ(rotation);
 }
 
 FbxMesh* SE::FBX::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName) {	// Function to receive a mesh from the root node
