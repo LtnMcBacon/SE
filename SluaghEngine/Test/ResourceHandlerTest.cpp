@@ -51,14 +51,14 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	ResourceHandler::IResourceHandler* r = ResourceHandler::CreateResourceHandler();
 
-	r->Initialize({10mb});
+	r->Initialize({10_mb});
 
 	r->LoadResource("texture8.sei", [](auto guid, auto data, auto size) {
 		std::this_thread::sleep_for(100ms);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	if (Utilz::Memory::IsUnderLimit(10mb))
+	if (Utilz::Memory::IsUnderLimit(10_mb))
 		return false;
 
 	Utilz::GUID guid = Utilz::GUID("test.txt");
@@ -153,7 +153,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	r->Shutdown();
 	delete r;
 
-	if (!Utilz::Memory::IsUnderLimit(10mb))
+	if (!Utilz::Memory::IsUnderLimit(10_mb))
 		return false;
 
 	ProfileReturnConst(true);

@@ -44,7 +44,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	
 
-	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256 * 1024 * 1024), ResourceHandler::UnloadingStrategy::Linear});
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize();

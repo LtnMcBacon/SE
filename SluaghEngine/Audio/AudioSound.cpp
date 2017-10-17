@@ -20,7 +20,7 @@ namespace SE {
 		{
 			StartProfile;
 			using namespace Utilz::Memory;
-			sampleStack.InitStackAlloc(20mb);
+			sampleStack.InitStackAlloc(20_mb);
 			ProfileReturnConst(0);
 		}
 
