@@ -85,7 +85,8 @@ bool SE::Test::TransformTest::Run(Utilz::IConsoleBackend* console)
 	float speed = 1.0f;
 	Utilz::Timer timer;
 	bool run = true;
-
+	em.Destroy(seconds[4]);
+	em.Destroy(seconds[7]);
 	while(run)
 	{
 
@@ -144,11 +145,16 @@ bool SE::Test::TransformTest::Run(Utilz::IConsoleBackend* console)
 
 		tm.Rotate(grandFather, dt * 3.14f*0.25f, 0.0f, 0.0f);
 		for (int i = 0; i < 10; i++)
-			tm.Rotate(seconds[i], dt * 3.14f * 0.5f, 0.0f, 0.0f);
+		{
+			if(em.Alive(seconds[i]))
+				tm.Rotate(seconds[i], dt * 3.14f * 0.5f, 0.0f, 0.0f);
+		}
 		for(int i = 0; i < 10; i++)
 		{
-			tm.Rotate(thirds[i], 0.0f, dt*3.14f * 0.75f, 0.0f);
+			if(em.Alive(thirds[i]))
+				tm.Rotate(thirds[i], 0.0f, dt*3.14f * 0.75f, 0.0f);
 		}
+		
 		e.Frame(dt);
 	}
 	e.Release();
