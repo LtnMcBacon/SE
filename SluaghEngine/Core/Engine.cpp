@@ -117,6 +117,9 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("RenderableManager");
 	renderableManager->Frame();
 	timeClus->Stop("RenderableManager");
+	timeClus->Start("CollisionManager");
+	collisionManager->Frame();
+	timeClus->Stop("CollisionManager");
 	timeClus->Start("DebugRenderManager");
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	timeClus->Stop("DebugRenderManager");
@@ -129,9 +132,6 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("MaterialManager");
 	materialManager->Frame();
 	timeClus->Stop("MaterialManager");
-	timeClus->Start("CollisionManager");
-	collisionManager->Frame();
-	timeClus->Stop("CollisionManager");
 	timeClus->Start("CameraManager");
 	cameraManager->Frame();
 	timeClus->Stop("CameraManager");

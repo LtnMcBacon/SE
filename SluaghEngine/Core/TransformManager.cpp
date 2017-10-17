@@ -48,7 +48,8 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 		}
 		else
 		{
-			//The exact same entity has been created twice. (This is OK, just return)
+			//The exact same entity has been created twice. (This is OK, just mark as dirty and return)
+			SetAsDirty(e);
 			ProfileReturnVoid;
 		}
 	}
