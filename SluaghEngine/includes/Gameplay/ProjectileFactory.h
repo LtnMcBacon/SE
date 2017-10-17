@@ -86,9 +86,9 @@ namespace SE
 			void AddLifeTime(Projectile& projectile, TypeOfFunction type, float timeToIncrease);
 
 			/**
-			* @brief	Adds Targeting behaviour to the projectile
+			* @brief	Adds Targeting closest enemy behaviour to the projectile
 			*/
-			void AddTargeting(Projectile& projectile, TypeOfFunction type, float rotPerSecond);
+			void AddTargetClosestEnemy(Projectile& projectile, TypeOfFunction type, float rotPerSecond);
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile

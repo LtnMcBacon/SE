@@ -23,12 +23,12 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
 	rm.ToggleRenderableObject(temp.GetEntity(), true);
 
-	//AddBounce(temp, TypeOfFunction::ON_COLLISION);
+	AddBounce(temp, TypeOfFunction::ON_COLLISION);
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
 	//AddRotationModifier(temp, TypeOfFunction::CONTINUOUS, 0.2f);
 	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
 	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
-	AddTargeting(temp, TypeOfFunction::CONTINUOUS, 60.0f * 0.08f);
+	AddTargetClosestEnemy(temp, TypeOfFunction::CONTINUOUS, 60.0f * 0.08f);
 
 	ProfileReturnConst(temp);
 
@@ -124,7 +124,7 @@ void SE::Gameplay::ProjectileFactory::AddLifeTime(Projectile & projectile, TypeO
 	AddBehaviourToProjectile(projectile, type, timeIncreaser);
 }
 
-void SE::Gameplay::ProjectileFactory::AddTargeting(Projectile & projectile, TypeOfFunction type, float rotPerSecond)
+void SE::Gameplay::ProjectileFactory::AddTargetClosestEnemy(Projectile & projectile, TypeOfFunction type, float rotPerSecond)
 {
 	Room* currentRoom = *ptrs.currentRoom;
 
@@ -141,30 +141,28 @@ void SE::Gameplay::ProjectileFactory::AddTargeting(Projectile & projectile, Type
 			yTarget -= p->GetYPosition();
 
 			float totalRot = atan2f(yTarget, xTarget) - atan2f(forward.z, forward.x);
-			int sign;
+			int sign = -1;
 
-			if (totalRot < 0.0f)
-				sign = 1.0f;
-			else
-				sign = -1.0f;
+			if (totalRot < 0)
+				totalRot = DirectX::XM_2PI + totalRot;
 
-			float rotAmount = sign * rotPerSecond * dt;
+			// If the rotation needed is greater than PI, we should rotate counter clockwise
+				if (totalRot > DirectX::XM_PI)
+					sign = 1;
 
-			//tm.Rotate(p->GetEntity(), 0.0f, totalRot, 0.0f);
+			if (totalRot > 0.0000025)
+			{
+				if (totalRot > rotPerSecond * dt)
+					totalRot = rotPerSecond * dt;
+				totalRot *= sign;
+
+			}
 
 			Rotation test;
-			test.force = rotAmount;
+			test.force = totalRot;
 			test.style = RotationStyle::SELF;
 			p->SetRotationStyle(test);
 
-			/*if (rotAmount > totalRot)
-			{
-				tm.Rotate(p->GetEntity(), 0.0f, totalRot, 0.0f);
-			}
-			else
-			{
-				tm.Rotate(p->GetEntity(), 0.0f, rotAmount, 0.0f);
-			}*/
 
 		}
 		else
