@@ -70,7 +70,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	ProfileReturnVoid;
 }
 
-void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child, bool rotation)
+void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity & child, bool rotation, bool translateToParent)
 {
 	StartProfile;
 	_ASSERT(parent.Index() < lookUpTableSize);
@@ -98,6 +98,10 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 
 	if (rotation)
 		data.flags[childIndex] |= TransformFlags::INHERIT_ROTATION;
+	if(translateToParent)
+	{
+		Move(child, data.positions[parentIndex]);
+	}
 
 	ProfileReturnVoid;
 

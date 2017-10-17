@@ -49,9 +49,9 @@ namespace SE
 			* @param[in] parent The parent entity
 			* @param[in] child The child entity.
 			* @param[in] rotation Wether or not rotation should be inherited.
-			* @warning A parent can only have one child. An entity with a child can not have a parent. An entity with a parent can not have a child.
+			* @param[in] translateToParent Whether or not the child should move towards the parent upon binding.
 			*/
-			void BindChild(const Entity& parent, const Entity& child, bool rotation = true);
+			void BindChild(const Entity& parent, const Entity& child, bool rotation = true, bool translateToParent = false);
 
 
 
