@@ -173,7 +173,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		if (re)
 			return ResourceHandler::InvokeReturn::Fail;
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	}, true);
 
 
 	timeOut = 0;
