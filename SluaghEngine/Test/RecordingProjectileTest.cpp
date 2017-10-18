@@ -296,13 +296,12 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool stepping = false;
 	bool running = true;
-	float dt = 1.0f / 60.0f;
 	win->UpdateTime();
 
 	while (running)
 	{
 		win->UpdateTime();
-		dt = win->GetDelta();
+		float dt = win->GetDelta();
 
 		newProjectiles.clear();
 
