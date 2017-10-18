@@ -71,7 +71,7 @@ void SE::ResourceHandler::ResourceHandler::UpdateInfo(const InitializationInfo &
 int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool async, Behavior behavior)
 {
 	StartProfile;
-
+	loadResourceLock.lock();
 	auto& find = guidToResourceInfoIndex.find(guid);
 	auto& index = guidToResourceInfoIndex[guid];
 
@@ -80,7 +80,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (!diskLoader->Exist(guid, nullptr)) // Make sure we can load the resource.
 		{
-			//Utilz::Console::Print("Resource %u could not be found!\n", guid);
+			loadResourceLock.unlock();
 			ProfileReturnConst(-1);
 		}
 
@@ -96,10 +96,13 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (async) { // We create a load job
 			toLoad.push({ guid, index, callback, behavior });
+			loadResourceLock.unlock();
 			ProfileReturnConst(0);
 		}
 		else {
-			ProfileReturn(LoadSync(guid, index, callback));
+			auto ret = LoadSync(guid, index, callback);
+			loadResourceLock.unlock();
+			ProfileReturnConst(ret);
 		}
 	}
 	else // Resource is registered
@@ -110,10 +113,13 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 			if (async) { // Since the load is async we make a load job that will call the callback.			
 				toInvoke.push({ guid, index, callback, behavior });
+				loadResourceLock.unlock();
 				ProfileReturnConst(0);
 			}
 			else { // Invoke the callback
-				ProfileReturn(InvokeCallback(guid, index, callback));
+				auto ret = InvokeCallback(guid, index, callback);
+				loadResourceLock.unlock();
+				ProfileReturnConst(ret);
 			}
 		}
 		else if (resourceInfo.state[index] == State::Loading) // Someone has already started loading the resource.
@@ -122,12 +128,16 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 			if (async) { // Update the load job
 				toInvoke.push({ guid, index, callback, behavior });
+				loadResourceLock.unlock();
 				ProfileReturnConst(0);
 			}
 			else // Since the load is sync we need to wait until the resource has been loaded.
 			{
 				while (resourceInfo.state[index] != State::Loaded) std::this_thread::sleep_for(10ms); // TODO: Maybe change to a condition variable
-				ProfileReturn(InvokeCallback(guid, index, callback));
+
+				auto ret = InvokeCallback(guid, index, callback);
+				loadResourceLock.unlock();
+				ProfileReturnConst(ret);
 			}
 		}
 		else // The resource is dead, the refCount reached 0 before the load was completed.
@@ -136,29 +146,18 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			resourceInfo.refCount[index] = 1;
 			if (async) { // We create a load job
 				toLoad.push({ guid, index, callback, behavior });
+				loadResourceLock.unlock();
 				ProfileReturnConst(0);
 			}
 			else {
-				ProfileReturn(LoadSync(guid, index, callback));
+				auto ret = LoadSync(guid, index, callback);
+				loadResourceLock.unlock();
+				ProfileReturnConst(ret);
 			}
 		}
 	}
+	loadResourceLock.unlock();
 	StopProfile;
-}
-
-int SE::ResourceHandler::ResourceHandler::LoadResources(const LoadStruct & toLoad, bool async, Behavior behavior)
-{
-	StartProfile;
-	// Make sure all resources exist.
-	for (size_t i = 0; i < toLoad.guidCount; i++)
-		if (!toLoad.resourceToLoad || !diskLoader->Exist(toLoad.resourceToLoad[i], nullptr))
-			ProfileReturnConst(-1);
-
-
-
-
-
-	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)

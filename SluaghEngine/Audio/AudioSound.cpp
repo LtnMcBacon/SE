@@ -2,11 +2,7 @@
 #include <Profiler.h>
 #include <fstream>
 #include <Utilz\Memory.h>
-
-namespace SE {
-	namespace Audio {
-		namespace sfvirt {
-
+namespace sfvirt {
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
 				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
@@ -64,6 +60,8 @@ namespace SE {
 			};
 		}
 
+namespace SE {
+	namespace Audio {
 		AudioSound::AudioSound()
 		{
 			masterVol = 0;
