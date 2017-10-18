@@ -180,12 +180,6 @@ namespace SE {
 			StopProfile;
 		}
 
-		void GUIManager::Shutdown()
-		{
-			entID.clear();
-			loadedTexts.clear();
-		}
-
 		ResourceHandler::InvokeReturn GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
 			guidToFont[font] = renderer->CreateTextFont(data, size);

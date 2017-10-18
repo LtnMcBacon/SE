@@ -350,7 +350,6 @@ void SE::Core::TransformManager::Frame()
 	StartProfile;
 	dirtyTransforms.clear();
 	dirtyTransforms.reserve(data.used);
-	size_t dirtCount = 0;
 	for(int i = 0; i < data.used; ++i)
 	{
 		if (data.flags[i] & TransformFlags::DIRTY)
@@ -415,7 +414,6 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 {
 	_ASSERT(index < data.used);
 	_ASSERT(index == lookUpTable[data.entities[index].Index()]);
-	const int32_t lookUpIndexOfRemoved = data.entities[index].Index();
 	const int32_t last = data.used - 1;
 
 	if(data.parentIndex[index] >= 0)

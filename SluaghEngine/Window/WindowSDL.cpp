@@ -352,17 +352,17 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 {
 	switch (ev.type)
 	{
-		case SDL_KEYUP:
+		case SDL_KEYUP:	// if type is KeyUp
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 				actionToKeyState[state->second] = UP;
 			break;
 		}
-		case SDL_KEYDOWN:
+		case SDL_KEYDOWN:	// if type is KeyDown
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 			{
 				if (!(actionToKeyState[state->second] & DOWN))
 				{
@@ -383,7 +383,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEMOTION:
+		case SDL_MOUSEMOTION:	// if type is MouseMotion
 		{
 			curMouseX = ev.motion.x;
 			curMouseY = ev.motion.y;
@@ -393,7 +393,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 				cb(relMouseX, relMouseY, curMouseX, curMouseY);
 			break;
 		}
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONDOWN:	// if type is MouseButtonDown
 		{
 			if (ev.button.button == SDL_BUTTON_LEFT)
 			{
@@ -414,7 +414,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONUP:	// if type is MouseButtonUP
 		{
 			const auto state = keyToAction.find(ev.button.button);
 			if (state != keyToAction.end())

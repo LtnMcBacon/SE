@@ -162,7 +162,6 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();
-	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
 	delete cameraManager;

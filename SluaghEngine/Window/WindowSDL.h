@@ -73,6 +73,9 @@ namespace SE
 		
 			bool SetWindow(int inHeight, int inWidth, bool inFullscreen) override;
 		private:
+			/*
+			* @brief Checks which event ev is.
+			*/
 			void EventSwitch(SDL_Event ev);
 
 			/*Window related things*/
