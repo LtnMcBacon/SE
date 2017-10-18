@@ -126,19 +126,19 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 void SE::Window::WindowSDL::Shutdown()
 {
-	if (recording)
+	if (record.recordState)
 	{
-		recording = false;
-		while (!recThread.joinable())
+		record.recordState = false;
+		while (!record.recThread.joinable())
 		{
 
 		}
-		recThread.join();
-		recFile.close();
+		record.recThread.join();
+		record.recFile.close();
 	}
-	if (playback)
+	if (playRecord.playback)
 	{
-		playbackData.clear();
+		playRecord.playbackData.clear();
 	}
 	SDL_Quit();
 }
@@ -184,7 +184,7 @@ void SE::Window::WindowSDL::RecordFrame()
 		inData.events.push_back(ev);
 	}
 	inData.nrOfEvent = inData.events.size();
-	circFiFo.push(inData);
+	record.circFiFo.push(inData);
 
 	frame++;
 	StopProfile;
@@ -197,7 +197,7 @@ void SE::Window::WindowSDL::PlaybackFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	for (auto& ev : playbackData[frame].events)
+	for (auto& ev : playRecord.playbackData[frame].events)
 	{
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
@@ -211,37 +211,37 @@ void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
-	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
-	recording = true;
-	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	record.recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	record.recordState = true;
+	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
 	StopProfile;
 }
 
 void SE::Window::WindowSDL::LoadRecording()
 {
 	StartProfile;
-	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
-	if (playbackfile.is_open())
+	playRecord.playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
+	if (playRecord.playbackfile.is_open())
 	{
 		SDL_Event ev;
-		size_t size = playbackfile.tellg();
+		size_t size = playRecord.playbackfile.tellg();
 		size_t recordedSize = 0;
-		playbackfile.seekg(0, std::ios::beg);
+		playRecord.playbackfile.seekg(0, std::ios::beg);
 		while (recordedSize < size)//!playbackfile.eof())
 		{
 			inputRecData tempRecData;
-			playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
-			playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
+			playRecord.playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
 			for (int i = 0; i < tempRecData.nrOfEvent; i++)
 			{
-				playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
 			recordedSize += sizeof(float) + sizeof(size_t) + sizeof(SDL_Event) * tempRecData.nrOfEvent;
-			playbackData.push_back(tempRecData);
+			playRecord.playbackData.push_back(tempRecData);
 		}
-		playbackfile.close();
-		playback = true;
+		playRecord.playbackfile.close();
+		playRecord.playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
 	}
 	StopProfile;
@@ -468,15 +468,15 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 
 void SE::Window::WindowSDL::RecordToFile()
 {
-	while (recording || !circFiFo.wasEmpty())
+	while (record.recordState || !record.circFiFo.wasEmpty())
 	{
-		while (!circFiFo.wasEmpty())
+		while (!record.circFiFo.wasEmpty())
 		{
-			const inputRecData& evData = circFiFo.top();
-			recFile.write((char*)&evData.dTime, sizeof(float));
-			recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
-			recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
-			circFiFo.pop();
+			const inputRecData& evData = record.circFiFo.top();
+			record.recFile.write((char*)&evData.dTime, sizeof(float));
+			record.recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
+			record.recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
+			record.circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(10ms);
