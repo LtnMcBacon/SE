@@ -579,7 +579,6 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
 }
 
-
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
 	StartProfile;

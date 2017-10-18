@@ -120,7 +120,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 	}
 
 	frame = 0;
-	arrayPos = 0;
+	time.Tick();
 	ProfileReturnConst(0);
 }
 
@@ -129,12 +129,16 @@ void SE::Window::WindowSDL::Shutdown()
 	if (recording)
 	{
 		recording = false;
+		while (!recThread.joinable())
+		{
+
+		}
 		recThread.join();
 		recFile.close();
 	}
 	if (playback)
 	{
-		delete[] playbackData;
+		playbackData.clear();
 	}
 	SDL_Quit();
 }
@@ -169,19 +173,19 @@ void SE::Window::WindowSDL::RecordFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
+	inputRecData inData;
+	inData.dTime = time.GetDelta<std::ratio<1, 1>>();
 	while (SDL_PollEvent(&ev))
 	{
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
-
-		inputRecData inData;
-		inData.recEvent = ev;
-		inData.frame = frame;
-		circFiFo.push(inData);
+		inData.events.push_back(ev);
 	}
+	inData.nrOfEvent = inData.events.size();
+	circFiFo.push(inData);
+
 	frame++;
 	StopProfile;
 }
@@ -189,11 +193,16 @@ void SE::Window::WindowSDL::RecordFrame()
 void SE::Window::WindowSDL::PlaybackFrame()
 {
 	StartProfile;
-	while (playbackData[arrayPos].frame == frame)
+	for (auto& ks : actionToKeyState)
 	{
-		EventSwitch(playbackData[arrayPos].recEvent);
-		arrayPos++;
+		ks.second = (ks.second & KeyState::DOWN);
 	}
+	for (auto& ev : playbackData[frame].events)
+	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+		EventSwitch(ev);
+	}		
 	frame++;
 	StopProfile;
 }
@@ -214,10 +223,23 @@ void SE::Window::WindowSDL::LoadRecording()
 	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
 	if (playbackfile.is_open())
 	{
-		std::streampos size = playbackfile.tellg();
-		playbackData = static_cast<inputRecData*>(operator new(size));
+		SDL_Event ev;
+		size_t size = playbackfile.tellg();
+		size_t recordedSize = 0;
 		playbackfile.seekg(0, std::ios::beg);
-		playbackfile.read((char*)playbackData, size);
+		while (recordedSize < size)//!playbackfile.eof())
+		{
+			inputRecData tempRecData;
+			playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
+			playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			for (int i = 0; i < tempRecData.nrOfEvent; i++)
+			{
+				playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				tempRecData.events.push_back(ev);
+			}
+			recordedSize += sizeof(float) + sizeof(size_t) + sizeof(SDL_Event) * tempRecData.nrOfEvent;
+			playbackData.push_back(tempRecData);
+		}
 		playbackfile.close();
 		playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
@@ -451,10 +473,13 @@ void SE::Window::WindowSDL::RecordToFile()
 		while (!circFiFo.wasEmpty())
 		{
 			const inputRecData& evData = circFiFo.top();
-			recFile.write((char*)&evData, sizeof(inputRecData));
+			recFile.write((char*)&evData.dTime, sizeof(float));
+			recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
+			recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
 			circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(100ms);
+		std::this_thread::sleep_for(10ms);
 	}
+	frame = 0;
 }
