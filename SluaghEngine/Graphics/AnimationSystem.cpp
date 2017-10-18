@@ -136,7 +136,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) {
+void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const {
 
 	StartProfile;
 	// Animation has just started, so return the first keyframe

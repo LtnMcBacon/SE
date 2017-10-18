@@ -11,7 +11,7 @@
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
-
+	currentFrameStrategy = &WindowSDL::RegFrame;
 }
 
 SE::Window::WindowSDL::~WindowSDL()
@@ -106,11 +106,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	if (info.winState == WindowState::Regular)
-	{
-		currentFrameStrategy = &WindowSDL::RegFrame;
-	}
-	else if (info.winState == WindowState::Record)
+	if (info.winState == WindowState::Record)
 	{
 		StartRecording();
 	}
@@ -155,7 +151,6 @@ void SE::Window::WindowSDL::RegFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
