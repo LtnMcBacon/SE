@@ -992,6 +992,16 @@ void SE::Graphics::Renderer::Frame()
 
 }
 
+int SE::Graphics::Renderer::CreateComputeShader(void * data, size_t size)
+{
+	int handle;
+	auto hr = graphicResourceHandler->CreateComputeShader(device->GetDevice(), data, size, &handle);
+	if (FAILED(hr))
+		return hr;
+
+	return handle;
+}
+
 int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 {
 	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));

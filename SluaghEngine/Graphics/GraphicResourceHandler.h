@@ -66,6 +66,12 @@ namespace SE {
 			ID3D11PixelShader*		pixelShader;
 		};
 
+		struct ComputeShaderData {
+
+			ID3D11ComputeShader*		shader;
+		};
+
+
 		/**
 		*
 		* @brief
@@ -98,9 +104,8 @@ namespace SE {
 			* @param[in] gDevice The ID3D11Device pointer
 			* @param[in] data Pointer to the blob
 			* @param[in] size Size of the blob
-			* @param[in] int The vertex shader ID
+			* @param[in] vertexShaderID The vertex shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader and input layout were successfully created or not
-			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
 			HRESULT CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID);
 
@@ -110,11 +115,23 @@ namespace SE {
 			* @param[in] gDevice The ID3D11Device pointer
 			* @param[in] data Pointer to the blob
 			* @param[in] size Size of the blob
-			* @param[in] int The pixel shader ID
+			* @param[in] pixelShaderID The pixel shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
-			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
 			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
+
+			/**
+			* @brief Initializes a compute shader
+			* @details It requires the graphic device to create the shader and and index to the
+			* @param[in] gDevice The ID3D11Device pointer
+			* @param[in] data Pointer to the blob
+			* @param[in] size Size of the blob
+			* @param[in] computeShaderID The pixel shader ID
+			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
+			*/
+			HRESULT CreateComputeShader(ID3D11Device* gDevice, void* data, size_t size, int *computeShaderID);
+
+
 
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
@@ -319,6 +336,10 @@ namespace SE {
 			// Pixel shader specific data
 			std::vector<PixelShaderData>pShaders;
 			std::stack<int>freePixelShaderLocations;
+
+			// Compute shader specific data
+			std::vector<ComputeShaderData>cShaders;
+			std::stack<int>freeComputeShaderLocations;
 
 			// Vertex buffer specific data
 			std::vector<VertexCount> vBuffers;
