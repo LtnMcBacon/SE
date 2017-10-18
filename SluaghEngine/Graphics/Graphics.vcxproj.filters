@@ -75,6 +75,9 @@
     <ClInclude Include="..\includes\Graphics\IPipelineHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PipelineHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IRenderer.cpp">
@@ -99,6 +102,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GPUTimeCluster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PipelineHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
