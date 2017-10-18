@@ -552,8 +552,8 @@ void SE::Graphics::Renderer::GetDeviceInfo(void * destination, size_t size)
 		ID3D11DeviceContext* devcon;
 	};
 	_ASSERT(size == sizeof(RetStruct));
-	((RetStruct*)destination)->dev = device->GetDevice();
-	((RetStruct*)destination)->devcon = device->GetDeviceContext();
+	(static_cast<RetStruct*>(destination))->dev = device->GetDevice();
+	(static_cast<RetStruct*>(destination))->devcon = device->GetDeviceContext();
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, size_t stride)

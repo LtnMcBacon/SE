@@ -199,7 +199,7 @@ namespace SE
 
 				static int TextEditCallbackStub(ImGuiTextEditCallbackData* data) // In C++11 you are better off using lambdas for this sort of forwarding callbacks
 				{
-					ExampleAppConsole* console = (ExampleAppConsole*)data->UserData;
+					ExampleAppConsole* console = static_cast<ExampleAppConsole*>(data->UserData);
 					return console->TextEditCallback(data);
 				}
 
@@ -302,12 +302,6 @@ namespace SE
 					return 0;
 				}
 			};
-
-			void ShowExampleAppConsole(bool* p_open)
-			{
-				static ExampleAppConsole console;
-				console.Draw("Example: Console", p_open);
-			}
 		};
 	}
 }

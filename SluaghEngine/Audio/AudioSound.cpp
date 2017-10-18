@@ -84,27 +84,6 @@ namespace SE {
 			ProfileReturnConst(0);
 		}
 
-		AudioFile* ReadRaw()
-		{
-			AudioFile *sound = new AudioFile;
-			std::streampos size;
-			char * memblock;
-			std::ifstream myfile;
-			myfile.open("Assets/Sound/Canary.wav", std::ios::in | std::ios::binary | std::ios::ate);
-			if (myfile.is_open())
-			{
-				size = myfile.tellg();
-				memblock = new char[size];
-				myfile.seekg(0, std::ios::beg);
-				myfile.read(memblock, size);
-				myfile.close();
-				sound->size = size;
-				sound->soundData = memblock;
-				sound->currentPos = 0;
-			}
-			return sound;
-		}
-
 		size_t AudioSound::LoadSound(AudioFile* sound)
 		{
 			StartProfile;
@@ -140,25 +119,6 @@ namespace SE {
 			delete sound;
 			ProfileReturn(soundSample.size() - 1);
 		}
-
-		size_t AudioSound::LoadSound2()
-		{
-			StartProfile;
-			SF_INFO info;
-			SNDFILE* music = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
-			int samples = (info.channels * info.frames);
-			float* sampleData = new float[samples];
-			sf_read_float(music, sampleData, samples);
-			sf_close(music);
-
-			AudioSample tempAS;
-			tempAS.info = info;
-			tempAS.samples = sampleData;
-
-			soundSample.push_back(tempAS);
-			ProfileReturn(soundSample.size() - 1);
-		}
-
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
