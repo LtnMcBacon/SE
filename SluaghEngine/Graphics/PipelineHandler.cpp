@@ -76,3 +76,30 @@ void SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
 	exists->second->Release();
 	vertexBuffers.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount,
+	size_t indexSize)
+{
+	const auto exists = indexBuffers.find(id);
+	if (exists == indexBuffers.end())
+		return;
+	
+	D3D11_BUFFER_DESC bd;
+	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bd.ByteWidth = indexSize * indexCount;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.StructureByteStride = indexSize;
+
+	ID3D11Buffer* buffer;
+	D3D11_SUBRESOURCE_DATA sd;
+	sd.pSysMem = data;
+	sd.SysMemPitch = 0;
+	sd.SysMemSlicePitch = 0;
+	HRESULT hr = device->CreateBuffer(&bd, &sd, &buffer);
+	if (FAILED(hr))
+		throw std::exception("Failed to create Index Buffer");
+
+	indexBuffers[id] = buffer;
+}
