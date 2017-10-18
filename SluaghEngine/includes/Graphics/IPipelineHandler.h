@@ -16,7 +16,13 @@ namespace SE
 			virtual void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) = 0;
 
 			virtual void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) = 0;
+			virtual void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) = 0;
+			virtual void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) = 0;
+			virtual void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void DestroyVertexShader(const Utilz::GUID& id) = 0;
+			virtual void DestroyGeometryShader(const Utilz::GUID& id) = 0;
+			virtual void DestroyPixelShader(const Utilz::GUID& id) = 0;
+			virtual void DestroyComputeShader(const Utilz::GUID& id) = 0;
 
 			virtual void CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) = 0;
 			virtual void UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) = 0;

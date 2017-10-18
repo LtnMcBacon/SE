@@ -21,7 +21,13 @@ namespace SE
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
 
 			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
+			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
+			void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
+			void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void DestroyVertexShader(const Utilz::GUID& id) override;
+			void DestroyGeometryShader(const Utilz::GUID& id) override;
+			void DestroyPixelShader(const Utilz::GUID& id) override;
+			void DestroyComputeShader(const Utilz::GUID& id) override;
 
 			void CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
 			void UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
