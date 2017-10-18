@@ -40,6 +40,8 @@ namespace SE
 			virtual void CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) = 0;
 			virtual void DestroyRenderTarget(const Utilz::GUID& id) = 0;
 
+			virtual void SetPipeline(const Pipeline& pipeline) = 0;
+
 		};
 	}
 }
