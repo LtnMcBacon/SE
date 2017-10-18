@@ -83,15 +83,14 @@ bool SE::Test::TransformTest::Run(Utilz::IConsoleBackend* console)
 	}
 
 	float speed = 1.0f;
-	Utilz::Timer timer;
 	bool run = true;
 	em.Destroy(seconds[4]);
 	em.Destroy(seconds[7]);
+	window->UpdateTime();
 	while(run)
 	{
-
-		timer.Tick();
-		float dt = timer.GetDelta<std::chrono::nanoseconds>() * 1.0f / 1000000000.0f;
+		window->UpdateTime();
+		float dt = window->GetDelta();
 		if (window->ButtonPressed(QUIT))
 			run = false;
 		if (window->ButtonDown(FORWARD))
