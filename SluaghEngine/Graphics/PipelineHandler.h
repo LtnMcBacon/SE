@@ -19,6 +19,7 @@ namespace SE
 			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			void DestroyVertexBuffer(const Utilz::GUID& id) override;
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
+			void DestroyIndexBuffer(const Utilz::GUID& id) override;
 
 			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;

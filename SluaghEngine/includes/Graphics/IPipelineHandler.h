@@ -14,6 +14,7 @@ namespace SE
 			virtual void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) = 0;
 			virtual void DestroyVertexBuffer(const Utilz::GUID& id) = 0;
 			virtual void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) = 0;
+			virtual void DestroyIndexBuffer(const Utilz::GUID& id) = 0;
 
 			virtual void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) = 0;
