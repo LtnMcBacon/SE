@@ -132,7 +132,7 @@
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
-    <ClCompile Include="RecordingProjectileTest.cpp">
+    <ClCompile Include="TransformTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,7 +239,7 @@
     <ClInclude Include="ConsoleTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RecordingProjectileTest.h">
+    <ClInclude Include="TransformTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

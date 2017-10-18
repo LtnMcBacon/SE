@@ -1,7 +1,12 @@
 #include "AudioSound.h"
 #include <Profiler.h>
 #include <fstream>
-namespace sfvirt {
+#include <Utilz\Memory.h>
+
+namespace SE {
+	namespace Audio {
+		namespace sfvirt {
+
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
 				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
@@ -59,9 +64,6 @@ namespace sfvirt {
 			};
 		}
 
-
-namespace SE {
-	namespace Audio {
 		AudioSound::AudioSound()
 		{
 			masterVol = 0;
@@ -77,7 +79,8 @@ namespace SE {
 		int AudioSound::Initialize()
 		{
 			StartProfile;
-			sampleStack.InitStackAlloc(100000000);
+			using namespace Utilz::Memory;
+			sampleStack.InitStackAlloc(20_mb);
 			ProfileReturnConst(0);
 		}
 
