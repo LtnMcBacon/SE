@@ -67,3 +67,12 @@ void SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, vo
 	vertexBuffers[id] = buffer;
 	ProfileReturnVoid;
 }
+
+void SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
+{
+	auto exists = vertexBuffers.find(id);
+	if (exists == vertexBuffers.end())
+		return;
+	exists->second->Release();
+	vertexBuffers.erase(exists);
+}
