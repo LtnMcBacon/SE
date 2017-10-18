@@ -44,13 +44,13 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	
 
-	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize();
 	if (r)
 		ProfileReturnConst(r);
-	r = renderer->Initialize(window->GetHWND());
+	r = renderer->Initialize({ window->GetHWND(), optionHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256u * 1024u * 1024u) });
 	if (r)
 		ProfileReturnConst(r);
 	r = audioManager->Initialize();

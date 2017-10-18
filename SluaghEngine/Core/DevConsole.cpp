@@ -106,6 +106,7 @@ void SE::Core::DevConsole::Frame()
 
 		if(plot_memory_usage)
 		{
+			using namespace Utilz::Memory;
 			static const int samples = 256;
 			static float vram_usage[samples];
 			static float ram_usage[samples];
@@ -115,6 +116,12 @@ void SE::Core::DevConsole::Frame()
 			ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
 			offset = (offset + 1) % samples;
 			ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
+			if (renderer->GetVRam() >= Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512 * 1024 * 1024))
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
+				ImGui::TextUnformatted((std::string("To mush VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
+				ImGui::PopStyleColor();
+			}
 			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 			ImGui::Separator();
 		}

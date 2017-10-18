@@ -28,7 +28,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int Initialize(void* window) override;
+			int Initialize(const InitializationInfo& initInfo) override;
 
 			/**
 			* @brief Shutdown the renderer
@@ -200,8 +200,8 @@ namespace SE
 			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride) override;
 
 			/**
-			* @brief Destroys a buffer.
-			* @param[in] bufferHandle The handle to the buffer to destroy
+			* @brief Destroy a vertex buffer.
+			* @param[in] handle The handle to the buffer to destroy.
 			* @endcode
 			*/
 			void DestroyVertexBuffer(int bufferHandle) override;
@@ -379,8 +379,31 @@ namespace SE
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
+
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			bool IsUnderLimit(size_t sizeToAdd)override;
+
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource with a potential unallocated amount.
+			* @param potential The size of resources that can be unloaded to make room.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			bool IsUnderLimit(size_t potential, size_t sizeToAdd)override;
+
 			/*
-			* @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			* @brief Saves the current error log in the parameter. 
+			* @warning The vector can only be used until the next call to BeginFrame if it is stored as a reference.
 			*/
 			inline std::vector<std::string>& GetErrorLog() override{
 				return errorLog;
@@ -399,6 +422,9 @@ namespace SE
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
+
+			InitializationInfo initInfo;
+
 
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;

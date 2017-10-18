@@ -11,7 +11,7 @@
 #pragma comment(lib, "Utilz.lib")
 #endif
 
-
+using namespace std::chrono_literals;
 
 SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager)
 	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager)
@@ -24,19 +24,18 @@ SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler
 	StartProfile;
 	Allocate(128);
 	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
-	defaultMeshHandle = 0;
-	defaultShader = 0;
 
 	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), [this](auto guid, auto data, auto size) {
-		defaultMeshHandle = LoadModel(data, size);
-		if (defaultMeshHandle == -1)
-			return ResourceHandler::InvokeReturn::Fail;
+		auto handle = LoadModel(data, size);
+		if (handle == -1)
+			return ResourceHandler::InvokeReturn::Fail;		
+		guidToBufferInfoIndex[guid] = bufferInfo.size();
+		bufferInfo.push_back({ handle, BufferState::Loaded, size });
+		bufferInfo[bufferInfo.size() - 1].entities.push_back(0);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
 		throw std::exception("Could not load default mesh.");
-	bufferInfo.push_back({ defaultMeshHandle });
-	guidToBufferInfoIndex["Placeholder_Block.mesh"] = 0;
 
 	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
@@ -136,6 +135,8 @@ void SE::Core::RenderableManager::Frame()
 	{
 		auto& job = toUpdate.top();
 		bufferInfo[job.bufferIndex].bufferHandle = job.newHandle;
+		bufferInfo[job.bufferIndex].size = job.size;
+		bufferInfo[job.bufferIndex].state = BufferState::Loaded;
 		for (auto& e : bufferInfo[job.bufferIndex].entities)
 			UpdateRenderableObject(e);
 		toUpdate.pop();
@@ -334,19 +335,74 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	// Load model
 	auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
 	auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
-	if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
+	bufferLock.lock();
+	if (findBuffer == guidToBufferInfoIndex.end() || bufferInfo[bufferIndex].state == BufferState::Dead)	// If it wasn't loaded, load it.	
 	{
-		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
-		bufferIndex = bufferInfo.size() - 1;
+		if (findBuffer == guidToBufferInfoIndex.end())
+		{
+			bufferIndex = bufferInfo.size();
+			bufferInfo.push_back({ bufferInfo[0].bufferHandle, BufferState::Loading });
+		}
+		else
+		{
+			bufferInfo[bufferIndex].bufferHandle = bufferInfo[0].bufferHandle;
+			bufferInfo[bufferIndex].state = BufferState::Loading;
+		}
+	
+		bufferLock.unlock();
+
 		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
+		
+			
+			size_t freed = 0;
+			std::vector<size_t> toFree;
+			if (!renderer->IsUnderLimit(size))
+			{
+				for (size_t i = 0; i < bufferInfo.size(); i++)
+				{
+					if (bufferInfo[i].state == BufferState::Loaded && bufferInfo[i].entities.size() == 0)
+					{
+						freed += bufferInfo[i].size;
+						toFree.push_back(i);
+
+						if (renderer->IsUnderLimit(freed, size))
+							break;
+					}
+				}
+			}
+			if (renderer->IsUnderLimit(freed, size))
+			{
+				bufferLock.lock();
+				for (auto& r : toFree)
+				{
+					if (bufferInfo[r].state == BufferState::Loaded && bufferInfo[r].entities.size() == 0)
+					{
+						renderer->DestroyVertexBuffer(bufferInfo[r].bufferHandle);
+						bufferInfo[r].state = BufferState::Dead;
+					}
+				}
+				bufferLock.unlock();
+				std::this_thread::sleep_for(100ms);
+			}
+			
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
 				return ResourceHandler::InvokeReturn::Fail;
 
-			if (async)
-				toUpdate.push({ bufferIndex, bufferHandle });
+		
+		
+			if (async) 
+			{
+				toUpdate.push({ bufferIndex, bufferHandle, size });
+			}
+			
 			else
+			{
 				bufferInfo[bufferIndex].bufferHandle = bufferHandle;
+				bufferInfo[bufferIndex].size = size;
+				bufferInfo[bufferIndex].state = BufferState::Loaded;
+			}
+				
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		}, async, behavior);
 		
@@ -356,7 +412,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
 
 	}
-
+	else bufferLock.unlock();
 	bufferInfo[bufferIndex].entities.push_back(renderableObjectInfo.entity[newEntry]);
 	renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
 	StopProfile;
@@ -368,6 +424,9 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 	//using namespace std::chrono_literals;
 
 	//std::this_thread::sleep_for(1s);
+
+
+
 
 	auto bufferHandle = -1;
 

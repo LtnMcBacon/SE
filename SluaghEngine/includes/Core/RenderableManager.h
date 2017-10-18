@@ -131,22 +131,33 @@ namespace SE
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
 			int defaultShader;
-			int defaultMeshHandle;
+
+
+			enum class BufferState
+			{
+				Loaded,
+				Loading,
+				Dead
+			};
 
 			struct BufferInfo
 			{
 				int bufferHandle;
-			//	uint32_t refCount;	
+				BufferState state;
+				size_t size;
 				std::list<Entity> entities;
 			};
 
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
+			std::mutex bufferLock;
+
 
 			struct toUpdateStruct
 			{
 				size_t bufferIndex;
 				int newHandle;
+				size_t size;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};
