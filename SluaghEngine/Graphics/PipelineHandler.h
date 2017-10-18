@@ -57,6 +57,13 @@ namespace SE
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;
 
+			struct ConstantBuffer
+			{
+				ID3D11Buffer* buffer;
+				int bindSlot;
+			};
+			
+
 			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> vertexBuffers;
 			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> indexBuffers;
 			std::map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Compare> inputLayouts;
@@ -64,7 +71,7 @@ namespace SE
 			std::map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Compare> geometryShaders;
 			std::map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Compare> pixelShaders;
 			std::map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Compare> computeShaders;
-			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> constantBuffers;
+			std::map<Utilz::GUID, ConstantBuffer, Utilz::GUID::Compare> constantBuffers;
 			std::map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Compare> shaderResourceViews;
 			std::map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Compare> renderTargetViews;
 			std::map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Compare> samplerStates;
