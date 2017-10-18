@@ -103,3 +103,12 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 
 	indexBuffers[id] = buffer;
 }
+
+void SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)
+{
+	auto exists = indexBuffers.find(id);
+	if (exists == indexBuffers.end())
+		return;
+	exists->second->Release();
+	indexBuffers.erase(exists);
+}
