@@ -144,6 +144,7 @@
     <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
     <ClInclude Include="..\includes\Utilz\Console.h" />
+    <ClInclude Include="..\includes\Utilz\CPUTimeCluster.h" />
     <ClInclude Include="..\includes\Utilz\crc_table.h" />
     <ClInclude Include="..\includes\Utilz\Delegate.h" />
     <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h" />

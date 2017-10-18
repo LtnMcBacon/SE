@@ -32,6 +32,7 @@ namespace SE
 		public:
 			struct InitializationInfo
 			{
+				SE::Window::InitializationInfo winInfo;
 				bool placeholder; //Rewrite this later
 			};
 

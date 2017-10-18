@@ -77,7 +77,7 @@ bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
 	while (run)
 	{
 		timer.Tick();
-		float dt = timer.GetDelta<std::chrono::milliseconds>();
+		float dt = timer.GetDelta();
 		engine.BeginFrame();
 
 		if (window->ButtonPressed(TOGGLE_CONSOLE))
