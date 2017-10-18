@@ -23,6 +23,7 @@
     <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
     <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
+    <ClInclude Include="..\includes\Graphics\IPipelineHandler.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />

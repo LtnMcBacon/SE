@@ -6,6 +6,87 @@ namespace SE
 {
 	namespace Graphics
 	{
+		enum class CullMode
+		{
+			CULL_FRONT,
+			CULL_BACK,
+			CULL_NONE
+		};
+		enum class WindingOrder
+		{
+			CLOCKWISE,
+			COUNTERCLOCKWISE
+		};
+		enum class FillMode
+		{
+			FILL_SOLID,
+			FILL_WIREFRAME
+		};
+		struct RasterizerState
+		{
+			CullMode cullMode;
+			WindingOrder windingOrder;
+			FillMode fillMode;
+		};
+
+		enum class BlendOperation
+		{
+			ADD,
+			SUBTRACT,
+			MAX,
+			MIN
+		};
+
+		struct BlendState
+		{
+			bool enable;
+			BlendOperation blendOperation;
+		};
+
+		enum class ComparisonOperation
+		{
+			LESS,
+			LESS_EQUAL,
+			EQUAL,
+			GREATER,
+			GREATER_EQUAL,
+			NO_COMPARISON
+		};
+
+		struct DepthStencilState
+		{
+			bool enableDepth;
+			ComparisonOperation comparisonOperation;
+		};
+		enum class AddressingMode
+		{
+			WRAP,
+			MIRROR,
+			CLAMP
+		};
+		enum class Filter
+		{
+			ANISOTROPIC,
+			LINEAR,
+			BILINEAR,
+			TRILINEAR
+		};
+		struct SamplerState
+		{
+			AddressingMode addressU;
+			AddressingMode addressV;
+			AddressingMode addressW;
+			Filter filter;
+			int maxAnisotropy;
+		};
+
+		struct RenderTarget
+		{
+			bool bindAsShaderResource;
+			int width;
+			int height;
+
+		};
 		enum class PrimitiveTopology : uint8_t
 		{
 			POINT_LIST,
