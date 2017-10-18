@@ -26,6 +26,7 @@
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
+    <ClInclude Include="..\includes\Graphics\Pipeline.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
