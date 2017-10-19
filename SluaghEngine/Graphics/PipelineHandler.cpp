@@ -338,3 +338,12 @@ void SE::Graphics::PipelineHandler::DestroyPixelShader(const Utilz::GUID& id)
 	exists->second->Release();
 	pixelShaders.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
+{
+	auto exists = computeShaders.find(id);
+	if (exists == computeShaders.end())
+		return;
+	exists->second->Release();
+	computeShaders.erase(exists);
+}
