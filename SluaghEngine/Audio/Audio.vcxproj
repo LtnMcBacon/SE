@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\Win32</LibraryPath>
@@ -80,14 +80,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\Win32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\x64</LibraryPath>
@@ -95,7 +95,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes;$(SolutionDir)includes\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\x64</LibraryPath>
   </PropertyGroup>
@@ -107,7 +107,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,7 +119,8 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +137,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,7 +155,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"</Command>
+      <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
+copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -162,12 +166,12 @@
     <ClCompile Include="IAudioHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Audio\AudioTypeDefs.h" />
     <ClInclude Include="..\includes\Audio\IAudioHandler.h" />
     <ClInclude Include="AudioHandler.h" />
     <ClInclude Include="AudioSound.h" />
     <ClInclude Include="AudioStream.h" />
     <ClInclude Include="AudioStructType.h" />
-    <ClInclude Include="AudioTypeDefs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

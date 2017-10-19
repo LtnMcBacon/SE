@@ -41,15 +41,16 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
+
 	
 
-	auto r = resourceHandler->Initialize();
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
-	r = window->Initialize();
+	r = window->Initialize(info.winInfo);
 	if (r)
 		ProfileReturnConst(r);
-	r = renderer->Initialize(window->GetHWND());
+	r = renderer->Initialize({ window->GetHWND(), optionHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256u * 1024u * 1024u) });
 	if (r)
 		ProfileReturnConst(r);
 	r = audioManager->Initialize();
@@ -61,7 +62,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager);
+	renderableManager = new RenderableManager({ resourceHandler, renderer, *entityManager, transformManager });
 	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
@@ -116,6 +117,9 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("RenderableManager");
 	renderableManager->Frame();
 	timeClus->Stop("RenderableManager");
+	timeClus->Start("CollisionManager");
+	collisionManager->Frame();
+	timeClus->Stop("CollisionManager");
 	timeClus->Start("DebugRenderManager");
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	timeClus->Stop("DebugRenderManager");
@@ -128,9 +132,6 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("MaterialManager");
 	materialManager->Frame();
 	timeClus->Stop("MaterialManager");
-	timeClus->Start("CollisionManager");
-	collisionManager->Frame();
-	timeClus->Stop("CollisionManager");
 	timeClus->Start("CameraManager");
 	cameraManager->Frame();
 	timeClus->Stop("CameraManager");
@@ -161,7 +162,6 @@ int SE::Core::Engine::Release()
 	window->Shutdown();
 	audioManager->Shutdown();
 	resourceHandler->Shutdown();
-	guiManager->Shutdown();
 	optionHandler->UnloadOption("Config.ini");
 
 	delete cameraManager;
@@ -251,6 +251,7 @@ void SE::Core::Engine::OptionUpdate()
 		renderer->ResizeSwapChain(window->GetHWND());
 		ImGuiDX11SDL_Shutdown();
 		ImGuiDX11SDL_Init(renderer, window);
+		guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;

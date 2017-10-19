@@ -95,9 +95,9 @@ namespace SE
 					}
 					currentPos++;
 					value.clear();
-					while (memblock[currentPos] != '\n')
+					while (memblock[currentPos] != '\n' )
 					{
-						if (memblock[currentPos] != ' ')
+						if (memblock[currentPos] != ' ' &&  memblock[currentPos] != '\r')
 						{
 							value.push_back(memblock[currentPos]);
 							currentPos++;

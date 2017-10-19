@@ -28,7 +28,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int Initialize(void* window) override;
+			int Initialize(const InitializationInfo& initInfo) override;
 
 			/**
 			* @brief Shutdown the renderer
@@ -65,18 +65,18 @@ namespace SE
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int EnableTextRendering(const TextGUI & handles) override;
+			size_t EnableTextRendering(const TextGUI & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextRendering(const TextGUI& handles) override;
+			size_t DisableTextRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -84,20 +84,20 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int EnableTextureRendering(const GUITextureInfo & handles) override;
+			size_t EnableTextureRendering(const GUITextureInfo & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextureRendering(const GUITextureInfo& handles) override;
+			size_t DisableTextureRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Light render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
 			int EnableLightRendering(const LightData & handles) override;
@@ -200,8 +200,8 @@ namespace SE
 			int CreateVertexBuffer(void*data, size_t vertexCount, size_t stride) override;
 
 			/**
-			* @brief Destroys a buffer.
-			* @param[in] bufferHandle The handle to the buffer to destroy
+			* @brief Destroy a vertex buffer.
+			* @param[in] handle The handle to the buffer to destroy.
 			* @endcode
 			*/
 			void DestroyVertexBuffer(int bufferHandle) override;
@@ -268,6 +268,17 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+
+			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateComputeShader(void* data, size_t size) override;
+
 
 			/**
 			* @brief Create a new fomt
@@ -368,8 +379,31 @@ namespace SE
 			inline size_t GetVRam() override {
 				return memMeasure.GetVRam();
 			};
+
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			bool IsUnderLimit(size_t sizeToAdd)override;
+
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource with a potential unallocated amount.
+			* @param potential The size of resources that can be unloaded to make room.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			bool IsUnderLimit(size_t potential, size_t sizeToAdd)override;
+
 			/*
-			* @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
+			* @brief Saves the current error log in the parameter. 
+			* @warning The vector can only be used until the next call to BeginFrame if it is stored as a reference.
 			*/
 			inline std::vector<std::string>& GetErrorLog() override{
 				return errorLog;
@@ -388,6 +422,9 @@ namespace SE
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
+
+			InitializationInfo initInfo;
+
 
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;

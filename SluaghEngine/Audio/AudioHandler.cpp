@@ -31,7 +31,7 @@ namespace SE {
 			sound->size = size;
 			sound->soundData = (char*)data;
 			sound->currentPos = 0;
-			ProfileReturn(audioSound.LoadSound(sound));
+		ProfileReturn(audioSound.LoadSound(sound));
 		}
 		
 		int AudioHandler::CreateStream(int soundID, Audio::SoundIndexName soundType)
