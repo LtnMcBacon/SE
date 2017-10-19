@@ -445,3 +445,13 @@ void SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* d
 	texture->Release();
 	shaderResourceViews[id] = srv;
 }
+
+void SE::Graphics::PipelineHandler::DestroyTexture(const Utilz::GUID& id)
+{
+	auto exists = shaderResourceViews.find(id);
+	if (exists == shaderResourceViews.end())
+		return;
+
+	exists->second->Release();
+	shaderResourceViews.erase(id);
+}
