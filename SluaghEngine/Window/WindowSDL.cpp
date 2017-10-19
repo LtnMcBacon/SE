@@ -11,7 +11,7 @@
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
-
+	currentFrameStrategy = &WindowSDL::RegFrame;
 }
 
 SE::Window::WindowSDL::~WindowSDL()
@@ -106,11 +106,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	if (info.winState == WindowState::Regular)
-	{
-		currentFrameStrategy = &WindowSDL::RegFrame;
-	}
-	else if (info.winState == WindowState::Record)
+	if (info.winState == WindowState::Record)
 	{
 		StartRecording();
 	}
@@ -126,19 +122,19 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 void SE::Window::WindowSDL::Shutdown()
 {
-	if (recording)
+	if (record.recordState)
 	{
-		recording = false;
-		while (!recThread.joinable())
+		record.recordState = false;
+		while (!record.recThread.joinable())
 		{
 
 		}
-		recThread.join();
-		recFile.close();
+		record.recThread.join();
+		record.recFile.close();
 	}
-	if (playback)
+	if (playRecord.playback)
 	{
-		playbackData.clear();
+		playRecord.playbackData.clear();
 	}
 	SDL_Quit();
 }
@@ -155,7 +151,6 @@ void SE::Window::WindowSDL::RegFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
@@ -184,7 +179,7 @@ void SE::Window::WindowSDL::RecordFrame()
 		inData.events.push_back(ev);
 	}
 	inData.nrOfEvent = inData.events.size();
-	circFiFo.push(inData);
+	record.circFiFo.push(inData);
 
 	frame++;
 	StopProfile;
@@ -197,7 +192,7 @@ void SE::Window::WindowSDL::PlaybackFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	for (auto& ev : playbackData[frame].events)
+	for (auto& ev : playRecord.playbackData[frame].events)
 	{
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
@@ -211,9 +206,9 @@ void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
-	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
-	recording = true;
-	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	record.recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	record.recordState = true;
+	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
 	StopProfile;
 }
 
@@ -227,17 +222,17 @@ void SE::Window::WindowSDL::LoadRecording()
 		while (!playbackfile.eof())
 		{
 			inputRecData tempRecData;
-			playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
-			playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
+			playRecord.playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
 			for (int i = 0; i < tempRecData.nrOfEvent; i++)
 			{
-				playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
 			playbackData.push_back(tempRecData);
 		}
-		playbackfile.close();
-		playback = true;
+		playRecord.playbackfile.close();
+		playRecord.playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
 	}
 	StopProfile;
@@ -370,17 +365,17 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 {
 	switch (ev.type)
 	{
-		case SDL_KEYUP:
+		case SDL_KEYUP:	// if type is KeyUp
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 				actionToKeyState[state->second] = UP;
 			break;
 		}
-		case SDL_KEYDOWN:
+		case SDL_KEYDOWN:	// if type is KeyDown
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 			{
 				if (!(actionToKeyState[state->second] & DOWN))
 				{
@@ -401,7 +396,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEMOTION:
+		case SDL_MOUSEMOTION:	// if type is MouseMotion
 		{
 			curMouseX = ev.motion.x;
 			curMouseY = ev.motion.y;
@@ -411,7 +406,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 				cb(relMouseX, relMouseY, curMouseX, curMouseY);
 			break;
 		}
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONDOWN:	// if type is MouseButtonDown
 		{
 			if (ev.button.button == SDL_BUTTON_LEFT)
 			{
@@ -432,7 +427,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONUP:	// if type is MouseButtonUP
 		{
 			const auto state = keyToAction.find(ev.button.button);
 			if (state != keyToAction.end())
@@ -464,15 +459,15 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 
 void SE::Window::WindowSDL::RecordToFile()
 {
-	while (recording || !circFiFo.wasEmpty())
+	while (record.recordState || !record.circFiFo.wasEmpty())
 	{
-		while (!circFiFo.wasEmpty())
+		while (!record.circFiFo.wasEmpty())
 		{
-			const inputRecData& evData = circFiFo.top();
-			recFile.write((char*)&evData.dTime, sizeof(float));
-			recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
-			recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
-			circFiFo.pop();
+			const inputRecData& evData = record.circFiFo.top();
+			record.recFile.write((char*)&evData.dTime, sizeof(float));
+			record.recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
+			record.recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
+			record.circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(10ms);

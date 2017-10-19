@@ -312,8 +312,6 @@ void SE::FBX::FBXConverter::GetMeshes() {
 		// bbox values
 		FbxDouble3 bboxMax = currentMesh.meshNode->BBoxMax; 
 		FbxDouble3 bboxMin = currentMesh.meshNode->BBoxMin;
-		
-		double test = (float)bboxMax[0];
 
 		currentMesh.bboxValues.max.x = (float)bboxMax[0];
 		currentMesh.bboxValues.max.y = (float)bboxMax[1];
@@ -349,7 +347,7 @@ void SE::FBX::FBXConverter::GetMeshes() {
 			"\n-------------------------------------------------------\n";
 
 		// Print the mesh data to the console
-		PrintMeshData(meshes[i]);
+		//PrintMeshData(meshes[i]);
 		
 	}
 
@@ -579,10 +577,6 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
-
-		int k = pMesh.meshNode->GetPolygonCount();
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
 			// Retreive the size of every polygon which should be represented as a triangle
@@ -608,8 +602,6 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 				// Push back vertices to the current mesh
 				pMesh.standardVertices.push_back(vertex);
 
-				vertexCounter++;
-
 			}
 
 		}
@@ -628,8 +620,6 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 	logFile.open(logFileName, ofstream::app);
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
 
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
@@ -676,10 +666,6 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
 
 				pMesh.boneVertices.push_back(vertex);	// Store all vertices in a separate vector
-
-				vertexCounter++;
-
-
 			}
 
 		}
@@ -917,7 +903,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 	pMesh.skeleton.hierarchy[0].GlobalTransform = pMesh.skeleton.hierarchy[0].LocalTransform;
 	pMesh.skeleton.hierarchy[0].GlobalBindposeInverse = pMesh.skeleton.hierarchy[0].GlobalTransform.Inverse();
 	
-	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
+//	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
 
 	// Loop through all the joints in the hierarchy
 	for (int i = 1; i < NUM_BONES; i++) {
@@ -941,7 +927,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = b.GlobalTransform.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -984,7 +970,7 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1024,7 +1010,7 @@ void SE::FBX::FBXConverter::CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh) {
 		// Inverse the bind pose
 		b.GlobalBindposeInverse = bindpose.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1077,7 +1063,6 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 		for (int i = 0; i < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); i++) // for every stack
 		{
 			// Get the current animation stack
-			int stackCount = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
 			FbxAnimStack* AnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
 			FbxString animStackName = AnimStack->GetName();
 
@@ -1162,7 +1147,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
 						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
 
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+					//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
 					}
 
 					// For all the other joints, this would be their local transforms
@@ -1171,7 +1156,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 						// We must build their global transformation before export
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
 
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
 					}
 
 				}
@@ -1247,7 +1232,7 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 					childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
 
 					logFile << "Time: " << timeIndex + 1 << endl;
-					Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
+				//	Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
 				}
 			}
 		}
@@ -1311,7 +1296,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 		else if (surfaceMaterial->GetClassId() == FbxSurfacePhong::ClassId) {
 
 			FbxSurfacePhong* phongMaterial = (FbxSurfacePhong*)surfaceMaterial;
-			GetLambert(pMesh.objectMaterial, phongMaterial);
+			GetPhong(pMesh.objectMaterial, phongMaterial);
 		}
 
 		// Get the texture on the diffuse material property
@@ -1325,7 +1310,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 	}
 }
 
-void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial) {
+void SE::FBX::FBXConverter::GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial) {
 
 	objectMaterial.materialType = "Lambert";
 
@@ -1356,7 +1341,7 @@ void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLamber
 	objectMaterial.specularFactor = 0.0f;
 }
 
-void SE::FBX::FBXConverter::GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial) {
+void SE::FBX::FBXConverter::GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial) {
 
 	objectMaterial.materialType = "Phong";
 
@@ -1404,6 +1389,7 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			texture.texturePath = Utilz::getFilename(textureFile->GetFileName());
 			texture.textureName = Utilz::removeExtension(Utilz::getFilename(textureFile->GetFileName()));
+			texture.textureChannel = materialProperty.GetName();
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1481,7 +1467,7 @@ void SE::FBX::FBXConverter::Write() {
 void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolder, Material& meshMaterial) {
 
 	// Define the file name
-	string binaryFile = folderName + "/" + meshMaterial.materialName + "_" + fileName + ".mat";
+	string binaryFile = folderName + "/" + fileName + ".mat";
 
 	// Define the ofstream 
 	ofstream outBinary(binaryFile, std::ios::binary);
@@ -1518,10 +1504,18 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 
 		if(ExportTexture(meshMaterial.textures[textureIndex], textureFolder)) {
 
+			// Write the texture name
 			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
-			string textureName = meshMaterial.textures[textureIndex].textureName;
+			string textureName = meshMaterial.textures[textureIndex].textureName + ".sei";
 
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureName)), sizeof(Utilz::GUID));
+
+			// Write the texture channel
+			size = (uint32_t)meshMaterial.textures[textureIndex].textureChannel.size();
+			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
+
+			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
+			outBinary.write(reinterpret_cast<char*>(&textureChannel), size);
 
 			cout << "[OK] Exported " << meshMaterial.textures[textureIndex].textureName << " to " << textureFolder << endl;
 		}

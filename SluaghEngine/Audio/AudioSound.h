@@ -39,7 +39,6 @@ namespace SE {
 			*
 			*/
 			size_t LoadSound(AudioFile* sound);
-			size_t LoadSound2();
 			/**
 			* @brief	Returns the requested sample
 			*

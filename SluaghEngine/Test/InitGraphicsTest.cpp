@@ -31,7 +31,7 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 		console->Print("Could not initialize window. Error: %d\n", result);
 		ProfileReturnConst( false);
 	}
-	result = r->Initialize(w->GetHWND());
+	result = r->Initialize({ w->GetHWND() });
 	if (result)
 	{
 		console->Print("Could not initialize renderer. Error: %d\n", result);

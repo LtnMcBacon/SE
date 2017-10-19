@@ -213,6 +213,37 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 	StopProfile;
 }
 
+bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn, float & yReturn)
+{
+	StartProfile;
+
+	if (enemyUnits.size() == 0)
+	{
+		return false;
+	}
+
+	int enemy = -1;
+	float closestDistance = 10000.0f;
+
+	for (int i = 0; i < enemyUnits.size(); i++)
+	{
+		float enemyX = enemyUnits[i]->GetXPosition() - xPos;
+		float enemyY = enemyUnits[i]->GetYPosition() - yPos;
+		float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
+
+		if (distance < closestDistance)
+		{
+			enemy = i;
+			closestDistance = distance;
+		}
+	}
+
+	xReturn = enemyUnits[enemy]->GetXPosition();
+	yReturn = enemyUnits[enemy]->GetYPosition();
+
+	ProfileReturnConst(true);
+}
+
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
 	StartProfile;

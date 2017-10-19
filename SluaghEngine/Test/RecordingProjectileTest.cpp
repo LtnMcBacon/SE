@@ -161,7 +161,11 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager();
+	SE::Gameplay::BehaviourPointers temp;
+	temp.currentRoom = &testRoom;
+	temp.player = player;
+
+	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -296,13 +300,12 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool stepping = false;
 	bool running = true;
-	float dt = 1.0f / 60.0f;
 	win->UpdateTime();
 
 	while (running)
 	{
 		win->UpdateTime();
-		dt = win->GetDelta();
+		float dt = win->GetDelta();
 
 		newProjectiles.clear();
 

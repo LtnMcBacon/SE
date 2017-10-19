@@ -17,50 +17,56 @@ SE::Graphics::GPUTimeCluster::~GPUTimeCluster()
 void SE::Graphics::GPUTimeCluster::Start(const Utilz::IDHash & id)
 {
 	TimerSet& timer = timers[id];
-
-	_ASSERT_EXPR(timer.QueryStarted == false, "Tried to start a timer twice in GPUTimeCluster");
-
-	if (timer.DisjointQuery[currentFrame] == nullptr)
+	if (!timer.QueryStarted && !timer.QueryFinished)
 	{
-		D3D11_QUERY_DESC desc;
-		desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
-		desc.MiscFlags = 0;
 
-		HRESULT hr = device->CreateQuery(&desc, &timer.DisjointQuery[currentFrame]);
-		if (FAILED(hr))
-			throw std::exception("Could not create D3D11_QUERY_TIMESTAMP_DISJOINT");
 
-		desc.Query = D3D11_QUERY_TIMESTAMP;
-		hr = device->CreateQuery(&desc, &timer.TimestampStartQuery[currentFrame]);
-		if (FAILED(hr))
-			throw std::exception("Could not create D3D11_QUERY_TIMESTAMP.");
-		device->CreateQuery(&desc, &timer.TimestampEndQuery[currentFrame]);
-		if (FAILED(hr))
-			throw std::exception("Could not create D3D11_QUERY_TIMESTAMP.");
+		if (timer.DisjointQuery[currentFrame] == nullptr)
+		{
+			D3D11_QUERY_DESC desc;
+			desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+			desc.MiscFlags = 0;
+
+			HRESULT hr = device->CreateQuery(&desc, &timer.DisjointQuery[currentFrame]);
+			if (FAILED(hr))
+				throw std::exception("Could not create D3D11_QUERY_TIMESTAMP_DISJOINT");
+
+			desc.Query = D3D11_QUERY_TIMESTAMP;
+			hr = device->CreateQuery(&desc, &timer.TimestampStartQuery[currentFrame]);
+			if (FAILED(hr))
+				throw std::exception("Could not create D3D11_QUERY_TIMESTAMP.");
+			device->CreateQuery(&desc, &timer.TimestampEndQuery[currentFrame]);
+			if (FAILED(hr))
+				throw std::exception("Could not create D3D11_QUERY_TIMESTAMP.");
+		}
+
+		// Start a disjoint query.
+		dc->Begin(timer.DisjointQuery[currentFrame]);
+
+		// Take a timestap for the start time.
+		dc->End(timer.TimestampStartQuery[currentFrame]);
+
+		timer.QueryStarted = true;
 	}
-
-	// Start a disjoint query.
-	dc->Begin(timer.DisjointQuery[currentFrame]);
-
-	// Take a timestap for the start time.
-	dc->End(timer.TimestampStartQuery[currentFrame]);
-
-	timer.QueryStarted = true;
 }
 
 void SE::Graphics::GPUTimeCluster::Stop(const Utilz::IDHash & id)
 {
 	TimerSet& timer = timers[id];
-	_ASSERT_EXPR(timer.QueryStarted == true, "Tried to Stop a timer that was not Started in GPUTimeCluster");
 
-	// Get the end time stamp
-	dc->End(timer.TimestampEndQuery[currentFrame]);
+	if (timer.QueryStarted && !timer.QueryFinished)
+	{
 
-	// End the disjoint query
-	dc->End(timer.DisjointQuery[currentFrame]);
 
-	timer.QueryStarted = false;
-	timer.QueryFinished = true;
+		// Get the end time stamp
+		dc->End(timer.TimestampEndQuery[currentFrame]);
+
+		// End the disjoint query
+		dc->End(timer.DisjointQuery[currentFrame]);
+
+		timer.QueryStarted = false;
+		timer.QueryFinished = true;
+	}
 }
 
 float SE::Graphics::GPUTimeCluster::GetTime(TimerSet& timer)

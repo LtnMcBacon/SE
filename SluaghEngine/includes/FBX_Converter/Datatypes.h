@@ -79,6 +79,7 @@ namespace SE
 
 			string textureName;
 			string texturePath;
+			string textureChannel;
 
 			Texture() {
 

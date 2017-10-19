@@ -77,7 +77,7 @@ namespace SE
 			* @brief Tells window to update time
 			*/
 			inline void UpdateTime() override {
-				if (!playback)
+				if (!playRecord.playback)
 					time.Tick();
 			};
 			/**
@@ -87,12 +87,15 @@ namespace SE
 			*/
 			inline float GetDelta() const override
 			{
-				if (!playback)
+				if (!playRecord.playback)
 					return time.GetDelta<std::ratio<1, 1>>();
 				else
-					return playbackData[frame].dTime;
+					return playRecord.playbackData[frame].dTime;
 			};
 		private:
+			/*
+			* @brief Checks which event ev is.
+			*/
 			void EventSwitch(SDL_Event ev);
 
 			/*Window related things*/
@@ -135,6 +138,7 @@ namespace SE
 			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
+#pragma region Record
 			//record stuff
 			struct inputRecData
 			{
@@ -143,25 +147,32 @@ namespace SE
 				std::vector<SDL_Event> events;
 			};
 
-
+			struct recording
+			{
+				std::ofstream recFile;
+				bool recordState = false;
+				Utilz::CircularFiFo<inputRecData, 512> circFiFo;
+				std::thread recThread;
+			};
+			recording record;
 			void RecordToFile();
-			std::ofstream recFile;
-			std::ifstream playbackfile;
-			Utilz::CircularFiFo<inputRecData, 512> circFiFo;
-			bool recording = false;
-			bool playback = false;
-			std::vector<inputRecData> playbackData;
-			std::thread recThread;
-			size_t frame = 0;
+			void StartRecording();
+#pragma endregion Record
 
+#pragma region Playback
+			struct playRecording
+			{
+				std::ifstream playbackfile;
+				bool playback = false;
+				std::vector<inputRecData> playbackData;
+			};
+			playRecording playRecord;
+			void LoadRecording();
+#pragma endregion Playback
 
 			typedef void(WindowSDL::*FrameStrategy)();
-
 			FrameStrategy currentFrameStrategy;
-
-			void StartRecording();
-			void LoadRecording();
-
+			size_t frame = 0;
 			Utilz::Timer time;
 		};
 

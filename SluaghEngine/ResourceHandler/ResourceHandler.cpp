@@ -323,10 +323,6 @@ void SE::ResourceHandler::ResourceHandler::ToLoadThreadEntry()
 					}
 				}					
 			}
-			else
-			{
-				int i = 0;
-			}
 
 			toLoad.pop();
 		}

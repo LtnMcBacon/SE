@@ -22,11 +22,15 @@ PlayState::PlayState(Window::IWindow* Input)
 {
 	this->input = Input;
 
-	projectileManager = new ProjectileManager();
-
 	InitializeRooms();
 	InitializePlayer();
 	InitializeOther();
+
+	BehaviourPointers temp;
+	temp.currentRoom = &currentRoom;
+	temp.player = player;
+	
+	projectileManager = new ProjectileManager(temp);
 }
 
 PlayState::~PlayState()
@@ -138,8 +142,6 @@ void PlayState::InitializePlayer()
 {
 	auto& tManager = Core::Engine::GetInstance().GetTransformManager();
 	auto& rManager = Core::Engine::GetInstance().GetRenderableManager();
-	auto& oHandler = Core::Engine::GetInstance().GetOptionHandler();
-	auto& cManager = Core::Engine::GetInstance().GetCameraManager();
 
 	char map[25][25];
 	currentRoom->GetMap(map);
