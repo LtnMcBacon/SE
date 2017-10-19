@@ -120,8 +120,7 @@ namespace SE
 			LINE_LIST,
 			LINE_STRIP,
 			TRIANGLE_LIST,
-			TRIANGLE_STRIP,
-			NONE
+			TRIANGLE_STRIP
 		};
 		struct InputAssemblerStage
 		{
@@ -150,25 +149,42 @@ namespace SE
 		struct PixelShaderStage
 		{
 			static const size_t maxConstantBuffers = 8;
-			static const size_t maxRenderTargets = 8;
 			static const size_t maxTextures = 8;
 			static const size_t maxSamplers = 8;
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
-			Utilz::GUID samplers[maxSamplers];
-			Utilz::GUID renderTargets[maxRenderTargets];
+			Utilz::GUID textureBindings[maxTextures];
+			Utilz::GUID samplers[maxSamplers];			
 			uint8_t constantBufferCount;
 			uint8_t textureCount;
 			uint8_t samplerCount;
-			uint8_t renderTargetCount;	
+			
 		};
 
 		struct OutputMergerStage
 		{
-			Utilz::GUID rasterizerState;
+			static const size_t maxRenderTargets = 8;
 			Utilz::GUID blendState;
 			Utilz::GUID depthStencilState;
+			Utilz::GUID renderTargets[maxRenderTargets];
+			Utilz::GUID depthStencilView;
+			uint8_t renderTargetCount;
+		};
+		struct Viewport
+		{
+			float width;
+			float height;
+			float maxDepth;
+			float minDepth;
+			float topLeftX;
+			float topLeftY;
+		};
+
+		struct RasterizerStage
+		{
+			Utilz::GUID rasterizerState;
+			Utilz::GUID viewport;
 		};
 
 		struct Pipeline
@@ -176,6 +192,7 @@ namespace SE
 			InputAssemblerStage IAStage;
 			VertexShaderStage	VSStage;
 			GeometryShaderStage	GSStage;
+			RasterizerStage		RStage;
 			PixelShaderStage	PSStage;
 			OutputMergerStage	OMStage;
 		};

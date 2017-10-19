@@ -21,6 +21,8 @@ namespace SE
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
 			void DestroyIndexBuffer(const Utilz::GUID& id) override;
 
+			void CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+
 			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
@@ -54,18 +56,31 @@ namespace SE
 
 			void SetPipeline(const Pipeline& pipeline) override;
 		private:
+
+			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
+			void SetVertexShaderStage(const VertexShaderStage& vss);
+			void SetGeometryShaderStage(const GeometryShaderStage& gss);
+			void SetRasterizerStage(const RasterizerStage& rs);
+			void SetPixelShaderStage(const PixelShaderStage& pss);
+			void SetOutputMergerStage(const OutputMergerStage& oms);
+
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;
 
-			struct ConstantBuffer
+			struct VertexBuffer
 			{
 				ID3D11Buffer* buffer;
-				int bindSlot;
+				uint32_t stride;
 			};
-			
+			struct IndexBuffer
+			{
+				ID3D11Buffer* buffer;
+				uint32_t stride;
+			};
+			Pipeline currentPipeline;
 
-			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> vertexBuffers;
-			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> indexBuffers;
+			std::map<Utilz::GUID, VertexBuffer, Utilz::GUID::Compare> vertexBuffers;
+			std::map<Utilz::GUID, IndexBuffer, Utilz::GUID::Compare> indexBuffers;
 			std::map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Compare> inputLayouts;
 			std::map<Utilz::GUID, ID3D11VertexShader*, Utilz::GUID::Compare> vertexShaders;
 			std::map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Compare> geometryShaders;
@@ -74,9 +89,12 @@ namespace SE
 			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> constantBuffers;
 			std::map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Compare> shaderResourceViews;
 			std::map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Compare> renderTargetViews;
+			std::map<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Compare> depthStencilViews;
 			std::map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Compare> samplerStates;
 			std::map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Compare> blendStates;
 			std::map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Compare> rasterizerStates;
+			std::map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Compare> viewports;
+
 			std::map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Compare> depthStencilStates;
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> shaderAndResourceNameToBindSlot;
