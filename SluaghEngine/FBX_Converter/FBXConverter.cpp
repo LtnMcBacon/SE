@@ -1505,7 +1505,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 
 			// Write the texture name
 			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
-			string textureName = meshMaterial.textures[textureIndex].textureName;
+			string textureName = meshMaterial.textures[textureIndex].textureName + ".sei";
 
 			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&textureName), size);
