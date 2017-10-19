@@ -812,6 +812,56 @@ void SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 	shaderResourceViews.erase(srv);
 }
 
+void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
+{
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	if (bindAsTexture) desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvd.Texture2D.MipSlice = 0;
+
+	ID3D11Texture2D* texture;
+
+	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
+	if (FAILED(hr))
+		throw std::exception("Failed to create depth stencil texture");
+
+	ID3D11DepthStencilView* dsv;
+	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
+	if (FAILED(hr))
+		throw std::exception("Failed to create depth stencil view");
+	depthStencilViews[id] = dsv;
+
+	if(bindAsTexture)
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+		srvd.Format = desc.Format;
+		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvd.Texture2D.MostDetailedMip = 0;
+		srvd.Texture2D.MipLevels = -1;
+		ID3D11ShaderResourceView* srv;
+		hr = device->CreateShaderResourceView(texture, &srvd, &srv);
+		if (FAILED(hr))
+			throw std::exception("Failed to create shader resource view from depth stencil");
+		shaderResourceViews[id] = srv;
+	}
+	
+	texture->Release();
+}
+
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	SetInputAssemblerStage(pipeline.IAStage);

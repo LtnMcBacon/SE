@@ -37,7 +37,7 @@ namespace SE
 			bool operator!=(const GUID& other) const { return id != other.id; }
 			bool operator==(const GUID& other) const { return id == other.id; }
 			GUID& operator=(const GUID& other) { this->id = other.id; return *this; }
-			GUID& operator+(const GUID &other) const
+			GUID operator+(const GUID &other) const
 			{
 				GUID g;
 				g.id = 0.5f*(id + other.id)*(id + other.id + 1) + other.id;

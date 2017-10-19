@@ -9,7 +9,7 @@ namespace SE
 		class IPipelineHandler
 		{
 		public:
-			virtual ~IPipelineHandler() = 0;
+			virtual ~IPipelineHandler() = 0 {};
 
 			virtual void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) = 0;
 			virtual void DestroyVertexBuffer(const Utilz::GUID& id) = 0;
@@ -46,6 +46,9 @@ namespace SE
 
 			virtual void CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) = 0;
 			virtual void DestroyRenderTarget(const Utilz::GUID& id) = 0;
+
+			virtual void CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) = 0;
+			virtual void DestroyDepthStencilView(const Utilz::GUID& id) = 0;
 
 			virtual void SetPipeline(const Pipeline& pipeline) = 0;
 

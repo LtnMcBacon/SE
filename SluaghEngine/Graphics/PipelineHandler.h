@@ -54,6 +54,9 @@ namespace SE
 			void CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) override;
 			void DestroyRenderTarget(const Utilz::GUID& id) override;
 
+			void CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
+			void DestroyDepthStencilView(const Utilz::GUID& id) override;
+
 			void SetPipeline(const Pipeline& pipeline) override;
 		private:
 
