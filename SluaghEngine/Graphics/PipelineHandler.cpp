@@ -455,3 +455,42 @@ void SE::Graphics::PipelineHandler::DestroyTexture(const Utilz::GUID& id)
 	exists->second->Release();
 	shaderResourceViews.erase(id);
 }
+
+void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state)
+{
+	const auto exists = rasterizerStates.find(id);
+	if (exists != rasterizerStates.end())
+		return;
+
+	D3D11_RASTERIZER_DESC rd;
+	rd.AntialiasedLineEnable = false;
+	switch(state.cullMode)
+	{
+	case CullMode::CULL_BACK: rd.CullMode	= D3D11_CULL_BACK;
+	case CullMode::CULL_FRONT: rd.CullMode	= D3D11_CULL_FRONT;
+	case CullMode::CULL_NONE: rd.CullMode	= D3D11_CULL_NONE;
+	}
+	switch(state.fillMode)
+	{
+	case FillMode::FILL_SOLID:		rd.FillMode = D3D11_FILL_SOLID;
+	case FillMode::FILL_WIREFRAME:  rd.FillMode = D3D11_FILL_WIREFRAME;
+	}
+	switch(state.windingOrder)
+	{
+	case WindingOrder::CLOCKWISE:		 rd.FrontCounterClockwise = false;
+	case WindingOrder::COUNTERCLOCKWISE: rd.FrontCounterClockwise = true;
+	}
+	rd.DepthBias = false;
+	rd.DepthClipEnable = true;
+	rd.DepthBiasClamp = 0;
+	rd.MultisampleEnable = false;
+	rd.ScissorEnable = false;
+	rd.SlopeScaledDepthBias = 0;
+	
+	ID3D11RasterizerState* rs;
+	HRESULT hr = device->CreateRasterizerState(&rd, &rs);
+	if (FAILED(hr))
+		throw std::exception("Failed to create rasterizer state");
+	rasterizerStates[id] = rs;
+
+}
