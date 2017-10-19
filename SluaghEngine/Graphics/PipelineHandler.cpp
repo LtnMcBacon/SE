@@ -378,3 +378,70 @@ void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, 
 
 	constantBuffers[id] = buffer;
 }
+
+void SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size)
+{
+	const auto exists = constantBuffers.find(id);
+	if (exists == constantBuffers.end())
+		return;
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	HRESULT hr = deviceContext->Map(exists->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	if (FAILED(hr))
+		throw std::exception("Failed to map constant buffer");
+	memcpy(mappedData.pData, data, size);
+	deviceContext->Unmap(exists->second, 0);
+
+}
+
+void SE::Graphics::PipelineHandler::DestroyConstantBuffer(const Utilz::GUID& id)
+{
+	auto exists = constantBuffers.end();
+	if (exists == constantBuffers.end())
+		return;
+
+	exists->second->Release();
+	constantBuffers.erase(exists);
+}
+
+void SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height)
+{
+	const auto exists = shaderResourceViews.find(id);
+	if (exists != shaderResourceViews.end())
+		return;
+
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	ID3D11Texture2D* texture;
+	D3D11_SUBRESOURCE_DATA d;
+	d.pSysMem = data;
+	d.SysMemPitch = width * 4;
+	d.SysMemSlicePitch = 0;
+	HRESULT hr = device->CreateTexture2D(&desc, &d, &texture);
+	if (FAILED(hr))
+		throw std::exception("Failed to create texture.");
+
+	ID3D11ShaderResourceView* srv;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
+	if (FAILED(hr))
+		throw std::exception("Failed to create shader resource view");
+
+	texture->Release();
+	shaderResourceViews[id] = srv;
+}
