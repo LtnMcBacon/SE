@@ -1,5 +1,6 @@
 #include "ResourceHandlerTest.h"
 #include <ResourceHandler\IResourceHandler.h>
+#include <Utilz\Memory.h>
 
 #include <string>
 #ifdef _DEBUG
@@ -11,6 +12,8 @@
 #include <Profiler.h>
 
 using namespace SE::Test;
+using namespace SE::Utilz::Memory;
+
 ResourceHandlerTest::ResourceHandlerTest()
 {
 }
@@ -48,7 +51,16 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	ResourceHandler::IResourceHandler* r = ResourceHandler::CreateResourceHandler();
 
-	r->Initialize();
+	r->Initialize({10_mb});
+
+	r->LoadResource("texture8.sei", [](auto guid, auto data, auto size) {
+		std::this_thread::sleep_for(100ms);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+	if (Utilz::Memory::IsUnderLimit(10_mb))
+		return false;
+
 	Utilz::GUID guid = Utilz::GUID("test.txt");
 	result = false;
 	auto res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
@@ -138,6 +150,53 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		backend->Print("Load timed out for test3.txt\n");
 		return false;
 	}
+
+
+	//*******************************
+
+	bool tt = false;
+	bool tt2 = false;
+	res = r->LoadResource("test4.txt", [r, &tt, &tt2](auto guid, auto data, auto size)
+	{
+		auto re = r->LoadResource("test.txt", [&tt](auto guid, auto data, auto size) {
+			tt = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
+
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+
+		re = r->LoadResource("test5.txt", [&tt2](auto guid, auto data, auto size) {
+			tt2 = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		}, true);
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	}, true);
+
+
+	timeOut = 0;
+	while (!tt2 && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
+	if (!result)
+	{
+		backend->Print("Load timed out for test5.txt\n");
+		return false;
+	}
+
+
+
+	if(res || !tt || !tt2)
+	{
+		backend->Print("Recursive load failed.\n");
+		return false;
+	}
+
+
+
+	if (!Utilz::Memory::IsUnderLimit(10_mb))
+		return false;
+
 	r->Shutdown();
 	delete r;
 

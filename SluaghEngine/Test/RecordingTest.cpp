@@ -76,12 +76,14 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	bool running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
-		if (window->ButtonPressed(0))
+		if (window->ButtonDown(0))
 			running = false;
 		if (window->ButtonDown(3))
 			console->Print("Action button %d down.\n", 3);
@@ -132,12 +134,14 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
-		if (window->ButtonPressed(0))
+		if (window->ButtonDown(0))
 			running = false;
 		if (window->ButtonDown(3))
 			console->Print("Action button %d down.\n", 3);
@@ -150,7 +154,7 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 			int x, y;
 			window->GetMousePos(x, y);
 			console->Print("Mouse at: %d, %d\n", x, y);
-		}
+		}	
 	}
 
 	window->Shutdown();

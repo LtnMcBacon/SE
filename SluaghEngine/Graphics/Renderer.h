@@ -65,18 +65,18 @@ namespace SE
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int EnableTextRendering(const TextGUI & handles) override;
+			size_t EnableTextRendering(const TextGUI & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextRendering(const TextGUI& handles) override;
+			size_t DisableTextRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -84,20 +84,20 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int EnableTextureRendering(const GUITextureInfo & handles) override;
+			size_t EnableTextureRendering(const GUITextureInfo & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextureRendering(const GUITextureInfo& handles) override;
+			size_t DisableTextureRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Light render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
 			int EnableLightRendering(const LightData & handles) override;
@@ -268,6 +268,17 @@ namespace SE
 			* @endcode
 			*/
 			int CreateVertexShader(void* data, size_t size) override;
+
+			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateComputeShader(void* data, size_t size) override;
+
 
 			/**
 			* @brief Create a new fomt

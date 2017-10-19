@@ -135,6 +135,12 @@
     <ClCompile Include="GlaistigTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
+    <ClCompile Include="TransformTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingProjectileTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -237,6 +243,12 @@
       <Filter>Header Files\GameplayTests\AITests</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingProjectileTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GlaistigTest.h">

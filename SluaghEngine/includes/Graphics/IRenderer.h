@@ -86,34 +86,34 @@ namespace SE
 			/**
 			* @brief    Sets a Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextRendering(const TextGUI & handles) = 0;
+			virtual size_t EnableTextRendering(const TextGUI & handles) = 0;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextRendering(const TextGUI& handles) = 0;
+			virtual size_t DisableTextRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			virtual size_t EnableTextureRendering(const GUITextureInfo & handles) = 0;
 			
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+			virtual size_t DisableTextureRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Light render jobs
@@ -258,6 +258,18 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
+
+
+			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateComputeShader(void* data, size_t size) = 0;
+
 
 			/**
 			* @brief Create a vertex buffer with CPU write access

@@ -35,6 +35,8 @@
 #include "GarbageTest.h"
 #include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
+#include "TransformTest.h"
+#include "RecordingProjectileTest.h"
 #include "GlaistigTest.h"
 
 
@@ -58,7 +60,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 507;
+	//_crtBreakAlloc = 149;
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -70,6 +72,7 @@ int main(int argc, char** argv)
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
+	AddTest(RecordingProjectileTest);
 	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
@@ -96,6 +99,7 @@ int main(int argc, char** argv)
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
+	AddTest(TransformTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);

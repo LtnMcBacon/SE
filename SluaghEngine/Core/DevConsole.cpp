@@ -126,16 +126,16 @@ void SE::Core::DevConsole::Frame()
 			static float maxFrameTime = 0.0f;
 			static float minFrameTime = 999999999.0f;
 			static float avg100Frames = 0.0f;
-			static float runningSum = 0.0f;
-			static size_t frameCounter = 0;
 			const auto frame = map.find("Frame");
 			if(frame != map.end())
 			{
+				static float runningSum = 0.0f;
 				runningSum += frame->second;
 				if (frame->second < minFrameTime)
 					minFrameTime = frame->second;
 				if (frame->second > maxFrameTime)
 					maxFrameTime = frame->second;
+				static size_t frameCounter = 0;
 				if (frameCounter >= 100)
 				{
 					avg100Frames = runningSum / frameCounter;

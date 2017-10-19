@@ -40,17 +40,17 @@ SE::Core::Entity SE::Core::EntityManager::Create()
 
 bool SE::Core::EntityManager::Alive(Entity e) const
 {
-	return _generation[(e.id & Entity::ENTITY_INDEX_MASK)] == ((e.id >> Entity::ENTITY_INDEX_BITS) & Entity::ENTITY_GENERATION_MASK);
+	return _generation[e.Index()] == e.Gen();
 }
 
 void SE::Core::EntityManager::Destroy(Entity e)
 {
 	if (_generation[e.Index()] == e.Gen())
 	{
-		++_generation[e.id & Entity::ENTITY_INDEX_MASK];
+		++_generation[e.Index()];
 		if (_reusableIndicesCount == _reusableIndicesCapacity)
 			_ExpandReusable();
-		_reusableIndices[_reusableIndicesCount++] = (e.id & Entity::ENTITY_INDEX_MASK);
+		_reusableIndices[_reusableIndicesCount++] = e.Index();
 	}
 }
 
