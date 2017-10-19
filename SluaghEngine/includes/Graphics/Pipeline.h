@@ -76,6 +76,7 @@ namespace SE
 		struct DepthStencilState
 		{
 			bool enableDepth;
+			bool writeDepth;
 			ComparisonOperation comparisonOperation;
 		};
 		enum class AddressingMode

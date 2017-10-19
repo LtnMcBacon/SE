@@ -613,3 +613,45 @@ void SE::Graphics::PipelineHandler::DestroyBlendState(const Utilz::GUID& id)
 	exists->second->Release();
 	blendStates.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state)
+{
+	const auto exists = depthStencilStates.find(id);
+	if (exists != depthStencilStates.end())
+		return;
+	D3D11_DEPTH_STENCIL_DESC dsd;
+	dsd.DepthEnable = state.enableDepth;
+	switch(state.comparisonOperation)
+	{
+	case ComparisonOperation::EQUAL:			dsd.DepthFunc = D3D11_COMPARISON_EQUAL;
+	case ComparisonOperation::GREATER:			dsd.DepthFunc = D3D11_COMPARISON_GREATER;
+	case ComparisonOperation::GREATER_EQUAL:	dsd.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+	case ComparisonOperation::LESS:				dsd.DepthFunc = D3D11_COMPARISON_LESS;
+	case ComparisonOperation::LESS_EQUAL:		dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	case ComparisonOperation::NO_COMPARISON:	dsd.DepthFunc = D3D11_COMPARISON_NEVER;
+	}
+	
+	dsd.DepthWriteMask = state.enableDepth ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+
+	dsd.StencilEnable = true;
+	dsd.StencilReadMask = 0xFF;
+	dsd.StencilWriteMask = 0xFF;
+
+	dsd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+
+	dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+
+	ID3D11DepthStencilState* dss;
+	HRESULT hr = device->CreateDepthStencilState(&dsd, &dss);
+	if (FAILED(hr))
+		throw std::exception("Failed to create depth stencil state");
+
+	depthStencilStates[id] = dss;
+
+}
