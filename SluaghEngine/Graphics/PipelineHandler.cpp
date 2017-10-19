@@ -311,3 +311,12 @@ void SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, v
 
 	computeShaders[id] = cs;
 }
+
+void SE::Graphics::PipelineHandler::DestroyVertexShader(const Utilz::GUID& id)
+{
+	auto exists = vertexShaders.find(id);
+	if (exists == vertexShaders.end())
+		return;
+	exists->second->Release();
+	vertexShaders.erase(exists);
+}
