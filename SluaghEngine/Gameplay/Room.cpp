@@ -2,6 +2,8 @@
 #include "Profiler.h"
 #include <d3d11.h>
 #include <cassert>
+#include <algorithm>
+#include <limits>
 
 
 using namespace SE;
@@ -244,6 +246,140 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 	ProfileReturnConst(true);
 }
 
+bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* closestUnit)
+{
+	StartProfile;
+
+	if (enemyUnits.size() == 0)
+	{
+		return false;
+	}
+
+	int enemy = -1;
+	float closestDistance = 10000.0f;
+
+	for (int i = 0; i < enemyUnits.size(); i++)
+	{
+		float enemyX = enemyUnits[i]->GetXPosition() - xPos;
+		float enemyY = enemyUnits[i]->GetYPosition() - yPos;
+		float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
+
+		if (distance < closestDistance)
+		{
+			enemy = i;
+			closestDistance = distance;
+		}
+	}
+
+	closestUnit = enemyUnits[enemy];
+
+	ProfileReturnConst(true);
+}
+
+bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY)
+{
+	StartProfile;
+	if(int(startX) == int(endX))
+	{
+		int distance = abs(int(startY) - int(endY));
+		int x = int(startX);
+		int y = int(startY);
+		if(startY < endY)
+		{
+			for (int i = 0; i < distance; i++)
+				if (map[x][y + i])
+					ProfileReturnConst(false);
+		}
+		else
+		{
+			for (int i = 0; i < distance; i++)
+				if (map[x][y - i])
+					ProfileReturnConst(false);
+		}
+	}
+	else if(int(startY) == int(endY))
+	{
+		int distance = abs(int(startY) - int(endY));
+		int x = int(startX);
+		int y = int(startY);
+		if (startX < endX)
+		{
+			for (int i = 0; i < distance; i++)
+				if (map[x+i][y])
+					ProfileReturnConst(false);
+		}
+		else
+		{
+			for (int i = 0; i < distance; i++)
+				if (map[x-i][y])
+					ProfileReturnConst(false);
+		}
+	}
+	else
+	{
+		/*Breseham's Line ALgorithm*/
+		int deltaX = int(endX) - int(startX);
+		int deltaY = int(endY) - int(startY);
+		int delta = 2*(deltaY-deltaX);
+		int xStart(startX);
+		int yStart(startY);
+		int xEnd(endX);
+		int ySign = (yStart - int(endY)) / abs(yStart - int(endY));
+		if(xStart < xEnd)
+		{
+			for(int i = xStart; i < xEnd; i++)
+			{
+				if (map[i][yStart])
+					ProfileReturnConst(false);
+				if (delta > 0)
+				{
+					delta += 2 * deltaX;
+					yStart += ySign;
+				}
+				delta += 2 * deltaY;
+			}
+		}
+		else
+		{
+			for (int i = xStart; i < xEnd; i--)
+			{
+				if (map[i][yStart])
+					ProfileReturnConst(false);
+				if (delta > 0)
+				{
+					delta += 2 * deltaX;
+					yStart += ySign;
+				}
+				delta += 2 * deltaY;
+			}
+		}
+
+	}
+
+	ProfileReturnConst(true);
+}
+
+float Room::DistanceToClosestWall(float startX, float startY)
+{
+	StartProfile;
+	/*Distance to 0,0 (should always be a wall here!)*/
+	float distance = -1.0;
+	int xDistance = 1;
+	int yDistance = 1;
+	do
+	{
+		
+	} while (distance == -1.0);
+
+	ProfileReturnConst(distance);
+
+
+}
+
+void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& returnVector)
+{
+}
+
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
 	StartProfile;
@@ -363,7 +499,7 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 	StopProfile;
 }
 
-int SE::Gameplay::Room::PointCollision(float x, float y)
+int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
 {
 	StartProfile;
 
@@ -391,12 +527,12 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	CollisionData cData;
 	int enemyCollidedWith = -1;
 
-	if ((enemyCollidedWith = PointCollision(r.upperLeftX, r.upperLeftY)) != -1) //check if front left corner of projectile is in a blocked square
+	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY)) != -1) //check if front left corner of projectile is in a blocked square
 	{
 		collidedLeft = true;
 		cData.type = CollisionType::ENEMY;
 	}
-	else if ((enemyCollidedWith = PointCollision(r.upperRightX, r.upperRightY)) != -1) //check if front right corner of projectile is in a blocked square
+	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY)) != -1) //check if front right corner of projectile is in a blocked square
 	{
 		collidedRight = true;
 		cData.type = CollisionType::ENEMY;
@@ -473,6 +609,11 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	}
 
 	ProfileReturnConst(false);
+}
+
+bool Room::PointInsideWall(float x, float y)
+{
+	return !map[int(x)][int(y)];
 }
 
 Room::Room(char map[25][25])

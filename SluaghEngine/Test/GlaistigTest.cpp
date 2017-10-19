@@ -123,7 +123,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
 	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
-
+	bool test = testRoom->CheckLineOfSightBetweenPoints(23.5f, 21.5f, 21.5, 23.5);
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
