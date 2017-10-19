@@ -329,3 +329,12 @@ void SE::Graphics::PipelineHandler::DestroyGeometryShader(const Utilz::GUID& id)
 	exists->second->Release();
 	geometryShaders.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::DestroyPixelShader(const Utilz::GUID& id)
+{
+	auto exists = pixelShaders.find(id);
+	if (exists == pixelShaders.end())
+		return;
+	exists->second->Release();
+	pixelShaders.erase(exists);
+}
