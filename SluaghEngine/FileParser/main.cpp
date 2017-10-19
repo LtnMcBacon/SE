@@ -60,11 +60,7 @@ std::vector<Accepted> acceptedExt =
 	src.close();
 	dst.close(); } },
 	{ "spritefont", "spritefont", "Font", [](const char* filename, const char* outFilename) {
-		std::ifstream  src(filename, std::ios::binary);
-		std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-		dst << src.rdbuf();
-		dst.close();
-		src.close();
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
 	} },
 	{ "gui", "sei", "GUI", [](const char* filename, const char* outFilename) {
 		printf("Parsing file: %s...\n", filename);
@@ -73,25 +69,13 @@ std::vector<Accepted> acceptedExt =
 			printf("Could not parse: %s\n", filename);
 		} },
 		{"wav", "wav", "Sounds", [](const char* filename, const char* outFilename) {
-			std::ifstream  src(filename, std::ios::binary);
-			std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-			dst << src.rdbuf();
-			dst.close();
-			src.close(); }},
+			fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
 
 			{"SEFBT", "SEFBT", "BehaviouralTrees", [](const char* filename, const char* outFilename) {
-				std::ifstream  src(filename, std::ios::binary);
-				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-				dst << src.rdbuf();
-				dst.close();
-				src.close(); } },
+				fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 
 				{ "SEC", "SEC", "Enemies", [](const char* filename, const char* outFilename) {
-					std::ifstream  src(filename, std::ios::binary);
-					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-					dst << src.rdbuf();
-					dst.close();
-					src.close(); } }
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
 
 };
 
@@ -109,29 +93,13 @@ std::vector<Accepted> fbxAccepted =
 
 
 	{ "mesh", "mesh", "Meshes", [](const char* filename, const char* outFilename) {
-				std::ifstream  src(filename, std::ios::binary);
-				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-				dst << src.rdbuf();
-				dst.close();
-				src.close(); } },
+				fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "anim", "anim", "Animations", [](const char* filename, const char* outFilename) {
-					std::ifstream  src(filename, std::ios::binary);
-					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-					dst << src.rdbuf();
-					dst.close();
-					src.close(); } },
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "light", "light", "Lights", [](const char* filename, const char* outFilename) {
-						std::ifstream  src(filename, std::ios::binary);
-						std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-						dst << src.rdbuf();
-						dst.close();
-						src.close(); } },
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "skel", "skel", "Skeletons", [](const char* filename, const char* outFilename) {
-							std::ifstream  src(filename, std::ios::binary);
-							std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-							dst << src.rdbuf();
-							dst.close();
-							src.close(); } },
+							fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 };
 
 
