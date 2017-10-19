@@ -655,3 +655,14 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& i
 	depthStencilStates[id] = dss;
 
 }
+
+void SE::Graphics::PipelineHandler::DestroyDepthStencilState(const Utilz::GUID& id)
+{
+	auto exists = depthStencilStates.find(id);
+	if (exists == depthStencilStates.end())
+		return;
+
+	exists->second->Release();
+	depthStencilStates.erase(exists);
+
+}
