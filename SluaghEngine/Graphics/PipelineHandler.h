@@ -78,8 +78,7 @@ namespace SE
 			std::map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Compare> blendStates;
 			std::map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Compare> rasterizerStates;
 			std::map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Compare> depthStencilStates;
-			/**<Key is evaluated by (GUID(pixelShader) + GUID(resourceBindingName))*/
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> pixelShaderAndResourceNameToBindSlot;
+			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> shaderAndResourceNameToBindSlot;
 
 		};

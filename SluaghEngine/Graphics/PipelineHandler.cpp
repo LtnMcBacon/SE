@@ -268,7 +268,7 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 
 void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void* data, size_t size)
 {
-	auto exists = pixelShaders.find(id);
+	const auto exists = pixelShaders.find(id);
 	if (exists != pixelShaders.end())
 		return;
 
@@ -295,7 +295,7 @@ void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, voi
 		{
 			const Utilz::GUID bindGuid(sibd.Name);
 			const Utilz::GUID combinedGuid = id + bindGuid;
-			pixelShaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
+			shaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
 		}
 	}
 
