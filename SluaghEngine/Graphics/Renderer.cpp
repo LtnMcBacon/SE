@@ -18,12 +18,13 @@ SE::Graphics::Renderer::~Renderer()
 {
 }
 
-int SE::Graphics::Renderer::Initialize(void * window)
+int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 {
 	StartProfile;
-	_ASSERT(window);
+	_ASSERT(initInfo.window);
+	this->initInfo = initInfo;
 	device = new DeviceManager();
-	HRESULT hr = device->Init((HWND)window);
+	HRESULT hr = device->Init((HWND)initInfo.window);
 	if (FAILED(hr))
 		return -1;
 
@@ -1083,5 +1084,15 @@ void SE::Graphics::Renderer::PauseAnimation(int job)
 {
 	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
 	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+}
+
+bool SE::Graphics::Renderer::IsUnderLimit(size_t sizeToAdd)
+{
+	return memMeasure.GetVRam() + sizeToAdd <= initInfo.maxVRAMUsage;
+}
+
+bool SE::Graphics::Renderer::IsUnderLimit(size_t potential, size_t sizeToAdd)
+{
+	return memMeasure.GetVRam() + sizeToAdd <= initInfo.maxVRAMUsage + potential;
 }
 

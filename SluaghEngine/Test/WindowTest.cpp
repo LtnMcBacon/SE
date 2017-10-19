@@ -92,7 +92,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	
 	Graphics::IRenderer* renderer = Graphics::CreateRenderer();
-	renderer->Initialize(window->GetHWND());
+	renderer->Initialize({ window->GetHWND() });
 
 	uint8_t* fakeTexture = new uint8_t[256 * 256 * 4];
 

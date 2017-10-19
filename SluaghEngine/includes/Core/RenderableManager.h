@@ -30,7 +30,16 @@ namespace SE
 		class RenderableManager
 		{
 		public:
-			RenderableManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
+			struct InitializationInfo
+			{
+				ResourceHandler::IResourceHandler* resourceHandler;
+				Graphics::IRenderer* renderer;
+				const EntityManager& entityManager;
+				TransformManager* transformManager;
+				ResourceHandler::UnloadingStrategy unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
+			};
+
+			RenderableManager(const InitializationInfo& initInfo);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -74,6 +83,12 @@ namespace SE
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
 
 			
+			void LinearUnload(size_t sizeToAdd);
+
+			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
+
+			UnloadingStrategy Unload;
+
 
 			void SetDirty(const Entity& entity, size_t index);
 
@@ -112,10 +127,7 @@ namespace SE
 				uint8_t* fillSolid;
 				uint8_t* transparency;
 			};
-			ResourceHandler::IResourceHandler* resourceHandler;
-			Graphics::IRenderer* renderer;
-			const EntityManager& entityManager;
-			TransformManager* transformManager;
+			InitializationInfo initInfo;
 			std::default_random_engine generator;	
 
 			struct DirtyEntityInfo
@@ -131,22 +143,33 @@ namespace SE
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
 			int defaultShader;
-			int defaultMeshHandle;
+
+
+			enum class BufferState
+			{
+				Loaded,
+				Loading,
+				Dead
+			};
 
 			struct BufferInfo
 			{
 				int bufferHandle;
-			//	uint32_t refCount;	
+				BufferState state;
+				size_t size;
 				std::list<Entity> entities;
 			};
 
 			std::vector<BufferInfo> bufferInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
+			std::mutex bufferLock;
+
 
 			struct toUpdateStruct
 			{
 				size_t bufferIndex;
 				int newHandle;
+				size_t size;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};

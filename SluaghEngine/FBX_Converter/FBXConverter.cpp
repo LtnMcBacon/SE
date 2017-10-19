@@ -346,7 +346,7 @@ void SE::FBX::FBXConverter::GetMeshes() {
 			"\n-------------------------------------------------------\n";
 
 		// Print the mesh data to the console
-		PrintMeshData(meshes[i]);
+		//PrintMeshData(meshes[i]);
 		
 	}
 
@@ -902,7 +902,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 	pMesh.skeleton.hierarchy[0].GlobalTransform = pMesh.skeleton.hierarchy[0].LocalTransform;
 	pMesh.skeleton.hierarchy[0].GlobalBindposeInverse = pMesh.skeleton.hierarchy[0].GlobalTransform.Inverse();
 	
-	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
+//	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
 
 	// Loop through all the joints in the hierarchy
 	for (int i = 1; i < NUM_BONES; i++) {
@@ -926,7 +926,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = b.GlobalTransform.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -969,7 +969,7 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1009,7 +1009,7 @@ void SE::FBX::FBXConverter::CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh) {
 		// Inverse the bind pose
 		b.GlobalBindposeInverse = bindpose.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1146,7 +1146,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
 						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
 
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+					//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
 					}
 
 					// For all the other joints, this would be their local transforms
@@ -1155,7 +1155,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 						// We must build their global transformation before export
 						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
 
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
 					}
 
 				}
@@ -1231,7 +1231,7 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 					childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
 
 					logFile << "Time: " << timeIndex + 1 << endl;
-					Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
+				//	Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
 				}
 			}
 		}

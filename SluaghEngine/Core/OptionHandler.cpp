@@ -226,14 +226,14 @@ namespace SE {
 			if (fileLoaded == optionMap.end())
 			{
 				std::map<std::string, std::string> value;
-				value[optionName] = std::to_string(newValue);
+				value[optionName] = newValue ? "true" : "false";
 				optionMap[section] = value;
 				ProfileReturnVoid;
 			}
 			else
 			{
 				std::map<std::string, std::string> &values = optionMap[section];
-				values[optionName] = std::to_string(newValue);
+				values[optionName] = newValue ? "true" : "false";
 				ProfileReturnVoid
 			}
 			ProfileReturnVoid;
