@@ -138,8 +138,6 @@ void PlayState::InitializePlayer()
 {
 	auto& tManager = Core::Engine::GetInstance().GetTransformManager();
 	auto& rManager = Core::Engine::GetInstance().GetRenderableManager();
-	auto& oHandler = Core::Engine::GetInstance().GetOptionHandler();
-	auto& cManager = Core::Engine::GetInstance().GetCameraManager();
 
 	char map[25][25];
 	currentRoom->GetMap(map);

@@ -284,7 +284,6 @@ namespace SE
 			*/
 			void updateGUI();
 
-			void Shutdown();
 		private:
 			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
 
