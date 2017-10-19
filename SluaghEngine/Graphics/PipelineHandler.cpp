@@ -320,3 +320,12 @@ void SE::Graphics::PipelineHandler::DestroyVertexShader(const Utilz::GUID& id)
 	exists->second->Release();
 	vertexShaders.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::DestroyGeometryShader(const Utilz::GUID& id)
+{
+	auto exists = geometryShaders.find(id);
+	if (exists == geometryShaders.end())
+		return;
+	exists->second->Release();
+	geometryShaders.erase(exists);
+}
