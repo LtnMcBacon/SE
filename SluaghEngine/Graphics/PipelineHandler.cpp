@@ -709,3 +709,13 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	samplerStates[id] = samplerState;
 
 }
+
+void SE::Graphics::PipelineHandler::DestroySamplerState(const Utilz::GUID& id)
+{
+	auto exists = samplerStates.find(id);
+	if (exists == samplerStates.end())
+		return;
+
+	exists->second->Release();
+	samplerStates.erase(exists);
+}
