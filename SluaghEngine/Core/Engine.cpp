@@ -44,13 +44,13 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	
 
-	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize(info.winInfo);
 	if (r)
 		ProfileReturnConst(r);
-	r = renderer->Initialize(window->GetHWND());
+	r = renderer->Initialize({ window->GetHWND(), optionHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256u * 1024u * 1024u) });
 	if (r)
 		ProfileReturnConst(r);
 	r = audioManager->Initialize();
@@ -62,7 +62,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	renderableManager = new RenderableManager(resourceHandler, renderer, *entityManager, transformManager);
+	renderableManager = new RenderableManager({ resourceHandler, renderer, *entityManager, transformManager });
 	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
