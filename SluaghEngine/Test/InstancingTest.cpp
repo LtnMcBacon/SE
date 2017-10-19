@@ -34,13 +34,10 @@ bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
 	const int numEnts = 600;
 	Core::Entity ents[numEnts];
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("dummytex.sei"), Utilz::GUID("purewhite.sei") };
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+	Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
-	info.shaderResourceNames = resourceNames;
-	info.textureFileNames = textures;
-	info.textureCount = 2;
+	info.materialFile = material;
 	for (int i = 0; i < numEnts; i++)
 	{
 		ents[i] = em.Create();

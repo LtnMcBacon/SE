@@ -151,12 +151,8 @@ void PlayState::InitializePlayer()
 
 	Core::MaterialManager::CreateInfo materialInfo;
 	materialInfo.shader = "SimpleLightPS.hlsl";
-	Utilz::GUID shaderResources[1];
-	shaderResources[0] = "diffuseTex";
-	materialInfo.shaderResourceNames = shaderResources;
-	Utilz::GUID textureNames[] = { "texture8.sei" };
-	materialInfo.textureFileNames = textureNames;
-	materialInfo.textureCount = 1;
+	Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
+	materialInfo.materialFile = material;
 	Core::Engine::GetInstance().GetMaterialManager().Create(player->GetEntity(), materialInfo);
 
 	rManager.ToggleRenderableObject(player->GetEntity(), true);

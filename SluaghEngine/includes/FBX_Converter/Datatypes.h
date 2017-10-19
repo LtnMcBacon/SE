@@ -111,18 +111,6 @@ namespace SE
 			}
 		};
 
-		struct MaterialAttributes {
-
-			XMFLOAT3 diffuseColor;
-			float diffuseFactor;
-
-			XMFLOAT3 ambientColor;
-			float ambientFactor;
-
-			XMFLOAT3 specularColor;
-			float specularFactor;
-		};
-
 		struct TransformAttributes {
 
 			XMFLOAT3 position;

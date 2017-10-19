@@ -19,9 +19,7 @@ namespace SE
 			struct CreateInfo
 			{
 				Utilz::GUID shader;
-				Utilz::GUID* shaderResourceNames;
-				Utilz::GUID* textureFileNames;
-				uint32_t textureCount;
+				Utilz::GUID materialFile;
 			};
 
 			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, RenderableManager* renderableManager);
@@ -61,8 +59,21 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
 
+			struct MatInfo
+			{
+				Utilz::GUID* tex;
+				uint32_t amountOfTex;
+			};
+
+			struct matDataInfo
+			{
+				Graphics::MaterialAttributes attrib;
+				MatInfo info;
+			};
+
 			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadTexture(void*data, size_t size);
+			void LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo);
 			ResourceHandler::InvokeReturn LoadShader(const Utilz::GUID& guid, void*data, size_t size);
 			
 			struct TextureBindings
@@ -87,7 +98,7 @@ namespace SE
 			};
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(TextureBindings) + sizeof(TextureIndices) + sizeof(size_t);
+				static const size_t size = sizeof(Entity) + sizeof(TextureBindings) + sizeof(TextureIndices) + sizeof(size_t) * 2;
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -95,13 +106,16 @@ namespace SE
 				TextureBindings* textureBindings;
 				TextureIndices* textureIndices;
 				size_t* shaderIndex;
+				size_t* materialIndex;
 			};
-
+			
 
 			std::vector<ShaderData> shaders;
 			std::vector<TextureData> textures;
+			std::vector<matDataInfo> materials;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToShaderIndex;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToTextureIndex;
+			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToMaterialIndex;
 
 			ResourceHandler::IResourceHandler* resourceHandler;
 			Graphics::IRenderer* renderer;
@@ -122,6 +136,13 @@ namespace SE
 				int newHandle;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
+
+			struct toUpdateMatStruct
+			{
+				size_t materialIndex;
+				Graphics::MaterialAttributes attrib;
+			};
+			Utilz::CircularFiFo<toUpdateMatStruct, 10> toUpdateMat;
 		};
 	}
 }

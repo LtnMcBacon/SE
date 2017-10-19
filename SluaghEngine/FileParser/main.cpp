@@ -126,6 +126,8 @@ std::vector<Accepted> fbxAccepted =
 						dst << src.rdbuf();
 						dst.close();
 						src.close(); } },
+	{ "mat", "mat", "Materials", [](const char* filename, const char* outFilename) {
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "skel", "skel", "Skeletons", [](const char* filename, const char* outFilename) {
 							std::ifstream  src(filename, std::ios::binary);
 							std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);

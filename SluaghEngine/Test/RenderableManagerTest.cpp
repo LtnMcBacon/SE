@@ -92,13 +92,10 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("texture8.sei")};
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex")};
+	auto material = Utilz::GUID("lambert2_MCModell.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
-	info.shaderResourceNames = resourceNames;
-	info.textureFileNames = textures;
-	info.textureCount = 2;
+	info.materialFile = material;
 
 	mm.Create(mainC, info, true);
 

@@ -96,13 +96,11 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 	handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("TestDiffuse.sei"), Utilz::GUID("purewhite.sei") };
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
-	info.shader = shader;
-	info.shaderResourceNames = resourceNames;
-	info.textureFileNames = textures;
-	info.textureCount = 2;
+	auto material = Utilz::GUID("lambert1_bakedTest.mat");
+	info.shader = shader;	
+	info.materialFile = material;
+
 
 	mm.Create(mainC, info);
 	Core::CreateAnimationInfo sai;

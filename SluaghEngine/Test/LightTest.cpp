@@ -64,33 +64,25 @@ namespace SE
 			Core::Entity ents[numEnts];
 			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("TransparentTest.sei") };
-			Utilz::GUID textures1[] = { Utilz::GUID("texture8.sei") };
-			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+			Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
-			info.shaderResourceNames = resourceNames;
-			info.textureFileNames = textures;
-			info.textureCount = 2;
-
+			info.materialFile = material;
 
 			for (int i = 0; i < 2; i++)
 			{
 				entsTrans[i] = em.Create();
 				mm.Create(entsTrans[i], info);
 				transformManager.Create(entsTrans[i], { (float)(i*3.0f),0.0f,(float)(i * 2.5f - 5.0f) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
-				//tm.Create(ents[i]);
 				rm.CreateRenderableObject(entsTrans[i], Utilz::GUID("MCModell.mesh"));
 				rm.ToggleRenderableObject(entsTrans[i], true);
 			}
 
-			info.textureFileNames = textures1;
 			for (int i = 0; i < numEnts; i++)
 			{
 				ents[i] = em.Create();
 				mm.Create(ents[i], info);
 				transformManager.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
-				//tm.Create(ents[i]);
 				rm.CreateRenderableObject(ents[i], Utilz::GUID("MCModell.mesh"));
 				rm.ToggleRenderableObject(ents[i], true);
 			}
