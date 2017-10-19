@@ -27,7 +27,7 @@ GameUnit::~GameUnit()
 
 void GameUnit::DestroyEntity()
 {
-	SE::Core::Engine::GetInstance().GetEntityManager().Destroy(unitEntity);
+	SE::Core::Engine::GetInstance().GetEntityManager().DestroyNow(unitEntity);
 }
 
 void GameUnit::ClearDamageEvents()

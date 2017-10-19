@@ -7,6 +7,7 @@ SE::Core::EntityManager::EntityManager()
 {
 	_generationCapacity = _generationCapacityIncrement;
 	_generation = new uint8_t[_generationCapacity]{};
+	_destroyCallbacks = new Utilz::Event<void(const Entity&)>[_generationCapacity];
 	_generationCount = 0;
 
 	_reusableIndicesCapacity = _reusableIndicesCapacityIncrement;
@@ -18,6 +19,7 @@ SE::Core::EntityManager::EntityManager()
 SE::Core::EntityManager::~EntityManager()
 {
 	delete[] _generation;
+	delete[] _destroyCallbacks;
 	delete[] _reusableIndices;
 }
 
@@ -48,20 +50,50 @@ void SE::Core::EntityManager::Destroy(Entity e)
 	if (_generation[e.Index()] == e.Gen())
 	{
 		++_generation[e.Index()];
+
+		_destroyCallbacks[e.Index()].Clear();
+
 		if (_reusableIndicesCount == _reusableIndicesCapacity)
 			_ExpandReusable();
 		_reusableIndices[_reusableIndicesCount++] = e.Index();
 	}
 }
 
+void SE::Core::EntityManager::DestroyNow(Entity e)
+{
+	if (_generation[e.Index()] == e.Gen())
+	{
+		++_generation[e.Index()];
+
+		_destroyCallbacks[e.Index()](e);
+		_destroyCallbacks[e.Index()].Clear();
+
+		if (_reusableIndicesCount == _reusableIndicesCapacity)
+			_ExpandReusable();
+		_reusableIndices[_reusableIndicesCount++] = e.Index();
+	}
+}
+
+void SE::Core::EntityManager::RegisterDestroyCallback(const Entity & e, const Utilz::Delegate<void(const Entity&)>& callback)
+{
+	_ASSERT(_generation[e.Index()] == e.Gen());
+
+	_destroyCallbacks[e.Index()] += callback;
+}
+
 void SE::Core::EntityManager::_ExpandGeneration()
 {
 	_ASSERT_EXPR(_generationCapacity + _generationCapacityIncrement < (1U << Entity::ENTITY_INDEX_BITS), L"Maximum number of entities reached.");
 	uint8_t* newGen = new uint8_t[_generationCapacity + _generationCapacityIncrement]{};
+	auto* newDC = new Utilz::Event<void(const Entity&)>[_generationCapacity + _generationCapacityIncrement];
 	memcpy(newGen, _generation, sizeof(*_generation) * _generationCount);
+	for (size_t i = 0; i < _generationCapacity; i++)
+		newDC[i] = _destroyCallbacks[i];
 	_generationCapacity += _generationCapacityIncrement;
 	delete[] _generation;
+	delete[] _destroyCallbacks;
 	_generation = newGen;
+	_destroyCallbacks = newDC;
 }
 
 void SE::Core::EntityManager::_ExpandReusable()
