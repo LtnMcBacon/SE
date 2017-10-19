@@ -127,6 +127,15 @@
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions">
       <UniqueIdentifier>{5ccee9dd-5d6a-4b97-8427-04c4ade1b510}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI\Sluagh">
+      <UniqueIdentifier>{081777a4-bda3-40ba-86f8-8537773b4caa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Sluagh\RandomForest">
+      <UniqueIdentifier>{475c989b-f0f0-4e8f-8429-f5e5fe9dd348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Sluagh\RandomForest\DecisionTree">
+      <UniqueIdentifier>{42ab7291-5b8b-4bdc-8063-105e61e032a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -370,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\DecisionTree.h">
+      <Filter>Header Files\AI\Sluagh\RandomForest\DecisionTree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -137,7 +137,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	Core::CameraBindInfoStruct cInfo;
 	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
-
+	
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
@@ -149,7 +149,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
+	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false, true);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 

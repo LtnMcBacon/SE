@@ -62,6 +62,7 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\DecisionTree.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
