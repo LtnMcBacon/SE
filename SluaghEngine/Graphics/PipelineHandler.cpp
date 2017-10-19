@@ -466,19 +466,19 @@ void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id,
 	rd.AntialiasedLineEnable = false;
 	switch(state.cullMode)
 	{
-	case CullMode::CULL_BACK: rd.CullMode	= D3D11_CULL_BACK;
-	case CullMode::CULL_FRONT: rd.CullMode	= D3D11_CULL_FRONT;
-	case CullMode::CULL_NONE: rd.CullMode	= D3D11_CULL_NONE;
+	case CullMode::CULL_BACK: rd.CullMode	= D3D11_CULL_BACK; break;
+	case CullMode::CULL_FRONT: rd.CullMode	= D3D11_CULL_FRONT; break;
+	case CullMode::CULL_NONE: rd.CullMode	= D3D11_CULL_NONE; break;
 	}
 	switch(state.fillMode)
 	{
-	case FillMode::FILL_SOLID:		rd.FillMode = D3D11_FILL_SOLID;
-	case FillMode::FILL_WIREFRAME:  rd.FillMode = D3D11_FILL_WIREFRAME;
+	case FillMode::FILL_SOLID:		rd.FillMode = D3D11_FILL_SOLID; break;
+	case FillMode::FILL_WIREFRAME:  rd.FillMode = D3D11_FILL_WIREFRAME; break;
 	}
 	switch(state.windingOrder)
 	{
-	case WindingOrder::CLOCKWISE:		 rd.FrontCounterClockwise = false;
-	case WindingOrder::COUNTERCLOCKWISE: rd.FrontCounterClockwise = true;
+	case WindingOrder::CLOCKWISE:		 rd.FrontCounterClockwise = false; break;
+	case WindingOrder::COUNTERCLOCKWISE: rd.FrontCounterClockwise = true; break;
 	}
 	rd.DepthBias = false;
 	rd.DepthClipEnable = true;
@@ -518,78 +518,78 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	rtbd[0].BlendEnable = state.enable;
 	switch (state.blendOperation)
 	{
-	case BlendOperation::ADD: rtbd[0].BlendOp = D3D11_BLEND_OP_ADD;
-	case BlendOperation::MAX: rtbd[0].BlendOp = D3D11_BLEND_OP_MAX;
-	case BlendOperation::MIN: rtbd[0].BlendOp = D3D11_BLEND_OP_MIN;
-	case BlendOperation::SUB: rtbd[0].BlendOp = D3D11_BLEND_OP_SUBTRACT;
+	case BlendOperation::ADD: rtbd[0].BlendOp = D3D11_BLEND_OP_ADD; break;
+	case BlendOperation::MAX: rtbd[0].BlendOp = D3D11_BLEND_OP_MAX; break;
+	case BlendOperation::MIN: rtbd[0].BlendOp = D3D11_BLEND_OP_MIN; break;
+	case BlendOperation::SUB: rtbd[0].BlendOp = D3D11_BLEND_OP_SUBTRACT; break;
 	}
 	
 	switch(state.blendOperationAlpha)
 	{
-	case BlendOperation::ADD: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	case BlendOperation::MAX: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
-	case BlendOperation::MIN: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MIN;
-	case BlendOperation::SUB: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_SUBTRACT;
+	case BlendOperation::ADD: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; break;
+	case BlendOperation::MAX: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MAX; break;
+	case BlendOperation::MIN: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MIN; break;
+	case BlendOperation::SUB: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_SUBTRACT; break;
 	}
 
 	switch(state.dstBlend)
 	{
-	case Blend::BLEND_FACTOR:	rtbd[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-	case Blend::DEST_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_DEST_ALPHA;
-	case Blend::DEST_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_DEST_COLOR;
-	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_ALPHA;
-	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_COLOR;
-	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
-	case Blend::ONE:			rtbd[0].DestBlend = D3D11_BLEND_ONE;
-	case Blend::SRC_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
-	case Blend::SRC_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_SRC_COLOR;
-	case Blend::ZERO:			rtbd[0].DestBlend = D3D11_BLEND_ZERO;
+	case Blend::BLEND_FACTOR:	rtbd[0].DestBlend = D3D11_BLEND_BLEND_FACTOR; break;
+	case Blend::DEST_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_DEST_ALPHA; break;
+	case Blend::DEST_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_DEST_COLOR; break;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_ALPHA; break;
+	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_COLOR; break;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; break;
+	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR; break;
+	case Blend::ONE:			rtbd[0].DestBlend = D3D11_BLEND_ONE; break;
+	case Blend::SRC_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_SRC_ALPHA; break;
+	case Blend::SRC_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_SRC_COLOR; break;
+	case Blend::ZERO:			rtbd[0].DestBlend = D3D11_BLEND_ZERO; break;
 	}
 
 	switch (state.srcBlend)
 	{
-	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlend = D3D11_BLEND_BLEND_FACTOR;
-	case Blend::DEST_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_ALPHA;
-	case Blend::DEST_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
-	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_ALPHA;
-	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_COLOR;
-	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_COLOR;
-	case Blend::ONE:			rtbd[0].SrcBlend = D3D11_BLEND_ONE;
-	case Blend::SRC_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	case Blend::SRC_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-	case Blend::ZERO:			rtbd[0].SrcBlend = D3D11_BLEND_ZERO;
+	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlend = D3D11_BLEND_BLEND_FACTOR; break;
+	case Blend::DEST_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_ALPHA; break;
+	case Blend::DEST_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_COLOR; break;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_ALPHA; break;
+	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_COLOR; break;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA; break;
+	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_COLOR; break;
+	case Blend::ONE:			rtbd[0].SrcBlend = D3D11_BLEND_ONE; break;
+	case Blend::SRC_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; break;
+	case Blend::SRC_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_COLOR; break;
+	case Blend::ZERO:			rtbd[0].SrcBlend = D3D11_BLEND_ZERO; break;
 	}
 
 	switch (state.dstBlendAlpha)
 	{
-	case Blend::BLEND_FACTOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_BLEND_FACTOR;
-	case Blend::DEST_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
-	case Blend::DEST_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_COLOR;
-	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
-	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_COLOR;
-	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_COLOR;
-	case Blend::ONE:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	case Blend::SRC_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	case Blend::SRC_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_COLOR;
-	case Blend::ZERO:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	case Blend::BLEND_FACTOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_BLEND_FACTOR; break;
+	case Blend::DEST_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA; break;
+	case Blend::DEST_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_COLOR; break;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA; break;
+	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_COLOR; break;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA; break;
+	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_COLOR; break;
+	case Blend::ONE:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ONE; break;
+	case Blend::SRC_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA; break;
+	case Blend::SRC_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_COLOR; break;
+	case Blend::ZERO:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ZERO; break;
 	}
 	
 	switch (state.srcBlendAlpha)
 	{
-	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_BLEND_FACTOR;
-	case Blend::DEST_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
-	case Blend::DEST_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_COLOR;
-	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
-	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_COLOR;
-	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_COLOR;
-	case Blend::ONE:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	case Blend::SRC_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	case Blend::SRC_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_COLOR;
-	case Blend::ZERO:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_BLEND_FACTOR; break;
+	case Blend::DEST_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA; break;
+	case Blend::DEST_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_COLOR; break;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA; break;
+	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_COLOR; break;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA; break;
+	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_COLOR; break;
+	case Blend::ONE:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ONE; break;
+	case Blend::SRC_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA; break;
+	case Blend::SRC_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_COLOR; break;
+	case Blend::ZERO:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ZERO; break;
 	}
 	rtbd[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	
@@ -623,12 +623,12 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& i
 	dsd.DepthEnable = state.enableDepth;
 	switch(state.comparisonOperation)
 	{
-	case ComparisonOperation::EQUAL:			dsd.DepthFunc = D3D11_COMPARISON_EQUAL;
-	case ComparisonOperation::GREATER:			dsd.DepthFunc = D3D11_COMPARISON_GREATER;
-	case ComparisonOperation::GREATER_EQUAL:	dsd.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
-	case ComparisonOperation::LESS:				dsd.DepthFunc = D3D11_COMPARISON_LESS;
-	case ComparisonOperation::LESS_EQUAL:		dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	case ComparisonOperation::NO_COMPARISON:	dsd.DepthFunc = D3D11_COMPARISON_NEVER;
+	case ComparisonOperation::EQUAL:			dsd.DepthFunc = D3D11_COMPARISON_EQUAL; break;
+	case ComparisonOperation::GREATER:			dsd.DepthFunc = D3D11_COMPARISON_GREATER; break;
+	case ComparisonOperation::GREATER_EQUAL:	dsd.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL; break;
+	case ComparisonOperation::LESS:				dsd.DepthFunc = D3D11_COMPARISON_LESS; break;
+	case ComparisonOperation::LESS_EQUAL:		dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; break;
+	case ComparisonOperation::NO_COMPARISON:	dsd.DepthFunc = D3D11_COMPARISON_NEVER; break;
 	}
 	
 	dsd.DepthWriteMask = state.enableDepth ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -675,27 +675,27 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	D3D11_SAMPLER_DESC sd;
 	switch (state.addressU)
 	{
-	case AddressingMode::WRAP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	case AddressingMode::CLAMP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	case AddressingMode::MIRROR:	sd.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	case AddressingMode::WRAP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; break;
+	case AddressingMode::CLAMP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP; break;
+	case AddressingMode::MIRROR:	sd.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR; break;
 	}
 	switch (state.addressV)
 	{
-	case AddressingMode::WRAP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	case AddressingMode::CLAMP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	case AddressingMode::MIRROR:	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	case AddressingMode::WRAP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; break;
+	case AddressingMode::CLAMP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP; break;
+	case AddressingMode::MIRROR:	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR; break;
 	}
 	switch (state.addressW)
 	{
-	case AddressingMode::WRAP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	case AddressingMode::CLAMP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	case AddressingMode::MIRROR:	sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	case AddressingMode::WRAP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP; break;
+	case AddressingMode::CLAMP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; break;
+	case AddressingMode::MIRROR:	sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR; break;
 	}
 	switch(state.filter)
 	{
-	case Filter::ANISOTROPIC:	sd.Filter = D3D11_FILTER_ANISOTROPIC;
-	case Filter::LINEAR:		sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	case Filter::POINT:			sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	case Filter::ANISOTROPIC:	sd.Filter = D3D11_FILTER_ANISOTROPIC; break;
+	case Filter::LINEAR:		sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; break;
+	case Filter::POINT:			sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; break;
 	}
 	sd.BorderColor[0] = 0.0f; sd.BorderColor[1] = 0.0f; sd.BorderColor[2] = 0.0f; sd.BorderColor[3] = 0.0f;
 	sd.MinLOD = 0;
@@ -718,4 +718,63 @@ void SE::Graphics::PipelineHandler::DestroySamplerState(const Utilz::GUID& id)
 
 	exists->second->Release();
 	samplerStates.erase(exists);
+}
+
+void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target)
+{
+	const auto exists = shaderResourceViews.find(id);
+	if (exists != shaderResourceViews.end())
+		return;
+
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = target.width;
+	desc.Height = target.height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	switch(target.format)
+	{
+	case TextureFormat::R32G32B32A32_FLOAT: desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+	case TextureFormat::R8G8B8A8_UNORM:		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+	}
+
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_RENDER_TARGET;
+	if (target.bindAsShaderResource) desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	ID3D11Texture2D* texture;
+	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
+	if (FAILED(hr))
+		throw std::exception("Failed to create texture.");
+
+	if (target.bindAsShaderResource)
+	{
+		ID3D11ShaderResourceView* srv;
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = desc.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
+		if (FAILED(hr))
+			throw std::exception("Failed to create shader resource view");
+		shaderResourceViews[id] = srv;
+	}
+	
+
+	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
+	rtvd.Format = desc.Format;
+	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvd.Texture2D.MipSlice = 0;
+	ID3D11RenderTargetView* rtv;
+	hr = device->CreateRenderTargetView(texture, &rtvd, &rtv);
+	if (FAILED(hr))
+		throw std::exception("Failed to create render target view");
+
+	renderTargetViews[id] = rtv;
+
+	texture->Release();
 }

@@ -100,11 +100,18 @@ namespace SE
 			int maxAnisotropy;
 		};
 
+		enum class TextureFormat
+		{
+			R32G32B32A32_FLOAT,
+			R8G8B8A8_UNORM
+		};
+
 		struct RenderTarget
 		{
 			bool bindAsShaderResource;
 			int width;
 			int height;
+			TextureFormat format;
 
 		};
 		enum class PrimitiveTopology : uint8_t
