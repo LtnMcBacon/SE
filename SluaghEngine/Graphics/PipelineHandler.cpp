@@ -666,3 +666,46 @@ void SE::Graphics::PipelineHandler::DestroyDepthStencilState(const Utilz::GUID& 
 	depthStencilStates.erase(exists);
 
 }
+
+void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, const SamplerState& state)
+{
+	const auto exists = samplerStates.find(id);
+	if (exists != samplerStates.end())
+		return;
+	D3D11_SAMPLER_DESC sd;
+	switch (state.addressU)
+	{
+	case AddressingMode::WRAP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	case AddressingMode::CLAMP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	case AddressingMode::MIRROR:	sd.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	}
+	switch (state.addressV)
+	{
+	case AddressingMode::WRAP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	case AddressingMode::CLAMP:		sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	case AddressingMode::MIRROR:	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	}
+	switch (state.addressW)
+	{
+	case AddressingMode::WRAP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	case AddressingMode::CLAMP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	case AddressingMode::MIRROR:	sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	}
+	switch(state.filter)
+	{
+	case Filter::ANISOTROPIC:	sd.Filter = D3D11_FILTER_ANISOTROPIC;
+	case Filter::LINEAR:		sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	case Filter::POINT:			sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	}
+	sd.BorderColor[0] = 0.0f; sd.BorderColor[1] = 0.0f; sd.BorderColor[2] = 0.0f; sd.BorderColor[3] = 0.0f;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
+
+	ID3D11SamplerState* samplerState;
+	HRESULT hr = device->CreateSamplerState(&sd, &samplerState);
+	if (FAILED(hr))
+		throw std::exception("Failed to create samplerstate");
+
+	samplerStates[id] = samplerState;
+
+}

@@ -89,8 +89,7 @@ namespace SE
 		{
 			ANISOTROPIC,
 			LINEAR,
-			BILINEAR,
-			TRILINEAR
+			POINT
 		};
 		struct SamplerState
 		{
