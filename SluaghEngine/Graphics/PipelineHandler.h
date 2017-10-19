@@ -71,7 +71,7 @@ namespace SE
 			std::map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Compare> geometryShaders;
 			std::map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Compare> pixelShaders;
 			std::map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Compare> computeShaders;
-			std::map<Utilz::GUID, ConstantBuffer, Utilz::GUID::Compare> constantBuffers;
+			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> constantBuffers;
 			std::map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Compare> shaderResourceViews;
 			std::map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Compare> renderTargetViews;
 			std::map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Compare> samplerStates;
@@ -80,7 +80,7 @@ namespace SE
 			std::map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Compare> depthStencilStates;
 			/**<Key is evaluated by (GUID(pixelShader) + GUID(resourceBindingName))*/
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> pixelShaderAndResourceNameToBindSlot;
-
+			std::map<Utilz::GUID, int, Utilz::GUID::Compare> shaderAndResourceNameToBindSlot;
 
 		};
 	}

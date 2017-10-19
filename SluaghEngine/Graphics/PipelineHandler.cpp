@@ -27,7 +27,7 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : computeShaders)
 		r.second->Release();
 	for (auto& r : constantBuffers)
-		r.second.buffer->Release();
+		r.second->Release();
 	for (auto& r : shaderResourceViews)
 		r.second->Release();
 	for (auto& r : renderTargetViews)
@@ -214,8 +214,6 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 		reflection->GetResourceBindingDesc(i, &sibd);
 		if (sibd.Type == D3D_SIT_CBUFFER)
 		{
-			ConstantBuffer cb;
-			cb.bindSlot = sibd.BindPoint;
 			//Can't get the size from the RBD, can't get bindslot from the SBD...	
 			//Find the sbd with the same name to get the size.
 			for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
@@ -225,20 +223,26 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 				srcb->GetDesc(&sbd);
 				if (sbd.Name == sibd.Name)
 				{
-					D3D11_BUFFER_DESC bufDesc;
-					bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-					bufDesc.StructureByteStride = 0;
-					bufDesc.ByteWidth = sbd.Size;
-					bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-					bufDesc.MiscFlags = 0;
-					bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							throw std::exception("Failed to create constant buffer.");
+						constantBuffers[sbd.Name] = buffer;
+					}
 
-					hr = device->CreateBuffer(&bufDesc, nullptr, &cb.buffer);
-					if (FAILED(hr))
-						throw std::exception("Failed to create constant buffer.");
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
-					constantBuffers[combined] = cb;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
 					break;
 				}
 			}
@@ -346,4 +350,31 @@ void SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
 		return;
 	exists->second->Release();
 	computeShaders.erase(exists);
+}
+
+void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData)
+{
+	const auto exists = constantBuffers.find(id);
+	if (exists != constantBuffers.end())
+		return;
+
+	D3D11_BUFFER_DESC bd;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.ByteWidth = size;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+
+	D3D11_SUBRESOURCE_DATA d;
+	d.pSysMem = initialData;
+	d.SysMemPitch = 0;
+	d.SysMemSlicePitch = 0;
+
+	ID3D11Buffer* buffer;
+	HRESULT hr = device->CreateBuffer(&bd, &d, &buffer);
+	if (FAILED(hr))
+		throw std::exception("Failed to create constant buffer");
+
+	constantBuffers[id] = buffer;
 }
