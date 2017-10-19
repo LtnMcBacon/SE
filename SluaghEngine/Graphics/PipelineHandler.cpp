@@ -862,6 +862,21 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id
 	texture->Release();
 }
 
+void SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
+{
+	auto dsv = depthStencilViews.find(id);
+	if (dsv == depthStencilViews.end())
+		return;
+	dsv->second->Release();
+	depthStencilViews.erase(dsv);
+
+	auto srv = shaderResourceViews.find(id);
+	if (srv == shaderResourceViews.end())
+		return;
+	srv->second->Release();
+	shaderResourceViews.erase(srv);
+}
+
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	SetInputAssemblerStage(pipeline.IAStage);
