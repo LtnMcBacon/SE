@@ -778,3 +778,18 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 
 	texture->Release();
 }
+
+void SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
+{
+	auto rtv = renderTargetViews.find(id);
+	if (rtv == renderTargetViews.end())
+		return;
+	rtv->second->Release();
+	renderTargetViews.erase(rtv);
+
+	auto srv = shaderResourceViews.find(id);
+	if (srv == shaderResourceViews.end())
+		return;
+	srv->second->Release();
+	shaderResourceViews.erase(srv);
+}
