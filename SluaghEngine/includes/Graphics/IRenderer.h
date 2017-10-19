@@ -12,6 +12,7 @@
 #include "FileHeaders.h"
 #include "AnimationJobInfo.h"
 #include <Utilz\TimeCluster.h>
+#include "IPipelineHandler.h"
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -45,6 +46,8 @@ namespace SE
 			* @endcode
 			*/
 			virtual void Shutdown() = 0;
+
+			virtual IPipelineHandler* GetPipelineHandler() = 0;
 
 			/**
 			* @brief    Sets a render job

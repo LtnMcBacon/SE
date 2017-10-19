@@ -3,6 +3,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include "GPUTimeCluster.h"
 #include <Utilz\CPUTimeCluster.h>
+#include "PipelineHandler.h"
 #undef min
 
 SE::Graphics::Renderer::Renderer() 
@@ -29,6 +30,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
+	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext());
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -72,7 +74,7 @@ void SE::Graphics::Renderer::Shutdown()
 //	if (myThread.joinable())
 		//myThread.join();
 
-
+	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 
@@ -82,6 +84,8 @@ void SE::Graphics::Renderer::Shutdown()
 	delete animationSystem;
 	delete device;
 }
+
+
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {

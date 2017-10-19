@@ -11,6 +11,7 @@
 #include <thread>
 #include <Utilz\TimeCluster.h>
 
+
 namespace SE
 {
 	namespace Graphics
@@ -36,6 +37,11 @@ namespace SE
 			*/
 			void Shutdown() override;
 
+
+			IPipelineHandler* GetPipelineHandler() override
+			{
+				return pipelineHandler;
+			};
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
@@ -400,6 +406,7 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+			IPipelineHandler* pipelineHandler;
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 

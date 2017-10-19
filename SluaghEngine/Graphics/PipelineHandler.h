@@ -3,6 +3,7 @@
 #include "IPipelineHandler.h"
 #include <d3d11.h>
 #include <map>
+#include <unordered_map>
 namespace SE
 {
 	namespace Graphics
@@ -82,25 +83,24 @@ namespace SE
 			};
 			Pipeline currentPipeline;
 
-			std::map<Utilz::GUID, VertexBuffer, Utilz::GUID::Compare> vertexBuffers;
-			std::map<Utilz::GUID, IndexBuffer, Utilz::GUID::Compare> indexBuffers;
-			std::map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Compare> inputLayouts;
-			std::map<Utilz::GUID, ID3D11VertexShader*, Utilz::GUID::Compare> vertexShaders;
-			std::map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Compare> geometryShaders;
-			std::map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Compare> pixelShaders;
-			std::map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Compare> computeShaders;
-			std::map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Compare> constantBuffers;
-			std::map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Compare> shaderResourceViews;
-			std::map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Compare> renderTargetViews;
-			std::map<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Compare> depthStencilViews;
-			std::map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Compare> samplerStates;
-			std::map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Compare> blendStates;
-			std::map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Compare> rasterizerStates;
-			std::map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Compare> viewports;
-
-			std::map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Compare> depthStencilStates;
+			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
+			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
+			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
+			std::unordered_map<Utilz::GUID, ID3D11VertexShader*, Utilz::GUID::Hasher> vertexShaders;
+			std::unordered_map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Hasher> geometryShaders;
+			std::unordered_map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Hasher> pixelShaders;
+			std::unordered_map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Hasher> computeShaders;
+			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
+			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
+			std::unordered_map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Hasher> renderTargetViews;
+			std::unordered_map<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Hasher> depthStencilViews;
+			std::unordered_map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Hasher> samplerStates;
+			std::unordered_map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Hasher> blendStates;
+			std::unordered_map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
+			std::unordered_map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
+			std::unordered_map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> shaderAndResourceNameToBindSlot;
+			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
 
 		};
 	}
