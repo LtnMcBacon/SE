@@ -32,15 +32,35 @@ namespace SE
 		enum class BlendOperation
 		{
 			ADD,
-			SUBTRACT,
+			SUB,
 			MAX,
 			MIN
+		};
+
+		enum class Blend
+		{
+			ZERO,
+			ONE,
+			SRC_COLOR,
+			INV_SRC_COLOR,
+			SRC_ALPHA,
+			INV_SRC_ALPHA,
+			DEST_ALPHA,
+			INV_DEST_ALPHA,
+			DEST_COLOR,
+			INV_DEST_COLOR,
+			BLEND_FACTOR
 		};
 
 		struct BlendState
 		{
 			bool enable;
 			BlendOperation blendOperation;
+			BlendOperation blendOperationAlpha;
+			Blend srcBlend;
+			Blend dstBlend;
+			Blend srcBlendAlpha;
+			Blend dstBlendAlpha;
 		};
 
 		enum class ComparisonOperation

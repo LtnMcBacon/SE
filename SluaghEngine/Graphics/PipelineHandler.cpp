@@ -504,3 +504,102 @@ void SE::Graphics::PipelineHandler::DestroyRasterizerState(const Utilz::GUID& id
 	exists->second->Release();
 	rasterizerStates.erase(exists);
 }
+
+void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, const BlendState& state)
+{
+	const auto exists = blendStates.find(id);
+	if (exists != blendStates.end())
+		return;
+
+	D3D11_BLEND_DESC bd;
+	bd.IndependentBlendEnable = false;
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd[8];
+	rtbd[0].BlendEnable = state.enable;
+	switch (state.blendOperation)
+	{
+	case BlendOperation::ADD: rtbd[0].BlendOp = D3D11_BLEND_OP_ADD;
+	case BlendOperation::MAX: rtbd[0].BlendOp = D3D11_BLEND_OP_MAX;
+	case BlendOperation::MIN: rtbd[0].BlendOp = D3D11_BLEND_OP_MIN;
+	case BlendOperation::SUB: rtbd[0].BlendOp = D3D11_BLEND_OP_SUBTRACT;
+	}
+	
+	switch(state.blendOperationAlpha)
+	{
+	case BlendOperation::ADD: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	case BlendOperation::MAX: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
+	case BlendOperation::MIN: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MIN;
+	case BlendOperation::SUB: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_SUBTRACT;
+	}
+
+	switch(state.dstBlend)
+	{
+	case Blend::BLEND_FACTOR:	rtbd[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	case Blend::DEST_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_DEST_ALPHA;
+	case Blend::DEST_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_DEST_COLOR;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_ALPHA;
+	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_DEST_COLOR;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
+	case Blend::ONE:			rtbd[0].DestBlend = D3D11_BLEND_ONE;
+	case Blend::SRC_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
+	case Blend::SRC_COLOR:		rtbd[0].DestBlend = D3D11_BLEND_SRC_COLOR;
+	case Blend::ZERO:			rtbd[0].DestBlend = D3D11_BLEND_ZERO;
+	}
+
+	switch (state.srcBlend)
+	{
+	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlend = D3D11_BLEND_BLEND_FACTOR;
+	case Blend::DEST_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_ALPHA;
+	case Blend::DEST_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_ALPHA;
+	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_DEST_COLOR;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlend = D3D11_BLEND_INV_SRC_COLOR;
+	case Blend::ONE:			rtbd[0].SrcBlend = D3D11_BLEND_ONE;
+	case Blend::SRC_ALPHA:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	case Blend::SRC_COLOR:		rtbd[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	case Blend::ZERO:			rtbd[0].SrcBlend = D3D11_BLEND_ZERO;
+	}
+
+	switch (state.dstBlendAlpha)
+	{
+	case Blend::BLEND_FACTOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_BLEND_FACTOR;
+	case Blend::DEST_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+	case Blend::DEST_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_DEST_COLOR;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
+	case Blend::INV_DEST_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_DEST_COLOR;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	case Blend::INV_SRC_COLOR:	rtbd[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_COLOR;
+	case Blend::ONE:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	case Blend::SRC_ALPHA:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	case Blend::SRC_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_COLOR;
+	case Blend::ZERO:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	}
+	
+	switch (state.srcBlendAlpha)
+	{
+	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_BLEND_FACTOR;
+	case Blend::DEST_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+	case Blend::DEST_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_DEST_COLOR;
+	case Blend::INV_DEST_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
+	case Blend::INV_DEST_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_COLOR;
+	case Blend::INV_SRC_ALPHA:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	case Blend::INV_SRC_COLOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_COLOR;
+	case Blend::ONE:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	case Blend::SRC_ALPHA:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	case Blend::SRC_COLOR:		rtbd[0].SrcBlendAlpha = D3D11_BLEND_SRC_COLOR;
+	case Blend::ZERO:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	}
+	rtbd[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	
+	bd.AlphaToCoverageEnable = false;
+	bd.RenderTarget[0] = rtbd[0];
+	
+	ID3D11BlendState* blendState;
+	HRESULT hr = device->CreateBlendState(&bd, &blendState);
+	if (FAILED(hr))
+		throw std::exception("Failed to create blend state");
+
+	blendStates[id] = blendState;
+}
