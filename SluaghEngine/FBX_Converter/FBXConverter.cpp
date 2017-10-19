@@ -1388,6 +1388,7 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			texture.texturePath = Utilz::getFilename(textureFile->GetFileName());
 			texture.textureName = Utilz::removeExtension(Utilz::getFilename(textureFile->GetFileName()));
+			texture.textureChannel = materialProperty.GetName();
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1465,7 +1466,7 @@ void SE::FBX::FBXConverter::Write() {
 void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolder, Material& meshMaterial) {
 
 	// Define the file name
-	string binaryFile = folderName + "/" + meshMaterial.materialName + "_" + fileName + ".mat";
+	string binaryFile = folderName + "/" + fileName + ".mat";
 
 	// Define the ofstream 
 	ofstream outBinary(binaryFile, std::ios::binary);
@@ -1502,11 +1503,19 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 
 		if(ExportTexture(meshMaterial.textures[textureIndex], textureFolder)) {
 
+			// Write the texture name
 			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
 			string textureName = meshMaterial.textures[textureIndex].textureName;
 
 			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&textureName), size);
+
+			// Write the texture channel
+			size = (uint32_t)meshMaterial.textures[textureIndex].textureChannel.size();
+			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
+
+			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
+			outBinary.write(reinterpret_cast<char*>(&textureChannel), size);
 
 			cout << "[OK] Exported " << meshMaterial.textures[textureIndex].textureName << " to " << textureFolder << endl;
 		}
