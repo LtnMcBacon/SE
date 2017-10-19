@@ -7,6 +7,9 @@
 #include <Gameplay\Room.h>
 #include <Gameplay\PlayerUnit.h>
 
+#include <new>
+#include <variant>
+
 namespace SE
 {
 	namespace Gameplay
@@ -32,14 +35,25 @@ namespace SE
 
 			struct BehaviourParameter
 			{
-				union
-				{
-					float f;
-					int i;
-					bool b;
-					//std::function<bool(Projectile* projectile, float dt)> func;
-					Projectile* projectile;
-				};
+				//union Union
+				//{
+				//	float f;
+				//	int i;
+				//	bool b;
+				//	std::vector<std::function<bool(Projectile* projectile, float dt)>> functions;
+				//	Projectile* projectile;
+				//	std::vector<BehaviourParameter> subParameters;
+
+				//	Union() {}
+				//	//Union(const Union& other)
+				//	//{
+				//	//	
+				//	//}
+				//	~Union() {}
+				//} U;
+
+				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::vector<BehaviourParameter>> data;
+
 			};
 
 			/**
@@ -53,6 +67,8 @@ namespace SE
 			};
 
 			BehaviourPointers ptrs;
+
+			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
 
 		public:
 
@@ -71,6 +87,9 @@ namespace SE
 			ProjectileFactory(const ProjectileFactory& other) = delete;
 			ProjectileFactory(const ProjectileFactory&& other) = delete;
 			ProjectileFactory& operator=(const ProjectileFactory& rhs) = delete;
+
+			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, char* fileData);
+			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, char* valueData);
 
 			/**
 			* @brief	Adds bounce behaviour to the projectile
@@ -105,14 +124,19 @@ namespace SE
 
 
 			/**
-			* @brief	Adds Targeting closest enemy behaviour to the projectile
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeCondition(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func*/);
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionRunBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionAddBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
 			*/
-			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, std::function<bool(Projectile* projectile, float dt)> func);
+			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, const std::function<bool(Projectile* projectile, float dt)>& func);
 
 
 		public:

@@ -66,6 +66,12 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 		}
 	}
 
+	while (tempStorage.size())
+	{
+		functionsToRun.push_back(tempStorage.back());
+		tempStorage.pop_back();
+	}
+
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
 		if (!functionsToRun[i](this, dt))
@@ -170,7 +176,6 @@ SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float pr
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
 
 	UpdateBounding();
-
 }
 
 SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
@@ -183,6 +188,7 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
@@ -205,6 +211,7 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
@@ -228,6 +235,7 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
@@ -246,17 +254,17 @@ SE::Gameplay::Projectile::~Projectile()
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::Projectile::AddContinuousFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddContinuousFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
-	functionsToRun.push_back(func);
+	tempStorage.push_back(func);
 }
 
-void SE::Gameplay::Projectile::AddCollisionFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddCollisionFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
 	onCollision.push_back(func);
 }
 
-void SE::Gameplay::Projectile::AddDeathFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddDeathFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
 	onDeath.push_back(func);
 }
