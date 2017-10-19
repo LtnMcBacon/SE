@@ -57,6 +57,8 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ParseBehaviour(Projectile & p, char * fileData)
 {
+	StartProfile;
+
 	const unsigned int maxValueSize = 50;
 	unsigned int functionToReturnIndex = fileData[0] - 48;
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
@@ -190,11 +192,13 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 			position++;
 	}
 
-	return behaviourFunctions[functionToReturnIndex](parameters);
+	ProfileReturn(behaviourFunctions[functionToReturnIndex](parameters));
 }
 
 void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> & parameters, char * valueData)
 {
+	StartProfile;
+
 	const unsigned int maxValueSize = 20;
 	unsigned int iterator = 2;
 	char value[20] = { NULL };
@@ -230,6 +234,8 @@ void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::Proje
 	}
 
 	parameters.push_back(temp);
+
+	StopProfile;
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::BounceBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
