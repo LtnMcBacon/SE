@@ -1295,7 +1295,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 		else if (surfaceMaterial->GetClassId() == FbxSurfacePhong::ClassId) {
 
 			FbxSurfacePhong* phongMaterial = (FbxSurfacePhong*)surfaceMaterial;
-			GetLambert(pMesh.objectMaterial, phongMaterial);
+			GetPhong(pMesh.objectMaterial, phongMaterial);
 		}
 
 		// Get the texture on the diffuse material property
@@ -1309,7 +1309,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 	}
 }
 
-void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial) {
+void SE::FBX::FBXConverter::GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial) {
 
 	objectMaterial.materialType = "Lambert";
 
@@ -1340,7 +1340,7 @@ void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLamber
 	objectMaterial.specularFactor = 0.0f;
 }
 
-void SE::FBX::FBXConverter::GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial) {
+void SE::FBX::FBXConverter::GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial) {
 
 	objectMaterial.materialType = "Phong";
 
