@@ -603,3 +603,13 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 
 	blendStates[id] = blendState;
 }
+
+void SE::Graphics::PipelineHandler::DestroyBlendState(const Utilz::GUID& id)
+{
+	auto exists = blendStates.find(id);
+	if (exists == blendStates.end())
+		return;
+
+	exists->second->Release();
+	blendStates.erase(exists);
+}
