@@ -220,7 +220,7 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 	ProfileReturnConst(true)
 }
 
-bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
+bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console) const
 {
 	StartProfile;
 	using namespace DirectX;
@@ -252,7 +252,7 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 			lifeTime -= dt;
 		}
 
-		bool IsActive()
+		bool IsActive() const
 		{
 			return lifeTime > 0.0f;
 		}

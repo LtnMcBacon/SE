@@ -32,6 +32,7 @@ namespace SE
 		public:
 			struct InitializationInfo
 			{
+				SE::Window::InitializationInfo winInfo;
 				bool placeholder; //Rewrite this later
 			};
 
@@ -77,6 +78,8 @@ namespace SE
 
 			/**
 			* @brief    Updates the state of the Core, entity cleanup, input, etc.
+			* @details  Calls frame in all of its managers and handlers. It also records 
+			* the time each manager takes to calculate its frame.
 			*
 			* @retval 0 On success.
 			*/

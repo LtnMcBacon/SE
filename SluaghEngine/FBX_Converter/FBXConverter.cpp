@@ -311,8 +311,6 @@ void SE::FBX::FBXConverter::GetMeshes() {
 		// bbox values
 		FbxDouble3 bboxMax = currentMesh.meshNode->BBoxMax; 
 		FbxDouble3 bboxMin = currentMesh.meshNode->BBoxMin;
-		
-		double test = (float)bboxMax[0];
 
 		currentMesh.bboxValues.max.x = (float)bboxMax[0];
 		currentMesh.bboxValues.max.y = (float)bboxMax[1];
@@ -578,10 +576,6 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
-
-		int k = pMesh.meshNode->GetPolygonCount();
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
 			// Retreive the size of every polygon which should be represented as a triangle
@@ -607,8 +601,6 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 				// Push back vertices to the current mesh
 				pMesh.standardVertices.push_back(vertex);
 
-				vertexCounter++;
-
 			}
 
 		}
@@ -627,8 +619,6 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 	logFile.open(logFileName, ofstream::app);
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
 
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
@@ -675,10 +665,6 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
 
 				pMesh.boneVertices.push_back(vertex);	// Store all vertices in a separate vector
-
-				vertexCounter++;
-
-
 			}
 
 		}
@@ -1076,7 +1062,6 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 		for (int i = 0; i < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); i++) // for every stack
 		{
 			// Get the current animation stack
-			int stackCount = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
 			FbxAnimStack* AnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
 			FbxString animStackName = AnimStack->GetName();
 
