@@ -494,3 +494,13 @@ void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id,
 	rasterizerStates[id] = rs;
 
 }
+
+void SE::Graphics::PipelineHandler::DestroyRasterizerState(const Utilz::GUID& id)
+{
+	auto exists = rasterizerStates.find(id);
+	if (exists == rasterizerStates.end())
+		return;
+
+	exists->second->Release();
+	rasterizerStates.erase(exists);
+}
