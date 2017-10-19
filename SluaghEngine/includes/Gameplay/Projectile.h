@@ -73,6 +73,15 @@ namespace SE
 			CollisionType type = CollisionType::NONE;
 		};
 
+		struct BehaviourData
+		{
+			union
+			{
+				float f;
+				int i;
+			};
+		};
+
 		class Projectile : public GameUnit
 		{
 		public:
@@ -142,9 +151,12 @@ namespace SE
 		private:
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> tempStorage;
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
+
+			std::vector<BehaviourData> behaviourData;
 
 			float extentX;
 			float extentY;
@@ -184,9 +196,12 @@ namespace SE
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddContinuousFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddCollisionFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddDeathFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+
+			int AddBehaviourData(BehaviourData data);
+			BehaviourData& GetBehaviourData(int index);
 
 			inline void SetRotation(float projectileRotation)
 			{
@@ -228,6 +243,12 @@ namespace SE
 				active = value;
 			}
 
+			inline void SetLifeTime(float value)
+			{
+				lifeTime = value;
+			}
+
+
 
 			inline bool GetActive()
 			{
@@ -252,6 +273,16 @@ namespace SE
 			inline Rotation GetRotationStyle()
 			{
 				return rotData;
+			}
+
+			inline float GetLifeTime()
+			{
+				return lifeTime;
+			}
+
+			inline float GetSpeed()
+			{
+				return speed;
 			}
 
 		};
