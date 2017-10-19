@@ -35,8 +35,8 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
 	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
 
-	parameters[0].behaviour.f = 60.0f * 0.08f;
-	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
+	/*parameters[0].behaviour.f = 60.0f * 0.08f;
+	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));*/
 	//parameters[0].data = 60.0f * 0.08f;
 	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
 
@@ -53,6 +53,7 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "5(f{4.8})"));
 	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0})],P)"));
 	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0}),B6(f{0.0},L[B1(f{-10.0})],P)],P)")); // 7(f{ 2.0 }, L[B1(f{ 1.0 }), B6(f{ 0.0 }, L[B1(f{ -10.0 })], P)], P)
+	//AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, ParseBehaviour(temp, "8"));
 
 	ProfileReturnConst(temp);
 	
@@ -326,48 +327,23 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	//AddBehaviourToProjectile(projectile, type, inverter);
 }
 
-std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
-StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::LifeTimeBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
-	std::weak_ptr<GameUnit*> ownerPtr = *parameters[0].behaviour.projectileOwner;
-	auto StunOwnerUnit = [ownerPtr](Projectile* p, float dt) -> bool
+	float timeToIncrease = std::get<float>(parameters[0].data);
+
+	auto timeIncreaser = [timeToIncrease](Projectile* p, float dt) -> bool
 	{
-		if(p->GetCollisionType() == CollisionType::ENEMY)
-			if(auto owner = ownerPtr.lock())
-			{
-				auto unit = *owner.get();
-				ConditionEvent cEvent;
-				cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
-				unit->AddConditionEvent(cEvent);
-			}
+		float lifeTime = p->GetLifeTime();
+		lifeTime += timeToIncrease;
+		p->SetLifeTime(lifeTime);
+		p->SetActive(true);
 
 		return false;
 	};
 
-	return StunOwnerUnit;
-}
+	return timeIncreaser;
 
-std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
-LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
-{
-	std::weak_ptr<GameUnit*> ownerPtr = *parameters[0].behaviour.projectileOwner;
-	float percent = parameters[0].behaviour.f;
-	auto LifeSteal = [ownerPtr, percent](Projectile* p, float dt) -> bool
-	{
-		if (p->GetCollisionType() == CollisionType::ENEMY)
-			if (auto owner = ownerPtr.lock())
-			{
-				auto unit = *owner.get();
-				HealingEvent hEvent;
-				hEvent.amount = p->GetProjectileDamageEvent().amount*percent;
-				hEvent.type = HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT;
-				unit->AddHealingEvent(hEvent);
-			}
-
-		return false;
-	};
-
-	return LifeSteal;
+	//AddBehaviourToProjectile(projectile, type, timeIncreaser);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
@@ -488,6 +464,51 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	return timer;
 }
 
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
+	auto StunOwnerUnit = [ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::ENEMY)
+			if (auto owner = ownerPtr.lock())
+			{
+				auto unit = *owner.get();
+				ConditionEvent cEvent;
+				cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+				unit->AddConditionEvent(cEvent);
+			}
+
+		return false;
+	};
+
+	return StunOwnerUnit;
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
+	float percent = std::get<float>(parameters[1].data);
+	auto LifeSteal = [ownerPtr, percent](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::ENEMY)
+			if (auto owner = ownerPtr.lock())
+			{
+				auto unit = *owner.get();
+				HealingEvent hEvent;
+				hEvent.amount = p->GetProjectileDamageEvent().amount*percent;
+				hEvent.type = HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT;
+				unit->AddHealingEvent(hEvent);
+			}
+
+		return false;
+	};
+
+	return LifeSteal;
+}
+
 void SE::Gameplay::ProjectileFactory::AddBehaviourToProjectile(Projectile & p, TypeOfFunction type, const std::function<bool(Projectile*projectile, float dt)>& func)
 {
 	if (type == TypeOfFunction::CONTINUOUS)
@@ -515,6 +536,8 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetClosestEnemyBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionRunBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionAddBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1));
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()
