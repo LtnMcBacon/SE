@@ -297,3 +297,17 @@ void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, voi
 
 	reflection->Release();
 }
+
+void SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, void* data, size_t size)
+{
+	const auto exists = computeShaders.find(id);
+	if (exists != computeShaders.end())
+		return;
+
+	ID3D11ComputeShader* cs;
+	HRESULT hr = device->CreateComputeShader(data, size, nullptr, &cs);
+	if (FAILED(hr))
+		throw std::exception("Failed to create compute shader");
+
+	computeShaders[id] = cs;
+}
