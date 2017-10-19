@@ -34,7 +34,7 @@ namespace SE
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
-				const EntityManager& entityManager;
+				EntityManager& entityManager;
 				TransformManager* transformManager;
 				ResourceHandler::UnloadingStrategy unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
 			};
@@ -79,6 +79,7 @@ namespace SE
 			void SetTransparency(const Entity& entity, uint8_t transparency);
 
 		private:
+		
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
 			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
 
@@ -100,6 +101,10 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index);
+			/**
+			* @brief	Remove an enitity
+			*/
+			void DestroyEntity(const Entity& entity);
 			/**
 			* @brief	Look for dead entities.
 			*/
