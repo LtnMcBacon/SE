@@ -217,6 +217,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 			ConstantBuffer cb;
 			cb.bindSlot = sibd.BindPoint;
 			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
 			for (unsigned int i = 0; i < shaderDesc.ConstantBuffers; ++i)
 			{
 				D3D11_SHADER_BUFFER_DESC sbd;
@@ -232,8 +233,12 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 					bufDesc.MiscFlags = 0;
 					bufDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-					device->CreateBuffer(&bufDesc, nullptr, &cb.buffer);
-					constantBuffers[sbd.Name] = cb;
+					hr = device->CreateBuffer(&bufDesc, nullptr, &cb.buffer);
+					if (FAILED(hr))
+						throw std::exception("Failed to create constant buffer.");
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					constantBuffers[combined] = cb;
 					break;
 				}
 			}
@@ -241,4 +246,54 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 	}
 	reflection->Release();
 	ProfileReturnVoid;
+}
+
+void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size)
+{
+	auto exists = geometryShaders.find(id);
+	if (exists != geometryShaders.end())
+		return;
+
+	ID3D11GeometryShader* gs;
+	HRESULT hr = device->CreateGeometryShader(data, size, nullptr, &gs);
+	if (FAILED(hr))
+		throw std::exception("Could not create geometry shader.");
+
+	geometryShaders[id] = gs;
+}
+
+void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void* data, size_t size)
+{
+	auto exists = pixelShaders.find(id);
+	if (exists != pixelShaders.end())
+		return;
+
+	ID3D11PixelShader* ps;
+	HRESULT hr = device->CreatePixelShader(data, size, nullptr, &ps);
+	if (FAILED(hr))
+		throw std::exception("Could not create pixel shader");
+
+	pixelShaders[id] = ps;
+
+	ID3D11ShaderReflection* reflection;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+		throw std::exception("Failed to reflect vertex shader.");
+
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+
+	for(int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if(sibd.Type == D3D_SIT_TEXTURE)
+		{
+			const Utilz::GUID bindGuid(sibd.Name);
+			const Utilz::GUID combinedGuid = id + bindGuid;
+			pixelShaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
+		}
+	}
+
+	reflection->Release();
 }

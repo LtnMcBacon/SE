@@ -27,6 +27,12 @@ namespace SE
 			GUID(const GUID& other) : id(other.id) {}
 			GUID(const GUID&& other) : id(other.id) {}
 			GUID& operator=(const GUID& other) { this->id = other.id; return *this; }
+			GUID& operator+(const GUID &other) const
+			{
+				GUID g;
+				g.id = 0.5f*(id + other.id)*(id + other.id + 1) + other.id;
+				return g;
+			}
 		private:
 			size_t id;			
 		};

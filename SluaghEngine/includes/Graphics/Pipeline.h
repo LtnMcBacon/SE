@@ -128,7 +128,7 @@ namespace SE
 			static const size_t maxSamplers = 8;
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
-			Utilz::GUID textures[maxTextures]; //bindslots correspond to the index in the array
+			Utilz::GUID textures[maxTextures];
 			Utilz::GUID samplers[maxSamplers];
 			Utilz::GUID renderTargets[maxRenderTargets];
 			uint8_t constantBufferCount;
