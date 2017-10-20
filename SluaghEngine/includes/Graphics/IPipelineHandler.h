@@ -19,6 +19,7 @@ namespace SE
 
 			virtual void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) = 0;
+			virtual void CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void DestroyVertexShader(const Utilz::GUID& id) = 0;

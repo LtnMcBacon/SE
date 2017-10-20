@@ -371,7 +371,56 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 	if (FAILED(hr))
 		throw std::exception("Could not create geometry shader.");
 
+
 	geometryShaders[id] = gs;
+}
+
+void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size)
+{
+	const auto exists = geometryShaders.find(id);
+	if (exists != geometryShaders.end())
+		return;
+
+	ID3D11ShaderReflection* reflection;
+	HRESULT hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+		throw std::exception("Failed to create geometry shader reflection");
+
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+	std::vector<D3D11_SO_DECLARATION_ENTRY> SOEntries;
+	for(int i = 0; i < shaderDesc.InputParameters; ++i)
+	{
+		D3D11_SIGNATURE_PARAMETER_DESC signatureParameterDesc;
+		reflection->GetInputParameterDesc(i, &signatureParameterDesc);
+		D3D11_SO_DECLARATION_ENTRY sode;
+		sode.SemanticName = signatureParameterDesc.SemanticName;
+		sode.Stream = signatureParameterDesc.Stream;
+		sode.OutputSlot = 0;
+		sode.StartComponent = 0;
+		if (signatureParameterDesc.Mask == 1)
+			sode.ComponentCount = 1;
+		else if (signatureParameterDesc.Mask <= 3)
+			sode.ComponentCount = 2;
+		else if (signatureParameterDesc.Mask <= 7)
+			sode.ComponentCount = 3;
+		else if (signatureParameterDesc.Mask <= 15)
+			sode.ComponentCount = 4;
+		sode.SemanticIndex = signatureParameterDesc.SemanticIndex;
+		
+		SOEntries.push_back(sode);
+	}
+	uint32_t bufferStrides = 0;
+	for (auto& e : SOEntries)
+		bufferStrides += e.ComponentCount;
+	ID3D11GeometryShader* gs;
+	hr = device->CreateGeometryShaderWithStreamOutput(data, size, SOEntries.data(), SOEntries.size(), &bufferStrides, 1, D3D11_SO_NO_RASTERIZED_STREAM, nullptr, &gs);
+	if (FAILED(hr))
+		throw std::exception("Failed to create geometry shader with output stream");
+
+	geometryShaders[id] = gs;
+
+	reflection->Release();
 }
 
 void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void* data, size_t size)

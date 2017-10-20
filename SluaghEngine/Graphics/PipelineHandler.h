@@ -27,6 +27,7 @@ namespace SE
 
 			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
+			void CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
 			void DestroyVertexShader(const Utilz::GUID& id) override;
