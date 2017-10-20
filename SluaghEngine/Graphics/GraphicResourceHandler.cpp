@@ -354,8 +354,6 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 
 void SE::Graphics::GraphicResourceHandler::SetGeometryShader(int geometryID)
 {
-	UnbindShaders();
-
 	gDeviceContext->GSSetShader(gShaders[geometryID].geometryShader, nullptr, 0);
 }
 

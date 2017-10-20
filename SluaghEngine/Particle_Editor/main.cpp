@@ -48,11 +48,9 @@ int main()
 	};
 	
 	float pos1[3] = {0.0f, 0.0f, 0.0f};
-	VS_INPUT particle[4];
-	particle[0].pos = { 0, 0, 10 };
-	particle[1].pos = { 0, 1, 10 };
-	particle[2].pos = { 1, 0, 10 };
-	particle[3].pos = { 1, 1, 10 };
+	VS_INPUT particle[1];
+	particle[0].pos = { 0 + pos1[0], 0 + pos1[1], 10 + pos1[2]};
+	
 
 	Renderer->UpdateDynamicVertexBuffer(vtxBufferHandle, particle, sizeof(VS_INPUT) * 4, sizeof(VS_INPUT));//Change the values here if vertex buffer layout is changed
 	int particleJobID = Renderer->AddParticleSystemJob(particleJob);
@@ -65,10 +63,9 @@ int main()
 		Engine.BeginFrame();
 
 		ImGui::Begin("TestWin");
-		ImGui::SliderFloat("TestSlide", &particle[0].pos.x, -2.0f, 1.0f);
-		ImGui::VSliderFloat("TestVSlider", ImVec2(50, 50), pos1, -2.0f, 2.0f);
-		ImGui::SliderFloat3("Multiple Bind", pos1, -2.0f, 2.0f);
-
+		ImGui::SliderFloat("TestSlideX", &particle[0].pos.x, -2.0f, 1.0f);
+		ImGui::SliderFloat("TestSlideY", &particle[0].pos.y, -2.0f, 1.0f);
+		
 		
 
 		Renderer->UpdateDynamicVertexBuffer(vtxBufferHandle, particle, sizeof(VS_INPUT) * 4, sizeof(VS_INPUT));

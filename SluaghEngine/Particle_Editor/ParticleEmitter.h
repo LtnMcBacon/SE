@@ -6,11 +6,15 @@ class ParticleEmitter
 public:
 
 	struct Particle {
-		DirectX::XMFLOAT3 pos[4];
+		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT2 velocity;
-		float lifeTime;
+		DirectX::XMFLOAT2 size;
+		DirectX::XMFLOAT4 color;
+		float age;
+		size_t type;
 	};
 	int particleCount;
+	
 	Particle particlePool[1000];
 
 	/*

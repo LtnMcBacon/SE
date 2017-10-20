@@ -181,6 +181,7 @@ void ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data)
 	ctx->IASetIndexBuffer(g_pIB, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 	ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ctx->VSSetShader(g_pVertexShader, NULL, 0);
+	ctx->GSSetShader(nullptr, NULL, 0);
 	ctx->VSSetConstantBuffers(0, 1, &g_pVertexConstantBuffer);
 	ctx->PSSetShader(g_pPixelShader, NULL, 0);
 	ctx->PSSetSamplers(0, 1, &g_pFontSampler);

@@ -514,7 +514,7 @@ int SE::Graphics::Renderer::Render() {
 
 	//* Render particle jobs *//
 	
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::GEOMETRY, oncePerFrameBufferID, 1);
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::GEOMETRY, particleConstantBufferID, 3);
 	for (size_t i = 0; i < particleSystemVec.size(); i++)
