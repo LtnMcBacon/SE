@@ -1,11 +1,15 @@
-#ifndef SE_CORE_TRANSFORMMANAGER_H_
-#define SE_CORE_TRANSFORMMANAGER_H_
+#ifndef SE_INTERFACE_TRANSFORM_MANAGER_H_
+#define SE_INTERFACE_TRANSFORM_MANAGER_H_
+
+#if defined DLL_EXPORT_CORE
+#define DECLDIR_CORE __declspec(dllexport)
+#else
+#define DECLDIR_CORE __declspec(dllimport)
+#endif
+
+#include "IManager.h"
+#include "IEntityManager.h"
 #include <DirectXMath.h>
-#include <unordered_map>
-#include "EntityManager.h"
-#include <Utilz\Event.h>
-#include <mutex>
-#include <random>
 
 namespace SE
 {
@@ -21,18 +25,15 @@ namespace SE
 		* @sa EntityManager
 		*
 		**/
-		class TransformManager
+		class ITransformManager : public IManager
 		{
-			friend class RenderableManager;
-			friend class CameraManager;
-			friend class DebugRenderManager;
-			friend class LightManager;
 		public:
-			TransformManager(EntityManager* em);
-			~TransformManager();
-			TransformManager(const TransformManager& other) = delete;
-			TransformManager(const TransformManager&& other) = delete;
-			TransformManager& operator=(const TransformManager& other) = delete;
+			struct InitializationInfo
+			{
+				IEntityManager* entityManager;
+			};
+
+			virtual ~ITransformManager() {};
 
 			/**
 			* @brief    Creates a transform component for an entity. Must be called before any other methods for a given entity. There is no destroy method, this is handled internally.
@@ -42,7 +43,7 @@ namespace SE
 			* @param[in] scale The scale.
 			* @warning MUST BE CALLED BEFORE ANY OTHER METHOD FOR A GIVEN ENTITY.
 			*/
-			void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
+			virtual void Create(const Entity& e, const DirectX::XMFLOAT3& pos = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& rotation = { 0.0f,0.0f,0.0f }, const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f }) = 0;
 
 			/**
 			* @brief    Bind an entity as a child to another entity. This will update the transform of the child when the parent change.
@@ -51,7 +52,7 @@ namespace SE
 			* @param[in] rotation Wether or not rotation should be inherited.
 			* @param[in] translateToParent Whether or not the child should move towards the parent upon binding.
 			*/
-			void BindChild(const Entity& parent, const Entity& child, bool rotation = true, bool translateToParent = false);
+			virtual void BindChild(const Entity& parent, const Entity& child, bool rotation = true, bool translateToParent = false) = 0;
 
 
 
@@ -60,7 +61,7 @@ namespace SE
 			* @param[in] e The entity to move
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetAsDirty(const Entity& e);
+			virtual void SetAsDirty(const Entity& e) = 0;
 
 			/**
 			* @brief    Moves an entity along a vector.
@@ -68,7 +69,7 @@ namespace SE
 			* @param[in] dir The direction to move the entity along. For example {0,5,0} will move the entity 5 units along the y-axis.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Move(const Entity& e, const DirectX::XMFLOAT3& dir);
+			virtual void Move(const Entity& e, const DirectX::XMFLOAT3& dir) = 0;
 
 			/**
 			* @brief    Moves an entity along a vector.
@@ -76,7 +77,7 @@ namespace SE
 			* @param[in] dir The direction to move the entity along. For example {0,5,0} will move the entity 5 units along the y-axis.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Move(const Entity& e, const DirectX::XMVECTOR& dir);
+			virtual void Move(const Entity& e, const DirectX::XMVECTOR& dir) = 0;
 			/**
 			* @brief    Relative rotation. Adds roll, pitch, and yaw to the current rotation. Uses radians and not degrees.
 			* @param[in] e The entity to rotate
@@ -85,28 +86,28 @@ namespace SE
 			* @param[in] roll The roll in radians. (z-axis)
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Rotate(const Entity& e, float pitch, float yaw, float roll);
+			virtual void Rotate(const Entity& e, float pitch, float yaw, float roll) = 0;
 			/**
 			* @brief    Relative scaling. For example, if the scale is 2 and Scale(entity, 4) is called, the entity will be scaled to 8.
 			* @param[in] e The entity to scale
 			* @param[in] scale The value to multiply the scale with.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Scale(const Entity& e, float scale);
+			virtual void Scale(const Entity& e, float scale) = 0;
 			/**
 			* @brief    Relative scaling. For example, if the scale is 2 and Scale(entity, 4) is called, the entity will be scaled to 8.
 			* @param[in] e The entity to scale
 			* @param[in] scale The value to multiply the scale with.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void Scale(const Entity& e, const DirectX::XMFLOAT3& scale);
+			virtual void Scale(const Entity& e, const DirectX::XMFLOAT3& scale) = 0;
 			/**
 			* @brief    Sets the position in world space for a given entity.
 			* @param[in] e The entity to scale
 			* @param[in] pos The position.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos);
+			virtual void SetPosition(const Entity& e, const DirectX::XMFLOAT3& pos) = 0;
 			/**
 			* @brief    Absolute rotation. Sets the rotation to the roll, pitch and yaw supplied in the parameter list.
 			* @param[in] e The entity to rotate
@@ -115,60 +116,60 @@ namespace SE
 			* @param[in] roll The roll in radians. (z-axis)
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetRotation(const Entity& e, float pitch, float yaw, float roll);
+			virtual void SetRotation(const Entity& e, float pitch, float yaw, float roll) = 0;
 			/**
 			* @brief    Sets the scale of an entity.
 			* @param[in] e The entity to scale
 			* @param[in] scale The scale.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetScale(const Entity& e, float scale);
+			virtual void SetScale(const Entity& e, float scale) = 0;
 			/**
 			* @brief    Sets the scale of an entity.
 			* @param[in] e The entity to scale
 			* @param[in] scale The scale.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			void SetScale(const Entity& e, const DirectX::XMFLOAT3& scale);
+			virtual void SetScale(const Entity& e, const DirectX::XMFLOAT3& scale) = 0;
 			/**
 			* @brief    Returns the world position of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			const DirectX::XMFLOAT3& GetPosition(const Entity& e) const;
+			virtual const DirectX::XMFLOAT3& GetPosition(const Entity& e) const = 0;
 			/**
 			* @brief    Returns the roll (x-component of vector), pitch (y-component of vector) and yaw (z-component of vector) of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			const DirectX::XMFLOAT3& GetRotation(const Entity& e) const;
+			virtual const DirectX::XMFLOAT3& GetRotation(const Entity& e) const = 0;
 			/**
 			* @brief    Returns the scale of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity.
 			*/
-			const DirectX::XMFLOAT3& GetScale(const Entity& e) const;
+			virtual const DirectX::XMFLOAT3& GetScale(const Entity& e) const = 0;
 
 			/**
 			* @brief    Returns the transform of an entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
 			*/
-			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const;
+			virtual const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const = 0;
 
 			/**
 			* @brief    Returns the forward vector of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
 			*/
-			const DirectX::XMFLOAT3 GetForward(const Entity& e)const;
+			virtual const DirectX::XMFLOAT3 GetForward(const Entity& e)const = 0;
 
 			/**
 			* @brief    Returns the rightward pointing vector of the entity.
 			* @param[in] e The entity.
 			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
 			*/
-			DirectX::XMFLOAT3 GetRight(const Entity& e) const;
+			virtual DirectX::XMFLOAT3 GetRight(const Entity& e) const = 0;
 
 			/**
 			* @brief    Sets the forward vector of the entity.
@@ -176,7 +177,7 @@ namespace SE
 			* @param[in] forward The forward vector to set.
 			* @warning Create must be called before this method for a given entity. Also this operation is expensive; use sparingly.
 			*/
-			const void SetForward(const Entity& e, const DirectX::XMFLOAT3& forward);
+			virtual const void SetForward(const Entity& e, const DirectX::XMFLOAT3& forward) = 0;
 
 			/**
 			* @brief    Sets the forward vector of the entity.
@@ -184,82 +185,37 @@ namespace SE
 			* @param[in] forward The forward vector to set.
 			* @warning Create must be called before this method for a given entity. Also this operation is very expensive; use sparingly.
 			*/
-			const void SetForward(const Entity& e, const DirectX::XMVECTOR& forward);
+			virtual const void SetForward(const Entity& e, const DirectX::XMVECTOR& forward) = 0;
 
 			/**
 			* @brief     Is called once per frame by the engine. Do not call this from outside the engine as it is unnecessary.
 			* @details removes up to 4 dead entities per call. Looks at a subset of its registered entities and asks the entity manager if they are dead. If they are, they are removed.
 			*/
-			int GarbageCollection();
+		//	virtual int GarbageCollection();
 
 			/**
 			* @brief     Returns the number of registered entities, aka the number of transform components in the system.
 			*/
-			uint32_t ActiveTransforms() const;
+			virtual uint32_t ActiveTransforms() const = 0;
 
-			/**
-			* @brief	Called each frame, to update the state.
-			*/
-			void Frame();
+			virtual  void RegisterSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>& callback) = 0;
 
-			inline void RegisterSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>& callback)
-			{
-				SetDirty += callback;
-			}
-		
-			inline const DirectX::XMFLOAT4X4* GetCleanedTransforms()const
-			{
-				return &dirtyTransforms[0];
-			}
-		private:
-
-			void UpdateTransform(size_t index);
-
-			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
-
-			enum TransformFlags : uint16_t
-			{
-				INHERIT_TRANSLATION = 1 << 0,
-				INHERIT_SCALE = 1 << 1,
-				INHERIT_ROTATION = 1 << 2,
-				INHERIT_ALL = 7U,
-				DIRTY = 1 << 3
-			};
-
-
-			struct TransformData
-			{
-				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 3 + sizeof(int16_t);
-				size_t allocated = 0;
-				size_t used = 0;
-				void* data = nullptr;
-				Entity* entities = nullptr;
-				DirectX::XMFLOAT3* positions = nullptr;
-				DirectX::XMFLOAT3* rotations = nullptr;
-				DirectX::XMFLOAT3* scalings = nullptr;
-				int32_t* childIndex = nullptr;
-				int32_t* siblingIndex = nullptr;
-				int32_t* parentIndex = nullptr;
-				int16_t* flags = nullptr;
-			};
-			
-			TransformData data;
-			int32_t* lookUpTable;
-			size_t lookUpTableSize;
-			void Allocate(size_t count);
-			void Destroy(const size_t index);
-			std::default_random_engine generator;
-			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
-
-			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
-
-		
-			
-			std::vector<Entity> entityStack;
-			std::mutex queueLock;
+			virtual inline const DirectX::XMFLOAT4X4* GetCleanedTransforms()const = 0;
+		protected:
+			ITransformManager() {};
+	
+			ITransformManager(const ITransformManager& other) = delete;
+			ITransformManager(const ITransformManager&& other) = delete;
+			ITransformManager& operator=(const ITransformManager& other) = delete;
+			ITransformManager& operator=(const ITransformManager&& other) = delete;
 		};
+
+
+		/**
+		* @brief Create an instance of the TransformManager
+		**/
+		DECLDIR_CORE ITransformManager* CreateTransformManager(const ITransformManager::InitializationInfo&);
 	}
 }
 
-
-#endif //SE_CORE_TRANSFORMMANAGER_H_
+#endif //SE_INTERFACE_TRANSFORM_MANAGER_H_

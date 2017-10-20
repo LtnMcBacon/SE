@@ -1,12 +1,16 @@
 #ifndef SE_CORE_RENDERABLE_MANAGER_H_
 #define SE_CORE_RENDERABLE_MANAGER_H_
+
+#include <IRenderableManager.h>
+
+
 #include "EntityManager.h"
-#include <Utilz\GUID.h>
+
 #include <unordered_map>
 #include <random>
-#include <Graphics\IRenderer.h>
+
 #include <map>
-#include <ResourceHandler\IResourceHandler.h>
+
 #include "TransformManager.h"
 #include <list>
 #include <mutex>
@@ -18,8 +22,6 @@ namespace SE
 	namespace Core
 	{
 
-		typedef Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)> SetRenderObjectInfoDelegate;
-
 		/**
 		*
 		* @brief This class is used to bind renderable objects to an entity.
@@ -27,23 +29,15 @@ namespace SE
 		* @details Use this class when you want an entity to be rendered as a object in the world.
 		*
 		**/
-		class RenderableManager
+		class RenderableManager : public IRenderableManager
 		{
 		public:
-			struct InitializationInfo
-			{
-				ResourceHandler::IResourceHandler* resourceHandler;
-				Graphics::IRenderer* renderer;
-				EntityManager& entityManager;
-				TransformManager* transformManager;
-				ResourceHandler::UnloadingStrategy unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
-			};
-
 			RenderableManager(const InitializationInfo& initInfo);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
 			RenderableManager& operator=(const RenderableManager& other) = delete;
+			RenderableManager& operator=(const RenderableManager&& other) = delete;
 
 			/**
 			* @brief	Bind a renderable object to and entity
@@ -52,7 +46,7 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& meshGUID, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -61,22 +55,22 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableObject(const Entity& entity, bool show);
+			void ToggleRenderableObject(const Entity& entity, bool show)override;
 
-			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)
+			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)override
 			{
 				SetRenderObjectInfoEvent += callback;
 			}
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
-			void UpdateRenderableObject(const Entity& entity);
+			void UpdateRenderableObject(const Entity& entity)override;
 
-			void SetFillSolid(const Entity& entity, uint8_t fillSolid);
+			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
-			void SetTransparency(const Entity& entity, uint8_t transparency);
+			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
 		private:
 		
@@ -100,15 +94,15 @@ namespace SE
 			/**
 			* @brief	Remove an enitity entry
 			*/
-			void Destroy(size_t index);
+			void Destroy(size_t index)override;
 			/**
 			* @brief	Remove an enitity
 			*/
-			void DestroyEntity(const Entity& entity);
+			void Destroy(const Entity& entity)override;
 			/**
 			* @brief	Look for dead entities.
 			*/
-			void GarbageCollection();
+			void GarbageCollection()override;
 
 			void UpdateDirtyTransforms();
 
@@ -129,7 +123,7 @@ namespace SE
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
-				uint8_t* fillSolid;
+				uint8_t* wireframe;
 				uint8_t* transparency;
 			};
 			InitializationInfo initInfo;

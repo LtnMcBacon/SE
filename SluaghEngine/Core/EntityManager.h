@@ -4,8 +4,7 @@
 * http://bitsquid.blogspot.se/2014/08/building-data-oriented-entity-system.html
 */
 #include <cstdint>
-#include "Entity.h"
-#include <Utilz\Event.h>
+#include <IEntityManager.h>
 namespace SE
 {
 	namespace Core
@@ -22,7 +21,7 @@ namespace SE
 		*
 		**/
 
-		class EntityManager
+		class EntityManager : public IEntityManager
 		{
 		public:
 			EntityManager();
@@ -30,6 +29,7 @@ namespace SE
 			EntityManager(const EntityManager& other) = delete;
 			EntityManager(const EntityManager&& other) = delete;
 			EntityManager& operator=(const EntityManager& rhs) = delete;
+			EntityManager& operator=(const EntityManager&& other) = delete;
 
 			/**
 			* @brief    Creates a unique entity. All entities in the system should be created by this method.
@@ -54,7 +54,7 @@ namespace SE
 			* @retval true The entity is alive.
 			* @retval false The entity is not alive
 			*/
-			bool Alive(Entity e) const;
+			bool Alive(const Entity& e) const;
 			/**
 			* @brief    Destroys an entity. Does not notify any component systems that the entity is alive. It is up to the systems to check if the entity still exists.
 			*
@@ -63,7 +63,7 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			void Destroy(Entity e);
+			void Destroy(const Entity& e);
 
 			/**
 			* @brief    Destroys an entity. This is an immediate destroy.
@@ -71,7 +71,7 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			void DestroyNow(Entity e);
+			void DestroyNow(const Entity& e);
 
 			/**
 			* @brief    Register a destroy callback for an entity.

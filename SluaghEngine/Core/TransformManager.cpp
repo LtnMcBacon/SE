@@ -1,4 +1,4 @@
-#include <TransformManager.h>
+#include "TransformManager.h"
 #include <algorithm>
 #include <Profiler.h>
 #include "Engine.h"
@@ -7,9 +7,9 @@
 #undef max
 using namespace DirectX;
 
-SE::Core::TransformManager::TransformManager(EntityManager* em)
+SE::Core::TransformManager::TransformManager(const InitializationInfo& initInfo) : initInfo(initInfo)
 {
-	entityManager = em;
+	_ASSERT(initInfo.entityManager);
 	Allocate(512);
 	lookUpTableSize = 512;
 	lookUpTable = new int32_t[lookUpTableSize];
@@ -28,6 +28,8 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
 	StartProfile;
+	if (!initInfo.entityManager->Alive(e))
+		ProfileReturnVoid;
 	const uint32_t lookUpTableIndex = e.Index();
 	if(lookUpTableIndex >= lookUpTableSize)
 	{
@@ -319,25 +321,23 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	SetRotation(e, angleX, angleY, angleZ);
 }
 
-int SE::Core::TransformManager::GarbageCollection()
+void SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t aliveInRow = 0;
-	size_t destroyCount = 0;
 	while(data.used > 0 && aliveInRow < 40U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
 		size_t i = distribution(generator);
-		if(entityManager->Alive(data.entities[i]))
+		if(initInfo.entityManager->Alive(data.entities[i]))
 		{
 			++aliveInRow;
 			continue;
 		}
 		aliveInRow = 0;
 		Destroy(i);
-		++destroyCount;
 	}
-	ProfileReturnConst(destroyCount);
+	ProfileReturnVoid;
 }
 
 uint32_t SE::Core::TransformManager::ActiveTransforms() const

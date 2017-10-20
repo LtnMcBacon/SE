@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{f10cf54e-7774-40a6-a516-8efa85f8213f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface\cpp">
+      <UniqueIdentifier>{7fa13e7d-5242-4a0d-bcf5-2bfeee9bd63d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntityManager.cpp">
@@ -63,61 +69,76 @@
     <ClCompile Include="ParticleSystemManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IEngine.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderableManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IEntityManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Core\EntityManager.h">
+    <ClInclude Include="AnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\Engine.h">
+    <ClInclude Include="AudioManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\TransformManager.h">
+    <ClInclude Include="CameraManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\RenderableManager.h">
+    <ClInclude Include="CollisionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\MaterialManager.h">
+    <ClInclude Include="DebugRenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\Entity.h">
+    <ClInclude Include="DevConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\CollisionManager.h">
+    <ClInclude Include="Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\OptionHandler.h">
+    <ClInclude Include="EntityManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\CameraManager.h">
+    <ClInclude Include="GUIManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\DebugRenderManager.h">
+    <ClInclude Include="LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\GUIManager.h">
+    <ClInclude Include="MaterialManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\AnimationManager.h">
+    <ClInclude Include="OptionHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\AudioManager.h">
+    <ClInclude Include="ParticleSystemManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Graphics\FileHeaders.h">
+    <ClInclude Include="RenderableManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Graphics\VertexStructs.h">
+    <ClInclude Include="TransformManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\LightManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\includes\Core\IEngine.h">
+      <Filter>Interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\DevConsole.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\includes\Core\IRenderableManager.h">
+      <Filter>Interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Core\ParticleSystemManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\includes\Core\IEntityManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ITransformManager.h">
+      <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
