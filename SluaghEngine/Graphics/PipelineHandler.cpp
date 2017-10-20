@@ -8,39 +8,56 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	this->device = device;
 	this->deviceContext = deviceContext;
 	renderTargetViews["backbuffer"] = backbuffer;
+	//Create nullptrs for IDs that are ""
+	vertexBuffers[""].buffer = nullptr;
+	vertexBuffers[""].stride = 0;
+	indexBuffers[""].buffer = nullptr;
+	indexBuffers[""].stride = 0;
+	inputLayouts[""] = nullptr;
+	vertexShaders[""] = nullptr;
+	geometryShaders[""] = nullptr;
+	pixelShaders[""] = nullptr;
+	computeShaders[""] = nullptr;
+	constantBuffers[""] = nullptr;
+	shaderResourceViews[""] = nullptr;
+	renderTargetViews[""] = nullptr;
+	samplerStates[""] = nullptr;
+	blendStates[""] = nullptr;
+	rasterizerStates[""] = nullptr;
+	depthStencilStates[""] = nullptr;
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
 {
 	//lots of loops...
 	for (auto& r : vertexBuffers)
-		r.second.buffer->Release();
+		if(r.second.buffer) r.second.buffer->Release();
 	for (auto& r : indexBuffers)
-		r.second.buffer->Release();
+		if (r.second.buffer) r.second.buffer->Release();
 	for (auto& r : inputLayouts)
-		r.second->Release();
+		if (r.second) r.second->Release();
 	for (auto& r : vertexShaders)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : geometryShaders)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : pixelShaders)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : computeShaders)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : constantBuffers)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : shaderResourceViews)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : renderTargetViews)
-		r.second->Release();
+		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
 	for (auto& r : samplerStates)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : blendStates)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : rasterizerStates)
-		r.second->Release();
+		if (r.second)r.second->Release();
 	for (auto& r : depthStencilStates)
-		r.second->Release();
+		if (r.second)r.second->Release();
 }
 
 void SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
