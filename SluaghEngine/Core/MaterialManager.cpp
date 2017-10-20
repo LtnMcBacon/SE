@@ -45,8 +45,8 @@ SE::Core::MaterialManager::~MaterialManager()
 	{
 		if (mat.info.amountOfTex > 0)
 		{
-			delete mat.info.tex;
-			delete mat.info.textureChannel;
+			delete[] mat.info.tex;
+			delete[] mat.info.textureChannel;
 		}
 	}
 	delete materialInfo.data;
@@ -352,8 +352,11 @@ void SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDa
 	//std::this_thread::sleep_for(1s);
 	size_t offset = sizeof(uint32_t);
 	memcpy(&dataIinfo.info.amountOfTex, (char*)data, sizeof(uint32_t));
-	dataIinfo.info.tex = new Utilz::GUID[dataIinfo.info.amountOfTex];
-	dataIinfo.info.textureChannel = new Utilz::GUID[dataIinfo.info.amountOfTex];
+	if (dataIinfo.info.amountOfTex > 0)
+	{
+		dataIinfo.info.tex = new Utilz::GUID[dataIinfo.info.amountOfTex];
+		dataIinfo.info.textureChannel = new Utilz::GUID[dataIinfo.info.amountOfTex];
+	}
 	memcpy(&dataIinfo.attrib, (char*)data + offset, sizeof(Graphics::MaterialAttributes));
 	offset += sizeof(Graphics::MaterialAttributes);
 	for (int i = 0; i < dataIinfo.info.amountOfTex; i++)
