@@ -61,8 +61,9 @@ namespace SE
 
 			struct MatInfo
 			{
-				Utilz::GUID* tex;
 				uint32_t amountOfTex;
+				Utilz::GUID* tex;				
+				Utilz::GUID* textureChannel;
 			};
 
 			struct matDataInfo

@@ -153,7 +153,7 @@ void PlayState::InitializePlayer()
 
 	Core::MaterialManager::CreateInfo materialInfo;
 	materialInfo.shader = "SimpleLightPS.hlsl";
-	Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
+	Utilz::GUID material = Utilz::GUID("MCModell.mat");
 	materialInfo.materialFile = material;
 	Core::Engine::GetInstance().GetMaterialManager().Create(player->GetEntity(), materialInfo);
 

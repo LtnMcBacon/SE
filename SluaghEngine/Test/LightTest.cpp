@@ -64,7 +64,7 @@ namespace SE
 			Core::Entity ents[numEnts];
 			Core::Entity entsTrans[2];
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
+			Utilz::GUID material = Utilz::GUID("MCModell.mat");
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
 			info.materialFile = material;

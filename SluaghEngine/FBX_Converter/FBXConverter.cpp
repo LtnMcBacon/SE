@@ -1514,8 +1514,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 			size = (uint32_t)meshMaterial.textures[textureIndex].textureChannel.size();
 			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
 
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureChannel), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureChannel)), size);
 
 			cout << "[OK] Exported " << meshMaterial.textures[textureIndex].textureName << " to " << textureFolder << endl;
 		}

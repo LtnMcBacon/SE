@@ -33,7 +33,7 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("lambert2_MCModell.mat");
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;

@@ -18,7 +18,7 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("lambert2_Cube.mat",
+	res = resourceHandler->LoadResource("Cube.mat",
 		[this](auto guid, auto data, auto size) {
 		matDataInfo matinfo;
 		LoadMaterialFile(data, size, matinfo);
@@ -41,6 +41,14 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 
 SE::Core::MaterialManager::~MaterialManager()
 {
+	for (auto& mat : materials)
+	{
+		if (mat.info.amountOfTex > 0)
+		{
+			delete mat.info.tex;
+			delete mat.info.textureChannel;
+		}
+	}
 	delete materialInfo.data;
 }
 
@@ -102,23 +110,33 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 		if (res)
 		{
-			Utilz::Console::Print("Could not load texture. Using default instead. GUID: %u, Error: %d\n", info.materialFile, res);
+			Utilz::Console::Print("Could not load material. Using default instead. GUID: %u, Error: %d\n", info.materialFile, res);
 		}
 	}
 	materialInfo.materialIndex[newEntry] = materialIndex;
 
-
-	auto& reflection = shaders[shaderIndex].shaderReflection;
-	const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID("diffuseTex"));
-	if (bindName != reflection.textureNameToBindSlot.end())
+	for (uint32_t i = 0; i < materials[materialIndex].info.amountOfTex; ++i)
 	{
-		materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
+		auto& reflection = shaders[shaderIndex].shaderReflection;
+		const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
+		if (bindName != reflection.textureNameToBindSlot.end())
+		{
+			materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
+		}
+		const auto bindName2 = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
+		if (bindName2 != reflection.textureNameToBindSlot.end())
+		{
+			materialInfo.textureBindings[newEntry].bindings[1] = bindName2->second;
+		}
 	}
-
-	const auto bindName2 = reflection.textureNameToBindSlot.find(Utilz::GUID("normalTex"));
-	if (bindName2 != reflection.textureNameToBindSlot.end())
+	if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
 	{
-		materialInfo.textureBindings[newEntry].bindings[1] = bindName2->second;
+		auto& reflection = shaders[shaderIndex].shaderReflection;
+		const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID("DiffuseColor"));
+		if (bindName != reflection.textureNameToBindSlot.end())
+		{
+			materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
+		}
 	}
 
 	
@@ -128,16 +146,6 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		{
 			const auto textureFind = guidToTextureIndex.find(materials[materialIndex].info.tex[i]);
 			auto& textureIndex = guidToTextureIndex[materials[materialIndex].info.tex[i]];
-			union pizza
-			{
-				pizza(Utilz::GUID guid) : guid(guid) {};
-				size_t t;
-				Utilz::GUID guid;
-			};
-			pizza pie(Utilz::GUID("texture8"));
-			pizza mozzarella(materials[materialIndex].info.tex[i]);
-			if (pie.t == mozzarella.t)
-				int hej = 3;
 			if (textureFind == guidToTextureIndex.end())
 			{
 				textureIndex = textures.size();
@@ -163,11 +171,17 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 					Utilz::Console::Print("Could not load texture. Using default instead. GUID: %u, Error: %d\n", matinfo.info.tex[i], res);
 				}
 			}
-
 			textures[textureIndex].entities.push_back(entity);
 			materialInfo.textureIndices[newEntry].indices[i] = textureIndex;
 		}
-
+		if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
+		{
+			auto& textureIndex = guidToTextureIndex[Utilz::GUID("BlackPink.sei")];
+			if (textures.size() == 0)
+				textures.push_back({ defaultTextureHandle });
+			textures[defaultTextureHandle].entities.push_back(entity);
+			materialInfo.textureIndices[newEntry].indices[0] = defaultTextureHandle;
+		}
 		
 	}
 	StopProfile;
@@ -336,12 +350,19 @@ void SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDa
 	//using namespace std::chrono_literals;
 
 	//std::this_thread::sleep_for(1s);
+	size_t offset = sizeof(uint32_t);
 	memcpy(&dataIinfo.info.amountOfTex, (char*)data, sizeof(uint32_t));
 	dataIinfo.info.tex = new Utilz::GUID[dataIinfo.info.amountOfTex];
-	memcpy(&dataIinfo.attrib, (char*)data + sizeof(uint32_t), sizeof(Graphics::MaterialAttributes));
+	dataIinfo.info.textureChannel = new Utilz::GUID[dataIinfo.info.amountOfTex];
+	memcpy(&dataIinfo.attrib, (char*)data + offset, sizeof(Graphics::MaterialAttributes));
+	offset += sizeof(Graphics::MaterialAttributes);
 	for (int i = 0; i < dataIinfo.info.amountOfTex; i++)
 	{
-		memcpy(&dataIinfo.info.tex[i], (char*)data + sizeof(uint32_t) + sizeof(Graphics::MaterialAttributes) + sizeof(Utilz::GUID) * i, sizeof(Utilz::GUID));
+		uint32_t channelSize;
+		memcpy(&dataIinfo.info.tex[i], (char*)data + offset, sizeof(Utilz::GUID));
+		offset += sizeof(Utilz::GUID);
+		memcpy(&dataIinfo.info.textureChannel[i], (char*)data + offset, sizeof(Utilz::GUID));
+		offset += sizeof(Utilz::GUID);
 	}
 	ProfileReturnVoid;
 }

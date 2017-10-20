@@ -40,7 +40,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	const int numEnts = 600;
 	Core::Entity ents[numEnts];
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID material = Utilz::GUID("lambert2_MCModell.mat");
+	Utilz::GUID material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;

@@ -97,7 +97,7 @@ bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
 
 	Core::MaterialManager::CreateInfo info;
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
-	auto material = Utilz::GUID("lambert1_bakedTest.mat");
+	auto material = Utilz::GUID("bakedTest.mat");
 	info.shader = shader;	
 	info.materialFile = material;
 

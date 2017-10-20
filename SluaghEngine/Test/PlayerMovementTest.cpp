@@ -136,7 +136,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	//tm.SetScale(player->GetEntity(), 1.f);
 
 	Core::MaterialManager::CreateInfo minfo;
-	auto material = Utilz::GUID("lambert2_MCModell.mat");
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	minfo.shader = shader;
 	minfo.materialFile = material;

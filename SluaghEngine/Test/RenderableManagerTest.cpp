@@ -93,7 +93,7 @@ bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
 	tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::MaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("lambert2_MCModell.mat");
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
