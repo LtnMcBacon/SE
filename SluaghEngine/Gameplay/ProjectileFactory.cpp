@@ -161,7 +161,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID(meshName));
 		rm.ToggleRenderableObject(temp.GetEntity(), true);
 
-		for (int j = 0; j < nrOfBehaviours - 1; j++)
+		for (int j = 0; j < nrOfBehaviours; j++)
 		{
 			GetLine(fileData, line, position);
 			AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, line.c_str()));
@@ -491,7 +491,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 			if (totalRot > 0.0000025)
 			{
 				if (totalRot > rotPerSecond * dt)
-					totalRot = rotPerSecond * dt;
+					totalRot = rotPerSecond;
 				totalRot *= sign;
 
 			}
