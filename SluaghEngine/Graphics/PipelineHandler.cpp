@@ -955,6 +955,11 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
+	if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
+	{
+		int offset = 0;
+		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset)
+	}
 	SetRasterizerStage(pipeline.RStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);

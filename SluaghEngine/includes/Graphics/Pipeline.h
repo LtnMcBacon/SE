@@ -206,6 +206,7 @@ namespace SE
 			InputAssemblerStage IAStage;
 			VertexShaderStage	VSStage;
 			GeometryShaderStage	GSStage;
+			StreamOutStage		SOStage;
 			RasterizerStage		RStage;
 			PixelShaderStage	PSStage;
 			OutputMergerStage	OMStage;
