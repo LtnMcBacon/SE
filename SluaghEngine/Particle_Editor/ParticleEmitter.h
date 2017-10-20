@@ -9,7 +9,6 @@ public:
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT2 velocity;
 		DirectX::XMFLOAT2 size;
-		DirectX::XMFLOAT4 color;
 		float age;
 		size_t type;
 	};
