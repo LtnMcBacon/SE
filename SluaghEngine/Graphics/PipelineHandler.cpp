@@ -8,8 +8,6 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	this->device = device;
 	this->deviceContext = deviceContext;
 	renderTargetViews["backbuffer"] = backbuffer;
-
-	
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
@@ -110,6 +108,78 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 
 	indexBuffers[id].buffer = buffer;
 	indexBuffers[id].stride = indexSize;
+}
+
+void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount,
+	size_t elementStride, uint32_t flags)
+{
+	if(flags & BIND_VERTEX)
+	{
+		const auto exists = vertexBuffers.find(id);
+		if (exists != vertexBuffers.end())
+			return;
+	}
+	else if(flags & BIND_INDEX)
+	{
+		const auto exists = indexBuffers.find(id);
+		if (exists != indexBuffers.end())
+			return;
+
+	}
+	else if(flags & BIND_CONSTANT)
+	{
+		const auto exists = constantBuffers.find(id);
+		if (exists != constantBuffers.end())
+			return;
+	}
+	else
+	{
+		throw std::exception("Buffer must be bound as either VERTEX, INDEX or CONSTANT.");
+	}
+	D3D11_BUFFER_DESC bd;
+	bd.BindFlags = 0;
+	if (flags & BufferFlags::BIND_CONSTANT) bd.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
+	if (flags & BufferFlags::BIND_VERTEX) bd.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
+	if (flags & BufferFlags::BIND_INDEX) bd.BindFlags |= D3D11_BIND_INDEX_BUFFER;
+	if (flags & BufferFlags::BIND_STREAMOUT) bd.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
+	bd.ByteWidth = elementCount * elementStride;
+	bd.CPUAccessFlags = 0;
+	if (flags & BufferFlags::CPU_WRITE) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
+	if (flags & BufferFlags::CPU_READ) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = elementStride;
+	
+	ID3D11Buffer* buffer;
+	HRESULT hr;
+	if (data)
+	{
+		D3D11_SUBRESOURCE_DATA d;
+		d.pSysMem = data;
+		d.SysMemPitch = 0;
+		d.SysMemSlicePitch = 0;
+		hr = device->CreateBuffer(&bd, &d, &buffer);
+	}
+	else
+	{
+		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+	}
+	if (FAILED(hr))
+		throw std::exception("Failed to create buffer");
+
+	if (flags & BIND_VERTEX) {
+		vertexBuffers[id].buffer = buffer;
+		vertexBuffers[id].stride = elementStride;
+	}
+	else if(flags & BIND_INDEX)
+	{
+		indexBuffers[id].buffer = buffer;
+		indexBuffers[id].stride = elementStride;
+	}
+	else if(flags & BIND_CONSTANT)
+	{
+		constantBuffers[id] = buffer;
+	}
 }
 
 void SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)

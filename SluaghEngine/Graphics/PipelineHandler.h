@@ -18,9 +18,10 @@ namespace SE
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
 			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
-			void DestroyVertexBuffer(const Utilz::GUID& id) override;
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
+			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, uint32_t flags) override;
 			void DestroyIndexBuffer(const Utilz::GUID& id) override;
+			void DestroyVertexBuffer(const Utilz::GUID& id) override;
 
 			void CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
 

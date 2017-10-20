@@ -28,9 +28,11 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
+	dev = device->GetDevice();
+	devContext = device->GetDeviceContext();
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
-	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext());
+	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV());
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -85,7 +87,22 @@ void SE::Graphics::Renderer::Shutdown()
 	delete device;
 }
 
+uint32_t SE::Graphics::Renderer::AddRenderJob(const RenderJob& job)
+{
+	const uint32_t jobID = gJobID++;
+	jobIDToIndex[jobID] = generalJobs.size();
+	generalJobs.push_back({ job, jobID });
+	return jobID;
+}
 
+void SE::Graphics::Renderer::RemoveRenderJob(uint32_t jobID)
+{
+	const uint32_t index = jobIDToIndex[jobID];
+	generalJobs[index] = generalJobs.back();
+	jobIDToIndex[generalJobs[index].jobID] = index;
+	generalJobs.pop_back();
+	jobIDToIndex.erase(jobID);
+}
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
@@ -497,6 +514,52 @@ int SE::Graphics::Renderer::Render() {
 	timeCluster[GPUTimer]->Stop("LineJob-GPU");
 
 	///********END render line jobs************/
+
+	/******************General Jobs*********************/
+
+	for(auto& j : generalJobs)
+	{
+		int32_t drawn = 0;
+		pipelineHandler->SetPipeline(j.job.pipeline);
+		if(j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
+		{
+			j.job.mappingFunc(drawn, 1);
+			devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
+		}
+		else if(j.job.indexCount != 0 && j.job.instanceCount == 0)
+		{
+			j.job.mappingFunc(drawn, 1);
+			devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
+		}
+		else if(j.job.indexCount == 0 && j.job.instanceCount != 0)
+		{
+			while (drawn < j.job.instanceCount)
+			{
+				j.job.mappingFunc(drawn, j.job.instanceCount);
+				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+				devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
+				drawn += toDraw;
+			}
+		}
+		else if(j.job.indexCount != 0 && j.job.instanceCount != 0)
+		{
+			while (drawn < j.job.instanceCount)
+			{
+				j.job.mappingFunc(drawn, j.job.instanceCount);
+				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+				devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
+				drawn += toDraw;
+			}
+		}
+		else if(j.job.vertexCount == 0)
+		{
+			j.job.mappingFunc(drawn, 0);
+			devContext->DrawAuto();
+		}
+	}
+
+
+	/*****************End General Jobs******************/
 
 
 	//********* Render sprite overlays ********/

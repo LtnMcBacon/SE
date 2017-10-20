@@ -122,6 +122,15 @@ namespace SE
 			TRIANGLE_LIST,
 			TRIANGLE_STRIP
 		};
+		enum BufferFlags
+		{
+			BIND_VERTEX = 1 << 0,
+			BIND_INDEX = 1 << 1,
+			BIND_CONSTANT = 1 << 2,
+			BIND_STREAMOUT = 1 << 3,
+			CPU_READ = 1 << 5,
+			CPU_WRITE = 1 << 6
+		};
 		struct InputAssemblerStage
 		{
 			Utilz::GUID vertexBuffer;
@@ -144,6 +153,11 @@ namespace SE
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
 			uint8_t constantBufferCount;
+		};
+
+		struct StreamOutStage
+		{
+			Utilz::GUID streamOutTarget;
 		};
 
 		struct PixelShaderStage

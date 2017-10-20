@@ -15,6 +15,7 @@ namespace SE
 			int indexOffset;
 			int instanceCount;
 			int instanceOffset;
+			int maxInstances;
 			std::function<void(int, int)> mappingFunc;
 		};
 	}
