@@ -98,6 +98,8 @@ std::vector<Accepted> fbxAccepted =
 					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "light", "light", "Lights", [](const char* filename, const char* outFilename) {
 						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+	{ "mat", "mat", "Materials", [](const char* filename, const char* outFilename) {
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },					
 	{ "skel", "skel", "Skeletons", [](const char* filename, const char* outFilename) {
 							fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 };

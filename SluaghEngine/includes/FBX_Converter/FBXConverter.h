@@ -11,6 +11,7 @@
 #include <fbxsdk.h>
 
 #include "Datatypes.h"
+#include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 #include <filesystem>
 #include <Utilz\PathParsing.h>

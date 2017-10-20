@@ -215,14 +215,11 @@ void SE::Window::WindowSDL::StartRecording()
 void SE::Window::WindowSDL::LoadRecording()
 {
 	StartProfile;
-	playRecord.playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
+	playRecord.playbackfile.open("Recording.bin", std::ios::in | std::ios::binary);
 	if (playRecord.playbackfile.is_open())
 	{
 		SDL_Event ev;
-		size_t size = playRecord.playbackfile.tellg();
-		size_t recordedSize = 0;
-		playRecord.playbackfile.seekg(0, std::ios::beg);
-		while (recordedSize < size)//!playbackfile.eof())
+		while (!playRecord.playbackfile.eof())
 		{
 			inputRecData tempRecData;
 			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
@@ -232,7 +229,6 @@ void SE::Window::WindowSDL::LoadRecording()
 				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
-			recordedSize += sizeof(float) + sizeof(size_t) + sizeof(SDL_Event) * tempRecData.nrOfEvent;
 			playRecord.playbackData.push_back(tempRecData);
 		}
 		playRecord.playbackfile.close();

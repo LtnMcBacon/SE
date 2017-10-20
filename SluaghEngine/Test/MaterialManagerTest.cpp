@@ -33,13 +33,10 @@ bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
 	Core::Entity entity = em.Create();
 
 	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("Diffuse.sei"), Utilz::GUID("purewhite.sei") };
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
-	info.shaderResourceNames = resourceNames;
-	info.textureFileNames = textures;
-	info.textureCount = 2;
+	info.materialFile = material;
 
 
 	
