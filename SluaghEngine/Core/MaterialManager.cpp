@@ -179,8 +179,8 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			auto& textureIndex = guidToTextureIndex[Utilz::GUID("BlackPink.sei")];
 			if (textures.size() == 0)
 				textures.push_back({ defaultTextureHandle });
-			textures[defaultTextureHandle].entities.push_back(entity);
-			materialInfo.textureIndices[newEntry].indices[0] = defaultTextureHandle;
+			textures[textureIndex].entities.push_back(entity);
+			materialInfo.textureIndices[newEntry].indices[0] = textureIndex;
 		}
 		
 	}
@@ -361,7 +361,6 @@ void SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDa
 	offset += sizeof(Graphics::MaterialAttributes);
 	for (int i = 0; i < dataIinfo.info.amountOfTex; i++)
 	{
-		uint32_t channelSize;
 		memcpy(&dataIinfo.info.tex[i], (char*)data + offset, sizeof(Utilz::GUID));
 		offset += sizeof(Utilz::GUID);
 		memcpy(&dataIinfo.info.textureChannel[i], (char*)data + offset, sizeof(Utilz::GUID));
