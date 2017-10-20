@@ -63,6 +63,8 @@ namespace SE
 
 			virtual void RemoveRenderJob(uint32_t jobID) = 0;
 
+			virtual void ChangeRenderJob(uint32_t jobID,const RenderJob& job) = 0;
+
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct

@@ -3,11 +3,12 @@
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 #include <vector>
-SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer)
+SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	renderTargetViews["backbuffer"] = backbuffer;
+	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
 	vertexBuffers[""].buffer = nullptr;
 	vertexBuffers[""].stride = 0;
@@ -127,8 +128,7 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 	indexBuffers[id].stride = indexSize;
 }
 
-void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount,
-	size_t elementStride, uint32_t flags)
+void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags)
 {
 	if(flags & BIND_VERTEX)
 	{
@@ -159,28 +159,34 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	if (flags & BufferFlags::BIND_VERTEX) bd.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
 	if (flags & BufferFlags::BIND_INDEX) bd.BindFlags |= D3D11_BIND_INDEX_BUFFER;
 	if (flags & BufferFlags::BIND_STREAMOUT) bd.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-	bd.ByteWidth = elementCount * elementStride;
+	bd.ByteWidth = maxElements * elementStride;
 	bd.CPUAccessFlags = 0;
 	if (flags & BufferFlags::CPU_WRITE) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 	if (flags & BufferFlags::CPU_READ) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.MiscFlags = 0;
-	bd.StructureByteStride = elementStride;
+	bd.StructureByteStride = 0;
 	
 	ID3D11Buffer* buffer;
 	HRESULT hr;
+
 	if (data)
 	{
+		void* dummy = operator new(elementStride * maxElements);
+		memcpy(dummy, data, elementCount * elementStride);
 		D3D11_SUBRESOURCE_DATA d;
-		d.pSysMem = data;
+		d.pSysMem = dummy;
 		d.SysMemPitch = 0;
 		d.SysMemSlicePitch = 0;
 		hr = device->CreateBuffer(&bd, &d, &buffer);
+		operator delete(dummy);
 	}
 	else
 	{
 		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+
 	}
+
 	if (FAILED(hr))
 		throw std::exception("Failed to create buffer");
 
@@ -197,6 +203,7 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	{
 		constantBuffers[id] = buffer;
 	}
+
 }
 
 void SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)
@@ -329,7 +336,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (sbd.Name == sibd.Name)
+				if (std::string(sbd.Name) == std::string(sibd.Name))
 				{
 					const auto cbExists = constantBuffers.find(sbd.Name);
 					if (cbExists == constantBuffers.end())
@@ -371,8 +378,57 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 	if (FAILED(hr))
 		throw std::exception("Could not create geometry shader.");
 
-
 	geometryShaders[id] = gs;
+
+	ID3D11ShaderReflection* reflection;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+		throw std::exception("Failed to create geometry shader reflection");
+
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							throw std::exception("Failed to create constant buffer.");
+						constantBuffers[sbd.Name] = buffer;
+					}
+
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
+	reflection->Release();
 }
 
 void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size)
@@ -393,32 +449,83 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC signatureParameterDesc;
 		reflection->GetInputParameterDesc(i, &signatureParameterDesc);
+		BYTE mask = signatureParameterDesc.Mask;
+		int varCount = 0;
+		while (mask)
+		{
+			if (mask & 0x01) varCount++;
+			mask = mask >> 1;
+		}
+
 		D3D11_SO_DECLARATION_ENTRY sode;
 		sode.SemanticName = signatureParameterDesc.SemanticName;
 		sode.Stream = signatureParameterDesc.Stream;
 		sode.OutputSlot = 0;
 		sode.StartComponent = 0;
-		if (signatureParameterDesc.Mask == 1)
+		sode.ComponentCount = varCount;
+		/*if (signatureParameterDesc.Mask == 1)
 			sode.ComponentCount = 1;
 		else if (signatureParameterDesc.Mask <= 3)
 			sode.ComponentCount = 2;
 		else if (signatureParameterDesc.Mask <= 7)
 			sode.ComponentCount = 3;
 		else if (signatureParameterDesc.Mask <= 15)
-			sode.ComponentCount = 4;
+			sode.ComponentCount = 4;*/
 		sode.SemanticIndex = signatureParameterDesc.SemanticIndex;
 		
 		SOEntries.push_back(sode);
 	}
 	uint32_t bufferStrides = 0;
 	for (auto& e : SOEntries)
-		bufferStrides += e.ComponentCount;
+		bufferStrides += e.ComponentCount * 4;
+
 	ID3D11GeometryShader* gs;
 	hr = device->CreateGeometryShaderWithStreamOutput(data, size, SOEntries.data(), SOEntries.size(), &bufferStrides, 1, D3D11_SO_NO_RASTERIZED_STREAM, nullptr, &gs);
 	if (FAILED(hr))
 		throw std::exception("Failed to create geometry shader with output stream");
 
 	geometryShaders[id] = gs;
+
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							throw std::exception("Failed to create constant buffer.");
+						constantBuffers[sbd.Name] = buffer;
+					}
+
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
 
 	reflection->Release();
 }
@@ -1018,12 +1125,15 @@ void SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& i
 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
+	ID3D11Buffer *nullBuffer = nullptr;
+	uint32_t offset = 0;
+	deviceContext->SOSetTargets(1, &nullBuffer, &offset);
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
 	if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
 	{
-		uint32_t offset = 0;
+		
 		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
 	}
 	SetRasterizerStage(pipeline.RStage);
@@ -1036,7 +1146,7 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
 	const auto& cIA = currentPipeline.IAStage;
-	if (pIA.topology != cIA.topology)
+	//if (pIA.topology != cIA.topology)
 		switch (pIA.topology)
 		{
 		case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;

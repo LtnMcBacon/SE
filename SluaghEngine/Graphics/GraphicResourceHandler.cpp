@@ -324,7 +324,7 @@ HRESULT SE::Graphics::GraphicResourceHandler::CreateGeometryShader(ID3D11Device 
 
 	if (FAILED(hr))
 	{
-		Utilz::Console::Print("Geometry Shader Error: Geometry Shader could not be created");
+		//Utilz::Console::Print("Geometry Shader Error: Geometry Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 	if (freeGeometryShaderLocations.size() == 0)

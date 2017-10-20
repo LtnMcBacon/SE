@@ -32,7 +32,7 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	devContext = device->GetDeviceContext();
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
-	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV());
+	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -106,6 +106,12 @@ void SE::Graphics::Renderer::RemoveRenderJob(uint32_t jobID)
 	jobIDToIndex[generalJobs[index].jobID] = index;
 	generalJobs.pop_back();
 	jobIDToIndex.erase(jobID);
+}
+
+void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const RenderJob & job)
+{
+	const uint32_t index = jobIDToIndex[jobID];
+	generalJobs[index].job = job;
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
@@ -543,6 +549,7 @@ int SE::Graphics::Renderer::Render() {
 	{
 		int32_t drawn = 0;
 		pipelineHandler->SetPipeline(j.job.pipeline);
+		devContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		if(j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
 		{
 			j.job.mappingFunc(drawn, 1);

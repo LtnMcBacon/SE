@@ -116,6 +116,7 @@ namespace SE
 		};
 		enum class PrimitiveTopology : uint8_t
 		{
+			NONE,
 			POINT_LIST,
 			LINE_LIST,
 			LINE_STRIP,
@@ -144,7 +145,7 @@ namespace SE
 			static const size_t maxConstantBuffers = 8;
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount;
+			uint8_t constantBufferCount = 0;
 		};
 
 		struct GeometryShaderStage
@@ -152,7 +153,7 @@ namespace SE
 			static const size_t maxConstantBuffers = 8;
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount;
+			uint8_t constantBufferCount = 0;
 		};
 
 		struct StreamOutStage
@@ -170,9 +171,9 @@ namespace SE
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
 			Utilz::GUID samplers[maxSamplers];			
-			uint8_t constantBufferCount;
-			uint8_t textureCount;
-			uint8_t samplerCount;
+			uint8_t constantBufferCount = 0;
+			uint8_t textureCount = 0;
+			uint8_t samplerCount = 0;
 			
 		};
 
@@ -183,7 +184,7 @@ namespace SE
 			Utilz::GUID depthStencilState;
 			Utilz::GUID renderTargets[maxRenderTargets];
 			Utilz::GUID depthStencilView;
-			uint8_t renderTargetCount;
+			uint8_t renderTargetCount = 0;
 		};
 		struct Viewport
 		{

@@ -55,6 +55,7 @@ namespace SE
 
 			void RemoveRenderJob(uint32_t jobID) override;
 
+			void ChangeRenderJob(uint32_t jobID, const RenderJob& job) override;
 			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct

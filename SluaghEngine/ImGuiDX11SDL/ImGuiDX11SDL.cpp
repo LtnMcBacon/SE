@@ -136,9 +136,10 @@ void ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data)
 		ID3D11ShaderResourceView*   PSShaderResource;
 		ID3D11SamplerState*         PSSampler;
 		ID3D11PixelShader*          PS;
+		ID3D11GeometryShader*		GS;
 		ID3D11VertexShader*         VS;
-		UINT                        PSInstancesCount, VSInstancesCount;
-		ID3D11ClassInstance*        PSInstances[256], *VSInstances[256];   // 256 is max according to PSSetShader documentation
+		UINT                        PSInstancesCount, VSInstancesCount, GSInstancesCount;
+		ID3D11ClassInstance*        PSInstances[256], *VSInstances[256], *GSInstances[256];   // 256 is max according to PSSetShader documentation
 		D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
 		ID3D11Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
 		UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
@@ -154,9 +155,10 @@ void ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data)
 	ctx->OMGetDepthStencilState(&old.DepthStencilState, &old.StencilRef);
 	ctx->PSGetShaderResources(0, 1, &old.PSShaderResource);
 	ctx->PSGetSamplers(0, 1, &old.PSSampler);
-	old.PSInstancesCount = old.VSInstancesCount = 256;
+	old.PSInstancesCount = old.VSInstancesCount = 256; old.GSInstancesCount = 256;
 	ctx->PSGetShader(&old.PS, old.PSInstances, &old.PSInstancesCount);
 	ctx->VSGetShader(&old.VS, old.VSInstances, &old.VSInstancesCount);
+	ctx->GSGetShader(&old.GS, old.GSInstances, &old.GSInstancesCount);
 	ctx->VSGetConstantBuffers(0, 1, &old.VSConstantBuffer);
 	ctx->IAGetPrimitiveTopology(&old.PrimitiveTopology);
 	ctx->IAGetIndexBuffer(&old.IndexBuffer, &old.IndexBufferFormat, &old.IndexBufferOffset);
@@ -230,6 +232,7 @@ void ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data)
 	ctx->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount); if (old.VS) old.VS->Release();
 	ctx->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
 	for (UINT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
+	for (UINT i = 0; i < old.GSInstancesCount; i++) if (old.GSInstances[i]) old.GSInstances[i]->Release();
 	ctx->IASetPrimitiveTopology(old.PrimitiveTopology);
 	ctx->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
 	ctx->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset); if (old.VertexBuffer) old.VertexBuffer->Release();
