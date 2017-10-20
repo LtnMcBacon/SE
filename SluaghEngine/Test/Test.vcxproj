@@ -158,6 +158,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BehavioursTest.cpp" />
     <ClCompile Include="BehvaiouralTreeFactoryTest.cpp" />
+    <ClCompile Include="BloomTest.cpp" />
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="ConsoleTest.cpp" />
     <ClCompile Include="DebugRenderTest.cpp" />
@@ -191,6 +192,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="AudioTest.h" />
     <ClInclude Include="BehaviouralTreeFactoryTest.h" />
     <ClInclude Include="BehavioursTest.h" />
+    <ClInclude Include="BloomTest.h" />
     <ClInclude Include="BoundingTest.h" />
     <ClInclude Include="EnemyFactoryTest.h" />
     <ClInclude Include="ConsoleTest.h" />

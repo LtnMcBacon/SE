@@ -517,6 +517,56 @@ int SE::Graphics::Renderer::Render() {
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
+
+	//********* Apply bloom post-processing ********/
+	if (bloom)
+	{
+		timeCluster[GPUTimer]->Start("Bloom");
+
+
+		ID3D11ShaderResourceView* shaderResourceViews[] = {
+			graphicResourceHandler->GetShaderResourceView(bloomShaderResourceViewHandles[0]),
+			graphicResourceHandler->GetShaderResourceView(bloomShaderResourceViewHandles[1]),
+			graphicResourceHandler->GetShaderResourceView(bloomShaderResourceViewHandles[2])
+		};
+		ID3D11UnorderedAccessView* unorderedAccessViews[] = {
+			graphicResourceHandler->GetUnorderedAccessView(bloomUnorderedAccessViewHandles[0]),
+			graphicResourceHandler->GetUnorderedAccessView(bloomUnorderedAccessViewHandles[1])
+		};
+
+
+		ID3D11RenderTargetView* nullRTVs[] = { nullptr, nullptr };
+		device->GetDeviceContext()->OMSetRenderTargets(2, nullRTVs, NULL);
+
+		graphicResourceHandler->SetCompute(bloomHorizontalHandle);
+		device->GetDeviceContext()->CSSetShaderResources(0, 1, &shaderResourceViews[1]);
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &unorderedAccessViews[0], NULL);
+		device->GetDeviceContext()->Dispatch(32, 45, 1);
+
+		graphicResourceHandler->SetCompute(bloomVerticalHandle);
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &unorderedAccessViews[1], NULL);
+		device->GetDeviceContext()->CSSetShaderResources(0, 1, &shaderResourceViews[2]);
+		device->GetDeviceContext()->CSSetShaderResources(1, 1, &shaderResourceViews[0]);
+		device->GetDeviceContext()->Dispatch(32, 40, 1);
+
+
+		ID3D11ShaderResourceView* nullSRVs[3] = { nullptr, nullptr, nullptr };
+		ID3D11UnorderedAccessView* nullUAVs[2] = { nullptr, nullptr };
+		device->GetDeviceContext()->CSSetShaderResources(0, 3, nullSRVs);
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 2, nullUAVs, NULL);
+
+
+		ID3D11Resource *backBufferTexture, *bloomTexture;
+		backBufferTexture = device->GetBackBufferTexture();
+		unorderedAccessViews[1]->GetResource(&bloomTexture);
+		device->GetDeviceContext()->CopyResource(backBufferTexture, bloomTexture);
+
+
+		timeCluster[GPUTimer]->Stop("Bloom");
+	}
+	//******* END Apply bloom post-processing ******/
+
+
 	ProfileReturnConst(0);
 }
 
@@ -524,12 +574,16 @@ int SE::Graphics::Renderer::BeginFrame()
 {
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
-
-	ID3D11RenderTargetView* views[] = { device->GetRTV() };
-	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
+	float blackClearColor[] = { 0, 0, 0, 1 };
+	
+	ID3D11RenderTargetView* views[] = { device->GetRTV(), graphicResourceHandler->GetRenderTargetView(0) };
+	device->GetDeviceContext()->OMSetRenderTargets(2, views, device->GetDepthStencil());
 
 	// Clear the primary render target view using the specified color
-	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(),	clearColor);
+	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(), clearColor);
+
+	// Clear the secondary render target view using the specified color
+	device->GetDeviceContext()->ClearRenderTargetView(views[1], blackClearColor);
 
 	// Clear the standard depth stencil view
 	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
@@ -1086,11 +1140,78 @@ void SE::Graphics::Renderer::PauseAnimation(int job)
 	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 
-int EnableBloom(int handleHorizontal, int handleVertical)
+int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
 {
 	int status = -1;
 
+	bloomHorizontalHandle = bloomHorizontalHandle;
+	bloomVerticalHandle = verticalHandle;
 
+	int texture2DHandles[3];
+
+
+	D3D11_TEXTURE2D_DESC texture2DDescription;
+	ZeroMemory(&texture2DDescription, sizeof(D3D11_TEXTURE2D_DESC));
+
+	texture2DDescription.Width = 1280;
+	texture2DDescription.Height = 720;
+	texture2DDescription.MipLevels = 1;
+	texture2DDescription.ArraySize = 1;
+	texture2DDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texture2DDescription.SampleDesc.Count = 1;
+	texture2DDescription.SampleDesc.Quality = 0;
+	texture2DDescription.Usage = D3D11_USAGE_DEFAULT;
+	texture2DDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	texture2DDescription.CPUAccessFlags = 0;
+	texture2DDescription.MiscFlags = 0;
+
+	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[0]);
+
+	texture2DDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+
+	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[1]);
+	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[2]);
+
+
+	graphicResourceHandler->CreateRenderTargetView(texture2DHandles[0]);
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDescription;
+	ZeroMemory(&shaderResourceViewDescription, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+
+	shaderResourceViewDescription.Format = texture2DDescription.Format;
+	shaderResourceViewDescription.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDescription.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDescription.Texture2D.MipLevels = 1;
+
+	graphicResourceHandler->CreateCustomShaderResourceView(shaderResourceViewDescription, 0, bloomShaderResourceViewHandles[0], device->GetBackBufferTexture());
+	graphicResourceHandler->CreateCustomShaderResourceView(shaderResourceViewDescription, texture2DHandles[0], bloomShaderResourceViewHandles[1]);
+	graphicResourceHandler->CreateCustomShaderResourceView(shaderResourceViewDescription, texture2DHandles[1], bloomShaderResourceViewHandles[2]);
+
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDescription;
+	ZeroMemory(&unorderedAccessViewDescription, sizeof(D3D11_UNORDERED_ACCESS_VIEW_DESC));
+
+	unorderedAccessViewDescription.Format = shaderResourceViewDescription.Format;
+	unorderedAccessViewDescription.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	unorderedAccessViewDescription.Texture2D.MipSlice = 0;
+
+	graphicResourceHandler->CreateUnorderedAccessView(texture2DHandles[1], bloomUnorderedAccessViewHandles[0]);
+	graphicResourceHandler->CreateUnorderedAccessView(texture2DHandles[2], bloomUnorderedAccessViewHandles[1]);
+
+
+	graphicResourceHandler->ReleaseTextures();
+
+
+	bloom = true;
+	status = 0;
 
 	return status;
+}
+
+int SE::Graphics::Renderer::DisableBloom()
+{
+	bloom = false;
+
+	return 0;
 }

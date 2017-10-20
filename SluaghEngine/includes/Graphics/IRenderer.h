@@ -406,6 +406,12 @@ namespace SE
 			*
 			*/
 			virtual int EnableBloom(int handleHorizontal, int handleVertical) = 0;
+
+			/**
+			* @brief	Disables bloom post-effect.
+			*
+			*/
+			virtual int DisableBloom() = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;

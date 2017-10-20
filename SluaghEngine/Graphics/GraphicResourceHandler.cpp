@@ -646,3 +646,106 @@ int GraphicResourceHandler::UpdateDynamicVertexBuffer(int handle, void* data, si
 	vBuffers[handle].stride = sizePerElement;
 	return 0;
 }
+
+int GraphicResourceHandler::CreateRenderTargetView(int textureHandle, int* renderTargetViewHandle)
+{
+	int status = -1;
+
+	ID3D11RenderTargetView* renderTargetView;
+	HRESULT hr = gDevice->CreateRenderTargetView(texture2Ds[textureHandle], NULL, &renderTargetView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		renderTargetViews.push_back(renderTargetView);
+		if (renderTargetViewHandle != nullptr)
+			*renderTargetViewHandle = renderTargetViews.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle)
+{
+	int status = -1;
+
+	ID3D11Texture2D* texture2D;
+	HRESULT hr = gDevice->CreateTexture2D(&description, NULL, &texture2D);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		texture2Ds.push_back(texture2D);
+		textureHandle = texture2Ds.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateCustomShaderResourceView(const D3D11_SHADER_RESOURCE_VIEW_DESC& description, int textureHandle, int& shaderResourceViewHandle, ID3D11Texture2D* texture)
+{
+	int status = -1;
+
+	ID3D11ShaderResourceView* shaderResourceView;
+	HRESULT hr = gDevice->CreateShaderResourceView((texture == nullptr) ? texture2Ds[textureHandle] : texture, &description, &shaderResourceView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		shaderResourceViews.push_back(shaderResourceView);
+		shaderResourceViewHandle = shaderResourceViews.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateUnorderedAccessView(int textureHandle, int& unorderedAccessViewHandle)
+{
+	int status = -1;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
+	description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	description.Texture2D.MipSlice = 0;
+
+	ID3D11UnorderedAccessView* unorderedAccessView;
+	HRESULT hr = gDevice->CreateUnorderedAccessView(texture2Ds[textureHandle], &description, &unorderedAccessView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		unorderedAccessViews.push_back(unorderedAccessView);
+		unorderedAccessViewHandle = unorderedAccessViews.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::ReleaseTextures()
+{
+	int status = 0;
+
+	for (int textureI = 0; textureI < texture2Ds.size(); textureI++)
+		texture2Ds[textureI]->Release();
+
+	return status;
+}
+
+void GraphicResourceHandler::SetCompute(int computeID)
+{
+	gDeviceContext->CSSetShader(cShaders[computeID].shader, nullptr, 0);
+}
+
+ID3D11UnorderedAccessView* GraphicResourceHandler::GetUnorderedAccessView(int uavID)
+{
+	return unorderedAccessViews[uavID];
+}
+
+ID3D11RenderTargetView* GraphicResourceHandler::GetRenderTargetView(int rtvID)
+{
+	return renderTargetViews[rtvID];
+}

@@ -179,8 +179,8 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	ZeroMemory(&swChDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 	swChDesc.Windowed = TRUE;
 	swChDesc.BufferCount = 2;
-	swChDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	swChDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swChDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swChDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	swChDesc.SampleDesc.Count = 1;
 	swChDesc.SampleDesc.Quality = 0;
 	swChDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
@@ -422,4 +422,12 @@ void DeviceManager::CreateBlendState()
 	hr = gDevice->CreateBlendState(&blendTransStateDesc, &blendTransState);
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
+}
+
+ID3D11Texture2D* DeviceManager::GetBackBufferTexture()
+{
+	ID3D11Texture2D* backBufferTexture;
+	gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferTexture);
+
+	return backBufferTexture;
 }

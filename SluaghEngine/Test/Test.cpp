@@ -35,6 +35,7 @@
 #include "GarbageTest.h"
 #include "ConsoleTest.h"
 #include "EnemyFactoryTest.h"
+#include "BloomTest.h"
 
 
 #ifdef _DEBUG
@@ -94,6 +95,7 @@ int main(int argc, char** argv)
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
+	AddTest(BloomTest);
   
 	volatile bool running = true;
 	Console::Initialize(new CMDConsole);
