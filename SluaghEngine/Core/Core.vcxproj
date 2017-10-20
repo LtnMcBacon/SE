@@ -157,6 +157,7 @@
     <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="OptionHandler.cpp" />
+    <ClCompile Include="ParticleSystemManager.cpp" />
     <ClCompile Include="RenderableManager.cpp" />
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
@@ -174,6 +175,7 @@
     <ClInclude Include="..\includes\Core\LightManager.h" />
     <ClInclude Include="..\includes\Core\MaterialManager.h" />
     <ClInclude Include="..\includes\Core\OptionHandler.h" />
+    <ClInclude Include="..\includes\Core\ParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\TransformManager.h" />
     <ClInclude Include="..\includes\Core\RenderableManager.h" />
     <ClInclude Include="..\includes\Graphics\FileHeaders.h" />

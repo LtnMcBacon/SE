@@ -5,6 +5,7 @@
 */
 #include <cstdint>
 #include "Entity.h"
+#include <Utilz\Event.h>
 namespace SE
 {
 	namespace Core
@@ -64,18 +65,32 @@ namespace SE
 			*/
 			void Destroy(Entity e);
 
+			/**
+			* @brief    Destroys an entity. This is an immediate destroy.
+			*
+			* @param[in] e The entity to destroy.
+			*
+			*/
+			void DestroyNow(Entity e);
 
+			/**
+			* @brief    Register a destroy callback for an entity.
+			* @param[in] e The entity to bind to.
+			* @param[in] callback The callback to bind.
+			*/
+			void RegisterDestroyCallback(const Entity& e, const Utilz::Delegate<void(const Entity&)>& callback);
 		private:
 			static const size_t _minimumFreeIndices = 1024;
 			static const size_t _generationCapacityIncrement = 512;
 			static const size_t _reusableIndicesCapacityIncrement = 128;
+		
 			/*The index part of the entity is used to index this array, as such we only
 			* need to save the generation bits in the array.
 			*/
 			uint8_t* _generation;
 			uint32_t _generationCount;
 			uint32_t _generationCapacity;
-
+			Utilz::Event<void(const Entity&)>* _destroyCallbacks;
 			/*When an entity is destroyed we'd like to be able to reuse the index in order
 			* to conserve memory.
 			*/
