@@ -11,7 +11,7 @@ namespace SE
 		class PipelineHandler : public IPipelineHandler
 		{
 		public:
-			PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+			PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer);
 			~PipelineHandler();
 			PipelineHandler(const PipelineHandler& other) = delete;
 			PipelineHandler(PipelineHandler&& other) = delete;

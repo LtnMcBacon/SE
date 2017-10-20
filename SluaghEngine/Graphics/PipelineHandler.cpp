@@ -3,10 +3,13 @@
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 #include <vector>
-SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
+	renderTargetViews["backbuffer"] = backbuffer;
+
+	
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
