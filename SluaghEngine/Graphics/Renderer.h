@@ -11,6 +11,7 @@
 #include <thread>
 #include <Utilz\TimeCluster.h>
 
+
 namespace SE
 {
 	namespace Graphics
@@ -35,6 +36,24 @@ namespace SE
 			* @endcode
 			*/
 			void Shutdown() override;
+
+
+			IPipelineHandler* GetPipelineHandler() override
+			{
+				return pipelineHandler;
+			};
+
+			/**
+			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
+			* @param[in] job Struct containing all information required to render.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa RenderJob
+			* @endcode
+			*/
+			uint32_t AddRenderJob(const RenderJob& job) override;
+
+			void RemoveRenderJob(uint32_t jobID) override;
 
 			/**
 			* @brief    Sets a render job
@@ -65,18 +84,18 @@ namespace SE
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int EnableTextRendering(const TextGUI & handles) override;
+			size_t EnableTextRendering(const TextGUI & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextRendering(const TextGUI& handles) override;
+			size_t DisableTextRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Text render jobs
@@ -84,20 +103,20 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			int EnableTextureRendering(const GUITextureInfo & handles) override;
+			size_t EnableTextureRendering(const GUITextureInfo & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			int DisableTextureRendering(const GUITextureInfo& handles) override;
+			size_t DisableTextureRendering(const size_t & jobID) override;
 
 			/**
 			* @brief    Sets Light render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
 			int EnableLightRendering(const LightData & handles) override;
@@ -288,6 +307,17 @@ namespace SE
 			int CreateVertexShader(void* data, size_t size) override;
 
 			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			int CreateComputeShader(void* data, size_t size) override;
+
+
+			/**
 			* @brief Create a geometry shader from raw data
 			* @param[in] data A pointer to shader blob.
 			* @param[in] size The size of the shader blob.
@@ -417,6 +447,7 @@ namespace SE
 			Renderer(const Renderer&& other) = delete;
 			Renderer& operator=(const Renderer& other) = delete;
 
+			IPipelineHandler* pipelineHandler;
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 
@@ -442,9 +473,26 @@ namespace SE
 			int lightBufferID = -1;
 
 			DeviceManager* device;
-
+			ID3D11Device* dev;
+			ID3D11DeviceContext* devContext;
 			GraphicResourceHandler* graphicResourceHandler;
 			MemoryMeasuring memMeasure;
+
+			/***********General render jobs ***************/
+			struct InternalRenderJob
+			{
+				RenderJob job;
+				uint32_t jobID;
+			};
+			uint32_t gJobID = 0;
+
+			std::vector<InternalRenderJob> generalJobs;
+			std::unordered_map<uint32_t, uint32_t> jobIDToIndex;
+			
+
+
+
+			/***********End General Render Jobs************/
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;

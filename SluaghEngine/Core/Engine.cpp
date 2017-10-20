@@ -41,9 +41,10 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	renderer = Graphics::CreateRenderer();
 	resourceHandler = ResourceHandler::CreateResourceHandler();
 	audioManager = new AudioManager(resourceHandler, *entityManager);
+
 	
 
-	auto r = resourceHandler->Initialize();
+	auto r = resourceHandler->Initialize({ optionHandler->GetOptionUnsignedInt("Memory", "MaxRamUsage", 256u * 1024u * 1024u), ResourceHandler::UnloadingStrategy::Linear});
 	if (r)
 		ProfileReturnConst( r);
 	r = window->Initialize();
@@ -116,6 +117,9 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("RenderableManager");
 	renderableManager->Frame();
 	timeClus->Stop("RenderableManager");
+	timeClus->Start("CollisionManager");
+	collisionManager->Frame();
+	timeClus->Stop("CollisionManager");
 	timeClus->Start("DebugRenderManager");
 	debugRenderManager->Frame(*perFrameStackAllocator);
 	timeClus->Stop("DebugRenderManager");
@@ -128,9 +132,6 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("MaterialManager");
 	materialManager->Frame();
 	timeClus->Stop("MaterialManager");
-	timeClus->Start("CollisionManager");
-	collisionManager->Frame();
-	timeClus->Stop("CollisionManager");
 	timeClus->Start("CameraManager");
 	cameraManager->Frame();
 	timeClus->Stop("CameraManager");
@@ -251,6 +252,7 @@ void SE::Core::Engine::OptionUpdate()
 		renderer->ResizeSwapChain(window->GetHWND());
 		ImGuiDX11SDL_Shutdown();
 		ImGuiDX11SDL_Init(renderer, window);
+		guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;

@@ -1,40 +1,24 @@
 #include "AudioSound.h"
 #include <Profiler.h>
+#include <fstream>
+#include <Utilz\Memory.h>
 
 namespace SE {
 	namespace Audio {
-		AudioSound::AudioSound()
-		{
-			masterVol = 0;
-			effectVol = 0;
-			bakgroundVol = 0;
-		}
-
-		AudioSound::~AudioSound()
-		{
-			
-		}
-
-		int AudioSound::Initialize()
-		{
-			StartProfile;
-			sampleStack.InitStackAlloc(100000000);
-			ProfileReturnConst(0);
-		}
-
 		namespace sfvirt {
+
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
-				return data->size;
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
+				return (sf_count_t)data->size;
 			};
 
 			sf_count_t sf_vio_seek1(sf_count_t offset, int whence, void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 				if (whence == SEEK_CUR)
 				{
-					if (data->currentPos + offset < data->size && data->currentPos + offset >= 0)
+					if (data->currentPos + offset <= data->size && data->currentPos + offset >= 0)
 						data->currentPos += offset;
 				}
 				else if (whence == SEEK_SET)
@@ -52,9 +36,8 @@ namespace SE {
 
 			sf_count_t sf_vio_read1(void *ptr, sf_count_t count, void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
-
-				if (data->currentPos + count < data->size)
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
+				if (data->currentPos + count <= data->size)
 				{
 					memcpy(ptr, &data->soundData[data->currentPos], count);
 					data->currentPos += count;
@@ -76,12 +59,53 @@ namespace SE {
 
 			sf_count_t sf_vio_tell1(void *user_data)
 			{
-				AudioFile *data = static_cast<AudioFile*>(user_data);
+				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
 				return data->currentPos;
 			};
 		}
 
-		int AudioSound::LoadSound(AudioFile* sound)
+		AudioSound::AudioSound()
+		{
+			masterVol = 0;
+			effectVol = 0;
+			bakgroundVol = 0;
+		}
+
+		AudioSound::~AudioSound()
+		{
+			
+		}
+
+		int AudioSound::Initialize()
+		{
+			StartProfile;
+			using namespace Utilz::Memory;
+			sampleStack.InitStackAlloc(20_mb);
+			ProfileReturnConst(0);
+		}
+
+		AudioFile* ReadRaw()
+		{
+			AudioFile *sound = new AudioFile;
+			std::streampos size;
+			char * memblock;
+			std::ifstream myfile;
+			myfile.open("Assets/Sound/Canary.wav", std::ios::in | std::ios::binary | std::ios::ate);
+			if (myfile.is_open())
+			{
+				size = myfile.tellg();
+				memblock = new char[size];
+				myfile.seekg(0, std::ios::beg);
+				myfile.read(memblock, size);
+				myfile.close();
+				sound->size = size;
+				sound->soundData = memblock;
+				sound->currentPos = 0;
+			}
+			return sound;
+		}
+
+		size_t AudioSound::LoadSound(AudioFile* sound)
 		{
 			StartProfile;
 			SF_VIRTUAL_IO sfvirtual;
@@ -91,8 +115,13 @@ namespace SE {
 			sfvirtual.write = sfvirt::sf_vio_write1;
 			sfvirtual.tell = sfvirt::sf_vio_tell1;
 			SF_INFO info;
-			info.format = SF_FORMAT_WAV;
+			//info.format = SF_FORMAT_WAV;
 			SNDFILE* music = sf_open_virtual(&sfvirtual, SFM_READ, &info, sound);
+			//SNDFILE* music2 = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
+			/*if (sizeof(music) != sizeof(music2))
+			{
+				int hej = 0;
+			}*/
 			int samples = (info.channels * info.frames);
 			float* sampleData = (float*)sampleStack.GetMemoryAligned(samples * sizeof(float), sizeof(float));
 			if (sampleData == nullptr)
@@ -111,6 +140,25 @@ namespace SE {
 			delete sound;
 			ProfileReturn(soundSample.size() - 1);
 		}
+
+		size_t AudioSound::LoadSound2()
+		{
+			StartProfile;
+			SF_INFO info;
+			SNDFILE* music = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
+			int samples = (info.channels * info.frames);
+			float* sampleData = new float[samples];
+			sf_read_float(music, sampleData, samples);
+			sf_close(music);
+
+			AudioSample tempAS;
+			tempAS.info = info;
+			tempAS.samples = sampleData;
+
+			soundSample.push_back(tempAS);
+			ProfileReturn(soundSample.size() - 1);
+		}
+
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{

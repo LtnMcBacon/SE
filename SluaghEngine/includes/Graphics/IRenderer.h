@@ -12,6 +12,9 @@
 #include "FileHeaders.h"
 #include "AnimationJobInfo.h"
 #include <Utilz\TimeCluster.h>
+#include "IPipelineHandler.h"
+#include "RenderJob.h"
+
 #include "ParticleSystemJob.h"
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -45,6 +48,20 @@ namespace SE
 			* @endcode
 			*/
 			virtual void Shutdown() = 0;
+
+			virtual IPipelineHandler* GetPipelineHandler() = 0;
+
+			/**
+			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
+			* @param[in] job Struct containing all information required to render.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa RenderJob
+			* @endcode
+			*/
+			virtual uint32_t AddRenderJob(const RenderJob& job) = 0;
+
+			virtual void RemoveRenderJob(uint32_t jobID) = 0;
 
 			/**
 			* @brief    Sets a render job
@@ -93,34 +110,34 @@ namespace SE
 			/**
 			* @brief    Sets a Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextRendering(const TextGUI & handles) = 0;
+			virtual size_t EnableTextRendering(const TextGUI & handles) = 0;
 
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextRendering(const TextGUI& handles) = 0;
+			virtual size_t DisableTextRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			virtual size_t EnableTextureRendering(const GUITextureInfo & handles) = 0;
 			
 			/**
 			* @brief    Removes a Text render job.
 			* @param[in] handles The handles struct
-			* @retval 0 On success.
+			* @retval jobID On success.
 			* @endcode
 			*/
-			virtual int DisableTextureRendering(const GUITextureInfo& handles) = 0;
+			virtual size_t DisableTextureRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief    Sets Light render jobs
@@ -284,6 +301,18 @@ namespace SE
 			* @endcode
 			*/
 			virtual int CreateVertexShader(void* data, size_t size) = 0;
+
+
+			/**
+			* @brief Create a compute shader from raw data
+			* @param[in] data A pointer to shader blob.
+			* @param[in] size The size of the shader blob.
+			* @retval handle On success.
+			* @retval -1 Something went wrong.
+			* @endcode
+			*/
+			virtual int CreateComputeShader(void* data, size_t size) = 0;
+
 
 			/**
 			* @brief Create a vertex buffer with CPU write access

@@ -27,14 +27,23 @@ namespace SE
 			ResourceHandler();
 			~ResourceHandler();
 
-			int Initialize();
-			void Shutdown();
+			int Initialize(const InitializationInfo& initInfo)override;
+			void Shutdown()override;
+			void UpdateInfo(const InitializationInfo& initInfo)override;
 
-			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK);
-			int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK);
-			void UnloadResource(const Utilz::GUID& guid);
+			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
+			int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK)override;
+			void UnloadResource(const Utilz::GUID& guid)override;
 		
 		private:
+			InitializationInfo initInfo;
+
+			void LinearUnload(size_t addedSize);
+
+			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
+
+			UnloadingStrategy Unload;
+
 			/**
 			* @brief	Allocate more memory
 			*/

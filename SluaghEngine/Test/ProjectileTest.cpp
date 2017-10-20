@@ -133,6 +133,22 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	rm.ToggleRenderableObject(player->GetEntity(), true);
 	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
+	Core::Entity rotatingBox1 = em.Create();
+	Core::Entity rotatingBox2 = em.Create();
+	Core::Entity rotatingBox3 = em.Create();
+	tm.Create(rotatingBox1, { 0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
+	tm.Create(rotatingBox2, { -0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
+	tm.Create(rotatingBox3, { 0.25f, 0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.1f,0.1f,0.1f });
+	rm.CreateRenderableObject(rotatingBox1, Block);
+	rm.CreateRenderableObject(rotatingBox2, Block);
+	rm.CreateRenderableObject(rotatingBox3, Block);
+	tm.BindChild(player->GetEntity(), rotatingBox1,true,true);
+	tm.BindChild(player->GetEntity(), rotatingBox2, true,true);
+	tm.BindChild(rotatingBox2, rotatingBox3, true, true);
+	rm.ToggleRenderableObject(rotatingBox1, true);
+	rm.ToggleRenderableObject(rotatingBox2, true);
+	rm.ToggleRenderableObject(rotatingBox3, true);
+
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
 	Core::CameraBindInfoStruct cInfo;
@@ -149,7 +165,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
+	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false, true);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
@@ -361,6 +377,9 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			actionInput.skill1Button = true;
 		}
+
+		tm.Rotate(rotatingBox2, 0.0f, dt * 6.28, 0.0f);
+		tm.Rotate(rotatingBox3, 0.0f, dt*3.14, 0.0f);
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
@@ -463,7 +482,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		e.Frame(dt);
 
 
-	/*	Utilz::TimeMap times;
+		/*Utilz::TimeMap times;
 		e.GetProfilingInformation(times);
 		for (auto& t : times)
 			console->Print("%s: %f\n", t.first.str, t.second);*/

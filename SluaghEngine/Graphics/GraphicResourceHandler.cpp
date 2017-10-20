@@ -1,6 +1,5 @@
 
 #include "GraphicResourceHandler.h"
-#include <Utilz\Console.h>
 #include <Profiler.h>
 
 
@@ -87,7 +86,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	HRESULT hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
-		Utilz::Console::Print("Vertex Shader Error: Vertex Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -96,7 +94,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to reflect vertex shader.\n");
 		ProfileReturnConst(hr);
 	}
 	D3D11_SHADER_DESC shaderDesc;
@@ -167,7 +164,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = gDevice->CreateInputLayout(inputElementDescs.data(), inputElementDescs.size(), data, size, &inputLayout);
 	if(FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create input layout.\n");
 		ProfileReturnConst(hr);
 	}
 
@@ -218,12 +214,10 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 	ID3D11PixelShader* tempPixelShader = nullptr;
 
-	HRESULT hr = S_OK;
-
 	if (reflectionOut)
 	{
 		ID3D11ShaderReflection* reflection = nullptr;
-		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+		HRESULT hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
 		//	Utilz::Console::Print("Failed to reflect pixel shader.\n");
@@ -263,10 +257,9 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 		*reflectionOut = settings;
 	}
-	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
+	HRESULT hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
-		Utilz::Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -287,6 +280,38 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		freePixelShaderLocations.pop();
 	}
 	
+	ProfileReturnConst(hr);
+}
+
+HRESULT SE::Graphics::GraphicResourceHandler::CreateComputeShader(ID3D11Device * gDevice, void * data, size_t size, int * computeShaderID)
+{
+	StartProfile;
+
+	ID3D11ComputeShader* temp = nullptr;
+
+	HRESULT hr = gDevice->CreateComputeShader(data, size, nullptr, &temp);
+
+	if (FAILED(hr)) {
+		ProfileReturnConst(hr);
+	}
+
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	if (freeComputeShaderLocations.size() == 0)
+	{
+		cShaders.push_back({ temp });
+		*computeShaderID = cShaders.size() - 1;
+	}
+	else
+	{
+		auto top = freeComputeShaderLocations.top();
+		cShaders[top].shader = temp;
+		*computeShaderID = top;
+		freeComputeShaderLocations.pop();
+	}
+
 	ProfileReturnConst(hr);
 }
 
@@ -542,7 +567,6 @@ int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const Te
 	HRESULT hr = gDevice->CreateTexture2D(&desc, &d, &texture);
 	if (FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create texture from data.\n");
 		return -1;
 	}
 
@@ -555,7 +579,6 @@ int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const Te
 	hr = gDevice->CreateShaderResourceView(texture, &srvDesc, &srv);
 	if(FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create shader resource view from texture.\n");
 		return -1;
 	}
 	texture->Release();

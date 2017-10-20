@@ -3,6 +3,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include "GPUTimeCluster.h"
 #include <Utilz\CPUTimeCluster.h>
+#include "PipelineHandler.h"
 #undef min
 
 SE::Graphics::Renderer::Renderer() 
@@ -27,8 +28,11 @@ int SE::Graphics::Renderer::Initialize(void * window)
 	if (FAILED(hr))
 		return -1;
 
+	dev = device->GetDevice();
+	devContext = device->GetDeviceContext();
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
+	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV());
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -76,7 +80,7 @@ void SE::Graphics::Renderer::Shutdown()
 //	if (myThread.joinable())
 		//myThread.join();
 
-
+	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 
@@ -85,6 +89,23 @@ void SE::Graphics::Renderer::Shutdown()
 	delete graphicResourceHandler;
 	delete animationSystem;
 	delete device;
+}
+
+uint32_t SE::Graphics::Renderer::AddRenderJob(const RenderJob& job)
+{
+	const uint32_t jobID = gJobID++;
+	jobIDToIndex[jobID] = generalJobs.size();
+	generalJobs.push_back({ job, jobID });
+	return jobID;
+}
+
+void SE::Graphics::Renderer::RemoveRenderJob(uint32_t jobID)
+{
+	const uint32_t index = jobIDToIndex[jobID];
+	generalJobs[index] = generalJobs.back();
+	jobIDToIndex[generalJobs[index].jobID] = index;
+	generalJobs.pop_back();
+	jobIDToIndex.erase(jobID);
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
@@ -319,58 +340,62 @@ int SE::Graphics::Renderer::UpdateLineRenderJobRange(uint32_t lineJobID, uint32_
 	ProfileReturnConst(0);
 }
 
-int SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
+size_t SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
 {
+	StartProfile;
+	int job = (int)renderTextJobs.size();
 	renderTextJobs.push_back(handles);
+	if (!renderTextJobs[job].anchor)
+	{
+		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		size_t height = gBB_Desc.Height;
+		size_t width = gBB_Desc.Width;
+		renderTextJobs[job].scale = DirectX::XMFLOAT2(renderTextJobs[job].scale.x * width, renderTextJobs[job].scale.y * height);
+		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
+	}
+	ProfileReturn(job);
 	return 0;
 }
 
-int SE::Graphics::Renderer::DisableTextRendering(const TextGUI& handles)
+size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
 {
-	const int size = renderTextJobs.size();
-	int at = -1;
-	for (size_t i = 0; i < size; ++i)
-	{
-		if (handles.hashString == renderTextJobs[i].hashString)
-		{
-			at = i;
-			break;
-		}
-	}
-	if (at >= 0)
-	{
-		for (int i = at; i < size - 1; ++i)
-			renderTextJobs[i] = renderTextJobs[i + 1];
-		renderTextJobs.pop_back();
-	}
-	return 0;
+	StartProfile;
+	size_t job = renderTextJobs.size() - 1;
+	renderTextJobs[jobID] = renderTextJobs[job];
+	renderTextJobs.pop_back();
+	ProfileReturn(job);
 }
 
-int SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
+size_t SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
 {
+	StartProfile;
+	int job = (int)renderTextureJobs.size();
 	renderTextureJobs.push_back(handles);
-	return 0;
+	if (!renderTextureJobs[job].anchor)
+	{
+		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		float height = gBB_Desc.Height;
+		float width = gBB_Desc.Width;
+		if (renderTextureJobs[job].rect != nullptr)
+		{
+			renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
+			renderTextureJobs[job].rect->top = renderTextureJobs[job].rect->top * height;
+			renderTextureJobs[job].rect->right = renderTextureJobs[job].rect->right * width;
+			renderTextureJobs[job].rect->left = renderTextureJobs[job].rect->left * width;
+		}
+		renderTextureJobs[job].scale = DirectX::XMFLOAT2(renderTextureJobs[job].scale.x * width, renderTextureJobs[job].scale.y * height);
+		renderTextureJobs[job].pos = DirectX::XMFLOAT2(renderTextureJobs[job].pos.x * width, renderTextureJobs[job].pos.y * height);
+	}
+	ProfileReturn(int(job));
 }
 
-int SE::Graphics::Renderer::DisableTextureRendering(const GUITextureInfo & handles)
+size_t SE::Graphics::Renderer::DisableTextureRendering(const size_t & jobID)
 {
-	const int size = renderTextureJobs.size();
-	int at = -1;
-	for (size_t i = 0; i < size; ++i)
-	{
-		if (handles == renderTextureJobs[i])
-		{
-			at = i;
-			break;
-		}
-	}
-	if (at >= 0)
-	{
-		for (int i = at; i < size - 1; ++i)
-			renderTextureJobs[i] = renderTextureJobs[i + 1];
-		renderTextureJobs.pop_back();
-	}
-	return 0;
+	StartProfile;
+	size_t job = renderTextureJobs.size() - 1;
+	renderTextureJobs[jobID] = renderTextureJobs[job];
+	renderTextureJobs.pop_back();
+	ProfileReturn(int(job));
 }
 
 int SE::Graphics::Renderer::EnableLightRendering(const LightData & handles)
@@ -512,6 +537,53 @@ int SE::Graphics::Renderer::Render() {
 
 	///********END render line jobs************/
 
+	/******************General Jobs*********************/
+
+	for(auto& j : generalJobs)
+	{
+		int32_t drawn = 0;
+		pipelineHandler->SetPipeline(j.job.pipeline);
+		if(j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
+		{
+			j.job.mappingFunc(drawn, 1);
+			devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
+		}
+		else if(j.job.indexCount != 0 && j.job.instanceCount == 0)
+		{
+			j.job.mappingFunc(drawn, 1);
+			devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
+		}
+		else if(j.job.indexCount == 0 && j.job.instanceCount != 0)
+		{
+			while (drawn < j.job.instanceCount)
+			{
+				j.job.mappingFunc(drawn, j.job.instanceCount);
+				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+				devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
+				drawn += toDraw;
+			}
+		}
+		else if(j.job.indexCount != 0 && j.job.instanceCount != 0)
+		{
+			while (drawn < j.job.instanceCount)
+			{
+				j.job.mappingFunc(drawn, j.job.instanceCount);
+				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+				devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
+				drawn += toDraw;
+			}
+		}
+		else if(j.job.vertexCount == 0)
+		{
+			j.job.mappingFunc(drawn, 0);
+			devContext->DrawAuto();
+		}
+	}
+
+
+	/*****************End General Jobs******************/
+
+
 	//* Render particle jobs *//
 	
 	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -533,33 +605,22 @@ int SE::Graphics::Renderer::Render() {
 	//********* Render sprite overlays ********/
 	timeCluster[GPUTimer]->Start("GUIJob-GPU");
 	timeCluster[CPUTimer]->Start("GUIJob-CPU");
-	if (renderTextureJobs.size())
+	if (renderTextureJobs.size() && renderTextJobs.size())
 	{
-		spriteBatch->Begin(DirectX::SpriteSortMode_Texture, device->GetBlendState());
+		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+		}
+
+		for (auto& job : renderTextJobs)
+		{
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
 	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
 	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
-	
-
-	//******** Render text overlays *********/
-	timeCluster[GPUTimer]->Start("TextJob-GPU");
-	timeCluster[CPUTimer]->Start("TextJob-CPU");
-	if (renderTextJobs.size())
-	{
-		spriteBatch->Begin();
-		for (auto& job : renderTextJobs)
-		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat3(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-		}
-		spriteBatch->End();
-	}
-	timeCluster[CPUTimer]->Stop("TextJob-CPU");
-	timeCluster[GPUTimer]->Stop("TextJob-GPU");
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
@@ -1036,6 +1097,16 @@ void SE::Graphics::Renderer::Frame()
 		Render();
 	}
 
+}
+
+int SE::Graphics::Renderer::CreateComputeShader(void * data, size_t size)
+{
+	int handle;
+	auto hr = graphicResourceHandler->CreateComputeShader(device->GetDevice(), data, size, &handle);
+	if (FAILED(hr))
+		return hr;
+
+	return handle;
 }
 
 int SE::Graphics::Renderer::CreateGeometryShader(void * data, size_t size)

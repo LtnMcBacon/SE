@@ -23,9 +23,12 @@
     <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
     <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
+    <ClInclude Include="..\includes\Graphics\RenderJob.h" />
+    <ClInclude Include="..\includes\Graphics\IPipelineHandler.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
+    <ClInclude Include="..\includes\Graphics\Pipeline.h" />
     <ClInclude Include="..\includes\Graphics\ParticleSystemJob.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
@@ -37,6 +40,7 @@
     <ClInclude Include="GraphicResourceHandler.h" />
     <ClInclude Include="LiveObjectReporter.h" />
     <ClInclude Include="MemoryMeasuring.h" />
+    <ClInclude Include="PipelineHandler.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +51,7 @@
     <ClCompile Include="IRenderer.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
     <ClCompile Include="MemoryMeasuring.cpp" />
+    <ClCompile Include="PipelineHandler.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

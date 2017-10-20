@@ -5,6 +5,7 @@
 #include "EntityManager.h"
 #include <Utilz\Event.h>
 #include <mutex>
+#include <random>
 
 namespace SE
 {
@@ -20,7 +21,6 @@ namespace SE
 		* @sa EntityManager
 		*
 		**/
-	//	class RenderableManager;
 		class TransformManager
 		{
 			friend class RenderableManager;
@@ -49,9 +49,9 @@ namespace SE
 			* @param[in] parent The parent entity
 			* @param[in] child The child entity.
 			* @param[in] rotation Wether or not rotation should be inherited.
-			* @warning A parent can only have one child. An entity with a child can not have a parent. An entity with a parent can not have a child.
+			* @param[in] translateToParent Whether or not the child should move towards the parent upon binding.
 			*/
-			void BindChild(const Entity& parent, const Entity& child, bool rotation = true);
+			void BindChild(const Entity& parent, const Entity& child, bool rotation = true, bool translateToParent = false);
 
 
 
@@ -164,6 +164,13 @@ namespace SE
 			const DirectX::XMFLOAT3 GetForward(const Entity& e)const;
 
 			/**
+			* @brief    Returns the rightward pointing vector of the entity.
+			* @param[in] e The entity.
+			* @warning Create must be called before this method for a given entity. Also this operation is expensive use sparingly.
+			*/
+			DirectX::XMFLOAT3 GetRight(const Entity& e) const;
+
+			/**
 			* @brief    Sets the forward vector of the entity.
 			* @param[in] e The entity.
 			* @param[in] forward The forward vector to set.
@@ -205,40 +212,48 @@ namespace SE
 				return &dirtyTransforms[0];
 			}
 		private:
-			void SetAsDirty(size_t index);
 
 			void UpdateTransform(size_t index);
 
-			std::unordered_map<Entity, uint32_t, EntityHasher> entityToIndex;
-			struct PD
-			{
-				size_t Index;
-				size_t parentIndex;
-			};
-			std::vector<PD> parentDeferred;
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 
-			Entity* entities;
-			DirectX::XMFLOAT3* positions;
-			DirectX::XMFLOAT3* rotations;
-			DirectX::XMFLOAT3* scalings;
-			uint8_t* dirty;
-			size_t *Parent; // Parent transform (whose reference system we are relative to).
-			size_t *Child;
-			size_t *DirtyTransform; // Use this to get other children
-			uint8_t* inheritRotation;
+			enum TransformFlags : uint16_t
+			{
+				INHERIT_TRANSLATION = 1 << 0,
+				INHERIT_SCALE = 1 << 1,
+				INHERIT_ROTATION = 1 << 2,
+				INHERIT_ALL = 7U,
+				DIRTY = 1 << 3
+			};
 
-			uint32_t transformCount;
-			uint32_t transformCapacity;
-			uint32_t garbageCollectionIndex;
-			static const size_t transformCapacityIncrement = 512;
-			static const size_t sizePerEntity = sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3) + sizeof(uint8_t) + sizeof(Entity) + sizeof(size_t)*2 + sizeof(uint8_t);
 
+			struct TransformData
+			{
+				static const size_t size = sizeof(Entity) + sizeof(DirectX::XMFLOAT3) * 3U + sizeof(int32_t) * 3 + sizeof(int16_t);
+				size_t allocated = 0;
+				size_t used = 0;
+				void* data = nullptr;
+				Entity* entities = nullptr;
+				DirectX::XMFLOAT3* positions = nullptr;
+				DirectX::XMFLOAT3* rotations = nullptr;
+				DirectX::XMFLOAT3* scalings = nullptr;
+				int32_t* childIndex = nullptr;
+				int32_t* siblingIndex = nullptr;
+				int32_t* parentIndex = nullptr;
+				int16_t* flags = nullptr;
+			};
+			
+			TransformData data;
+			int32_t* lookUpTable;
+			size_t lookUpTableSize;
+			void Allocate(size_t count);
+			void Destroy(const size_t index);
+			std::default_random_engine generator;
 			EntityManager* entityManager; /**<The transform manager needs a reference to the entity manager in order to find which entities have been destroyed and can be removed.*/
 
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 
-			void ExpandTransforms();
+		
 			
 			std::vector<Entity> entityStack;
 			std::mutex queueLock;
