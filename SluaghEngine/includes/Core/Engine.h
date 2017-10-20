@@ -14,6 +14,8 @@
 #include "AnimationManager.h"
 #include "LightManager.h"
 #include "DevConsole.h"
+#include "ParticleSystemManager.h"
+
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -230,6 +232,14 @@ namespace SE
 				return *lightManager;
 			}
 
+			/**
+			* @brief    Returns a particle system manager
+			* @retval return_value_0 Returns a reference to the Light manager.
+			* @sa LightManager
+			*/
+			inline ParticleSystemManager& GEtParticleSystemManager() const {
+				return *particleSystemManager;
+			}
 			inline AnimationManager& GetAnimationManager() const {
 				return *animationManager;
 			}
@@ -278,6 +288,7 @@ namespace SE
 			CameraManager* cameraManager;
 			DebugRenderManager* debugRenderManager;
 			AnimationManager* animationManager;
+			ParticleSystemManager* particleSystemManager;
 			Utilz::StackAllocator* perFrameStackAllocator;
 
 			GUIManager* guiManager;

@@ -327,18 +327,19 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 void SE::Core::RenderableManager::DestroyEntity(const Entity & entity)
 {
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	ToggleRenderableObject(entity, false);
+	/*auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		Destroy(find->second);
-	}
+	}*/
 }
 
 void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 5U)
+	while (renderableObjectInfo.used > 0 && alive_in_row < 50U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);

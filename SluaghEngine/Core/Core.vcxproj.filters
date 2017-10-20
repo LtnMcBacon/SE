@@ -60,6 +60,9 @@
     <ClCompile Include="DevConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystemManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\EntityManager.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\DevConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ParticleSystemManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
