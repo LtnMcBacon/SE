@@ -3,30 +3,30 @@
 #include <Core\CollisionManager.h>
 #include "Core/Engine.h"
 
-SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(ProjectileData data)
+void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
 	StartProfile;
-	Rotation rot;
-	rot.force = 0.0f;
+	//Rotation rot;
+	//rot.force = 0.0f;
 
-	SE::Gameplay::Projectile temp(data, rot, 0.5f, 6.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
+	//SE::Gameplay::Projectile temp(data, rot, 0.5f, 6.0f, 0.1f, 0.1f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
 
-	auto& e = Core::Engine::GetInstance();
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
+	//auto& e = Core::Engine::GetInstance();
+	//auto& em = e.GetEntityManager();
+	//auto& rm = e.GetRenderableManager();
+	//auto& tm = e.GetTransformManager();
 
-	tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
-	tm.SetRotation(temp.GetEntity(), 0.0f, data.startRotation, 0.0f);
-	tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
+	//tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
+	//tm.SetRotation(temp.GetEntity(), 0.0f, data.startRotation, 0.0f);
+	//tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
 
-	rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
-	rm.ToggleRenderableObject(temp.GetEntity(), true);
+	//rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
+	//rm.ToggleRenderableObject(temp.GetEntity(), true);
 
-	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
-	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters2;
-	parameters.resize(4);
-	parameters2.resize(4);
+	//std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
+	//std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters2;
+	//parameters.resize(4);
+	//parameters2.resize(4);
 
 	//AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, BounceBehaviour(parameters));
 	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
@@ -46,16 +46,135 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 	//parameters[2].data = &temp;
 	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TimeConditionAddBehaviour(parameters));
 
-	AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, ParseBehaviour(temp, "0()"));
-	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "5(f{4.8})"));
+	//AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, ParseBehaviour(temp, "0()"));
+	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "5(f{4.8})"));
 	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0})],P)"));
-	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0}),B6(f{0.0},L[B1(f{-10.0})],P)],P)")); // 7(f{ 2.0 }, L[B1(f{ 1.0 }), B6(f{ 0.0 }, L[B1(f{ -10.0 })], P)], P)
+	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0}),B6(f{0.0},L[B1(f{-10.0})],P)],P)")); // 7(f{ 2.0 }, L[B1(f{ 1.0 }), B6(f{ 0.0 }, L[B1(f{ -10.0 })], P)], P)
 
-	ProfileReturnConst(temp);
+	LoadNewProjectiles(data);
+	//newProjectiles.push_back(temp);
+
+	StopProfile;
 	
 }
 
-std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ParseBehaviour(Projectile & p, char * fileData)
+void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::string& line, int& pos)
+{
+	StartProfile;
+
+	int nrOfLetters = 0;
+	int startPos = pos;
+	while (startPos < file.size() && file[startPos] != '\r' && file[startPos + 1] != '\n')
+	{
+		nrOfLetters++;
+		startPos++;
+	}
+
+	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
+	pos += nrOfLetters + 2;
+
+	StopProfile;
+}
+
+void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & data)
+{
+	StartProfile;
+
+	std::string fileData;
+
+	auto lambda = [&fileData](const SE::Utilz::GUID & GUID, void * data, size_t size)
+	{
+		fileData = std::string((char*)data, size);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	};
+
+	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(data.fileNameGuid, lambda);
+
+	auto& e = Core::Engine::GetInstance();
+	auto& em = e.GetEntityManager();
+	auto& rm = e.GetRenderableManager();
+	auto& tm = e.GetTransformManager();
+
+	std::string line;
+	int position = 0;
+	float fileVersion = -1.0f;
+	int nrOfProjectilesToParse = -1;
+	float projectileWidth, projectileHeight, rotationAroundUnit, distanceFromUnit, projectileRotation, rotationPerSec, projectileSpeed, timeToLive;
+	std::string meshName;
+	float meshScale;
+	std::string particleEffect;
+	int nrOfBehaviours;
+	std::string behaviour;
+
+	GetLine(fileData, line, position);
+	fileVersion = (float)atof(line.c_str());
+	GetLine(fileData, line, position);
+	nrOfProjectilesToParse = atoi(line.c_str());
+
+	for (int i = 0; i < nrOfProjectilesToParse; i++)
+	{
+		ProjectileData projData = data;
+
+		GetLine(fileData, line, position);
+		projectileWidth = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		projectileHeight = (float)atof(line.c_str());
+
+		GetLine(fileData, line, position);
+		rotationAroundUnit = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		distanceFromUnit = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		projectileRotation = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		rotationPerSec = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		projectileSpeed = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		timeToLive = (float)atof(line.c_str());
+
+		GetLine(fileData, line, position);
+		meshName = line;
+		GetLine(fileData, line, position);
+		meshScale = (float)atof(line.c_str());
+		GetLine(fileData, line, position);
+		particleEffect = line;
+		GetLine(fileData, line, position);
+		nrOfBehaviours = atoi(line.c_str());
+
+		projData.startRotation += rotationAroundUnit;
+
+		projData.startPosX += sinf(projData.startRotation) * distanceFromUnit;
+		projData.startPosY += cosf(projData.startRotation) * distanceFromUnit;
+
+		projData.startRotation += projectileRotation;
+		
+		Rotation rotData;
+		rotData.force = rotationPerSec;
+
+		Projectile temp(projData, rotData, projectileSpeed, timeToLive, projectileWidth, projectileHeight, data.target, data.eventDamage, data.eventHealing, data.eventCondition);
+
+		tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
+		tm.SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
+		tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(meshScale, meshScale, meshScale));
+
+		rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID(meshName));
+		rm.ToggleRenderableObject(temp.GetEntity(), true);
+
+		for (int j = 0; j < nrOfBehaviours - 1; j++)
+		{
+			GetLine(fileData, line, position);
+			AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, line.c_str()));
+		}
+
+		newProjectiles.push_back(temp);
+
+	}
+
+	StopProfile;
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ParseBehaviour(Projectile & p, const char * fileData)
 {
 	StartProfile;
 
@@ -195,7 +314,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturn(behaviourFunctions[functionToReturnIndex](parameters));
 }
 
-void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> & parameters, char * valueData)
+void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> & parameters, const char * valueData)
 {
 	StartProfile;
 

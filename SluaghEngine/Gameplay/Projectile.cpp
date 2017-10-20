@@ -11,7 +11,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float yMovement = 0.0f;
 
 	//rotation += rotData.force;
-	rotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y + rotData.force;
+	rotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y + rotData.force * dt;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
@@ -157,11 +157,11 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	UpdateBounding();
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
+SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
 	GameUnit(data.startPosX, data.startPosY, 100)
 {
-	extentX = 0.1f; /*Should not be hardcoded! Obviously*/
-	extentY = 0.1f;
+	extentX = width;
+	extentY =height;
 	rotation = data.startRotation;
 	rotData = rot;
 
