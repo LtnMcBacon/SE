@@ -60,22 +60,47 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& om = e.GetOptionHandler();
 	auto& caM = e.GetCameraManager();
 	auto& coM = e.GetCollisionManager();
+	auto& mm = e.GetMaterialManager();
+	auto& lm = e.GetLightManager();
+	auto& am = e.GetAudioManager();
 	auto win = e.GetWindow();
+
 
 	Tools::Tools t;
 
 	float width = om.GetOptionUnsignedInt("Window", "width", 800);
 	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
+
+	Core::MaterialManager::CreateInfo floorInfo;
+	Utilz::GUID material = Utilz::GUID("Placeholder_Floor.mat");
+	Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+	floorInfo.shader = shader;
+	floorInfo.materialFile = material;
 	auto floor = em.Create();
+	mm.Create(floor, floorInfo);
 	const int numberOfBlocks = 25 * 25;
 	SE::Core::Entity entities[numberOfBlocks];
 	SE::Core::Entity arrows[numberOfBlocks];
 
+	Core::MaterialManager::CreateInfo cubeInfo;
+	material = Utilz::GUID("Placeholder_Block.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	cubeInfo.shader = shader;
+	cubeInfo.materialFile = material;
+
+	Core::MaterialManager::CreateInfo arrowInfo;
+	material = Utilz::GUID("Placeholder_Arrow.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	arrowInfo.shader = shader;
+	arrowInfo.materialFile = material;
+
 	for (int i = 0; i < numberOfBlocks; i++)
 	{
 		entities[i] = em.Create();
+		mm.Create(entities[i], cubeInfo);
 		arrows[i] = em.Create();
+		mm.Create(arrows[i], arrowInfo);
 	}
 	tm.Create(floor);
 	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
@@ -97,7 +122,70 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
+#pragma region AudioData
+	am.LoadSound(Utilz::GUID("BLoop.wav"));
 
+	int delay = 0;
+	while (am.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
+	{
+		delay++;
+	}
+
+	auto soundEnt = em.Create();
+	int soundID;
+	soundID = am.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
+	if (soundID > -1)
+		am.StreamSound(soundEnt, soundID);
+#pragma endregion AudioData
+
+
+	
+
+
+
+#pragma region LightDataSet
+	Core::Entity light[5];
+	for (int i = 0; i < 5; i++)
+	{
+		light[i] = em.Create();
+	}
+
+	Core::AddLightInfo data;
+	//Light 1
+	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
+	data.radius = 10.0f;
+	lm.AddLight(light[0], data);
+	lm.ToggleLight(light[0], true);
+
+	//Light 2
+	data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
+	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
+	data.radius = 10.0;
+	lm.AddLight(light[1], data);
+	lm.ToggleLight(light[1], true);
+
+	//Light 3
+	data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
+	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
+	data.radius = 10.0;
+	lm.AddLight(light[2], data);
+	lm.ToggleLight(light[2], true);
+
+	//Light 4
+	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
+	data.radius = 10.0;
+	lm.AddLight(light[3], data);
+	lm.ToggleLight(light[3], true);
+
+	//Light 5
+	data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
+	data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
+	data.radius = 150.0;
+	lm.AddLight(light[4], data);
+	lm.ToggleLight(light[4], true);
+#pragma endregion LightDataSet
 
 	/*Place out the level*/
 	char mapRepresentation[25][25] =
@@ -135,6 +223,13 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
+	Core::MaterialManager::CreateInfo playerInfo;
+	material = Utilz::GUID("MCModell.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	playerInfo.shader = shader;
+	playerInfo.materialFile = material;
+
+	mm.Create(player->GetEntity(), playerInfo);
 	tm.SetScale(player->GetEntity(), 1.f);
 	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
 
@@ -239,6 +334,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
+
 	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
@@ -252,9 +348,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		enemy->SetXPosition(enemyPos.x + .5f);
 		enemy->SetYPosition(enemyPos.y + .5f);
 
-		//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemy->GetEntity(), Block);
-		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);

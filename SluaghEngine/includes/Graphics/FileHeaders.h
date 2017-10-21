@@ -60,7 +60,6 @@ namespace SE
 			float specularFactor;
 		};
 
-
 		struct Animation_Header {
 
 			uint32_t nrOfJoints;

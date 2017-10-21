@@ -136,13 +136,10 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	//tm.SetScale(player->GetEntity(), 1.f);
 
 	Core::MaterialManager::CreateInfo minfo;
-	Utilz::GUID textures[] = { Utilz::GUID("texture8.sei") };
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	minfo.shader = shader;
-	minfo.shaderResourceNames = resourceNames;
-	minfo.textureFileNames = textures;
-	minfo.textureCount = 2;
+	minfo.materialFile = material;
 
 	mm.Create(player->GetEntity(), minfo, true);
 

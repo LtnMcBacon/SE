@@ -1,6 +1,7 @@
 
 #include <FBXConverter.h>
 #include <Utilz\PathParsing.h>
+#include <Utilz\GUID.h>
 
 #pragma comment(lib, "libfbxsdk.lib")
 
@@ -1477,7 +1478,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 	outBinary.write(reinterpret_cast<char*>(&nrOfTextures), sizeof(uint32_t));
 
 	// Define the material attributes
-	MaterialAttributes material;
+	Graphics::MaterialAttributes material;
 
 	material.ambientColor.x = meshMaterial.ambientColor.x;
 	material.ambientColor.y = meshMaterial.ambientColor.y;
@@ -1495,7 +1496,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 	material.specularFactor = meshMaterial.specularFactor;
 
 	// Write the material attributes
-	outBinary.write(reinterpret_cast<char*>(&material), sizeof(MaterialAttributes));
+	outBinary.write(reinterpret_cast<char*>(&material), sizeof(Graphics::MaterialAttributes));
 
 	cout << "[OK] Exported " << meshMaterial.materialName << " to " << folderName << endl;
 
@@ -1507,15 +1508,13 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
 			string textureName = meshMaterial.textures[textureIndex].textureName + ".sei";
 
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureName), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureName)), sizeof(Utilz::GUID));
 
 			// Write the texture channel
 			size = (uint32_t)meshMaterial.textures[textureIndex].textureChannel.size();
 			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
 
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureChannel), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureChannel)), size);
 
 			cout << "[OK] Exported " << meshMaterial.textures[textureIndex].textureName << " to " << textureFolder << endl;
 		}
@@ -1525,8 +1524,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 			string textureName = "NULL";
 			uint32_t size = (uint32_t)textureName.size();
 
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureName), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("BlackPink.sei")), sizeof(Utilz::GUID));
 
 			cout << "[ERROR] Failed to Export " << meshMaterial.textures[textureIndex].textureName << " to " + textureFolder << endl;
 
