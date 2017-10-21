@@ -1,4 +1,4 @@
-#include <ParticleSystemManager.h>
+#include "ParticleSystemManager.h"
 #include <Profiler.h>
 
 
@@ -6,8 +6,10 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.renderableManager);
 
-	
 }
 
 
@@ -85,6 +87,10 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 		
 	}
 	StopProfile;
+}
+
+void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
+{
 }
 
 void SE::Core::ParticleSystemManager::Frame()

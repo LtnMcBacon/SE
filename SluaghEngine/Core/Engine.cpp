@@ -31,11 +31,6 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	InitSubSystems();
 	InitManagers();
 
-
-	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
-	renderableManager = new RenderableManager({ resourceHandler, renderer, *entityManager, transformManager });
-	particleSystemManager = new ParticleSystemManager({ renderer, resourceHandler, *entityManager, *transformManager });
-	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
 	perFrameStackAllocator = new Utilz::StackAllocator;
@@ -141,6 +136,7 @@ SE::Core::Engine::~Engine()
 
 void SE::Core::Engine::InitSubSystems()
 {
+	StartProfile;
 	if (!subSystems.optionsHandler)
 	{
 		subSystems.optionsHandler = CreateOptionsHandler();
@@ -160,7 +156,7 @@ void SE::Core::Engine::InitSubSystems()
 		Window::InitializationInfo info;
 		info.fullScreen = false;
 		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 640);
+		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
 		subSystems.window->Initialize(info);
@@ -173,14 +169,27 @@ void SE::Core::Engine::InitSubSystems()
 		info.maxVRAMUsage = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		subSystems.renderer->Initialize(info);
 	}
+	StopProfile;
 }
 
 void SE::Core::Engine::InitManagers()
 {
+	StartProfile;
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
 
+	InitAudioManager();
+	InitTransformManager();
+	InitParticleSystemManager();
+	InitCameraManager();
+	InitCollisionManager();
+	InitRenderableManager();
+	InitAnimationManager();
+	StopProfile;
+}
 
+void SE::Core::Engine::InitAudioManager()
+{
 	if (!managers.audioManager)
 	{
 		IAudioManager::InitializationInfo info;
@@ -190,7 +199,10 @@ void SE::Core::Engine::InitManagers()
 	}
 	managersVec.push_back(managers.audioManager);
 
+}
 
+void SE::Core::Engine::InitTransformManager()
+{
 	if (!managers.transformManager)
 	{
 		ITransformManager::InitializationInfo info;
@@ -198,7 +210,38 @@ void SE::Core::Engine::InitManagers()
 		managers.transformManager = CreateTransformManager(info);
 	}
 	managersVec.push_back(managers.transformManager);
-	
+
+}
+
+void SE::Core::Engine::InitParticleSystemManager()
+{
+	if (!managers.particleSystemManager)
+	{
+		IParticleSystemManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
+		managers.particleSystemManager = CreateParticleSystemManager(info);
+	}
+	managersVec.push_back(managers.particleSystemManager);
+}
+
+void SE::Core::Engine::InitCameraManager()
+{
+	if (!managers.cameraManager)
+	{
+		ICameraManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
+		managers.cameraManager = CreateCameraManager(info);
+	}
+	managersVec.push_back(managers.cameraManager);
+}
+
+void SE::Core::Engine::InitCollisionManager()
+{
 	if (!managers.collisionManager)
 	{
 		ICollisionManager::InitializationInfo info;
@@ -209,7 +252,10 @@ void SE::Core::Engine::InitManagers()
 	}
 	managersVec.push_back(managers.collisionManager);
 
+}
 
+void SE::Core::Engine::InitRenderableManager()
+{
 	if (!managers.renderableManager)
 	{
 		IRenderableManager::InitializationInfo info;
@@ -222,6 +268,21 @@ void SE::Core::Engine::InitManagers()
 
 	}
 	managersVec.push_back(managers.renderableManager);
+}
+
+void SE::Core::Engine::InitAnimationManager()
+{
+	if (!managers.animationManager)
+	{
+		IAnimationManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
+		info.renderableManager = managers.renderableManager;
+		managers.animationManager = CreateAnimationManager(info);
+	}
+	managersVec.push_back(managers.animationManager);
 }
 
 void SE::Core::Engine::InitStartupOption()

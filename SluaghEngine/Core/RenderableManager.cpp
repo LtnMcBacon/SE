@@ -13,7 +13,7 @@
 
 using namespace std::chrono_literals;
 
-SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo& initInfo)
+SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
 {
 	_ASSERT(initInfo.resourceHandler);

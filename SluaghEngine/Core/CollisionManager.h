@@ -4,6 +4,7 @@
 #include <ICollisionManager.h>
 #include <random>
 #include <unordered_map>
+#include <list>
 #include <map>
 #include <Utilz\CircularFiFo.h>
 

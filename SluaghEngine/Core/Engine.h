@@ -117,6 +117,14 @@ namespace SE
 			void InitSubSystems();
 			void InitManagers();
 
+			void InitAudioManager();
+			void InitTransformManager();
+			void InitParticleSystemManager();
+			void InitCameraManager();
+			void InitCollisionManager();
+			void InitRenderableManager();
+			void InitAnimationManager();
+
 			std::vector<IManager*> managersVec;
 			/**
 			* @brief    Sets options to data in the .ini file

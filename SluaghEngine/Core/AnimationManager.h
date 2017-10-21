@@ -1,11 +1,8 @@
 #ifndef SE_CORE_ANIMATION_MANAGER_H_
 #define SE_CORE_ANIMATION_MANAGER_H_
-#include <Utilz\GUID.h>
-#include "EntityManager.h"
-#include <Graphics\IRenderer.h>
-#include <ResourceHandler\IResourceHandler.h>
+
+#include <IAnimationManager.h>
 #include <unordered_map>
-#include "RenderableManager.h"
 #include <Graphics\FileHeaders.h>
 #include <list>
 #include <random>
@@ -20,31 +17,25 @@ namespace SE
 			Move
 		};
 
-		struct CreateAnimationInfo
-		{
-			Utilz::GUID skeleton;
-			size_t animationCount;
-			Utilz::GUID* animations;
-		};
 
-		class AnimationManager
+		class AnimationManager : public IAnimationManager
 		{
 		public:
-			AnimationManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, RenderableManager* renderableManager);
+			AnimationManager(const InitializationInfo& initInfo);
 			~AnimationManager();
 
-			void CreateAnimation(const Entity& entity, const CreateAnimationInfo& info);
+			void CreateAnimation(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
-			void Start(const Entity& entity, const Utilz::GUID& animation, float speed);
-			void SetSpeed(const Entity& entity, float speed);
-			void SetKeyFrame(const Entity& entity, float keyFrame);
-			void Start(const Entity& entity)const;
-			void Pause(const Entity& entity)const;
+			void Start(const Entity& entity, const Utilz::GUID& animation, float speed)override;
+			void SetSpeed(const Entity& entity, float speed)override;
+			void SetKeyFrame(const Entity& entity, float keyFrame)override;
+			void Start(const Entity& entity)const override;
+			void Pause(const Entity& entity)const override;
 			
 		private:
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
@@ -57,11 +48,15 @@ namespace SE
 			/**
 			* @brief	Remove an enitity entry
 			*/
-			void Destroy(size_t index);
+			void Destroy(size_t index)override;
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity)override;
 			/**
 			* @brief	Look for dead entities.
 			*/
-			void GarbageCollection();
+			void GarbageCollection()override;
 
 			int LoadSkeleton(void*data, size_t size);
 			int LoadAnimation(void * data, size_t size);
@@ -69,10 +64,7 @@ namespace SE
 			int skinnedShader;
 
 
-			Graphics::IRenderer* renderer;
-			ResourceHandler::IResourceHandler* resourceHandler;
-			const EntityManager& entityManager;
-			RenderableManager* renderableManager;
+			InitializationInfo initInfo;
 			std::default_random_engine generator;
 
 			struct AnimationData

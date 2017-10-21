@@ -7,6 +7,7 @@
 #define DECLDIR_CORE __declspec(dllimport)
 #endif
 
+#include <Graphics\IRenderer.h>
 #include "IManager.h"
 #include "IEntityManager.h"
 #include "ITransformManager.h"
@@ -16,16 +17,6 @@ namespace SE
 {
 	namespace Core
 	{
-		/**
-		*
-		* @brief The transform manager is responsible for handling all transforms for entities. Create must be called for an entity before any other method that accepts entities are called for that entity.
-		*
-		* @details Keeps a pointer to the entity manager for cleaning out transforms from entities that have been destroyed in the entity manager. A garbage collection method is used and should be called once per frame.
-		*
-		*
-		* @sa EntityManager
-		*
-		**/
 		class ICameraManager : public IManager
 		{
 		public:
@@ -57,13 +48,13 @@ namespace SE
 			* @param[in] entity The entity to update the camera for.
 			* @param[in] info The new settings for the camera.
 			*/
-			virtual void UpdateCamera(const Entity& entity, const CameraBindInfoStruct& info) = 0;
+			virtual void UpdateCamera(const Entity& entity, const CreateInfo& info) = 0;
 
 
 			/**
 			* @brief	Update the active camera.
 			*/
-			virtual void UpdateCamera(CameraBindInfoStruct& info) = 0;
+			virtual void UpdateCamera(const CreateInfo& info) = 0;
 
 			/**
 			* @brief Retrieves the  view matrix of the camera bound to entity in a row major format.

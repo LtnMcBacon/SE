@@ -19,16 +19,6 @@ namespace SE
 {
 	namespace Core
 	{
-		/**
-		*
-		* @brief The transform manager is responsible for handling all transforms for entities. Create must be called for an entity before any other method that accepts entities are called for that entity.
-		*
-		* @details Keeps a pointer to the entity manager for cleaning out transforms from entities that have been destroyed in the entity manager. A garbage collection method is used and should be called once per frame.
-		*
-		*
-		* @sa EntityManager
-		*
-		**/
 		class  ICollisionManager : public IManager
 		{
 		public:

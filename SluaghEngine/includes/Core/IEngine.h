@@ -17,6 +17,9 @@
 #include "IOptionsHandler.h"
 #include "IAudioManager.h"
 #include "ICollisionManager.h"
+#include "ICameraManager.h"
+#include "IParticleSystemManager.h"
+#include "IAnimationManager.h"
 
 namespace SE
 {
@@ -34,8 +37,11 @@ namespace SE
 				IEntityManager* entityManager = nullptr;
 				IAudioManager* audioManager = nullptr;
 				ITransformManager* transformManager = nullptr;
+				IParticleSystemManager* particleSystemManager = nullptr;
+				ICameraManager* cameraManager = nullptr;
 				ICollisionManager* collisionManager = nullptr;
 				IRenderableManager* renderableManager = nullptr;
+				IAnimationManager* animationManager = nullptr;
 			};
 			struct Subsystems
 			{

@@ -7,7 +7,7 @@
 #define DECLDIR_CORE __declspec(dllimport)
 #endif
 
-#include "Entity.h"
+#include "IEntityManager.h"
 #include <Utilz\TimeCluster.h>
 
 namespace SE

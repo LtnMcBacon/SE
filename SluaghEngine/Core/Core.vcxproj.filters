@@ -93,6 +93,15 @@
     <ClCompile Include="ICameraManager.cpp">
       <Filter>Interface\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="IParticleSystemManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IAnimationManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IMaterialManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h">
@@ -165,6 +174,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\ICameraManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IParticleSystemManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IAnimationManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IMaterialManager.h">
       <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>

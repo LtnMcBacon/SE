@@ -1,34 +1,22 @@
 #ifndef SE_CORE_PARTICLE_SYSTEM_MANAGER_H_
 #define SE_CORE_PARTICLE_SYSTEM_MANAGER_H_
-#include "EntityManager.h"
-#include "TransformManager.h"
-#include <Utilz\GUID.h>
+
+#include <IParticleSystemManager.h>
 #include <map>
-#include <ResourceHandler\IResourceHandler.h>
-#include <Graphics\IRenderer.h>
+#include <vector>
 #include <Utilz\CircularFiFo.h>
+#include <unordered_map>
+#include <random>
 namespace SE
 {
 	namespace Core
 	{
-		class ParticleSystemManager
+		class ParticleSystemManager : public IParticleSystemManager
 		{
 		public:
-			struct InitializationInfo
-			{
-				Graphics::IRenderer* renderer;
-				ResourceHandler::IResourceHandler* resourceHandler;
-				EntityManager& entityManager;
-				TransformManager& transformManager;
-			};
-			struct CreateInfo {
-				Utilz::GUID systemFile;
-			};
-
 
 			ParticleSystemManager(const InitializationInfo& initInfo);
 			~ParticleSystemManager();
-
 
 
 			/**
@@ -39,19 +27,19 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void CreateSystem(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
+			void CreateSystem(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Hide/Show a particle system.
 			* @param [in] entity The entity to bind system to.
 			* @param [in] visible If the resource should be streamed.
 			*/
-			void ToggleVisible(const Entity& entity, bool visible);
+			void ToggleVisible(const Entity& entity, bool visible)override;
 
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
 		private:
 			InitializationInfo initInfo;
@@ -59,16 +47,16 @@ namespace SE
 			/**
 			* @brief	Remove an enitity entry
 			*/
-			void Destroy(size_t index);
+			void Destroy(size_t index)override;
 			/**
 			* @brief	Remove an enitity
 			*/
-			void Destroy(const Entity& entity);
+			void Destroy(const Entity& entity)override;
 
 			/**
 			* @brief	Look for dead entities.
 			*/
-			void GarbageCollection();
+			void GarbageCollection()override;
 			std::default_random_engine generator;
 
 			struct ParticleSystemFileInfo
