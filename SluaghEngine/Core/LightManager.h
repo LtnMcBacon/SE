@@ -1,50 +1,35 @@
 #pragma once
 #ifndef SE_CORE_LIGHT_MANAGER_H_
 #define SE_CORE_LIGHT_MANAGER_H_
-#include "EntityManager.h"
+
+#include <ILightManager.h>
 #include <unordered_map>
 #include <stack>
 #include <vector>
-#include <Graphics\IRenderer.h>
 #include <random>
 #include <Graphics\LightInfo.h>
-#include "TransformManager.h"
+
 
 
 namespace SE
 {
 	namespace Core
 	{
-
-		struct AddLightInfo
-		{
-			DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };
-			float radius = 1.0f;
-			DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
-		};
-		/**
-		*
-		* @brief This class is used to bind renderable text and texture to an entity.
-		*
-		* @details Use this class when you want an entity to be rendered as a text or texture in the GUI.
-		*
-		**/
-		class LightManager
+		class LightManager : public ILightManager
 		{
 		public:
-			LightManager(Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
+			LightManager(const InitializationInfo& initInfo);
 			~LightManager();		
 
-			int AddLight(Entity entity, const AddLightInfo& data);
+			void Create(const Entity& entity, const CreateInfo& data)override;
 
-			int RemoveLight(Entity entity);
+			void ToggleLight(const Entity& entity, bool show)override;
 
-			int ToggleLight(Entity entity, bool show);
-
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 		private:
-			void GarbageCollection();
-			void Destroy(size_t index);
+			void GarbageCollection()override;
+			void Destroy(size_t index)override;
+			void Destroy(const Entity& entity)override;
 			void UpdateDirtyPos(const Entity& entity, size_t index);
 			struct showID
 			{
@@ -61,9 +46,7 @@ namespace SE
 
 			std::default_random_engine generator;
 
-			Graphics::IRenderer* renderer;
-			const EntityManager& entityManager;
-			TransformManager* transformManager;
+			InitializationInfo initInfo;
 		};
 	}
 }

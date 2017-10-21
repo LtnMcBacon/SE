@@ -1,14 +1,8 @@
 #ifndef SE_CORE_DEBUG_RENDER_MANAGER_H_
 #define SE_CORE_DEBUG_RENDER_MANAGER_H_
 
-#include "EntityManager.h"
-#include "TransformManager.h"
-#include "CollisionManager.h"
-#include <Utilz\GUID.h>
-#include <ResourceHandler\IResourceHandler.h>
-#include <Graphics/IRenderer.h>
-#include <Utilz/StackAllocator.h>
 
+#include <IDebugRenderManager.h>
 #include <unordered_map>
 #include <vector>
 #include <random>
@@ -18,10 +12,7 @@ namespace SE
 {
 	namespace Core
 	{
-		struct Point3D
-		{
-			float x, y, z;
-		};
+
 		/**
 		*
 		* @brief This manager is used to render debug-related elements using line lists. Lazy creation is employed which means that if an entity does not have a DebugRender-component when any of the methods in this class are called, the component will be created without having to explicitly create a component.
@@ -30,10 +21,10 @@ namespace SE
 		*
 		**/
 
-		class DebugRenderManager
+		class DebugRenderManager : public IDebugRenderManager
 		{
 		public:
-			DebugRenderManager( Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager, CollisionManager* collisionManager);
+			DebugRenderManager( const InitializationInfo& initInfo);
 			~DebugRenderManager();
 			DebugRenderManager(const DebugRenderManager& other) = delete;
 			DebugRenderManager(const DebugRenderManager&& other) = delete;
@@ -43,7 +34,7 @@ namespace SE
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame(Utilz::StackAllocator& perFrameStackAllocator);
+			void Frame(Utilz::TimeCluster* timer)override;
 			/**
 			* @brief	Enable/disable debug rendering of the object. If the object has a bounding box it will also be rendered. Additional debug rendering can also be added to the entity such as crosses and lines.
 			* @param[in] entity Which entity.
@@ -51,7 +42,7 @@ namespace SE
 			* @retval true Success.
 			* @retval false The bounding box was not found or is already being rendererd.
 			*/
-			bool ToggleDebugRendering(const Entity& entity, bool enable);
+			bool ToggleDebugRendering(const Entity& entity, bool enable)override;
 
 			/**
 			* @brief	Draws a cross on the entity.
@@ -65,7 +56,7 @@ namespace SE
 			* @param[in] y The y-coordinate of the center of the cross.
 			* @param[in] z The z-coordinate of the center of the cross.
 			*/
-			void DrawCross(const Entity& entity,float scale = 1.0f, float x = 0.0f, float y = 0.0f, float z = 0.0f);
+			void DrawCross(const Entity& entity,float scale = 1.0f, float x = 0.0f, float y = 0.0f, float z = 0.0f)override;
 
 			/**
 			* @brief	Draws a line between two points.
@@ -75,9 +66,7 @@ namespace SE
 			* @param[in] a The first point
 			* @param[in] b The second point
 			*/
-			void DrawLine(const Entity& entity, const Point3D& a, const Point3D& b);
-
-
+			void DrawLine(const Entity& entity, const Point3D& a, const Point3D& b)override;
 		private:
 			
 			struct LineSegment
@@ -85,11 +74,7 @@ namespace SE
 				Point3D a;
 				Point3D b;
 			};
-			const EntityManager& entityManager;
-			TransformManager* transformManager;
-			Graphics::IRenderer* renderer;
-			ResourceHandler::IResourceHandler* resourceHandler;
-			CollisionManager* collisionManager;
+			InitializationInfo initInfo;
 
 			/**<The collision manager loads in the bounding boxes asynchronously. If ToggleDebugRendering is called before the BB is loaded, the entity gets put in this vector for the time being.*/
 			std::vector<Entity> awaitingBoundingBoxes;
@@ -114,8 +99,9 @@ namespace SE
 			void SetDirty(const Entity & entity, size_t index);
 
 			std::default_random_engine generator;
-			void GarbageCollection();
-			void Destroy(const Entity& e);
+			void GarbageCollection()override;
+			void Destroy(size_t index)override;
+			void Destroy(const Entity& e)override;
 		};
 	}
 }

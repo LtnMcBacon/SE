@@ -102,6 +102,15 @@
     <ClCompile Include="IMaterialManager.cpp">
       <Filter>Interface\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="ILightManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IDebugRenderManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IGUIManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h">
@@ -183,6 +192,15 @@
       <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\IMaterialManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ILightManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IDebugRenderManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IGUIManager.h">
       <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>

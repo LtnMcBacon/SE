@@ -1,28 +1,22 @@
 #ifndef SE_CORE_MATERIAL_MANAGER_H_
 #define SE_CORE_MATERIAL_MANAGER_H_
-#include <Utilz\GUID.h>
-#include "EntityManager.h"
-#include <ResourceHandler\IResourceHandler.h>
+
+
+#include <IMaterialManager.h>
+
 #include <unordered_map>
-#include <Graphics\IRenderer.h>
 #include <map>
 #include <random>
-#include "RenderableManager.h"
-
+#include <vector>
+#include <Utilz\CircularFiFo.h>
 namespace SE
 {
 	namespace Core
 	{
-		class MaterialManager
+		class MaterialManager : public IMaterialManager
 		{
 		public:
-			struct CreateInfo
-			{
-				Utilz::GUID shader;
-				Utilz::GUID materialFile;
-			};
-
-			MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, RenderableManager* renderableManager);
+			MaterialManager(const InitializationInfo& initInfo);
 			~MaterialManager();
 			MaterialManager(const MaterialManager& other) = delete;
 			MaterialManager(const MaterialManager&& other) = delete;
@@ -36,13 +30,13 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
+			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 		private:
 			/**
 			* @brief	Allocate more memory
@@ -51,11 +45,15 @@ namespace SE
 			/**
 			* @brief	Remove an enitity entry
 			*/
-			void Destroy(size_t index);
+			void Destroy(size_t index)override;
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(const Entity& entity)override;
 			/**
 			* @brief	Look for dead entities.
 			*/
-			void GarbageCollection();
+			void GarbageCollection()override;
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
 
@@ -118,10 +116,7 @@ namespace SE
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToTextureIndex;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToMaterialIndex;
 
-			ResourceHandler::IResourceHandler* resourceHandler;
-			Graphics::IRenderer* renderer;
-			const EntityManager& entityManager;
-			RenderableManager* renderableManager;
+			InitializationInfo initInfo;
 			std::default_random_engine generator;
 
 			MaterialData materialInfo;

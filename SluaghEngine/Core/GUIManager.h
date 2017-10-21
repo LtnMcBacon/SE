@@ -1,14 +1,11 @@
 #pragma once
 #ifndef SE_CORE_GUI_MANAGER_H_
 #define SE_CORE_GUI_MANAGER_H_
-#include "EntityManager.h"
-#include <Utilz\GUID.h>
+
+#include <IGUIManager.h>
 #include <unordered_map>
 #include <stack>
 #include <vector>
-#include <Graphics\IRenderer.h>
-#include <ResourceHandler\IResourceHandler.h>
-#include <Graphics\GUIInfo.h>
 #include <random>
 
 
@@ -23,10 +20,10 @@ namespace SE
 		* @details Use this class when you want an entity to be rendered as a text or texture in the GUI.
 		*
 		**/
-		class GUIManager
+		class GUIManager : public IGUIManager
 		{
 		public:
-			GUIManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager);
+			GUIManager(const InitializationInfo& initInfo);
 			~GUIManager();
 
 			/**
@@ -36,7 +33,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			void CreateRenderableText(const Entity& entity, Graphics::TextGUI textInfo);
+			void CreateRenderableText(const Entity& entity, const Graphics::TextGUI& textInfo)override;
 
 			/**
 			* @brief Create a new font
@@ -45,7 +42,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(const Utilz::GUID& fontFile);
+			int CreateTextFont(const Utilz::GUID& fontFile)override;
 
 			/**
 			* @brief Create a new 2D texture for GUI
@@ -54,7 +51,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			int Create2D(const Utilz::GUID& texFile);
+			int Create2D(const Utilz::GUID& texFile)override;
 
 			/**
 			* @brief	Hide/Show the renderable text
@@ -63,7 +60,7 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableText(const Entity& entity, bool show);
+			void ToggleRenderableText(const Entity& entity, bool show)override;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -72,12 +69,12 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableTexture(const Entity& entity, bool show);
+			void ToggleRenderableTexture(const Entity& entity, bool show)override;
 
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
 			/**
 			* @brief Create a new 2D texture for GUI
@@ -87,11 +84,11 @@ namespace SE
 			* @retval -1 Entity not alive or texFile none existing.
 			* @endcode
 			*/
-			int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo);
+			int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)override;
 
 			
 			// sets for Text
-			inline void SetText(const Entity& entity, std::wstring text) {
+			inline void SetText(const Entity& entity, std::wstring text)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -101,7 +98,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextFontID(const Entity& entity, size_t fontID) {
+			inline void SetTextFontID(const Entity& entity, size_t fontID)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -110,7 +107,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) {
+			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -119,7 +116,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos) {
+			inline void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -128,7 +125,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) {
+			inline void SetTextOrogin(const Entity& entity, DirectX::XMFLOAT2 origin)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -137,7 +134,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale) {
+			inline void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -146,7 +143,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect) {
+			inline void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -155,7 +152,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextRotation(const Entity& entity, float rotation) {
+			inline void SetTextRotation(const Entity& entity, float rotation)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -164,7 +161,7 @@ namespace SE
 				}
 			};
 			
-			inline void SetTextLayerDepth(const Entity& entity, float layerDepth) {
+			inline void SetTextLayerDepth(const Entity& entity, float layerDepth)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
@@ -174,7 +171,7 @@ namespace SE
 			};
 
 			// sets for texture
-			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour) {
+			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour)override {
 				// chexk if entity exist in texture
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -183,7 +180,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTexturePos(const Entity& entity, DirectX::XMFLOAT2 pos) {
+			inline void SetTexturePos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -192,7 +189,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) {
+			inline void SetTextureOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -201,7 +198,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) {
+			inline void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -210,7 +207,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureEffect(const Entity& entity, DirectX::SpriteEffects effect) {
+			inline void SetTextureEffect(const Entity& entity, DirectX::SpriteEffects effect)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -219,7 +216,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureRotation(const Entity& entity, float rotation) {
+			inline void SetTextureRotation(const Entity& entity, float rotation)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -235,7 +232,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureLayerDepth(const Entity& entity, float layerDepth) {
+			inline void SetTextureLayerDepth(const Entity& entity, float layerDepth)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -244,7 +241,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureID(const Entity& entity, Utilz::GUID& guid) {
+			inline void SetTextureID(const Entity& entity, Utilz::GUID& guid) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				auto guidLoaded = textureGUID.find(guid);
@@ -257,7 +254,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureRect(const Entity& entity, RECT* rect) {
+			inline void SetTextureRect(const Entity& entity, RECT* rect)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
@@ -272,7 +269,7 @@ namespace SE
 			* @param[in] inWidth The width.
 			* @endcode
 			*/
-			void SetDefaultScale(float inHeight, float inWidth)
+			void SetDefaultScale(float inHeight, float inWidth)override
 			{
 				height = inHeight;
 				width = inWidth;
@@ -282,13 +279,15 @@ namespace SE
 			* @brief Resets all GUI to be rescaled to new resolution
 			* @endcode
 			*/
-			void updateGUI();
+			void updateGUI()override;
 
 		private:
 			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
 
 
-			void GarbageCollection();
+			void GarbageCollection()override;
+			void Destroy(size_t index)override;
+			void Destroy(const Entity& entity)override;
 			void DestroyText(size_t index);
 			void DestroyTexture(size_t index);
 			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
@@ -324,9 +323,7 @@ namespace SE
 
 			std::default_random_engine generator;
 
-			ResourceHandler::IResourceHandler* resourceHandler;
-			Graphics::IRenderer* renderer;
-			const EntityManager& entityManager;
+			InitializationInfo initInfo;
 
 			float height = 720.0;
 			float width = 1280.0;

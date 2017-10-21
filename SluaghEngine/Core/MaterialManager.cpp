@@ -1,24 +1,24 @@
-#include <MaterialManager.h>
+#include "MaterialManager.h"
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
-SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* resourceHandler, Graphics::IRenderer* renderer, const EntityManager& entityManager, RenderableManager* renderableManager)
-	: resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), renderableManager(renderableManager)
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
-	_ASSERT(resourceHandler);
-	_ASSERT(renderer);
-	_ASSERT(renderableManager);
+	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.renderer);
+	_ASSERT(initInfo.entityManger);
+	_ASSERT(initInfo.renderableManager);
 	Allocate(128);
 	defaultTextureHandle = 0;
 
-	renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
+	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), {this , &MaterialManager::LoadDefaultShader });
+	auto res = initInfo.resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), { this , &MaterialManager::LoadDefaultShader });
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
 
-	res = resourceHandler->LoadResource("Cube.mat",
+	res = initInfo.resourceHandler->LoadResource("Cube.mat",
 		[this](auto guid, auto data, auto size) {
 		matDataInfo matinfo;
 		LoadMaterialFile(data, size, matinfo);
@@ -28,7 +28,7 @@ SE::Core::MaterialManager::MaterialManager(ResourceHandler::IResourceHandler* re
 	if (res)
 		throw std::exception("Could not load default material.");
 
-	res = resourceHandler->LoadResource("BlackPink.sei",
+	res = initInfo.resourceHandler->LoadResource("BlackPink.sei",
 		[this](auto guid, auto data, auto size) {
 		defaultTextureHandle = LoadTexture(data, size);
 		if (defaultTextureHandle == -1)
@@ -82,7 +82,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		shaderIndex = shaders.size();
 		shaders.push_back({ defaultShaderHandle, 0 });
 
-		auto res = resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
 		if (res)
 		{
 			Utilz::Console::Print("Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, res);
@@ -100,7 +100,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		materialIndex = materials.size();
 		materials.push_back(materials[0]);
 
-		auto res = resourceHandler->LoadResource(info.materialFile, [this, materialIndex, &matinfo](auto guid, auto data, auto size) {
+		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, [this, materialIndex, &matinfo](auto guid, auto data, auto size) {
 
 			LoadMaterialFile(data, size, matinfo);
 			materials[materialIndex] = matinfo;
@@ -152,7 +152,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				textures.push_back({ defaultTextureHandle });
 
 
-				auto res = resourceHandler->LoadResource(materials[materialIndex].info.tex[i], [this, textureIndex, async](auto guid, auto data, auto size) {
+				auto res = initInfo.resourceHandler->LoadResource(materials[materialIndex].info.tex[i], [this, textureIndex, async](auto guid, auto data, auto size) {
 
 					auto handle = LoadTexture(data, size);
 					if (handle == -1)
@@ -189,6 +189,13 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 void SE::Core::MaterialManager::Frame()
 {
+	
+}
+
+void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
+{
+	StartProfile;
+	timer->Start("MaterialManager");
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -196,9 +203,11 @@ void SE::Core::MaterialManager::Frame()
 		auto& job = toUpdate.top();
 		textures[job.textureIndex].textureHandle = job.newHandle;
 		for (auto& e : textures[job.textureIndex].entities)
-			renderableManager->UpdateRenderableObject(e);
+			initInfo.renderableManager->UpdateRenderableObject(e);
 		toUpdate.pop();
 	}
+	timer->Stop("MaterialManager");
+	StopProfile;
 }
 
 void SE::Core::MaterialManager::Allocate(size_t size)
@@ -265,6 +274,10 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	StopProfile;
 }
 
+void SE::Core::MaterialManager::Destroy(const Entity & entity)
+{
+}
+
 void SE::Core::MaterialManager::GarbageCollection()
 {
 	StartProfile;
@@ -318,7 +331,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	defaultShaderHandle = renderer->CreatePixelShader(data, size, &defaultShaderReflection);
+	defaultShaderHandle = initInfo.renderer->CreatePixelShader(data, size, &defaultShaderReflection);
 	if (defaultShaderHandle == -1)
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
@@ -339,7 +352,7 @@ int SE::Core::MaterialManager::LoadTexture(void * data, size_t size)
 		ProfileReturnConst( -1);
 
 	void* rawTextureData = ((char*)data) + sizeof(td);
-	auto handle = renderer->CreateTexture(rawTextureData, td);
+	auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
 	ProfileReturnConst(handle);
 	
 }
@@ -374,7 +387,7 @@ SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadShader(const Ut
 	StartProfile;
 	const size_t shaderIndex = guidToShaderIndex[guid];
 
-	auto handle = renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
+	auto handle = initInfo.renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
 	if (handle == -1)
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	shaders[shaderIndex].shaderHandle = handle;

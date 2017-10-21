@@ -20,6 +20,10 @@
 #include "ICameraManager.h"
 #include "IParticleSystemManager.h"
 #include "IAnimationManager.h"
+#include "IMaterialManager.h"
+#include "ILightManager.h"
+#include "IDebugRenderManager.h"
+#include "IGUIManager.h"
 
 namespace SE
 {
@@ -42,6 +46,10 @@ namespace SE
 				ICollisionManager* collisionManager = nullptr;
 				IRenderableManager* renderableManager = nullptr;
 				IAnimationManager* animationManager = nullptr;
+				IMaterialManager* materialManager = nullptr;
+				ILightManager* lightManager = nullptr;
+				IDebugRenderManager* debugRenderManager = nullptr;
+				IGUIManager* guiManager = nullptr;
 			};
 			struct Subsystems
 			{

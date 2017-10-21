@@ -28,27 +28,22 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	subSystems = info.subSystems;
 	managers = info.managers;
 	
+	perFrameStackAllocator = new Utilz::StackAllocator;
+	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
+
 	InitSubSystems();
 	InitManagers();
 
-	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
-	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
-	perFrameStackAllocator = new Utilz::StackAllocator;
-	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
-	guiManager = new GUIManager(resourceHandler, renderer, *entityManager);
-	lightManager = new LightManager(renderer, *entityManager, transformManager);
 
 	//default camera
-	auto defEntCam = entityManager->Create();
-	cameraManager->Bind(defEntCam);
-	cameraManager->SetActive(defEntCam);
+	auto defEntCam = managers.entityManager->Create();
+	managers.cameraManager->Create(defEntCam);
+	managers.cameraManager->SetActive(defEntCam);
 
 	InitStartupOption();
 
-	ImGuiDX11SDL_Init(renderer, window);
-	devConsole = new DevConsole(renderer);
-
-	timeClus = new Utilz::CPUTimeCluster;
+	//ImGuiDX11SDL_Init(renderer, window);
+	//devConsole = new DevConsole(renderer);
 
 
 	ProfileReturnConst(0);
@@ -60,10 +55,10 @@ int SE::Core::Engine::BeginFrame()
 	if (frameBegun)
 		ProfileReturnConst( -1);
 	frameBegun = true;
-	timeClus->Start("Frame");
-	window->Frame();
-	ImGuiDX11SDL_NewFrame();
-	renderer->BeginFrame();
+	timeClus.Start("Frame");
+	subSystems.window->Frame();
+	//ImGuiDX11SDL_NewFrame();
+	subSystems.renderer->BeginFrame();
 	ProfileReturnConst(0);
 }
 
@@ -78,8 +73,9 @@ int SE::Core::Engine::Frame()
 	//ImGui::Render();
 	
 	
-	initInfo.renderer->Render();
-	initInfo.renderer->EndFrame();
+	subSystems.renderer->Render();
+	subSystems.renderer->EndFrame();
+	timeClus.Stop("Frame");
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -89,49 +85,34 @@ int SE::Core::Engine::Release()
 {
 	StartProfile;
 
-	delete timeClus;
-
-	delete devConsole;
-	ImGuiDX11SDL_Shutdown();
+	//delete devConsole;
+	//ImGuiDX11SDL_Shutdown();
 	
-	renderer->Shutdown();
-	window->Shutdown();
-	audioManager->Shutdown();
-	resourceHandler->Shutdown();
-	optionHandler->UnloadOption("Config.ini");
 
-	delete cameraManager;
-	delete collisionManager;
-	delete materialManager;
-	delete particleSystemManager;
-	delete renderableManager;
-	delete debugRenderManager;
-	delete animationManager;
-	delete renderer;
-	delete window;
-	delete resourceHandler;
-	delete entityManager;
-	delete transformManager;
-	delete audioManager;
-	delete optionHandler;
-	delete perFrameStackAllocator;
-	delete guiManager;
-	delete lightManager;
-	entityManager = nullptr; //Just to make ReSharper stfu about function "possibly being const"
+	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
+		delete *rit;
+
+	subSystems.renderer->Shutdown();
+	delete subSystems.renderer;
+
+	subSystems.window->Shutdown();
+	delete subSystems.window;
+
+	subSystems.resourceHandler->Shutdown();
+	delete subSystems.resourceHandler;
+
+	subSystems.optionsHandler->UnloadOption("Config.ini");
+	delete subSystems.optionsHandler;
+
 	ProfileReturnConst(0);
 }
 
-SE::Core::Engine::Engine()
+SE::Core::Engine::Engine() : perFrameStackAllocator(nullptr)
 {
-	entityManager = nullptr;
-	transformManager = nullptr;
-	timeClus = nullptr;
 }
 
 SE::Core::Engine::~Engine()
 {
-	
-
 }
 
 void SE::Core::Engine::InitSubSystems()
@@ -185,6 +166,10 @@ void SE::Core::Engine::InitManagers()
 	InitCollisionManager();
 	InitRenderableManager();
 	InitAnimationManager();
+	InitMaterialManager();
+	InitLightManager();
+	InitDebugRenderManager();
+	InitGUIManager();
 	StopProfile;
 }
 
@@ -285,61 +270,120 @@ void SE::Core::Engine::InitAnimationManager()
 	managersVec.push_back(managers.animationManager);
 }
 
+void SE::Core::Engine::InitMaterialManager()
+{
+	if (!managers.materialManager)
+	{
+		IMaterialManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		info.renderableManager = managers.renderableManager;
+		managers.materialManager = CreateMaterialManager(info);
+	}
+	managersVec.push_back(managers.materialManager);
+}
+
+void SE::Core::Engine::InitLightManager()
+{
+	if (!managers.lightManager)
+	{
+		ILightManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
+		managers.lightManager = CreateLightManager(info);
+	}
+	managersVec.push_back(managers.lightManager);
+}
+
+void SE::Core::Engine::InitDebugRenderManager()
+{
+	if (!managers.debugRenderManager)
+	{
+		IDebugRenderManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
+		info.collisionManager = managers.collisionManager;
+		info.perFrameStackAllocator = perFrameStackAllocator;
+		managers.debugRenderManager = CreateDebugRenderManager(info);
+	}
+	managersVec.push_back(managers.debugRenderManager);
+}
+
+void SE::Core::Engine::InitGUIManager()
+{
+	if (!managers.guiManager)
+	{
+		IGUIManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		managers.guiManager = CreateGUIManager(info);
+	}
+	managersVec.push_back(managers.guiManager);
+}
+
 void SE::Core::Engine::InitStartupOption()
 {
+	StartProfile;
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
-	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
-	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
-	CameraBindInfoStruct camInfo;
-	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
-	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
-	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
-	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
-	cameraManager->UpdateCamera(camInfo);
+	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	ICameraManager::CreateInfo camInfo;
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	managers.cameraManager->UpdateCamera(camInfo);
 
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
+	bool sizeChange = subSystems.window->SetWindow(height, width, subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", false));
 
 	if (sizeChange == true)
 	{
-		renderer->ResizeSwapChain(window->GetHWND());
+		subSystems.renderer->ResizeSwapChain(subSystems.window->GetHWND());
 	}
 
-	optionHandler->Register({ this, &Engine::OptionUpdate });
+	subSystems.optionsHandler->Register({ this, &Engine::OptionUpdate });
+	ProfileReturnVoid;
 }
 
 void SE::Core::Engine::OptionUpdate()
 {
 	StartProfile;
 	//Set Sound Vol
-	audioManager->SetSoundVol(Audio::EffectVol, optionHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
-	audioManager->SetSoundVol(Audio::BakgroundVol, optionHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
-	audioManager->SetSoundVol(Audio::MasterVol, optionHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
-	size_t height = optionHandler->GetOptionUnsignedInt("Window", "height", 720);
-	size_t width = optionHandler->GetOptionUnsignedInt("Window", "width", 1280);
-	CameraBindInfoStruct camInfo;
-	camInfo.aspectRatio = optionHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
-	camInfo.fov = optionHandler->GetOptionDouble("Camera", "fov", 1.570796);
-	camInfo.nearPlane = optionHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
-	camInfo.farPlance = optionHandler->GetOptionDouble("Camera", "farPlance", 100.0);
-	cameraManager->UpdateCamera(camInfo);
+	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
+	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	ICameraManager::CreateInfo camInfo;
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
+	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
+	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);
+	managers.cameraManager->UpdateCamera(camInfo);
+
 
 	//Set Window and graphic
-	bool sizeChange = window->SetWindow(height, width, optionHandler->GetOptionBool("Window", "fullScreen", false));
+	bool sizeChange = subSystems.window->SetWindow(height, width, subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", false));
 
 	if (sizeChange == true)
 	{
-		renderer->ResizeSwapChain(window->GetHWND());
-		ImGuiDX11SDL_Shutdown();
-		ImGuiDX11SDL_Init(renderer, window);
-		guiManager->updateGUI();
+		subSystems.renderer->ResizeSwapChain(subSystems.window->GetHWND());
+	//	ImGuiDX11SDL_Shutdown();
+	//	ImGuiDX11SDL_Init(subSystems.renderer, subSystems.window);
+		managers.guiManager->updateGUI();
 	}
 	
 	ProfileReturnVoid;
@@ -347,9 +391,9 @@ void SE::Core::Engine::OptionUpdate()
 
 void SE::Core::Engine::GatherErrors()
 {
-	auto& renderErrors = renderer->GetErrorLog();
+	auto& renderErrors = subSystems.renderer->GetErrorLog();
 	for(auto& err : renderErrors)
 	{
-		devConsole->Print(err, "Graphics Error");
+		//devConsole->Print(err, "Graphics Error");
 	}
 }

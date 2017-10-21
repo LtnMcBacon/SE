@@ -124,6 +124,10 @@ namespace SE
 			void InitCollisionManager();
 			void InitRenderableManager();
 			void InitAnimationManager();
+			void InitMaterialManager();
+			void InitLightManager();
+			void InitDebugRenderManager();
+			void InitGUIManager();
 
 			std::vector<IManager*> managersVec;
 			/**

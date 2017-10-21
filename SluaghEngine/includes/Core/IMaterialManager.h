@@ -32,13 +32,21 @@ namespace SE
 
 			struct CreateInfo
 			{
-				Utilz::GUID meshGUID;
-				bool transparent = false;
-				bool wireframe = false;
+				Utilz::GUID shader;
+				Utilz::GUID materialFile;
 			};
 
-
 			virtual ~IMaterialManager() {};
+
+			/**
+			* @brief	Create a texture for the entity. This is for mesh with no submeshes.
+			* @param [in] entity The entity to bind the texture to.
+			* @param [in] info The info used when creating the material.
+			* @param [in] async If the resource should be streamed.
+			* @param [in] behavior The streaming behavior.
+			* @sa CreateInfo
+			*/
+			virtual void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
 
 		protected:
 			IMaterialManager() {};
