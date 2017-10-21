@@ -1,28 +1,8 @@
 #ifndef SE_CORE_ENGINE_H_
 #define SE_CORE_ENGINE_H_
 #include <IEngine.h>
-
-#include "EntityManager.h"
-#include "TransformManager.h"
-#include "MaterialManager.h"
-#include "CollisionManager.h"
-#include <Graphics\IRenderer.h>
-#include <Window\IWindow.h>
-#include <ResourceHandler\IResourceHandler.h>
-#include "RenderableManager.h"
-#include "OptionHandler.h"
-#include "CameraManager.h"
-#include "AudioManager.h"
-#include "AnimationManager.h"
-#include "LightManager.h"
-#include "DevConsole.h"
-#include "ParticleSystemManager.h"
-
-
-#include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
-#include "GUIManager.h"
-#include <Utilz\TimeCluster.h>
+#include <Utilz\CPUTimeCluster.h>
 namespace SE
 {
 	namespace Core
@@ -35,9 +15,6 @@ namespace SE
 		{
 		public:
 			Engine();
-			Engine(const Engine& other) = delete;
-			Engine(const Engine&& other) = delete;
-			Engine& operator=(const Engine& rhs) = delete;
 			~Engine();
 
 			/**
@@ -98,61 +75,49 @@ namespace SE
 			int Release();
 
 			/**
-			* @brief    Returns a pointer to the renderer.
-			* @sa EntityManager
+			* @brief    Returns a reference to the subsystems.
 			*/
-			inline Graphics::IRenderer* GetRenderer() const override
+			inline const Subsystems& GetSubsystems() const override
 			{
-				return renderer;
+				return subSystems;
 			}
 
 			/**
-			* @brief    Returns a pointer to the window.
-			* @sa EntityManager
+			* @brief    Returns a reference to the managers.
 			*/
-			inline Window::IWindow* GetWindow() const override
-			{
-				return window;
-			}
-
-			/**
-			* @brief    Returns a pointer to the resource handler.
-			* @sa EntityManager
-			*/
-			inline ResourceHandler::IResourceHandler* GetResourceHandler() const override
-			{
-				return resourceHandler;
-			}
-
-			/**
-			* @brief    Returns a pointer to the dev console.
-			*/
-			inline DevConsole* GetDevConsole()const override
-			{
-				return devConsole;
-			}
-
-			/**
-			* @brief    Get a struct containing all the managers.
-			**/
-			inline const ManagerWrapper& GetManagers()const override
+			inline const ManagerWrapper& GetManagers() const override
 			{
 				return managers;
 			}
 
 			/**
+			* @brief    Returns a pointer to the dev console.
+			*/
+		/*	inline DevConsole* GetDevConsole()const override
+			{
+				return devConsole;
+			}*/
+
+			/**
 			* @brief	Return a map of with profiling information.
 			*
 			*/
-			void GetProfilingInformation(Utilz::TimeMap& map)const override
+			void GetProfilingInformation(Utilz::TimeMap& map) override
 			{
-				timeClus->GetMap(map);
-				renderer->GetProfilingInformation(map);
+				timeClus.GetMap(map);
+				subSystems.renderer->GetProfilingInformation(map);
 			}
 
 		private:
-			
+			Engine(const Engine& other) = delete;
+			Engine(const Engine&& other) = delete;
+			Engine& operator=(const Engine& rhs) = delete;
+			Engine& operator=(const Engine&& other) = delete;
 
+			void InitSubSystems();
+			void InitManagers();
+
+			std::vector<IManager*> managersVec;
 			/**
 			* @brief    Sets options to data in the .ini file
 			*/
@@ -164,31 +129,16 @@ namespace SE
 
 			void GatherErrors();
 
-			EntityManager* entityManager;
-			Graphics::IRenderer* renderer;
-			Window::IWindow* window;
-			ResourceHandler::IResourceHandler* resourceHandler;
-
+			Subsystems subSystems;
 			ManagerWrapper managers;
+		
+			//	DevConsole* devConsole;
 
-			TransformManager* transformManager;
-			RenderableManager* renderableManager;
-			MaterialManager* materialManager;
-			AudioManager* audioManager;
-			CollisionManager* collisionManager;
-			OptionHandler* optionHandler;
-			CameraManager* cameraManager;
-			DebugRenderManager* debugRenderManager;
-			AnimationManager* animationManager;
-			ParticleSystemManager* particleSystemManager;
 			Utilz::StackAllocator* perFrameStackAllocator;
 
-			GUIManager* guiManager;
-			LightManager* lightManager;
-
-			DevConsole* devConsole;
-
-			Utilz::TimeCluster* timeClus;
+		
+	
+			Utilz::CPUTimeCluster timeClus;
 			bool frameBegun;
 		};
 

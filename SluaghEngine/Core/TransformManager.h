@@ -32,6 +32,7 @@ namespace SE
 			TransformManager(const TransformManager&& other) = delete;
 			TransformManager& operator=(const TransformManager& other) = delete;
 
+
 			/**
 			* @brief    Creates a transform component for an entity. Must be called before any other methods for a given entity. There is no destroy method, this is handled internally.
 			* @param[in] e The entity to bind a transform component to.
@@ -192,7 +193,7 @@ namespace SE
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
 			inline void RegisterSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>& callback) override
 			{
@@ -211,7 +212,9 @@ namespace SE
 			* @details removes up to 4 dead entities per call. Looks at a subset of its registered entities and asks the entity manager if they are dead. If they are, they are removed.
 			*/
 			void GarbageCollection()override;
-
+			void Allocate(size_t count);
+			void Destroy(const size_t index)override;
+			void Destroy(const Entity& e)override;
 
 			void UpdateTransform(size_t index);
 
@@ -246,8 +249,7 @@ namespace SE
 			TransformData data;
 			int32_t* lookUpTable;
 			size_t lookUpTableSize;
-			void Allocate(size_t count);
-			void Destroy(const size_t index);
+	
 			std::default_random_engine generator;
 			InitializationInfo initInfo;
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;

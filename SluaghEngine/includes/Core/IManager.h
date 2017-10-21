@@ -18,8 +18,6 @@ namespace SE
 		{
 		public:
 			virtual ~IManager() {};
-
-
 			virtual void Frame(Utilz::TimeCluster* timer) = 0;
 		protected:
 			IManager() {};

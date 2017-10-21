@@ -1,4 +1,4 @@
-#include <CollisionManager.h>
+#include "CollisionManager.h"
 #include <Profiler.h>
 #include <Utilz\Console.h>
 
@@ -7,13 +7,13 @@
 using namespace DirectX;
 #undef min
 
-SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler * resourceHandler, const EntityManager & entityManager, TransformManager * transformManager)
-	: resourceHandler(resourceHandler), entityManager(entityManager), transformManager(transformManager)
+SE::Core::CollisionManager::CollisionManager(const InitializationInfo& initInfo) : initInfo(initInfo)
 {
-	_ASSERT(resourceHandler);
-	_ASSERT(transformManager);
+	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.transformManager);
 
-	transformManager->RegisterSetDirty({ this, &CollisionManager::SetDirty });
+	initInfo.transformManager->RegisterSetDirty({ this, &CollisionManager::SetDirty });
 
 	Allocate(128);
 	AllocateBH(64);
@@ -21,7 +21,7 @@ SE::Core::CollisionManager::CollisionManager(ResourceHandler::IResourceHandler *
 
 	defaultHierarchy = 0;
 	boundingHierarchy.used++;
-	resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size){
+	initInfo.resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size){
 		LoadMesh(defaultHierarchy, data, size);
 
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
@@ -37,7 +37,7 @@ SE::Core::CollisionManager::~CollisionManager()
 }
 
 
-void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const DirectX::XMFLOAT3 & p1, const DirectX::XMFLOAT3 & p2, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const DirectX::XMFLOAT3 & p1, const DirectX::XMFLOAT3 & p2)
 {
 }
 
@@ -123,40 +123,6 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity)
 	}
 }
 
-bool SE::Core::CollisionManager::PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance)
-{
-	StartProfile;
-	DirectX::FXMVECTOR origin = rayO;
-	DirectX::FXMVECTOR direction = rayD;
-
-	auto& find = entityToCollisionData.find(entity);
-	if (find != entityToCollisionData.end())
-	{
-		auto& sphere = collisionData.sphereWorld[find->second];
-		auto sphereColCheck = sphere.Intersects(origin, direction, *distance);
-		if (sphereColCheck)
-		{
-			auto& AABox = collisionData.AABBWorld[find->second];
-			auto BBColCheck = AABox.Intersects(rayO, rayD, *distance);
-			if (BBColCheck)
-			{
-				ProfileReturnConst(true)
-			}
-			else
-			{
-				ProfileReturnConst(false)
-			}
-		}
-		else
-		{
-			ProfileReturnConst(false)
-		}
-
-
-	}	
-	ProfileReturnConst(false)
-}
-
 bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const
 {
 	StartProfile;
@@ -190,9 +156,10 @@ bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const Direc
 	ProfileReturn(collisionWith >= 0);
 }
 
-void SE::Core::CollisionManager::Frame()
+void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
+	timer->Start("CollisionManager");
 	GarbageCollection();
 
 	{
@@ -245,7 +212,7 @@ void SE::Core::CollisionManager::Frame()
 		toUpdate.pop();
 	}
 
-
+	timer->Stop("CollisionManager");
 	StopProfile;
 }
 
@@ -333,6 +300,10 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 
 	collisionData.used--;
 	StopProfile;
+}
+
+void SE::Core::CollisionManager::Destroy(const Entity & entity)
+{
 }
 
 void SE::Core::CollisionManager::GarbageCollection()

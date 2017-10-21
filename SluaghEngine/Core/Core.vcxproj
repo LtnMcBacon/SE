@@ -154,9 +154,14 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="GUIManager.cpp" />
+    <ClCompile Include="IAudioManager.cpp" />
+    <ClCompile Include="ICameraManager.cpp" />
+    <ClCompile Include="ICollisionManager.cpp" />
     <ClCompile Include="IEngine.cpp" />
     <ClCompile Include="IEntityManager.cpp" />
+    <ClCompile Include="IOptionsHandler.cpp" />
     <ClCompile Include="IRenderableManager.cpp" />
+    <ClCompile Include="ITransformManager.cpp" />
     <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="OptionHandler.cpp" />
@@ -165,9 +170,13 @@
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Core\IAudioManager.h" />
+    <ClInclude Include="..\includes\Core\ICameraManager.h" />
+    <ClInclude Include="..\includes\Core\ICollisionManager.h" />
     <ClInclude Include="..\includes\Core\IEngine.h" />
     <ClInclude Include="..\includes\Core\IEntityManager.h" />
     <ClInclude Include="..\includes\Core\IManager.h" />
+    <ClInclude Include="..\includes\Core\IOptionsHandler.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
     <ClInclude Include="AnimationManager.h" />

@@ -39,9 +39,6 @@
     <ClCompile Include="MaterialManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OptionHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -78,6 +75,24 @@
     <ClCompile Include="IEntityManager.cpp">
       <Filter>Interface\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="IOptionsHandler.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ITransformManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IAudioManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ICollisionManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ICameraManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h">
@@ -87,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugRenderManager.h">
@@ -138,6 +150,21 @@
       <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\ITransformManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IOptionsHandler.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IAudioManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ICollisionManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ICameraManager.h">
       <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>

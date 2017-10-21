@@ -29,9 +29,6 @@ namespace SE
 		class IRenderableManager : public IManager
 		{
 		public:
-			typedef Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)> SetRenderObjectInfoDelegate;
-
-
 			struct InitializationInfo
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
@@ -48,13 +45,14 @@ namespace SE
 				bool wireframe = false;
 			};
 
+
 			virtual ~IRenderableManager() {};
 
 			/**
 			* @brief	Bind a renderable object to and entity
 			*
 			* @param[in] entity The entity to bind the renderable object to.
-			* @param[in] info The info struct.
+			* @param[in] info The CreateInfo struct.
 			* @param[in] async If the object should be loaded in async.
 			* @param[in] behavior The streaming behavior.
 			*
@@ -70,7 +68,7 @@ namespace SE
 			*/
 			virtual void ToggleRenderableObject(const Entity& entity, bool show) = 0;
 
-			virtual void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback) = 0;
+			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)>&& callback) = 0;
 
 			virtual void UpdateRenderableObject(const Entity& entity) = 0;
 
@@ -91,7 +89,7 @@ namespace SE
 		/**
 		* @brief Create an instance of the RenderableManager
 		**/
-		DECLDIR_CORE IRenderableManager* CreateRenderableManager(const IRenderableManager::InitializationInfo&);
+		DECLDIR_CORE IRenderableManager* CreateRenderableManager(const IRenderableManager::InitializationInfo& initInfo);
 	}
 }
 

@@ -32,7 +32,7 @@ namespace SE
 		class RenderableManager : public IRenderableManager
 		{
 		public:
-			RenderableManager(const InitializationInfo& initInfo);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -57,7 +57,7 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool show)override;
 
-			inline void RegisterToSetRenderObjectInfo(const SetRenderObjectInfoDelegate&& callback)override
+			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)>&& callback)override
 			{
 				SetRenderObjectInfoEvent += callback;
 			}

@@ -1,13 +1,8 @@
 #ifndef SE_CORE_COLLISION_MANAGER_H_
 #define SE_CORE_COLLISION_MANAGER_H_
-#include "EntityManager.h"
-#include <DirectXMath.h>
-#include <DirectXCollision.h>
+
+#include <ICollisionManager.h>
 #include <random>
-#include <Utilz\GUID.h>
-#include <Utilz\Delegate.h>
-#include <ResourceHandler\IResourceHandler.h>
-#include "TransformManager.h"
 #include <unordered_map>
 #include <map>
 #include <Utilz\CircularFiFo.h>
@@ -22,13 +17,10 @@ namespace SE
 		* @details To function properly the entity need a boundingbox created and a transform. And a function provided to be called on collision.
 		*
 		**/
-		typedef Utilz::Delegate<void(const Entity& hit, const Entity& hitter)> CollideCallback;
-
-		class CollisionManager
+		class CollisionManager : public ICollisionManager
 		{
 		public:
-
-			CollisionManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager, TransformManager* transformManager);
+			CollisionManager(const InitializationInfo& initInfo);
 			~CollisionManager();
 			CollisionManager(const CollisionManager& other) = delete;
 			CollisionManager(const CollisionManager&& other) = delete;
@@ -37,19 +29,12 @@ namespace SE
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
-			* @details	The Hierarchy will be created from the entities renderable object data. If no data is found a default boundingbox and sphere will be created of size (1,1,1)
-			* @param[in] entity The entity to create the Hierarchy for.
-			*/
-			//void CreateBoundingHierarchy(const Entity& entity);
-			/**
-			* @brief	Create a bounding Hierarchy for the entity.
-			*
 			* @details	The bounding Hierarchy will be created from the points given.
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] p1 The lower front left corner.
 			* @param[in] p2 The upper back right corner.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2, bool async, ResourceHandler::Behavior behavior);
+			void CreateBoundingHierarchy(const Entity& entity, const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2)override;
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
@@ -57,7 +42,7 @@ namespace SE
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
 			*/
-			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK);
+			void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Bind a callback that will be called if the given entity collides with any other entity.
@@ -65,22 +50,7 @@ namespace SE
 			* @param[in] callback The callback.
 			* @sa CollideCallbackDelegate
 			*/
-			void BindOnCollideWithAny(const Entity& entity);
-
-			/**
-			* @brief	Get the bounding Hierarchy of an entity
-			* @param[in] entity The entity from whom to fetch the boundingbox from.
-			* @param[out] boundingBox The returned boundingbox.
-			*/
-			//void GetBoudningHierarchy(const Entity& entity/*, DirectX::BoundingOrientedBox* boundingBox*/);
-
-			/**
-			* @brief	Check if the entity is hit by a ray.
-			* @param[in] entity The entity to check with
-			* @param[in] pickingRay The ray to do the picking with.
-			* @param[out] distance The distance to the entity.
-			*/
-			bool PickEntity(const Entity & entity, const DirectX::XMVECTOR & rayO, const DirectX::XMVECTOR & rayD, float * distance);
+			void BindOnCollideWithAny(const Entity& entity)override;
 
 			/**
 			* @brief	Check if the entity is hit by a ray.
@@ -90,10 +60,10 @@ namespace SE
 			* @retval true Returns true if an entity was written to collidedEntity
 			* @retval false Returns false if the ray did not collide with an entity
 			*/
-			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const;
+			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const override;
 
 
-			inline void RegisterCollideWithAnyCallback(const CollideCallback& callback)
+			inline void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback)override
 			{
 				collideWithAny = callback;
 			}
@@ -102,7 +72,7 @@ namespace SE
 			* @brief	Called each frame, to update the state.
 			* @details The frame will keep the bounding objects up to date with the entities transform.
 			*/
-			void Frame();
+			void Frame(Utilz::TimeCluster* timer)override;
 
 			/*
 			 * @brief Gets the local bounding box for an entity. 
@@ -123,11 +93,15 @@ namespace SE
 			/**
 			* @brief	Remove an enitity entry
 			*/
-			void Destroy(size_t index);
+			void Destroy(size_t index)override;
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(const Entity& entity)override;
 			/**
 			* @brief	Look for dead entities.
 			*/
-			void GarbageCollection();
+			void GarbageCollection()override;
 
 			/**
 			* @brief	Allocate more memory for bounding Hierarchy 
@@ -137,6 +111,9 @@ namespace SE
 			* @brief	Remove an bounding Hierarchy
 			*/
 			void DestroyBH(size_t index);
+
+
+			InitializationInfo initInfo;
 
 			struct BoundingHierarchyInfo
 			{
@@ -166,10 +143,6 @@ namespace SE
 				uint8_t* collisionWithAny;
 			};
 
-			ResourceHandler::IResourceHandler* resourceHandler;
-			const EntityManager& entityManager;
-			TransformManager* transformManager;
-
 			struct DirtyEntityInfo
 			{
 				size_t transformIndex;
@@ -190,7 +163,7 @@ namespace SE
 			int LoadMesh(size_t newHI, void * data, size_t size);
 			void CreateBoundingHierarchy(size_t index, void*data, size_t numVertices, size_t stride);
 
-			CollideCallback collideWithAny;
+			Utilz::Delegate<void(const Entity& hit, const Entity& hitter)> collideWithAny;
 
 
 			struct ToUpdate

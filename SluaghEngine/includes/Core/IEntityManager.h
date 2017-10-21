@@ -27,7 +27,7 @@ namespace SE
 			* @warning Will fail if more than 2^(ENTITY_INDEX_BITS) entities exist.
 			* @SA Entity
 			*/
-			Entity Create();
+			virtual Entity Create() = 0;
 
 			/**
 			* @brief    Checks if an entity is alive, that is an entity for which the Destroy method hasn't been called.
@@ -43,7 +43,7 @@ namespace SE
 			* @retval true The entity is alive.
 			* @retval false The entity is not alive
 			*/
-			bool Alive(const Entity& e) const;
+			virtual bool Alive(const Entity& e) const = 0;
 			/**
 			* @brief    Destroys an entity. Does not notify any component systems that the entity is alive. It is up to the systems to check if the entity still exists.
 			*
@@ -52,7 +52,7 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			void Destroy(const Entity& e);
+			virtual void Destroy(const Entity& e) = 0;
 
 			/**
 			* @brief    Destroys an entity. This is an immediate destroy.
@@ -60,14 +60,14 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			virtual void DestroyNow(const Entity& e) = 0;
+			virtual virtual void DestroyNow(const Entity& e) = 0;
 
 			/**
 			* @brief    Register a destroy callback for an entity.
 			* @param[in] e The entity to bind to.
 			* @param[in] callback The callback to bind.
 			*/
-			void RegisterDestroyCallback(const Entity& e, const Utilz::Delegate<void(const Entity&)>& callback);
+			virtual void RegisterDestroyCallback(const Entity& e, const Utilz::Delegate<void(const Entity&)>& callback) = 0;
 		protected:
 			IEntityManager() {};
 	

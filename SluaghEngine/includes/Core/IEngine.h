@@ -11,6 +11,12 @@
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Utilz\TimeCluster.h>
+#include "IEntityManager.h"
+#include "ITransformManager.h"
+#include "IRenderableManager.h"
+#include "IOptionsHandler.h"
+#include "IAudioManager.h"
+#include "ICollisionManager.h"
 
 namespace SE
 {
@@ -23,14 +29,27 @@ namespace SE
 		class IEngine
 		{
 		public:
-			struct InitializationInfo
-			{
-				SE::Window::InitializationInfo winInfo;
-			};
 			struct ManagerWrapper
 			{
-
+				IEntityManager* entityManager = nullptr;
+				IAudioManager* audioManager = nullptr;
+				ITransformManager* transformManager = nullptr;
+				ICollisionManager* collisionManager = nullptr;
+				IRenderableManager* renderableManager = nullptr;
 			};
+			struct Subsystems
+			{
+				ResourceHandler::IResourceHandler* resourceHandler = nullptr;
+				Window::IWindow* window = nullptr;
+				Graphics::IRenderer* renderer = nullptr;
+				IOptionsHandler* optionsHandler = nullptr;
+			};
+			struct InitializationInfo
+			{
+				Subsystems subSystems;
+				ManagerWrapper managers;
+			};
+		
 
 			/**
 			* @brief    Initializes all modules used by the engine. Must be called before any other public methods.
@@ -88,35 +107,20 @@ namespace SE
 			virtual int Release() = 0;
 
 			/**
-			* @brief    Returns a pointer to the renderer.
+			* @brief    Returns a reference to the subsystems.
 			*/
-			virtual Graphics::IRenderer* GetRenderer() const = 0;
+			virtual const Subsystems& GetSubsystems() const = 0;
 
 			/**
-			* @brief    Returns a pointer to the window.
+			* @brief    Returns a reference to the managers.
 			*/
-			virtual Window::IWindow* GetWindow() const = 0;
-
-			/**
-			* @brief    Returns a pointer to the resource handler.
-			*/
-			virtual ResourceHandler::IResourceHandler* GetResourceHandler() const = 0;
-		
-			/**
-			* @brief    Returns a pointer to the dev console.
-			*/
-			virtual DevConsole* GetDevConsole()const = 0;
-
-			/**
-			* @brief    Get a struct containing all the managers.
-			**/
-			virtual const ManagerWrapper& GetManagers()const = 0;
+			virtual const ManagerWrapper& GetManagers() const = 0;
 
 			/**
 			* @brief	Return a map of with profiling information.
 			*
 			*/
-			virtual void GetProfilingInformation(Utilz::TimeMap& map)const = 0;
+			virtual void GetProfilingInformation(Utilz::TimeMap& map) = 0;
 			
 			virtual ~IEngine() {};
 

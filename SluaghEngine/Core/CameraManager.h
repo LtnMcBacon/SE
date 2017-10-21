@@ -21,7 +21,7 @@ namespace SE
 		class CameraManager
 		{
 		public:
-			CameraManager(Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager);
+			CameraManager();
 			~CameraManager();
 
 

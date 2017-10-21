@@ -33,6 +33,7 @@ namespace SE
 				IEntityManager* entityManager;
 			};
 
+
 			virtual ~ITransformManager() {};
 
 			/**
@@ -214,7 +215,7 @@ namespace SE
 		/**
 		* @brief Create an instance of the TransformManager
 		**/
-		DECLDIR_CORE ITransformManager* CreateTransformManager(const ITransformManager::InitializationInfo&);
+		DECLDIR_CORE ITransformManager* CreateTransformManager(const ITransformManager::InitializationInfo& initInfo);
 	}
 }
 

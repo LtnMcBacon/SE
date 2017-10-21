@@ -13,15 +13,13 @@
 
 using namespace std::chrono_literals;
 
-SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo& initInfo)
 	: initInfo(initInfo)
 {
-
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.transformManager);
 
-	StartProfile;
 	switch (initInfo.unloadingStrat)
 	{
 	case ResourceHandler::UnloadingStrategy::Linear:
@@ -32,32 +30,32 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	}
 
 	Allocate(128);
-	initInfo.transformManager->RegisterSetDirty({this, &RenderableManager::SetDirty});
+	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
 
 	auto res = initInfo.resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), [this](auto guid, auto data, auto size) {
 		auto handle = LoadModel(data, size);
 		if (handle == -1)
-			return ResourceHandler::InvokeReturn::Fail;		
+			return ResourceHandler::InvokeReturn::Fail;
 		guidToBufferInfoIndex[guid] = bufferInfo.size();
 		bufferInfo.push_back({ handle, BufferState::Loaded, size });
 		bufferInfo[bufferInfo.size() - 1].entities.push_back(0);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
-		throw std::exception("Could not load default mesh.");
+		throw std::exception("Could not load default mesh");
 
 	res = initInfo.resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
-		throw std::exception("Could not load default vertex shader.");
+		throw std::exception("Could not load default shader");
 
 
-	StopProfile;
+	
 }
 
 SE::Core::RenderableManager::~RenderableManager()
 {
-	operator delete(renderableObjectInfo.data);
 
+	operator delete(renderableObjectInfo.data);
 }
 
 void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
@@ -138,9 +136,11 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 
 
-void SE::Core::RenderableManager::Frame(Utilz::TimeCluster * timer)
+void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
+	_ASSERT(timer);
 	StartProfile;
+	timer->Start("RenderableManager");
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -154,6 +154,7 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster * timer)
 		toUpdate.pop();
 	}
 	UpdateDirtyTransforms();
+	timer->Stop("RenderableManager");
 	ProfileReturnVoid;
 }
 

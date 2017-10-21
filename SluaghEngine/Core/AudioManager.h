@@ -2,10 +2,8 @@
 #ifndef SE_CORE_AUDIO_MANAGER_H
 #define SE_CORE_AUDIO_MANAGER_H
 
-#include "EntityManager.h"
-#include <Utilz\GUID.h>
-#include <Audio\IAudioHandler.h>
-#include <ResourceHandler\IResourceHandler.h>
+#include <IAudioManager.h>
+
 #include <map>
 #include <stack>
 #include <unordered_map>
@@ -20,104 +18,69 @@
 namespace SE {
 	namespace Core {
 
-		class AudioManager
+		class AudioManager : public IAudioManager
 		{
 		public:
-			AudioManager(ResourceHandler::IResourceHandler* resourceHandler, const EntityManager & entityManager);
+			AudioManager(const InitializationInfo& initInfo);
 			~AudioManager() {};
+
+
 			/**
-			* @brief	Calls init functions in audiohandlern
+			* @brief	Create a sound
 			*
-			* @retval 0 Tells that creation was sucessful
-			* @retval -1 Tells that creation was unsucessful
+			* @param[in] createInfo The CreateInfo struct
 			*
 			*/
-			int Initialize();
-			/**
-			* @brief	Loads the requested sound if not already loaded
-			*
-			* @param[in] soundFile The GUID of the requested soundfile
-			*
-			* @retval 0 Sound is already loaded
-			* @retval 1 Sound is being loaded
-			*
-			*/
-			int LoadSound(Utilz::GUID soundFile);
-			/**
-			* @brief	Create a sound and return it's ID
-			*
-			* @param[in] soundFile The GUID of the requested soundfile
-			* @param[in] soundType The type of sound
-			*
-			* @retval 0+ Entitys sound ID
-			* @retval -1 Could not find sound/sound not loaded or entity is dead
-			*
-			*/
-			int CreateStream(const Entity& entity, Utilz::GUID soundFile, Audio::SoundIndexName soundType);
-			/**
-			* @brief	Checks if sound has finished loading
-			*
-			* @param[in] soundFile The GUID of the requested soundfile
-			*
-			* @retval 0 Sound is loaded
-			* @retval -1 Sound is not loaded
-			*
-			*/
-			int CheckIfLoaded(Utilz::GUID soundFileD);
+			void Create(const Entity& entity, const CreateInfo& createInfo) override;
 			/**
 			* @brief Streams the given sound
 			*
-			* @param[in] soundID The sounds ID
-			*
-			* @retval 0 Tells that streamstart was sucessful
-			* @retval -1 Tells that streamstart was unsucessful
+			* @param[in] soundFile The sound to play
 			*
 			*/
-			int StreamSound(const Entity& entity, int entSoundID);
+			void PlaySound(const Entity& entity, const Utilz::GUID& soundFile) override;
 			/**
 			* @brief Stops the stream with the given ID
 			*
-			* @param[in] soundID The sounds ID
-			*
-			* @retval 0 Tells that stopstream was sucessful
-			* @retval -1 Tells that stopstream was unsucessful
+			* @param[in] soundFile The sound to stop
 			*
 			*/
-			int StopSound(const Entity& entity, int entSoundID);
+			void StopSound(const Entity& entity, const Utilz::GUID& soundFile) override;
 			/**
 			* @brief Removes the given sound
 			*
-			* @param[in] soundID The sounds ID
-			*
-			* @retval 0 Tells that removestream was sucessful
-			* @retval -1 Tells that removestream was unsucessful
+			* @param[in] soundFile The sound to remove
 			*
 			*/
-			int RemoveSound(const Entity& entity, int entSoundID);
-			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol);
-			void Frame();
-			void Shutdown();
+			void RemoveSound(const Entity& entity, const Utilz::GUID& soundFile) override;
+
+			void SetSoundVol(const SE::Audio::SoundVolType& volType, size_t newVol)override;
+		
+			void Frame(Utilz::TimeCluster* timer)override;
+
 		private:
-			void GarbageCollection();
-			void Destroy(size_t index);
+			InitializationInfo initInfo;
+			
+			void GarbageCollection()override;
+			void Destroy(size_t index)override;
+			void Destroy(const Entity& entity)override;
 
 			struct EntityToSound
 			{
-				size_t amountOfSound;
-				std::vector<int> streamID;
-				std::stack<int> freeStreamID;
+				std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToStream;
 			};
-
-			ResourceHandler::InvokeReturn retSoundData(const Utilz::GUID& guid, void* data, size_t size);
+			struct SoundInfo
+			{
+				int handle;
+				int refCount;
+			};
 			Audio::IAudioHandler* audioHandler;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> trackSound;
+
+			std::map<Utilz::GUID, SoundInfo, Utilz::GUID::Compare> guidToSound;
 			std::unordered_map<Entity, EntityToSound, EntityHasher> entToSounds;
 			std::vector<Entity> soundEntity;
 
 			std::default_random_engine generator;
-
-			ResourceHandler::IResourceHandler* resourceHandler;
-			const EntityManager& entityManager;
 		};
 	}	//namespace Core
 }	//namespace SE

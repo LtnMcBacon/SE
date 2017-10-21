@@ -7,14 +7,15 @@
 #undef max
 using namespace DirectX;
 
-SE::Core::TransformManager::TransformManager(const InitializationInfo& initInfo) : initInfo(initInfo)
+SE::Core::TransformManager::TransformManager(const ITransformManager::InitializationInfo& initInfo) : initInfo(initInfo)
 {
+
+	this->initInfo = initInfo;
 	_ASSERT(initInfo.entityManager);
 	Allocate(512);
 	lookUpTableSize = 512;
 	lookUpTable = new int32_t[lookUpTableSize];
 	memset(lookUpTable, -1, sizeof(int32_t) * lookUpTableSize);
-	
 	
 }
 
@@ -23,6 +24,7 @@ SE::Core::TransformManager::~TransformManager()
 	operator delete(data.data);
 	delete[] lookUpTable;
 }
+
 
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
 	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
@@ -345,9 +347,11 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 	return data.used;
 }
 
-void SE::Core::TransformManager::Frame()
+void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
+	_ASSERT(timer);
 	StartProfile;
+	timer->Start("TransformManager");
 	dirtyTransforms.clear();
 	dirtyTransforms.reserve(data.used);
 	for(int i = 0; i < data.used; ++i)
@@ -357,6 +361,7 @@ void SE::Core::TransformManager::Frame()
 	}
 
 	GarbageCollection();
+	timer->Stop("TransformManager");
 	StopProfile;
 }
 

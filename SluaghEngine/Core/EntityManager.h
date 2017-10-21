@@ -38,7 +38,7 @@ namespace SE
 			* @warning Will fail if more than 2^(ENTITY_INDEX_BITS) entities exist.
 			* @SA Entity
 			*/
-			Entity Create();
+			Entity Create()override;
 
 			/**
 			* @brief    Checks if an entity is alive, that is an entity for which the Destroy method hasn't been called.
@@ -54,7 +54,7 @@ namespace SE
 			* @retval true The entity is alive.
 			* @retval false The entity is not alive
 			*/
-			bool Alive(const Entity& e) const;
+			bool Alive(const Entity& e) const override;
 			/**
 			* @brief    Destroys an entity. Does not notify any component systems that the entity is alive. It is up to the systems to check if the entity still exists.
 			*
@@ -63,7 +63,7 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			void Destroy(const Entity& e);
+			void Destroy(const Entity& e)override;
 
 			/**
 			* @brief    Destroys an entity. This is an immediate destroy.
@@ -71,14 +71,14 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			void DestroyNow(const Entity& e);
+			void DestroyNow(const Entity& e)override;
 
 			/**
 			* @brief    Register a destroy callback for an entity.
 			* @param[in] e The entity to bind to.
 			* @param[in] callback The callback to bind.
 			*/
-			void RegisterDestroyCallback(const Entity& e, const Utilz::Delegate<void(const Entity&)>& callback);
+			void RegisterDestroyCallback(const Entity& e, const Utilz::Delegate<void(const Entity&)>& callback)override;
 		private:
 			static const size_t _minimumFreeIndices = 1024;
 			static const size_t _generationCapacityIncrement = 512;

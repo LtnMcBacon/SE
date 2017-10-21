@@ -1,19 +1,22 @@
-#pragma once
-#ifndef SE_CORE_OPTIONHANDLER_H
-#define SE_CORE_OPTIONHANDLER_H
-#include <IOptionsHandler.h>
-#include <map>
-#include <string>
-#include <Utilz\Event.h>
+#ifndef SE_INTERFACE_OPTIONS_HANDLER_H_
+#define SE_INTERFACE_OPTIONS_HANDLER_H_
 
-namespace SE {
-	namespace Core {
+#if defined DLL_EXPORT_CORE
+#define DECLDIR_CORE __declspec(dllexport)
+#else
+#define DECLDIR_CORE __declspec(dllimport)
+#endif
 
-		class OptionHandler : public IOptionsHandler
+
+namespace SE
+{
+	namespace Core
+	{
+		class IOptionsHandler
 		{
 		public:
-			OptionHandler();
-			~OptionHandler();
+			virtual ~IOptionsHandler() {};
+
 			/**
 			* @brief Loads options from file
 			*
@@ -24,7 +27,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			int Initialize(const char* filename)override;
+			virtual int Initialize(const char* filename) = 0;
 			/**
 			* @brief Return the value of requested option as int
 			*
@@ -37,7 +40,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			int GetOptionInt(const std::string& section, const std::string& optionName, int defaultVal)override;
+			virtual int GetOptionInt(const std::string& section, const std::string& optionName, int defaultVal) = 0;
 			/**
 			* @brief Return the value of requested option as unsigned int
 			*
@@ -50,7 +53,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			size_t GetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t defaultVal)override;
+			virtual size_t GetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t defaultVal) = 0;
 			/**
 			* @brief Return the value of requested option as bool
 			*
@@ -63,7 +66,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			bool GetOptionBool(const std::string& section, const std::string& optionName, bool defaultVal)override;
+			virtual bool GetOptionBool(const std::string& section, const std::string& optionName, bool defaultVal) = 0;
 			/**
 			* @brief Return the value of requested option as string
 			*
@@ -76,7 +79,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			std::string GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal)override;
+			virtual std::string GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal) = 0;
 			/**
 			* @brief Return the value of requested option as double
 			*
@@ -89,9 +92,9 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			double GetOptionDouble(const std::string& section, const std::string& optionName, double defaultVal)override;
-			
-			
+			virtual double GetOptionDouble(const std::string& section, const std::string& optionName, double defaultVal) = 0;
+
+
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -101,7 +104,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionInt(const std::string& section, const std::string& optionName, int newValue)override;
+			virtual void SetOptionInt(const std::string& section, const std::string& optionName, int newValue) = 0;
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -111,7 +114,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t newValue)override;
+			virtual void SetOptionUnsignedInt(const std::string& section, const std::string& optionName, size_t newValue) = 0;
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -121,7 +124,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionBool(const std::string& section, const std::string& optionName, bool newValue)override;
+			virtual void SetOptionBool(const std::string& section, const std::string& optionName, bool newValue) = 0;
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -131,7 +134,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionString(const std::string& section, const std::string& optionName, std::string newValue)override;
+			virtual void SetOptionString(const std::string& section, const std::string& optionName, std::string newValue) = 0;
 			/**
 			* @brief Sets the value of requested option
 			*
@@ -141,8 +144,8 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionDouble(const std::string& section, const std::string& optionName, double newValue)override;
-			
+			virtual void SetOptionDouble(const std::string& section, const std::string& optionName, double newValue) = 0;
+
 			/**
 			* @brief Return the value of requested option
 			*
@@ -153,7 +156,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			int UnloadOption(const std::string& filename)override;
+			virtual int UnloadOption(const std::string& filename) = 0;
 			/**
 			* @brief Register deleget to event
 			*
@@ -161,18 +164,30 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void Register(const Utilz::Delegate<void()>& delegat)override;
+			virtual void Register(const Utilz::Delegate<void()>& delegat) = 0;
 			/**
 			* @brief Trigger optionEvent if it was a function
 			*
 			* @endcode
 			*/
-			void Trigger();
-		private:
-			std::map<std::string, std::map<std::string, std::string>> optionMap;
-			Utilz::Event<void()> optionEvent;
-		};
-	}	//namespace Core
-}	//namespace SE
+			virtual void Trigger() = 0;
+		
+		protected:
+			IOptionsHandler() {};
+	
+			IOptionsHandler(const IOptionsHandler& other) = delete;
+			IOptionsHandler(const IOptionsHandler&& other) = delete;
+			IOptionsHandler& operator=(const IOptionsHandler& other) = delete;
+			IOptionsHandler& operator=(const IOptionsHandler&& other) = delete;
 
-#endif	//SE_CORE_OPTIONHANDLER_H
+		};
+
+
+		/**
+		* @brief Create an instance of the OptionsHandler
+		**/
+		DECLDIR_CORE IOptionsHandler* CreateOptionsHandler();
+	}
+}
+
+#endif //SE_INTERFACE_OPTIONS_HANDLER_H_
