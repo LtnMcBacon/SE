@@ -60,6 +60,18 @@ void SE::DevConsole::CMDConsole::Hide()
 	FreeConsole();
 }
 
+void SE::DevConsole::CMDConsole::Toggle()
+{
+}
+
+void SE::DevConsole::CMDConsole::Frame()
+{
+}
+
+void SE::DevConsole::CMDConsole::Clear()
+{
+}
+
 void SE::DevConsole::CMDConsole::PrintChannel(const char * line, const char * channel, ...)
 {
 	va_list args;

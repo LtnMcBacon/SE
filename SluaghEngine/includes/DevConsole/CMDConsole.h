@@ -20,11 +20,27 @@ namespace SE
 			CMDConsole();
 			~CMDConsole();
 
-			int Initialize();
-			void Shutdown();
+			int Initialize()override;
+			void Shutdown()override;
 
-			void Show();
-			void Hide();
+			void Show()override;
+			void Hide()override;
+
+			/*
+			* @brief Toggles the console on or off.
+			*/
+			void Toggle() override;
+
+			/*
+			* @brief Draws the console if the console is visible.
+			*/
+			void Frame() override;
+
+			/*
+			* @brief Clears messages printed in the console.
+			*/
+			void Clear() override;
+
 
 			void PrintChannel(const char* line, const char* channel = "Global", ...)override;
 			void Print(const char* line, ...)override;

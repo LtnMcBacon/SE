@@ -24,6 +24,21 @@ namespace SE
 			virtual void Show() = 0;
 			virtual void Hide() = 0;
 
+			/*
+			* @brief Toggles the console on or off.
+			*/
+			virtual void Toggle() = 0;
+
+			/*
+			* @brief Draws the console if the console is visible.
+			*/
+			virtual void Frame() = 0;
+
+			/*
+			* @brief Clears messages printed in the console.
+			*/
+			virtual void Clear() = 0;
+
 			virtual void PrintChannel(const char* line, const char* channel = "Global", ...) = 0;
 			virtual void Print(const char* line, ...) = 0;
 			virtual void VPrint(const char* line, va_list args) = 0;
@@ -31,6 +46,8 @@ namespace SE
 
 			virtual void Getline(std::string& string) = 0;
 			virtual size_t Getline(const char* buffer, size_t size) = 0;
+
+			
 
 			/**
 			* @brief	Add a command that can be called from the console.
