@@ -36,7 +36,7 @@ SE::Test::RenderableManagerTest::~RenderableManagerTest()
 {
 }
 
-bool SE::Test::RenderableManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 {
 	StartProfile;
 

@@ -1,5 +1,4 @@
-#include <Utilz\Console.h>
-#include <Utilz\CMDConsole.h>
+#include <DevConsole\CMDConsole.h>
 #include <Utilz\GUID.h>
 #include "Test.h"
 #include "EntityManagerTest.h"
@@ -40,9 +39,9 @@
 
 
 #ifdef _DEBUG
-#pragma comment(lib, "UtilzD.lib")
+#pragma comment(lib, "DevConsoleD.lib")
 #else
-#pragma comment(lib, "Utilz.lib")
+#pragma comment(lib, "DevConsole.lib")
 #endif
 
 using namespace SE::Utilz;
@@ -101,8 +100,9 @@ int main(int argc, char** argv)
 	AddTest(TransformTest);
   
 	volatile bool running = true;
-	Console::Initialize(new CMDConsole);
-	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
+	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();
+	console->Initialize();
+	console->AddCommand([&running](SE::DevConsole::IConsole* backend, int argc, char** argv)
 	{
 		running = false;
 	},
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 	
 		"exit the application");
 
-	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv)
+	console->AddCommand([](SE::DevConsole::IConsole* backend, int argc, char** argv)
 	{
 		if (argc == 1 || std::string(argv[1]) == "-h")
 		{
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 
 
 
-	Console::Show();
+	console->Show();
 
 	
 
@@ -186,9 +186,9 @@ int main(int argc, char** argv)
 
 	for (auto& test : tests)
 		delete std::get<1>(test.second);
-	Console::Hide();
-	Console::Shutdown();
-
+	console->Hide();
+	console->Shutdown();
+	delete console;
 	return 0;
 
 }

@@ -34,7 +34,7 @@ SE::Test::RecordingProjectileTest::~RecordingProjectileTest()
 
 }
 
-bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	

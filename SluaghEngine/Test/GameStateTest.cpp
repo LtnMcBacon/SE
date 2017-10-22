@@ -28,7 +28,7 @@ enum
 {
 	Exit
 };
-bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
+bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 {
 
 	StartProfile;

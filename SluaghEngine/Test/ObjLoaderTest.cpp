@@ -64,7 +64,7 @@
 //}
 //
 //
-//bool SE::Test::ObjLoaderTest::Run(Utilz::IConsoleBackend * console)
+//bool SE::Test::ObjLoaderTest::Run(DevConsole::IConsole * console)
 //{
 //	StartProfile;
 //	auto& e = Core::Engine::GetInstance();

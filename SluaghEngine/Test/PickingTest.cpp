@@ -18,7 +18,7 @@ enum
 
 using namespace DirectX;
 
-bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

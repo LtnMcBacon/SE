@@ -48,7 +48,7 @@ namespace SE
 			ToggleWire
 		};
 
-		bool LightTest::Run(SE::Utilz::IConsoleBackend* console)
+		bool LightTest::Run(SE::DevConsole::IConsole* console)
 		{
 			auto engine = Core::CreateEngine();
 			engine->Init();

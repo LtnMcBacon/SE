@@ -40,7 +40,7 @@ SE::Test::SkeletonAnimationTest::~SkeletonAnimationTest()
 
 }
 
-bool SE::Test::SkeletonAnimationTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 {
 	StartProfile;
 	auto engine = Core::CreateEngine();

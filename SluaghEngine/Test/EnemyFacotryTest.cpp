@@ -20,7 +20,7 @@ EnemyFactoryTest::~EnemyFactoryTest()
 
 }
 
-bool EnemyFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
+bool EnemyFactoryTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	bool passing = true;

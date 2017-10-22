@@ -12,7 +12,7 @@ SE::Test::ConsoleTest::~ConsoleTest()
 {
 }
 
-bool SE::Test::ConsoleTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::ConsoleTest::Run(DevConsole::IConsole * console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

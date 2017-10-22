@@ -28,7 +28,7 @@ enum
 {
 	Exit
 };
-bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::FlowFieldTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	auto engine = Core::CreateEngine();

@@ -1,6 +1,6 @@
 #include "CollisionManager.h"
 #include <Profiler.h>
-#include <Utilz\Console.h>
+//#include <Utilz\Console.h>
 
 #include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
@@ -96,8 +96,8 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				}, async, behavior);
 
 
-				if (res)
-					Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
+				//if (res)
+				//	Utilz::Console::Print("Could not load mesh for boundingdata. Using default instead.\n");
 			
 			}
 

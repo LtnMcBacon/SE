@@ -34,7 +34,7 @@ SE::Test::ProjectileTest::~ProjectileTest()
 
 }
 
-bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	using namespace DirectX;

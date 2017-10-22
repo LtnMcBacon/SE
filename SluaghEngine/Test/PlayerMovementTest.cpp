@@ -36,7 +36,7 @@ SE::Test::PlayerMovementTest::~PlayerMovementTest()
 
 
 
-bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	using namespace DirectX;

@@ -29,7 +29,7 @@ SE::Test::EnemyMovementTest::~EnemyMovementTest()
 
 }
 
-bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::EnemyMovementTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	auto engine = Core::CreateEngine();

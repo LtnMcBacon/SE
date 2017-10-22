@@ -25,7 +25,7 @@ enum ActionButton
 	RemoveStuff,
 	Console
 };
-bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

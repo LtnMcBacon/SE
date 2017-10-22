@@ -62,7 +62,7 @@ enum ActionButton
 };
 
 
-bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::BoundingTest::Run(DevConsole::IConsole * console)
 {
 	e = Core::CreateEngine();
 	e->Init();

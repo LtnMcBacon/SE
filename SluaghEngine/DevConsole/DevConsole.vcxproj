@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{259CB2CB-6EEF-4825-893E-2BEE9413B7CD}</ProjectGuid>
-    <RootNamespace>Utilz</RootNamespace>
+    <ProjectGuid>{1B076269-3491-4BB6-BAB3-35A278EBCA78}</ProjectGuid>
+    <RootNamespace>DevConsole</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,35 +72,38 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)External Dependencies\includes\</IncludePath>
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -108,7 +111,6 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,7 +120,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -132,7 +133,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -140,30 +140,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Utilz\CircularFiFo.h" />
-    <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
-    <ClInclude Include="..\includes\Utilz\CPUTimeCluster.h" />
-    <ClInclude Include="..\includes\Utilz\crc_table.h" />
-    <ClInclude Include="..\includes\Utilz\Delegate.h" />
-    <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h" />
-    <ClInclude Include="..\includes\Utilz\Event.h" />
-    <ClInclude Include="..\includes\Utilz\GUID.h" />
-    <ClInclude Include="..\includes\Utilz\INIReader.h" />
-    <ClInclude Include="..\includes\Utilz\Memory.h" />
-    <ClInclude Include="..\includes\Utilz\PathParsing.h" />
-    <ClInclude Include="..\includes\Utilz\RunTimeStringHasher.h" />
-    <ClInclude Include="..\includes\Utilz\StackAllocator.h" />
-    <ClInclude Include="..\includes\Utilz\TimeCluster.h" />
-    <ClInclude Include="..\includes\Utilz\Timer.h" />
-    <ClInclude Include="..\includes\Utilz\Tools.h" />
+    <ClCompile Include="CMDConsole.cpp" />
+    <ClCompile Include="Commands.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
-    <ClCompile Include="DoubleEdgeStackAlloc.cpp" />
-    <ClCompile Include="INIReader.cpp" />
-    <ClCompile Include="Source.cpp" />
-    <ClCompile Include="StackAllocator.cpp" />
-    <ClCompile Include="Tools.cpp" />
+    <ClInclude Include="..\includes\DevConsole\CMDConsole.h" />
+    <ClInclude Include="..\includes\DevConsole\Commands.h" />
+    <ClInclude Include="..\includes\DevConsole\IConsole.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

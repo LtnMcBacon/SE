@@ -32,7 +32,7 @@ SE::Test::GarbageTest::~GarbageTest()
 
 }
 
-bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::GarbageTest::MassiveTest(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	using namespace DirectX;
@@ -207,7 +207,7 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 	ProfileReturnConst(true)
 }
 
-bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console) const
+bool SE::Test::GarbageTest::ProjectilesIshTest(DevConsole::IConsole * console) const
 {
 	StartProfile;
 	using namespace DirectX;
@@ -413,7 +413,7 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 	ProfileReturnConst(true)
 }
 
-bool SE::Test::GarbageTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::GarbageTest::Run(SE::DevConsole::IConsole* console)
 {
 	return ProjectilesIshTest(console);
 }

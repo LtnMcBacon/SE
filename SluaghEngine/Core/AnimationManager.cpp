@@ -1,6 +1,5 @@
 #include "AnimationManager.h"
 #include <Profiler.h>
-#include <Utilz\Console.h>
 
 
 SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo) : initInfo(initInfo)
@@ -62,7 +61,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 		});
 		if (res)
 		{
-			Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", info.skeleton, res);
+			//Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", info.skeleton, res);
 			animationData.used--;
 			ProfileReturnVoid;
 		}
@@ -85,7 +84,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 			});
 			if (res)
 			{
-				Utilz::Console::Print("Could not load animation %u. Error: %d\n", info.skeleton, res);
+				//Utilz::Console::Print("Could not load animation %u. Error: %d\n", info.skeleton, res);
 				ProfileReturnVoid;
 			}
 		}

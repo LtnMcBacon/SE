@@ -20,7 +20,7 @@ BehaviouralTreeFactoryTest::~BehaviouralTreeFactoryTest()
 
 }
 
-bool BehaviouralTreeFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
+bool BehaviouralTreeFactoryTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	bool passing = true;

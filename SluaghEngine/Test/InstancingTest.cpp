@@ -20,7 +20,7 @@ enum ActionButton
 	Fullscreen,
 	FrameTime
 };
-bool SE::Test::InstancingTest::Run(Utilz::IConsoleBackend* console)
+bool SE::Test::InstancingTest::Run(DevConsole::IConsole* console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

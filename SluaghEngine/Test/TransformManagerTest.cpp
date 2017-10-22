@@ -32,7 +32,7 @@ TransformManagerTest::~TransformManagerTest()
 {
 }
 
-bool TransformManagerTest::Run(SE::Utilz::IConsoleBackend* console)
+bool TransformManagerTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 

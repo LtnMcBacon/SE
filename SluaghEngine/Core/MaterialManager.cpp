@@ -1,6 +1,6 @@
 #include "MaterialManager.h"
 #include <Profiler.h>
-#include <Utilz\Console.h>
+//#include <Utilz\Console.h>
 
 SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
@@ -85,7 +85,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		auto res = initInfo.resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
 		if (res)
 		{
-			Utilz::Console::Print("Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, res);
+		//	Utilz::Console::Print("Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, res);
 		}
 	}
 	shaders[shaderIndex].refCount++;
@@ -110,7 +110,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 		if (res)
 		{
-			Utilz::Console::Print("Could not load material. Using default instead. GUID: %u, Error: %d\n", info.materialFile, res);
+			//Utilz::Console::Print("Could not load material. Using default instead. GUID: %u, Error: %d\n", info.materialFile, res);
 		}
 	}
 	materialInfo.materialIndex[newEntry] = materialIndex;
@@ -168,7 +168,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 				if (res)
 				{
-					Utilz::Console::Print("Could not load texture. Using default instead. GUID: %u, Error: %d\n", matinfo.info.tex[i], res);
+				//	Utilz::Console::Print("Could not load texture. Using default instead. GUID: %u, Error: %d\n", matinfo.info.tex[i], res);
 				}
 			}
 			textures[textureIndex].entities.push_back(entity);

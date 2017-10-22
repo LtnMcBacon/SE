@@ -19,7 +19,7 @@ EntityManagerTest::~EntityManagerTest()
 {
 }
 
-bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
+bool EntityManagerTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	auto em = Core::CreateEntityManager();

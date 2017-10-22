@@ -13,7 +13,7 @@ SE::Test::TransformTest::~TransformTest()
 {
 }
 
-bool SE::Test::TransformTest::Run(Utilz::IConsoleBackend* console)
+bool SE::Test::TransformTest::Run(DevConsole::IConsole* console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

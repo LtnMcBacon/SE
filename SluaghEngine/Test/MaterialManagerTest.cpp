@@ -22,7 +22,7 @@ enum ActionButton
 	Right,
 	Fullscreen
 };
-bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::MaterialManagerTest::Run(DevConsole::IConsole * console)
 {
 	auto engine = Core::CreateEngine();
 	engine->Init();

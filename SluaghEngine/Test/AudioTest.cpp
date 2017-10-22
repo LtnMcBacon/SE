@@ -25,7 +25,7 @@ namespace SE
 
 		}
 
-		bool AudioTest::Run(SE::Utilz::IConsoleBackend* console)
+		bool AudioTest::Run(SE::DevConsole::IConsole* console)
 		{		
 			auto e = Core::CreateEngine();
 			auto re = e->Init();

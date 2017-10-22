@@ -30,7 +30,7 @@ SE::Test::RoomCreationTest::~RoomCreationTest()
 
 }
 
-bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::RoomCreationTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	auto engine = Core::CreateEngine();

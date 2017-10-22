@@ -20,7 +20,7 @@ namespace SE
 
 		}
 
-		bool AllocatorTest::Run(SE::Utilz::IConsoleBackend* console)
+		bool AllocatorTest::Run(SE::DevConsole::IConsole* console)
 		{
 			Utilz::DoubleEdgeStackAlloc alloc;
 			alloc.InitStackAlloc(sizeof(float) * 1002);

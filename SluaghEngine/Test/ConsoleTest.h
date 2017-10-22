@@ -15,7 +15,7 @@ namespace SE
 			ConsoleTest();
 			~ConsoleTest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 
 		private:
 
