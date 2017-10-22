@@ -1,9 +1,7 @@
 #include "Engine.h"
 #include <Profiler.h>
-#include <Utilz\CPUTimeCluster.h>
 #include <Utilz\Memory.h>
 using namespace SE::Utilz::Memory;
-#include "EntityManager.h"
 
 //#include <Imgui\imgui.h>
 //#include <ImGuiDX11SDL\ImGuiDX11SDL.h>
@@ -54,6 +52,7 @@ int SE::Core::Engine::BeginFrame()
 	StartProfile;
 	if (frameBegun)
 		ProfileReturnConst( -1);
+
 	frameBegun = true;
 	timeClus.Start("Frame");
 	subSystems.window->Frame();
