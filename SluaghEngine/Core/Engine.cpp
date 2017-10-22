@@ -91,6 +91,8 @@ int SE::Core::Engine::Release()
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
+	delete managers.entityManager;
+
 	subSystems.renderer->Shutdown();
 	delete subSystems.renderer;
 
@@ -103,6 +105,8 @@ int SE::Core::Engine::Release()
 	subSystems.optionsHandler->UnloadOption("Config.ini");
 	delete subSystems.optionsHandler;
 
+
+	delete perFrameStackAllocator;
 	ProfileReturnConst(0);
 }
 

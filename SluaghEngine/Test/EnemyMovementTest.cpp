@@ -1,12 +1,12 @@
 #include "EnemyMovementTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Gameplay/Flowfield.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/GameBlackboard.h>
 #include <chrono>
 #include <Profiler.h>
 #include "Gameplay/EnemyFactory.h"
-
+#include <Gameplay\Game.h>
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -32,44 +32,38 @@ SE::Test::EnemyMovementTest::~EnemyMovementTest()
 bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false)
-	}
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	Gameplay::Game game;
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
-
-	auto floor = em.Create();
-	auto player = em.Create();
+	auto floor = managers.entityManager->Create();
+	auto player = managers.entityManager->Create();
 	const int numberOfBlocks = 25 * 25 * 3;
 	SE::Core::Entity entities[numberOfBlocks];
 
 	for (int i = 0; i < numberOfBlocks; i++)
-		entities[i] = em.Create();
+		entities[i] = managers.entityManager->Create();
 
-	tm.Create(player);
-	tm.SetPosition(player, DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-	tm.SetScale(player, 1.5f);
-	tm.Create(floor);
-	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
+	managers.transformManager->Create(player);
+	managers.transformManager->SetPosition(player, DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	managers.transformManager->SetScale(player, 1.5f);
+	managers.transformManager->Create(floor);
+	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
 
 	for (int i = 0; i < numberOfBlocks; i++)
-		tm.Create(entities[i]);
+		managers.transformManager->Create(entities[i]);
 
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.mesh"));
-	rm.ToggleRenderableObject(floor, true);
+	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Floor.mesh"});
+	managers.renderableManager->ToggleRenderableObject(floor, true);
 
-	rm.CreateRenderableObject(player, Utilz::GUID("Placeholder_Arrow.mesh"));
-	rm.ToggleRenderableObject(player, true);
-	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
+	managers.renderableManager->CreateRenderableObject(player, { "Placeholder_Arrow.mesh" });
+	managers.renderableManager->ToggleRenderableObject(player, true);
+	managers.transformManager->SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
 	auto Block = Utilz::GUID("Placeholder_Block.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
@@ -119,9 +113,9 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			{
 				for (int i = 0; i < mapRepresentation[x][y]; i++)
 				{
-					rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block);
-					rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-					tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f + 1.f*i, y + 0.5f));
+					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f + 1.f*i, y + 0.5f));
 					numberOfEntitesPlaced++;
 				}
 				mapRepresentation[x][y] = 1.0f;
@@ -156,16 +150,16 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		enemies[i]->SetYPosition(enemyPos.y + .5f);
 
 		//new Gameplay::enemies[i]Unit(testRoom->GetFlowFieldMap(), enemies[i]Pos.x + .5f, enemies[i]Pos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemies[i]->GetEntity(), Block);
-		rm.ToggleRenderableObject(enemies[i]->GetEntity(), true);
-		tm.SetRotation(enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-		tm.SetScale(enemies[i]->GetEntity(), 0.5f);
+		managers.renderableManager->CreateRenderableObject(enemies[i]->GetEntity(), { Block });
+		managers.renderableManager->ToggleRenderableObject(enemies[i]->GetEntity(), true);
+		managers.transformManager->SetRotation(enemies[i]->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+		managers.transformManager->SetScale(enemies[i]->GetEntity(), 0.5f);
 	}
 
 
 
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(1, Window::Key1);
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(1, Window::Key1);
 
 	bool running = true;
 	//unsigned char counter = 0;
@@ -175,16 +169,16 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
-		if (e.GetWindow()->ButtonPressed(0))
+		if (subSystem.window->ButtonPressed(0))
 			running = false;
-		if(e.GetWindow()->ButtonPressed(1))
+		if(subSystem.window->ButtonPressed(1))
 		{
 			do
 			{
 				playerPos.x = rand() % 25;
 				playerPos.y = rand() % 25;
 			} while (mapRepresentation[int(playerPos.x)][int(playerPos.y)]);
-			tm.SetPosition(player, { playerPos.x + 0.5f, 1.5f, playerPos.y + 0.5f });
+			managers.transformManager->SetPosition(player, { playerPos.x + 0.5f, 1.5f, playerPos.y + 0.5f });
 			flowField.Update(playerPos);
 		}
 		for(int i = 0; i < 10; i++)
@@ -193,13 +187,13 @@ bool SE::Test::EnemyMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 
 			
-		e.Frame(dt);
+		engine->Frame();
 	}
 
 	for (int i = 0; i < 10; i++)
 		delete enemies[i];
 
-	e.Release();
-
+	game.Shutdown();
+	engine->Release(); delete engine;
 	ProfileReturnConst(true)
 }

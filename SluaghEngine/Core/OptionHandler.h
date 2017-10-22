@@ -76,7 +76,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			std::string GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal)override;
+			std::string GetOptionString(const std::string& section, const std::string& optionName, const std::string& defaultVal)override;
 			/**
 			* @brief Return the value of requested option as double
 			*

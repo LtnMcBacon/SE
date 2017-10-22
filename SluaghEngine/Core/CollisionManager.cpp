@@ -48,7 +48,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 	if (find == entityToCollisionData.end())
 	{
 		// Check if the entity is alive
-		if (!entityManager.Alive(entity))
+		if (!initInfo.entityManager->Alive(entity))
 			ProfileReturnVoid;
 
 		// Make sure we have enough memory.
@@ -60,7 +60,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 		entityToCollisionData[entity] = newEntry;
 		collisionData.entity[newEntry] = entity;
 
-		transformManager->Create(entity);
+		initInfo.transformManager->Create(entity);
 
 		// Load the mesh
 		{
@@ -79,7 +79,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
 			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-				auto res = resourceHandler->LoadResource(mesh, [this,newHI, cp,async](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
+				auto res = initInfo.resourceHandler->LoadResource(mesh, [this,newHI, cp,async](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
 			
 
 					auto res = LoadMesh(newHI, data, size);
@@ -105,7 +105,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			boundingInfo[bIndex].entities.push_back(entity);
 
 			if(!async)
-				transformManager->SetAsDirty(entity);
+				initInfo.transformManager->SetAsDirty(entity);
 
 		}
 
@@ -123,7 +123,7 @@ void SE::Core::CollisionManager::BindOnCollideWithAny(const Entity & entity)
 	}
 }
 
-bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const
+bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const
 {
 	StartProfile;
 	DirectX::FXMVECTOR origin = rayO;
@@ -133,7 +133,7 @@ bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const Direc
 	for(int i = 0; i < collisionData.used; i++)
 	{
 		auto& sphere = collisionData.sphereWorld[i];
-		float distance;
+
 		if(sphere.Intersects(rayO,rayD,distance))
 		{
 			auto& AABB = collisionData.AABBWorld[i];
@@ -163,13 +163,14 @@ void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 	GarbageCollection();
 
 	{
+		auto tArr = initInfo.transformManager->GetCleanedTransforms();
 		// First update all bounding data
 		for (auto& dirty : dirtyEntites)
 		{
 			// TODO: Multithread
 			auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
 			auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
-			XMMATRIX myTransform = XMLoadFloat4x4(&transformManager->GetCleanedTransforms()[dirty.transformIndex]);
+			XMMATRIX myTransform = XMLoadFloat4x4(&tArr[dirty.transformIndex]);
 			mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);
 			myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
 		}
@@ -207,7 +208,7 @@ void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 
 		boundingInfo[t.index].index = t.boundingHierarchyIndex;
 		for (auto& e : boundingInfo[t.index].entities)
-			transformManager->SetAsDirty(e);
+			initInfo.transformManager->SetAsDirty(e);
 
 		toUpdate.pop();
 	}
@@ -314,7 +315,7 @@ void SE::Core::CollisionManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<uint32_t> distribution(0U, collisionData.used - 1U);
 		uint32_t i = distribution(generator);
-		if (entityManager.Alive(collisionData.entity[i]))
+		if (initInfo.entityManager->Alive(collisionData.entity[i]))
 		{
 			alive_in_row++;
 			continue;

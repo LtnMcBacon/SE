@@ -10,9 +10,9 @@
 #include <random>
 
 #ifdef _DEBUG
-#pragma comment(lib, "audioD.lib")
+#pragma comment(lib, "AudioD.lib")
 #else
-#pragma comment(lib, "audio.lib")
+#pragma comment(lib, "Audio.lib")
 #endif
 
 namespace SE {
@@ -22,7 +22,7 @@ namespace SE {
 		{
 		public:
 			AudioManager(const InitializationInfo& initInfo);
-			~AudioManager() {};
+			~AudioManager();
 
 
 			/**

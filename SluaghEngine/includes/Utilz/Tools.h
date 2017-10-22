@@ -2,12 +2,9 @@
 #define SE_CORE_TOOLS_H_
 
 #include <DirectXMath.h>
-
-using namespace DirectX;
-
 namespace SE
 {
-	namespace Tools
+	namespace Utilz
 	{
 		/**
 		*
@@ -24,9 +21,9 @@ namespace SE
 			* @details Takes the inverse of world and view matrix to calculate your new local matrix.
 			* @Param[in] A world matrix.
 			* @Param[in] A view matrix.
-			* @retval return_value_1 Your new local matrix.
+			* @Param[out] The out matrix.
 			**/
-			DirectX::XMMATRIX getLocalMatrix(XMMATRIX worldM, XMMATRIX viewM);
+			static void GetLocalMatrix(const DirectX::XMMATRIX& worldM, const DirectX::XMMATRIX& invViewM, DirectX::XMMATRIX& out);
 
 			/**
 			* @breif Moves your ray from screen space to projection space.
@@ -34,18 +31,18 @@ namespace SE
 			* @Param[in] Screenspace Y-coordinate of your mouse position.
 			* @Param[in] The screen resolution height.
 			* @Param[in] The screen resolution width.
-			* @retval return_value_1 returns your new ray origin relative to the projection.
+			* @Param[out] The out vector.
 			**/
-			DirectX::XMVECTOR rayToView(int sx, int sy, float height, float width);
+			static void RayToView(int sx, int sy, float height, float width, DirectX::XMVECTOR& out);
 			/**
 			* @breif  Takes your direction ray into local space for picking objects
 			* @detail Takes your ray from projection space into local space and calculates the new unit direction vector/normal
 			*         of your ray in local space.
 			* @Param[in] Your ray direction vector in projection space.
 			* @Param[in] Your local matrix.
-			* @retval return_value_1 returns your new dir vector.
+			* @Param[out] The out vector.
 			**/
-			DirectX::XMVECTOR getLocalRayDir(XMVECTOR rayD, XMMATRIX localM);
+			static void GetLocalRayDir(const DirectX::XMVECTOR& rayD, const DirectX::XMMATRIX& localM, DirectX::XMVECTOR& out);
 
 			/**
 			* @breif  Takes your origin ray into local space for picking objects
@@ -54,7 +51,7 @@ namespace SE
 			* @Param[in] Your local matrix.
 			* @retval return_value_1 returns your new origin vector.
 			**/
-			DirectX::XMVECTOR getLocalRayOrigin(XMVECTOR rayD, XMMATRIX localM);
+			static void GetLocalRayOrigin(const DirectX::XMVECTOR& rayD, const DirectX::XMMATRIX& localM, DirectX::XMVECTOR& out);
 
 
 		};

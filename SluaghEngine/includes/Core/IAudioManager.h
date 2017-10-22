@@ -11,7 +11,7 @@
 #include "IEntityManager.h"
 #include <ResourceHandler\IResourceHandler.h>
 #include <Audio\IAudioHandler.h>
-
+#undef PlaySound
 namespace SE
 {
 	namespace Core

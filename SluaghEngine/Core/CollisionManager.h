@@ -61,7 +61,7 @@ namespace SE
 			* @retval true Returns true if an entity was written to collidedEntity
 			* @retval false Returns false if the ray did not collide with an entity
 			*/
-			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const override;
+			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const override;
 
 
 			inline void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback)override

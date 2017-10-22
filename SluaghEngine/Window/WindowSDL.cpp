@@ -147,6 +147,7 @@ void SE::Window::WindowSDL::Frame()
 void SE::Window::WindowSDL::RegFrame()
 {
 	StartProfile;
+	time.Tick();
 	for(auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);
@@ -164,6 +165,7 @@ void SE::Window::WindowSDL::RegFrame()
 void SE::Window::WindowSDL::RecordFrame()
 {
 	StartProfile;
+	time.Tick();
 	for (auto& ks : actionToKeyState)
 	{
 		ks.second = (ks.second & KeyState::DOWN);

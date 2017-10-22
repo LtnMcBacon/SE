@@ -28,7 +28,7 @@ namespace SE {
 			auto find = entToSounds.find(entity);
 			auto& entityEntry = entToSounds[entity];
 			if (find == entToSounds.end())
-				soundEntity[soundEntity.size()] = entity;
+				soundEntity.push_back(entity);
 			
 			auto findStream = entityEntry.guidToStream.find(createInfo.soundFile);
 			if(findStream != entityEntry.guidToStream.end())
@@ -40,7 +40,7 @@ namespace SE {
 			if (fileLoaded == guidToSound.end()) // Load the sound
 			{
 				auto res = initInfo.resourceHandler->LoadResource(createInfo.soundFile, [this](auto guid, auto data, auto size) {
-					guidToSound[guid] = audioHandler->LoadSound(data, size);
+					guidToSound[guid].handle = audioHandler->LoadSound(data, size);
 					return ResourceHandler::InvokeReturn::DecreaseRefcount;
 				});
 				if (res)

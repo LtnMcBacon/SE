@@ -26,26 +26,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -72,32 +72,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <IncludePath>$(SolutionDir)External Dependencies\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\</IncludePath>
-    <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -106,6 +106,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,6 +117,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -128,6 +134,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -142,6 +151,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimationManager.cpp" />
@@ -176,6 +188,7 @@
     <ClCompile Include="TransformManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Core\Entity.h" />
     <ClInclude Include="..\includes\Core\IAnimationManager.h" />
     <ClInclude Include="..\includes\Core\IAudioManager.h" />
     <ClInclude Include="..\includes\Core\ICameraManager.h" />

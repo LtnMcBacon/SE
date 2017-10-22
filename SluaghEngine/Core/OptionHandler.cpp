@@ -124,7 +124,7 @@ namespace SE {
 			ProfileReturnConst(defaultVal);
 		}
 
-		std::string OptionHandler::GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal)
+		std::string OptionHandler::GetOptionString(const std::string& section, const std::string& optionName, const std::string& defaultVal)
 		{
 			StartProfile;
 			if (optionMap.size() > 0)

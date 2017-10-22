@@ -1,5 +1,5 @@
 //#include "ObjLoaderTest.h"
-//#include <Core\Engine.h>
+//#include <Core\IEngine.h>
 //#include <Graphics\Renderer.h>
 //#include <OBJParser\Parsers.h>
 //#include <Profiler.h>

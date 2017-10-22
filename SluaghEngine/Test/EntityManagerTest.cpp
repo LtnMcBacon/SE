@@ -1,5 +1,5 @@
 #include "EntityManagerTest.h"
-#include <Core/Engine.h>
+#include <Core\IEntityManager.h>
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -22,54 +22,48 @@ EntityManagerTest::~EntityManagerTest()
 bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
-	Engine& engine = Engine::GetInstance();
-	Engine::InitializationInfo info;
-
-	engine.Init(info);
-	EntityManager& em = engine.GetEntityManager();
-	
-
+	auto em = Core::CreateEntityManager();
 
 	Entity e[2048];
 
 	for (int i = 0; i < 2048; i++)
 	{
-		e[i] = em.Create();
+		e[i] = em->Create();
 	}
 
 	for (int i = 0; i < 1024; i++)
 	{
-		em.Destroy(e[i]);
+		em->Destroy(e[i]);
 	}
 	for (int i = 0; i < 1024; i++)
 	{
-		if (em.Alive(e[i]))
+		if (em->Alive(e[i]))
 			console->Print("%d: %u\n", i, e[i].id);
 	}
 	for (int i = 1024; i < 2048; i++)
 	{
-		if (!em.Alive(e[i]))
+		if (!em->Alive(e[i]))
 			console->Print("Dead: %u\n", e[i].id);
 	}
 	for (int i = 0; i < 1024; i++)
 	{
-		e[i] = em.Create();
+		e[i] = em->Create();
 	}
 
 	for (int i = 0; i < 2048; i++)
 	{
-		if (!em.Alive(e[i]))
+		if (!em->Alive(e[i]))
 			console->Print("Is dead: %d\n", i);
 	}
 	for (int x = 0; x < 120; x++)
 	{
 		for (int i = 0; i < 2048; i++)
 		{
-			em.Destroy(e[i]);
+			em->Destroy(e[i]);
 		}
 		for (int i = 0; i < 2048; i++)
 		{
-			e[i] = em.Create();
+			e[i] = em->Create();
 		}
 	}
 
@@ -85,6 +79,5 @@ bool EntityManagerTest::Run(SE::Utilz::IConsoleBackend* console)
 				
 		}
 	}
-	engine.Release();
 	ProfileReturnConst( true);
 }

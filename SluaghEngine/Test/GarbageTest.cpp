@@ -1,5 +1,5 @@
 #include "GarbageTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <Gameplay/ProjectileData.h>
@@ -36,22 +36,10 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
 	using namespace DirectX;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false)
-	}
-
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
-	auto& om = e.GetOptionHandler();
-	auto& caM = e.GetCameraManager();
-	auto& coM = e.GetCollisionManager();
-	auto& cm = e.GetCameraManager();
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
 	const int entSize = 10000;
 
@@ -60,35 +48,34 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 
 	for (int i = 0; i < entSize; i++)
 	{
-		ents[i] = em.Create();
-		tm.Create(ents[i], { float(i % 100), 0.0f, float(i / 100) }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
-		rm.CreateRenderableObject(ents[i], name);
-		rm.ToggleRenderableObject(ents[i], true);
+		ents[i] = managers.entityManager->Create();
+		managers.transformManager->Create(ents[i], { float(i % 100), 0.0f, float(i / 100) }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
+		managers.renderableManager->CreateRenderableObject(ents[i], { name });
+		managers.renderableManager->ToggleRenderableObject(ents[i], true);
 	}
 
 	//for (int i = 0; i < entSize; i++)
 	//{
-	//	ents[i] = em.Create();
-	//	//mm.Create(ents[i], info);
-	//	tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
-	//	tm.Create(ents[i]);
-	//	rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
-	//	rm.ToggleRenderableObject(ents[i], true);
+	//	ents[i] = managers.entityManager->Create();
+	//	//managers.materialManager->Create(ents[i], info);
+	//	managers.transformManager->Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
+	//	managers.transformManager->Create(ents[i]);
+	//	managers.renderableManager->CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
+	//	managers.renderableManager->ToggleRenderableObject(ents[i], true);
 
 	//}
 
-	Tools::Tools t;
 
-	//SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
+	//SE::Core::Entity camera = managers.entityManager->Create();
 
 	//Core::CameraBindInfoStruct cInfo;
-	//cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800) / (float)om.GetOption("Window", "height", 640);
+	//cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOption("Window", "width", 800) / (float)subSystem.optionsHandler->GetOption("Window", "height", 640);
 
-	//SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
-	//SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
+	//managers.cameraManager->Bind(camera, cInfo);
+	//managers.cameraManager->SetActive(camera);
 
-	//tm.SetPosition(camera, { 0, 10, 0 });
-	//tm.SetRotation(camera, 3.14 / 2, 0, 0);
+	//managers.transformManager->SetPosition(camera, { 0, 10, 0 });
+	//managers.transformManager->SetRotation(camera, 3.14 / 2, 0, 0);
 
 	//float cameraRotationX = DirectX::XM_PI / 3;
 	//float cameraRotationY = DirectX::XM_PI / 3;
@@ -97,18 +84,18 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 
 	//auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
-	//SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	//SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+	//managers.transformManager->Move(camera, -5 * cameraTranslation);
+	//managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
 
-	const auto camera = em.Create();
-	cm.Bind(camera);
-	cm.SetActive(camera);
-	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
-	tm.SetPosition(camera, { 50.0f, 30.0f, 50.0f });
+	const auto camera = managers.entityManager->Create();
+	managers.cameraManager->Create(camera);
+	managers.cameraManager->SetActive(camera);
+	managers.transformManager->SetRotation(camera, 0.9f, 0.0f, 0.0f);
+	managers.transformManager->SetPosition(camera, { 50.0f, 30.0f, 50.0f });
 
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(1, Window::Key1);
-	e.GetWindow()->MapActionButton(2, Window::Key2);
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(1, Window::Key1);
+	subSystem.window->MapActionButton(2, Window::Key2);
 
 	enum MoveDir
 	{
@@ -123,14 +110,14 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
-	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
-	e.GetWindow()->MapActionButton(ENTER, Window::KeyReturn);
-	e.GetWindow()->MapActionButton(M, Window::KeyM);
+	subSystem.window->MapActionButton(UP, Window::KeyUp);
+	subSystem.window->MapActionButton(RIGHT, Window::KeyRight);
+	subSystem.window->MapActionButton(DOWN, Window::KeyDown);
+	subSystem.window->MapActionButton(LEFT, Window::KeyLeft);
+	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+	subSystem.window->MapActionButton(ENTER, Window::KeyReturn);
+	subSystem.window->MapActionButton(M, Window::KeyM);
 
 	bool stepping = false;
 	bool running = true;
@@ -139,72 +126,72 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 	while (running)
 	{
 
-		if (e.GetWindow()->ButtonDown(RIGHT))
+		if (subSystem.window->ButtonDown(RIGHT))
 		{
 			for (int i = 0; i < entSize; i++)
 			{
-				tm.Move(ents[i], { 100 * dt, 0.0f, 0.0f, 0.0f });
+				managers.transformManager->Move(ents[i], { 100 * dt, 0.0f, 0.0f, 0.0f });
 			}
 		}
 
-		if (e.GetWindow()->ButtonDown(LEFT))
+		if (subSystem.window->ButtonDown(LEFT))
 		{
 			for (int i = 0; i < entSize; i++)
 			{
-				tm.Move(ents[i], { 100 * -dt, 0.0f, 0.0f, 0.0f });
+				managers.transformManager->Move(ents[i], { 100 * -dt, 0.0f, 0.0f, 0.0f });
 			}
 		}
 
 
-		if (e.GetWindow()->ButtonPressed(SPACE))
+		if (subSystem.window->ButtonPressed(SPACE))
 		{
 			console->Print("Eliminate the heretics!\n");
 
 			for (int i = 0; i < entSize; i++)
 			{
-				em.Destroy(ents[i]);
+				managers.entityManager->Destroy(ents[i]);
 			}
 		}
 
-		if (e.GetWindow()->ButtonPressed(ENTER))
+		if (subSystem.window->ButtonPressed(ENTER))
 		{
 			console->Print("Breed new soldiers!\n");
 
 			for (int i = 0; i < entSize; i++)
 			{
-				ents[i] = em.Create();
-				tm.Create(ents[i], { float(i % 100), 0.0f, float(i / 100) }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
-				rm.CreateRenderableObject(ents[i], name);
-				rm.ToggleRenderableObject(ents[i], true);
+				ents[i] = managers.entityManager->Create();
+				managers.transformManager->Create(ents[i], { float(i % 100), 0.0f, float(i / 100) }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
+				managers.renderableManager->CreateRenderableObject(ents[i], {name});
+				managers.renderableManager->ToggleRenderableObject(ents[i], true);
 			}
 		}
 
-		if (e.GetWindow()->ButtonPressed(M))
+		if (subSystem.window->ButtonPressed(M))
 		{
 			console->Print("Mutating new soldiers!\n");
 
 			for (int i = 0; i < entSize; i++)
 			{
-				em.Destroy(ents[i]);
-				ents[i] = em.Create();
-				tm.Create(ents[i], { float(i % 100), 0.0f, float(i / 100) + 100.0f }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
-				rm.CreateRenderableObject(ents[i], name);
-				rm.ToggleRenderableObject(ents[i], true);
+				managers.entityManager->Destroy(ents[i]);
+				ents[i] = managers.entityManager->Create();
+				managers.transformManager->Create(ents[i], { float(i % 100), 0.0f, float(i / 100) + 100.0f }, { 0,0,0 }, { 0.5f, 0.5f, 0.5f });
+				managers.renderableManager->CreateRenderableObject(ents[i], {name});
+				managers.renderableManager->ToggleRenderableObject(ents[i], true);
 			}
 
 			console->Print("Mutation complete!\n");
 		}
 
-		if (e.GetWindow()->ButtonPressed(0))
+		if (subSystem.window->ButtonPressed(0))
 			running = false;
-		if (e.GetWindow()->ButtonPressed(1))
+		if (subSystem.window->ButtonPressed(1))
 		{
 			stepping = !stepping;
 		}
 
 		if (stepping)
 		{
-			if (e.GetWindow()->ButtonDown(2))
+			if (subSystem.window->ButtonDown(2))
 			{
 
 			}
@@ -212,10 +199,10 @@ bool SE::Test::GarbageTest::MassiveTest(SE::Utilz::IConsoleBackend* console)
 		else {
 
 		}
-		e.Frame(dt);
+		engine->Frame();
 	}
 
-	e.Release();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(true)
 }
@@ -224,22 +211,10 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 {
 	StartProfile;
 	using namespace DirectX;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false)
-	}
-
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
-	auto& om = e.GetOptionHandler();
-	auto& caM = e.GetCameraManager();
-	auto& coM = e.GetCollisionManager();
-	auto& cm = e.GetCameraManager();
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
 	struct projectileish
 	{
@@ -269,10 +244,10 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 	auto name = Utilz::GUID("Placeholder_Block.mesh");
 	std::vector<projectileish> projectiles;
 
-	/*Core::Entity dummyEnt = em.Create();
-	tm.Create(dummyEnt);
-	rm.CreateRenderableObject(dummyEnt, name);
-	rm.ToggleRenderableObject(dummyEnt, true);
+	/*Core::Entity dummyEnt = managers.entityManager->Create();
+	managers.transformManager->Create(dummyEnt);
+	managers.renderableManager->CreateRenderableObject(dummyEnt, {name});
+	managers.renderableManager->ToggleRenderableObject(dummyEnt, true);
 
 	projectileish dummy(0.0f, 0.0f, -1, dummyEnt);*/
 
@@ -280,19 +255,16 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 	//projectileish ourProjectiles[nrOfMaxProjectiles];
 	//int nrOfActiveProjectiles = 0;
 
-	
 
-	Tools::Tools t;
+	const auto camera = managers.entityManager->Create();
+	managers.cameraManager->Create(camera);
+	managers.cameraManager->SetActive(camera);
+	managers.transformManager->SetRotation(camera, 0.9f, 0.0f, 0.0f);
+	managers.transformManager->SetPosition(camera, { 0.0f, 20.0f, -5.0f });
 
-	const auto camera = em.Create();
-	cm.Bind(camera);
-	cm.SetActive(camera);
-	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
-	tm.SetPosition(camera, { 0.0f, 20.0f, -5.0f });
-
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(1, Window::Key1);
-	e.GetWindow()->MapActionButton(2, Window::Key2);
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(1, Window::Key1);
+	subSystem.window->MapActionButton(2, Window::Key2);
 
 	enum MoveDir
 	{
@@ -307,14 +279,14 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
-	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
-	e.GetWindow()->MapActionButton(ENTER, Window::KeyReturn);
-	e.GetWindow()->MapActionButton(M, Window::KeyM);
+	subSystem.window->MapActionButton(UP, Window::KeyUp);
+	subSystem.window->MapActionButton(RIGHT, Window::KeyRight);
+	subSystem.window->MapActionButton(DOWN, Window::KeyDown);
+	subSystem.window->MapActionButton(LEFT, Window::KeyLeft);
+	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+	subSystem.window->MapActionButton(ENTER, Window::KeyReturn);
+	subSystem.window->MapActionButton(M, Window::KeyM);
 
 	bool stepping = false;
 	bool running = true;
@@ -324,10 +296,10 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 	//for (int i = 0; i < 5; i++)
 	//{
-	//	Core::Entity tempEnt = em.Create();
-	//	tm.Create(tempEnt, { float(i), 0, 0 }, { 0,0,0 }, { 0.5,0.5,0.5 });
-	//	rm.CreateRenderableObject(tempEnt, name);
-	//	rm.ToggleRenderableObject(tempEnt, true);
+	//	Core::Entity tempEnt = managers.entityManager->Create();
+	//	managers.transformManager->Create(tempEnt, { float(i), 0, 0 }, { 0,0,0 }, { 0.5,0.5,0.5 });
+	//	managers.renderableManager->CreateRenderableObject(tempEnt, {name});
+	//	managers.renderableManager->ToggleRenderableObject(tempEnt, true);
 
 	//	projectileish tempProj(0.0f, 0.0f, 3, tempEnt);
 	//	chungus.push_back(tempProj);
@@ -337,23 +309,23 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 	{
 
 
-		if (e.GetWindow()->ButtonPressed(SPACE)/* && nrOfActiveProjectiles < nrOfMaxProjectiles*/)
+		if (subSystem.window->ButtonPressed(SPACE)/* && nrOfActiveProjectiles < nrOfMaxProjectiles*/)
 		{
-			Core::Entity tempEnt = em.Create();
-			tm.Create(tempEnt);
-			rm.CreateRenderableObject(tempEnt, name);
-			rm.ToggleRenderableObject(tempEnt, true);
+			Core::Entity tempEnt = managers.entityManager->Create();
+			managers.transformManager->Create(tempEnt);
+			managers.renderableManager->CreateRenderableObject(tempEnt, {name});
+			managers.renderableManager->ToggleRenderableObject(tempEnt, true);
 
 			projectileish tempProj(0.0f, 0.0f, 3, tempEnt);
 			projectiles.push_back(tempProj);
 
-		/*	Core::Entity tempEnt2 = em.Create();
-			tm.Create(tempEnt2);
-			rm.CreateRenderableObject(tempEnt2, name);
-			rm.ToggleRenderableObject(tempEnt2, true);
+		/*	Core::Entity tempEnt2 = managers.entityManager->Create();
+			managers.transformManager->Create(tempEnt2);
+			managers.renderableManager->CreateRenderableObject(tempEnt2, {name});
+			managers.renderableManager->ToggleRenderableObject(tempEnt2, true);
 
 			if (dummy.IsActive())
-				em.Destroy(dummy.ent);
+				managers.entityManager->Destroy(dummy.ent);
 
 			dummy = projectileish(0.0f, 0.0f, 3, tempEnt2);*/
 
@@ -362,12 +334,12 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 		//for (auto& c : chungus)
 		//{
-		//	if(em.Alive(c.ent))
-		//		tm.Move(c.ent, { 0,0,3.0f*dt,0.0f });
+		//	if(managers.entityManager->Alive(c.ent))
+		//		managers.transformManager->Move(c.ent, { 0,0,3.0f*dt,0.0f });
 		//}
-		//if (e.GetWindow()->ButtonPressed(ENTER)/* && nrOfActiveProjectiles < nrOfMaxProjectiles*/)
+		//if (subSystem.window->ButtonPressed(ENTER)/* && nrOfActiveProjectiles < nrOfMaxProjectiles*/)
 		//{
-		//	em.Destroy(chungus[2].ent);
+		//	managers.entityManager->Destroy(chungus[2].ent);
 		//}
 		
 
@@ -375,14 +347,14 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 		{
 			if (projectiles[i].IsActive())
 			{
-				if(em.Alive(projectiles[i].ent))
-					tm.Move(projectiles[i].ent, { 0.0f, 0.0f, 5*dt, 0.0f});
+				if(managers.entityManager->Alive(projectiles[i].ent))
+					managers.transformManager->Move(projectiles[i].ent, { 0.0f, 0.0f, 5*dt, 0.0f});
 
 				projectiles[i].update(dt);
 			}
 			else
 			{
-				em.Destroy(projectiles[i].ent);
+				managers.entityManager->Destroy(projectiles[i].ent);
 				projectiles[i] = projectiles.back();
 				projectiles.pop_back();
 				i--;
@@ -391,41 +363,41 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 
 		/*if (dummy.IsActive())
 		{
-			tm.Move(dummy.ent, { 4 * dt, 0.0f, 0, 0.0f });
+			managers.transformManager->Move(dummy.ent, { 4 * dt, 0.0f, 0, 0.0f });
 			dummy.update(dt);
 		}
 		else
 		{
-			if (em.Alive(dummy.ent))
-				em.Destroy(dummy.ent);
+			if (managers.entityManager->Alive(dummy.ent))
+				managers.entityManager->Destroy(dummy.ent);
 		}*/
 
 		//for (int i = 0; i < nrOfActiveProjectiles; i++)
 		//{
 		//	if (ourProjectiles[i].IsActive())
 		//	{
-		//		if (em.Alive(ourProjectiles[i].ent))
-		//			tm.Move(ourProjectiles[i].ent, { 0,0,5 * dt,0 });
+		//		if (managers.entityManager->Alive(ourProjectiles[i].ent))
+		//			managers.transformManager->Move(ourProjectiles[i].ent, { 0,0,5 * dt,0 });
 
 		//		ourProjectiles[i].update(dt);
 		//	}
 		//	else
 		//	{
-		//		em.Destroy(ourProjectiles[i].ent);
+		//		managers.entityManager->Destroy(ourProjectiles[i].ent);
 		//		//nrOfActiveProjectiles--;
 		//	}
 		//}
 
-		if (e.GetWindow()->ButtonPressed(0))
+		if (subSystem.window->ButtonPressed(0))
 			running = false;
-		if (e.GetWindow()->ButtonPressed(1))
+		if (subSystem.window->ButtonPressed(1))
 		{
 			stepping = !stepping;
 		}
 
 		if (stepping)
 		{
-			if (e.GetWindow()->ButtonDown(2))
+			if (subSystem.window->ButtonDown(2))
 			{
 
 			}
@@ -433,10 +405,10 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(Utilz::IConsoleBackend * console)
 		else {
 
 		}
-		e.Frame(dt);
+		engine->Frame();
 	}
 
-	e.Release();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(true)
 }

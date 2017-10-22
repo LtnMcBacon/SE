@@ -60,7 +60,7 @@ namespace SE
 			* @param[in] e The entity to destroy.
 			*
 			*/
-			virtual virtual void DestroyNow(const Entity& e) = 0;
+			virtual void DestroyNow(const Entity& e) = 0;
 
 			/**
 			* @brief    Register a destroy callback for an entity.

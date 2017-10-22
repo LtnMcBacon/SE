@@ -1,7 +1,7 @@
 #ifndef SE_TEST_TRANSFORM_MANAGER_TEST_H_
 #define SE_TEST_TRANSFORM_MANAGER_TEST_H_
 #include "Test.h"
-#include <Core/Engine.h>
+#include <Core/IEngine.h>
 #include <iostream>
 
 

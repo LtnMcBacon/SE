@@ -6,7 +6,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
-	_ASSERT(initInfo.entityManger);
+	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.renderableManager);
 	Allocate(128);
 	defaultTextureHandle = 0;
@@ -60,7 +60,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		ProfileReturnVoid;
 	
 	// Check if the entity is alive
-	if (!entityManager.Alive(entity))
+	if (!initInfo.entityManager->Alive(entity))
 		ProfileReturnVoid;
 
 	// Make sure we have enough memory.
@@ -187,11 +187,6 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	StopProfile;
 }
 
-void SE::Core::MaterialManager::Frame()
-{
-	
-}
-
 void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
@@ -286,7 +281,7 @@ void SE::Core::MaterialManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, materialInfo.used - 1U);
 		size_t i = distribution(generator);
-		if (entityManager.Alive(materialInfo.entity[i]))
+		if (initInfo.entityManager->Alive(materialInfo.entity[i]))
 		{
 			alive_in_row++;
 			continue;

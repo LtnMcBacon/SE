@@ -7,6 +7,8 @@
 #define DECLDIR_CORE __declspec(dllimport)
 #endif
 
+#include <string>
+#include <Utilz\Delegate.h>
 
 namespace SE
 {
@@ -79,7 +81,7 @@ namespace SE
 			*
 			* @endcode
 			*/
-			virtual std::string GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal) = 0;
+			virtual std::string GetOptionString(const std::string& section, const std::string& optionName, const std::string& defaultVal) = 0;
 			/**
 			* @brief Return the value of requested option as double
 			*

@@ -63,10 +63,11 @@ namespace SE
 			* @param[in] rayO The origin of the ray.
 			* @param[in] rayD The direction of the ray.
 			* @param[out] collidedEntity The entity that the ray collided with.
+			* @param[out] distance The distance from the entity that the ray collided with to the ray origin.
 			* @retval true Returns true if an entity was written to collidedEntity
 			* @retval false Returns false if the ray did not collide with an entity
 			*/
-			virtual bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity) const = 0;
+			virtual bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const = 0;
 
 
 			virtual void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback) = 0;
@@ -79,7 +80,7 @@ namespace SE
 			* @retval true The entity has a bounding box and it was stored in bb.
 			*
 			*/
-			virtual virtual bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr) = 0;
+			virtual bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr) = 0;
 		protected:
 			ICollisionManager() {};
 	

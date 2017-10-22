@@ -502,4 +502,8 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 
 }
 
+void SE::Core::TransformManager::Destroy(const Entity & e)
+{
+}
+
 

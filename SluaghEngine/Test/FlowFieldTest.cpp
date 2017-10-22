@@ -1,5 +1,5 @@
 #include "FlowFieldTest.h"
-#include <Core\Engine.h>
+#include <Gameplay\Game.h>
 #include <Gameplay/Flowfield.h>
 #include <Profiler.h>
 
@@ -31,44 +31,40 @@ enum
 bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false)
-	}
+	auto engine = Core::CreateEngine();
+	Gameplay::Game game;
+	engine->Init();
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
 
-	auto floor = em.Create();
-	auto player = em.Create();
+
+	auto floor = managers.entityManager->Create();
+	auto player = managers.entityManager->Create();
 	const int numberOfBlocks = 25*25;
 	SE::Core::Entity entities[numberOfBlocks];
 
 	for (int i = 0; i < numberOfBlocks; i++)
-		entities[i] = em.Create();
+		entities[i] = managers.entityManager->Create();
 
-	tm.Create(player);
-	tm.SetPosition(player, DirectX::XMFLOAT3(1.f, 1.5f, 1.f));
-	tm.SetScale(player, 1.5f);
-	tm.Create(floor);
-	tm.SetPosition(floor, DirectX::XMFLOAT3(12.0f, 0.0f, 12.0f));
+	managers.transformManager->Create(player);
+	managers.transformManager->SetPosition(player, DirectX::XMFLOAT3(1.f, 1.5f, 1.f));
+	managers.transformManager->SetScale(player, 1.5f);
+	managers.transformManager->Create(floor);
+	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.0f, 0.0f, 12.0f));
 	
 	for (int i = 0; i < numberOfBlocks; i++)
-		tm.Create(entities[i]);
+		managers.transformManager->Create(entities[i]);
 
 	
 	
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.mesh"));
-	rm.ToggleRenderableObject(floor, true);
+	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Floor.mesh"});
+	managers.renderableManager->ToggleRenderableObject(floor, true);
 
-	rm.CreateRenderableObject(player, Utilz::GUID("Placeholder_Arrow.mesh"));
-	rm.ToggleRenderableObject(player, true);
-	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
+	managers.renderableManager->CreateRenderableObject(player, { "Placeholder_Arrow.mesh" });
+	managers.renderableManager->ToggleRenderableObject(player, true);
+	managers.transformManager->SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
 	auto Block = Utilz::GUID("Placeholder_Block.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
@@ -117,58 +113,58 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			if(mapRepresentation[x][y])
 			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block);
-				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x, 0.5f, y));
+				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+				managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x, 0.5f, y));
 			}
 			else
 			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Arrow );
-				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Arrow });
+				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 				float xMagnitude = 0.0f;
 				float zMagnitude = 0.0f;
 				pos enemyPos;
 				enemyPos.x = x + 0.5f;
 				enemyPos.y = y + 0.5f;
 				flowField.SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x, 0.5f, y));
+				managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x, 0.5f, y));
 				if(xMagnitude == 1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
 				}
 				else if(xMagnitude == -1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
 				}
 				else if(zMagnitude == 1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI , 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI , 0.0f);
 				}
 				else if(zMagnitude == -1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
 					
 				}
 				else if(xMagnitude == 0.707f)
 				{
 					if(zMagnitude == 0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
 					}
 					else if (zMagnitude == -0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
 					}
 				}
 				else if(xMagnitude == -0.707f)
 				{
 					if (zMagnitude == 0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
 					}
 					else if (zMagnitude == -0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
 					}
 				}
 			}
@@ -178,16 +174,15 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	auto w = e.GetWindow();
-	w->MapActionButton(Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
 
 	bool running = true;
 	unsigned char counter = 0;
 	float dt = 1 / 60.0f;
 	while (running)
 	{
-		if (w->ButtonPressed(Exit))
+		if (subSystem.window->ButtonPressed(Exit))
 			running = false;
 		counter++;
 		if(!counter)
@@ -197,7 +192,7 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 				playerPos.x = (rand() % 25) + 0.5f;
 				playerPos.y = (rand() % 25) + 0.5f;
 			} while (mapRepresentation[int(playerPos.x)][int(playerPos.y)]);
-			tm.SetPosition(player, DirectX::XMFLOAT3(playerPos.x - 0.5f, 1.5f, playerPos.y - 0.5f));
+			managers.transformManager->SetPosition(player, DirectX::XMFLOAT3(playerPos.x - 0.5f, 1.5f, playerPos.y - 0.5f));
 			flowField.Update(playerPos);
 			numberOfEntitesPlaced = 0;
 			for (int x = 0; x < 25; x++)
@@ -218,52 +213,53 @@ bool SE::Test::FlowFieldTest::Run(SE::Utilz::IConsoleBackend* console)
 						flowField.SampleFromMap(enemyPos, xMagnitude, zMagnitude);
 						if (xMagnitude == 1.0f)
 						{
-							tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+							managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
 						}
 						else if (xMagnitude == -1.0f)
 						{
-							tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+							managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
 						}
 						else if (zMagnitude == 1.0f)
 						{
-							tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI, 0.0f);
+							managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI, 0.0f);
 						}
 						else if (zMagnitude == -1.0f)
 						{
-							tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
+							managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
 
 						}
 						else if (xMagnitude == 0.707f)
 						{
 							if (zMagnitude == 0.707f)
 							{
-								tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
 							}
 							else if (zMagnitude == -0.707f)
 							{
-								tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
 							}
 						}
 						else if (xMagnitude == -0.707f)
 						{
 							if (zMagnitude == 0.707f)
 							{
-								tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
 							}
 							else if (zMagnitude == -0.707f)
 							{
-								tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
 							}
 						}
 					}
 				}
 			}
 		}
-		e.Frame(dt);
+		engine->Frame();
 	}
 
 
 
-	e.Release();
+	game.Shutdown();
+	engine->Release(); delete engine;
 	ProfileReturnConst(true)
 }

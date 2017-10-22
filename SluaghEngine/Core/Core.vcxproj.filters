@@ -203,5 +203,8 @@
     <ClInclude Include="..\includes\Core\IGUIManager.h">
       <Filter>Interface</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Core\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

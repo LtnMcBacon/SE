@@ -1,8 +1,6 @@
 #ifndef SE_TEST_ENTITY_MANAGER_TEST_H_
 #define SE_TEST_ENTITY_MANAGER_TEST_H_
 #include "Test.h"
-#include <Core/EntityManager.h>
-#include <iostream>
 
 
 namespace SE

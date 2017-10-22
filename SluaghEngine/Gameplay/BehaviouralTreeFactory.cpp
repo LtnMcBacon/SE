@@ -1,5 +1,5 @@
 #include "BehaviouralTreeFactory.h"
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <functional>
 #include <Profiler.h>
 #include <sstream>
@@ -248,7 +248,7 @@ bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 		ProfileReturnConst(true);
 	}
 
-	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(guid,
+	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(guid,
 	{ this, &BehaviouralTreeFactory::LoadTreeFromResourceHandler });
 
 	if (done != -1)

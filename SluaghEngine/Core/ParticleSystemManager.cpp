@@ -28,7 +28,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		indexToEntity[newEntry] = entity;
 
 		// Register instant destroy
-		initInfo.entityManager.RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
+		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
 
 		particleSystemData[newEntry].visible = 0u;
 		particleSystemData[newEntry].loaded = 0u;
@@ -91,10 +91,8 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 
 void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
-}
-
-void SE::Core::ParticleSystemManager::Frame()
-{
+	StartProfile;
+	timer->Start("ParticleSystemManager");
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -115,6 +113,8 @@ void SE::Core::ParticleSystemManager::Frame()
 		toUpdate.pop();
 
 	}
+	timer->Stop("ParticleSystemManager");
+	StopProfile;
 }
 
 void SE::Core::ParticleSystemManager::Destroy(size_t index)
@@ -155,7 +155,7 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, particleSystemData.size() - 1U);
 		size_t i = distribution(generator);
-		if (initInfo.entityManager.Alive(indexToEntity[i]))
+		if (initInfo.entityManager->Alive(indexToEntity[i]))
 		{
 			alive_in_row++;
 			continue;

@@ -3,10 +3,10 @@
 #include "Gameplay/EnemyFactory.h"
 #include <Profiler.h>
 #include <Utilz/GUID.h>
-#include "Core/Engine.h"
+#include "Core/IEngine.h"
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyBlackboard.h"
-
+#include <Gameplay\Game.h>
 using namespace SE;
 using namespace Test;
 
@@ -24,8 +24,12 @@ bool EnemyFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
 	bool passing = true;
-	auto& engine = Core::Engine::GetInstance();
-	engine.Init(Core::Engine::InitializationInfo());
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	Gameplay::Game game;
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 	
 	Gameplay::EnemyFactory enemyFactory;
 
@@ -76,7 +80,8 @@ bool EnemyFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	delete[] testEnemies;
 
-	Core::Engine::GetInstance().Release();
+	game.Shutdown();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(passing);
 }

@@ -1,5 +1,5 @@
 #include "LightTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Utilz/Timer.h>
 
 #ifdef _DEBUG
@@ -50,20 +50,16 @@ namespace SE
 
 		bool LightTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
-			auto& engine = Core::Engine::GetInstance();
-			engine.Init(Core::Engine::InitializationInfo());
-			auto& em = engine.GetEntityManager();
-			auto& mm = engine.GetMaterialManager();
-			auto& cm = engine.GetCameraManager();
-			auto& rm = engine.GetRenderableManager();
-			auto& lightManager = engine.GetLightManager();
-			auto& transformManager = engine.GetTransformManager();
+			auto engine = Core::CreateEngine();
+			engine->Init();
+			auto managers = engine->GetManagers();
+			auto subSystem = engine->GetSubsystems();
 
-			Core::Entity entity = em.Create();
+			Core::Entity entity = managers.entityManager->Create();
 			const int numEnts = 50;
 			Core::Entity ents[numEnts];
 			Core::Entity entsTrans[2];
-			Core::MaterialManager::CreateInfo info;
+			Core::IMaterialManager::CreateInfo info;
 			Utilz::GUID material = Utilz::GUID("MCModell.mat");
 			auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 			info.shader = shader;
@@ -71,148 +67,145 @@ namespace SE
 
 			for (int i = 0; i < 2; i++)
 			{
-				entsTrans[i] = em.Create();
-				mm.Create(entsTrans[i], info);
-				transformManager.Create(entsTrans[i], { (float)(i*3.0f),0.0f,(float)(i * 2.5f - 5.0f) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
-				rm.CreateRenderableObject(entsTrans[i], Utilz::GUID("MCModell.mesh"));
-				rm.ToggleRenderableObject(entsTrans[i], true);
+				entsTrans[i] = managers.entityManager->Create();
+				managers.materialManager->Create(entsTrans[i], info);
+				managers.transformManager->Create(entsTrans[i], { (float)(i*3.0f),0.0f,(float)(i * 2.5f - 5.0f) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
+				managers.renderableManager->CreateRenderableObject(entsTrans[i], { "MCModell.mesh" });
+				managers.renderableManager->ToggleRenderableObject(entsTrans[i], true);
 			}
 
 			for (int i = 0; i < numEnts; i++)
 			{
-				ents[i] = em.Create();
-				mm.Create(ents[i], info);
-				transformManager.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
-				rm.CreateRenderableObject(ents[i], Utilz::GUID("MCModell.mesh"));
-				rm.ToggleRenderableObject(ents[i], true);
+				ents[i] = managers.entityManager->Create();
+				managers.materialManager->Create(ents[i], info);
+				managers.transformManager->Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,0.0f,0.0f }, { 5.02f,5.02f,5.02f });
+				managers.renderableManager->CreateRenderableObject(ents[i], { "MCModell.mesh" });
+				managers.renderableManager->ToggleRenderableObject(ents[i], true);
 			}
 
 			Core::Entity light[5];
 			for (int i = 0; i < 5; i++)
 			{
-				light[i] = em.Create();
+				light[i] = managers.entityManager->Create();
 			}
 
 #pragma region LightDataSet
-			Core::AddLightInfo data;
+			Core::ILightManager::CreateInfo data;
 			//Light 1
 			data.color = DirectX::XMFLOAT3(1.0, 0.1, 0.1);
 			data.pos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 			data.radius = 30.0f;
-			lightManager.AddLight(light[0], data);
-			lightManager.ToggleLight(light[0], true);
+			managers.lightManager->Create(light[0], data);
+			managers.lightManager->ToggleLight(light[0], true);
 
 			//Light 2
 			data.color = DirectX::XMFLOAT3(0.3, 0.8, 0.2);
 			data.pos = DirectX::XMFLOAT3(20.0, 0.0, 0.0);
 			data.radius = 10.0;
-			lightManager.AddLight(light[1], data);
-			lightManager.ToggleLight(light[1], true);
+			managers.lightManager->Create(light[1], data);
+			managers.lightManager->ToggleLight(light[1], true);
 
 			//Light 3
 			data.color = DirectX::XMFLOAT3(0.2, 0.1, 0.8);
 			data.pos = DirectX::XMFLOAT3(40.0, 0.0, 0.0);
 			data.radius = 10.0;
-			lightManager.AddLight(light[2], data);
-			lightManager.ToggleLight(light[2], true);
+			managers.lightManager->Create(light[2], data);
+			managers.lightManager->ToggleLight(light[2], true);
 
 			//Light 4
 			data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.2);
 			data.pos = DirectX::XMFLOAT3(60.0, 0.0, 0.0);
 			data.radius = 10.0;
-			lightManager.AddLight(light[3], data);
-			lightManager.ToggleLight(light[3], true);
+			managers.lightManager->Create(light[3], data);
+			managers.lightManager->ToggleLight(light[3], true);
 
 			//Light 5
 			data.color = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
 			data.pos = DirectX::XMFLOAT3(80.0, -10.0, 0.0);
 			data.radius = 150.0;
-			lightManager.AddLight(light[4], data);
-			lightManager.ToggleLight(light[4], true);
+			managers.lightManager->Create(light[4], data);
+			managers.lightManager->ToggleLight(light[4], true);
 #pragma endregion LightDataSet
 
 			
 
-			Core::Entity camera = cm.GetActive();
-			transformManager.SetRotation(camera, 0.9f, 0.0f, 0.0f);
-			transformManager.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
+			Core::Entity camera = managers.cameraManager->GetActive();
+			managers.transformManager->SetRotation(camera, 0.9f, 0.0f, 0.0f);
+			managers.transformManager->SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 
-			auto w = engine.GetWindow();
-
-
-			w->MapActionButton(ActionButton::Exit, Window::KeyEscape);
-			w->MapActionButton(ActionButton::Hide, Window::KeyO);
-			w->MapActionButton(ActionButton::Show, Window::KeyK);
-			w->MapActionButton(ActionButton::Up, Window::KeyW);
-			w->MapActionButton(ActionButton::Down, Window::KeyS);
-			w->MapActionButton(ActionButton::Left, Window::KeyA);
-			w->MapActionButton(ActionButton::Right, Window::KeyD);
-			w->MapActionButton(ActionButton::LightUp, Window::KeyR);
-			w->MapActionButton(ActionButton::LightDown, Window::KeyC);
-			w->MapActionButton(ActionButton::LightLeft, Window::KeyQ);
-			w->MapActionButton(ActionButton::LightRight, Window::KeyE);
-			w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
-			w->MapActionButton(ActionButton::FrameTime, Window::KeyF);
-			w->MapActionButton(ActionButton::ReLight1, Window::Key1);
-			w->MapActionButton(ActionButton::LiLight1, Window::Key2);
-			w->MapActionButton(ActionButton::ReLight2, Window::Key3);
-			w->MapActionButton(ActionButton::LiLight2, Window::Key4);
-			w->MapActionButton(ActionButton::ReLight3, Window::Key5);
-			w->MapActionButton(ActionButton::LiLight3, Window::Key6);
-			w->MapActionButton(ActionButton::ReLight4, Window::Key7);
-			w->MapActionButton(ActionButton::LiLight4, Window::Key8);
-			w->MapActionButton(ActionButton::ToggleWire, Window::KeyT);
+			subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+			subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
+			subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
+			subSystem.window->MapActionButton(ActionButton::Up, Window::KeyW);
+			subSystem.window->MapActionButton(ActionButton::Down, Window::KeyS);
+			subSystem.window->MapActionButton(ActionButton::Left, Window::KeyA);
+			subSystem.window->MapActionButton(ActionButton::Right, Window::KeyD);
+			subSystem.window->MapActionButton(ActionButton::LightUp, Window::KeyR);
+			subSystem.window->MapActionButton(ActionButton::LightDown, Window::KeyC);
+			subSystem.window->MapActionButton(ActionButton::LightLeft, Window::KeyQ);
+			subSystem.window->MapActionButton(ActionButton::LightRight, Window::KeyE);
+			subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+			subSystem.window->MapActionButton(ActionButton::FrameTime, Window::KeyF);
+			subSystem.window->MapActionButton(ActionButton::ReLight1, Window::Key1);
+			subSystem.window->MapActionButton(ActionButton::LiLight1, Window::Key2);
+			subSystem.window->MapActionButton(ActionButton::ReLight2, Window::Key3);
+			subSystem.window->MapActionButton(ActionButton::LiLight2, Window::Key4);
+			subSystem.window->MapActionButton(ActionButton::ReLight3, Window::Key5);
+			subSystem.window->MapActionButton(ActionButton::LiLight3, Window::Key6);
+			subSystem.window->MapActionButton(ActionButton::ReLight4, Window::Key7);
+			subSystem.window->MapActionButton(ActionButton::LiLight4, Window::Key8);
+			subSystem.window->MapActionButton(ActionButton::ToggleWire, Window::KeyT);
 
 			
 			bool running = true;
 			Utilz::Timer timer;
 			bool toggle = true;
-			rm.SetTransparency(entsTrans[0], true);
-			rm.SetTransparency(entsTrans[1], true);
+			managers.renderableManager->ToggleTransparency(entsTrans[0], true);
+			managers.renderableManager->ToggleTransparency(entsTrans[1], true);
 
 			while (running)
 			{
 				timer.Tick();
 				float dt = timer.GetDelta();
-				if (w->ButtonPressed(ActionButton::Exit))
+				if (subSystem.window->ButtonPressed(ActionButton::Exit))
 					running = false;
 
 
-				if (w->ButtonDown(ActionButton::Up))
-					transformManager.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
-				if (w->ButtonDown(ActionButton::Down))
-					transformManager.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
-				if (w->ButtonDown(ActionButton::Right))
-					transformManager.Move(camera, DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
-				if (w->ButtonDown(ActionButton::Left))
-					transformManager.Move(camera, DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
-				if (w->ButtonDown(ActionButton::LightUp))
-					transformManager.Move(light[0], DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
-				if (w->ButtonDown(ActionButton::LightDown))
-					transformManager.Move(light[0], DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
-				if (w->ButtonDown(ActionButton::LightRight))
-					transformManager.Move(light[0], DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
-				if (w->ButtonDown(ActionButton::LightLeft))
-					transformManager.Move(light[0], DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
-				if (w->ButtonDown(ActionButton::ReLight1))
-					lightManager.ToggleLight(light[1], false);
-				if (w->ButtonDown(ActionButton::LiLight1))
-					lightManager.ToggleLight(light[1], true);
-				if (w->ButtonDown(ActionButton::ReLight2))
-					lightManager.ToggleLight(light[2], false);
-				if (w->ButtonDown(ActionButton::LiLight2))
-					lightManager.ToggleLight(light[2], true);
-				if (w->ButtonDown(ActionButton::ReLight3))
-					lightManager.ToggleLight(light[3], false);
-				if (w->ButtonDown(ActionButton::LiLight3))
-					lightManager.ToggleLight(light[3], true);
-				if (w->ButtonDown(ActionButton::ReLight4))
-					lightManager.ToggleLight(light[4], false);
-				if (w->ButtonDown(ActionButton::LiLight4))
-					lightManager.ToggleLight(light[4], true);
-				if (w->ButtonDown(ActionButton::ToggleWire))
+				if (subSystem.window->ButtonDown(ActionButton::Up))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::Down))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::Right))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::Left))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::LightUp))
+					managers.transformManager->Move(light[0], DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.11f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::LightDown))
+					managers.transformManager->Move(light[0], DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.11f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::LightRight))
+					managers.transformManager->Move(light[0], DirectX::XMFLOAT3{ 0.11f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::LightLeft))
+					managers.transformManager->Move(light[0], DirectX::XMFLOAT3{ -0.11f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::ReLight1))
+					managers.lightManager->ToggleLight(light[1], false);
+				if (subSystem.window->ButtonDown(ActionButton::LiLight1))
+					managers.lightManager->ToggleLight(light[1], true);
+				if (subSystem.window->ButtonDown(ActionButton::ReLight2))
+					managers.lightManager->ToggleLight(light[2], false);
+				if (subSystem.window->ButtonDown(ActionButton::LiLight2))
+					managers.lightManager->ToggleLight(light[2], true);
+				if (subSystem.window->ButtonDown(ActionButton::ReLight3))
+					managers.lightManager->ToggleLight(light[3], false);
+				if (subSystem.window->ButtonDown(ActionButton::LiLight3))
+					managers.lightManager->ToggleLight(light[3], true);
+				if (subSystem.window->ButtonDown(ActionButton::ReLight4))
+					managers.lightManager->ToggleLight(light[4], false);
+				if (subSystem.window->ButtonDown(ActionButton::LiLight4))
+					managers.lightManager->ToggleLight(light[4], true);
+				if (subSystem.window->ButtonDown(ActionButton::ToggleWire))
 				{
-					rm.SetFillSolid(ents[3], toggle);
+					managers.renderableManager->ToggleWireframe(ents[3], !toggle);
 					if (toggle == true)
 						toggle = false;
 					else
@@ -220,29 +213,29 @@ namespace SE
 				}
 					
 
-				if (w->ButtonPressed(ActionButton::Hide))
+				if (subSystem.window->ButtonPressed(ActionButton::Hide))
 				{
 					for (int i = 0; i< numEnts; i++)
 					{
-						rm.ToggleRenderableObject(ents[i], false);
+						managers.renderableManager->ToggleRenderableObject(ents[i], false);
 					}
 				}
-				if (w->ButtonPressed(ActionButton::Show))
+				if (subSystem.window->ButtonPressed(ActionButton::Show))
 				{
 					for (int i = 0; i< numEnts; i++)
 					{
-						rm.ToggleRenderableObject(ents[i], true);
+						managers.renderableManager->ToggleRenderableObject(ents[i], true);
 					}
 				}
-				if (w->ButtonPressed(ActionButton::FrameTime))
+				if (subSystem.window->ButtonPressed(ActionButton::FrameTime))
 				{
 					console->Print("Frametime: %f ms\n", timer.GetDelta());
 				}
-				engine.Frame(0.01f);
+				engine->Frame();
 			}
 
 
-			engine.Release();
+			engine->Release(); delete engine;
 			return true;
 		}
 	}

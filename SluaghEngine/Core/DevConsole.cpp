@@ -116,23 +116,23 @@ void SE::Core::DevConsole::Frame()
 			ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
 			offset = (offset + 1) % samples;
 			ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-			if (renderer->GetVRam() >= Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
+		/*	if (renderer->GetVRam() >= Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
 				ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
 				ImGui::PopStyleColor();
-			}
+			}*/
 			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-			if (!Utilz::Memory::IsUnderLimit( Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
+			/*if (!Utilz::Memory::IsUnderLimit( Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
 				ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
 				ImGui::PopStyleColor();
-			}
+			}*/
 			ImGui::Separator();
 		}
 
-		if(show_gpu_timings)
+		/*if(show_gpu_timings)
 		{
 			SE::Utilz::TimeMap map;
 			Core::Engine::GetInstance().GetProfilingInformation(map);
@@ -166,7 +166,7 @@ void SE::Core::DevConsole::Frame()
 			}
 			
 			
-		}
+		}*/
 	}
 
 	static ImGuiTextFilter filter;
