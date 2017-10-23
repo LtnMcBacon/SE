@@ -11,7 +11,7 @@
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
-
+	currentFrameStrategy = &WindowSDL::RegFrame;
 }
 
 SE::Window::WindowSDL::~WindowSDL()
@@ -106,11 +106,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 		{ KeyCode::MouseRight, SDL_BUTTON_RIGHT}
 	};
 
-	if (info.winState == WindowState::Regular)
-	{
-		currentFrameStrategy = &WindowSDL::RegFrame;
-	}
-	else if (info.winState == WindowState::Record)
+	if (info.winState == WindowState::Record)
 	{
 		StartRecording();
 	}
@@ -120,21 +116,25 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 	}
 
 	frame = 0;
-	arrayPos = 0;
+	time.Tick();
 	ProfileReturnConst(0);
 }
 
 void SE::Window::WindowSDL::Shutdown()
 {
-	if (recording)
+	if (record.recordState)
 	{
-		recording = false;
-		recThread.join();
-		recFile.close();
+		record.recordState = false;
+		while (!record.recThread.joinable())
+		{
+
+		}
+		record.recThread.join();
+		record.recFile.close();
 	}
-	if (playback)
+	if (playRecord.playback)
 	{
-		delete[] playbackData;
+		playRecord.playbackData.clear();
 	}
 	SDL_Quit();
 }
@@ -151,7 +151,6 @@ void SE::Window::WindowSDL::RegFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
 	while(SDL_PollEvent(&ev))
 	{
@@ -169,19 +168,19 @@ void SE::Window::WindowSDL::RecordFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
-	static int evCount = 0;
 	SDL_Event ev;
+	inputRecData inData;
+	inData.dTime = time.GetDelta<std::ratio<1, 1>>();
 	while (SDL_PollEvent(&ev))
 	{
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
-
-		inputRecData inData;
-		inData.recEvent = ev;
-		inData.frame = frame;
-		circFiFo.push(inData);
+		inData.events.push_back(ev);
 	}
+	inData.nrOfEvent = inData.events.size();
+	record.circFiFo.push(inData);
+
 	frame++;
 	StopProfile;
 }
@@ -189,11 +188,16 @@ void SE::Window::WindowSDL::RecordFrame()
 void SE::Window::WindowSDL::PlaybackFrame()
 {
 	StartProfile;
-	while (playbackData[arrayPos].frame == frame)
+	for (auto& ks : actionToKeyState)
 	{
-		EventSwitch(playbackData[arrayPos].recEvent);
-		arrayPos++;
+		ks.second = (ks.second & KeyState::DOWN);
 	}
+	for (auto& ev : playRecord.playbackData[frame].events)
+	{
+		for (auto& onEvent : onEventCallbacks)
+			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
+		EventSwitch(ev);
+	}		
 	frame++;
 	StopProfile;
 }
@@ -202,24 +206,33 @@ void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
-	recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
-	recording = true;
-	recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	record.recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	record.recordState = true;
+	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
 	StopProfile;
 }
 
 void SE::Window::WindowSDL::LoadRecording()
 {
 	StartProfile;
-	playbackfile.open("Recording.bin", std::ios::in | std::ios::binary | std::ios::ate);
-	if (playbackfile.is_open())
+	playRecord.playbackfile.open("Recording.bin", std::ios::in | std::ios::binary);
+	if (playRecord.playbackfile.is_open())
 	{
-		std::streampos size = playbackfile.tellg();
-		playbackData = static_cast<inputRecData*>(operator new(size));
-		playbackfile.seekg(0, std::ios::beg);
-		playbackfile.read((char*)playbackData, size);
-		playbackfile.close();
-		playback = true;
+		SDL_Event ev;
+		while (!playRecord.playbackfile.eof())
+		{
+			inputRecData tempRecData;
+			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
+			playRecord.playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			for (int i = 0; i < tempRecData.nrOfEvent; i++)
+			{
+				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				tempRecData.events.push_back(ev);
+			}
+			playRecord.playbackData.push_back(tempRecData);
+		}
+		playRecord.playbackfile.close();
+		playRecord.playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
 	}
 	StopProfile;
@@ -352,17 +365,17 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 {
 	switch (ev.type)
 	{
-		case SDL_KEYUP:
+		case SDL_KEYUP:	// if type is KeyUp
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 				actionToKeyState[state->second] = UP;
 			break;
 		}
-		case SDL_KEYDOWN:
+		case SDL_KEYDOWN:	// if type is KeyDown
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
-			if (state != keyToAction.end())
+			if (state != keyToAction.end())	// if key is bound sets its state
 			{
 				if (!(actionToKeyState[state->second] & DOWN))
 				{
@@ -383,7 +396,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEMOTION:
+		case SDL_MOUSEMOTION:	// if type is MouseMotion
 		{
 			curMouseX = ev.motion.x;
 			curMouseY = ev.motion.y;
@@ -393,7 +406,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 				cb(relMouseX, relMouseY, curMouseX, curMouseY);
 			break;
 		}
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONDOWN:	// if type is MouseButtonDown
 		{
 			if (ev.button.button == SDL_BUTTON_LEFT)
 			{
@@ -414,7 +427,7 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			}
 			break;
 		}
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONUP:	// if type is MouseButtonUP
 		{
 			const auto state = keyToAction.find(ev.button.button);
 			if (state != keyToAction.end())
@@ -446,15 +459,18 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 
 void SE::Window::WindowSDL::RecordToFile()
 {
-	while (recording || !circFiFo.wasEmpty())
+	while (record.recordState || !record.circFiFo.wasEmpty())
 	{
-		while (!circFiFo.wasEmpty())
+		while (!record.circFiFo.wasEmpty())
 		{
-			const inputRecData& evData = circFiFo.top();
-			recFile.write((char*)&evData, sizeof(inputRecData));
-			circFiFo.pop();
+			const inputRecData& evData = record.circFiFo.top();
+			record.recFile.write((char*)&evData.dTime, sizeof(float));
+			record.recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
+			record.recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
+			record.circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(100ms);
+		std::this_thread::sleep_for(10ms);
 	}
+	frame = 0;
 }

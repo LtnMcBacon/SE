@@ -9,74 +9,74 @@ namespace SE
 	{	
 		namespace Memory
 		{
-			inline unsigned long long GetVirtualProcessMemory()
+			inline size_t GetVirtualProcessMemory()
 			{
 				PROCESS_MEMORY_COUNTERS_EX pmc;		
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if( res != 0)
-					return static_cast<unsigned long long>(pmc.PrivateUsage); // WorkingSetSize (for physical memory)
-				return ~unsigned long long(0u);
+					return static_cast<size_t>(pmc.PrivateUsage); 
+				return ~size_t(0u);
 			}
-			inline unsigned long long GetPhysicalProcessMemory()
+			inline size_t GetPhysicalProcessMemory()
 			{
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if (res != 0)
-					return static_cast<unsigned long long>(pmc.WorkingSetSize); // WorkingSetSize (for physical memory)
-				return ~unsigned long long(0u);
+					return static_cast<size_t>(pmc.WorkingSetSize); // WorkingSetSize (for physical memory)
+				return ~size_t(0u);
 			}
-			inline bool IsUnderLimit(const unsigned long long max, const unsigned long long extra)
+			inline bool IsUnderLimit(const size_t max, const size_t extra)
 			{
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if ( res != 0)
-					return (static_cast<unsigned long long>(pmc.PrivateUsage) + extra) <= max; // WorkingSetSize (for physical memory)
+					return (static_cast<size_t>(pmc.WorkingSetSize) + extra) <= max;
 				return false;
 			}
 
-			inline bool IsUnderLimit(const unsigned long long max)
+			inline bool IsUnderLimit(const size_t max)
 			{
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if (res != 0)
-					return (static_cast<unsigned long long>(pmc.PrivateUsage)) <= max; // WorkingSetSize (for physical memory)
+					return (static_cast<size_t>(pmc.WorkingSetSize)) <= max;
 				return false;
 			}
-			constexpr unsigned long long toKB(unsigned long long bytes)
+			constexpr size_t toKB(size_t bytes)
 			{
-				return bytes / unsigned long long(1024u);
+				return bytes / size_t(1024u);
 			}
-			constexpr unsigned long long toMB(unsigned long long bytes)
+			constexpr size_t toMB(size_t bytes)
 			{
-				return bytes / unsigned long long(1024u) / unsigned long long(1024u);
+				return bytes / size_t(1024u) / size_t(1024u);
 			}
-			constexpr unsigned long long toGB(unsigned long long bytes)
+			constexpr size_t toGB(size_t bytes)
 			{
-				return bytes / unsigned long long(1024u) / unsigned long long(1024u) / unsigned long long(1024u);
+				return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u);
 			}
-			constexpr unsigned long long toTB(unsigned long long bytes)
+			constexpr size_t toTB(size_t bytes)
 			{
-				return bytes / unsigned long long(1024u) / unsigned long long(1024u) / unsigned long long(1024u) / unsigned long long(1024u);
-			}
-
-			constexpr unsigned long long operator "" _kb(unsigned long long _Val)
-			{
-				return _Val * unsigned long long(1024u);
+				return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u) / size_t(1024u);
 			}
 
-			constexpr unsigned long long operator "" _mb(unsigned long long _Val)
+			constexpr size_t operator "" _kb(unsigned long long _Val)
 			{
-				return _Val * unsigned long long(1024u) * unsigned long long(1024u);
+				return static_cast<size_t>(_Val) * size_t(1024u);
 			}
 
-			constexpr unsigned long long operator "" _gb(unsigned long long _Val)
+			constexpr size_t operator "" _mb(unsigned long long _Val)
 			{
-				return _Val * unsigned long long(1024u) * unsigned long long(1024u) * unsigned long long(1024u);
+				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u);
 			}
 
-			constexpr unsigned long long operator "" _tb(unsigned long long _Val)
+			constexpr size_t operator "" _gb(unsigned long long _Val)
 			{
-				return _Val * unsigned long long(1024u) * unsigned long long(1024u) * unsigned long long(1024u) * unsigned long long(1024u);
+				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u);
+			}
+
+			constexpr size_t operator "" _tb(unsigned long long _Val)
+			{
+				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u) * size_t(1024u);
 			}
 		}
 			

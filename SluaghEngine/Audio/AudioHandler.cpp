@@ -31,8 +31,6 @@ namespace SE {
 			sound->size = size;
 			sound->soundData = (char*)data;
 			sound->currentPos = 0;
-			/*delete sound;
-		ProfileReturn(audioSound.LoadSound2());*/
 		ProfileReturn(audioSound.LoadSound(sound));
 		}
 		

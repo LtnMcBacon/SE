@@ -22,11 +22,15 @@ PlayState::PlayState(Window::IWindow* Input)
 {
 	this->input = Input;
 
-	projectileManager = new ProjectileManager();
-
 	InitializeRooms();
 	InitializePlayer();
 	InitializeOther();
+
+	BehaviourPointers temp;
+	temp.currentRoom = &currentRoom;
+	temp.player = player;
+	
+	projectileManager = new ProjectileManager(temp);
 }
 
 PlayState::~PlayState()
@@ -138,8 +142,6 @@ void PlayState::InitializePlayer()
 {
 	auto& tManager = Core::Engine::GetInstance().GetTransformManager();
 	auto& rManager = Core::Engine::GetInstance().GetRenderableManager();
-	auto& oHandler = Core::Engine::GetInstance().GetOptionHandler();
-	auto& cManager = Core::Engine::GetInstance().GetCameraManager();
 
 	char map[25][25];
 	currentRoom->GetMap(map);
@@ -151,12 +153,8 @@ void PlayState::InitializePlayer()
 
 	Core::MaterialManager::CreateInfo materialInfo;
 	materialInfo.shader = "SimpleLightPS.hlsl";
-	Utilz::GUID shaderResources[1];
-	shaderResources[0] = "diffuseTex";
-	materialInfo.shaderResourceNames = shaderResources;
-	Utilz::GUID textureNames[] = { "texture8.sei" };
-	materialInfo.textureFileNames = textureNames;
-	materialInfo.textureCount = 1;
+	Utilz::GUID material = Utilz::GUID("MCModell.mat");
+	materialInfo.materialFile = material;
 	Core::Engine::GetInstance().GetMaterialManager().Create(player->GetEntity(), materialInfo);
 
 	rManager.ToggleRenderableObject(player->GetEntity(), true);

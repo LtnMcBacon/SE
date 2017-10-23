@@ -8,6 +8,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <fstream>
 #include <thread>
+#include <Utilz\Timer.h>
 
 namespace SE
 {
@@ -72,7 +73,29 @@ namespace SE
 			int Height() const override;
 		
 			bool SetWindow(int inHeight, int inWidth, bool inFullscreen) override;
+			/**
+			* @brief Tells window to update time
+			*/
+			inline void UpdateTime() override {
+				if (!playRecord.playback)
+					time.Tick();
+			};
+			/**
+			* @brief Gets delta time from window
+			*
+			* @retval float Returns time int seconds
+			*/
+			inline float GetDelta() const override
+			{
+				if (!playRecord.playback)
+					return time.GetDelta<std::ratio<1, 1>>();
+				else
+					return playRecord.playbackData[frame].dTime;
+			};
 		private:
+			/*
+			* @brief Checks which event ev is.
+			*/
 			void EventSwitch(SDL_Event ev);
 
 			/*Window related things*/
@@ -115,31 +138,42 @@ namespace SE
 			std::map<uint32_t, uint32_t> actionToKeyState;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
+#pragma region Record
 			//record stuff
 			struct inputRecData
 			{
-				size_t frame;
-				SDL_Event recEvent;
+				float dTime;
+				size_t nrOfEvent;
+				std::vector<SDL_Event> events;
 			};
 
+			struct recording
+			{
+				std::ofstream recFile;
+				bool recordState = false;
+				Utilz::CircularFiFo<inputRecData, 512> circFiFo;
+				std::thread recThread;
+			};
+			recording record;
 			void RecordToFile();
-			std::ofstream recFile;
-			std::ifstream playbackfile;
-			Utilz::CircularFiFo<inputRecData, 256> circFiFo;
-			bool recording = false;
-			bool playback = false;
-			inputRecData* playbackData = nullptr;
-			std::thread recThread;
-			size_t frame = 0;
+			void StartRecording();
+#pragma endregion Record
 
-			size_t arrayPos = 0;
+#pragma region Playback
+			struct playRecording
+			{
+				std::ifstream playbackfile;
+				bool playback = false;
+				std::vector<inputRecData> playbackData;
+			};
+			playRecording playRecord;
+			void LoadRecording();
+#pragma endregion Playback
 
 			typedef void(WindowSDL::*FrameStrategy)();
-
 			FrameStrategy currentFrameStrategy;
-
-			void StartRecording();
-			void LoadRecording();
+			size_t frame = 0;
+			Utilz::Timer time;
 		};
 
 

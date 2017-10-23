@@ -18,12 +18,13 @@ SE::Graphics::Renderer::~Renderer()
 {
 }
 
-int SE::Graphics::Renderer::Initialize(void * window)
+int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 {
 	StartProfile;
-	_ASSERT(window);
+	_ASSERT(initInfo.window);
+	this->initInfo = initInfo;
 	device = new DeviceManager();
-	HRESULT hr = device->Init((HWND)window);
+	HRESULT hr = device->Init((HWND)initInfo.window);
 	if (FAILED(hr))
 		return -1;
 
@@ -606,8 +607,8 @@ void SE::Graphics::Renderer::GetDeviceInfo(void * destination, size_t size)
 		ID3D11DeviceContext* devcon;
 	};
 	_ASSERT(size == sizeof(RetStruct));
-	((RetStruct*)destination)->dev = device->GetDevice();
-	((RetStruct*)destination)->devcon = device->GetDeviceContext();
+	(static_cast<RetStruct*>(destination))->dev = device->GetDevice();
+	(static_cast<RetStruct*>(destination))->devcon = device->GetDeviceContext();
 }
 
 int SE::Graphics::Renderer::CreateVertexBuffer(void * data, size_t vertexCount, size_t stride)
@@ -632,7 +633,6 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 	StartProfile;
 	ProfileReturn(graphicResourceHandler->CreateShaderResourceView(data, description))
 }
-
 
 int SE::Graphics::Renderer::UpdateTransform(uint32_t jobID, float* transform)
 {
@@ -1215,3 +1215,13 @@ int SE::Graphics::Renderer::DisableBloom()
 
 	return 0;
 }
+bool SE::Graphics::Renderer::IsUnderLimit(size_t sizeToAdd)
+{
+	return memMeasure.GetVRam() + sizeToAdd <= initInfo.maxVRAMUsage;
+}
+
+bool SE::Graphics::Renderer::IsUnderLimit(size_t potential, size_t sizeToAdd)
+{
+	return memMeasure.GetVRam() + sizeToAdd <= initInfo.maxVRAMUsage + potential;
+}
+
