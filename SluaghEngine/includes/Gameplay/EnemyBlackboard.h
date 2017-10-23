@@ -1,14 +1,11 @@
 #ifndef SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 #define SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 
-#include <vector>
-
 namespace SE
 {
 	namespace Gameplay
 	{
 		class EnemyUnit;
-		struct ProjectileData;
 
 
 		/**
@@ -49,7 +46,6 @@ namespace SE
 			bool invurnerable = true;
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
-			std::vector<ProjectileData*> enemyProjectiles;
 
 		};
 	}

@@ -623,7 +623,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 			switch (playerAttack)
 			{
 			case Gameplay::PlayerAttackActions::PLAYER_ATTACK_SHOOT: actionInput.skill1Button = true; break;
-			case Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE: break;
+			case Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE: actionInput.skill1Button = false; break;
 			default:;
 			}
 

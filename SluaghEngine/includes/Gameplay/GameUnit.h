@@ -161,6 +161,8 @@ namespace SE
 
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
+
+			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:

@@ -1,9 +1,11 @@
 #ifndef SE_GAMEPLAY_SUCCEEDER_LEAF_H
 #define SE_GAMPELAY_SUCCEEDER_LEAF_H
 #include "IBehaviour.h"
+#include "Utilz/GUID.h"
 
 namespace SE
 {
+	
 	namespace Gameplay
 	{
 		class GlaistigAttackLeaf : public IBehaviour
@@ -11,20 +13,13 @@ namespace SE
 		private:
 			GlaistigAttackLeaf() = delete;
 		public:
-			GlaistigAttackLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
-				IBehaviour(enemyBlackboard, gameBlackboard)
-			{
-				myStatus = Status::BEHAVIOUR_SUCCESS;
-			};
+			GlaistigAttackLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~GlaistigAttackLeaf()
 			{
 
 			};
-
-			Status Update() override
-			{
-				return myStatus;
-			};
+			static const Utilz::GUID glaistigAttackFileGUID;
+			Status Update() override;
 
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{

@@ -582,6 +582,72 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	return timer;
 }
 
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
+{
+	Room* currentRoom = *ptrs.currentRoom;
+	PlayerUnit* player = ptrs.player;
+	float rotPerSecond = std::get<float>(parameters[0].data);
+
+	auto targeter = [currentRoom, rotPerSecond, player](Projectile* p, float dt) -> bool
+	{
+		float xTarget = player->GetXPosition(), 
+		yTarget = player->GetYPosition();
+
+		auto& tm = Core::Engine::GetInstance().GetTransformManager();
+		DirectX::XMFLOAT3 forward = tm.GetForward(p->GetEntity());
+
+		xTarget -= p->GetXPosition();
+		yTarget -= p->GetYPosition();
+
+		float totalRot = atan2f(yTarget, xTarget) - atan2f(forward.z, forward.x);
+		int sign = -1;
+
+		if (totalRot < 0)
+			totalRot = DirectX::XM_2PI + totalRot;
+
+		// If the rotation needed is greater than PI, we should rotate counter clockwise
+		if (totalRot > DirectX::XM_PI)
+			sign = 1;
+
+		if (totalRot > 0.0000025)
+		{
+			if (totalRot > rotPerSecond * dt)
+				totalRot = rotPerSecond;
+			totalRot *= sign;
+
+		}
+
+		Rotation test;
+		test.force = totalRot;
+		test.style = RotationStyle::SELF;
+		p->SetRotationStyle(test);
+
+		return true;
+	};
+
+	return targeter;
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	PlayerUnit* player = ptrs.player;
+	Room* currentRoom = *ptrs.currentRoom;
+
+
+	auto LineOfSight = [player, currentRoom](Projectile* p, float dt) -> bool
+	{
+		return currentRoom->CheckLineOfSightBetweenPoints(
+			player->GetXPosition(),
+			player->GetYPosition(),
+			p->GetXPosition(),
+			p->GetYPosition()
+		);
+	};
+
+	return LineOfSight;
+}
+
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)

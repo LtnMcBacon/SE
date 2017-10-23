@@ -1,5 +1,7 @@
 #ifndef SE_GAMEPLAY_GAME_BLACKBOARD_H
 #define SE_GAMEPLAY_GAME_BLACKBOARD_H
+#include "ProjectileData.h"
+#include <vector>
 
 namespace SE
 {
@@ -46,6 +48,7 @@ namespace SE
 			const FlowField* roomFlowField;
 			/*Player resistances here*/
 			/*Player attack data*/
+			std::vector<ProjectileData> enemyProjectiles;
 
 
 		};

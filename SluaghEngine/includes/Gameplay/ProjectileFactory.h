@@ -141,6 +141,16 @@ namespace SE
 			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
 			std::function<bool(Projectile* projectile, float dt)> TimeConditionAddBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+			
+			/**
+			 * @brief	Adds a behaviour for projectiles to follow the player
+			 */
+			std::function<bool(Projectile* projectile, float dt)> TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters);
+
+			/**
+			 * @brief	Adds a condition to check line of sight between owner and the projectile
+			 */
+			std::function<bool(Projectile* projectile, float dt)> LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
 
 
