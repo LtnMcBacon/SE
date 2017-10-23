@@ -131,14 +131,12 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 		b.GlobalTx = interpolatedJointTransforms[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-
-		int a = 0;
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx * XMMatrixScaling(-1, 1, 1)));
 	}
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) {
+void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const {
 
 	StartProfile;
 	// Animation has just started, so return the first keyframe
@@ -163,7 +161,7 @@ void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const An
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) {
+void SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const {
 	
 	StartProfile;
 	XMVECTOR S = XMLoadFloat4(&joint.Keyframes[0].Scale);
@@ -176,7 +174,7 @@ void SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& 
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) {
+void SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) const {
 
 	StartProfile;
 	size_t animationLength = static_cast<size_t>(animation.Length - 1);
@@ -191,7 +189,7 @@ void SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& j
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out)
+void SE::Graphics::AnimationSystem::Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out) const
 {
 	StartProfile;
 	// I am using an int here to truncate the animation timepose to know which matrices I am interested about

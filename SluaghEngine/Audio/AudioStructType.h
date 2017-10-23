@@ -62,7 +62,7 @@ namespace SE {
 			unsigned int i;
 			(void)inputBuffer; /* Prevent unused variable warning. */
 
-			if ((framesPerBuffer * data->pData.currentPos * data->sample->info.channels) + framesPerBuffer * data->sample->info.channels <= data->sample->info.frames * data->sample->info.channels)
+			if (framesPerBuffer * data->pData.currentPos < data->sample->info.frames - framesPerBuffer)
 			{
 				for (i = 0; i<framesPerBuffer; i++)
 				{
@@ -72,12 +72,12 @@ namespace SE {
 					}
 				}
 				data->pData.currentPos++;
-				return 0;
+				return paContinue;
 			}
 			else
 			{
 				memset(out, 0, framesPerBuffer * data->sample->info.channels);
-				for (i = 0; i < (framesPerBuffer * (data->pData.currentPos + 1) * data->sample->info.channels) - (data->sample->info.frames * data->sample->info.channels) - 1; i++)
+				for (i = 0; i < (data->sample->info.frames - framesPerBuffer * data->pData.currentPos); i++)
 				{
 					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{
@@ -85,9 +85,9 @@ namespace SE {
 					}
 				}
 				data->pData.currentPos = 0;
-				return 0;
+				return paContinue;
 			}
-			return 1;
+			return paComplete;
 		};
 
 		static int effectCallback(const void *inputBuffer,
@@ -98,37 +98,37 @@ namespace SE {
 			void *userData)
 		{
 			/* Cast data passed through stream to our structure. */
-			AudioOut *_data = static_cast<AudioOut*>(userData);
-			float *_out = (float*)outputBuffer;
+			AudioOut *data = static_cast<AudioOut*>(userData);
+			float *out = (float*)outputBuffer;
 
-			unsigned int _i;
+			unsigned int i;
 			(void)inputBuffer; /* Prevent unused variable warning. */
 
-			if ((framesPerBuffer * _data->pData.currentPos * _data->sample->info.channels) + framesPerBuffer * _data->sample->info.channels <= _data->sample->info.frames * _data->sample->info.channels)
+			if (framesPerBuffer * data->pData.currentPos < data->sample->info.frames - framesPerBuffer)
 			{
-				for (_i = 0; _i<framesPerBuffer; _i++)
+				for (i = 0; i<framesPerBuffer; i++)
 				{
-					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{
-						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
+						*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->pData.currentPos)]) * data->pData.volume;
 					}
 				}
-				_data->pData.currentPos++;
-				return 0;
+				data->pData.currentPos++;
+				return paContinue;
 			}
 			else
 			{
-				memset(_out, 0, framesPerBuffer * _data->sample->info.channels);
-				for (_i = 0; _i < (framesPerBuffer * (_data->pData.currentPos + 1) * _data->sample->info.channels) - (_data->sample->info.frames * _data->sample->info.channels) - 1; _i++)
+				memset(out, 0, framesPerBuffer * data->sample->info.channels);
+				for (i = 0; i < (data->sample->info.frames - framesPerBuffer * data->pData.currentPos); i++)
 				{
-					for (int _AmountOfChannels = 0; _AmountOfChannels < _data->sample->info.channels; _AmountOfChannels++)
+					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
 					{
-						*_out++ = (_data->sample->samples[_i * _data->sample->info.channels + _AmountOfChannels + (framesPerBuffer * _data->sample->info.channels * _data->pData.currentPos)]) * _data->pData.volume;
+						*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->pData.currentPos)])* data->pData.volume;
 					}
 				}
-				return 1;
+				return paComplete;
 			}
-			return 1;
+			return paComplete;
 		};
 
 	}	//namespace Audio

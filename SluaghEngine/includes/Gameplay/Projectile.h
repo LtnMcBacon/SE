@@ -151,6 +151,7 @@ namespace SE
 		private:
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> tempStorage;
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
@@ -189,15 +190,15 @@ namespace SE
 
 		public:
 			Projectile();
-			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
 			Projectile(const Projectile& other);
 			Projectile& operator=(const Projectile& other);
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddContinuousFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddCollisionFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddDeathFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
 
 			int AddBehaviourData(BehaviourData data);
 			BehaviourData& GetBehaviourData(int index);

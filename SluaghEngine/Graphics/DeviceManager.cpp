@@ -1,5 +1,4 @@
 #include "DeviceManager.h"
-#include <Utilz\Console.h>
 #include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -13,7 +12,6 @@
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
-using namespace SE::Utilz;
 
 DeviceManager::DeviceManager() {
 	gDevice = nullptr;
@@ -163,8 +161,6 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 
 	if (FAILED(hr)) {
-
-		Console::Print("Device Creation Error: Device, DeviceContext and Swap Chain could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -225,16 +221,12 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	setDebugName(gBackBuffer, "STANDARD_BACK_BUFFER_TEXTURE2D");
 
 	if (FAILED(hr)) {
-
-		Console::Print("Buffer Error: Back buffer could not be retrieved");
 		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Render Target View Error: Render target view could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -266,7 +258,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	if (FAILED(hr)) {
 
-		Console::Print("Depth Stencil Error: Depth stencil texture couldn't be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -313,8 +304,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Depth Stencil RTV Error: Depth stencil RTV could not be created");
 		ProfileReturnConst(hr);
 	}
 

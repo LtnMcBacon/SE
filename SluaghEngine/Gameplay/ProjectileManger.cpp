@@ -46,8 +46,10 @@ void SE::Gameplay::ProjectileManager::AddProjectiles(std::vector<ProjectileData>
 
 	for (int i = 0; i < newProjectiles.size(); i++)
 	{
-		projectiles.push_back(factory.CreateNewProjectile(newProjectiles[i]));
+		factory.CreateNewProjectile(newProjectiles[i]);
 	}
+
+	factory.GetNewProjectiles(projectiles);
 
 	StopProfile;
 }

@@ -6,6 +6,11 @@
 #include <Gameplay\ProjectileData.h>
 #include <Gameplay\Room.h>
 #include <Gameplay\PlayerUnit.h>
+#include <ResourceHandler\IResourceHandler.h>
+#include "Utilz/GUID.h"
+
+
+#include <variant>
 
 namespace SE
 {
@@ -30,16 +35,12 @@ namespace SE
 		{
 		private:
 
+			/**
+			* @brief	Wrapper for a parameter of a behaviour, uses variant to be able to hold whatever type might be needed
+			*/
 			struct BehaviourParameter
 			{
-				union
-				{
-					float f;
-					int i;
-					bool b;
-					//std::function<bool(Projectile* projectile, float dt)> func;
-					Projectile* projectile;
-				};
+				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*> data;
 			};
 
 			/**
@@ -54,6 +55,10 @@ namespace SE
 
 			BehaviourPointers ptrs;
 
+			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
+
+			std::vector<Projectile> newProjectiles;
+
 		public:
 
 			/**
@@ -64,13 +69,24 @@ namespace SE
 			* @retval Projectile The newly created projectile
 			*
 			*/
-			SE::Gameplay::Projectile CreateNewProjectile(ProjectileData data);
+			void CreateNewProjectile(const ProjectileData& data);
+
+			inline void GetNewProjectiles(std::vector<Projectile>& vectorToAddTo)
+			{
+				vectorToAddTo.insert(vectorToAddTo.end(), newProjectiles.begin(), newProjectiles.end());
+				newProjectiles.clear();
+			}
 
 
 		private:
 			ProjectileFactory(const ProjectileFactory& other) = delete;
 			ProjectileFactory(const ProjectileFactory&& other) = delete;
 			ProjectileFactory& operator=(const ProjectileFactory& rhs) = delete;
+
+			void GetLine(const std::string& file, std::string& line, int& pos);
+			void LoadNewProjectiles(const ProjectileData& data);
+			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, const char* fileData);
+			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, const char* valueData);
 
 			/**
 			* @brief	Adds bounce behaviour to the projectile
@@ -105,14 +121,21 @@ namespace SE
 
 
 			/**
-			* @brief	Adds Targeting closest enemy behaviour to the projectile
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeCondition(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func*/);
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionRunBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionAddBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+
+
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
 			*/
-			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, std::function<bool(Projectile* projectile, float dt)> func);
+			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, const std::function<bool(Projectile* projectile, float dt)>& func);
 
 
 		public:
