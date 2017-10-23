@@ -25,6 +25,7 @@
 #include "IDebugRenderManager.h"
 #include "IGUIManager.h"
 #include <DevConsole\IConsole.h>
+#include <I2DTextManager.h>
 
 namespace SE
 {
@@ -50,6 +51,7 @@ namespace SE
 				IMaterialManager* materialManager = nullptr;
 				ILightManager* lightManager = nullptr;
 				IDebugRenderManager* debugRenderManager = nullptr;
+				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
 			};
 			struct Subsystems

@@ -27,24 +27,6 @@ namespace SE
 			~GUIManager();
 
 			/**
-			* @brief	Bind a renderable text to entity
-			*
-			* @param[in] entity The entity to bind the renderable text to.
-			* @param[in] textInfo Struct with the required information.
-			*
-			*/
-			void CreateRenderableText(const Entity& entity, const Graphics::TextGUI& textInfo)override;
-
-			/**
-			* @brief Create a new font
-			* @param[in] fontFile The GUID to the font file.
-			* @retval 0+ Font ID
-			* @retval -1 Something went wrong.
-			* @endcode
-			*/
-			int CreateTextFont(const Utilz::GUID& fontFile)override;
-
-			/**
 			* @brief Create a new 2D texture for GUI
 			* @param[in] texFile The GUID to the texture file.
 			* @retval 0+ Texture ID
@@ -52,15 +34,6 @@ namespace SE
 			* @endcode
 			*/
 			int Create2D(const Utilz::GUID& texFile)override;
-
-			/**
-			* @brief	Hide/Show the renderable text
-			*
-			* @param[in] entity Which entity.
-			* @param[in] show True to show, false to hide.
-			*
-			*/
-			void ToggleRenderableText(const Entity& entity, bool show)override;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -85,90 +58,6 @@ namespace SE
 			* @endcode
 			*/
 			int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)override;
-
-			
-			// sets for Text
-			inline void SetText(const Entity& entity, std::wstring text)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].text = text;
-					loadedTexts[fileLoaded->second.ID].hashString = std::hash<std::wstring>()(text);
-				}
-			};
-
-			inline void SetTextFontID(const Entity& entity, size_t fontID)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].fontID = fontID;
-				}
-			};
-
-			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].colour = colour;
-				}
-			};
-			
-			inline void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].pos = pos;
-				}
-			};
-			
-			inline void SetTextOrogin(const Entity& entity, DirectX::XMFLOAT2 origin)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].origin = origin;
-				}
-			};
-			
-			inline void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].scale = scale;
-				}
-			};
-			
-			inline void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].effect = effect;
-				}
-			};
-			
-			inline void SetTextRotation(const Entity& entity, float rotation)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].rotation = rotation;
-				}
-			};
-			
-			inline void SetTextLayerDepth(const Entity& entity, float layerDepth)override {
-				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
-				{
-					loadedTexts[fileLoaded->second.ID].layerDepth = layerDepth;
-				}
-			};
 
 			// sets for texture
 			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour)override {
@@ -282,13 +171,9 @@ namespace SE
 			void updateGUI()override;
 
 		private:
-			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
-
-
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			void DestroyText(size_t index);
 			void DestroyTexture(size_t index);
 			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 

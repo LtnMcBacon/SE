@@ -94,8 +94,8 @@ namespace SE
 				guiText.rotation = 0;
 				guiText.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				
-				managers.guiManager->CreateRenderableText(entText, guiText);
-				managers.guiManager->ToggleRenderableText(entText, true);
+				managers.textManager->CreateRenderableText(entText, guiText);
+				managers.textManager->ToggleRenderableText(entText, true);
 
 				// GUI texture creation
 				auto entTexture = managers.entityManager->Create();
