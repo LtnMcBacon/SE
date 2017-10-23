@@ -124,18 +124,20 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 
 #pragma region AudioData
 	am.LoadSound(Utilz::GUID("BLoop.wav"));
-
+	am.LoadSound(Utilz::GUID("BLoop2.wav"));
 	int delay = 0;
-	while (am.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
+	while (am.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10 && am.CheckIfLoaded(Utilz::GUID("BLoop2.wav")))
 	{
 		delay++;
 	}
 
 	auto soundEnt = em.Create();
-	int soundID;
-	soundID = am.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
-	if (soundID > -1)
-		am.StreamSound(soundEnt, soundID);
+
+	int soundID[2];
+	soundID[0] = am.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
+	soundID[1] = am.CreateStream(soundEnt, Utilz::GUID("BLoop2.wav"), Audio::SoundIndexName::BakgroundSound);
+	if (soundID[0] > -1)
+		am.StreamSound(soundEnt, soundID[0]);
 #pragma endregion AudioData
 
 
@@ -180,8 +182,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	lm.ToggleLight(light[3], true);
 
 	//Light 5
-	data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
-	data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
+	data.color = DirectX::XMFLOAT3(0.3, 0.3, 0.3);
+	data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
 	data.radius = 150.0;
 	lm.AddLight(light[4], data);
 	lm.ToggleLight(light[4], true);
@@ -365,17 +367,23 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 		LEFT = 6,
 		RIGHT_MOUSE = 7,
 		SPACE = 8,
-		CONSOLE = 9
+		CONSOLE = 9,
+		FULLSCREEN = 10,
+		SIZE19 = 11,
+		SIZE12 = 12
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyW);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyD);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyS);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
-	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
-	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
+	win->MapActionButton(UP, Window::KeyW);
+	win->MapActionButton(RIGHT, Window::KeyD);
+	win->MapActionButton(DOWN, Window::KeyS);
+	win->MapActionButton(LEFT, Window::KeyA);
+	win->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	win->MapActionButton(SPACE, Window::KeySpace);
+	win->MapActionButton(CONSOLE, Window::Key1);
+	win->MapActionButton(FULLSCREEN, Window::KeyT);
+	win->MapActionButton(SIZE19, Window::KeyY);
+	win->MapActionButton(SIZE12, Window::KeyU);
 
 	pos playerPos;
 	playerPos.x = 1.5f;
@@ -394,12 +402,56 @@ bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	bool stepping = false;
 	bool running = true;
 	win->UpdateTime();
-
+	float audioTime = 0.0;
+	int audio = 0;
+	bool change = false;
 	while (running)
 	{
 		win->UpdateTime();
 		float dt = win->GetDelta();
-
+		audioTime += dt;
+		if (audioTime > 60.0)
+		{
+			am.StopSound(soundEnt, soundID[audio]);
+			audio = (audio + 1) % 2;
+			am.StreamSound(soundEnt, soundID[audio]);
+			audioTime = 0.0;
+		}
+		if (win->ButtonPressed(MoveDir::FULLSCREEN))
+		{
+			change = true;
+			bool fs = om.GetOptionBool("Window", "fullScreen", true);
+			if (fs == true)
+				om.SetOptionBool("Window", "fullScreen", false);
+			else
+				om.SetOptionBool("Window", "fullScreen", true);
+		}
+		if (win->ButtonPressed(MoveDir::SIZE19))
+		{
+			size_t height = om.GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = om.GetOptionUnsignedInt("Window", "width", 1920);
+			if (height != 1080 || width != 1920)
+			{
+				om.SetOptionUnsignedInt("Window", "height", 1080);
+				om.SetOptionUnsignedInt("Window", "width", 1920);
+				change = true;
+			}
+		}
+		if (win->ButtonPressed(MoveDir::CONSOLE))
+		{
+			size_t height = om.GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = om.GetOptionUnsignedInt("Window", "width", 1920);
+			if (height != 720 || width != 1280)
+			{
+				om.SetOptionUnsignedInt("Window", "height", 720);
+				om.SetOptionUnsignedInt("Window", "width", 1280);
+				change = true;
+			}
+		}
+		if (change == true)
+		{
+			om.Trigger();
+		}
 		newProjectiles.clear();
 
 		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);

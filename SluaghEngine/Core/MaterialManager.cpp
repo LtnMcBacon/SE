@@ -290,6 +290,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	if (find != entityToMaterialInfo.end())
 	{
 		info->pixelShader = shaders[materialInfo.shaderIndex[find->second]].shaderHandle;
+		info->material = materials[materialInfo.materialIndex[find->second]].attrib;
 		auto& reflection = shaders[materialInfo.shaderIndex[find->second]].shaderReflection;
 		const int textureCount = reflection.textureNameToBindSlot.size();
 		info->textureCount = textureCount;
@@ -302,6 +303,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	else
 	{
 		info->pixelShader = defaultShaderHandle;
+		info->material = materials[0].attrib;
 		auto& reflection = defaultShaderReflection;
 		const int textureCount = reflection.textureNameToBindSlot.size();
 		info->textureCount = textureCount;

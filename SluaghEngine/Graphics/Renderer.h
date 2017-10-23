@@ -445,6 +445,7 @@ namespace SE
 
 			int oncePerFrameBufferID;
 			int lightBufferID = -1;
+			int matID = -1;
 
 			DeviceManager* device;
 

@@ -63,6 +63,12 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	running = true;
 	//myThread = std::thread(&Renderer::Frame, this);
 
+	matID = graphicResourceHandler->CreateConstantBuffer(sizeof(Graphics::MaterialAttributes));
+	if (matID < 0)
+	{
+		throw std::exception("Could not create LightDataBuffer");
+	}
+
 	ProfileReturnConst( 0);
 }
 
@@ -449,6 +455,7 @@ int SE::Graphics::Renderer::Render() {
 	previousJob.skeletonIndex = -1;
 	previousJob.fillSolid = 1;
 	previousJob.transparency = 0;
+	previousJob.matIndex = -1;
 
 	device->SetBlendTransparencyState(0);
 	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
@@ -843,6 +850,15 @@ void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const Ren
 			break;
 		}
 		}
+	}
+	if (previousJob.matIndex != job.matIndex)
+	{
+		const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+		Graphics::MaterialAttributes matDataBuffer;
+		graphicResourceHandler->UpdateConstantBuffer<Graphics::MaterialAttributes>(matID, [&job](Graphics::MaterialAttributes* data) {
+			memcpy(data, &job.material, sizeof(Graphics::MaterialAttributes));
+		});
+		graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, matID, 3);
 	}
 	if (previousJob.fillSolid != job.fillSolid)
 	{
