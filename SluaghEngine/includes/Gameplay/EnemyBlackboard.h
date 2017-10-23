@@ -6,6 +6,7 @@ namespace SE
 	namespace Gameplay
 	{
 		class EnemyUnit;
+		struct ProjectileData;
 
 
 		/**
@@ -46,6 +47,7 @@ namespace SE
 			bool invurnerable = true;
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
+			std::vector<ProjectileData*> enemyProjectiles;
 
 		};
 	}

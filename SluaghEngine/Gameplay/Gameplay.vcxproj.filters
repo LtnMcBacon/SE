@@ -392,5 +392,8 @@
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h">
       <Filter>Header Files\AI\Sluagh</Filter>
     </ClInclude>
+    <ClInclude Include="GlaistigAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

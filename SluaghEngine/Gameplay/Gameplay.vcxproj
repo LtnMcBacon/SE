@@ -105,6 +105,7 @@
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GlaistigAttackLeaf.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
