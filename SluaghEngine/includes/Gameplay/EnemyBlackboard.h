@@ -43,7 +43,7 @@ namespace SE
 
 			float previousMovement[2] = {};
 			float extents;
-			bool invurnerable = true;
+			bool invurnerable = false;
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
 

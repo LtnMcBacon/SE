@@ -360,6 +360,46 @@ void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::Proje
 	StopProfile;
 }
 
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::IFCaseBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> conditions = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[0].data);
+	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> ifTrue = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[1].data);
+	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> ifFalse = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[2].data);
+
+	auto Brancher = [conditions, ifTrue, ifFalse](Projectile* p, float dt) -> bool
+	{
+		bool allTrue = true;
+
+		for (int i = 0; i < conditions.size(); i++)
+		{
+			if (!conditions[i](p, dt))
+			{
+				allTrue = false;
+				break;
+			}
+		}
+
+		if (allTrue)
+		{
+			for (int i = 0; i < ifTrue.size(); i++)
+			{
+				ifTrue[i](p, dt);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < ifFalse.size(); i++)
+			{
+				ifFalse[i](p, dt);
+			}
+		}
+
+		return true;
+	};
+
+	return Brancher;
+}
+
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::BounceBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	auto bounce = [](Projectile* p, float dt) -> bool
@@ -721,6 +761,7 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionAddBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IFCaseBehaviour, this, std::placeholders::_1));
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()

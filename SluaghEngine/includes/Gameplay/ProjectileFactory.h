@@ -88,6 +88,22 @@ namespace SE
 			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, const char* fileData);
 			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, const char* valueData);
 
+			
+			/**
+			* @brief Acts as an if case
+			*/
+			std::function<bool(Projectile* projectile, float dt)> IFCaseBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions, vector ifTrue, vector ifFalse*/);
+
+			/**
+			* @brief Acts as an AND checker to be used with IfCaseBehaviour
+			*/
+			std::function<bool(Projectile* projectile, float dt)> ANDConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions*/);
+
+			/**
+			* @brief Acts as an OR checker to be used with IfCaseBehaviour
+			*/
+			std::function<bool(Projectile* projectile, float dt)> ORConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions*/);
+			
 			/**
 			* @brief	Adds bounce behaviour to the projectile
 			*/
