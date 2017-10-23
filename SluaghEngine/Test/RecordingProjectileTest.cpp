@@ -1,13 +1,15 @@
-#include "PlayerMovementTest.h"
+#include "RecordingProjectileTest.h"
 #include <Core\Engine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
+#include <Gameplay/ProjectileData.h>
+#include <Gameplay/ProjectileManager.h>
 #include <chrono>
 #include <Gameplay/PlayerUnit.h>
 #include <Profiler.h>
 #include <Utilz\Tools.h>
-#include "Gameplay/EnemyFactory.h"
 #include "Gameplay/GameBlackboard.h"
+#include "Gameplay/EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -22,24 +24,29 @@
 
 
 
-SE::Test::PlayerMovementTest::PlayerMovementTest()
+SE::Test::RecordingProjectileTest::RecordingProjectileTest()
 {
 
 }
 
-SE::Test::PlayerMovementTest::~PlayerMovementTest()
+SE::Test::RecordingProjectileTest::~RecordingProjectileTest()
 {
 
 }
 
-
-
-bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
+	
+
 	using namespace DirectX;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
+	info.winInfo.winState = Window::WindowState::Record;
+	info.winInfo.height = 720;
+	info.winInfo.width = 1280;
+	info.winInfo.windowTitle = "Recording";
+	info.winInfo.fullScreen = false;
 	auto re = e.Init(info);
 	if (re)
 	{
@@ -55,21 +62,45 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto& coM = e.GetCollisionManager();
 	auto& mm = e.GetMaterialManager();
 	auto& lm = e.GetLightManager();
+	auto& am = e.GetAudioManager();
+	auto win = e.GetWindow();
+
 
 	Tools::Tools t;
 
 	float width = om.GetOptionUnsignedInt("Window", "width", 800);
 	float height = om.GetOptionUnsignedInt("Window", "height", 600);
 
+
+	Core::MaterialManager::CreateInfo floorInfo;
+	Utilz::GUID material = Utilz::GUID("Placeholder_Floor.mat");
+	Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+	floorInfo.shader = shader;
+	floorInfo.materialFile = material;
 	auto floor = em.Create();
+	mm.Create(floor, floorInfo);
 	const int numberOfBlocks = 25 * 25;
 	SE::Core::Entity entities[numberOfBlocks];
 	SE::Core::Entity arrows[numberOfBlocks];
 
+	Core::MaterialManager::CreateInfo cubeInfo;
+	material = Utilz::GUID("Placeholder_Block.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	cubeInfo.shader = shader;
+	cubeInfo.materialFile = material;
+
+	Core::MaterialManager::CreateInfo arrowInfo;
+	material = Utilz::GUID("Placeholder_Arrow.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	arrowInfo.shader = shader;
+	arrowInfo.materialFile = material;
+
 	for (int i = 0; i < numberOfBlocks; i++)
 	{
 		entities[i] = em.Create();
+		mm.Create(entities[i], cubeInfo);
 		arrows[i] = em.Create();
+		mm.Create(arrows[i], arrowInfo);
 	}
 	tm.Create(floor);
 	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
@@ -91,7 +122,70 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
+#pragma region AudioData
+	am.LoadSound(Utilz::GUID("BLoop.wav"));
 
+	int delay = 0;
+	while (am.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
+	{
+		delay++;
+	}
+
+	auto soundEnt = em.Create();
+	int soundID;
+	soundID = am.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
+	if (soundID > -1)
+		am.StreamSound(soundEnt, soundID);
+#pragma endregion AudioData
+
+
+	
+
+
+
+#pragma region LightDataSet
+	Core::Entity light[5];
+	for (int i = 0; i < 5; i++)
+	{
+		light[i] = em.Create();
+	}
+
+	Core::AddLightInfo data;
+	//Light 1
+	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
+	data.radius = 10.0f;
+	lm.AddLight(light[0], data);
+	lm.ToggleLight(light[0], true);
+
+	//Light 2
+	data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
+	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
+	data.radius = 10.0;
+	lm.AddLight(light[1], data);
+	lm.ToggleLight(light[1], true);
+
+	//Light 3
+	data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
+	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
+	data.radius = 10.0;
+	lm.AddLight(light[2], data);
+	lm.ToggleLight(light[2], true);
+
+	//Light 4
+	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
+	data.radius = 10.0;
+	lm.AddLight(light[3], data);
+	lm.ToggleLight(light[3], true);
+
+	//Light 5
+	data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
+	data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
+	data.radius = 150.0;
+	lm.AddLight(light[4], data);
+	lm.ToggleLight(light[4], true);
+#pragma endregion LightDataSet
 
 	/*Place out the level*/
 	char mapRepresentation[25][25] =
@@ -127,43 +221,31 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
 
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
-
-
-
-	tm.Create(player->GetEntity());
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-//	tm.SetRotation(player->GetEntity(), 0.0f, 3.14f, 0.0f);
-	//tm.SetScale(player->GetEntity(), 1.f);
 
-	Core::MaterialManager::CreateInfo minfo;
-	auto material = Utilz::GUID("MCModell.mat");
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
-	minfo.shader = shader;
-	minfo.materialFile = material;
+	Core::MaterialManager::CreateInfo playerInfo;
+	material = Utilz::GUID("MCModell.mat");
+	shader = Utilz::GUID("SimpleLightPS.hlsl");
+	playerInfo.shader = shader;
+	playerInfo.materialFile = material;
 
-	mm.Create(player->GetEntity(), minfo, true);
+	mm.Create(player->GetEntity(), playerInfo);
+	tm.SetScale(player->GetEntity(), 1.f);
+	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
 
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"), true);
 	rm.ToggleRenderableObject(player->GetEntity(), true);
+	tm.SetRotation(player->GetEntity(), 0, 0, 0);
 
-	auto& l = em.Create();
-	Core::AddLightInfo d;
-	d.radius = 100.0f;
-	d.pos = { 0.0f, 5.0f, -5.0f };
-	d.color = { 1, 1,1 };
-	lm.AddLight(l, d);
-	lm.ToggleLight(l, true);
-
-	
+	//SE::Core::Entity camera = caM.GetActive();
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
-	
 	Core::CameraBindInfoStruct cInfo;
 	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
+
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
-	float cameraRotationX = DirectX::XM_PI/3;
-	float cameraRotationY = DirectX::XM_PI/3;
+	float cameraRotationX = DirectX::XM_PI / 3;
+	float cameraRotationY = DirectX::XM_PI / 3;
 
 	auto cameraRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotationX, cameraRotationY, 0);
 
@@ -171,8 +253,14 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
-	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5* cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);//2 * DirectX::XM_PI / 3, 0);
+	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
+	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
+
+	SE::Gameplay::BehaviourPointers temp;
+	temp.currentRoom = &testRoom;
+	temp.player = player;
+
+	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -236,7 +324,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 						tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV4, 0.0f);
 					}
 				}
-				
+
 				numberOfArrows++;
 			}
 		}
@@ -246,6 +334,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
+
 	for (int i = 0; i < 100; i++)
 	{
 		pos enemyPos;
@@ -258,10 +347,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
 		enemy->SetXPosition(enemyPos.x + .5f);
 		enemy->SetYPosition(enemyPos.y + .5f);
-	
-			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemy->GetEntity(), Block);
-		rm.ToggleRenderableObject(enemy->GetEntity(), true);
+
 		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
@@ -277,19 +363,25 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 		RIGHT = 4,
 		DOWN = 5,
 		LEFT = 6,
-		RIGHT_MOUSE = 7
+		RIGHT_MOUSE = 7,
+		SPACE = 8,
+		CONSOLE = 9
 	};
 
 
-	e.GetWindow()->MapActionButton(UP, Window::KeyUp);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyRight);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyDown);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyLeft);
+	e.GetWindow()->MapActionButton(UP, Window::KeyW);
+	e.GetWindow()->MapActionButton(RIGHT, Window::KeyD);
+	e.GetWindow()->MapActionButton(DOWN, Window::KeyS);
+	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
 	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
+	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
 
 	pos playerPos;
 	playerPos.x = 1.5f;
 	playerPos.y = 1.5f;
+
+	std::vector<Gameplay::ProjectileData> newProjectiles;
 
 	DirectX::XMFLOAT3 tPos = tm.GetPosition(floor);
 	DirectX::XMFLOAT3 tRot = tm.GetRotation(floor);
@@ -301,67 +393,85 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool stepping = false;
 	bool running = true;
-	//unsigned char counter = 0;
-	float dt = 1.0f / 60.0f;
+	win->UpdateTime();
+
 	while (running)
 	{
-		SE::Core::Engine::GetInstance().GetTransformManager().Rotate(player->GetEntity(), 0.0f, 1.0f*dt, 0.0f);
+		win->UpdateTime();
+		float dt = win->GetDelta();
+
+		newProjectiles.clear();
 
 		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
 		float movX = 0.0f;
 		float movY = 0.0f;
 
-		if(e.GetWindow()->ButtonDown(MoveDir::UP))
+		if (win->ButtonDown(MoveDir::UP))
 		{
 			input.upButton = true;
 			movY += 1.0f;
 		}
-		if(e.GetWindow()->ButtonDown(MoveDir::DOWN))
+		if (win->ButtonDown(MoveDir::DOWN))
 		{
 			input.downButton = true;
 			movY -= 1.0f;
 		}
-		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT))
+		if (win->ButtonDown(MoveDir::RIGHT))
 		{
 			input.rightButton = true;
 			movX += 1.0f;
 		}
-		if (e.GetWindow()->ButtonDown(MoveDir::LEFT))
+		if (win->ButtonDown(MoveDir::LEFT))
 		{
 			input.leftButton = true;
 			movX -= 1.0f;
 		}
-		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
+		if (win->ButtonDown(MoveDir::RIGHT_MOUSE))
 		{
-			int mX = 0;
-			int mY = 0;
-			e.GetWindow()->GetMousePos(mX, mY);
-
-			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-			DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
-			DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
-			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
-			
-			rayO = DirectX::XMVector4Transform(rayO, viewM);
-			rayD = DirectX::XMVector4Transform(rayD, viewM);
-			rayD = XMVector3Normalize(rayD);
-
-			float distance = XMVectorGetY(rayO)/-XMVectorGetY(rayD);
-			//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
-
-			auto clickPos = rayO + rayD*distance;
-
 			input.mouseRightDown = true;
-			input.mousePosX = DirectX::XMVectorGetX(clickPos);
-			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
 		}
+		if (win->ButtonPressed(MoveDir::CONSOLE))
+		{
+			e.GetDevConsole().Toggle();
+		}
+
+		int mX = 0;
+		int mY = 0;
+		win->GetMousePos(mX, mY);
+
+		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
+		DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
+		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+
+		rayO = DirectX::XMVector4Transform(rayO, viewM);
+		rayD = DirectX::XMVector4Transform(rayD, viewM);
+		rayD = XMVector3Normalize(rayD);
+
+		//float distance = 0.0f;
+		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+		//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
+
+		auto clickPos = rayO + rayD*distance;
+
+		input.mousePosX = DirectX::XMVectorGetX(clickPos);
+		input.mousePosY = DirectX::XMVectorGetZ(clickPos);
+
 		float totMov = abs(movX) + abs(movY);
-		if(totMov != 0.f)
+		if (totMov != 0.f)
 		{
 			movX /= totMov;
 			movY /= totMov;
 		}
-		
+
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+		if (win->ButtonDown(MoveDir::SPACE))
+		{
+			actionInput.skill1Button = true;
+		}
+		/*Only thing needed right now*/
+		blackBoard.deltaTime = dt;
+
 		int arrowIndex = 0;
 		for (int x = 0; x < 25; x++)
 		{
@@ -428,24 +538,29 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 
 		}
 
-		player->UpdateMovement(dt*5, input);
+		player->UpdateMovement(dt * 5, input);
+		player->UpdateActions(dt, newProjectiles, actionInput);
+
+		projectileManager->AddProjectiles(newProjectiles);
+
+		projectileManager->UpdateProjectilePositions(dt);
+		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+		projectileManager->UpdateProjectileActions(dt);
+
 
 		playerPos.x = player->GetXPosition();
 		playerPos.y = player->GetYPosition();
 
-		/*Only thing needed for enemy movement!*/
-		blackBoard.deltaTime = dt;
-
-		if (e.GetWindow()->ButtonPressed(0))
+		if (win->ButtonPressed(0))
 			running = false;
-		if (e.GetWindow()->ButtonPressed(1))
+		if (win->ButtonPressed(1))
 		{
 			stepping = !stepping;
 		}
 
 		if (stepping)
 		{
-			if (e.GetWindow()->ButtonDown(2))
+			if (win->ButtonDown(2))
 			{
 				testRoom->Update(dt, playerPos.x, playerPos.y);
 			}
@@ -454,12 +569,22 @@ bool SE::Test::PlayerMovementTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+
+
+		/*	Utilz::TimeMap times;
+		e.GetProfilingInformation(times);
+		for (auto& t : times)
+		console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 
+	delete projectileManager;
 	delete testRoom;
 	delete player;
+
+
+
+
 	e.Release();
 
 	ProfileReturnConst(true)
 }
-

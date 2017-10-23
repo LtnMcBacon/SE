@@ -14,6 +14,8 @@
 #include "AnimationManager.h"
 #include "LightManager.h"
 #include "DevConsole.h"
+#include "ParticleSystemManager.h"
+
 
 #include "DebugRenderManager.h"
 #include <Utilz\StackAllocator.h>
@@ -32,6 +34,7 @@ namespace SE
 		public:
 			struct InitializationInfo
 			{
+				SE::Window::InitializationInfo winInfo;
 				bool placeholder; //Rewrite this later
 			};
 
@@ -77,6 +80,8 @@ namespace SE
 
 			/**
 			* @brief    Updates the state of the Core, entity cleanup, input, etc.
+			* @details  Calls frame in all of its managers and handlers. It also records 
+			* the time each manager takes to calculate its frame.
 			*
 			* @retval 0 On success.
 			*/
@@ -227,6 +232,14 @@ namespace SE
 				return *lightManager;
 			}
 
+			/**
+			* @brief    Returns a particle system manager
+			* @retval return_value_0 Returns a reference to the Light manager.
+			* @sa LightManager
+			*/
+			inline ParticleSystemManager& GEtParticleSystemManager() const {
+				return *particleSystemManager;
+			}
 			inline AnimationManager& GetAnimationManager() const {
 				return *animationManager;
 			}
@@ -275,6 +288,7 @@ namespace SE
 			CameraManager* cameraManager;
 			DebugRenderManager* debugRenderManager;
 			AnimationManager* animationManager;
+			ParticleSystemManager* particleSystemManager;
 			Utilz::StackAllocator* perFrameStackAllocator;
 
 			GUIManager* guiManager;

@@ -2,6 +2,7 @@
 #ifndef __SE_UTILZ_CIRCULAR_FIFO_H__
 #define __SE_UTILZ_CIRCULAR_FIFO_H__
 #include <atomic>
+#include <assert.h>
 namespace SE
 {
 	namespace Utilz
@@ -59,7 +60,7 @@ namespace SE
 					tail.store(next_tail);
 					return true;
 				}
-
+				assert(next_tail == head.load());
 				return false;  // full queue
 			}
 

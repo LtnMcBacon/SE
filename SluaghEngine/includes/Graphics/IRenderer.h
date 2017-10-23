@@ -26,8 +26,11 @@ namespace SE
 {
 	namespace Graphics
 	{
-		class Entity;
-
+		struct InitializationInfo
+		{
+			void* window;
+			size_t maxVRAMUsage = 256u*1024u*1024u;
+		};
 		class IRenderer
 		{
 		public:
@@ -40,7 +43,7 @@ namespace SE
 			* @retval other See HRESULT
 			* @endcode
 			*/
-			virtual int Initialize(void* window) = 0;
+			virtual int Initialize(const InitializationInfo& initInfo) = 0;
 
 			/**
 			* @brief Shutdown the renderer
@@ -419,6 +422,27 @@ namespace SE
 			*/
 			virtual size_t GetVRam() = 0;
 
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			virtual bool IsUnderLimit(size_t sizeToAdd) = 0;
+
+			/**
+			* @brief Checks if there is enough free VRAM to allocate a resource with a potential unallocated amount.
+			* @param potential The size of resources that can be unloaded to make room.
+			* @param sizeToAdd The size of the new resource.
+			*
+			* @retval true If there is enough VRAM to allocate this resource.
+			* @retval true If there is not enough VRAM to allocate this resource.
+			*
+			*/
+			virtual bool IsUnderLimit(size_t potential, size_t sizeToAdd) = 0;
+
 			/*
 			 * @brief Saves the current error log in the parameter. The vector can only be used until the next call to BeginFrame if it is stored as a reference.
 			 */
@@ -429,6 +453,18 @@ namespace SE
 			*
 			*/
 			virtual void GetProfilingInformation(Utilz::TimeMap& map) = 0;
+
+			/**
+			* @brief	Enables bloom post-effect.
+			*
+			*/
+			virtual int EnableBloom(int handleHorizontal, int handleVertical) = 0;
+
+			/**
+			* @brief	Disables bloom post-effect.
+			*
+			*/
+			virtual int DisableBloom() = 0;
 		protected:
 			IRenderer() {};
 			IRenderer(const IRenderer& other) = delete;
