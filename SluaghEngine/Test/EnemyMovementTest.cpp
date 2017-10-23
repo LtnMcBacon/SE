@@ -187,7 +187,8 @@ bool SE::Test::EnemyMovementTest::Run(SE::DevConsole::IConsole* console)
 		}
 
 			
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	for (int i = 0; i < 10; i++)

@@ -254,7 +254,8 @@ bool SE::Test::FlowFieldTest::Run(SE::DevConsole::IConsole* console)
 				}
 			}
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 

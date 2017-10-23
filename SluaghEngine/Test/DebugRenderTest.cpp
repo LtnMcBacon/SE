@@ -149,7 +149,8 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 		{
 			console->Print("Frametime: %f ms\n", timer.GetDelta());
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 

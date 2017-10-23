@@ -1,35 +1,23 @@
-#include "DevConsole.h"
+#include "ImGuiConsole.h"
 #include <algorithm>
-#include <Imgui/imgui.h>
+#include <Imgui\imgui.h>
+#include <ImGuiDX11SDL\ImGuiDX11SDL.h>
 #include <Utilz/Memory.h>
 #include <Utilz/TimeCluster.h>
 #include <Graphics/IRenderer.h> //In order to plot VRAM usage.
 #include <Profiler.h>
 #include "Engine.h"
 
-SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
+SE::Core::ImGuiConsole::ImGuiConsole(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window) : renderer(renderer), window(window)
 {
 	_ASSERT(renderer);
-	this->renderer = renderer;
+	_ASSERT(window);
 	showConsole = false;
 	inputBuffer.resize(256);
 	commandHistoryIndex = -1;
-	AddCommand(
-		[this](int argc, char** argv)
-	{
-		std::string toPrint = "";
-		for (auto& c : nameToCommand)
-		{
-			Print(c.second.name + "\n" + c.second.description, "");
-		}
-	},
-		"commands",
-		"Lists all availible commands."
 
-		);
-
-	AddCommand(
-		[this](int argc, char** argv)
+	commands.AddCommand(
+		[this](auto backend, int argc, char** argv)
 	{
 		Clear();
 	},
@@ -38,40 +26,32 @@ SE::Core::DevConsole::DevConsole(SE::Graphics::IRenderer* renderer)
 		);
 }
 
-SE::Core::DevConsole::~DevConsole()
+SE::Core::ImGuiConsole::~ImGuiConsole()
 {
 }
 
-int SE::Core::DevConsole::AddCommand(const ConsoleCommand & command, const std::string & name, const std::string & description)
-{
-	auto find = nameToCommand.find(name);
-	if (find != nameToCommand.end())
-		return -1;
-	nameToCommand[name] = { name, description, command };
-	return 0;
-}
 
-void SE::Core::DevConsole::Print(const std::string & message, const std::string & channel)
-{
-	messages.push_back({ std::chrono::system_clock::now(), message, channel });
-}
-
-void SE::Core::DevConsole::Show()
+void SE::Core::ImGuiConsole::Show()
 {
 	showConsole = true;
 }
 
-void SE::Core::DevConsole::Hide()
+void SE::Core::ImGuiConsole::Hide()
 {
 	showConsole = false;
 }
 
-void SE::Core::DevConsole::Toggle()
+void SE::Core::ImGuiConsole::Toggle()
 {
 	showConsole = !showConsole;
 }
 
-void SE::Core::DevConsole::Frame()
+void SE::Core::ImGuiConsole::BeginFrame()
+{
+	ImGuiDX11SDL_NewFrame();
+}
+
+void SE::Core::ImGuiConsole::Frame()
 {
 	StartProfile;
 	if (!showConsole)
@@ -89,85 +69,9 @@ void SE::Core::DevConsole::Frame()
 		ProfileReturnVoid;
 	}
 	
-	{
-		static bool plot_memory_usage;
-		static bool show_gpu_timings;
-		if(ImGui::BeginMenuBar())
-		{
-			if(ImGui::BeginMenu("Debugging"))
-			{
-				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
-				ImGui::MenuItem("Show frame timings", nullptr, &show_gpu_timings);
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
-		
 
-		if(plot_memory_usage)
-		{
-			using namespace Utilz::Memory;
-			static const int samples = 256;
-			static float vram_usage[samples];
-			static float ram_usage[samples];
-			static int offset = 0;
-
-			vram_usage[offset] = ((float)renderer->GetVRam()) / (1024.0f * 1024.0f);
-			ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
-			offset = (offset + 1) % samples;
-			ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-		/*	if (renderer->GetVRam() >= Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
-			{
-				ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
-				ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
-				ImGui::PopStyleColor();
-			}*/
-			ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-			/*if (!Utilz::Memory::IsUnderLimit( Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
-			{
-				ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-				ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(Engine::GetInstance().GetOptionHandler().GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
-				ImGui::PopStyleColor();
-			}*/
-			ImGui::Separator();
-		}
-
-		/*if(show_gpu_timings)
-		{
-			SE::Utilz::TimeMap map;
-			Core::Engine::GetInstance().GetProfilingInformation(map);
-			static float maxFrameTime = 0.0f;
-			static float minFrameTime = 999999999.0f;
-			static float avg100Frames = 0.0f;
-			const auto frame = map.find("Frame");
-			if(frame != map.end())
-			{
-				static float runningSum = 0.0f;
-				runningSum += frame->second;
-				if (frame->second < minFrameTime)
-					minFrameTime = frame->second;
-				if (frame->second > maxFrameTime)
-					maxFrameTime = frame->second;
-				static size_t frameCounter = 0;
-				if (frameCounter >= 100)
-				{
-					avg100Frames = runningSum / frameCounter;
-					frameCounter = 0;
-					runningSum = 0.0f;
-				}
-
-			}
-			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
-			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
-			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
-			for(auto& m : map)
-			{
-				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
-			}
-			
-			
-		}*/
-	}
+	for (auto& fc : frameCallbacks)
+		fc();
 
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
@@ -208,7 +112,7 @@ void SE::Core::DevConsole::Frame()
 		if (inputBuffer[0])
 		{
 			std::string commandstring = std::string(inputBuffer.data(), input_end - inputBuffer.data());
-			ExecuteCommand(commandstring);
+			commands.InterpretCommand(this, commandstring.c_str());
 			commandHistory.push_back(commandstring);
 		}
 		inputBuffer[0] = '\0';
@@ -218,22 +122,37 @@ void SE::Core::DevConsole::Frame()
 	if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 		ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 	ImGui::End();
-
+	
 	ProfileReturnVoid;
 }
 
-void SE::Core::DevConsole::Clear()
+void SE::Core::ImGuiConsole::EndFrame()
+{
+	ImGui::Render();
+}
+
+void SE::Core::ImGuiConsole::Clear()
 {
 	messages.clear();
 }
 
-int SE::Core::DevConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
+void * SE::Core::ImGuiConsole::GetContext()
 {
-	DevConsole* devcon = (DevConsole*)data->UserData;
+	return ImGui::GetCurrentContext();
+}
+
+void SE::Core::ImGuiConsole::AddFrameCallback(const std::function<void()>& frameCallback)
+{
+	frameCallbacks.push_back(frameCallback);
+}
+
+int SE::Core::ImGuiConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
+{
+	ImGuiConsole* devcon = (ImGuiConsole*)data->UserData;
 	return devcon->TextEditCallback(data);
 }
 
-int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
+int SE::Core::ImGuiConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 {
 
 	StartProfile;
@@ -258,7 +177,9 @@ int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 		std::string wordStr = std::string(word_start, word_len);
 		// Build a list of candidates
 		std::vector<std::string> candidates;
-		for (auto& c : nameToCommand)
+		std::map<size_t, DevConsole::Commands::Command_Structure> commandmap;
+		commands.GetMap(commandmap);
+		for (auto& c : commandmap)
 		{
 			std::string part = c.second.name.substr(0, word_len);
 			if (part == wordStr)
@@ -327,47 +248,121 @@ int SE::Core::DevConsole::TextEditCallback(ImGuiTextEditCallbackData * data)
 		}
 	}
 	}
+
+
 	ProfileReturnConst( 0);
 }
 
-void SE::Core::DevConsole::ExecuteCommand(std::string commandString)
+int SE::Core::ImGuiConsole::Initialize()
 {
-	int argc = 0;
-	char* argv[20] = {0};
-
-
-	int j = 0;
-	int i = 0;
-	char c = commandString[i];
-	while (c != '\0')
-	{
-		while (!(c == ' ' || c == '\0'))
-		{
-			i++;
-			c = commandString[i];
-		}
-		argv[argc] = &commandString[j];
-		argc++;
-		if (commandString[i] != '\0')
-		{
-			commandString[i] = '\0';
-			i++;
-			j = i;
-			c = commandString[i];
-			if (argc >= 20)
-			{
-				break;
-			}
-
-		}
-	}
-	std::string name = std::string(argv[0]);
-	auto find = nameToCommand.find(name);
-	if (find == nameToCommand.end())
-	{
-		Print("Command: " + name + " not found.");
-		return;
-	}
-	find->second.command(argc, argv);
+	if(!ImGuiDX11SDL_Init(renderer, window))
+		return false;
+	return true;
 }
 
+void SE::Core::ImGuiConsole::Shutdown()
+{
+	ImGuiDX11SDL_Shutdown();
+}
+
+int SE::Core::ImGuiConsole::AddCommand(const DevConsole::DevConsole_Command & commandFunction, char * name, char * description)
+{
+	return commands.AddCommand(commandFunction, name, description);
+}
+
+#include <stdarg.h>  // For va_start, etc.
+
+void SE::Core::ImGuiConsole::PrintChannel(const char * line, const char * channel, ...)
+{
+	std::string fmt_str = line;
+	size_t size = fmt_str.size() * 2;
+	char* formatted = new char[size];
+	va_list args;
+	va_start(args, line);
+
+	auto r = vsnprintf(formatted, size, line, args);
+	while (r < 0 || r > size)
+	{
+		delete[] formatted;
+		size *= 2;
+		formatted = new char[size];
+		r = vsnprintf(formatted, size, line, args);
+	}
+
+	va_end(args);
+	std::string f(formatted, r);
+	messages.push_back({ std::chrono::system_clock::now(), f, channel });
+	delete[] formatted;
+}
+
+void SE::Core::ImGuiConsole::Print(const char * line, ...)
+{
+	std::string fmt_str = line;
+	size_t size = fmt_str.size()*2;
+	char* formatted = new char[size];
+	va_list args;
+	va_start(args, line);
+
+	auto r = vsnprintf(formatted, size, line, args);
+	while (r < 0 || r > size)
+	{
+		delete[] formatted;
+		size *= 2;
+		formatted = new char[size];
+		r = vsnprintf(formatted, size, line, args);
+	}
+
+	va_end(args);
+	std::string f(formatted, r);
+	messages.push_back({ std::chrono::system_clock::now(), f, "Global" });
+	delete[] formatted;
+}
+
+void SE::Core::ImGuiConsole::VPrint(const char * line, va_list args)
+{
+	std::string fmt_str = line;
+	size_t size = fmt_str.size() * 2;
+	char* formatted = new char[size];
+
+	auto r = vsnprintf(formatted, size, line, args);
+	while (r < 0 || r > size)
+	{
+		delete[] formatted;
+		size *= 2;
+		formatted = new char[size];
+		r = vsnprintf(formatted, size, line, args);
+	}
+
+	std::string f(formatted, r);
+	messages.push_back({ std::chrono::system_clock::now(), f, "Global" });
+	delete[] formatted;
+}
+
+void SE::Core::ImGuiConsole::VPrint(const char * line, va_list args, const char * channel)
+{
+	std::string fmt_str = line;
+	size_t size = fmt_str.size() * 2;
+	char* formatted = new char[size];
+
+	auto r = vsnprintf(formatted, size, line, args);
+	while (r < 0 || r > size)
+	{
+		delete[] formatted;
+		size *= 2;
+		formatted = new char[size];
+		r = vsnprintf(formatted, size, line, args);
+	}
+
+	std::string f(formatted, r);
+	messages.push_back({ std::chrono::system_clock::now(), f, channel });
+	delete[] formatted;
+}
+
+void SE::Core::ImGuiConsole::Getline(std::string & string)
+{
+}
+
+size_t SE::Core::ImGuiConsole::Getline(const char * buffer, size_t size)
+{
+	return size_t();
+}

@@ -230,7 +230,8 @@ bool SE::Test::RoomCreationTest::Run(SE::DevConsole::IConsole* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	delete testRoom;

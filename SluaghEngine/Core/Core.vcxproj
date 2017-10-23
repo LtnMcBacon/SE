@@ -161,7 +161,7 @@
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="DebugRenderManager.cpp" />
-    <ClCompile Include="DevConsole.cpp" />
+    <ClCompile Include="ImGuiConsole.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
@@ -209,7 +209,7 @@
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="DebugRenderManager.h" />
-    <ClInclude Include="DevConsole.h" />
+    <ClInclude Include="ImGuiConsole.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="GUIManager.h" />

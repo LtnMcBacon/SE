@@ -100,7 +100,8 @@ bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 				
 			}
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	engine->Release(); delete engine;

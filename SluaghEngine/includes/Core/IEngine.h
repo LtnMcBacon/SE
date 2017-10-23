@@ -24,6 +24,7 @@
 #include "ILightManager.h"
 #include "IDebugRenderManager.h"
 #include "IGUIManager.h"
+#include <DevConsole\IConsole.h>
 
 namespace SE
 {
@@ -57,6 +58,7 @@ namespace SE
 				Window::IWindow* window = nullptr;
 				Graphics::IRenderer* renderer = nullptr;
 				IOptionsHandler* optionsHandler = nullptr;
+				DevConsole::IConsole* devConsole = nullptr;
 			};
 			struct InitializationInfo
 			{
@@ -86,20 +88,18 @@ namespace SE
 			virtual int Init(const InitializationInfo& info = InitializationInfo()) = 0;
 
 			/**
-			* @brief Begins the frame. If this call is never made before, Frame will call it
+			* @brief Begins the frame.
 			* @retval 0 On success
-			* @retval -1 If the frame has not ended before another call to frame
+			* @retval -1 If the frame has not ended before another call to BeginFrame
 			*/
 			virtual int BeginFrame() = 0;
 
 			/**
-			* @brief    Updates the state of the Core, entity cleanup, input, etc.
-			* @details  Calls frame in all of its managers and handlers. It also records
-			* the time each manager takes to calculate its frame.
-			*
-			* @retval 0 On success.
+			* @brief End the frame.
+			* @retval 0 On success
+			* @retval -1 If the frame has not started
 			*/
-			virtual int Frame() = 0;
+			virtual int EndFrame() = 0;
 
 			/**
 			* @brief    Releases all resources held by the engine. Call this before exiting your program.
@@ -152,6 +152,10 @@ namespace SE
 		* @brief Create an instance of the engine
 		**/
 		DECLDIR_CORE IEngine* CreateEngine();
+		/**
+		* @brief Create an instance of the dev console
+		**/
+		DECLDIR_CORE DevConsole::IConsole* CreateConsole(Graphics::IRenderer* renderer, Window::IWindow* window);
 	}
 }
 

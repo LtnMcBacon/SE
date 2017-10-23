@@ -103,7 +103,8 @@ bool SE::Test::InstancingTest::Run(DevConsole::IConsole* console)
 		{
 			console->Print("Frametime: %f ms\n", 1.0f / timer.GetDelta());
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 

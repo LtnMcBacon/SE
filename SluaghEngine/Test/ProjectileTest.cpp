@@ -335,7 +335,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		}
 		if(subSystem.window->ButtonPressed(MoveDir::CONSOLE))
 		{
-		//	e.GetDevConsole().Toggle();
+			subSystem.devConsole->Toggle();
 		}
 
 		int mX = 0;
@@ -475,7 +475,8 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 
 
 		/*Utilz::TimeMap times;

@@ -1,22 +1,23 @@
 #include "Engine.h"
 #include <Profiler.h>
 #include <Utilz\Memory.h>
+#include "ImGuiConsole.h"
 using namespace SE::Utilz::Memory;
 
-//#include <Imgui\imgui.h>
-//#include <ImGuiDX11SDL\ImGuiDX11SDL.h>
-//
+
 
 #ifdef _DEBUG
 #pragma comment(lib, "ResourceHandlerD.lib")
 #pragma comment(lib, "GraphicsD.lib")
 #pragma comment(lib, "WindowD.lib")
 #pragma comment(lib, "ImGuiDX11SDLD.lib")
+#pragma comment(lib, "DevConsoleD.lib")
 #else
 #pragma comment(lib, "ResourceHandler.lib")
 #pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
 #pragma comment(lib, "ImGuiDX11SDL.lib");
+#pragma comment(lib, "DevConsole.lib")
 #endif
 
 
@@ -33,16 +34,14 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	InitManagers();
 
 
+	SetupDebugConsole();
+
 	//default camera
 	auto defEntCam = managers.entityManager->Create();
 	managers.cameraManager->Create(defEntCam);
 	managers.cameraManager->SetActive(defEntCam);
 
 	InitStartupOption();
-
-	//ImGuiDX11SDL_Init(renderer, window);
-	//devConsole = new DevConsole(renderer);
-
 
 	ProfileReturnConst(0);
 }
@@ -56,24 +55,32 @@ int SE::Core::Engine::BeginFrame()
 	frameBegun = true;
 	timeClus.Start("Frame");
 	subSystems.window->Frame();
-	//ImGuiDX11SDL_NewFrame();
+	subSystems.devConsole->BeginFrame();
 	subSystems.renderer->BeginFrame();
+
+	for (auto& m : managersVec)
+		m->Frame(&timeClus);
+
+	subSystems.renderer->Render();
+
+	subSystems.devConsole->Frame();
+
+
 	ProfileReturnConst(0);
 }
 
-int SE::Core::Engine::Frame()
+
+int SE::Core::Engine::EndFrame()
 {
 	StartProfile;
 	if (!frameBegun)
-		BeginFrame();
-	
-	for (auto& m : managersVec)
-		m->Frame(&timeClus);
-	//ImGui::Render();
-	
-	
-	subSystems.renderer->Render();
+		ProfileReturnConst(-1);
+
+	subSystems.devConsole->EndFrame();
+
 	subSystems.renderer->EndFrame();
+
+
 	timeClus.Stop("Frame");
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
@@ -84,15 +91,14 @@ int SE::Core::Engine::Release()
 {
 	StartProfile;
 
-	//delete devConsole;
-	//ImGuiDX11SDL_Shutdown();
-	
-
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
 	delete managers.entityManager;
 
+	subSystems.devConsole->Shutdown();
+	delete subSystems.devConsole;
+	
 	subSystems.renderer->Shutdown();
 	delete subSystems.renderer;
 
@@ -152,6 +158,11 @@ void SE::Core::Engine::InitSubSystems()
 		info.window = subSystems.window->GetHWND();
 		info.maxVRAMUsage = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		subSystems.renderer->Initialize(info);
+	}
+	if (!subSystems.devConsole)
+	{
+		subSystems.devConsole = CreateConsole(subSystems.renderer, subSystems.window);
+		subSystems.devConsole->Initialize();
 	}
 	StopProfile;
 }
@@ -327,6 +338,91 @@ void SE::Core::Engine::InitGUIManager()
 		managers.guiManager = CreateGUIManager(info);
 	}
 	managersVec.push_back(managers.guiManager);
+}
+
+void SE::Core::Engine::SetupDebugConsole()
+{
+	subSystems.devConsole->AddFrameCallback([this]()
+	{
+		static bool plot_memory_usage;
+		static bool show_gpu_timings;
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Debugging"))
+			{
+				ImGui::MenuItem("Plot memory usage", nullptr, &plot_memory_usage);
+				ImGui::MenuItem("Show frame timings", nullptr, &show_gpu_timings);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+
+		if(plot_memory_usage)
+		{
+		using namespace Utilz::Memory;
+		static const int samples = 256;
+		static float vram_usage[samples];
+		static float ram_usage[samples];
+		static int offset = 0;
+
+		vram_usage[offset] = ((float)subSystems.renderer->GetVRam()) / (1024.0f * 1024.0f);
+		ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
+		offset = (offset + 1) % samples;
+		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
+		if (subSystems.renderer->GetVRam() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
+		{
+		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
+		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::PopStyleColor();
+		}
+		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
+		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
+		{
+		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
+		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::PopStyleColor();
+		}
+		ImGui::Separator();
+		}
+
+		if(show_gpu_timings)
+		{
+		SE::Utilz::TimeMap map;
+		this->GetProfilingInformation(map);
+		static float maxFrameTime = 0.0f;
+		static float minFrameTime = 999999999.0f;
+		static float avg100Frames = 0.0f;
+		const auto frame = map.find("Frame");
+		if(frame != map.end())
+		{
+		static float runningSum = 0.0f;
+		runningSum += frame->second;
+		if (frame->second < minFrameTime)
+		minFrameTime = frame->second;
+		if (frame->second > maxFrameTime)
+		maxFrameTime = frame->second;
+		static size_t frameCounter = 0;
+		if (frameCounter >= 100)
+		{
+		avg100Frames = runningSum / frameCounter;
+		frameCounter = 0;
+		runningSum = 0.0f;
+		}
+
+		}
+		ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
+		ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
+		ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+		for(auto& m : map)
+		{
+		ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+		}
+
+
+		}
+	});
+	
 }
 
 void SE::Core::Engine::InitStartupOption()

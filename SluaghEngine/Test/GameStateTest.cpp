@@ -104,7 +104,8 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 		}
 		delete passableInfo;
 		OldState = SwitchState;
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 	delete Game;
 

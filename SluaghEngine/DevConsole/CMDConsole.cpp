@@ -64,7 +64,15 @@ void SE::DevConsole::CMDConsole::Toggle()
 {
 }
 
+void SE::DevConsole::CMDConsole::BeginFrame()
+{
+}
+
 void SE::DevConsole::CMDConsole::Frame()
+{
+}
+
+void SE::DevConsole::CMDConsole::EndFrame()
 {
 }
 
@@ -120,4 +128,13 @@ size_t SE::DevConsole::CMDConsole::Getline(const char * buffer, size_t size)
 int SE::DevConsole::CMDConsole::AddCommand(const DevConsole_Command & commandFunction, char * name, char * description)
 {
 	return commands.AddCommand(commandFunction, name, description);
+}
+
+void SE::DevConsole::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)
+{
+}
+
+void * SE::DevConsole::CMDConsole::GetContext()
+{
+	return nullptr;
 }

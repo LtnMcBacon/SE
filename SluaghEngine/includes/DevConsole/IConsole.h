@@ -28,11 +28,18 @@ namespace SE
 			* @brief Toggles the console on or off.
 			*/
 			virtual void Toggle() = 0;
-
+			/*
+			* @brief Start the frame.
+			*/
+			virtual void BeginFrame() = 0;
 			/*
 			* @brief Draws the console if the console is visible.
 			*/
 			virtual void Frame() = 0;
+			/*
+			* @brief Ends the frame.
+			*/
+			virtual void EndFrame() = 0;
 
 			/*
 			* @brief Clears messages printed in the console.
@@ -47,7 +54,11 @@ namespace SE
 			virtual void Getline(std::string& string) = 0;
 			virtual size_t Getline(const char* buffer, size_t size) = 0;
 
-			
+			/**
+			* @brief	Add a callback that will be called each frame.
+			*
+			**/
+			virtual void AddFrameCallback(const std::function<void()>& frameCallback) = 0;
 
 			/**
 			* @brief	Add a command that can be called from the console.
@@ -73,6 +84,10 @@ namespace SE
 			* @endcode
 			*/
 			virtual int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description) = 0;
+
+
+
+			virtual void* GetContext() = 0;
 		protected:
 			IConsole() {};
 			IConsole(const IConsole& other) = delete;

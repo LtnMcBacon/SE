@@ -199,7 +199,8 @@ bool SE::Test::GarbageTest::MassiveTest(SE::DevConsole::IConsole* console)
 		else {
 
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	engine->Release(); delete engine;
@@ -405,7 +406,8 @@ bool SE::Test::GarbageTest::ProjectilesIshTest(DevConsole::IConsole * console) c
 		else {
 
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	engine->Release(); delete engine;

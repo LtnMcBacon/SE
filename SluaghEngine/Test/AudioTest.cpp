@@ -237,7 +237,8 @@ namespace SE
 						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
 						subSystems.optionsHandler->Trigger();
 					}
-					e->Frame();
+					e->BeginFrame();
+					e->EndFrame();
 					time.Tick();
 				}
 				e->Release();

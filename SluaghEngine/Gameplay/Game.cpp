@@ -43,7 +43,8 @@ void SE::Gameplay::Game::Run()
 			 }
 		 }
 
-		 CoreInit::engine->Frame();
+		 CoreInit::engine->BeginFrame();
+		 CoreInit::engine->EndFrame();
 	}
 }
 

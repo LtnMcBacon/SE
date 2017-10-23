@@ -8,6 +8,16 @@
 #include <Imgui\imgui.h>
 
 #ifdef _DEBUG
+
+#pragma comment(lib, "ImGuiDX11SDLD.lib")
+
+#else
+
+#pragma comment(lib, "ImGuiDX11SDL.lib");
+
+#endif
+
+#ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
 #pragma comment(lib, "core.lib")
@@ -47,6 +57,10 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	engine->Init();
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
+	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
+	
+	subSystem.devConsole->Toggle();
+
 
 	auto& mainC = managers.entityManager->Create();
 
@@ -165,11 +179,11 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		if (subSystem.window->ButtonDown(ActionButton::Start))
 			managers.animationManager->Start(c2);
 
-
-
-
 		engine->BeginFrame();
-		/*if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
+	
+		//ImGui::Begin("Animation Stuff");
+
+		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
 		if (ImGui::SliderFloat("C2 Speed ", &speed, -1.0f, 1.0f))
 			managers.animationManager->SetSpeed(entityToChange, speed);
@@ -178,9 +192,11 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		if (ImGui::Button("Stop"))
 			managers.animationManager->Pause(entityToChange);
 
-		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string( entityToChange.id)).c_str());*/
-
-		engine->Frame();
+		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string( entityToChange.id)).c_str());
+		
+		//ImGui::End();
+		
+		engine->EndFrame();
 	}
 
 

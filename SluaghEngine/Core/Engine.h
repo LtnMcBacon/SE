@@ -39,21 +39,18 @@ namespace SE
 
 
 			/**
-			* @brief Begins the frame. If this call is never made before, Frame will call it
+			* @brief Begins the frame.
 			* @retval 0 On success
-			* @retval -1 If the frame has not ended before another call to frame
+			* @retval -1 If the frame has not ended before another call to BeginFrame
 			*/
 			int BeginFrame()override;
 
-
 			/**
-			* @brief    Updates the state of the Core, entity cleanup, input, etc.
-			* @details  Calls frame in all of its managers and handlers. It also records 
-			* the time each manager takes to calculate its frame.
-			*
-			* @retval 0 On success.
+			* @brief End the frame.
+			* @retval 0 On success
+			* @retval -1 If the frame has not started
 			*/
-			int Frame()override;
+			int EndFrame() override;
 
 			/**
 			* @brief    Releases all resources held by the engine. Call this before exiting your program.
@@ -128,6 +125,8 @@ namespace SE
 			void InitLightManager();
 			void InitDebugRenderManager();
 			void InitGUIManager();
+
+			void SetupDebugConsole();
 
 			std::vector<IManager*> managersVec;
 			/**

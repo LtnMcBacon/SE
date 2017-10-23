@@ -30,12 +30,18 @@ namespace SE
 			* @brief Toggles the console on or off.
 			*/
 			void Toggle() override;
-
+			/*
+			* @brief Start the frame.
+			*/
+			void BeginFrame() override;
 			/*
 			* @brief Draws the console if the console is visible.
 			*/
 			void Frame() override;
-
+			/*
+			* @brief Ends the frame.
+			*/
+			void EndFrame() override;
 			/*
 			* @brief Clears messages printed in the console.
 			*/
@@ -51,6 +57,14 @@ namespace SE
 			size_t Getline(const char* buffer, size_t size)override;
 
 			int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description)override;
+
+			/**
+			* @brief	Add a callback that will be called each frame.
+			*
+			**/
+			void AddFrameCallback(const std::function<void()>& frameCallback) override;
+
+			void* GetContext()override;
 		private:
 			void Run();
 			bool running;

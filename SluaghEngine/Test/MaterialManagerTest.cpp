@@ -92,7 +92,8 @@ bool SE::Test::MaterialManagerTest::Run(DevConsole::IConsole * console)
 		if (subSystem.window->ButtonDown(ActionButton::Left))
 			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 
-		engine->Frame();	
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 

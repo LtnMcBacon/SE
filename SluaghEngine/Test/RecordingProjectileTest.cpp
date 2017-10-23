@@ -388,7 +388,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		bool stepping = false;
 		bool running = true;
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 		while (running)
 		{
 			float dt = subSystem.window->GetDelta();
@@ -562,7 +563,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			else {
 				testRoom->Update(dt, playerPos.x, playerPos.y);
 			}
-			engine->Frame();
+			engine->BeginFrame();
+			engine->EndFrame();
 
 
 			/*	Utilz::TimeMap times;

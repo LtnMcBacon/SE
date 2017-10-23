@@ -3,6 +3,7 @@
 
 #include <map>
 #include <functional>
+#include <string>
 namespace SE
 {
 	namespace DevConsole
@@ -23,6 +24,13 @@ namespace SE
 		class Commands
 		{
 		public:
+			struct Command_Structure
+			{
+				DevConsole_Command commandFunction;
+				std::string name;
+				std::string description;
+			};
+
 			static const int MAX_ARGUMENTS = 20;
 			
 			Commands();
@@ -53,14 +61,11 @@ namespace SE
 			*/
 			int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description);
 
-			void InterpretCommand(IConsole* console, char* command);
+			void InterpretCommand(IConsole* console,const char* command);
+
+			void GetMap(std::map<size_t, Command_Structure>& commands);
 		private:
-			struct Command_Structure
-			{
-				DevConsole_Command commandFunction;
-				char* name;
-				char* description;
-			};
+		
 
 			std::map<size_t, Command_Structure> commands;
 

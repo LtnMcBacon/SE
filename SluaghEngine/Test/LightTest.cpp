@@ -231,7 +231,8 @@ namespace SE
 				{
 					console->Print("Frametime: %f ms\n", timer.GetDelta());
 				}
-				engine->Frame();
+				engine->BeginFrame();
+				engine->EndFrame();
 			}
 
 

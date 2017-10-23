@@ -150,7 +150,8 @@ bool SE::Test::TransformTest::Run(DevConsole::IConsole* console)
 				managers.transformManager->Rotate(thirds[i], 0.0f, dt*3.14f * 0.75f, 0.0f);
 		}
 		
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 	engine->Release(); delete engine;
 	return true;

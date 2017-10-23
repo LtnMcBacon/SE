@@ -444,7 +444,8 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		engine->Frame();
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	delete testRoom;

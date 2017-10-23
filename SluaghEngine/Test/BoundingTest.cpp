@@ -113,7 +113,8 @@ bool SE::Test::BoundingTest::Run(DevConsole::IConsole * console)
 				managers.transformManager->Move(block1, DirectX::XMFLOAT3(-0.01f, 0.0f, 0.0f));
 		}
 		
-		e->Frame();
+		e->BeginFrame();
+		e->EndFrame();
 		
 		managers.debugRenderManager->ToggleDebugRendering(block1, true);
 		managers.debugRenderManager->ToggleDebugRendering(block2, true);

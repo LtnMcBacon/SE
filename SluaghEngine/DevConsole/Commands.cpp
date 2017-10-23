@@ -3,12 +3,15 @@
 #include <cstdarg>
 #include <IConsole.h>
 
-void SE::DevConsole::Commands::InterpretCommand(IConsole* console, char * command)
+void SE::DevConsole::Commands::InterpretCommand(IConsole* console, const char * commandd)
 {
 	int argc = 0;
 	char* argv[MAX_ARGUMENTS];
+	std::string c = commandd;
+	char* command = new char[c.size() + 1];
+	memcpy(command, commandd, c.size());
+	command[c.size()] = '\0';
 	ParseCommandString(command, &argc, argv);
-
 
 	if (argc > 0)
 	{
@@ -20,7 +23,12 @@ void SE::DevConsole::Commands::InterpretCommand(IConsole* console, char * comman
 		else
 			console->Print("Unknown command, %s\n\n", argv[0]);
 	}
+	delete[] command;
+}
 
+void SE::DevConsole::Commands::GetMap(std::map<size_t, Command_Structure>& commands)
+{
+	commands = this->commands;
 }
 
 void SE::DevConsole::Commands::ParseCommandString(char * command, int * argc, char ** argv)
@@ -64,9 +72,8 @@ SE::DevConsole::Commands::Commands()
 		
 		backend->Print("\n\n");
 		for (auto& c : commands)
-		{
-			
-			backend->Print("%s\t-\t%s\n", c.second.name, c.second.description);
+		{		
+			backend->Print("%s\t-\t%s\n", c.second.name.c_str(), c.second.description.c_str());
 		}
 		backend->Print("\n");
 	},
