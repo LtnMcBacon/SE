@@ -37,7 +37,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
 
-	RandomForest<SE::Gameplay::PlayerMovementActions> testForest;
+	RandomForest<SE::Gameplay::PlayerMovementActions, SE::Gameplay::PlayerAttackActions> testForest;
 
 	class DistanceToClosestEnemy : public IFeature
 	{
@@ -67,7 +67,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 		DistanceXandYToClosestEnemy* copy() override { return new DistanceXandYToClosestEnemy(answer); }
 	};
 
-	testForest.SetNumberOfPossibleAnswersForDecisionTrees({9});
+	testForest.SetNumberOfPossibleAnswersForDecisionTrees({9, 2});
 
 	using namespace DirectX;
 	auto& e = Core::Engine::GetInstance();
@@ -332,6 +332,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 	bool running = true;
 	//unsigned char counter = 0;
 	float dt = 1.0f / 60.0f;
+	std::vector<float> enemyDistances;
 	while (running)
 	{
 		newProjectiles.clear();
@@ -370,55 +371,66 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 			e.GetDevConsole().Toggle();
 		}
 		SE::Gameplay::PlayerMovementActions playerMovement;
+		SE::Gameplay::PlayerAttackActions playerAttack = SE::Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE;
 		if (input.upButton && !input.downButton)
 		{
 			if (input.leftButton && !input.rightButton)
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP_LEFT;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP_LEFT;
 			else if (input.rightButton && !input.leftButton)
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP_RIGHT;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP_RIGHT;
 			else
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP;
 		}
 		else if (input.downButton && !input.upButton)
 		{
 			if (input.leftButton && !input.rightButton)
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN_LEFT;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN_LEFT;
 			else if (input.rightButton && !input.leftButton)
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN_RIGHT;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN_RIGHT;
 			else
-				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN;
+				playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN;
 		}
 		else if(input.leftButton && !input.rightButton)
 		{
-			playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_LEFT;
+			playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_LEFT;
 		}
 		else if(input.rightButton && !input.leftButton)
 		{
-			playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_RIGHT;
+			playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_RIGHT;
 		}
 		else
 		{
-			playerMovement = SE::Gameplay::PlayerMovementActions::STAY_STILL;
+			playerMovement = SE::Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_STAY_STILL;
 		}
-		
-		Gameplay::EnemyUnit* closestEnemy = nullptr;
-		testRoom->GetClosestEnemy(
-			player->GetXPosition(), 
-			player->GetYPosition(), 
-			closestEnemy);
 
-		float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
-			(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
-		
-		//auto distanceFeature = ;
-		testForest.AddTrainingExample(
-			std::vector<IFeature*>({ 
-			new DistanceToClosestEnemy(distance),
-			new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
-			new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition()) 
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
+		{
+			actionInput.skill1Button = true;
+			playerAttack = SE::Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE;
+		}
+		float distance;
+		enemyDistances.clear();
+		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
+		if (enemyDistances.size())
+		{
+			Gameplay::EnemyUnit* closestEnemy = nullptr;
+			testRoom->GetClosestEnemy(
+				player->GetXPosition(),
+				player->GetYPosition(),
+				closestEnemy);
+
+			distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
+				(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
+
+			testForest.AddTrainingExample(
+				std::vector<IFeature*>({
+				new DistanceToClosestEnemy(distance),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
 			}),
-			playerMovement);
-		
+				playerMovement, playerAttack);
+		}
 
 		int mX = 0;
 		int mY = 0;
@@ -447,12 +459,6 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			movX /= totMov;
 			movY /= totMov;
-		}
-
-		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
-		if (e.GetWindow()->ButtonDown(MoveDir::SPACE))
-		{
-			actionInput.skill1Button = true;
 		}
 
 		int arrowIndex = 0;
@@ -564,47 +570,66 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 	running = true;
 	while (running)
 	{
-		Gameplay::EnemyUnit* closestEnemy = nullptr;
-		testRoom->GetClosestEnemy(
-			player->GetXPosition(),
-			player->GetYPosition(),
-			closestEnemy);
-
-
-		float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
-			(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
-
-		SE::Gameplay::PlayerMovementActions playerMovement;
-		
-		testForest.GetAnswer(
-			std::vector<IFeature*>({ 
-			new DistanceToClosestEnemy(distance),
-			new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
-			new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
-			}),
-			playerMovement);
-
-		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
-		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
-
-		switch(playerMovement)
+		enemyDistances.clear();
+		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
+		if (enemyDistances.size())
 		{
-		case Gameplay::PlayerMovementActions::MOVE_UP: input.upButton = true;  break;
-		case Gameplay::PlayerMovementActions::MOVE_UP_LEFT: input.upButton = true; input.leftButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_LEFT: input.leftButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_DOWN_LEFT: input.downButton = true; input.leftButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_DOWN: input.downButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_DOWN_RIGHT: input.downButton = true; input.rightButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_RIGHT: input.rightButton = true; break;
-		case Gameplay::PlayerMovementActions::MOVE_UP_RIGHT: input.upButton = true; input.rightButton = true; break;
-		case Gameplay::PlayerMovementActions::STAY_STILL: break;
-		default: ;
+			Gameplay::EnemyUnit* closestEnemy = nullptr;
+			testRoom->GetClosestEnemy(
+				player->GetXPosition(),
+				player->GetYPosition(),
+				closestEnemy);
+
+
+			float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
+				(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
+
+			SE::Gameplay::PlayerMovementActions playerMovement;
+			SE::Gameplay::PlayerAttackActions playerAttack;
+
+			testForest.GetAnswer(
+				std::vector<IFeature*>({
+				new DistanceToClosestEnemy(distance),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
+			}),
+				playerMovement);
+
+			testForest.GetAnswer(
+				std::vector<IFeature*>({
+				new DistanceToClosestEnemy(distance),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
+				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
+			}),
+				playerAttack);
+
+			Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
+			Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+
+			switch (playerMovement)
+			{
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP: input.upButton = true;  break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP_LEFT: input.upButton = true; input.leftButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_LEFT: input.leftButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN_LEFT: input.downButton = true; input.leftButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN: input.downButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_DOWN_RIGHT: input.downButton = true; input.rightButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_RIGHT: input.rightButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_UP_RIGHT: input.upButton = true; input.rightButton = true; break;
+			case Gameplay::PlayerMovementActions::PLAYER_MOVEMENT_STAY_STILL: break;
+			default:;
+			}
+
+			switch (playerAttack)
+			{
+			case Gameplay::PlayerAttackActions::PLAYER_ATTACK_SHOOT: actionInput.skill1Button = true; break;
+			case Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE: break;
+			default:;
+			}
+
+			player->UpdateMovement(dt * 5, input);
+			player->UpdateActions(dt, newProjectiles, actionInput);
 		}
-
-
-		player->UpdateMovement(dt * 5, input);
-		player->UpdateActions(dt, newProjectiles, actionInput);
-
 		projectileManager->AddProjectiles(newProjectiles);
 
 		projectileManager->UpdateProjectilePositions(dt);
