@@ -438,13 +438,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 			DirectX::XMVECTOR rayD;
-			Utilz::Tools::RayToView({ mX, mY, width, height }, aspect, rayD);
-			DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
-			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
-			rayO = DirectX::XMVector4Transform(rayO, viewM);
-			rayD = DirectX::XMVector4Transform(rayD, viewM);
-			rayD = XMVector3Normalize(rayD);
 
 			//float distance = 0.0f;
 			float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
