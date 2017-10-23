@@ -190,6 +190,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="ResourceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
     <ClCompile Include="SkeletonAnimationTest.cpp" />
+    <ClCompile Include="SluaghTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
     <ClCompile Include="TransformTest.cpp" />
@@ -226,6 +227,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="ResourceHandlerTest.h" />
     <ClInclude Include="RoomCreationTest.h" />
     <ClInclude Include="SkeletonAnimationTest.h" />
+    <ClInclude Include="SlaughTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="TransformTest.h" />

@@ -3,6 +3,9 @@
 #include <map>
 #include <iostream>
 
+#undef max
+#undef min
+
 // http://people.cs.pitt.edu/~milos/courses/cs2750-Spring2014/Lectures/Class13.pdf
 // https://en.wikipedia.org/wiki/ID3_algorithm
 // https://en.wikipedia.org/wiki/Decision_tree_learning
@@ -24,19 +27,27 @@ class IFeature
 private:
 
 public:
+	
 	/**
 	 * @brief -1 indicates that the feature is continous, and splits should be decided by the Decision Tree
 	 */
 	virtual int SplitingPoints() = 0;
+	
 	/**
 	 *  @brief Return in what "group" the sample should be placed in during a split. 
 	 *  For an enum, this is simply returning int(ENUM_VALUE)
 	 */
 	virtual int SplitingGroupForSample() = 0;
+	
 	/**
 	 *  @brief Convert the feature into a float, for splitting in a continous space.
 	 */
 	virtual float ConvertToFloat() = 0;
+
+	/**
+	 * @brief Copy the IFeature (return pointer to sub-class, copy data)
+	 */
+	virtual IFeature* copy() = 0;
 
 	IFeature()
 	{
@@ -63,6 +74,7 @@ template <typename Answer>
 class DecisionTree
 {
 public:
+	typedef Answer value_type;
 	/**
 	*
 	* @brief The DecisionTree class used by the Sluagh
@@ -84,10 +96,11 @@ public:
 
 		FeatureList() = delete;
 
-		FeatureList(std::initializer_list<IFeature*> init, Answer result) :
-			features(init),
+		FeatureList(std::vector<IFeature*> &init, Answer result) :
 			result(result)
 		{
+			for (auto feature : init)
+				features.push_back(feature->copy());
 		}
 
 		~FeatureList()
@@ -119,6 +132,13 @@ public:
 	*
 	*/
 	DecisionTree(std::vector<FeatureList*>& startData, int numberOfPossibleAnswers);
+	DecisionTree()
+	{
+		numberOfPossibleAnswers = 0;
+	}
+
+	void Train(std::vector<FeatureList*>& startData, int numberOfPossibleAnswers);
+
 	~DecisionTree();
 
 	/**
@@ -209,7 +229,7 @@ protected:
 				if (maxValue < value)
 					return children[maxChild]->returnAnswer(toClassify, owner);
 			}
-			return -1;
+			return static_cast<Answer>(0);
 		};
 
 		/**
@@ -314,13 +334,19 @@ protected:
 };
 
 template <typename Answer>
-DecisionTree<Answer>::DecisionTree(std::vector<FeatureList*>& startData, int NumberOfPossibleAnswers) :
-	numberOfPossibleAnswers(NumberOfPossibleAnswers)
+DecisionTree<Answer>::DecisionTree(std::vector<FeatureList*>& startData, int numberOfPossibleAnswers)
 {
+	Train(startData, numberOfPossibleAnswers);
+}
+
+template <typename Answer>
+void DecisionTree<Answer>::Train(std::vector<FeatureList*>& startData, int numberOfPossibleAnswers)
+{
+	this->numberOfPossibleAnswers = numberOfPossibleAnswers;
 	/*Create a vector that contains information on whether a specific attribute can be split on or not.
-	 * Right now, this vector will be copied for each call to "BuildRoot" and "BuildRootForFloat", since each
-	 * subtree can split on data regardless of another subtree's split.
-	 */
+	* Right now, this vector will be copied for each call to "BuildRoot" and "BuildRootForFloat", since each
+	* subtree can split on data regardless of another subtree's split.
+	*/
 	std::vector<bool> leftForSplit(startData[0]->features.size(), true);
 	for (auto feature : startData[0]->features)
 	{
@@ -555,6 +581,7 @@ void DecisionTree<Answer>::SplitContiniousFeature(
 				 */
 
 				SplitContiniousFeature(below, attribute, lowValue, median, returnVector);
+				delete below;
 			}
 		}
 	}
@@ -589,9 +616,12 @@ void DecisionTree<Answer>::SplitContiniousFeature(
 			{
 				/*If not, we recursiverly split the new vector.*/
 				SplitContiniousFeature(above, attribute, median, highValue, returnVector);
+				delete above;
 			}
 		}
 	}
+
+
 }
 
 template <typename Answer>
@@ -625,6 +655,7 @@ int DecisionTree<Answer>::Gains(VectorWrapper* data, const std::vector<bool>& le
 			for (auto& dataSet : dataAfterSplit)
 			{
 				remainder += Remainder(dataSet, size);
+				delete dataSet;
 			}
 
 			/*Calculate the gain from the split*/
@@ -981,6 +1012,9 @@ typename DecisionTree<Answer>::Node* DecisionTree<Answer>::BuildRootForContiniou
 			node->children[i]->numberOfChildren = 0;
 		}
 	}
+
+	for (auto split : dataSplit)
+		delete split;
 
 	node->splitData = attributeToSplitOn;
 	return node;

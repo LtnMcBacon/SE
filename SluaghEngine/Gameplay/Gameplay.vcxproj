@@ -69,6 +69,7 @@
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h" />
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
@@ -88,6 +90,7 @@
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomForest.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
     <ClInclude Include="..\includes\Gameplay\RangeToPlayerCondition.h" />

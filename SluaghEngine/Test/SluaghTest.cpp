@@ -1,4 +1,4 @@
-#include "GlaistigTest.h"
+#include "SlaughTest.h"
 #include <Core\Engine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
@@ -10,6 +10,8 @@
 #include <Utilz\Tools.h>
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
+#include "Gameplay/RandomForest.h"
+#include "Gameplay/PlayerPossibleActions.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -23,20 +25,50 @@
 #endif
 
 
-
-SE::Test::GlaistigTest::GlaistigTest()
+SE::Test::SlaughTest::SlaughTest()
 {
-
 }
 
-SE::Test::GlaistigTest::~GlaistigTest()
+SE::Test::SlaughTest::~SlaughTest()
 {
-
 }
 
-bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 {
 	StartProfile;
+
+	RandomForest<SE::Gameplay::PlayerMovementActions> testForest;
+
+	class DistanceToClosestEnemy : public IFeature
+	{
+	private:
+		float answer;
+	public:
+		DistanceToClosestEnemy(float answer) : answer(answer)
+		{
+		};
+		int SplitingPoints() override { return -1; };
+		int SplitingGroupForSample() override { return int(answer); };
+		float ConvertToFloat() override { return answer; };
+		DistanceToClosestEnemy* copy() override { return new DistanceToClosestEnemy(answer); }
+	};
+
+	class DistanceXandYToClosestEnemy : public IFeature
+	{
+	private:
+		float answer;
+	public:
+		DistanceXandYToClosestEnemy(float answer) : answer(answer)
+		{
+		};
+		int SplitingPoints() override { return -1; };
+		int SplitingGroupForSample() override { return int(answer); };
+		float ConvertToFloat() override { return answer; };
+		DistanceXandYToClosestEnemy* copy() override { return new DistanceXandYToClosestEnemy(answer); }
+	};
+
+	testForest.SetNumberOfPossibleAnswersForDecisionTrees({9});
+
 	using namespace DirectX;
 	auto& e = Core::Engine::GetInstance();
 	auto& info = Core::Engine::InitializationInfo();
@@ -89,41 +121,39 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
-
-
 	/*Place out the level*/
 	char mapRepresentation[25][25] =
 	{
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	};
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
 	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
-	
+
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
@@ -136,8 +166,9 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
-	
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt(
+		"Window", "height", 640);
+
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
 
@@ -153,7 +184,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	
+
 	SE::Gameplay::BehaviourPointers temp;
 	temp.currentRoom = &testRoom;
 	temp.player = player;
@@ -199,7 +230,6 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 				else if (zMagnitude == -1.0f)
 				{
 					tm.SetRotation(arrows[numberOfArrows], 0.0f, 0.0f, 0.0f);
-
 				}
 				else if (xMagnitude == 0.707f)
 				{
@@ -240,7 +270,8 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			enemyPos.x = rand() % 25;
 			enemyPos.y = rand() % 25;
-		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
+		}
+		while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
 		enemy->SetXPosition(enemyPos.x + .5f);
@@ -249,7 +280,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		rm.ToggleRenderableObject(enemy->GetEntity(), true);
 		tm.SetRotation(enemy->GetEntity(), 0, 0, 0);
 		tm.SetScale(enemy->GetEntity(), 0.5f);
-		tm.SetPosition(enemy->GetEntity(), { enemy->GetXPosition(), 0.f, enemy->GetYPosition() });
+		tm.SetPosition(enemy->GetEntity(), {enemy->GetXPosition(), 0.f, enemy->GetYPosition()});
 		testRoom->AddEnemyToRoom(enemy);
 	}
 
@@ -290,10 +321,12 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	DirectX::XMFLOAT3 tPos = tm.GetPosition(floor);
 	DirectX::XMFLOAT3 tRot = tm.GetRotation(floor);
 	DirectX::XMFLOAT3 tScale = tm.GetScale(floor);
-	DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
+	DirectX::XMMATRIX worldM = {
+		tScale.x, 0, 0, 0,
 		0, tScale.y, 0, 0,
 		0, 0, tScale.z, 0,
-		tPos.x, tPos.y, tPos.z, 1.0f };
+		tPos.x, tPos.y, tPos.z, 1.0f
+	};
 
 	bool stepping = false;
 	bool running = true;
@@ -327,6 +360,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 			input.leftButton = true;
 			movX -= 1.0f;
 		}
+
 		if (e.GetWindow()->ButtonDown(MoveDir::RIGHT_MOUSE))
 		{
 			input.mouseRightDown = true;
@@ -335,12 +369,62 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			e.GetDevConsole().Toggle();
 		}
+		SE::Gameplay::PlayerMovementActions playerMovement;
+		if (input.upButton && !input.downButton)
+		{
+			if (input.leftButton && !input.rightButton)
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP_LEFT;
+			else if (input.rightButton && !input.leftButton)
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP_RIGHT;
+			else
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_UP;
+		}
+		else if (input.downButton && !input.upButton)
+		{
+			if (input.leftButton && !input.rightButton)
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN_LEFT;
+			else if (input.rightButton && !input.leftButton)
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN_RIGHT;
+			else
+				playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_DOWN;
+		}
+		else if(input.leftButton && !input.rightButton)
+		{
+			playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_LEFT;
+		}
+		else if(input.rightButton && !input.leftButton)
+		{
+			playerMovement = SE::Gameplay::PlayerMovementActions::MOVE_RIGHT;
+		}
+		else
+		{
+			playerMovement = SE::Gameplay::PlayerMovementActions::STAY_STILL;
+		}
+		
+		Gameplay::EnemyUnit* closestEnemy = nullptr;
+		testRoom->GetClosestEnemy(
+			player->GetXPosition(), 
+			player->GetYPosition(), 
+			closestEnemy);
+
+		float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
+			(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
+		
+		//auto distanceFeature = ;
+		testForest.AddTrainingExample(
+			std::vector<IFeature*>({ 
+			new DistanceToClosestEnemy(distance),
+			new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
+			new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition()) 
+			}),
+			playerMovement);
+		
 
 		int mX = 0;
 		int mY = 0;
 		e.GetWindow()->GetMousePos(mX, mY);
 
-		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayO = {0.0f, 0.0f, 0.0f, 1.0f};
 		DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
 		DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
 		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
@@ -350,10 +434,10 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		rayD = XMVector3Normalize(rayD);
 
 		//float distance = 0.0f;
-		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+		distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 		//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
 
-		auto clickPos = rayO + rayD*distance;
+		auto clickPos = rayO + rayD * distance;
 
 		input.mousePosX = DirectX::XMVectorGetX(clickPos);
 		input.mousePosY = DirectX::XMVectorGetZ(clickPos);
@@ -370,7 +454,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			actionInput.skill1Button = true;
 		}
-		
+
 		int arrowIndex = 0;
 		for (int x = 0; x < 25; x++)
 		{
@@ -378,11 +462,9 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 			{
 				if (mapRepresentation[x][y])
 				{
-
 				}
 				else
 				{
-
 					float xMagnitude = 0.0f;
 					float zMagnitude = 0.0f;
 					pos enemyPos;
@@ -405,7 +487,6 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 					else if (zMagnitude == -1.0f)
 					{
 						tm.SetRotation(arrows[arrowIndex], 0.0f, 0.0f, 0.0f);
-
 					}
 					else if (xMagnitude == 0.707f)
 					{
@@ -432,9 +513,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 
 					arrowIndex++;
 				}
-
 			}
-
 		}
 
 		player->UpdateMovement(dt * 5, input);
@@ -454,7 +533,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		blackBoard.deltaTime = dt;
 		blackBoard.playerPositionX = playerPos.x;
 		blackBoard.playerPositionY = playerPos.y;
-		
+
 
 		if (e.GetWindow()->ButtonPressed(0))
 			running = false;
@@ -470,7 +549,8 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 				testRoom->Update(dt, playerPos.x, playerPos.y);
 			}
 		}
-		else {
+		else
+		{
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
@@ -481,17 +561,78 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		for (auto& t : times)
 		console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
+	running = true;
+	while (running)
+	{
+		Gameplay::EnemyUnit* closestEnemy = nullptr;
+		testRoom->GetClosestEnemy(
+			player->GetXPosition(),
+			player->GetYPosition(),
+			closestEnemy);
 
+
+		float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
+			(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
+
+		SE::Gameplay::PlayerMovementActions playerMovement;
+		
+		testForest.GetAnswer(
+			std::vector<IFeature*>({ 
+			new DistanceToClosestEnemy(distance),
+			new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
+			new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
+			}),
+			playerMovement);
+
+		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
+		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+
+		switch(playerMovement)
+		{
+		case Gameplay::PlayerMovementActions::MOVE_UP: input.upButton = true;  break;
+		case Gameplay::PlayerMovementActions::MOVE_UP_LEFT: input.upButton = true; input.leftButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_LEFT: input.leftButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_DOWN_LEFT: input.downButton = true; input.leftButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_DOWN: input.downButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_DOWN_RIGHT: input.downButton = true; input.rightButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_RIGHT: input.rightButton = true; break;
+		case Gameplay::PlayerMovementActions::MOVE_UP_RIGHT: input.upButton = true; input.rightButton = true; break;
+		case Gameplay::PlayerMovementActions::STAY_STILL: break;
+		default: ;
+		}
+
+
+		player->UpdateMovement(dt * 5, input);
+		player->UpdateActions(dt, newProjectiles, actionInput);
+
+		projectileManager->AddProjectiles(newProjectiles);
+
+		projectileManager->UpdateProjectilePositions(dt);
+		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+		projectileManager->UpdateProjectileActions(dt);
+
+
+		blackBoard.deltaTime = dt;
+		blackBoard.playerPositionX = playerPos.x;
+		blackBoard.playerPositionY = playerPos.y;
+
+		playerPos.x = player->GetXPosition();
+		playerPos.y = player->GetYPosition();
+
+		if (e.GetWindow()->ButtonPressed(0))
+			running = false;
+		
+		testRoom->Update(dt, playerPos.x, playerPos.y);
+
+		e.Frame(dt);
+	}
 	delete projectileManager;
 
 	delete testRoom;
 	delete player;
 
 
-
-
 	e.Release();
 
 	ProfileReturnConst(true)
 }
-

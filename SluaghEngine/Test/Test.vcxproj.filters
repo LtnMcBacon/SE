@@ -141,6 +141,9 @@
     <ClCompile Include="RecordingProjectileTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SluaghTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -252,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GlaistigTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaughTest.h">
       <Filter>Header Files\GameplayTests\AITests</Filter>
     </ClInclude>
   </ItemGroup>

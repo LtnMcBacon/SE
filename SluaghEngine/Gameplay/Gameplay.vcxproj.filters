@@ -383,5 +383,14 @@
     <ClInclude Include="..\includes\Gameplay\DecisionTree.h">
       <Filter>Header Files\AI\Sluagh\RandomForest\DecisionTree</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomForest.h">
+      <Filter>Header Files\AI\Sluagh\RandomForest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

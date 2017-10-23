@@ -1,10 +1,12 @@
 #include "Room.h"
 #include "Profiler.h"
+#include <limits>
 #include <d3d11.h>
 #include <cassert>
 #include <algorithm>
-#include <limits>
 
+#undef max
+#undef min
 
 using namespace SE;
 using namespace Gameplay;
@@ -58,7 +60,7 @@ bool SE::Gameplay::Room::OnSegment(LinePoint p, LinePoint q, LinePoint r)
 {
 	StartProfile;
 
-	if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y))
+	if (q.x <= std::max(p.x, r.x) && q.x >= std::min(p.x, r.x) && q.y <= std::max(p.y, r.y) && q.y >= std::min(p.y, r.y))
 		ProfileReturnConst(true);
 
 	ProfileReturnConst(false);
@@ -246,7 +248,7 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 	ProfileReturnConst(true);
 }
 
-bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* closestUnit)
+bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 {
 	StartProfile;
 
@@ -362,14 +364,59 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 float Room::DistanceToClosestWall(float startX, float startY)
 {
 	StartProfile;
-	/*Distance to 0,0 (should always be a wall here!)*/
-	float distance = -1.0;
+	/*We should never have a room of this size*/
+	float distance = std::numeric_limits<float>::max();
+	int xStart = int(startX);
+	int yStart = int(startY);
 	int xDistance = 1;
 	int yDistance = 1;
 	do
 	{
-		
-	} while (distance == -1.0);
+		/*Check left side*/
+		for (int i = yStart - yDistance; i <= yStart + yDistance; i++)
+			if (map[xStart - xDistance][i])
+			{
+				float xDist = startX - (xDistance - 1);
+				float yDist = i - yStart + startY;
+				float dist = sqrt(xDist*xDist + yDist*yDist);
+				if (dist < distance)
+					distance = dist;
+			}
+		/*Check right side*/
+		for (int i = yStart - yDistance; i <= yStart + yDistance; i++)
+			if (map[xStart + xDistance][i])
+			{
+				float xDist = startX + (xDistance - 1);
+				float yDist = i - yStart + startY;
+				float dist = sqrt(xDist*xDist + yDist*yDist);
+				if (dist < distance)
+					distance = dist;
+			}
+		/*Check Up*/
+		for (int i = xStart - xDistance; i <= xStart + xDistance; i++)
+			if (map[i][yStart + yDistance])
+			{
+				float yDist = startY + (xDistance - 1);
+				float xDist = i - xStart + startX;
+				float dist = sqrt(xDist*xDist + yDist*yDist);
+				if (dist < distance)
+					distance = dist;
+
+			}
+		/*Check Down*/
+		for (int i = xStart - xDistance; i <= xStart + xDistance; i++)
+			if (map[i][yStart - yDistance])
+			{
+				float yDist = startY - (xDistance - 1);
+				float xDist = i - xStart + startX;
+				float dist = sqrt(xDist*xDist + yDist*yDist);
+				if (dist < distance)
+					distance = dist;
+
+			}
+		yDistance++;
+		xDistance++;
+	} while (distance == std::numeric_limits<float>::max());
 
 	ProfileReturnConst(distance);
 
@@ -378,6 +425,13 @@ float Room::DistanceToClosestWall(float startX, float startY)
 
 void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& returnVector)
 {
+	for(auto enemy : enemyUnits)
+	{
+		float distX = startX - enemy->GetXPosition();
+		float distY = startY - enemy->GetYPosition();
+
+		returnVector.push_back(sqrt(distX*distX + distY*distY));
+	}
 }
 
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
