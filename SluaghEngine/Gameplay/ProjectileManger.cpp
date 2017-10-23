@@ -1,8 +1,5 @@
 #include <Gameplay\ProjectileManager.h>
 #include <Profiler.h>
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
-
 void SE::Gameplay::ProjectileManager::UpdateProjectilePositions(float dt)
 {
 	StartProfile;

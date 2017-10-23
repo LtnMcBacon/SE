@@ -11,7 +11,7 @@ namespace SE
 		public:
 			RenderableManagerTest();
 			~RenderableManagerTest();
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

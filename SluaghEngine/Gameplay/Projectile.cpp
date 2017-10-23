@@ -1,6 +1,6 @@
 #include <Gameplay\Projectile.h>
 #include <Profiler.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <Gameplay\ProjectileData.h>
 
 void SE::Gameplay::Projectile::UpdateMovement(float dt)
@@ -11,7 +11,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float yMovement = 0.0f;
 
 	//rotation += rotData.force;
-	rotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y + rotData.force;
+	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
@@ -34,7 +34,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt * speed, yMovement * dt * speed);
-	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, 0.0f, rotation, 0.0f);
+	CoreInit::managers.transformManager->SetRotation(this->unitEntity, 0.0f, rotation, 0.0f);
 
 	UpdateBounding();
 
@@ -127,8 +127,8 @@ void SE::Gameplay::Projectile::UpdateBounding()
 void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 {
 	StartProfile;
-	float s = sinf(-Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y);
-	float c = cosf(-Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y);
+	float s = sinf(-CoreInit::managers.transformManager->GetRotation(this->unitEntity).y);
+	float c = cosf(-CoreInit::managers.transformManager->GetRotation(this->unitEntity).y);
 
 	// rotate point
 	float xnew = xCoord * c - yCoord * s;

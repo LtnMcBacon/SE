@@ -44,7 +44,7 @@ SE::ResourceHandler::InvokeReturn Load2(const SE::Utilz::GUID& guid, void* data,
 
 	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
-bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
+bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 {
 	StartProfile;
 	using namespace std::chrono_literals;

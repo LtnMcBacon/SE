@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include <functional>
 
 SE::Core::Entity::Entity(uint32_t id)
 {

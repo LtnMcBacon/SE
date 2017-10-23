@@ -141,16 +141,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Utilz\CircularFiFo.h" />
-    <ClInclude Include="..\includes\Utilz\CMDConsole.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
-    <ClInclude Include="..\includes\Utilz\Console.h" />
     <ClInclude Include="..\includes\Utilz\CPUTimeCluster.h" />
     <ClInclude Include="..\includes\Utilz\crc_table.h" />
     <ClInclude Include="..\includes\Utilz\Delegate.h" />
     <ClInclude Include="..\includes\Utilz\DoubleEdgeStackAlloc.h" />
     <ClInclude Include="..\includes\Utilz\Event.h" />
     <ClInclude Include="..\includes\Utilz\GUID.h" />
-    <ClInclude Include="..\includes\Utilz\IConsoleBackend.h" />
     <ClInclude Include="..\includes\Utilz\INIReader.h" />
     <ClInclude Include="..\includes\Utilz\Memory.h" />
     <ClInclude Include="..\includes\Utilz\PathParsing.h" />
@@ -162,8 +159,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\Utilz\RunTimeStringHasher.cpp" />
-    <ClCompile Include="CMDConsole.cpp" />
-    <ClCompile Include="Console.cpp" />
     <ClCompile Include="DoubleEdgeStackAlloc.cpp" />
     <ClCompile Include="INIReader.cpp" />
     <ClCompile Include="Source.cpp" />
