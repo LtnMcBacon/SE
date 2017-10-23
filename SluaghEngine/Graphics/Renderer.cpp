@@ -522,7 +522,8 @@ int SE::Graphics::Renderer::Render() {
 	//********* Apply bloom post-processing ********/
 	if (bloom)
 	{
-		timeCluster[GPUTimer]->Start("Bloom");
+		timeCluster[CPUTimer]->Start("Bloom_CPU");
+		timeCluster[GPUTimer]->Start("Bloom_GPU");
 
 
 		ID3D11ShaderResourceView* shaderResourceViews[] = {
@@ -557,13 +558,11 @@ int SE::Graphics::Renderer::Render() {
 		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 2, nullUAVs, NULL);
 
 
-		ID3D11Resource *backBufferTexture, *bloomTexture;
-		backBufferTexture = device->GetBackBufferTexture();
-		unorderedAccessViews[1]->GetResource(&bloomTexture);
-		device->GetDeviceContext()->CopyResource(backBufferTexture, bloomTexture);
+		device->GetDeviceContext()->CopyResource(device->GetBackBufferTexture(), graphicResourceHandler->GetBloomBufferTexture());
 
 
-		timeCluster[GPUTimer]->Stop("Bloom");
+		timeCluster[GPUTimer]->Stop("Bloom_GPU");
+		timeCluster[CPUTimer]->Stop("Bloom_CPU");
 	}
 	//******* END Apply bloom post-processing ******/
 
@@ -1179,7 +1178,7 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 	texture2DDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 
 	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[1]);
-	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[2]);
+	graphicResourceHandler->CreateTexture2D(texture2DDescription, texture2DHandles[2], true);
 
 
 	graphicResourceHandler->CreateRenderTargetView(texture2DHandles[0]);
@@ -1207,9 +1206,6 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 
 	graphicResourceHandler->CreateUnorderedAccessView(texture2DHandles[1], bloomUnorderedAccessViewHandles[0]);
 	graphicResourceHandler->CreateUnorderedAccessView(texture2DHandles[2], bloomUnorderedAccessViewHandles[1]);
-
-
-	graphicResourceHandler->ReleaseTextures();
 
 
 	bloom = true;

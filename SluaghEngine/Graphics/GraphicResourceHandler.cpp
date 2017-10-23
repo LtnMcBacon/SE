@@ -62,6 +62,13 @@ void GraphicResourceHandler::Shutdown() {
 			ps.pixelShader->Release();
 		}
 	}
+	for (auto &cs : cShaders) {
+
+		if (cs.shader) {
+
+			cs.shader->Release();
+		}
+	}
 
 	// Release Samplerstate
 	if (sampleState != nullptr)
@@ -69,10 +76,25 @@ void GraphicResourceHandler::Shutdown() {
 		sampleState->Release();
 		sampleState = nullptr;
 	}
-	for(auto& srv : shaderResourceViews)
+	for (auto& srv : shaderResourceViews)
 	{
 		if (srv)
 			srv->Release();
+	}
+	for (auto& rtv : renderTargetViews)
+	{
+		if (rtv)
+			rtv->Release();
+	}
+	for (auto& texture : texture2Ds)
+	{
+		if (texture)
+			texture->Release();
+	}
+	for (auto& uav : unorderedAccessViews)
+	{
+		if (uav)
+			uav->Release();
 	}
 }
 
@@ -666,7 +688,7 @@ int GraphicResourceHandler::CreateRenderTargetView(int textureHandle, int* rende
 	return status;
 }
 
-int GraphicResourceHandler::CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle)
+int GraphicResourceHandler::CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle, bool isBloomBuffer)
 {
 	int status = -1;
 
@@ -679,6 +701,9 @@ int GraphicResourceHandler::CreateTexture2D(const D3D11_TEXTURE2D_DESC& descript
 
 		texture2Ds.push_back(texture2D);
 		textureHandle = texture2Ds.size() - 1;
+
+		if (isBloomBuffer)
+			bloomBufferTextureHandle = textureHandle;
 	}
 
 	return status;
@@ -725,16 +750,6 @@ int GraphicResourceHandler::CreateUnorderedAccessView(int textureHandle, int& un
 	return status;
 }
 
-int GraphicResourceHandler::ReleaseTextures()
-{
-	int status = 0;
-
-	for (int textureI = 0; textureI < texture2Ds.size(); textureI++)
-		texture2Ds[textureI]->Release();
-
-	return status;
-}
-
 void GraphicResourceHandler::SetCompute(int computeID)
 {
 	gDeviceContext->CSSetShader(cShaders[computeID].shader, nullptr, 0);
@@ -748,4 +763,9 @@ ID3D11UnorderedAccessView* GraphicResourceHandler::GetUnorderedAccessView(int ua
 ID3D11RenderTargetView* GraphicResourceHandler::GetRenderTargetView(int rtvID)
 {
 	return renderTargetViews[rtvID];
+}
+
+ID3D11Texture2D* GraphicResourceHandler::GetBloomBufferTexture()
+{
+	return texture2Ds[bloomBufferTextureHandle];
 }

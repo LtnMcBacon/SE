@@ -415,8 +415,5 @@ void DeviceManager::CreateBlendState()
 
 ID3D11Texture2D* DeviceManager::GetBackBufferTexture()
 {
-	ID3D11Texture2D* backBufferTexture;
-	gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferTexture);
-
-	return backBufferTexture;
+	return gBackBuffer;
 }
