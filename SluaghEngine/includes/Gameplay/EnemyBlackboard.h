@@ -1,6 +1,8 @@
 #ifndef SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 #define SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 
+#include <vector>
+
 namespace SE
 {
 	namespace Gameplay

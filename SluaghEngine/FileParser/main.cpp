@@ -86,7 +86,7 @@ std::vector<Accepted> acceptedExt =
 						std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
 						dst << src.rdbuf();
 						dst.close();
-						src.close(); } }
+						src.close();
 					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
 
 };
