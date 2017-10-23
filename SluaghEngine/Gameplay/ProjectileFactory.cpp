@@ -677,7 +677,7 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 	float percent = std::get<float>(parameters[1].data);
 	auto LifeSteal = [ownerPtr, percent](Projectile* p, float dt) -> bool
 	{
-		if (p->GetCollisionType() == CollisionType::ENEMY)
+		if (p->GetCollisionType() != CollisionType::OBJECT)
 			if (auto owner = ownerPtr.lock())
 			{
 				auto unit = *owner.get();
