@@ -183,6 +183,7 @@ void SE::Core::Engine::InitManagers()
 	InitMaterialManager();
 	InitLightManager();
 	InitDebugRenderManager();
+	InitTextManager();
 	InitGUIManager();
 	StopProfile;
 }
@@ -325,6 +326,19 @@ void SE::Core::Engine::InitDebugRenderManager()
 		managers.debugRenderManager = CreateDebugRenderManager(info);
 	}
 	managersVec.push_back(managers.debugRenderManager);
+}
+
+void SE::Core::Engine::InitTextManager()
+{
+	if (!managers.textManager)
+	{
+		ITextManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		managers.textManager = CreateTextManager(info);
+	}
+	managersVec.push_back(managers.textManager);
 }
 
 void SE::Core::Engine::InitGUIManager()

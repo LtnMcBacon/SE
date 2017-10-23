@@ -111,8 +111,11 @@
     <ClCompile Include="ImGuiConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="2DTextManager.cpp">
+    <ClCompile Include="TextManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ITextManager.cpp">
+      <Filter>Interface\cpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,11 +212,11 @@
     <ClInclude Include="ImGuiConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="2DTextManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Core\I2DTextManager.h">
+    <ClInclude Include="..\includes\Core\ITextManager.h">
       <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="TextManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -156,7 +156,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="2DTextManager.cpp" />
+    <ClCompile Include="ITextManager.cpp" />
+    <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="CameraManager.cpp" />
@@ -190,7 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Entity.h" />
-    <ClInclude Include="..\includes\Core\I2DTextManager.h" />
+    <ClInclude Include="..\includes\Core\ITextManager.h" />
     <ClInclude Include="..\includes\Core\IAnimationManager.h" />
     <ClInclude Include="..\includes\Core\IAudioManager.h" />
     <ClInclude Include="..\includes\Core\ICameraManager.h" />
@@ -206,7 +207,7 @@
     <ClInclude Include="..\includes\Core\IParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
-    <ClInclude Include="2DTextManager.h" />
+    <ClInclude Include="TextManager.h" />
     <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="AudioManager.h" />
     <ClInclude Include="CameraManager.h" />

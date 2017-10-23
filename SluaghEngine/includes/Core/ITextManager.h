@@ -115,7 +115,7 @@ namespace SE
 		/**
 		* @brief Create an instance of the GUIManager
 		**/
-		DECLDIR_CORE ITextManager* CreateGUIManager(const ITextManager::InitializationInfo& initInfo);
+		DECLDIR_CORE ITextManager* CreateTextManager(const ITextManager::InitializationInfo& initInfo);
 	}
 }
 

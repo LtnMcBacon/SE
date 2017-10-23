@@ -2,7 +2,7 @@
 #ifndef SE_CORE_TEXT_MANAGER_H_
 #define SE_CORE_TEXT_MANAGER_H_
 
-#include <I2DTextManager.h>
+#include <ITextManager.h>
 #include <unordered_map>
 #include <stack>
 #include <vector>

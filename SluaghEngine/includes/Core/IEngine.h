@@ -25,7 +25,7 @@
 #include "IDebugRenderManager.h"
 #include "IGUIManager.h"
 #include <DevConsole\IConsole.h>
-#include <I2DTextManager.h>
+#include "ITextManager.h"
 
 namespace SE
 {

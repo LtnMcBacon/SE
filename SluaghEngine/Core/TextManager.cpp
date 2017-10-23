@@ -1,4 +1,4 @@
-#include "2DTextManager.h"
+#include "TextManager.h"
 #include <Profiler.h>
 
 
