@@ -62,12 +62,17 @@ namespace SE
 
 			void SetPipeline(const Pipeline& pipeline) override;
 		private:
-
+			enum class SStage
+			{
+				VERTEX,
+				GEOMETRY,
+				PIXEL
+			};
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
-			void SetVertexShaderStage(const VertexShaderStage& vss);
-			void SetGeometryShaderStage(const GeometryShaderStage& gss);
+			void SetVertexShaderStage(const ShaderStage& vss);
+			void SetGeometryShaderStage(const ShaderStage& gss);
 			void SetRasterizerStage(const RasterizerStage& rs);
-			void SetPixelShaderStage(const PixelShaderStage& pss);
+			void SetPixelShaderStage(const ShaderStage& pss);
 			void SetOutputMergerStage(const OutputMergerStage& oms);
 
 			ID3D11Device* device;

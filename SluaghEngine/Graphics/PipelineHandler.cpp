@@ -1183,7 +1183,9 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 	}
 }
 
-void SE::Graphics::PipelineHandler::SetVertexShaderStage(const VertexShaderStage& vss)
+
+
+void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 {
 	const auto& c = currentPipeline.VSStage;
 
@@ -1217,9 +1219,37 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const VertexShaderStage
 			}
 		}
 	}
+	for (int i = 0; i < vss.textureCount; ++i)
+	{
+		if (vss.textures[i] != c.textures[i] || vss.textureBindings[i] != c.textureBindings[i])
+		{
+			auto srv = shaderResourceViews.find(vss.textures[i]);
+			if (srv != shaderResourceViews.end())
+			{
+				const auto bindSlotID = vss.shader + vss.textureBindings[i];
+				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+				{
+					deviceContext->VSSetShaderResources(bind->second, 1, &srv->second);
+				}
+			}
+		}
+	}
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < vss.samplerCount; ++i)
+	{
+		if (vss.samplers[i] != c.samplers[i])
+		{
+			const auto samp = samplerStates.find(vss.samplers[i]);
+			if (samp != samplerStates.end())
+				samplers[i] = samp->second;
+		}
+	}
+	if (vss.samplerCount)
+		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
 }
 
-void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const GeometryShaderStage& gss)
+void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gss)
 {
 	const auto& c = currentPipeline.GSStage;
 
@@ -1253,6 +1283,35 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const GeometryShaderS
 			}
 		}
 	}
+
+	for (int i = 0; i < gss.textureCount; ++i)
+	{
+		if (gss.textures[i] != c.textures[i] || gss.textureBindings[i] != c.textureBindings[i])
+		{
+			auto srv = shaderResourceViews.find(gss.textures[i]);
+			if (srv != shaderResourceViews.end())
+			{
+				const auto bindSlotID = gss.shader + gss.textureBindings[i];
+				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+				{
+					deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
+				}
+			}
+		}
+	}
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < gss.samplerCount; ++i)
+	{
+		if (gss.samplers[i] != c.samplers[i])
+		{
+			const auto samp = samplerStates.find(gss.samplers[i]);
+			if (samp != samplerStates.end())
+				samplers[i] = samp->second;
+		}
+	}
+	if(gss.samplerCount)
+		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs)
@@ -1276,7 +1335,7 @@ void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs
 	}
 }
 
-void SE::Graphics::PipelineHandler::SetPixelShaderStage(const PixelShaderStage& pss)
+void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 {
 	const auto& c = currentPipeline.PSStage;
 
@@ -1327,7 +1386,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const PixelShaderStage& 
 			}
 		}
 	}
-	ID3D11SamplerState* samplers[PixelShaderStage::maxSamplers] = { nullptr };
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
 	for (int i = 0; i < pss.samplerCount; ++i)
 	{
 		if (pss.samplers[i] != c.samplers[i])
@@ -1337,7 +1396,8 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const PixelShaderStage& 
 				samplers[i] = samp->second;
 		}
 	}
-	deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
+	if(pss.samplerCount)
+		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage& oms)
