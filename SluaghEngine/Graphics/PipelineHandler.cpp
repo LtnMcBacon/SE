@@ -51,6 +51,8 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 		if (r.second)r.second->Release();
 	for (auto& r : renderTargetViews)
 		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+	for (auto& r : depthStencilViews)
+		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
 	for (auto& r : blendStates)
