@@ -12,7 +12,7 @@ SE::Core::CollisionManager::CollisionManager(const InitializationInfo& initInfo)
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
-
+	_ASSERT(initInfo.console);
 	initInfo.transformManager->RegisterSetDirty({ this, &CollisionManager::SetDirty });
 
 	Allocate(128);

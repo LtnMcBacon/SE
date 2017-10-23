@@ -63,7 +63,11 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 
 	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 	DirectX::XMVECTOR rayD;
-	Utilz::Tools::RayToView(mX, mY, CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800), CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600), rayD);
+
+	float aspect = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
+
+	Utilz::Tools::RayToView({ mX, mY, (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800), (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) }, aspect, rayD);
 	DirectX::XMFLOAT4X4 tempView = CoreInit::managers.cameraManager->GetViewInv(cam);
 	DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 

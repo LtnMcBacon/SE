@@ -9,7 +9,7 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
-
+	_ASSERT(initInfo.console);
 }
 
 

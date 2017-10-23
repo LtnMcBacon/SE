@@ -24,16 +24,17 @@ namespace SE
 			* @Param[out] The out matrix.
 			**/
 			static void GetLocalMatrix(const DirectX::XMMATRIX& worldM, const DirectX::XMMATRIX& invViewM, DirectX::XMMATRIX& out);
-
+			struct Rectr
+			{
+				int sx; int sy; float height; float width;
+			};
 			/**
 			* @breif Moves your ray from screen space to projection space.
-			* @Param[in] Screenspace X-coordinate of your mouse position.
-			* @Param[in] Screenspace Y-coordinate of your mouse position.
-			* @Param[in] The screen resolution height.
-			* @Param[in] The screen resolution width.
+			* @Param[in] rect X-coordinate of your mouse position, Screenspace Y-coordinate of your mouse position, The screen resolution height,The screen resolution width.
+			* @Param[in] aspect The aspect ratio.
 			* @Param[out] The out vector.
 			**/
-			static void RayToView(int sx, int sy, float height, float width, DirectX::XMVECTOR& out);
+			static void RayToView(const Rectr& rect, float aspect, DirectX::XMVECTOR& out);
 			/**
 			* @breif  Takes your direction ray into local space for picking objects
 			* @detail Takes your ray from projection space into local space and calculates the new unit direction vector/normal

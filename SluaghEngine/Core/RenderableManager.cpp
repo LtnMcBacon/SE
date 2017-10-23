@@ -18,7 +18,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.transformManager);
-
+	_ASSERT(initInfo.console);
 	switch (initInfo.unloadingStrat)
 	{
 	case ResourceHandler::UnloadingStrategy::Linear:

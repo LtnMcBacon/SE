@@ -390,6 +390,9 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		bool running = true;
 		engine->BeginFrame();
 		engine->EndFrame();
+		float aspect = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
+
 		while (running)
 		{
 			float dt = subSystem.window->GetDelta();
@@ -435,7 +438,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 			DirectX::XMVECTOR rayD;
-			Utilz::Tools::RayToView(mX, mY, width, height, rayD);
+			Utilz::Tools::RayToView({ mX, mY, width, height }, aspect, rayD);
 			DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
 			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 

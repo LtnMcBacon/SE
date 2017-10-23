@@ -8,6 +8,7 @@ namespace SE {
 
 			_ASSERT(initInfo.entityManager);
 			_ASSERT(initInfo.resourceHandler);
+			_ASSERT(initInfo.console);
 			audioHandler = Audio::CreateNewAudioHandler();
 			auto res = audioHandler->Initialize();
 			if (res)

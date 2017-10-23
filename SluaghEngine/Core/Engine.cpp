@@ -194,6 +194,7 @@ void SE::Core::Engine::InitAudioManager()
 		IAudioManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
 		info.resourceHandler = subSystems.resourceHandler;
+		info.console = subSystems.devConsole;
 		managers.audioManager = CreateAudioManager(info);
 	}
 	managersVec.push_back(managers.audioManager);
@@ -221,6 +222,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
+		info.console = subSystems.devConsole;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
 	}
 	managersVec.push_back(managers.particleSystemManager);
@@ -247,6 +249,7 @@ void SE::Core::Engine::InitCollisionManager()
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
+		info.console = subSystems.devConsole;
 		managers.collisionManager = CreateCollisionManger(info);
 	}
 	managersVec.push_back(managers.collisionManager);
@@ -262,6 +265,7 @@ void SE::Core::Engine::InitRenderableManager()
 		info.transformManager = managers.transformManager;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
+		info.console = subSystems.devConsole;
 		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
 		managers.renderableManager = CreateRenderableManager(info);
 
@@ -279,6 +283,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
 		info.renderableManager = managers.renderableManager;
+		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
 	managersVec.push_back(managers.animationManager);
@@ -293,6 +298,7 @@ void SE::Core::Engine::InitMaterialManager()
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.renderableManager = managers.renderableManager;
+		info.console = subSystems.devConsole;
 		managers.materialManager = CreateMaterialManager(info);
 	}
 	managersVec.push_back(managers.materialManager);

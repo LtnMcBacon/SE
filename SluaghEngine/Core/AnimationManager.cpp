@@ -6,6 +6,7 @@ SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.console);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
