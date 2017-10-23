@@ -60,8 +60,8 @@ int main()
 	p[1].type = 0;
 	p[1].velocity = { 0, 0, 0 };
 
-	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 1000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 1000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 5000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 5000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -86,7 +86,7 @@ int main()
 		XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	//	pipelineHandler->UpdateConstantBuffer("OncePerObject", &identity, sizeof(XMFLOAT4X4));
 	};
-	updateParticleJob.vertexCount = 2;
+	updateParticleJob.vertexCount = 1;
 	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob);
 
 	//Render particle job pipeline
