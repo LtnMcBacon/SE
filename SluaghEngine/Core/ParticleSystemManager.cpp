@@ -35,7 +35,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 		// Load the particle system file
 		{
-			initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this, async](auto guid, auto data, auto size) {
+			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this, async](auto guid, auto data, auto size) {
 			
 				if (async)
 				{
@@ -50,6 +50,9 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 				return ResourceHandler::InvokeReturn::DecreaseRefcount;
 			}, async, behavior);
+
+			if (res)
+				initInfo.console->PrintChannel("Could not load particle system file. GUID: %u, Error: %d", "Resources", info.systemFile, res);
 		}
 
 		particleSystemData.push_back({});

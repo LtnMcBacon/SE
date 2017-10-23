@@ -11,6 +11,7 @@
 #include "IEntityManager.h"
 #include <ResourceHandler\IResourceHandler.h>
 #include <Audio\IAudioHandler.h>
+#include <DevConsole\IConsole.h>
 #undef PlaySound
 namespace SE
 {
@@ -22,6 +23,7 @@ namespace SE
 			struct InitializationInfo
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
+				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 			};
 			struct CreateInfo

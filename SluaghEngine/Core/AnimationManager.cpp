@@ -84,7 +84,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 			});
 			if (res)
 			{
-				//Utilz::Console::Print("Could not load animation %u. Error: %d\n", info.skeleton, res);
+				initInfo.console->PrintChannel("Could not load animation %u. Error: %d", "Resources", info.skeleton, res);
 				ProfileReturnVoid;
 			}
 		}

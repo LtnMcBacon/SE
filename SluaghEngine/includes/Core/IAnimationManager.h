@@ -16,6 +16,8 @@
 #include "IEntityManager.h"
 #include "ITransformManager.h"
 #include "IRenderableManager.h"
+#include <DevConsole\IConsole.h>
+
 namespace SE
 {
 	namespace Core
@@ -27,6 +29,7 @@ namespace SE
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
+				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				IRenderableManager* renderableManager;
