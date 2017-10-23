@@ -91,7 +91,14 @@ std::vector<Accepted> acceptedExt =
 					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
 					dst << src.rdbuf();
 					dst.close();
-					src.close(); } }
+					src.close(); } },
+
+					{ "SEP", "SEP", "Projectiles", [](const char* filename, const char* outFilename) {
+						std::ifstream  src(filename, std::ios::binary);
+						std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+						dst << src.rdbuf();
+						dst.close();
+						src.close(); } }
 
 };
 

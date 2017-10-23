@@ -190,7 +190,7 @@ namespace SE
 
 		public:
 			Projectile();
-			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
 			Projectile(const Projectile& other);
 			Projectile& operator=(const Projectile& other);
 			Projectile(Projectile&& other);
