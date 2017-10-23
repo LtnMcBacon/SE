@@ -655,14 +655,13 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	auto StunOwnerUnit = [ownerPtr](Projectile* p, float dt) -> bool
 	{
-		if (p->GetCollisionType() == CollisionType::ENEMY)
-			if (auto owner = ownerPtr.lock())
-			{
-				auto unit = *owner.get();
-				ConditionEvent cEvent;
-				cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
-				unit->AddConditionEvent(cEvent);
-			}
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			ConditionEvent cEvent;
+			cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+			unit->AddConditionEvent(cEvent);
+		}
 
 		return false;
 	};
