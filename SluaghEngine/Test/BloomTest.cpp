@@ -1,6 +1,6 @@
-#include <Utilz\Timer.h>
 #include "BloomTest.h"
 #include <Core\Engine.h>
+#include <Utilz\Timer.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -20,8 +20,7 @@ enum ActionButton
 	Fullscreen,
 	Rise,
 	Sink,
-	TL,
-	Console
+	TL
 };
 
 namespace SE
@@ -40,18 +39,12 @@ namespace SE
 		bool BloomTest::Run(Utilz::IConsoleBackend* console)
 		{
 			auto& e = Core::Engine::GetInstance();
-			e.Init();
-
-			auto& em = e.GetEntityManager();
-			auto& rm = e.GetRenderableManager();
-			auto& tm = e.GetTransformManager();
-			auto& cm = e.GetCameraManager();
-			auto& am = e.GetAnimationManager();
-			auto& mm = e.GetMaterialManager();
-			auto& level = em.Create();
-			auto& mainC = em.Create();
-			auto& camera = em.Create();
-			auto& lm = e.GetLightManager();
+			auto re = e.Init(Core::Engine::InitializationInfo());
+			e.GetWindow();
+			if (re)
+			{
+				console->Print("Could not init Core, Error: %d.", re);
+			}
 
 
 			auto renderer = e.GetRenderer();
@@ -60,7 +53,7 @@ namespace SE
 
 			int horizontalHandle, verticalHandle;
 
-			resourceManager->LoadResource("ComputeX.hlsl", [renderer, &horizontalHandle](auto guid, auto data, auto size) {
+			resourceManager->LoadResource("HorizontalBloomPass.hlsl", [renderer, &horizontalHandle](auto guid, auto data, auto size) {
 				horizontalHandle = renderer->CreateComputeShader(data, size);
 
 				if (horizontalHandle > -1)
@@ -69,7 +62,7 @@ namespace SE
 					return ResourceHandler::InvokeReturn::Fail;
 			});
 
-			resourceManager->LoadResource("ComputeY.hlsl", [renderer, &verticalHandle](auto guid, auto data, auto size) {
+			resourceManager->LoadResource("VerticalBloomPass.hlsl", [renderer, &verticalHandle](auto guid, auto data, auto size) {
 				verticalHandle = renderer->CreateComputeShader(data, size);
 
 				if (verticalHandle > -1)
@@ -83,9 +76,22 @@ namespace SE
 
 
 
-			/////////
+			//
+			// Modified RenderableManagerTest Copy Below
+			//
 
 
+
+			auto& em = e.GetEntityManager();
+			auto& rm = e.GetRenderableManager();
+			auto& tm = e.GetTransformManager();
+			auto& cm = e.GetCameraManager();
+			auto& am = e.GetAnimationManager();
+			auto& mm = e.GetMaterialManager();
+			auto& level = em.Create();
+			auto& mainC = em.Create();
+			auto& camera = em.Create();
+			auto& lm = e.GetLightManager();
 
 			auto handle = e.GetWindow();
 
@@ -109,8 +115,6 @@ namespace SE
 			handle->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
 			handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
-			handle->MapActionButton(ActionButton::Console, Window::Key1);
-
 			/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 			rm.ToggleRenderableObject(level, true);*/
 
@@ -119,13 +123,10 @@ namespace SE
 			tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 			Core::MaterialManager::CreateInfo info;
-			Utilz::GUID textures[] = { Utilz::GUID("texture8.sei") };
-			Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex") };
+			auto material = Utilz::GUID("MCModell.mat");
 			auto shader = Utilz::GUID("SimpleLightBloomPS.hlsl");
 			info.shader = shader;
-			info.shaderResourceNames = resourceNames;
-			info.textureFileNames = textures;
-			info.textureCount = 2;
+			info.materialFile = material;
 
 			mm.Create(mainC, info, true);
 
@@ -144,7 +145,19 @@ namespace SE
 
 			bool running = true;
 
+
+
 			Utilz::Timer timer;
+			e.GetDevConsole().Show();
+
+			auto e1 = em.Create();
+			em.Destroy(e1);
+
+			auto e2 = em.Create();
+			em.Destroy(e2);
+
+			auto e3 = em.Create();
+			em.Destroy(e3);
 			while (running)
 			{
 				if (e.GetWindow()->ButtonPressed(0))
@@ -167,14 +180,17 @@ namespace SE
 					tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 				if (handle->ButtonDown(ActionButton::TL))
 					tm.Rotate(camera, 0.0f, 0.01f, 0.0f);
-				if (handle->ButtonDown(ActionButton::Console))
-					e.GetDevConsole().Toggle();
 				tm.Rotate(mainC, 0.0f, 0.01f, 0.0f);
 				//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
+
+				e.BeginFrame();
+
 				e.Frame(dt);
 			}
 
+
 			e.Release();
+
 
 			return true;
 		}

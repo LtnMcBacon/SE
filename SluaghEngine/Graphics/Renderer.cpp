@@ -575,16 +575,25 @@ int SE::Graphics::Renderer::BeginFrame()
 {
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
-	float blackClearColor[] = { 0, 0, 0, 1 };
 	
-	ID3D11RenderTargetView* views[] = { device->GetRTV(), graphicResourceHandler->GetRenderTargetView(0) };
-	device->GetDeviceContext()->OMSetRenderTargets(2, views, device->GetDepthStencil());
+	if (!bloom)
+	{
+		ID3D11RenderTargetView* views[] = { device->GetRTV() };
+		device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
+	}
+	else
+	{
+		float blackClearColor[] = { 0, 0, 0, 1 };
+
+		ID3D11RenderTargetView* views[] = { device->GetRTV(), graphicResourceHandler->GetRenderTargetView(0) };
+		device->GetDeviceContext()->OMSetRenderTargets(2, views, device->GetDepthStencil());
+
+		// Clear the secondary render target view using the specified color
+		device->GetDeviceContext()->ClearRenderTargetView(views[1], blackClearColor);
+	}
 
 	// Clear the primary render target view using the specified color
 	device->GetDeviceContext()->ClearRenderTargetView(device->GetRTV(), clearColor);
-
-	// Clear the secondary render target view using the specified color
-	device->GetDeviceContext()->ClearRenderTargetView(views[1], blackClearColor);
 
 	// Clear the standard depth stencil view
 	device->GetDeviceContext()->ClearDepthStencilView(device->GetDepthStencil(),D3D11_CLEAR_DEPTH,1.0f,	0);
