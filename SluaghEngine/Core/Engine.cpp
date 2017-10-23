@@ -63,6 +63,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	collisionManager = new CollisionManager(resourceHandler, *entityManager, transformManager);
 	cameraManager = new CameraManager(renderer, *entityManager, transformManager);
 	renderableManager = new RenderableManager({ resourceHandler, renderer, *entityManager, transformManager });
+	particleSystemManager = new ParticleSystemManager({ renderer, resourceHandler, *entityManager, *transformManager });
 	animationManager = new AnimationManager(renderer, resourceHandler, *entityManager, renderableManager);
 	materialManager = new MaterialManager(resourceHandler, renderer, *entityManager, renderableManager);
 	debugRenderManager = new DebugRenderManager(renderer, resourceHandler, *entityManager, transformManager, collisionManager);
@@ -132,6 +133,9 @@ int SE::Core::Engine::Frame(double dt)
 	timeClus->Start("MaterialManager");
 	materialManager->Frame();
 	timeClus->Stop("MaterialManager");
+	timeClus->Start("ParticleSystemManager");
+	particleSystemManager->Frame();
+	timeClus->Stop("ParticleSystemManager");
 	timeClus->Start("CameraManager");
 	cameraManager->Frame();
 	timeClus->Stop("CameraManager");
@@ -167,6 +171,7 @@ int SE::Core::Engine::Release()
 	delete cameraManager;
 	delete collisionManager;
 	delete materialManager;
+	delete particleSystemManager;
 	delete renderableManager;
 	delete debugRenderManager;
 	delete animationManager;

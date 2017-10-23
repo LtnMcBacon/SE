@@ -43,6 +43,22 @@ namespace SE
 				invokerList.push_back(other);
 				return *this;
 			}
+			/**
+			*@brief Makes a copy of the invokerlist
+			*/
+			Event& operator=(const Event<RET(PARAMS...)>& other)
+			{
+				this->invokerList = other.invokerList;
+				return *this;
+			}
+
+			/**
+			*@brief Unregister all callbacks.
+			*/
+			inline void Clear()
+			{
+				invokerList.clear();
+			}
 
 			/**
 			*@brief No unregistering(for now).
@@ -57,10 +73,7 @@ namespace SE
 			*@brief No eqaulity(for now).
 			*/
 			bool operator==(const Event<RET(PARAMS...)>& other) = delete;
-			/**
-			*@brief No copying(for now).
-			*/
-			Event& operator=(const Event<RET(PARAMS...)>& other) = delete;
+			
 
 			/**
 			*@brief Invoke all the delegates. No return handling.

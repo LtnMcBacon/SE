@@ -11,6 +11,7 @@
 #include <fbxsdk.h>
 
 #include "Datatypes.h"
+#include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 #include <filesystem>
 #include <Utilz\PathParsing.h>
@@ -88,8 +89,8 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void LoadMaterial(Mesh& pMesh);
-			void GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial);
-			void GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial);
+			void GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial);
+			void GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial);
 			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
 			bool ExportTexture(Texture &texture, string textureFolder);
 

@@ -84,6 +84,9 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.fillSolid[newEntry] = 1;
 		renderableObjectInfo.transparency[newEntry] = 0;
 
+		initInfo.entityManager.RegisterDestroyCallback(entity, { this, &RenderableManager::DestroyEntity });
+
+
 		// Transform binding
 		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 
@@ -322,11 +325,21 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	StopProfile;
 }
 
+void SE::Core::RenderableManager::DestroyEntity(const Entity & entity)
+{
+	ToggleRenderableObject(entity, false);
+	/*auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		Destroy(find->second);
+	}*/
+}
+
 void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 40U)
+	while (renderableObjectInfo.used > 0 && alive_in_row < 50U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);

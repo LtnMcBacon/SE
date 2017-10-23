@@ -129,6 +129,15 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	auto& rm = Core::Engine::GetInstance().GetRenderableManager();
 	rm.CreateRenderableObject(createdEnemy->GetEntity(),
 		enemyCreationData->second.meshGUID);
+	// temp material
+	auto& mm = Core::Engine::GetInstance().GetMaterialManager();
+	Core::MaterialManager::CreateInfo enemyInfo;
+	Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
+	Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+	enemyInfo.shader = shader;
+	enemyInfo.materialFile = material;
+	mm.Create(createdEnemy->GetEntity(), enemyInfo);
+	// end temp material
 	rm.ToggleRenderableObject(createdEnemy->GetEntity(), true);
 
 	ProfileReturn(createdEnemy);
