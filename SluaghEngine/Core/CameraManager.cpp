@@ -11,7 +11,7 @@ SE::Core::CameraManager::CameraManager(Graphics::IRenderer* renderer, const Enti
 {
 	_ASSERT(renderer);
 	_ASSERT(transformManager);
-
+	renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
 	transformManager->SetDirty += {this, &CameraManager::SetDirty};
 	currentActive.activeCamera = ~0u;
 

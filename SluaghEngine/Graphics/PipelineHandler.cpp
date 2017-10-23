@@ -651,13 +651,22 @@ void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, 
 	bd.StructureByteStride = 0;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 
-	D3D11_SUBRESOURCE_DATA d;
-	d.pSysMem = initialData;
-	d.SysMemPitch = 0;
-	d.SysMemSlicePitch = 0;
 
+	HRESULT hr = S_OK;
 	ID3D11Buffer* buffer;
-	HRESULT hr = device->CreateBuffer(&bd, &d, &buffer);
+	if (initialData)
+	{
+		D3D11_SUBRESOURCE_DATA d;
+		d.pSysMem = initialData;
+		d.SysMemPitch = 0;
+		d.SysMemSlicePitch = 0;
+		hr = device->CreateBuffer(&bd, &d, &buffer);
+	}
+	else
+	{
+		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+	}
+	
 	if (FAILED(hr))
 		throw std::exception("Failed to create constant buffer");
 

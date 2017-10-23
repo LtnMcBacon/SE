@@ -54,12 +54,12 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
-
+	tm.Create(floor);
 	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(floor, camera);
 	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
 	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	tm.Create(floor);
+	
 	tm.SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Block.mesh"));
