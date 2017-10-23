@@ -67,12 +67,17 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	running = true;
 	//myThread = std::thread(&Renderer::Frame, this);
 
-	matID = graphicResourceHandler->CreateConstantBuffer(sizeof(Graphics::MaterialAttributes));
-	if (matID < 0)
+	materialBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(Graphics::MaterialAttributes));
+	if (materialBufferID < 0)
 	{
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
+	cameraBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(DirectX::XMFLOAT4));
+	if (cameraBufferID < 0)
+	{
+		throw std::exception("Could not create CameraBuffer");
+	}
 	ProfileReturnConst( 0);
 }
 
@@ -417,10 +422,10 @@ int SE::Graphics::Renderer::UpdateLightPos(const DirectX::XMFLOAT3& pos, size_t 
 	return 0;
 }
 
-int SE::Graphics::Renderer::UpdateView(float * viewMatrix)
+int SE::Graphics::Renderer::UpdateView(float * viewMatrix, const DirectX::XMFLOAT4& cameraPos)
 {
 	DirectX::XMStoreFloat4x4(&newViewProjTransposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4*)viewMatrix)));
-	
+	newCameraPos = cameraPos;
 
 	return 0;
 }
@@ -455,7 +460,11 @@ int SE::Graphics::Renderer::Render() {
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
 	// SetLightBuffer end
 	
-
+	DirectX::XMFLOAT4 cameraBuffer;
+	graphicResourceHandler->UpdateConstantBuffer<DirectX::XMFLOAT4>(cameraBufferID, [this](DirectX::XMFLOAT4* data) {
+		memcpy(data, &newCameraPos, sizeof(DirectX::XMFLOAT4));
+	});
+	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, cameraBufferID, 3);
 
 
 	timeCluster[GPUTimer]->Start("Rendering-GPU");
@@ -920,12 +929,11 @@ void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const Ren
 	}
 	if (previousJob.matIndex != job.matIndex)
 	{
-		const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
 		Graphics::MaterialAttributes matDataBuffer;
-		graphicResourceHandler->UpdateConstantBuffer<Graphics::MaterialAttributes>(matID, [&job](Graphics::MaterialAttributes* data) {
+		graphicResourceHandler->UpdateConstantBuffer<Graphics::MaterialAttributes>(materialBufferID, [&job](Graphics::MaterialAttributes* data) {
 			memcpy(data, &job.material, sizeof(Graphics::MaterialAttributes));
 		});
-		graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, matID, 3);
+		graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, materialBufferID, 4);
 	}
 	if (previousJob.fillSolid != job.fillSolid)
 	{

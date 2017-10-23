@@ -138,7 +138,6 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
 		}
 	}
-
 	
 	// Textures, materials.
 	{	

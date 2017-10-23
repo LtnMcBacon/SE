@@ -189,7 +189,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int UpdateView(float* viewMatrix) = 0;
+			virtual int UpdateView(float* viewMatrix, const DirectX::XMFLOAT4& cameraPos) = 0;
 
 			/**
 			* @brief Renders the scene
