@@ -9,26 +9,17 @@ namespace SE
 		class CPUTimeCluster : public TimeCluster
 		{
 		public:
-			CPUTimeCluster() : TimeCluster(), currentFrame(0){};
+			CPUTimeCluster() : TimeCluster(){};
 			~CPUTimeCluster() {};
 
 
 			inline void Start(const Utilz::IDHash& id)override
 			{
-				if (!timers[id].Started && !timers[id].Finished)
-				{
-					timers[id].startTime[currentFrame] = std::chrono::high_resolution_clock::now();
-					timers[id].Started = true;
-				}
+				timers[id].startTime = std::chrono::high_resolution_clock::now();
 			};
 			inline void Stop(const Utilz::IDHash& id)override
 			{
-				if (timers[id].Started && !timers[id].Finished)
-				{
-					timers[id].stopTime[currentFrame] = std::chrono::high_resolution_clock::now();
-					timers[id].Started = false;
-					timers[id].Finished = true;
-				}
+				timers[id].time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - timers[id].startTime).count();
 			}
 
 			/**
@@ -38,32 +29,20 @@ namespace SE
 			template<typename Ratio = std::milli>
 			inline float GetTime(const Utilz::IDHash& id)
 			{
-				if (timers[id].Finished)
-				{
-					timers[id].Finished = false;
-					timers[id].time[currentFrame] = std::chrono::duration<float, Ratio>(timers[id].stopTime[currentFrame] - timers[id].startTime[currentFrame]).count();
-					
-				}
-				return timers[id].time[currentFrame];
+				return timers[id].time;
 			}
 
 
 			inline void GetMap(TimeMap& map)override
 			{
-				currentFrame = (currentFrame + 1) % frameDelay;
 				for (auto& timer : timers)
 					map[timer.first] = this->GetTime(timer.first);
 			}
 		private:
-			static const uint8_t frameDelay = 2;
-			uint8_t currentFrame;
 			struct Timer
 			{
-				bool Started = false;
-				bool Finished = false;
-				float time[frameDelay] = { 0.0f ,0.0f };
-				std::chrono::high_resolution_clock::time_point startTime[frameDelay];
-				std::chrono::high_resolution_clock::time_point stopTime[frameDelay];
+				std::chrono::high_resolution_clock::time_point startTime;
+				float time = 0.0f;
 			};
 
 			std::map<Utilz::IDHash, Timer, Utilz::IDHash::Compare> timers;
