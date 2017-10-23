@@ -11,6 +11,7 @@
 #include <thread>
 #include <Utilz\TimeCluster.h>
 
+
 namespace SE
 {
 	namespace Graphics
@@ -35,6 +36,24 @@ namespace SE
 			* @endcode
 			*/
 			void Shutdown() override;
+
+
+			IPipelineHandler* GetPipelineHandler() override
+			{
+				return pipelineHandler;
+			};
+
+			/**
+			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
+			* @param[in] job Struct containing all information required to render.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa RenderJob
+			* @endcode
+			*/
+			uint32_t AddRenderJob(const RenderJob& job) override;
+
+			void RemoveRenderJob(uint32_t jobID) override;
 
 			/**
 			* @brief    Sets a render job
@@ -158,7 +177,7 @@ namespace SE
 			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			int UpdateView(float* viewMatrix) override;
+			int UpdateView(float* viewMatrix, const DirectX::XMFLOAT4& cameraPos) override;
 
 			/**
 			* @brief Renders the scene
@@ -430,7 +449,7 @@ namespace SE
 
 			InitializationInfo initInfo;
 
-
+			IPipelineHandler* pipelineHandler;
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 
@@ -450,11 +469,30 @@ namespace SE
 
 			int oncePerFrameBufferID;
 			int lightBufferID = -1;
+			int materialBufferID = -1;
+			int cameraBufferID = -1;
 
 			DeviceManager* device;
-
+			ID3D11Device* dev;
+			ID3D11DeviceContext* devContext;
 			GraphicResourceHandler* graphicResourceHandler;
 			MemoryMeasuring memMeasure;
+
+			/***********General render jobs ***************/
+			struct InternalRenderJob
+			{
+				RenderJob job;
+				uint32_t jobID;
+			};
+			uint32_t gJobID = 0;
+
+			std::vector<InternalRenderJob> generalJobs;
+			std::unordered_map<uint32_t, uint32_t> jobIDToIndex;
+			
+
+
+
+			/***********End General Render Jobs************/
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -518,6 +556,7 @@ namespace SE
 
 			std::mutex lightLock;
 			std::vector<LightData> renderLightJobs;
+			DirectX::XMFLOAT4 newCameraPos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 0.0);
 
 			/*********** END Renderjob Queues **************/
 

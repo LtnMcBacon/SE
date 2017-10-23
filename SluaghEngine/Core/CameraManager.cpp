@@ -216,7 +216,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
-			initInfo.renderer->UpdateView((float*)&viewProjMatrix);
+			initInfo.renderer->UpdateView((float*)&viewProjMatrix, DirectX::XMFLOAT4(transformManager->GetPosition(currentActive.entity).x, transformManager->GetPosition(currentActive.entity).y, transformManager->GetPosition(currentActive.entity).z, 1.0f));
 
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		}

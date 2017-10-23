@@ -12,6 +12,8 @@
 #include "FileHeaders.h"
 #include "AnimationJobInfo.h"
 #include <Utilz\TimeCluster.h>
+#include "IPipelineHandler.h"
+#include "RenderJob.h"
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -48,6 +50,20 @@ namespace SE
 			* @endcode
 			*/
 			virtual void Shutdown() = 0;
+
+			virtual IPipelineHandler* GetPipelineHandler() = 0;
+
+			/**
+			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
+			* @param[in] job Struct containing all information required to render.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa RenderJob
+			* @endcode
+			*/
+			virtual uint32_t AddRenderJob(const RenderJob& job) = 0;
+
+			virtual void RemoveRenderJob(uint32_t jobID) = 0;
 
 			/**
 			* @brief    Sets a render job
@@ -173,7 +189,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			virtual int UpdateView(float* viewMatrix) = 0;
+			virtual int UpdateView(float* viewMatrix, const DirectX::XMFLOAT4& cameraPos) = 0;
 
 			/**
 			* @brief Renders the scene
