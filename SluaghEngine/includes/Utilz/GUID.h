@@ -40,7 +40,7 @@ namespace SE
 			GUID operator+(const GUID &other) const
 			{
 				GUID g;
-				g.id = 0.5f*(id + other.id)*(id + other.id + 1) + other.id;
+				g.id = id ^ other.id;
 				return g;
 			}
 		private:

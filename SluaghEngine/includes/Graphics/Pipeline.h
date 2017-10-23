@@ -129,7 +129,10 @@ namespace SE
 			BIND_CONSTANT = 1 << 2,
 			BIND_STREAMOUT = 1 << 3,
 			CPU_READ = 1 << 5,
-			CPU_WRITE = 1 << 6
+			CPU_WRITE = 1 << 6,
+			DEFAULT = 1 << 7,
+			DYNAMIC = 1 << 8,
+			IMMUTABLE = 1 << 9
 		};
 		struct InputAssemblerStage
 		{
@@ -147,27 +150,27 @@ namespace SE
 
 		struct ShaderStage
 		{
-			static const size_t maxConstantBuffers = 8;
-			static const size_t maxTextures = 8;
-			static const size_t maxSamplers = 8;
+			static const size_t maxConstantBuffers = 4;
+			static const size_t maxTextures = 4;
+			static const size_t maxSamplers = 1;
 			Utilz::GUID shader;
 			Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
 			Utilz::GUID samplers[maxSamplers];
-			uint8_t constantBufferCount;
-			uint8_t textureCount;
-			uint8_t samplerCount;
+			uint8_t constantBufferCount = 0;
+			uint8_t textureCount = 0;
+			uint8_t samplerCount = 0;
 		};
 
 		struct OutputMergerStage
 		{
-			static const size_t maxRenderTargets = 8;
+			static const size_t maxRenderTargets = 4;
 			Utilz::GUID blendState;
 			Utilz::GUID depthStencilState;
 			Utilz::GUID renderTargets[maxRenderTargets];
 			Utilz::GUID depthStencilView;
-			uint8_t renderTargetCount;
+			uint8_t renderTargetCount = 0;
 		};
 		struct Viewport
 		{

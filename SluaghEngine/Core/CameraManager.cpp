@@ -220,7 +220,8 @@ void SE::Core::CameraManager::Frame()
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
 			renderer->UpdateView((float*)&viewProjMatrix);
-
+			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
+			renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		} 
 

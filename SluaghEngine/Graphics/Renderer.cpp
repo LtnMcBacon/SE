@@ -432,91 +432,92 @@ int SE::Graphics::Renderer::Render() {
 	//RemoveRenderJobs();
 
 	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
+	//float clearColor[] = { 0, 0, 1, 1 };
 
 
 
-	//Update the pointlights in the scene and bind them to the pixel shader stage.
-	//lightLock.lock();
-	const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
-	LightDataBuffer lightBufferData;
-	graphicResourceHandler->UpdateConstantBuffer<LightDataBuffer>(lightBufferID, [this](LightDataBuffer* data) {
-		data->size.x = renderLightJobs.size();
-		memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
-	});
-	//lightLock.unlock();
-	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
-	// SetLightBuffer end
-	
+	////Update the pointlights in the scene and bind them to the pixel shader stage.
+	////lightLock.lock();
+	//const size_t lightMappingSize = sizeof(DirectX::XMFLOAT4) + sizeof(LightData) * renderLightJobs.size();
+	//LightDataBuffer lightBufferData;
+	//graphicResourceHandler->UpdateConstantBuffer<LightDataBuffer>(lightBufferID, [this](LightDataBuffer* data) {
+	//	data->size.x = renderLightJobs.size();
+	//	memcpy(data->data, renderLightJobs.data(), +sizeof(LightData) * renderLightJobs.size());
+	//});
+	////lightLock.unlock();
+	//graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, lightBufferID, 2);
+	//// SetLightBuffer end
+	//
 
 
 
-	timeCluster[GPUTimer]->Start("Rendering-GPU");
-	//The previousJob is necessary to see what state changes need to be performed when rendering
-	//the next bucket.
-	timeCluster[CPUTimer]->Start("Rendering-CPU");
-	RenderObjectInfo previousJob;
-	previousJob.textureCount = 0;
-	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
-	{
-		previousJob.textureHandles[i] = -1;
-		previousJob.textureBindings[i] = -1;
-	}
-	previousJob.bufferHandle = -1;
-	previousJob.pixelShader = -1;
-	previousJob.topology = RenderObjectInfo::PrimitiveTopology::NONE;
-	previousJob.vertexShader = -1;
-	previousJob.skeletonIndex = -1;
-	previousJob.fillSolid = 1;
-	previousJob.transparency = 0;
+	//timeCluster[GPUTimer]->Start("Rendering-GPU");
+	////The previousJob is necessary to see what state changes need to be performed when rendering
+	////the next bucket.
+	//timeCluster[CPUTimer]->Start("Rendering-CPU");
+	//RenderObjectInfo previousJob;
+	//previousJob.textureCount = 0;
+	//for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
+	//{
+	//	previousJob.textureHandles[i] = -1;
+	//	previousJob.textureBindings[i] = -1;
+	//}
+	//previousJob.bufferHandle = -1;
+	//previousJob.pixelShader = -1;
+	//previousJob.topology = RenderObjectInfo::PrimitiveTopology::NONE;
+	//previousJob.vertexShader = -1;
+	//previousJob.skeletonIndex = -1;
+	//previousJob.fillSolid = 1;
+	//previousJob.transparency = 0;
 
-	device->SetBlendTransparencyState(0);
-	graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
+	//device->SetBlendTransparencyState(0);
+	//graphicResourceHandler->UpdateConstantBuffer(&newViewProjTransposed, sizeof(newViewProjTransposed), oncePerFrameBufferID);
 
-	//First render all opaque geometry, then render partially transparent geometry.
-	std::vector<size_t> transparentIndices;
-	for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
-	{
-		if (renderBuckets[iteration].stateInfo.transparency == 0)
-		{
-			RenderABucket(renderBuckets[iteration], previousJob);
-			previousJob = renderBuckets[iteration].stateInfo;
-		}
-		else
-			transparentIndices.push_back(iteration);
-	}
-	for (auto iteration = 0; iteration < transparentIndices.size(); iteration++)
-	{
-		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
-		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
-	}
-	timeCluster[CPUTimer]->Stop("Rendering-CPU");
-	timeCluster[GPUTimer]->Stop("Rendering-GPU");
+	////First render all opaque geometry, then render partially transparent geometry.
+	//std::vector<size_t> transparentIndices;
+	//for(auto iteration = 0; iteration < renderBuckets.size(); iteration++)
+	//{
+	//	if (renderBuckets[iteration].stateInfo.transparency == 0)
+	//	{
+	//		RenderABucket(renderBuckets[iteration], previousJob);
+	//		previousJob = renderBuckets[iteration].stateInfo;
+	//	}
+	//	else
+	//		transparentIndices.push_back(iteration);
+	//}
+	//for (auto iteration = 0; iteration < transparentIndices.size(); iteration++)
+	//{
+	//	RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
+	//	previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
+	//}
+	//timeCluster[CPUTimer]->Stop("Rendering-CPU");
+	//timeCluster[GPUTimer]->Stop("Rendering-GPU");
 
 
-	///********** Render line jobs (primarily for debugging) ************/
+	/////********** Render line jobs (primarily for debugging) ************/
 
-	timeCluster[GPUTimer]->Start("LineJob-GPU");
-	timeCluster[CPUTimer]->Start("LineJob-CPU");
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
-	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
-	for(auto& lineJob : lineRenderJobs)
-	{
-		if (lineJob.verticesToDrawCount == 0)
-			continue;
-		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
-		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
-		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
-		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
-	}
-	timeCluster[CPUTimer]->Stop("LineJob-CPU");
-	timeCluster[GPUTimer]->Stop("LineJob-GPU");
+	//timeCluster[GPUTimer]->Start("LineJob-GPU");
+	//timeCluster[CPUTimer]->Start("LineJob-CPU");
+	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+	//for(auto& lineJob : lineRenderJobs)
+	//{
+	//	if (lineJob.verticesToDrawCount == 0)
+	//		continue;
+	//	graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+	//	graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	//}
+	//timeCluster[CPUTimer]->Stop("LineJob-CPU");
+	//timeCluster[GPUTimer]->Stop("LineJob-GPU");
 
 	///********END render line jobs************/
 
 	/******************General Jobs*********************/
-
+	timeCluster[CPUTimer]->Start("JobJob-CPU");
+	timeCluster[GPUTimer]->Start("JobJob-GPU");
 	for(auto& j : generalJobs)
 	{
 		int32_t drawn = 0;
@@ -557,32 +558,33 @@ int SE::Graphics::Renderer::Render() {
 			devContext->DrawAuto();
 		}
 	}
-
+	timeCluster[CPUTimer]->Stop("JobJob-CPU");
+	timeCluster[GPUTimer]->Stop("JobJob-GPU");
 
 	/*****************End General Jobs******************/
 
 
-	//********* Render sprite overlays ********/
-	timeCluster[GPUTimer]->Start("GUIJob-GPU");
-	timeCluster[CPUTimer]->Start("GUIJob-CPU");
-	if (renderTextureJobs.size() && renderTextJobs.size())
-	{
-		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
-		for (auto& job : renderTextureJobs)
-		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-		}
+	////********* Render sprite overlays ********/
+	//timeCluster[GPUTimer]->Start("GUIJob-GPU");
+	//timeCluster[CPUTimer]->Start("GUIJob-CPU");
+	//if (renderTextureJobs.size() && renderTextJobs.size())
+	//{
+	//	spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
+	//	for (auto& job : renderTextureJobs)
+	//	{
+	//		spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	//	}
 
-		for (auto& job : renderTextJobs)
-		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
-		}
-		spriteBatch->End();
-	}
-	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
-	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
-	device->SetDepthStencilStateAndRS();
-	device->SetBlendTransparencyState(0);
+	//	for (auto& job : renderTextJobs)
+	//	{
+	//		fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+	//	}
+	//	spriteBatch->End();
+	//}
+	//timeCluster[CPUTimer]->Stop("GUIJob-CPU");
+	//timeCluster[GPUTimer]->Stop("GUIJob-GPU");
+	//device->SetDepthStencilStateAndRS();
+	//device->SetBlendTransparencyState(0);
 
 	ProfileReturnConst(0);
 }

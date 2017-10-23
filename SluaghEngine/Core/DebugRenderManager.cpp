@@ -5,16 +5,33 @@
 SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
 	TransformManager* transformManager, CollisionManager* collisionManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), collisionManager(collisionManager), dynamicVertexBufferHandle(-1), dirty(false)
 {
-	dynamicVertexBufferHandle = renderer->CreateDynamicVertexBuffer(dynamicVertexBufferSize, sizeof(Point3D));
-	_ASSERT_EXPR(dynamicVertexBufferHandle >= 0, L"Failed to initialize DebugRenderManager: Could not create dynamic vertex buffer");
-	auto res = resourceHandler->LoadResource(Utilz::GUID("DebugLinePS.hlsl"), { this, &DebugRenderManager::LoadLinePixelShader });
-	if (res)
-		throw std::exception("Could not load line render pixel shader.");
-	res = resourceHandler->LoadResource(Utilz::GUID("DebugLineVS.hlsl"), { this, &DebugRenderManager::LoadLineVertexShader });
-	if (res)
-		throw std::exception("Could not load line render vertex shader.");
+	vertexShaderID = "DebugLineVS.hlsl";
+	pixelShaderID = "DebugLinePS.hlsl";
+	transformBufferID = "DebugLineW";
+	resourceHandler->LoadResource(pixelShaderID, { this, &DebugRenderManager::LoadLinePixelShader });
+	resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
 
-	transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
+
+	//transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
+
+	auto pipelineHandler = renderer->GetPipelineHandler();
+
+	vertexBufferID = Utilz::GUID("DebugRenderManager");
+	pipelineHandler->CreateVertexBuffer(vertexBufferID, nullptr, maximumLinesToRender * 2, sizeof(Point3D), true);
+	
+
+	pipeline.IAStage.topology = Graphics::PrimitiveTopology::LINE_LIST;
+	pipeline.IAStage.vertexBuffer = vertexBufferID;
+	pipeline.IAStage.inputLayout = vertexShaderID;
+	pipeline.VSStage.shader = vertexShaderID;
+	pipeline.VSStage.constantBuffers[0] = transformBufferID; //Created when shader is created.
+	pipeline.VSStage.constantBuffers[1] = "OncePerFrame"; //Updated by camera manager
+	pipeline.VSStage.constantBufferCount = 2;
+	pipeline.PSStage.shader = pixelShaderID;
+	pipeline.OMStage.renderTargets[0] = "backbuffer";
+	pipeline.OMStage.renderTargetCount = 1;
+	pipeline.OMStage.depthStencilView = "backbuffer";
+
 	
 }
 
@@ -43,28 +60,33 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			memcpy(cur, m.second.data(), cpySize);
 			cur = ((uint8_t*)cur) + cpySize;
 		}
-		renderer->UpdateDynamicVertexBuffer(dynamicVertexBufferHandle, lineData, bufferSize, sizeof(Point3D));
 		
+		renderer->GetPipelineHandler()->UpdateDynamicVertexBuffer(vertexBufferID, lineData, bufferSize);
 		uint32_t startVertex = 0;
 		for(auto& m : entityToLineList)
 		{
 			const size_t verticesToDraw = m.second.size() * 2;
 			Graphics::LineRenderJob lineRenderJob;
-
+			Graphics::RenderJob job;
+			job.pipeline = pipeline;
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
 			{
-				lineRenderJob.firstVertex = startVertex;
-				lineRenderJob.pixelShaderHandle = lineRenderPixelShaderHandle;
-				lineRenderJob.vertexShaderHandle = lineRenderVertexShaderHandle;
+				Entity ent = m.first;
 				transformManager->Create(m.first);
-				lineRenderJob.vertexBufferHandle = dynamicVertexBufferHandle;
-				lineRenderJob.verticesToDrawCount = verticesToDraw;
-				entityToJobID[m.first] = renderer->AddLineRenderJob(lineRenderJob);
+				job.vertexOffset = startVertex;
+				job.vertexCount = verticesToDraw;
+				job.mappingFunc = [this, ent](int a, int b)
+				{
+					DirectX::XMFLOAT4X4 t = transformManager->GetTransform(ent);
+					DirectX::XMStoreFloat4x4(&t, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&t)));
+					renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &t, sizeof(DirectX::XMFLOAT4X4));
+				};
+				entityToJobID[m.first] = renderer->AddRenderJob(job);
 			}
 			else
 			{
-				renderer->UpdateLineRenderJobRange(f->second, startVertex, verticesToDraw);
+				//renderer->UpdateLineRenderJobRange(f->second, startVertex, verticesToDraw);
 			}
 			startVertex += verticesToDraw;			
 		}
@@ -82,7 +104,7 @@ bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		entityToLineList.erase(entity);
 		auto find = entityToJobID.find(entity);
 		if (find != entityToJobID.end())
-			renderer->RemoveLineRenderJob(find->second);
+			renderer->RemoveRenderJob(find->second);
 		entityToJobID.erase(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		entityRendersBoundingVolume.erase(entity);
@@ -185,27 +207,26 @@ void SE::Core::DebugRenderManager::CreateBoundingBoxes()
 SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	lineRenderVertexShaderHandle = renderer->CreateVertexShader(data, size);
-	ProfileReturn(lineRenderVertexShaderHandle < 0 ? ResourceHandler::InvokeReturn::Fail : ResourceHandler::InvokeReturn::DecreaseRefcount);
+	renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);
 	
 }
 
 SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	lineRenderPixelShaderHandle = renderer->CreatePixelShader(data, size);
-	ProfileReturn(lineRenderPixelShaderHandle < 0 ? ResourceHandler::InvokeReturn::Fail : ResourceHandler::InvokeReturn::DecreaseRefcount);
-	
+	renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);	
 }
 
 void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
-	auto find = entityToJobID.find(entity);
-	if (find != entityToJobID.end())
-	{
-		renderer->UpdateLineRenderJobTransform(find->second, (float*)&transformManager->dirtyTransforms[index]);
-	}
+	//auto find = entityToJobID.find(entity);
+	//if (find != entityToJobID.end())
+	//{
+	//	renderer->UpdateLineRenderJobTransform(find->second, (float*)&transformManager->dirtyTransforms[index]);
+	//}
 	ProfileReturnVoid;
 }
 
@@ -235,7 +256,7 @@ void SE::Core::DebugRenderManager::GarbageCollection()
 void SE::Core::DebugRenderManager::Destroy(const Entity& e)
 {
 	StartProfile;
-	renderer->RemoveLineRenderJob(entityToJobID[e]);
+	renderer->RemoveRenderJob(entityToJobID[e]);
 	entityToLineList.erase(e);
 	entityToJobID.erase(e);
 	dirty = true;

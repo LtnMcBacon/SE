@@ -9,13 +9,13 @@ namespace SE
 		struct RenderJob
 		{
 			Pipeline pipeline;
-			int vertexCount;
-			int vertexOffset;
-			int indexCount;
-			int indexOffset;
-			int instanceCount;
-			int instanceOffset;
-			int maxInstances;
+			int vertexCount = 0;
+			int vertexOffset = 0;
+			int indexCount = 0;
+			int indexOffset = 0;
+			int instanceCount = 0;
+			int instanceOffset = 0;
+			int maxInstances = 0;
 			std::function<void(int, int)> mappingFunc;
 		};
 	}

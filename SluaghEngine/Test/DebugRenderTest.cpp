@@ -54,27 +54,13 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,3.14f,0.0f }, { 5.02f,5.02f,5.02f });
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
-		rm.ToggleRenderableObject(ents[i], true);
+		//rm.ToggleRenderableObject(ents[i], true);
 		
 		drm.ToggleDebugRendering(ents[i], true);
 		drm.DrawCross(ents[i], 1.0f);
 
 	}
-	for (int i = 10; i < 20; i++)
-	{
-		drm.ToggleDebugRendering(ents[i], false);
-	}
-	for (int i = 0; i < 200; i++)
-	{
-		drm.DrawCross(ents[i], 1.0f);
-	}
-	
-	for (int i = 7; i < 14; i++)
-	{
-		drm.ToggleDebugRendering(ents[i], false);
-	}
-	rm.ToggleRenderableObject(ents[2], false);
-	rm.ToggleRenderableObject(ents[2], true);
+
 	const auto camera = em.Create();
 	cm.Bind(camera);
 	cm.SetActive(camera);
@@ -99,7 +85,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	w->MapActionButton(Console, Window::KeyC);
 	
 
-	
+	engine.GetDevConsole().Show();
 	Utilz::Timer timer;
 	auto& oh = engine.GetOptionHandler();
 

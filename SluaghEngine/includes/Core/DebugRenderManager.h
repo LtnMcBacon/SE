@@ -79,7 +79,11 @@ namespace SE
 
 
 		private:
-			
+			Graphics::Pipeline pipeline;
+			Utilz::GUID vertexBufferID;
+			Utilz::GUID vertexShaderID;
+			Utilz::GUID pixelShaderID;
+			Utilz::GUID transformBufferID;
 			struct LineSegment
 			{
 				Point3D a;
