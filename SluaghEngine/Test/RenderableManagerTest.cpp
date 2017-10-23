@@ -191,7 +191,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			managers.entityManager->Destroy(e3);
 		}
-		engine->BeginFrame();
+
 		engine->EndFrame();
 	}
 

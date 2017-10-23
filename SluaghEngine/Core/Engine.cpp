@@ -386,38 +386,38 @@ void SE::Core::Engine::SetupDebugConsole()
 		ImGui::Separator();
 		}
 
-		if(show_gpu_timings)
+		if (show_gpu_timings)
 		{
-		SE::Utilz::TimeMap map;
-		this->GetProfilingInformation(map);
-		static float maxFrameTime = 0.0f;
-		static float minFrameTime = 999999999.0f;
-		static float avg100Frames = 0.0f;
-		const auto frame = map.find("Frame");
-		if(frame != map.end())
-		{
-		static float runningSum = 0.0f;
-		runningSum += frame->second;
-		if (frame->second < minFrameTime)
-		minFrameTime = frame->second;
-		if (frame->second > maxFrameTime)
-		maxFrameTime = frame->second;
-		static size_t frameCounter = 0;
-		if (frameCounter >= 100)
-		{
-		avg100Frames = runningSum / frameCounter;
-		frameCounter = 0;
-		runningSum = 0.0f;
-		}
-
-		}
-		ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
-		ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
-		ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
-		for(auto& m : map)
-		{
-		ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0,10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
-		}
+			SE::Utilz::TimeMap map;
+			this->GetProfilingInformation(map);
+			static float maxFrameTime = 0.0f;
+			static float minFrameTime = 999999999.0f;
+			static float avg100Frames = 0.0f;
+			const auto frame = map.find("Frame");
+			if (frame != map.end())
+			{
+				static float runningSum = 0.0f;
+				runningSum += frame->second;
+				if (frame->second < minFrameTime)
+					minFrameTime = frame->second;
+				if (frame->second > maxFrameTime)
+					maxFrameTime = frame->second;
+				static size_t frameCounter = 0;
+				if (frameCounter >= 100)
+				{
+					avg100Frames = runningSum / (float)frameCounter;
+					frameCounter = 0;
+					runningSum = 0.0f;
+				}
+				frameCounter++;
+			}
+			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
+			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
+			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+			for (auto& m : map)
+			{
+				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+			}
 
 
 		}

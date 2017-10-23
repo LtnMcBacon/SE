@@ -1,6 +1,5 @@
 #include "RenderableManager.h"
 #include <Profiler.h>
-//#include <Utilz\Console.h>
 
 #include <Graphics\VertexStructs.h>
 #include <Graphics\FileHeaders.h>
@@ -424,9 +423,8 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		}, async, behavior);
 		
 		
-		//{ this , &RenderableManager::LoadModel }, async, behavior);
-	//	if (res)
-		//	Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
+		if (res)
+			initInfo.console->PrintChannel("Model %u could not be loaded, Error: %d. Using default instead.\n", "Resources", meshGUID, res);
 
 	}
 	else bufferLock.unlock();

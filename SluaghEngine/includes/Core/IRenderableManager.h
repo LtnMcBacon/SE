@@ -11,6 +11,7 @@
 #include <Utilz\GUID.h>
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include <DevConsole\IConsole.h>
 
 #include "IManager.h"
 #include "IEntityManager.h"
@@ -33,6 +34,7 @@ namespace SE
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
+				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				ResourceHandler::UnloadingStrategy unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;

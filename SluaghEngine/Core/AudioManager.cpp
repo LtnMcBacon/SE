@@ -45,7 +45,7 @@ namespace SE {
 				});
 				if (res)
 				{
-					//Console::Print("Could not load sound. GUID: %u, Error: %d", createInfo.soundFile, res);
+					initInfo.console->PrintChannel("Could not load sound. GUID: %u, Error: %d", "Resources", createInfo.soundFile, res);
 					ProfileReturnVoid;
 				}
 			}
@@ -54,7 +54,7 @@ namespace SE {
 			int handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
 			if (handle < 0)
 			{
-				//Console::Print("Could not create stream. GUID: %u, Error: %d", createInfo.soundFile, handle);
+				initInfo.console->PrintChannel("Could not create stream. GUID: %u, Error: %d", "Warning", createInfo.soundFile, handle);
 				ProfileReturnVoid;
 			}
 			sound.refCount++;
@@ -101,7 +101,7 @@ namespace SE {
 						auto res = audioHandler->RemoveSound(guidToSound[soundFile].handle);
 						if (res)
 						{
-							//Console::Print("Could not remove sound. GUID: %u, Error: %d", soundFile, res);
+							initInfo.console->PrintChannel("Could not remove sound. GUID: %u, Error: %d", "Warning", soundFile, res);
 						}
 					}
 						

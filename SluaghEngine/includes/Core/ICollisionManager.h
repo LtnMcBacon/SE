@@ -14,6 +14,7 @@
 #include <DirectXCollision.h>
 #include <Utilz\GUID.h>
 #include <Utilz\Delegate.h>
+#include <DevConsole\IConsole.h>
 
 namespace SE
 {
@@ -25,6 +26,7 @@ namespace SE
 			struct InitializationInfo
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
+				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 			};

@@ -2,11 +2,7 @@
 #include <algorithm>
 #include <Imgui\imgui.h>
 #include <ImGuiDX11SDL\ImGuiDX11SDL.h>
-#include <Utilz/Memory.h>
-#include <Utilz/TimeCluster.h>
-#include <Graphics/IRenderer.h> //In order to plot VRAM usage.
 #include <Profiler.h>
-#include "Engine.h"
 
 SE::Core::ImGuiConsole::ImGuiConsole(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window) : renderer(renderer), window(window)
 {

@@ -9,6 +9,7 @@
 #include <random>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+
 namespace SE
 {
 	namespace Core
