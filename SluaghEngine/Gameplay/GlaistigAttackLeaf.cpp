@@ -26,6 +26,5 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 	
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 
-
 	return SE::Gameplay::Status::BEHAVIOUR_SUCCESS;
 }
