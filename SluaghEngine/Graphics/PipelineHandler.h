@@ -11,7 +11,7 @@ namespace SE
 		class PipelineHandler : public IPipelineHandler
 		{
 		public:
-			PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer);
+			PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv);
 			~PipelineHandler();
 			PipelineHandler(const PipelineHandler& other) = delete;
 			PipelineHandler(PipelineHandler&& other) = delete;
@@ -19,7 +19,7 @@ namespace SE
 
 			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
-			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, uint32_t flags) override;
+			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
 			void DestroyIndexBuffer(const Utilz::GUID& id) override;
 			void DestroyVertexBuffer(const Utilz::GUID& id) override;
 
