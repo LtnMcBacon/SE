@@ -6,6 +6,15 @@ namespace SE
 {
 	namespace Graphics
 	{
+		enum class RenderGroup : uint8_t
+		{
+			PRE_PASS = 0,
+			SECOND_PASS = 1,
+			THIRD_PASS = 2,
+			POST_PASS = 3
+		};
+
+
 		struct RenderJob
 		{
 			Pipeline pipeline;

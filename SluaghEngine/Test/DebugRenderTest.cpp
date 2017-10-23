@@ -51,11 +51,11 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 	{
 		ents[i] = em.Create();
 		mm.Create(ents[i], info);
-		tm.Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,3.14f,0.0f }, { 5.02f,5.02f,5.02f });
+		tm.Create(ents[i], { (float)(i*5.0f),0.0f,0.0f }, { 0.0f,3.14f,0.0f }, { 4.0f,4.0f,4.0f });
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
 		//rm.ToggleRenderableObject(ents[i], true);
-		
+		colm.CreateBoundingHierarchy(ents[i], "Placeholder_Block.mesh");
 		drm.ToggleDebugRendering(ents[i], true);
 		drm.DrawCross(ents[i], 1.0f);
 

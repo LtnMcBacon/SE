@@ -46,14 +46,28 @@ namespace SE
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
+			* @param[in] group The group (enum) the job should belong to.
 			* @retval Returns a handle to the job on success.
 			* @retval -1 on failure.
-			* @sa RenderJob
-			* @endcode
+			* @sa RenderJob, RenderGroup
 			*/
-			uint32_t AddRenderJob(const RenderJob& job) override;
+			uint32_t AddRenderJob(const RenderJob& job, RenderGroup group) override;
 
+			/**
+			* @brief Removes a renderjob that has been added by AddRenderJob
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @sa AddRenderJob
+			*/
 			void RemoveRenderJob(uint32_t jobID) override;
+
+			/**
+			* @brief Replaces an existing renderjob with a new one. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] newJob The job to replace the existing job with.
+			* @warning Performance heavy if used excessively.
+			* @sa AddRenderJob
+			*/
+			void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) override;
 
 			/**
 			* @brief    Sets a render job
@@ -425,7 +439,6 @@ namespace SE
 
 			DirectX::XMFLOAT4X4 newViewProjTransposed;
 
-
 			struct OncePerFrameConstantBuffer
 			{
 				DirectX::XMFLOAT4X4 viewproj;
@@ -447,15 +460,20 @@ namespace SE
 			MemoryMeasuring memMeasure;
 
 			/***********General render jobs ***************/
+			
 			struct InternalRenderJob
 			{
 				RenderJob job;
 				uint32_t jobID;
 			};
-			uint32_t gJobID = 0;
+			uint32_t jobIDCounter = 0;
+			static const uint32_t JOB_GROUP_BITS = 4;
+			static const uint32_t JOB_ID_BITS = 28;
+			static const uint32_t JOB_ID_MASK = (1 << JOB_ID_BITS) - 1;
+			static const uint32_t JOB_GROUP_MASK = (1 << JOB_GROUP_BITS) - 1;
 
-			std::vector<InternalRenderJob> generalJobs;
 			std::unordered_map<uint32_t, uint32_t> jobIDToIndex;
+			std::map<uint8_t, std::vector<InternalRenderJob>> jobGroups;
 			
 
 

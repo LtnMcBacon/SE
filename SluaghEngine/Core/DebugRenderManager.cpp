@@ -12,7 +12,7 @@ SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, 
 	resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
 
 
-	//transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
+	transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
 
 	auto pipelineHandler = renderer->GetPipelineHandler();
 
@@ -69,24 +69,24 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			Graphics::LineRenderJob lineRenderJob;
 			Graphics::RenderJob job;
 			job.pipeline = pipeline;
+			Entity ent = m.first;
+			job.vertexOffset = startVertex;
+			job.vertexCount = verticesToDraw;
+			job.mappingFunc = [this, ent](int a, int b)
+			{
+				renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &cachedTransforms[ent], sizeof(DirectX::XMFLOAT4X4));
+			};
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
 			{
-				Entity ent = m.first;
-				transformManager->Create(m.first);
-				job.vertexOffset = startVertex;
-				job.vertexCount = verticesToDraw;
-				job.mappingFunc = [this, ent](int a, int b)
-				{
-					DirectX::XMFLOAT4X4 t = transformManager->GetTransform(ent);
-					DirectX::XMStoreFloat4x4(&t, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&t)));
-					renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &t, sizeof(DirectX::XMFLOAT4X4));
-				};
-				entityToJobID[m.first] = renderer->AddRenderJob(job);
+				
+				entityToJobID[m.first] = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
 			}
 			else
 			{
-				//renderer->UpdateLineRenderJobRange(f->second, startVertex, verticesToDraw);
+				job.vertexOffset = startVertex;
+				job.vertexCount = verticesToDraw;
+				renderer->ChangeRenderJob(f->second, job);
 			}
 			startVertex += verticesToDraw;			
 		}
@@ -111,6 +111,8 @@ bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 	}
 	else
 	{
+		transformManager->Create(entity);
+		transformManager->SetAsDirty(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())
@@ -222,11 +224,11 @@ SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelSha
 void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
-	//auto find = entityToJobID.find(entity);
-	//if (find != entityToJobID.end())
-	//{
-	//	renderer->UpdateLineRenderJobTransform(find->second, (float*)&transformManager->dirtyTransforms[index]);
-	//}
+	const auto find = entityToLineList.find(entity);
+	if (find != entityToLineList.end())
+	{
+		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transformManager->dirtyTransforms[index])));
+	}
 	ProfileReturnVoid;
 }
 

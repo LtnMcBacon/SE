@@ -54,6 +54,11 @@ namespace SE
 			virtual void DestroyDepthStencilView(const Utilz::GUID& id) = 0;
 
 			virtual void SetPipeline(const Pipeline& pipeline) = 0;
+			/*
+			 * @brief Does not compare the current pipeline with pipeline. Sets all states even if those states might already be set. Only use this for the first pipeline to set.
+			 * @param[in] pipeline The pipeline to set.
+			 */
+			virtual void SetPipelineForced(const Pipeline& pipeline) = 0;
 
 		};
 	}

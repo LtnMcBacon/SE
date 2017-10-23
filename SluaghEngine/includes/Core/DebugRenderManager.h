@@ -99,7 +99,7 @@ namespace SE
 			std::vector<Entity> awaitingBoundingBoxes;
 			void CreateBoundingBoxes();
 
-			static const size_t maximumLinesToRender = 4096;
+			static const size_t maximumLinesToRender = 16384;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
 			int dynamicVertexBufferHandle;
 			int lineRenderVertexShaderHandle;
@@ -108,6 +108,7 @@ namespace SE
 			size_t lineCount;
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
+			std::unordered_map<Entity, DirectX::XMFLOAT4X4, EntityHasher> cachedTransforms;
 			//In case we don't leave it up to the caller to not enable the same entity twice
 			std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
 			
