@@ -15,7 +15,7 @@ namespace SE
 			LightTest();
 			~LightTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

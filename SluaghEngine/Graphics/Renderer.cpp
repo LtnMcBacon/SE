@@ -668,6 +668,8 @@ int SE::Graphics::Renderer::Render() {
 	}
 	//******* END Apply bloom post-processing ******/
 
+	ID3D11RenderTargetView* views[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, views, device->GetDepthStencil());
 
 	ProfileReturnConst(0);
 }

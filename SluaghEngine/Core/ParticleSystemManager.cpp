@@ -1,4 +1,4 @@
-#include <ParticleSystemManager.h>
+#include "ParticleSystemManager.h"
 #include <Profiler.h>
 
 
@@ -6,8 +6,10 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
-
-	
+	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.renderableManager);
+	_ASSERT(initInfo.console);
 }
 
 
@@ -26,14 +28,14 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		indexToEntity[newEntry] = entity;
 
 		// Register instant destroy
-		initInfo.entityManager.RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
+		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
 
 		particleSystemData[newEntry].visible = 0u;
 		particleSystemData[newEntry].loaded = 0u;
 
 		// Load the particle system file
 		{
-			initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this, async](auto guid, auto data, auto size) {
+			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this, async](auto guid, auto data, auto size) {
 			
 				if (async)
 				{
@@ -48,6 +50,9 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 				return ResourceHandler::InvokeReturn::DecreaseRefcount;
 			}, async, behavior);
+
+			if (res)
+				initInfo.console->PrintChannel("Could not load particle system file. GUID: %u, Error: %d", "Resources", info.systemFile, res);
 		}
 
 		particleSystemData.push_back({});
@@ -87,8 +92,10 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 	StopProfile;
 }
 
-void SE::Core::ParticleSystemManager::Frame()
+void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
+	StartProfile;
+	timer->Start("ParticleSystemManager");
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -109,6 +116,8 @@ void SE::Core::ParticleSystemManager::Frame()
 		toUpdate.pop();
 
 	}
+	timer->Stop("ParticleSystemManager");
+	StopProfile;
 }
 
 void SE::Core::ParticleSystemManager::Destroy(size_t index)
@@ -149,7 +158,7 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, particleSystemData.size() - 1U);
 		size_t i = distribution(generator);
-		if (initInfo.entityManager.Alive(indexToEntity[i]))
+		if (initInfo.entityManager->Alive(indexToEntity[i]))
 		{
 			alive_in_row++;
 			continue;

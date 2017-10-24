@@ -2,17 +2,24 @@
 #include <Profiler.h>
 #include <random>
 
-SE::Core::DebugRenderManager::DebugRenderManager(Graphics::IRenderer* renderer, ResourceHandler::IResourceHandler* resourceHandler, const EntityManager& entityManager,
-	TransformManager* transformManager, CollisionManager* collisionManager) : entityManager(entityManager), transformManager(transformManager), renderer(renderer), resourceHandler(resourceHandler), collisionManager(collisionManager), dynamicVertexBufferHandle(-1), dirty(false)
+
+SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
+	_ASSERT(initInfo.renderer);
+	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.perFrameStackAllocator);
+	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.collisionManager);
+
+	
 	vertexShaderID = "DebugLineVS.hlsl";
 	pixelShaderID = "DebugLinePS.hlsl";
 	transformBufferID = "DebugLineW";
 	resourceHandler->LoadResource(pixelShaderID, { this, &DebugRenderManager::LoadLinePixelShader });
 	resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
 
-
-	transformManager->SetDirty += {this, &DebugRenderManager::SetDirty};
+	initInfo.transformManager->RegisterSetDirty({ this, &DebugRenderManager::SetDirty });
 
 	auto pipelineHandler = renderer->GetPipelineHandler();
 
@@ -39,18 +46,19 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 {
 }
 
-void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAllocator)
+void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
+	timer->Start("DebugRenderManager");
 	GarbageCollection();
 	CreateBoundingBoxes();
-	if(dirty)
+	if (dirty)
 	{
 		size_t bufferSize = 0;
 		for (auto& m : entityToLineList)
 			bufferSize += m.second.size();
 		bufferSize *= sizeof(LineSegment);
-		void* lineData = perFrameStackAllocator.GetMemoryAligned(bufferSize, 4);
+		void* lineData = initInfo.perFrameStackAllocator->GetMemoryAligned(bufferSize, 4);
 		if (!lineData)
 			ProfileReturnVoid;
 		void* cur = lineData;
@@ -61,9 +69,9 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			cur = ((uint8_t*)cur) + cpySize;
 		}
 		
-		renderer->GetPipelineHandler()->UpdateDynamicVertexBuffer(vertexBufferID, lineData, bufferSize);
+		initInfo.renderer->GetPipelineHandler()->UpdateDynamicVertexBuffer(vertexBufferID, lineData, bufferSize);
 		uint32_t startVertex = 0;
-		for(auto& m : entityToLineList)
+		for (auto& m : entityToLineList)
 		{
 			const size_t verticesToDraw = m.second.size() * 2;
 			Graphics::LineRenderJob lineRenderJob;
@@ -80,18 +88,19 @@ void SE::Core::DebugRenderManager::Frame(Utilz::StackAllocator& perFrameStackAll
 			if (f == entityToJobID.end())
 			{
 				
-				entityToJobID[m.first] = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+				entityToJobID[m.first] = initInfo.renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
 			}
 			else
 			{
 				job.vertexOffset = startVertex;
 				job.vertexCount = verticesToDraw;
-				renderer->ChangeRenderJob(f->second, job);
+				initInfo.renderer->ChangeRenderJob(f->second, job);
 			}
-			startVertex += verticesToDraw;			
+			startVertex += verticesToDraw;
 		}
 		dirty = false;
 	}
+	timer->Stop("DebugRenderManager");
 	ProfileReturnVoid;
 }
 
@@ -104,7 +113,7 @@ bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		entityToLineList.erase(entity);
 		auto find = entityToJobID.find(entity);
 		if (find != entityToJobID.end())
-			renderer->RemoveRenderJob(find->second);
+			initInfo.renderer->RemoveRenderJob(find->second);
 		entityToJobID.erase(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		entityRendersBoundingVolume.erase(entity);
@@ -164,7 +173,7 @@ void SE::Core::DebugRenderManager::CreateBoundingBoxes()
 	for (int i = 0; i < awaitingBoundingBoxes.size(); i++)
 	{
 		DirectX::BoundingBox aabb;
-		const bool hasBounding = collisionManager->GetLocalBoundingBox(awaitingBoundingBoxes[i], &aabb);
+		const bool hasBounding = initInfo.collisionManager->GetLocalBoundingBox(awaitingBoundingBoxes[i], &aabb);
 		if (hasBounding && lineCount + 12 < maximumLinesToRender)
 		{
 			const auto& center = aabb.Center;
@@ -209,7 +218,7 @@ void SE::Core::DebugRenderManager::CreateBoundingBoxes()
 SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+	initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);
 	
 }
@@ -217,7 +226,7 @@ SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLineVertexSh
 SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+	initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);	
 }
 
@@ -227,7 +236,7 @@ void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 	const auto find = entityToLineList.find(entity);
 	if (find != entityToLineList.end())
 	{
-		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transformManager->dirtyTransforms[index])));
+		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index])));
 	}
 	ProfileReturnVoid;
 }
@@ -243,7 +252,7 @@ void SE::Core::DebugRenderManager::GarbageCollection()
 		uint32_t i = distribution(generator);
 		auto iterator = entityToJobID.begin();
 		std::advance(iterator, i);
-		if (entityManager.Alive(iterator->first))
+		if (initInfo.entityManager->Alive(iterator->first))
 		{
 			alive_in_row++;
 			continue;
@@ -255,10 +264,15 @@ void SE::Core::DebugRenderManager::GarbageCollection()
 	ProfileReturnVoid;
 }
 
+void SE::Core::DebugRenderManager::Destroy(size_t index)
+{
+
+}
+
 void SE::Core::DebugRenderManager::Destroy(const Entity& e)
 {
 	StartProfile;
-	renderer->RemoveRenderJob(entityToJobID[e]);
+	initInfo.renderer->RemoveRenderJob(entityToJobID[e]);
 	entityToLineList.erase(e);
 	entityToJobID.erase(e);
 	cachedTransforms.erase(e);

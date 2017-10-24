@@ -12,7 +12,7 @@ namespace SE
 			DebugRenderManagerTest();
 			~DebugRenderManagerTest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

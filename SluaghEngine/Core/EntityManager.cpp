@@ -40,12 +40,12 @@ SE::Core::Entity SE::Core::EntityManager::Create()
 
 }
 
-bool SE::Core::EntityManager::Alive(Entity e) const
+bool SE::Core::EntityManager::Alive(const Entity& e) const
 {
 	return _generation[e.Index()] == e.Gen();
 }
 
-void SE::Core::EntityManager::Destroy(Entity e)
+void SE::Core::EntityManager::Destroy(const Entity& e)
 {
 	if (_generation[e.Index()] == e.Gen())
 	{
@@ -59,7 +59,7 @@ void SE::Core::EntityManager::Destroy(Entity e)
 	}
 }
 
-void SE::Core::EntityManager::DestroyNow(Entity e)
+void SE::Core::EntityManager::DestroyNow(const Entity& e)
 {
 	if (_generation[e.Index()] == e.Gen())
 	{
