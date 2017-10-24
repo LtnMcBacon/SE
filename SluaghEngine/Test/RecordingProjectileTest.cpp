@@ -135,7 +135,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	/*Core::IAudioManager::CreateInfo ausioInfo2;
 	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
 	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
-	managers.audioManager->Create(soundEnt, ausioInfo2);*/
+	managers.audioManager->Create(soundEnt2, ausioInfo2);*/
 
 	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
@@ -181,12 +181,12 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.lightManager->Create(light[3], data);
 		managers.lightManager->ToggleLight(light[3], true);
 
-	//Light 5
-	data.color = DirectX::XMFLOAT3(0.3, 0.3, 0.3);
-	data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
-	data.radius = 150.0;
-	managers.lightManager->Create(light[4], data);
-	managers.lightManager->ToggleLight(light[4], true);
+		//Light 5
+		data.color = DirectX::XMFLOAT3(0.8, 0.8, 0.8);
+		data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
+		data.radius = 150.0;
+		managers.lightManager->Create(light[4], data);
+		managers.lightManager->ToggleLight(light[4], true);
 #pragma endregion LightDataSet
 
 		/*Place out the level*/
@@ -407,7 +407,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	bool change = false;
 	while (running)
 	{
-		subSystem.window->UpdateTime();
 		float dt = subSystem.window->GetDelta();
 		audioTime += dt;
 		/*if (audioTime > 60.0)

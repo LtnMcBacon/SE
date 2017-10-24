@@ -78,9 +78,7 @@ void SE::Core::CameraManager::UpdateCamera(const CreateInfo & info)
 		cameraData.nearPlane[currentActive.activeCamera] = info.nearPlane;
 		cameraData.farPlane[currentActive.activeCamera] = info.farPlance;
 
-		initInfo.transformManager->SetPosition(currentActive.entity, info.posistion);
-		initInfo.transformManager->SetRotation(currentActive.entity, info.rotation.x, info.rotation.y, info.rotation.z);
-		initInfo.transformManager->SetAsDirty(currentActive.entity);
+		initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
 	}
 	StopProfile;
 }
