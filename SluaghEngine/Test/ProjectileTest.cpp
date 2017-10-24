@@ -85,7 +85,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	coM.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-	auto Block = Utilz::GUID("Placeholder_Block.mesh");
+	auto Block = Utilz::GUID("HighWall.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
@@ -122,7 +122,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	//};
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
-	Gameplay::Room* testRoom = new Gameplay::Room();
+	Gameplay::Room* testRoom = new Gameplay::Room("");
 
 	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, testRoom->tileValues);
 	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
@@ -136,7 +136,7 @@ bool SE::Test::ProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
 	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
 
 	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
+	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800)/ (float)om.GetOptionUnsignedInt("Window", "height", 640);
 
 	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
 	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);

@@ -4,7 +4,7 @@
 #include "EnemyUnit.h"
 #include "FlowField.h"
 #include "Projectile.h"
-
+#include <Utilz\GUID.h>
 namespace SE
 {
 	namespace Gameplay
@@ -31,6 +31,7 @@ namespace SE
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
+			
 
 
 			/*Needed:
@@ -235,11 +236,13 @@ namespace SE
 			/**
 			* @brief	Function for loding in a raw file to the rooms
 			*/
-			void loadfromFile(); 
+			void loadfromFile(Utilz::GUID fileName); 
 
 		public:
-			Room();
+			Room(Utilz::GUID fileName);
 			~Room();
+
+			float FloorCheck(int x, int y); 
 			
 
 			/**

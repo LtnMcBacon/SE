@@ -4,7 +4,9 @@
 #include <cassert>
 #include <Core\Engine.h>
 #include <math.h>
+#include <algorithm>
 
+using namespace std;
 using namespace SE;
 using namespace Gameplay;
 #undef max
@@ -448,29 +450,29 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	ProfileReturnConst(false);
 }
 
-Room::Room()
+Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
 	pos start;
-	loadfromFile();
+	loadfromFile(fileName);
 
 	start.x = start.y = 1.5f;
 	//memcpy(this->tileValues, tileValues, 25 * 25 * sizeof(char));
 	bool foundStart = false;
-	for (int x = 0; x < 25 && !foundStart; x++)
-	{
-		for (int y = 0; y < 25 && !foundStart; y++)
-		{
-			if (!this->tileValues[x][y])
-			{
-				start.x = x + 0.5f;
-				start.y = y + 0.5f;
-				foundStart = true;
-			}
-		}
-	}
+	//for (int x = 0; x < 25 && !foundStart; x++)
+	//{
+	//	for (int y = 0; y < 25 && !foundStart; y++)
+	//	{
+	//		if (!this->tileValues[x][y])
+	//		{
+	//			start.x = x + 0.5f;
+	//			start.y = y + 0.5f;
+	//			foundStart = true;
+	//		}
+	//	}
+	//}
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
-	enemyEntities.reserve(5);
+	enemyUnits.reserve(5);
 
 	
 	StopProfile;
@@ -498,25 +500,49 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	ProfileReturnConst(true);
 }
 
-void Room::loadfromFile()
+void Room::loadfromFile(Utilz::GUID fileName)
 {
 	StartProfile;
 	
-	Core::Engine::GetInstance().GetResourceHandler()->LoadResource("test2.raw", [this](auto GUID, void* data, size_t size){
+	Core::Engine::GetInstance().GetResourceHandler()->LoadResource(fileName, [this](auto GUID, void* data, size_t size){
 		/*temporary stores values from file*/
-		int* in = (int*)data;
+		unsigned char* in = (unsigned char*)data;
 
 		int counter = 0; 
-		for (int i = 0; i < 25; i++)
+		for (int y = 24; y >= 0; y--)
 		{
-			for (int j = 0; j < 25; j++)
+			for (int x = 0; x < 25; x++)
 			{
-				tileValues[i][j] = (in[counter] / 255); 
+				tileValues[x][y] = (float)(in[counter] / 25); 
 				counter++; 
 			}
 		}
-		return 0;
+
+	
+		return ResourceHandler::InvokeReturn::Success;
 	});
 	
+	StopProfile; 
+}
+
+float Room::FloorCheck(int x, int y)
+{
+	StartProfile;
+	float rotation = 0; 
+
+
+	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
+		rotation = 270;
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
+		rotation = 180;
+	else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+		rotation = 0;
+	else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
+		rotation = 90;
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180; 
+	return rotation; 
 	StopProfile; 
 }

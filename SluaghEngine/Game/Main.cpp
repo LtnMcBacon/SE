@@ -25,8 +25,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	engine.Init(initInfo);
 
 	SE::Gameplay::Game game;
-	game.Initiate();
-	game.Run();
+	//game.Initiate();
+	//game.Run();
 	// game.Shutdown();
 
 	engine.Release();

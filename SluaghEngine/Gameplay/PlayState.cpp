@@ -100,7 +100,7 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void PlayState::InitializeRooms()
 {
-	char mapRepresentation[25][25] =
+	/*char mapRepresentation[25][25] =
 	{
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
@@ -129,9 +129,9 @@ void PlayState::InitializeRooms()
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	};
 
-	Room room(mapRepresentation);
+	Room room();
 	rooms.push_back(room);
-	currentRoom = &rooms.back();
+	currentRoom = &rooms.back();*/
 
 }
 void PlayState::InitializePlayer()

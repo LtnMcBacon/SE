@@ -72,14 +72,14 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 	rm.ToggleRenderableObject(player, true);
 	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
-	auto Block = Utilz::GUID("Placeholder_Block.mesh");
+	auto Block = Utilz::GUID("HighWall.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
 
 
 	/*Place out the level*/
-	//char mapRepresentation[25][25] =
+	char mapRepresentation[25][25]; //=
 	//{
 	//	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	//	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
@@ -111,7 +111,7 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	int numberOfEntitesPlaced = 0;
 
-	Gameplay::Room* testRoom = new Gameplay::Room();
+	Gameplay::Room* testRoom = new Gameplay::Room("");
 	
 	for (int x = 0; x < 25; x++)
 	{
@@ -184,6 +184,8 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
+
+	testRoom->GetMap(mapRepresentation);
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 	for (int i = 0; i < 100; i++)
 	{

@@ -7,6 +7,7 @@
 #include "TextureDesc.h"
 #include <FBX_Converter\FBXConverter.h>
 #include <functional>
+#include <Utilz\GUID.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "FBX_ConverterD.lib")
@@ -17,6 +18,8 @@
 namespace fs = std::experimental::filesystem;
 using namespace SE;
 using namespace std;
+
+std::vector<SE::Utilz::GUID> RoomMaps; 
 
 int ImageParse(const char* filename, const char* outputFilename);
 
@@ -98,6 +101,8 @@ std::vector<Accepted> acceptedExt =
 						std::ofstream dst(outFilename, std::ios::binary | std::ios::trunc);
 						dst << src.rdbuf();
 						dst.close();
+						RoomMaps.push_back(Utilz::getFilename(filename));
+						
 						src.close(); } }
 
 };
@@ -215,13 +220,17 @@ int main(int argc, char* argv[])
 		{
 			for (auto& f : acceptedFiles)
 				gE << f << std::endl;
-			/*for (auto& f : files)
-					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
-			for (auto& f : fbxConvFiles)
-				if (Utilz::getExtension(f.name) != "log")
-					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;*/
+			gE << std::string(argv[2]) + "/RoomGeneration.txt" << std::endl; 
 		}
 
+		std::ofstream RM; 
+		RM.open(std::string(argv[2]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary); 
+		if (RM.is_open())
+		{
+			uint32_t nrOfRooms = RoomMaps.size(); 
+			RM.write((char*)&nrOfRooms, sizeof(uint32_t)); 
+			RM.write((char*)RoomMaps.data(), sizeof(SE::Utilz::GUID) * nrOfRooms); 
+		}
 		//fs::remove_all("FBXTemp");
 	}
 	
