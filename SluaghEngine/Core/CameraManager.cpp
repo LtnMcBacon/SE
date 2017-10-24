@@ -10,6 +10,9 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 	_ASSERT(initInfo.transformManager);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
+
+	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+	
 	currentActive.activeCamera = ~0u;
 
 	Allocate(2);
@@ -217,7 +220,8 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
 			initInfo.renderer->UpdateView((float*)&viewProjMatrix);
-
+			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		}
 

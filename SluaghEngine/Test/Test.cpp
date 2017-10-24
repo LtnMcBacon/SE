@@ -59,14 +59,14 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 11204;
+	//_crtBreakAlloc = 101196;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
-	//AddTest(ObjLoaderTest);
+	////AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
 	AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
 	AddTest(LightTest);
-	AddTest(RecordingTest);
+	//AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-	AddTest(BloomTest);
+//	AddTest(BloomTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

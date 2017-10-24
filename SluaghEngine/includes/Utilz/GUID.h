@@ -19,6 +19,14 @@ namespace SE
 				}
 			};
 
+			struct Hasher
+			{
+				inline uint32_t operator()( const GUID& g) const
+				{
+					return g.id;
+				}
+			};
+
 			GUID() : id(0) {};
 		//	constexpr GUID(const char* str) : id(std::hash<std::string>{}(str)) {};
 			GUID(const char* str) : id(std::hash<std::string>{}(str)) {};
@@ -26,9 +34,17 @@ namespace SE
 			//GUID(uint32_t id) :id(id) {};
 			GUID(const GUID& other) : id(other.id) {}
 			GUID(const GUID&& other) : id(other.id) {}
+			bool operator!=(const GUID& other) const { return id != other.id; }
+			bool operator==(const GUID& other) const { return id == other.id; }
 			GUID& operator=(const GUID& other) { this->id = other.id; return *this; }
+			GUID operator+(const GUID &other) const
+			{
+				GUID g;
+				g.id = id ^ other.id;
+				return g;
+			}
 		private:
-			size_t id;			
+			uint32_t id;			
 		};
 
 
