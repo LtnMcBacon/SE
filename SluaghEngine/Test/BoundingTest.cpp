@@ -82,12 +82,14 @@ bool SE::Test::BoundingTest::Run(DevConsole::IConsole * console)
 	managers.collisionManager->CreateBoundingHierarchy(block1, {"MCModell.mesh"});
 	managers.renderableManager->CreateRenderableObject(block1, {"MCModell.mesh"});
 	managers.renderableManager->ToggleRenderableObject(block1, true);
+	managers.transformManager->Create(block1);
 	managers.transformManager->SetPosition(block1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
 
 	auto block2 = managers.entityManager->Create();
 	managers.collisionManager->CreateBoundingHierarchy(block2, {"MCModell.mesh"});	
 	managers.renderableManager->CreateRenderableObject(block2, {"MCModell.mesh"});
 	managers.renderableManager->ToggleRenderableObject(block2, true);
+	managers.transformManager->Create(block2);
 	managers.transformManager->SetPosition(block2, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
 
 	managers.collisionManager->BindOnCollideWithAny(block1);
@@ -116,8 +118,8 @@ bool SE::Test::BoundingTest::Run(DevConsole::IConsole * console)
 		e->BeginFrame();
 		e->EndFrame();
 		
-		managers.debugRenderManager->ToggleDebugRendering(block1, true);
-		managers.debugRenderManager->ToggleDebugRendering(block2, true);
+		//managers.debugRenderManager->ToggleDebugRendering(block1, true);
+		//managers.debugRenderManager->ToggleDebugRendering(block2, true);
 		if (test && test2)
 		{
 			su = true;
