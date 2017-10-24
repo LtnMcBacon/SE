@@ -9,7 +9,8 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
-#include <Utilz\TimeCluster.h>
+#include "GPUTimeCluster.h"
+#include <Utilz\CPUTimeCluster.h>
 
 
 namespace SE
@@ -448,8 +449,8 @@ namespace SE
 			*/
 			inline void GetProfilingInformation(Utilz::TimeMap& map)override
 			{
-				for(auto& t : timeCluster)
-					t->GetMap(map);
+				cpuTimer.GetMap(map);
+			//	gpuTimer->GetMap(map);
 			}
 
 			int EnableBloom(int handleHorizontal, int handleVertical);
@@ -615,9 +616,8 @@ namespace SE
 
 			/********* END Bloom ************/
 
-			static const uint8_t GPUTimer = 0;
-			static const uint8_t CPUTimer = 1;
-			std::vector<Utilz::TimeCluster*> timeCluster;
+			Utilz::CPUTimeCluster cpuTimer;
+			GPUTimeCluster* gpuTimer;
 		};
 
 	}

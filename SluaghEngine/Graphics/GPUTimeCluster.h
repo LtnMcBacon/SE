@@ -63,7 +63,7 @@ namespace SE
 			float GetTime(TimerSet& timer);
 
 
-			std::map<Utilz::IDHash, TimerSet, Utilz::IDHash::Compare> timers;
+			std::unordered_map<Utilz::IDHash, TimerSet, Utilz::IDHash::Hasher> timers;
 		};
 	}
 }

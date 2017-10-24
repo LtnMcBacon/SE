@@ -403,4 +403,5 @@ int SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDat
 		memcpy(&dataIinfo.info.bindings[i], (char*)data + offset, sizeof(Utilz::GUID));
 		offset += sizeof(Utilz::GUID);
 	}
+	return 0;
 }

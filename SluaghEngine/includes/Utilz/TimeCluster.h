@@ -1,13 +1,13 @@
 #ifndef SE_UTILZ_TIME_CLUSTER_H_
 #define SE_UTILZ_TIME_CLUSTER_H_
 #include <Utilz\CompileTimeStringHasher.h>
-#include <map>
+#include <unordered_map>
 
 namespace SE
 {
 	namespace Utilz
 	{
-		typedef std::map<Utilz::IDHash, float, Utilz::IDHash::Compare> TimeMap;
+		typedef std::unordered_map<Utilz::IDHash, float, Utilz::IDHash::Hasher> TimeMap;
 
 
 		class TimeCluster

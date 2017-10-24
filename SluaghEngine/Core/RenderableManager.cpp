@@ -59,11 +59,15 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	solidRasterizer = "Solid";
 	wireframeRasterizer = "Wireframe";
 
-	initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solidRasterizer, info);
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solidRasterizer, info);
+	if (result < 0)
+		throw std::exception("Could not create Solid Rasterizer.");
+
 	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
 
-	initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframeRasterizer, info);
-
+	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframeRasterizer, info);
+	if (result < 0)
+		throw std::exception("Could not create wireframe Rasterizer.");
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -187,6 +191,9 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.OMStage.depthStencilView = "backbuffer";
 
 	info->pipeline.VSStage.shader = defaultVertexShader;
+	info->pipeline.VSStage.constantBufferCount = 2;
+	info->pipeline.VSStage.constantBuffers[0] = "OncePerFrame";
+	info->pipeline.VSStage.constantBuffers[1] = "OncePerObject";
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
@@ -195,7 +202,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? "Wireframe" : "Solid";
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
-	info->instanceCount = 1;
+	info->instanceCount = 0;
 	info->maxInstances = 1;
 
 	info->mappingFunc = [this](auto a, auto b)
@@ -217,7 +224,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->transparency = renderableObjectInfo.transparency[index];*/
 
 	// Gather Renderobjectinfo from other managers
-	//SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
+	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
 }
 
 void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
