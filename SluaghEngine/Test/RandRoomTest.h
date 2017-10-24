@@ -13,7 +13,7 @@ namespace SE
 			RandRoomTest();
 			~RandRoomTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

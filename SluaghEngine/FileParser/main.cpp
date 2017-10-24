@@ -78,10 +78,12 @@ std::vector<Accepted> acceptedExt =
 				fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 
 				{ "SEC", "SEC", "Enemies", [](const char* filename, const char* outFilename) {
-					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); },
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
 					{ "raw", "raw", "RoomMaps", [](const char* filename, const char* outFilename)
-					{ fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }}
-
+					{
+						RoomMaps.push_back(Utilz::getFilename(filename));
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
+					}}
 };
 
 std::vector<Accepted> fbxAccepted =

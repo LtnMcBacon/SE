@@ -2,7 +2,7 @@
 #include "Profiler.h"
 #include <d3d11.h>
 #include <cassert>
-#include <Core\Engine.h>
+#include "CoreInit.h"
 #include <math.h>
 #include <algorithm>
 
@@ -535,7 +535,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 {
 	StartProfile;
 	
-	Core::Engine::GetInstance().GetResourceHandler()->LoadResource(fileName, [this](auto GUID, void* data, size_t size){
+	CoreInit::subSystems.resourceHandler->LoadResource(fileName, [this](auto GUID, void* data, size_t size){
 		/*temporary stores values from file*/
 		unsigned char* in = (unsigned char*)data;
 

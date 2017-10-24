@@ -15,7 +15,7 @@ GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 	health(maxHealth)
 {
 	this->unitEntity = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(this->unitEntity, DirectX::XMFLOAT3(xPos, 0.f, yPos));
+	CoreInit::managers.transformManager->Create(this->unitEntity, DirectX::XMFLOAT3(xPos, 1.5f, yPos));
 }
 
 GameUnit::~GameUnit()
