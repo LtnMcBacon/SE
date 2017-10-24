@@ -93,11 +93,11 @@ namespace SE
 		};
 		struct SamplerState
 		{
-			AddressingMode addressU;
-			AddressingMode addressV;
-			AddressingMode addressW;
-			Filter filter;
-			int maxAnisotropy;
+			AddressingMode addressU = AddressingMode::WRAP;
+			AddressingMode addressV = AddressingMode::WRAP;
+			AddressingMode addressW = AddressingMode::WRAP;
+			Filter filter = Filter::ANISOTROPIC;
+			int maxAnisotropy = 1;
 		};
 
 		enum class TextureFormat

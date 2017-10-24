@@ -53,6 +53,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	info.maxAnisotropy = 4;
 	info.addressU = Graphics::AddressingMode::WRAP;
 	info.addressV = Graphics::AddressingMode::WRAP;
+	info.addressW = Graphics::AddressingMode::WRAP;
 	initInfo.renderer->GetPipelineHandler()->CreateSamplerState(defaultSampler, info);
 }
 

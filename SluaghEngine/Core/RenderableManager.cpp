@@ -191,9 +191,20 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
 
 	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? "Wireframe" : "Solid";
+
+	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->instanceCount = 1;
+	info->maxInstances = 1;
+
+	info->mappingFunc = [this](auto a, auto b)
+	{
+		DirectX::XMFLOAT4X4 id;
+		DirectX::XMStoreFloat4x4(&id, DirectX::XMMatrixIdentity());
+		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &id, sizeof(id));
+	};
+
 
 //	info->pipeline.
 
@@ -390,19 +401,19 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
 	StartProfile;
-	auto arr = initInfo.transformManager->GetCleanedTransforms();
-	for (auto& dirty : dirtyEntites)
-	{
-		auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
-		if (find != entityToRenderableObjectInfoIndex.end())
-		{			
-			if (renderableObjectInfo.visible[find->second])
-			{
-				auto& transform = arr[dirty.transformIndex];
-				initInfo.renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
-			}				
-		}
-	}
+	//auto arr = initInfo.transformManager->GetCleanedTransforms();
+	//for (auto& dirty : dirtyEntites)
+	//{
+	//	auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
+	//	if (find != entityToRenderableObjectInfoIndex.end())
+	//	{			
+	//		if (renderableObjectInfo.visible[find->second])
+	//		{
+	//			auto& transform = arr[dirty.transformIndex];
+	//			initInfo.renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
+	//		}				
+	//	}
+	//}
 
 	dirtyEntites.clear();
 	StopProfile;

@@ -86,9 +86,9 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	info.shader = shader;
 	info.materialFile = material;
 
-	managers.materialManager->Create(mainC, info, true);
+	//managers.materialManager->Create(mainC, info, true);
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();

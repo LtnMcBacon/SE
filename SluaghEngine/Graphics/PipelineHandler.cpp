@@ -967,6 +967,8 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	if (exists != samplerStates.end())
 		return;
 	D3D11_SAMPLER_DESC sd;
+	ZeroMemory(&sd, sizeof(D3D11_SAMPLER_DESC));
+
 	switch (state.addressU)
 	{
 	case AddressingMode::WRAP:		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; break;
@@ -994,7 +996,7 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	sd.BorderColor[0] = 0.0f; sd.BorderColor[1] = 0.0f; sd.BorderColor[2] = 0.0f; sd.BorderColor[3] = 0.0f;
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
-
+	sd.MaxAnisotropy = state.maxAnisotropy;
 	ID3D11SamplerState* samplerState;
 	HRESULT hr = device->CreateSamplerState(&sd, &samplerState);
 	if (FAILED(hr))
