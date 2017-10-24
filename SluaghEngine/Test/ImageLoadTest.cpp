@@ -14,7 +14,7 @@ SE::Test::ImageLoadTest::~ImageLoadTest()
 {
 }
 
-bool SE::Test::ImageLoadTest::Run(Utilz::IConsoleBackend* console)
+bool SE::Test::ImageLoadTest::Run(DevConsole::IConsole* console)
 {
 	
 	Timer timer;

@@ -1,28 +1,29 @@
-#include <Core\LightManager.h>
+#include"LightManager.h"
 #include <Profiler.h>
-#include <list>
+
 
 namespace SE {
 	namespace Core {
-		LightManager::LightManager(Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager* transformManager)
-			:renderer(renderer), entityManager(entityManager), transformManager(transformManager)
-		{
-			_ASSERT(renderer);
-			_ASSERT(transformManager);
 
-			transformManager->SetDirty += {this, &LightManager::UpdateDirtyPos};
+		LightManager::LightManager(const InitializationInfo & initInfo) :initInfo(initInfo)
+		{
+			_ASSERT(initInfo.renderer);
+			_ASSERT(initInfo.entityManager);
+			_ASSERT(initInfo.transformManager);
+
+			initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 		}
 
 		LightManager::~LightManager()
 		{
 		}
-		
-		int LightManager::AddLight(Entity entity, const AddLightInfo& data)
+
+		void LightManager::Create(const Entity & entity, const CreateInfo & data)
 		{
 			StartProfile;
 			// Check if the entity is alive
-			if (!entityManager.Alive(entity))
-				ProfileReturnConst(-1);
+			if (!initInfo.entityManager->Alive(entity))
+				ProfileReturnVoid;
 
 			// chexk if entity exist in text 
 			auto& fileLoaded = entID.find(entity);
@@ -32,41 +33,22 @@ namespace SE {
 				Graphics::LightData d;
 				d.colour = { data.color.x, data.color.y, data.color.z, 1.0f };
 				d.pos = { data.pos.x, data.pos.y, data.pos.z, data.radius };
-				lights.push_back(d);			
+				lights.push_back(d);
 
-				transformManager->Create(entity, data.pos);
+				initInfo.transformManager->Create(entity, data.pos);
 
 				ent.push_back(entity);
-				ProfileReturnConst(0);
+
 			}
-			ProfileReturnConst(-1);
+			ProfileReturnVoid;
 		}
 
-		int LightManager::RemoveLight(Entity entity)
+		void LightManager::ToggleLight(const Entity & entity, bool show)
 		{
 			StartProfile;
 			// Check if the entity is alive
-			if (!entityManager.Alive(entity))
-				ProfileReturnConst(-1);
-
-			// chexk if entity exist in text 
-			auto fileLoaded = entID.find(entity);
-			if (fileLoaded != entID.end())
-			{
-				size_t tempJobID = renderer->DisableLightRendering(fileLoaded->second.jobID);
-				entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
-				Destroy(fileLoaded->second.ID);
-				ProfileReturnConst(0);
-			}
-			ProfileReturnConst(-1);
-		}
-
-		int LightManager::ToggleLight(Entity entity, bool show)
-		{
-			StartProfile;
-			// Check if the entity is alive
-			if (!entityManager.Alive(entity))
-				ProfileReturnConst(-1);
+			if (!initInfo.entityManager->Alive(entity))
+				ProfileReturnVoid;
 
 			// chexk if entity exist in text 
 			auto fileLoaded = entID.find(entity);
@@ -74,28 +56,34 @@ namespace SE {
 			{
 				if (show && !fileLoaded->second.show)
 				{
-					DirectX::XMFLOAT3 tempPos = transformManager->GetPosition(entity);
+					DirectX::XMFLOAT3 tempPos = initInfo.transformManager->GetPosition(entity);
 					lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
-					fileLoaded->second.jobID = renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
+					fileLoaded->second.jobID = initInfo.renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
 					jobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
-					
+
 				}
 				else if (!show && fileLoaded->second.show)
 				{
-					size_t tempJobID = renderer->DisableLightRendering(fileLoaded->second.jobID);
+					size_t tempJobID = initInfo.renderer->DisableLightRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
 					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 				}
-				ProfileReturnConst(0);
+
 			}
-			ProfileReturnConst(-1);
+			ProfileReturnVoid;
 		}
 
-		void LightManager::Frame()
+		void LightManager::Frame(Utilz::TimeCluster * timer)
 		{
+			StartProfile;
+			timer->Start("LightManger");
 			GarbageCollection();
+			timer->Stop("LightManger");
+			StopProfile;
 		}
+		
+
 
 		void LightManager::GarbageCollection()
 		{
@@ -106,13 +94,13 @@ namespace SE {
 			{
 				std::uniform_int_distribution<uint32_t> distribution(0U, lights.size() - 1U);
 				uint32_t i = distribution(generator);
-				if (entityManager.Alive(ent[i]))
+				if (initInfo.entityManager->Alive(ent[i]))
 				{
 					alive_in_row++;
 					continue;
 				}
 				alive_in_row = 0;
-				size_t tempJobID = renderer->DisableLightRendering(entID[ent[i]].jobID);
+				size_t tempJobID = initInfo.renderer->DisableLightRendering(entID[ent[i]].jobID);
 				entID[jobToEnt[tempJobID]].jobID = entID[ent[i]].jobID;
 				Destroy(i);
 			}
@@ -140,13 +128,17 @@ namespace SE {
 			StopProfile;
 		}
 
+		void LightManager::Destroy(const Entity & entity)
+		{
+		}
+
 		void LightManager::UpdateDirtyPos(const Entity& entity, size_t index)
 		{
 			StartProfile;
 			auto find = entID.find(entity);
 			if (find != entID.end() && entID[entity].show == true)
 			{
-				renderer->UpdateLightPos(transformManager->GetPosition(entity), find->second.jobID);
+				initInfo.renderer->UpdateLightPos(initInfo.transformManager->GetPosition(entity), find->second.jobID);
 			}
 			ProfileReturnVoid;
 		}

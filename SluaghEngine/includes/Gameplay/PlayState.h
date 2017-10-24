@@ -2,9 +2,6 @@
 #define _SE_GAMEPLAY_PLAY_STATE_H
 
 #include <vector>
-
-#include <Core\Entity.h>
-
 #include "IGameState.h"
 #include "PlayerUnit.h"
 #include "Room.h"

@@ -1,8 +1,6 @@
 #include <Gameplay\ProjectileFactory.h>
 #include <Profiler.h>
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
-
+#include "CoreInit.h"
 SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(ProjectileData data)
 {
 	StartProfile;
@@ -11,17 +9,12 @@ SE::Gameplay::Projectile SE::Gameplay::ProjectileFactory::CreateNewProjectile(Pr
 
 	SE::Gameplay::Projectile temp(data, rot, 0.5f, 6.0f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
 
-	auto& e = Core::Engine::GetInstance();
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
+	CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
+	CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, data.startRotation, 0.0f);
+	CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
 
-	tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
-	tm.SetRotation(temp.GetEntity(), 0.0f, data.startRotation, 0.0f);
-	tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
-
-	rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
-	rm.ToggleRenderableObject(temp.GetEntity(), true);
+	CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { "Placeholder_Block.mesh" });
+	CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
 
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters2;
@@ -245,9 +238,9 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		if (p->GetCollisionType() != CollisionType::OBJECT)
 			return false;
 
-		DirectX::XMFLOAT3 currentDir = Core::Engine::GetInstance().GetTransformManager().GetForward(p->GetEntity());
+		DirectX::XMFLOAT3 currentDir = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 		DirectX::XMVECTOR newDir = DirectX::XMVector3Reflect({ currentDir.x, currentDir.y, currentDir.z, 0.0f }, { p->GetCollisionVectorX(), 0.0f, p->GetCollisionVectorY(), 0.0f });
-		Core::Engine::GetInstance().GetTransformManager().SetForward(p->GetEntity(), newDir);
+		CoreInit::managers.transformManager->SetForward(p->GetEntity(), newDir);
 		p->SetActive(true);
 		return false;
 	};
@@ -353,8 +346,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 		if (currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget))
 		{
-			auto& tm = Core::Engine::GetInstance().GetTransformManager();
-			DirectX::XMFLOAT3 forward = tm.GetForward(p->GetEntity());
+			DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 
 			xTarget -= p->GetXPosition();
 			yTarget -= p->GetYPosition();

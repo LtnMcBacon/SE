@@ -11,7 +11,7 @@ namespace SE
 			BoundingTest();
 			~BoundingTest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }
