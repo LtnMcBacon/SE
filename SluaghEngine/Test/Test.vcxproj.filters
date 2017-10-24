@@ -141,6 +141,12 @@
     <ClCompile Include="RecordingProjectileTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BloomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandRoomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="SluaghTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
@@ -248,6 +254,9 @@
     <ClInclude Include="ConsoleTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RandRoomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TransformTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -259,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="SlaughTest.h">
       <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

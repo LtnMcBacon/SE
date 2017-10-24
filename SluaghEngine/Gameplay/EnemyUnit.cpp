@@ -1,8 +1,7 @@
 #include "EnemyUnit.h"
 #include <Profiler.h>
 #include "Flowfield.h"
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <Gameplay/EnemyBlackboard.h>
 #include <Gameplay/BehaviouralTree.h>
 
@@ -99,7 +98,7 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
-	Core::Engine::GetInstance().GetEntityManager().Destroy(this->unitEntity);
+	CoreInit::managers.entityManager->Destroy(this->unitEntity);
 	/*
 	* Code body
 	*/

@@ -1,17 +1,16 @@
-#include <Core\GUIManager.h>
+#include "GUIManager.h"
 #include <Profiler.h>
-#include <list>
+
 
 namespace SE {
 	namespace Core {
-		GUIManager::GUIManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer* renderer, const EntityManager & entityManager)
-			:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager)
+		GUIManager::GUIManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 		{
+			_ASSERT(initInfo.resourceHandler);
+			_ASSERT(initInfo.renderer);
+			_ASSERT(initInfo.entityManager);
 
-			_ASSERT(resourceHandler);
-			_ASSERT(renderer);
-
-			auto ret = resourceHandler->LoadResource("moonhouse.spritefont", { this, &GUIManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource("moonhouse.spritefont", { this, &GUIManager::LoadFont });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -21,12 +20,12 @@ namespace SE {
 
 		}
 
-		void GUIManager::CreateRenderableText(const Entity& entity, Graphics::TextGUI inTextInfo)
+		void GUIManager::CreateRenderableText(const Entity& entity,const Graphics::TextGUI& inTextInfo)
 		{
 			StartProfile;
 
 			// Check if the entity is alive
-			if (!entityManager.Alive(entity))
+			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
 
 			if (inTextInfo.fontID >= guidToFont.size())
@@ -52,13 +51,13 @@ namespace SE {
 			{
 				if (show && !fileLoaded->second.show)
 				{
-					fileLoaded->second.jobID = renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
+					fileLoaded->second.jobID = initInfo.renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
 					textJobobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
 				}
 				else if (!show && fileLoaded->second.show)
 				{
-					size_t tempJobID = renderer->DisableTextRendering(fileLoaded->second.jobID);
+					size_t tempJobID = initInfo.renderer->DisableTextRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
 					entID[textJobobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 					textJobobToEnt[fileLoaded->second.jobID] = textJobobToEnt[tempJobID];
@@ -69,15 +68,10 @@ namespace SE {
 			StopProfile;
 		}
 
-		void GUIManager::Frame()
-		{
-			GarbageCollection();
-		}
-
 		int GUIManager::CreateTextFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = resourceHandler->LoadResource(fontFile, { this, &GUIManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource(fontFile, { this, &GUIManager::LoadFont });
 			
 			ProfileReturnConst(0);
 		}
@@ -89,7 +83,7 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[texFile].textureHandle = -1;
-				resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
+				initInfo.resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
 				ProfileReturnConst(-1);
 			}
 			else if (textureGUID[texFile].textureHandle != -1)
@@ -106,7 +100,7 @@ namespace SE {
 			if (fileLoaded != textureGUID.end())
 			{
 				// Check if the entity is alive
-				if (!entityManager.Alive(entity))
+				if (!initInfo.entityManager->Alive(entity))
 					ProfileReturnConst(-1);
 
 				entTextureID[entity].ID = textureInfo.size();
@@ -135,13 +129,13 @@ namespace SE {
 			{
 				if (show && textureGUID[fileLoaded->second.GUID].textureHandle != -1 && !fileLoaded->second.show)
 				{
-					fileLoaded->second.jobID = renderer->EnableTextureRendering(textureInfo[fileLoaded->second.ID]);
+					fileLoaded->second.jobID = initInfo.renderer->EnableTextureRendering(textureInfo[fileLoaded->second.ID]);
 					jobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
 				}
 				else if (!show && fileLoaded->second.show)
 				{
-					size_t tempJobID = renderer->DisableTextureRendering(fileLoaded->second.jobID);
+					size_t tempJobID = initInfo.renderer->DisableTextureRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
 					entTextureID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
 					jobToEnt[fileLoaded->second.jobID] = jobToEnt[tempJobID];
@@ -149,6 +143,15 @@ namespace SE {
 				}
 				ProfileReturnVoid;
 			}
+			StopProfile;
+		}
+
+		void GUIManager::Frame(Utilz::TimeCluster * timer)
+		{
+			StartProfile;
+			timer->Start("GUIManager");
+			GarbageCollection();
+			timer->Stop("GUIManager");
 			StopProfile;
 		}
 
@@ -182,7 +185,7 @@ namespace SE {
 
 		ResourceHandler::InvokeReturn GUIManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
 		{
-			guidToFont[font] = renderer->CreateTextFont(data, size);
+			guidToFont[font] = initInfo.renderer->CreateTextFont(data, size);
 			return ResourceHandler::InvokeReturn::Success;
 		}
 
@@ -239,7 +242,7 @@ namespace SE {
 				{
 					std::uniform_int_distribution<uint32_t> distribution(0U, loadedTexts.size() - 1U);
 					uint32_t i = distribution(generator);
-					if (entityManager.Alive(textEnt[i]))
+					if (initInfo.entityManager->Alive(textEnt[i]))
 					{
 						alive_in_row++;
 						continue;
@@ -256,7 +259,7 @@ namespace SE {
 				{
 					std::uniform_int_distribution<uint32_t> distribution(0U, textureInfo.size() - 1U);
 					uint32_t i = distribution(generator);
-					if (entityManager.Alive(textureEnt[i]))
+					if (initInfo.entityManager->Alive(textureEnt[i]))
 					{
 						alive_in_row++;
 						continue;
@@ -270,6 +273,14 @@ namespace SE {
 			StopProfile;
 		}
 
+		void GUIManager::Destroy(size_t index)
+		{
+		}
+
+		void GUIManager::Destroy(const Entity & entity)
+		{
+		}
+
 		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
 		{
 			StartProfile;
@@ -279,7 +290,7 @@ namespace SE {
 			if (td.width * td.height * 4 != size - sizeof(td))
 				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			void* rawTextureData = ((char*)data) + sizeof(td);
-			auto handle = renderer->CreateTexture(rawTextureData, td);
+			auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
 			if (handle == -1)
 				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 			textureGUID[guid].textureHandle = handle;

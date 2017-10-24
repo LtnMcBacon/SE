@@ -1,7 +1,14 @@
 #ifndef SE_CORE_ENTITY_H_
 #define SE_CORE_ENTITY_H_
 #include <cstdint>
-#include <functional>
+
+#if defined DLL_EXPORT_CORE
+#define DECLDIR_CORE __declspec(dllexport)
+#else
+#define DECLDIR_CORE __declspec(dllimport)
+#endif
+
+
 namespace SE
 {
 	namespace Core
@@ -19,7 +26,7 @@ namespace SE
 		* @sa EntityManager
 		*
 		**/
-		struct Entity
+		struct DECLDIR_CORE Entity
 		{
 			static const uint32_t ENTITY_INDEX_BITS = 22;
 			static const uint32_t ENTITY_INDEX_MASK = (1 << ENTITY_INDEX_BITS) - 1;

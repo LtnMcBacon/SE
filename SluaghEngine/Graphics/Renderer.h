@@ -418,6 +418,11 @@ namespace SE
 				for(auto& t : timeCluster)
 					t->GetMap(map);
 			}
+
+			int EnableBloom(int handleHorizontal, int handleVertical);
+
+			int DisableBloom();
+
 		private:
 			Renderer(const Renderer& other) = delete;
 			Renderer(const Renderer&& other) = delete;
@@ -544,6 +549,16 @@ namespace SE
 			void Frame();
 
 			/*********** END Threading **************/
+
+			/*********** Bloom **************/
+
+			bool bloom = false;
+
+			int bloomHorizontalHandle, bloomVerticalHandle;
+			int bloomShaderResourceViewHandles[3];
+			int bloomUnorderedAccessViewHandles[2];
+
+			/********* END Bloom ************/
 
 			static const uint8_t GPUTimer = 0;
 			static const uint8_t CPUTimer = 1;

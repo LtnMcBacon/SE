@@ -3,7 +3,7 @@
 #define SE_UTILZ_MEMORYMEASURING_H_
 #include <d3d11_3.h>
 #include <dxgi1_4.h>
-#include <Utilz\Console.h>
+#include <DevConsole\IConsole.h>
 
 
 #pragma comment(lib, "dxgi.lib")
@@ -35,7 +35,7 @@ namespace SE
 			* @retval -1 When unsuccessful
 			*
 			*/
-			int printUsage(SE::Utilz::IConsoleBackend* console);
+			int printUsage(SE::DevConsole::IConsole* console);
 
 			inline size_t GetVRam() {
 				DXGI_QUERY_VIDEO_MEMORY_INFO info;

@@ -15,7 +15,7 @@ namespace SE
 			ImageLoadTest();
 			~ImageLoadTest();
 
-			bool Run(Utilz::IConsoleBackend* console) override;
+			bool Run(DevConsole::IConsole* console) override;
 		private:
 			
 		};

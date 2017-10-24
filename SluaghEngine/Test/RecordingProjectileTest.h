@@ -14,7 +14,7 @@ namespace SE
 			RecordingProjectileTest();
 			~RecordingProjectileTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

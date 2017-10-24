@@ -3,14 +3,15 @@
 #include <limits>
 #include <d3d11.h>
 #include <cassert>
+#include "CoreInit.h"
+#include <math.h>
 #include <algorithm>
 
-#undef max
-#undef min
 
 using namespace SE;
 using namespace Gameplay;
-
+#undef max
+#undef min
 
 void Room::UpdateFlowField(float playerX, float playerY)
 {
@@ -107,20 +108,20 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 	const int yDownFloored = int(floor(yCenterPosition - yExtent));
 
 
-	if (map[xLeftFloored][yDownFloored])
+	if (tileValues[xLeftFloored][yDownFloored])
 	{
 		ProfileReturnConst(true);
 	}
-	if (map[xLeftFloored][yUpFloored])
+	if (tileValues[xLeftFloored][yUpFloored])
 	{
 		ProfileReturnConst(true);
 	}
 
-	if (map[xRightFloored][yUpFloored])
+	if (tileValues[xRightFloored][yUpFloored])
 	{
 		ProfileReturnConst(true);
 	}
-	if (map[xRightFloored][yDownFloored])
+	if (tileValues[xRightFloored][yDownFloored])
 	{
 		ProfileReturnConst(true);
 	}
@@ -148,50 +149,52 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	const int yDownAfterFloored = int(yCenterPositionAfter - yExtent);
 
 
-	if (map[xLeftAfterFloored][yDownBeforeFloored] || map[xLeftAfterFloored][yUpBeforeFloored])
+
+
+	if (tileValues[xLeftAfterFloored][yDownBeforeFloored] || tileValues[xLeftAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = -1;
 		collision = true;
 	}
-	else if (map[xRightAfterFloored][yDownBeforeFloored] || map[xRightAfterFloored][yUpBeforeFloored])
+	else if (tileValues[xRightAfterFloored][yDownBeforeFloored] || tileValues[xRightAfterFloored][yUpBeforeFloored])
 	{
 		xCollision = 1;
 		collision = true;
 	}
 
-	if (map[xRightBeforeFloored][yUpAfterFloored] || map[xLeftBeforeFloored][yUpAfterFloored])
+	if (tileValues[xRightBeforeFloored][yUpAfterFloored] || tileValues[xLeftBeforeFloored][yUpAfterFloored])
 	{
 		yCollision = 1;
 		collision = true;
 	}
-	else if (map[xRightBeforeFloored][yDownAfterFloored] || map[xLeftBeforeFloored][yDownAfterFloored])
+	else if (tileValues[xRightBeforeFloored][yDownAfterFloored] || tileValues[xLeftBeforeFloored][yDownAfterFloored])
 	{
 		yCollision = -1;
 		collision = true;
 	}/*
 
-	 if(map[xLeftAfterFloored][yDownAfterFloored])
+	 if(tileValues[xLeftAfterFloored][yDownAfterFloored])
 	 {
 	 xCollision = -1;
 	 yCollision = -1;
 	 collision = true;
 
 	 }
-	 if(map[xLeftAfterFloored][yUpAfterFloored])
+	 if(tileValues[xLeftAfterFloored][yUpAfterFloored])
 	 {
 	 xCollision = -1;
 	 yCollision = 1;
 	 collision = true;
 
 	 }
-	 if(map[xRightAfterFloored][yUpAfterFloored])
+	 if(tileValues[xRightAfterFloored][yUpAfterFloored])
 	 {
 	 xCollision = 1;
 	 yCollision = 1;
 	 collision = true;
 
 	 }
-	 if(map[xRightAfterFloored][yDownAfterFloored])
+	 if(tileValues[xRightAfterFloored][yDownAfterFloored])
 	 {
 	 xCollision = 1;
 	 yCollision = -1;
@@ -816,28 +819,31 @@ bool Room::PointInsideWall(float x, float y)
 {
 	return !map[int(x)][int(y)];
 }
-
-Room::Room(char map[25][25])
+Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
 	pos start;
+	loadfromFile(fileName);
+
 	start.x = start.y = 1.5f;
-	memcpy(this->map, map, 25 * 25 * sizeof(char));
+	//memcpy(this->tileValues, tileValues, 25 * 25 * sizeof(char));
 	bool foundStart = false;
-	for (int x = 0; x < 25 && !foundStart; x++)
-	{
-		for (int y = 0; y < 25 && !foundStart; y++)
-		{
-			if (!this->map[x][y])
-			{
-				start.x = x + 0.5f;
-				start.y = y + 0.5f;
-				foundStart = true;
-			}
-		}
-	}
-	roomField = new FlowField(map, 1.0f, start, 0.0f, 0.0f);
+	//for (int x = 0; x < 25 && !foundStart; x++)
+	//{
+	//	for (int y = 0; y < 25 && !foundStart; y++)
+	//	{
+	//		if (!this->tileValues[x][y])
+	//		{
+	//			start.x = x + 0.5f;
+	//			start.y = y + 0.5f;
+	//			foundStart = true;
+	//		}
+	//	}
+	//}
+	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
+
+	
 	StopProfile;
 }
 
@@ -863,4 +869,49 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	ProfileReturnConst(true);
 }
 
+void Room::loadfromFile(Utilz::GUID fileName)
+{
+	StartProfile;
+	
+	CoreInit::subSystems.resourceHandler->LoadResource(fileName, [this](auto GUID, void* data, size_t size){
+		/*temporary stores values from file*/
+		unsigned char* in = (unsigned char*)data;
 
+		int counter = 0; 
+		for (int y = 24; y >= 0; y--)
+		{
+			for (int x = 0; x < 25; x++)
+			{
+				tileValues[x][y] = (float)(in[counter] / 25); 
+				counter++; 
+			}
+		}
+
+	
+		return ResourceHandler::InvokeReturn::Success;
+	});
+	
+	StopProfile; 
+}
+
+float Room::FloorCheck(int x, int y)
+{
+	StartProfile;
+	float rotation = 0; 
+
+
+	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
+		rotation = 270;
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
+		rotation = 180;
+	else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+		rotation = 0;
+	else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
+		rotation = 90;
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180; 
+	return rotation; 
+	StopProfile; 
+}

@@ -1,5 +1,5 @@
 #include "RecordingProjectileTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <Gameplay/ProjectileData.h>
@@ -10,7 +10,7 @@
 #include <Utilz\Tools.h>
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
-
+#include <Gameplay\Game.h>
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -34,557 +34,593 @@ SE::Test::RecordingProjectileTest::~RecordingProjectileTest()
 
 }
 
-bool SE::Test::RecordingProjectileTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	
-
-	using namespace DirectX;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	info.winInfo.winState = Window::WindowState::Record;
-	info.winInfo.height = 720;
-	info.winInfo.width = 1280;
-	info.winInfo.windowTitle = "Recording";
-	info.winInfo.fullScreen = false;
-	auto re = e.Init(info);
-	if (re)
+	auto lam = [](Window::WindowState state)
 	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false)
-	}
-
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
-	auto& om = e.GetOptionHandler();
-	auto& caM = e.GetCameraManager();
-	auto& coM = e.GetCollisionManager();
-	auto& mm = e.GetMaterialManager();
-	auto& lm = e.GetLightManager();
-	auto& am = e.GetAudioManager();
-	auto win = e.GetWindow();
 
 
-	Tools::Tools t;
-
-	float width = om.GetOptionUnsignedInt("Window", "width", 800);
-	float height = om.GetOptionUnsignedInt("Window", "height", 600);
+		using namespace DirectX;
+		auto engine = Core::CreateEngine();
 
 
-	Core::MaterialManager::CreateInfo floorInfo;
-	Utilz::GUID material = Utilz::GUID("Placeholder_Floor.mat");
-	Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
-	floorInfo.shader = shader;
-	floorInfo.materialFile = material;
-	auto floor = em.Create();
-	mm.Create(floor, floorInfo);
-	const int numberOfBlocks = 25 * 25;
-	SE::Core::Entity entities[numberOfBlocks];
-	SE::Core::Entity arrows[numberOfBlocks];
+		Core::IEngine::InitializationInfo info;
 
-	Core::MaterialManager::CreateInfo cubeInfo;
-	material = Utilz::GUID("Placeholder_Block.mat");
-	shader = Utilz::GUID("SimpleLightPS.hlsl");
-	cubeInfo.shader = shader;
-	cubeInfo.materialFile = material;
+		info.subSystems.optionsHandler = Core::CreateOptionsHandler();
+		info.subSystems.optionsHandler->Initialize("Config.ini");
 
-	Core::MaterialManager::CreateInfo arrowInfo;
-	material = Utilz::GUID("Placeholder_Arrow.mat");
-	shader = Utilz::GUID("SimpleLightPS.hlsl");
-	arrowInfo.shader = shader;
-	arrowInfo.materialFile = material;
+		float width = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+		float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
-	for (int i = 0; i < numberOfBlocks; i++)
-	{
-		entities[i] = em.Create();
-		mm.Create(entities[i], cubeInfo);
-		arrows[i] = em.Create();
-		mm.Create(arrows[i], arrowInfo);
-	}
-	tm.Create(floor);
-	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
+		Window::InitializationInfo winInfo;
+		winInfo.winState = state;
+		winInfo.height = height;
+		winInfo.width = width;
+		winInfo.windowTitle = "Recording";
+		winInfo.fullScreen = false;
 
-	for (int i = 0; i < numberOfBlocks; i++)
-	{
-		tm.Create(entities[i]);
-		tm.Create(arrows[i]);
-	}
+		info.subSystems.window = Window::CreateNewWindow();
+		info.subSystems.window->Initialize(winInfo);
+		Gameplay::Game game;
+		engine->Init(info);
+		game.Initiate(engine);
+		auto managers = engine->GetManagers();
+		auto subSystem = engine->GetSubsystems();
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.mesh"));
-	rm.ToggleRenderableObject(floor, true);
-
-	coM.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-	auto Block = Utilz::GUID("Placeholder_Block.mesh");
-	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
+
+
+
+		Core::IMaterialManager::CreateInfo floorInfo;
+		Utilz::GUID material = Utilz::GUID("Placeholder_Floor.mat");
+		Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+		floorInfo.shader = shader;
+		floorInfo.materialFile = material;
+		auto floor = managers.entityManager->Create();
+		managers.materialManager->Create(floor, floorInfo);
+		const int numberOfBlocks = 25 * 25;
+		SE::Core::Entity entities[numberOfBlocks];
+		SE::Core::Entity arrows[numberOfBlocks];
+
+		Core::IMaterialManager::CreateInfo cubeInfo;
+		material = Utilz::GUID("Placeholder_Block.mat");
+		shader = Utilz::GUID("SimpleLightPS.hlsl");
+		cubeInfo.shader = shader;
+		cubeInfo.materialFile = material;
+
+		Core::IMaterialManager::CreateInfo arrowInfo;
+		material = Utilz::GUID("Placeholder_Arrow.mat");
+		shader = Utilz::GUID("SimpleLightPS.hlsl");
+		arrowInfo.shader = shader;
+		arrowInfo.materialFile = material;
+
+		for (int i = 0; i < numberOfBlocks; i++)
+		{
+			entities[i] = managers.entityManager->Create();
+			managers.materialManager->Create(entities[i], cubeInfo);
+			arrows[i] = managers.entityManager->Create();
+			managers.materialManager->Create(arrows[i], arrowInfo);
+		}
+		managers.transformManager->Create(floor);
+		managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
+
+		for (int i = 0; i < numberOfBlocks; i++)
+		{
+			managers.transformManager->Create(entities[i]);
+			managers.transformManager->Create(arrows[i]);
+		}
+
+
+		managers.renderableManager->CreateRenderableObject(floor, { "Placeholder_Floor.mesh" });
+		managers.renderableManager->ToggleRenderableObject(floor, true);
+
+		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
+
+
 
 
 #pragma region AudioData
-	am.LoadSound(Utilz::GUID("BLoop.wav"));
+		auto soundEnt = managers.entityManager->Create();
+		int soundID;
+		managers.audioManager->Create(soundEnt, { Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound });
 
-	int delay = 0;
-	while (am.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
-	{
-		delay++;
-	}
-
-	auto soundEnt = em.Create();
-	int soundID;
-	soundID = am.CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
-	if (soundID > -1)
-		am.StreamSound(soundEnt, soundID);
+		managers.audioManager->PlaySound(soundEnt, "BLoop.wav");
 #pragma endregion AudioData
 
 
-	
+
 
 
 
 #pragma region LightDataSet
-	Core::Entity light[5];
-	for (int i = 0; i < 5; i++)
-	{
-		light[i] = em.Create();
-	}
+		Core::Entity light[5];
+		for (int i = 0; i < 5; i++)
+		{
+			light[i] = managers.entityManager->Create();
+		}
 
-	Core::AddLightInfo data;
-	//Light 1
-	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
-	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
-	data.radius = 10.0f;
-	lm.AddLight(light[0], data);
-	lm.ToggleLight(light[0], true);
+		Core::ILightManager::CreateInfo data;
+		//Light 1
+		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
+		data.radius = 10.0f;
+		managers.lightManager->Create(light[0], data);
+		managers.lightManager->ToggleLight(light[0], true);
 
-	//Light 2
-	data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
-	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
-	data.radius = 10.0;
-	lm.AddLight(light[1], data);
-	lm.ToggleLight(light[1], true);
+		//Light 2
+		data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
+		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
+		data.radius = 10.0;
+		managers.lightManager->Create(light[1], data);
+		managers.lightManager->ToggleLight(light[1], true);
 
-	//Light 3
-	data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
-	data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
-	data.radius = 10.0;
-	lm.AddLight(light[2], data);
-	lm.ToggleLight(light[2], true);
+		//Light 3
+		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
+		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
+		data.radius = 10.0;
+		managers.lightManager->Create(light[2], data);
+		managers.lightManager->ToggleLight(light[2], true);
 
-	//Light 4
-	data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
-	data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
-	data.radius = 10.0;
-	lm.AddLight(light[3], data);
-	lm.ToggleLight(light[3], true);
+		//Light 4
+		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
+		data.radius = 10.0;
+		managers.lightManager->Create(light[3], data);
+		managers.lightManager->ToggleLight(light[3], true);
 
-	//Light 5
-	data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
-	data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
-	data.radius = 150.0;
-	lm.AddLight(light[4], data);
-	lm.ToggleLight(light[4], true);
+		//Light 5
+		data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
+		data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
+		data.radius = 150.0;
+		managers.lightManager->Create(light[4], data);
+		managers.lightManager->ToggleLight(light[4], true);
 #pragma endregion LightDataSet
 
-	/*Place out the level*/
-	char mapRepresentation[25][25] =
-	{
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-	};
-	int numberOfEntitesPlaced = 0;
-	int numberOfArrows = 0;
-	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
+		auto Block = SE::Utilz::GUID{ "HighWall.mesh" };
+		auto Arrow = SE::Utilz::GUID{ "Placeholder_Arrow.mesh" };
+		auto Door = SE::Utilz::GUID{ "Door.mesh" };
 
-	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
-	tm.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+		int numberOfEntitesPlaced = 0;
+		int numberOfArrows = 0;
+		uint32_t nrOfRooms;
+		Utilz::GUID* RoomArr;
 
-	Core::MaterialManager::CreateInfo playerInfo;
-	material = Utilz::GUID("MCModell.mat");
-	shader = Utilz::GUID("SimpleLightPS.hlsl");
-	playerInfo.shader = shader;
-	playerInfo.materialFile = material;
-
-	mm.Create(player->GetEntity(), playerInfo);
-	tm.SetScale(player->GetEntity(), 1.f);
-	rm.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
-
-	rm.ToggleRenderableObject(player->GetEntity(), true);
-	tm.SetRotation(player->GetEntity(), 0, 0, 0);
-
-	//SE::Core::Entity camera = caM.GetActive();
-	SE::Core::Entity camera = SE::Core::Engine::GetInstance().GetEntityManager().Create();
-	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
-
-	SE::Core::Engine::GetInstance().GetCameraManager().Bind(camera, cInfo);
-	SE::Core::Engine::GetInstance().GetCameraManager().SetActive(camera);
-
-	float cameraRotationX = DirectX::XM_PI / 3;
-	float cameraRotationY = DirectX::XM_PI / 3;
-
-	auto cameraRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotationX, cameraRotationY, 0);
-
-	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
-
-	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(player->GetEntity(), camera, false);
-	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
-
-	Gameplay::BehaviourPointers temp;
-	temp.currentRoom = &testRoom;
-	temp.player = player;
-
-	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
-
-	for (int x = 0; x < 25; x++)
-	{
-		for (int y = 0; y < 25; y++)
+		subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 		{
-			if (mapRepresentation[x][y])
-			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block);
-				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
-				numberOfEntitesPlaced++;
-			}
-			else
-			{
-				rm.CreateRenderableObject(arrows[numberOfArrows], Arrow);
-				rm.ToggleRenderableObject(arrows[numberOfArrows], true);
-				float xMagnitude = 0.0f;
-				float zMagnitude = 0.0f;
-				pos enemyPos;
-				enemyPos.x = x + 0.5f;
-				enemyPos.y = y + 0.5f;
-				testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-				tm.SetPosition(arrows[numberOfArrows], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
-				tm.SetScale(arrows[numberOfArrows], 0.25f);
-				if (xMagnitude == 1.0f)
-				{
-					tm.SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
-				}
-				else if (xMagnitude == -1.0f)
-				{
-					tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV2, 0.0f);
-				}
-				else if (zMagnitude == 1.0f)
-				{
-					tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI, 0.0f);
-				}
-				else if (zMagnitude == -1.0f)
-				{
-					tm.SetRotation(arrows[numberOfArrows], 0.0f, 0.0f, 0.0f);
+			nrOfRooms = *(uint32_t *)data;
+			RoomArr = new Utilz::GUID[nrOfRooms];
+			memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
 
-				}
-				else if (xMagnitude == 0.707f)
-				{
-					if (zMagnitude == 0.707f)
-					{
-						tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
-					}
-					else if (zMagnitude == -0.707f)
-					{
-						tm.SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
-					}
-				}
-				else if (xMagnitude == -0.707f)
-				{
-					if (zMagnitude == 0.707f)
-					{
-						tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
-					}
-					else if (zMagnitude == -0.707f)
-					{
-						tm.SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV4, 0.0f);
-					}
-				}
+		int random = rand() % nrOfRooms + 1;
 
-				numberOfArrows++;
-			}
-		}
-	}
-	Gameplay::EnemyFactory eFactory;
-	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
-	eFactory.LoadEnemyIntoMemory(enemyGUID);
-	Gameplay::GameBlackboard blackBoard;
-	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
+		Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
-	for (int i = 0; i < 100; i++)
-	{
-		pos enemyPos;
-		do
-		{
-			enemyPos.x = rand() % 25;
-			enemyPos.y = rand() % 25;
-		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
-
-		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->SetXPosition(enemyPos.x + .5f);
-		enemy->SetYPosition(enemyPos.y + .5f);
-
-		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-		tm.SetScale(enemy->GetEntity(), 0.5f);
-		testRoom->AddEnemyToRoom(enemy);
-	}
-
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(1, Window::Key1);
-	e.GetWindow()->MapActionButton(2, Window::Key2);
-
-	enum MoveDir
-	{
-		UP = 3,
-		RIGHT = 4,
-		DOWN = 5,
-		LEFT = 6,
-		RIGHT_MOUSE = 7,
-		SPACE = 8,
-		CONSOLE = 9
-	};
-
-
-	e.GetWindow()->MapActionButton(UP, Window::KeyW);
-	e.GetWindow()->MapActionButton(RIGHT, Window::KeyD);
-	e.GetWindow()->MapActionButton(DOWN, Window::KeyS);
-	e.GetWindow()->MapActionButton(LEFT, Window::KeyA);
-	e.GetWindow()->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	e.GetWindow()->MapActionButton(SPACE, Window::KeySpace);
-	e.GetWindow()->MapActionButton(CONSOLE, Window::Key1);
-
-	pos playerPos;
-	playerPos.x = 1.5f;
-	playerPos.y = 1.5f;
-
-	std::vector<Gameplay::ProjectileData> newProjectiles;
-
-	DirectX::XMFLOAT3 tPos = tm.GetPosition(floor);
-	DirectX::XMFLOAT3 tRot = tm.GetRotation(floor);
-	DirectX::XMFLOAT3 tScale = tm.GetScale(floor);
-	DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
-		0, tScale.y, 0, 0,
-		0, 0, tScale.z, 0,
-		tPos.x, tPos.y, tPos.z, 1.0f };
-
-	bool stepping = false;
-	bool running = true;
-	win->UpdateTime();
-
-	while (running)
-	{
-		win->UpdateTime();
-		float dt = win->GetDelta();
-
-		newProjectiles.clear();
-
-		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
-		float movX = 0.0f;
-		float movY = 0.0f;
-
-		if (win->ButtonDown(MoveDir::UP))
-		{
-			input.upButton = true;
-			movY += 1.0f;
-		}
-		if (win->ButtonDown(MoveDir::DOWN))
-		{
-			input.downButton = true;
-			movY -= 1.0f;
-		}
-		if (win->ButtonDown(MoveDir::RIGHT))
-		{
-			input.rightButton = true;
-			movX += 1.0f;
-		}
-		if (win->ButtonDown(MoveDir::LEFT))
-		{
-			input.leftButton = true;
-			movX -= 1.0f;
-		}
-		if (win->ButtonDown(MoveDir::RIGHT_MOUSE))
-		{
-			input.mouseRightDown = true;
-		}
-		if (win->ButtonPressed(MoveDir::CONSOLE))
-		{
-			e.GetDevConsole().Toggle();
-		}
-
-		int mX = 0;
-		int mY = 0;
-		win->GetMousePos(mX, mY);
-
-		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DirectX::XMVECTOR rayD = t.rayToView(mX, mY, width, height);
-		DirectX::XMFLOAT4X4 tempView = caM.GetViewInv(camera);
-		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
-
-		rayO = DirectX::XMVector4Transform(rayO, viewM);
-		rayD = DirectX::XMVector4Transform(rayD, viewM);
-		rayD = XMVector3Normalize(rayD);
-
-		//float distance = 0.0f;
-		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
-		//bool pickTest = coM.PickEntity(floor, rayO, rayD, &distance);
-
-		auto clickPos = rayO + rayD*distance;
-
-		input.mousePosX = DirectX::XMVectorGetX(clickPos);
-		input.mousePosY = DirectX::XMVectorGetZ(clickPos);
-
-		float totMov = abs(movX) + abs(movY);
-		if (totMov != 0.f)
-		{
-			movX /= totMov;
-			movY /= totMov;
-		}
-
-		Gameplay::PlayerUnit::ActionInput actionInput(false, false);
-		if (win->ButtonDown(MoveDir::SPACE))
-		{
-			actionInput.skill1Button = true;
-		}
-		/*Only thing needed right now*/
-		blackBoard.deltaTime = dt;
-
-		int arrowIndex = 0;
+		Gameplay::PlayerUnit* player;
 		for (int x = 0; x < 25; x++)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (mapRepresentation[x][y])
+				if (testRoom->tileValues[x][y] == 1)
 				{
+					float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+					int xOffset = 0, yOffset = 0;
+					if (rotation == 0)
+					{
+						yOffset = 1;
+					}
+					else if (rotation == 90)
+					{
+						xOffset = 1;
+					}
+					else if (rotation == 180)
+					{
+						yOffset = -1;
+					}
+					else if (rotation == 270)
+					{
+						xOffset = -1;
+					}
+					player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
 
+					break;
 				}
-				else
-				{
+			}
+		}
 
+
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+
+		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
+
+		Core::IMaterialManager::CreateInfo playerInfo;
+		material = Utilz::GUID("MCModell.mat");
+		shader = Utilz::GUID("SimpleLightPS.hlsl");
+		playerInfo.shader = shader;
+		playerInfo.materialFile = material;
+
+		managers.materialManager->Create(player->GetEntity(), playerInfo);
+		managers.transformManager->SetScale(player->GetEntity(), 1.f);
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") });
+
+		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
+
+		//SE::Core::Entity camera = managers.cameraManager->GetActive();
+		SE::Core::Entity camera = managers.entityManager->Create();
+		Core::ICameraManager::CreateInfo cInfo;
+		cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
+		managers.cameraManager->Create(camera, cInfo);
+		managers.cameraManager->SetActive(camera);
+
+		float cameraRotationX = DirectX::XM_PI / 3;
+		float cameraRotationY = DirectX::XM_PI / 3;
+
+		auto cameraRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotationX, cameraRotationY, 0);
+
+		auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
+
+		player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
+		managers.transformManager->BindChild(player->GetEntity(), camera, false);
+		managers.transformManager->Move(camera, -5 * cameraTranslation);
+		managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);
+
+		SE::Gameplay::BehaviourPointers temp;
+		temp.currentRoom = &testRoom;
+		temp.player = player;
+
+		SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
+
+		for (int x = 0; x < 25; x++)
+		{
+			for (int y = 0; y < 25; y++)
+			{
+				if (testRoom->tileValues[x][y] == 10)
+				{
+					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+					numberOfEntitesPlaced++;
+				}
+				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
+				{
+					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
+					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, testRoom->FloorCheck(x, y), 0.0f);
+					numberOfEntitesPlaced++;
+				}
+				else if (testRoom->tileValues[x][y] == 0)
+				{
+					managers.renderableManager->CreateRenderableObject(arrows[numberOfArrows], { Arrow });
+					managers.renderableManager->ToggleRenderableObject(arrows[numberOfArrows], true);
 					float xMagnitude = 0.0f;
 					float zMagnitude = 0.0f;
 					pos enemyPos;
 					enemyPos.x = x + 0.5f;
 					enemyPos.y = y + 0.5f;
 					testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-
+					managers.transformManager->SetPosition(arrows[numberOfArrows], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+					managers.transformManager->SetScale(arrows[numberOfArrows], 0.25f);
 					if (xMagnitude == 1.0f)
 					{
-						tm.SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
 					}
 					else if (xMagnitude == -1.0f)
 					{
-						tm.SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV2, 0.0f);
 					}
 					else if (zMagnitude == 1.0f)
 					{
-						tm.SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI, 0.0f);
+						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI, 0.0f);
 					}
 					else if (zMagnitude == -1.0f)
 					{
-						tm.SetRotation(arrows[arrowIndex], 0.0f, 0.0f, 0.0f);
+						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, 0.0f, 0.0f);
 
 					}
 					else if (xMagnitude == 0.707f)
 					{
 						if (zMagnitude == 0.707f)
 						{
-							tm.SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+							managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
 						}
 						else if (zMagnitude == -0.707f)
 						{
-							tm.SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+							managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
 						}
 					}
 					else if (xMagnitude == -0.707f)
 					{
 						if (zMagnitude == 0.707f)
 						{
-							tm.SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+							managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
 						}
 						else if (zMagnitude == -0.707f)
 						{
-							tm.SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+							managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV4, 0.0f);
 						}
 					}
 
-					arrowIndex++;
+					numberOfArrows++;
+				}
+			}
+		}
+		Gameplay::EnemyFactory eFactory;
+		auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
+		eFactory.LoadEnemyIntoMemory(enemyGUID);
+		Gameplay::GameBlackboard blackBoard;
+		blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
+
+		for (int i = 0; i < 100; i++)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = rand() % 25;
+				enemyPos.y = rand() % 25;
+			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+			enemy->SetXPosition(enemyPos.x + .5f);
+			enemy->SetYPosition(enemyPos.y + .5f);
+
+			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+			managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
+			managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
+			managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+			managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
+			testRoom->AddEnemyToRoom(enemy);
+		}
+
+		subSystem.window->MapActionButton(0, Window::KeyEscape);
+		subSystem.window->MapActionButton(1, Window::Key1);
+		subSystem.window->MapActionButton(2, Window::Key2);
+
+		enum MoveDir
+		{
+			UP = 3,
+			RIGHT = 4,
+			DOWN = 5,
+			LEFT = 6,
+			RIGHT_MOUSE = 7,
+			SPACE = 8,
+			CONSOLE = 9
+		};
+
+
+		subSystem.window->MapActionButton(UP, Window::KeyW);
+		subSystem.window->MapActionButton(RIGHT, Window::KeyD);
+		subSystem.window->MapActionButton(DOWN, Window::KeyS);
+		subSystem.window->MapActionButton(LEFT, Window::KeyA);
+		subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+		subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+		subSystem.window->MapActionButton(CONSOLE, Window::Key1);
+
+		pos playerPos;
+		playerPos.x = 1.5f;
+		playerPos.y = 1.5f;
+
+		std::vector<Gameplay::ProjectileData> newProjectiles;
+
+		DirectX::XMFLOAT3 tPos = managers.transformManager->GetPosition(floor);
+		DirectX::XMFLOAT3 tRot = managers.transformManager->GetRotation(floor);
+		DirectX::XMFLOAT3 tScale = managers.transformManager->GetScale(floor);
+		DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
+			0, tScale.y, 0, 0,
+			0, 0, tScale.z, 0,
+			tPos.x, tPos.y, tPos.z, 1.0f };
+
+		bool stepping = false;
+		bool running = true;
+		engine->BeginFrame();
+		engine->EndFrame();
+		float aspect = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
+
+		while (running)
+		{
+			float dt = subSystem.window->GetDelta();
+
+			newProjectiles.clear();
+
+			Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
+			float movX = 0.0f;
+			float movY = 0.0f;
+
+			if (subSystem.window->ButtonDown(MoveDir::UP))
+			{
+				input.upButton = true;
+				movY += 1.0f;
+			}
+			if (subSystem.window->ButtonDown(MoveDir::DOWN))
+			{
+				input.downButton = true;
+				movY -= 1.0f;
+			}
+			if (subSystem.window->ButtonDown(MoveDir::RIGHT))
+			{
+				input.rightButton = true;
+				movX += 1.0f;
+			}
+			if (subSystem.window->ButtonDown(MoveDir::LEFT))
+			{
+				input.leftButton = true;
+				movX -= 1.0f;
+			}
+			if (subSystem.window->ButtonDown(MoveDir::RIGHT_MOUSE))
+			{
+				input.mouseRightDown = true;
+			}
+			if (subSystem.window->ButtonPressed(MoveDir::CONSOLE))
+			{
+				//e.GetDevConsole().Toggle();
+			}
+
+			int mX = 0;
+			int mY = 0;
+			subSystem.window->GetMousePos(mX, mY);
+
+			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+			DirectX::XMVECTOR rayD;
+			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
+
+			//float distance = 0.0f;
+			float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+			//bool pickTest = managers.collisionManager->PickEntity(floor, rayO, rayD, &distance);
+
+			auto clickPos = rayO + rayD*distance;
+
+			input.mousePosX = DirectX::XMVectorGetX(clickPos);
+			input.mousePosY = DirectX::XMVectorGetZ(clickPos);
+
+			float totMov = abs(movX) + abs(movY);
+			if (totMov != 0.f)
+			{
+				movX /= totMov;
+				movY /= totMov;
+			}
+
+			Gameplay::PlayerUnit::ActionInput actionInput(false, false);
+			if (subSystem.window->ButtonDown(MoveDir::SPACE))
+			{
+				actionInput.skill1Button = true;
+			}
+			/*Only thing needed right now*/
+			blackBoard.deltaTime = dt;
+
+			int arrowIndex = 0;
+			for (int x = 0; x < 25; x++)
+			{
+				for (int y = 0; y < 25; y++)
+				{
+					if (testRoom->tileValues[x][y])
+					{
+
+					}
+					else
+					{
+
+						float xMagnitude = 0.0f;
+						float zMagnitude = 0.0f;
+						pos enemyPos;
+						enemyPos.x = x + 0.5f;
+						enemyPos.y = y + 0.5f;
+						testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
+
+						if (xMagnitude == 1.0f)
+						{
+							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+						}
+						else if (xMagnitude == -1.0f)
+						{
+							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+						}
+						else if (zMagnitude == 1.0f)
+						{
+							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI, 0.0f);
+						}
+						else if (zMagnitude == -1.0f)
+						{
+							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, 0.0f, 0.0f);
+
+						}
+						else if (xMagnitude == 0.707f)
+						{
+							if (zMagnitude == 0.707f)
+							{
+								managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+							}
+							else if (zMagnitude == -0.707f)
+							{
+								managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+							}
+						}
+						else if (xMagnitude == -0.707f)
+						{
+							if (zMagnitude == 0.707f)
+							{
+								managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+							}
+							else if (zMagnitude == -0.707f)
+							{
+								managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+							}
+						}
+
+						arrowIndex++;
+					}
+
 				}
 
 			}
 
-		}
+			player->UpdateMovement(dt * 5, input);
+			player->UpdateActions(dt, newProjectiles, actionInput);
 
-		player->UpdateMovement(dt * 5, input);
-		player->UpdateActions(dt, newProjectiles, actionInput);
+			projectileManager->AddProjectiles(newProjectiles);
 
-		projectileManager->AddProjectiles(newProjectiles);
-
-		projectileManager->UpdateProjectilePositions(dt);
-		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
-		projectileManager->UpdateProjectileActions(dt);
+			projectileManager->UpdateProjectilePositions(dt);
+			testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+			projectileManager->UpdateProjectileActions(dt);
 
 
-		playerPos.x = player->GetXPosition();
-		playerPos.y = player->GetYPosition();
+			playerPos.x = player->GetXPosition();
+			playerPos.y = player->GetYPosition();
 
-		if (win->ButtonPressed(0))
-			running = false;
-		if (win->ButtonPressed(1))
-		{
-			stepping = !stepping;
-		}
-
-		if (stepping)
-		{
-			if (win->ButtonDown(2))
+			if (subSystem.window->ButtonPressed(0))
+				running = false;
+			if (subSystem.window->ButtonPressed(1))
 			{
+				stepping = !stepping;
+			}
+
+			if (stepping)
+			{
+				if (subSystem.window->ButtonDown(2))
+				{
+					testRoom->Update(dt, playerPos.x, playerPos.y);
+				}
+			}
+			else {
 				testRoom->Update(dt, playerPos.x, playerPos.y);
 			}
+			engine->BeginFrame();
+			engine->EndFrame();
+
+
+			/*	Utilz::TimeMap times;
+			e.GetProfilingInformation(times);
+			for (auto& t : times)
+			console->Print("%s: %f\n", t.first.str, t.second);*/
 		}
-		else {
-			testRoom->Update(dt, playerPos.x, playerPos.y);
-		}
-		e.Frame(dt);
 
-
-		/*	Utilz::TimeMap times;
-		e.GetProfilingInformation(times);
-		for (auto& t : times)
-		console->Print("%s: %f\n", t.first.str, t.second);*/
-	}
-
-	delete projectileManager;
-	delete testRoom;
-	delete player;
+		delete projectileManager;
+		delete testRoom;
+		delete player;
 
 
 
 
-	e.Release();
+		game.Shutdown();
+		engine->Release();
+		delete engine;
+
+
+	};
+
+
+	lam(Window::WindowState::Record);
+	lam(Window::WindowState::Playback);
 
 	ProfileReturnConst(true)
 }

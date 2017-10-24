@@ -1,18 +1,17 @@
 #include"PlayState.h"
 #include <Profiler.h>
 #include <Utilz\Tools.h>
-#include <Core\Engine.h>
-#include <Core\TransformManager.h>
-#include <Core\CameraManager.h>
-#include <Core\CollisionManager.h>
-#include <Core\DebugRenderManager.h>
-#include <Core\EntityManager.h>
-#include <Core\RenderableManager.h>
+#include "CoreInit.h"
 
+#ifdef _DEBUG
+#pragma comment(lib, "UtilzD.lib")
+#else
+#pragma comment(lib, "Utilz.lib")
+#endif
 
 using namespace SE;
 using namespace Gameplay;
-
+using namespace DirectX;
 PlayState::PlayState()
 {
 
@@ -35,15 +34,11 @@ PlayState::PlayState(Window::IWindow* Input)
 
 PlayState::~PlayState()
 {
-
+	delete projectileManager;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
-	Tools::Tools tools;
-	auto& cManager = Core::Engine::GetInstance().GetCameraManager();
-	auto& oHandler = Core::Engine::GetInstance().GetOptionHandler();
-
 	if (input->ButtonDown(uint32_t(GameInput::UP)))
 	{
 		movement.upButton = true;
@@ -65,15 +60,14 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	input->GetMousePos(mX, mY);
 
 	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-	DirectX::XMVECTOR rayD = tools.rayToView(mX, mY, oHandler.GetOptionUnsignedInt("Window", "width", 800), oHandler.GetOptionUnsignedInt("Window", "height", 600));
-	DirectX::XMFLOAT4X4 tempView = cManager.GetViewInv(cam);
-	DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
+	DirectX::XMVECTOR rayD;
 
-	rayO = DirectX::XMVector4Transform(rayO, viewM);
-	rayD = DirectX::XMVector4Transform(rayD, viewM);
-	rayD = XMVector3Normalize(rayD);
 
-	float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
+	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 
 	auto clickPos = rayO + rayD*distance;
 
@@ -104,7 +98,7 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void PlayState::InitializeRooms()
 {
-	char mapRepresentation[25][25] =
+	/*char mapRepresentation[25][25] =
 	{
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
@@ -133,46 +127,37 @@ void PlayState::InitializeRooms()
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	};
 
-	Room room(mapRepresentation);
+	Room room();
 	rooms.push_back(room);
-	currentRoom = &rooms.back();
+	currentRoom = &rooms.back();*/
 
 }
 void PlayState::InitializePlayer()
 {
-	auto& tManager = Core::Engine::GetInstance().GetTransformManager();
-	auto& rManager = Core::Engine::GetInstance().GetRenderableManager();
-
 	char map[25][25];
 	currentRoom->GetMap(map);
 	player = new PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, map);
-	tManager.SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
 
-	tManager.SetScale(player->GetEntity(), 1.f);
-	rManager.CreateRenderableObject(player->GetEntity(), Utilz::GUID("MCModell.mesh"));
+	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 
-	Core::MaterialManager::CreateInfo materialInfo;
+	Core::IMaterialManager::CreateInfo materialInfo;
 	materialInfo.shader = "SimpleLightPS.hlsl";
 	Utilz::GUID material = Utilz::GUID("MCModell.mat");
 	materialInfo.materialFile = material;
-	Core::Engine::GetInstance().GetMaterialManager().Create(player->GetEntity(), materialInfo);
+	CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
 
-	rManager.ToggleRenderableObject(player->GetEntity(), true);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
 {
-	auto& tManager = Core::Engine::GetInstance().GetTransformManager();
-	auto& rManager = Core::Engine::GetInstance().GetRenderableManager();
-	auto& oHandler = Core::Engine::GetInstance().GetOptionHandler();
-	auto& cManager = Core::Engine::GetInstance().GetCameraManager();
-	auto& lManager = Core::Engine::GetInstance().GetLightManager();
-
 	//Setup camera to the correct perspective and bind it to the players position
-	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)oHandler.GetOptionUnsignedInt("Window", "width", 800) / (float)oHandler.GetOptionUnsignedInt("Window", "height", 640);
-	cam = cManager.GetActive();
-	cManager.UpdateCamera(cam, cInfo);
+	Core::ICameraManager::CreateInfo cInfo;
+	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	cam = CoreInit::managers.cameraManager->GetActive();
+	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -182,24 +167,24 @@ void SE::Gameplay::PlayState::InitializeOther()
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	tManager.BindChild(player->GetEntity(), cam, false);
-	tManager.Move(cam, -5 * cameraTranslation);
-	tManager.SetRotation(cam, cameraRotationX, cameraRotationY, 0);
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false);
+	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
+	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
 	//Create a default light
 
-	dummy = Core::Engine::GetInstance().GetEntityManager().Create();
-	tManager.Create(dummy, { 12.5, 3, 12.5 });
-	rManager.CreateRenderableObject(dummy, Utilz::GUID("Placeholder_Block.mesh"));
-	rManager.ToggleRenderableObject(dummy, true);
+	dummy = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
+	CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
-	SE::Core::AddLightInfo lightInfo;
+	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 1.0f, 1.0f, 1.0f };
 	lightInfo.radius = 10000.0f;
 
-	lManager.AddLight(dummy, lightInfo);
-	lManager.ToggleLight(dummy, true);
+	CoreInit::managers.lightManager->Create(dummy, lightInfo);
+	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)

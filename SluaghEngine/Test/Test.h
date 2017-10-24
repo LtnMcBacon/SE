@@ -1,6 +1,6 @@
 #ifndef SE_TEST_TEST_H_
 #define SE_TEST_TEST_H_
-#include <Utilz\IConsoleBackend.h>
+#include <DevConsole\IConsole.h>
 
 namespace SE
 {
@@ -29,7 +29,7 @@ namespace SE
 			*	example usage of the function. Note that links will be automatically generated to documented entities
 			* @endcode
 			*/
-			virtual bool Run(SE::Utilz::IConsoleBackend* console) = 0;
+			virtual bool Run(SE::DevConsole::IConsole* console) = 0;
 		protected:
 			Test() {};
 			Test(const Test& other) = delete;

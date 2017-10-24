@@ -4,6 +4,7 @@
 #include "Core/Engine.h"
 #include "EnemyUnit.h"
 
+#include "CoreInit.h"
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
 	StartProfile;
@@ -450,9 +451,9 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		if (p->GetCollisionType() != CollisionType::OBJECT)
 			return false;
 
-		DirectX::XMFLOAT3 currentDir = Core::Engine::GetInstance().GetTransformManager().GetForward(p->GetEntity());
+		DirectX::XMFLOAT3 currentDir = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 		DirectX::XMVECTOR newDir = DirectX::XMVector3Reflect({ currentDir.x, currentDir.y, currentDir.z, 0.0f }, { p->GetCollisionVectorX(), 0.0f, p->GetCollisionVectorY(), 0.0f });
-		Core::Engine::GetInstance().GetTransformManager().SetForward(p->GetEntity(), newDir);
+		CoreInit::managers.transformManager->SetForward(p->GetEntity(), newDir);
 		p->SetActive(true);
 		return false;
 	};
@@ -558,8 +559,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 		if (currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget))
 		{
-			auto& tm = Core::Engine::GetInstance().GetTransformManager();
-			DirectX::XMFLOAT3 forward = tm.GetForward(p->GetEntity());
+			DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 
 			xTarget -= p->GetXPosition();
 			yTarget -= p->GetYPosition();
