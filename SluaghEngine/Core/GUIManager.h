@@ -33,7 +33,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			int Create2D(const Utilz::GUID& texFile)override;
+			int Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)override;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -48,16 +48,6 @@ namespace SE
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
-
-			/**
-			* @brief Create a new 2D texture for GUI
-			* @param[in] entity Which entity.
-			* @param[in] texFile The GUID to the texture file to use.
-			* @retval 0 Bind successful
-			* @retval -1 Entity not alive or texFile none existing.
-			* @endcode
-			*/
-			int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)override;
 
 			// sets for texture
 			inline void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour)override {

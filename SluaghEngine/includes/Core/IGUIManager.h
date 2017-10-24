@@ -15,6 +15,7 @@
 
 #include "IManager.h"
 #include "IEntityManager.h"
+#include <DevConsole\IConsole.h>
 
 namespace SE
 {
@@ -35,6 +36,7 @@ namespace SE
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
 				IEntityManager* entityManager;
+				DevConsole::IConsole* console;
 			};
 
 			struct CreateInfo
@@ -54,7 +56,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			virtual int Create2D(const Utilz::GUID& texFile) = 0;
+			virtual int Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -64,16 +66,6 @@ namespace SE
 			*
 			*/
 			virtual void ToggleRenderableTexture(const Entity& entity, bool show) = 0;
-
-			/**
-			* @brief Create a new 2D texture for GUI
-			* @param[in] entity Which entity.
-			* @param[in] texFile The GUID to the texture file to use.
-			* @retval 0 Bind successful
-			* @retval -1 Entity not alive or texFile none existing.
-			* @endcode
-			*/
-			virtual int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo) = 0;
 
 			// sets for texture
 			virtual  void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour) = 0;

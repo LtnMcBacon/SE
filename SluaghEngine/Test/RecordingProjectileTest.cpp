@@ -132,10 +132,10 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
 	ausioInfo1.soundType = Audio::SoundIndexName::BakgroundSound;
 	managers.audioManager->Create(soundEnt, ausioInfo1);
-	Core::IAudioManager::CreateInfo ausioInfo2;
+	/*Core::IAudioManager::CreateInfo ausioInfo2;
 	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
 	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
-	managers.audioManager->Create(soundEnt, ausioInfo2);
+	managers.audioManager->Create(soundEnt, ausioInfo2);*/
 
 	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
@@ -410,13 +410,13 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		subSystem.window->UpdateTime();
 		float dt = subSystem.window->GetDelta();
 		audioTime += dt;
-		if (audioTime > 60.0)
+		/*if (audioTime > 60.0)
 		{
 			managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
 			audio = (audio + 1) % 2;
 			managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
 			audioTime = 0.0;
-		}
+		}*/
 		if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
 		{
 			change = true;

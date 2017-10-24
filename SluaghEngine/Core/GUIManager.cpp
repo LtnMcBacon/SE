@@ -16,7 +16,7 @@ namespace SE {
 
 		}
 
-		int GUIManager::Create2D(const Utilz::GUID& texFile)
+		int GUIManager::Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)
 		{
 			StartProfile;
 			auto fileLoaded = textureGUID.find(texFile);
@@ -30,19 +30,14 @@ namespace SE {
 			{
 				ProfileReturn(textureGUID[texFile].textureHandle);
 			}
-			ProfileReturnConst(-1);
-		}
 
-		int GUIManager::Bind2D(const Entity & entity, Utilz::GUID texFile, Graphics::GUITextureInfo & texInfo)
-		{
-			StartProfile;
-			auto fileLoaded = textureGUID.find(texFile);
-			if (fileLoaded != textureGUID.end())
+			// Check if the entity is alive
+			if (!initInfo.entityManager->Alive(entity))
+				ProfileReturnConst(-1);
+
+			auto entLoaded = entTextureID.find(entity);
+			if (entLoaded == entTextureID.end())
 			{
-				// Check if the entity is alive
-				if (!initInfo.entityManager->Alive(entity))
-					ProfileReturnConst(-1);
-
 				entTextureID[entity].ID = textureInfo.size();
 				entTextureID[entity].GUID = texFile;
 				textureGUID[texFile].refCount++;
@@ -57,7 +52,9 @@ namespace SE {
 				}
 				ProfileReturnConst(0);
 			}
-			ProfileReturnConst(-1);
+
+			initInfo.console->PrintChannel("Entity already exist.");
+			ProfileReturnConst(0);
 		}
 
 		void GUIManager::ToggleRenderableTexture(const Entity & entity, bool show)
