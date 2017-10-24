@@ -42,7 +42,7 @@ namespace SE
 
 
 
-			bool operator==(const IDHash& other) { return this->hash == other.hash; };
+			bool operator==(const IDHash& other)const { return this->hash == other.hash; };
 			constexpr IDHash(const char* str) : hash(COMPILE_TIME_CRC32_STR(str)), str(str) {};
 
 			uint32_t hash;
