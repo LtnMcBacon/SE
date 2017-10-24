@@ -261,6 +261,7 @@ void SE::Core::DebugRenderManager::Destroy(const Entity& e)
 	renderer->RemoveRenderJob(entityToJobID[e]);
 	entityToLineList.erase(e);
 	entityToJobID.erase(e);
+	cachedTransforms.erase(e);
 	dirty = true;
 	ProfileReturnVoid;
 }
