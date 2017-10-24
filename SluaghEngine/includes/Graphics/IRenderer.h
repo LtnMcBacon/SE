@@ -56,14 +56,27 @@ namespace SE
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
+			* @param[in] group The group (enum) the job should belong to.
 			* @retval Returns a handle to the job on success.
 			* @retval -1 on failure.
-			* @sa RenderJob
-			* @endcode
+			* @sa RenderJob, RenderGroup
 			*/
-			virtual uint32_t AddRenderJob(const RenderJob& job) = 0;
+			virtual uint32_t AddRenderJob(const RenderJob& job, RenderGroup group) = 0;
 
+			/**
+			* @brief Removes a renderjob that has been added by AddRenderJob
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @sa AddRenderJob
+			*/
 			virtual void RemoveRenderJob(uint32_t jobID) = 0;
+
+			/**
+			* @brief Replaces an existing renderjob with a new one. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] newJob The job to replace the existing job with.
+			* @sa AddRenderJob
+			*/
+			virtual void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) = 0;
 
 			/**
 			* @brief    Sets a render job

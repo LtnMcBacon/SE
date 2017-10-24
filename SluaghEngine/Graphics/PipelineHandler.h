@@ -18,6 +18,7 @@ namespace SE
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
 			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
+			void UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
 			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
 			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
 			void DestroyIndexBuffer(const Utilz::GUID& id) override;
@@ -61,19 +62,22 @@ namespace SE
 			void DestroyDepthStencilView(const Utilz::GUID& id) override;
 
 			void SetPipeline(const Pipeline& pipeline) override;
+			void SetPipelineForced(const Pipeline& pipeline) override;
 		private:
-			enum class SStage
-			{
-				VERTEX,
-				GEOMETRY,
-				PIXEL
-			};
+
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void SetVertexShaderStage(const ShaderStage& vss);
 			void SetGeometryShaderStage(const ShaderStage& gss);
 			void SetRasterizerStage(const RasterizerStage& rs);
 			void SetPixelShaderStage(const ShaderStage& pss);
 			void SetOutputMergerStage(const OutputMergerStage& oms);
+
+			void ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA);
+			void ForcedSetVertexShaderStage(const ShaderStage& vss);
+			void ForcedSetGeometryShaderStage(const ShaderStage& gss);
+			void ForcedSetRasterizerStage(const RasterizerStage& rs);
+			void ForcedSetPixelShaderStage(const ShaderStage& pss);
+			void ForcedSetOutputMergerStage(const OutputMergerStage& oms);
 
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;

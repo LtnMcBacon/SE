@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
 	AddTest(LightTest);
-	AddTest(RecordingTest);
+	//AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-	AddTest(BloomTest);
+//	AddTest(BloomTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

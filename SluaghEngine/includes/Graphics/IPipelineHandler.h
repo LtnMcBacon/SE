@@ -12,6 +12,7 @@ namespace SE
 			virtual ~IPipelineHandler() = 0 {};
 
 			virtual void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) = 0;
+			virtual void UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) = 0;
 			virtual void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) = 0;
 			virtual void DestroyIndexBuffer(const Utilz::GUID& id) = 0;
@@ -53,6 +54,11 @@ namespace SE
 			virtual void DestroyDepthStencilView(const Utilz::GUID& id) = 0;
 
 			virtual void SetPipeline(const Pipeline& pipeline) = 0;
+			/*
+			 * @brief Does not compare the current pipeline with pipeline. Sets all states even if those states might already be set. Only use this for the first pipeline to set.
+			 * @param[in] pipeline The pipeline to set.
+			 */
+			virtual void SetPipelineForced(const Pipeline& pipeline) = 0;
 
 		};
 	}

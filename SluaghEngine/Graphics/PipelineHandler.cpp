@@ -78,19 +78,36 @@ void SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, vo
 	bd.MiscFlags = 0;
 	bd.Usage = dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
 	bd.StructureByteStride = stride;
-
+	HRESULT hr = S_OK;
 	ID3D11Buffer* buffer;
-	D3D11_SUBRESOURCE_DATA sd;
-	sd.pSysMem = data;
-	sd.SysMemPitch = 0;
-	sd.SysMemSlicePitch = 0;
-	HRESULT hr = device->CreateBuffer(&bd, &sd, &buffer);
+	if (data)
+	{
+		D3D11_SUBRESOURCE_DATA sd;
+		sd.pSysMem = data;
+		sd.SysMemPitch = 0;
+		sd.SysMemSlicePitch = 0;
+		hr = device->CreateBuffer(&bd, &sd, &buffer);
+	}
+	else
+	{
+		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+	}
 	if (FAILED(hr))
 		throw std::exception("Failed to create Vertex Buffer");
-
 	vertexBuffers[id].buffer = buffer;
 	vertexBuffers[id].stride = stride;
 	ProfileReturnVoid;
+}
+
+void SE::Graphics::PipelineHandler::UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size)
+{
+	const auto find = vertexBuffers.find(id);
+	if (find == vertexBuffers.end())
+		throw std::exception("Unknown id referenced in UpdateDynamicVertexBuffer");
+	D3D11_MAPPED_SUBRESOURCE ms;
+	deviceContext->Map(find->second.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	memcpy(ms.pData, data, size);
+	deviceContext->Unmap(find->second.buffer, 0);
 }
 
 void SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
@@ -163,9 +180,11 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	if (flags & BufferFlags::BIND_STREAMOUT) bd.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 	bd.ByteWidth = maxElements * elementStride;
 	bd.CPUAccessFlags = 0;
-	if (flags & BufferFlags::CPU_WRITE) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
-	if (flags & BufferFlags::CPU_READ) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+	if (flags & BufferFlags::CPU_WRITE) bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	if (flags & BufferFlags::CPU_READ) bd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	bd.Usage = D3D11_USAGE_DEFAULT;
+	if (flags & BufferFlags::DYNAMIC) bd.Usage = D3D11_USAGE_DYNAMIC;
+	if (flags & BufferFlags::IMMUTABLE) bd.Usage = D3D11_USAGE_IMMUTABLE;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
 
@@ -632,13 +651,22 @@ void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, 
 	bd.StructureByteStride = 0;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 
-	D3D11_SUBRESOURCE_DATA d;
-	d.pSysMem = initialData;
-	d.SysMemPitch = 0;
-	d.SysMemSlicePitch = 0;
 
+	HRESULT hr = S_OK;
 	ID3D11Buffer* buffer;
-	HRESULT hr = device->CreateBuffer(&bd, &d, &buffer);
+	if (initialData)
+	{
+		D3D11_SUBRESOURCE_DATA d;
+		d.pSysMem = initialData;
+		d.SysMemPitch = 0;
+		d.SysMemSlicePitch = 0;
+		hr = device->CreateBuffer(&bd, &d, &buffer);
+	}
+	else
+	{
+		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+	}
+	
 	if (FAILED(hr))
 		throw std::exception("Failed to create constant buffer");
 
@@ -649,7 +677,7 @@ void SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, 
 {
 	const auto exists = constantBuffers.find(id);
 	if (exists == constantBuffers.end())
-		return;
+		throw std::exception("Nonexistant constant buffer referenced in UpdateConstantBuffer");
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	HRESULT hr = deviceContext->Map(exists->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
@@ -1129,33 +1157,47 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	ID3D11Buffer *nullBuffer = nullptr;
 	uint32_t offset = 0;
-	deviceContext->SOSetTargets(1, &nullBuffer, &offset);
+	//deviceContext->SOSetTargets(1, &nullBuffer, &offset);
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
 	if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
 	{
-
 		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
+		currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
 	}
 	SetRasterizerStage(pipeline.RStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
-	currentPipeline = pipeline;
+}
 
+void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
+{
+	uint32_t offset = 0;
+	ForcedSetInputAssemblerStage(pipeline.IAStage);
+	ForcedSetVertexShaderStage(pipeline.VSStage);
+	ForcedSetGeometryShaderStage(pipeline.GSStage);
+	deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
+	currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
+	ForcedSetRasterizerStage(pipeline.RStage);
+	ForcedSetPixelShaderStage(pipeline.PSStage);
+	ForcedSetOutputMergerStage(pipeline.OMStage);
 }
 
 void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
-	const auto& cIA = currentPipeline.IAStage;
-	//if (pIA.topology != cIA.topology)
-	switch (pIA.topology)
+	auto& cIA = currentPipeline.IAStage;
+	if (pIA.topology != cIA.topology)
 	{
-	case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
-	case PrimitiveTopology::LINE_STRIP:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); break;
-	case PrimitiveTopology::POINT_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-	case PrimitiveTopology::TRIANGLE_LIST:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-	case PrimitiveTopology::TRIANGLE_STRIP:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+		switch (pIA.topology)
+		{
+		case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+		case PrimitiveTopology::LINE_STRIP:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); break;
+		case PrimitiveTopology::POINT_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+		case PrimitiveTopology::TRIANGLE_LIST:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+		case PrimitiveTopology::TRIANGLE_STRIP:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+		}
+		cIA.topology = pIA.topology;
 	}
 	if (pIA.indexBuffer != cIA.indexBuffer)
 	{
@@ -1164,7 +1206,9 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 		{
 			DXGI_FORMAT f = ib->second.stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
 			deviceContext->IASetIndexBuffer(ib->second.buffer, f, 0);
+			cIA.indexBuffer = pIA.indexBuffer;
 		}
+		
 	}
 	if (pIA.vertexBuffer != cIA.vertexBuffer)
 	{
@@ -1173,7 +1217,8 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 		{
 			uint32_t offset = 0;
 			deviceContext->IASetVertexBuffers(0, 1, &vb->second.buffer, &vb->second.stride, &offset);
-		}
+			cIA.vertexBuffer = pIA.vertexBuffer;
+		}		
 	}
 	if (pIA.inputLayout != cIA.inputLayout)
 	{
@@ -1181,6 +1226,7 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 		if (il != inputLayouts.end())
 		{
 			deviceContext->IASetInputLayout(il->second);
+			cIA.inputLayout = pIA.inputLayout;
 		}
 	}
 }
@@ -1189,7 +1235,7 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 
 void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 {
-	const auto& c = currentPipeline.VSStage;
+	auto& c = currentPipeline.VSStage;
 
 	if (vss.shader != c.shader)
 	{
@@ -1198,6 +1244,7 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 			deviceContext->VSSetShader(vs->second, nullptr, 0);
 		else
 			deviceContext->VSSetShader(nullptr, nullptr, 0);
+		c.shader = vss.shader;
 	}
 	for (int i = 0; i < vss.constantBufferCount; ++i)
 	{
@@ -1218,9 +1265,11 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 					if (bind != shaderAndResourceNameToBindSlot.end())
 						deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
 				}
+				c.constantBuffers[i] = vss.constantBuffers[i];
 			}
 		}
 	}
+	c.constantBufferCount = vss.constantBufferCount;
 	for (int i = 0; i < vss.textureCount; ++i)
 	{
 		if (vss.textures[i] != c.textures[i] || vss.textureBindings[i] != c.textureBindings[i])
@@ -1235,8 +1284,11 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 					deviceContext->VSSetShaderResources(bind->second, 1, &srv->second);
 				}
 			}
+			c.textures[i] = vss.textures[i];
+			c.textureBindings[i] = vss.textureBindings[i];
 		}
 	}
+	c.textureCount = vss.textureCount;
 	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
 	for (int i = 0; i < vss.samplerCount; ++i)
 	{
@@ -1245,15 +1297,17 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 			const auto samp = samplerStates.find(vss.samplers[i]);
 			if (samp != samplerStates.end())
 				samplers[i] = samp->second;
+			c.samplers[i] = vss.samplers[i];
 		}
 	}
+	c.samplerCount = vss.samplerCount;
 	if (vss.samplerCount)
 		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gss)
 {
-	const auto& c = currentPipeline.GSStage;
+	auto& c = currentPipeline.GSStage;
 
 	if (gss.shader != c.shader)
 	{
@@ -1262,6 +1316,7 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gs
 			deviceContext->GSSetShader(gs->second, nullptr, 0);
 		else
 			deviceContext->GSSetShader(nullptr, nullptr, 0);
+		c.shader = gss.shader;
 	}
 	for (int i = 0; i < gss.constantBufferCount; ++i)
 	{
@@ -1282,10 +1337,11 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gs
 					if (bind != shaderAndResourceNameToBindSlot.end())
 						deviceContext->GSSetConstantBuffers(bind->second, 1, &cb->second);
 				}
+				c.constantBuffers[i] = gss.constantBuffers[i];
 			}
 		}
 	}
-
+	c.constantBufferCount = gss.constantBufferCount;
 	for (int i = 0; i < gss.textureCount; ++i)
 	{
 		if (gss.textures[i] != c.textures[i] || gss.textureBindings[i] != c.textureBindings[i])
@@ -1300,8 +1356,11 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gs
 					deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
 				}
 			}
+			c.textures[i] = gss.textures[i];
+			c.textureBindings[i] = gss.textureBindings[i];
 		}
 	}
+	c.textureCount = gss.textureCount;
 	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
 	for (int i = 0; i < gss.samplerCount; ++i)
 	{
@@ -1310,21 +1369,24 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gs
 			const auto samp = samplerStates.find(gss.samplers[i]);
 			if (samp != samplerStates.end())
 				samplers[i] = samp->second;
+			c.samplers[i] = gss.samplers[i];
 		}
 	}
-	if(gss.samplerCount)
+	c.samplerCount = gss.samplerCount;
+	if (gss.samplerCount)
 		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs)
 {
-	const auto& c = currentPipeline.RStage;
+	auto& c = currentPipeline.RStage;
 	if (rs.rasterizerState != c.rasterizerState)
 	{
 		const auto rast = rasterizerStates.find(rs.rasterizerState);
 		if (rast != rasterizerStates.end())
 		{
 			deviceContext->RSSetState(rast->second);
+			c.rasterizerState = rs.rasterizerState;
 		}
 	}
 	if (rs.viewport != c.viewport)
@@ -1333,13 +1395,14 @@ void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs
 		if (vp != viewports.end())
 		{
 			deviceContext->RSSetViewports(1, &vp->second);
+			c.viewport = rs.viewport;
 		}
 	}
 }
 
 void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 {
-	const auto& c = currentPipeline.PSStage;
+	auto& c = currentPipeline.PSStage;
 
 	if (pss.shader != c.shader)
 	{
@@ -1348,6 +1411,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 			deviceContext->PSSetShader(ps->second, nullptr, 0);
 		else
 			deviceContext->PSSetShader(nullptr, nullptr, 0);
+		c.shader = pss.shader;
 	}
 	for (int i = 0; i < pss.constantBufferCount; ++i)
 	{
@@ -1368,10 +1432,11 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 					if (bind != shaderAndResourceNameToBindSlot.end())
 						deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
 				}
+				c.constantBuffers[i] = pss.constantBuffers[i];
 			}
 		}
 	}
-
+	c.constantBufferCount = pss.constantBufferCount;
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
 		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
@@ -1386,8 +1451,11 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 					deviceContext->PSSetShaderResources(bind->second, 1, &srv->second);
 				}
 			}
+			c.textures[i] = pss.textures[i];
+			c.textureBindings[i] = pss.textureBindings[i];
 		}
 	}
+	c.textureCount = pss.textureCount;
 	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
 	for (int i = 0; i < pss.samplerCount; ++i)
 	{
@@ -1396,9 +1464,11 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 			const auto samp = samplerStates.find(pss.samplers[i]);
 			if (samp != samplerStates.end())
 				samplers[i] = samp->second;
+			c.samplers[i] = pss.samplers[i];
 		}
 	}
-	if(pss.samplerCount)
+	c.samplerCount = pss.samplerCount;
+	if (pss.samplerCount)
 		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
 }
 
@@ -1417,8 +1487,10 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 				renderTargets[i] = rtv->second;
 			else
 				renderTargets[i] = nullptr;
+			c.renderTargets[i] = oms.renderTargets[i];
 		}
 	}
+	c.renderTargetCount = oms.renderTargetCount;
 	ID3D11DepthStencilView* depthview = nullptr;
 	if (oms.depthStencilView != c.depthStencilView)
 	{
@@ -1426,6 +1498,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		const auto dsv = depthStencilViews.find(oms.depthStencilView);
 		if (dsv != depthStencilViews.end())
 			depthview = dsv->second;
+		c.depthStencilView = oms.depthStencilView;
 	}
 
 	if (changed)
@@ -1438,6 +1511,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		{
 			float blend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			deviceContext->OMSetBlendState(bs->second, blend, 0xFF);
+			c.blendState = oms.blendState;
 		}
 	}
 
@@ -1450,4 +1524,289 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		}
 	}
 
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA)
+{
+	auto& cIA = currentPipeline.IAStage;
+	switch (pIA.topology)
+	{
+	case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+	case PrimitiveTopology::LINE_STRIP:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); break;
+	case PrimitiveTopology::POINT_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+	case PrimitiveTopology::TRIANGLE_LIST:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+	case PrimitiveTopology::TRIANGLE_STRIP:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+	}
+	cIA.topology = pIA.topology;
+
+
+	auto ib = indexBuffers.find(pIA.indexBuffer);
+	if (ib != indexBuffers.end())
+	{
+		DXGI_FORMAT f = ib->second.stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+		deviceContext->IASetIndexBuffer(ib->second.buffer, f, 0);
+		cIA.indexBuffer = pIA.indexBuffer;
+	}
+
+	auto vb = vertexBuffers.find(pIA.vertexBuffer);
+	if (vb != vertexBuffers.end())
+	{
+		uint32_t offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, &vb->second.buffer, &vb->second.stride, &offset);
+		cIA.vertexBuffer = pIA.vertexBuffer;
+	}
+
+	auto il = inputLayouts.find(pIA.inputLayout);
+	if (il != inputLayouts.end())
+	{
+		deviceContext->IASetInputLayout(il->second);
+		cIA.inputLayout = pIA.inputLayout;
+	}
+
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetVertexShaderStage(const ShaderStage& vss)
+{
+	auto& c = currentPipeline.VSStage;
+
+	const auto vs = vertexShaders.find(vss.shader);
+	if (vs != vertexShaders.end())
+		deviceContext->VSSetShader(vs->second, nullptr, 0);
+	else
+		deviceContext->VSSetShader(nullptr, nullptr, 0);
+	c.shader = vss.shader;
+
+	for (int i = 0; i < vss.constantBufferCount; ++i)
+	{
+		auto cb = constantBuffers.find(vss.constantBuffers[i]);
+		if (cb != constantBuffers.end())
+		{
+			const auto cbid = vss.shader + vss.constantBuffers[i];
+			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			else
+			{
+				bind = shaderAndResourceNameToBindSlot.find(vss.constantBuffers[i]);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+					deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			c.constantBuffers[i] = vss.constantBuffers[i];
+		}
+	}
+	c.constantBufferCount = vss.constantBufferCount;
+	for (int i = 0; i < vss.textureCount; ++i)
+	{
+		auto srv = shaderResourceViews.find(vss.textures[i]);
+		if (srv != shaderResourceViews.end())
+		{
+			const auto bindSlotID = vss.shader + vss.textureBindings[i];
+			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->VSSetShaderResources(bind->second, 1, &srv->second);
+			}
+		}
+		c.textures[i] = vss.textures[i];
+		c.textureBindings[i] = vss.textureBindings[i];
+	}
+	c.textureCount = vss.textureCount;
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < vss.samplerCount; ++i)
+	{
+		const auto samp = samplerStates.find(vss.samplers[i]);
+		if (samp != samplerStates.end())
+			samplers[i] = samp->second;
+		c.samplers[i] = vss.samplers[i];
+	}
+	c.samplerCount = vss.samplerCount;
+	if (vss.samplerCount)
+		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetGeometryShaderStage(const ShaderStage& gss)
+{
+	auto& c = currentPipeline.GSStage;
+
+	const auto gs = geometryShaders.find(gss.shader);
+	if (gs != geometryShaders.end())
+		deviceContext->GSSetShader(gs->second, nullptr, 0);
+	else
+		deviceContext->GSSetShader(nullptr, nullptr, 0);
+	c.shader = gss.shader;
+
+	for (int i = 0; i < gss.constantBufferCount; ++i)
+	{
+		auto cb = constantBuffers.find(gss.constantBuffers[i]);
+		if (cb != constantBuffers.end())
+		{
+			const auto cbid = gss.shader + gss.constantBuffers[i];
+			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->GSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			else
+			{
+				bind = shaderAndResourceNameToBindSlot.find(gss.constantBuffers[i]);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+					deviceContext->GSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			c.constantBuffers[i] = gss.constantBuffers[i];
+		}
+	}
+	c.constantBufferCount = gss.constantBufferCount;
+	for (int i = 0; i < gss.textureCount; ++i)
+	{
+		auto srv = shaderResourceViews.find(gss.textures[i]);
+		if (srv != shaderResourceViews.end())
+		{
+			const auto bindSlotID = gss.shader + gss.textureBindings[i];
+			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
+			}
+		}
+		c.textures[i] = gss.textures[i];
+		c.textureBindings[i] = gss.textureBindings[i];
+	}
+	c.textureCount = gss.textureCount;
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < gss.samplerCount; ++i)
+	{
+		const auto samp = samplerStates.find(gss.samplers[i]);
+		if (samp != samplerStates.end())
+			samplers[i] = samp->second;
+		c.samplers[i] = gss.samplers[i];
+	}
+	c.samplerCount = gss.samplerCount;
+	if (gss.samplerCount)
+		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetRasterizerStage(const RasterizerStage& rs)
+{
+	auto& c = currentPipeline.RStage;
+	const auto rast = rasterizerStates.find(rs.rasterizerState);
+	if (rast != rasterizerStates.end())
+	{
+		deviceContext->RSSetState(rast->second);
+		c.rasterizerState = rs.rasterizerState;
+	}
+
+	const auto vp = viewports.find(rs.viewport);
+	if (vp != viewports.end())
+	{
+		deviceContext->RSSetViewports(1, &vp->second);
+		c.viewport = rs.viewport;
+	}
+
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetPixelShaderStage(const ShaderStage& pss)
+{
+	auto& c = currentPipeline.PSStage;
+
+	const auto ps = pixelShaders.find(pss.shader);
+	if (ps != pixelShaders.end())
+		deviceContext->PSSetShader(ps->second, nullptr, 0);
+	else
+		deviceContext->PSSetShader(nullptr, nullptr, 0);
+	c.shader = pss.shader;
+
+	for (int i = 0; i < pss.constantBufferCount; ++i)
+	{
+		auto cb = constantBuffers.find(pss.constantBuffers[i]);
+		if (cb != constantBuffers.end())
+		{
+			const auto cbid = pss.shader + pss.constantBuffers[i];
+			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			else
+			{
+				bind = shaderAndResourceNameToBindSlot.find(pss.constantBuffers[i]);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+					deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
+			}
+			c.constantBuffers[i] = pss.constantBuffers[i];
+		}
+	}
+	c.constantBufferCount = pss.constantBufferCount;
+	for (int i = 0; i < pss.textureCount; ++i)
+	{
+		auto srv = shaderResourceViews.find(pss.textures[i]);
+		if (srv != shaderResourceViews.end())
+		{
+			const auto bindSlotID = pss.shader + pss.textureBindings[i];
+			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->PSSetShaderResources(bind->second, 1, &srv->second);
+			}
+		}
+		c.textures[i] = pss.textures[i];
+		c.textureBindings[i] = pss.textureBindings[i];
+	}
+	c.textureCount = pss.textureCount;
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < pss.samplerCount; ++i)
+	{
+		const auto samp = samplerStates.find(pss.samplers[i]);
+		if (samp != samplerStates.end())
+			samplers[i] = samp->second;
+		c.samplers[i] = pss.samplers[i];
+	}
+	c.samplerCount = pss.samplerCount;
+	if (pss.samplerCount)
+		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMergerStage& oms)
+{
+	auto& c = currentPipeline.OMStage;
+	ID3D11RenderTargetView* renderTargets[OutputMergerStage::maxRenderTargets] = { nullptr };
+	bool changed = false;
+	for (int i = 0; i < oms.renderTargetCount; ++i)
+	{
+		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
+		if (rtv != renderTargetViews.end())
+			renderTargets[i] = rtv->second;
+		else
+			renderTargets[i] = nullptr;
+		c.renderTargets[i] = oms.renderTargets[i];
+	}
+	c.renderTargetCount = oms.renderTargetCount;
+	ID3D11DepthStencilView* depthview = nullptr;
+
+	const auto dsv = depthStencilViews.find(oms.depthStencilView);
+	if (dsv != depthStencilViews.end())
+		depthview = dsv->second;
+	c.depthStencilView = oms.depthStencilView;
+
+
+
+	deviceContext->OMSetRenderTargets(oms.renderTargetCount, renderTargets, depthview);
+
+
+	const auto bs = blendStates.find(oms.blendState);
+	if (bs != blendStates.end())
+	{
+		float blend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		deviceContext->OMSetBlendState(bs->second, blend, 0xFF);
+		c.blendState = oms.blendState;
+	}
+
+
+	const auto dss = depthStencilStates.find(oms.depthStencilState);
+	if (dss != depthStencilStates.end())
+	{
+		deviceContext->OMSetDepthStencilState(dss->second, 0);
+		c.depthStencilState = oms.depthStencilState;
+	}
 }

@@ -43,7 +43,7 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 	{
 		ents[i] = managers.entityManager->Create();
 		managers.materialManager->Create(ents[i], info);
-		managers.transformManager->Create(ents[i], { (float)(i*3.0f),0.0f,(float)((i * 3) % 2) }, { 0.0f,3.14f,0.0f }, { 5.02f,5.02f,5.02f });
+		managers.transformManager->Create(ents[i], { (float)(i*5.0f),0.0f,0.0f }, { 0.0f,3.14f,0.0f }, { 4.0f,4.0f,4.0f });
 		//managers.transformManager->Create(ents[i]);
 		managers.renderableManager->CreateRenderableObject(ents[i], { "Placeholder_Block.mesh" });
 		managers.renderableManager->ToggleRenderableObject(ents[i], true);
@@ -52,21 +52,7 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 		managers.debugRenderManager->DrawCross(ents[i], 1.0f);
 
 	}
-	for (int i = 10; i < 20; i++)
-	{
-		managers.debugRenderManager->ToggleDebugRendering(ents[i], false);
-	}
-	for (int i = 0; i < 200; i++)
-	{
-		managers.debugRenderManager->DrawCross(ents[i], 1.0f);
-	}
-	
-	for (int i = 7; i < 14; i++)
-	{
-		managers.debugRenderManager->ToggleDebugRendering(ents[i], false);
-	}
-	managers.renderableManager->ToggleRenderableObject(ents[2], false);
-	managers.renderableManager->ToggleRenderableObject(ents[2], true);
+
 	const auto camera = managers.entityManager->Create();
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);
@@ -87,7 +73,7 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(Console, Window::KeyC);
 	
 
-	
+	subSystem.devConsole->Show();
 	Utilz::Timer timer;
 	uint32_t removeIndex = 0;
 	bool showConsole = false;

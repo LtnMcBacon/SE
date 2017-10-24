@@ -99,21 +99,42 @@ void SE::Graphics::Renderer::Shutdown()
 	delete device;
 }
 
-uint32_t SE::Graphics::Renderer::AddRenderJob(const RenderJob& job)
+uint32_t SE::Graphics::Renderer::AddRenderJob(const RenderJob& job, RenderGroup group)
 {
-	const uint32_t jobID = gJobID++;
-	jobIDToIndex[jobID] = generalJobs.size();
-	generalJobs.push_back({ job, jobID });
+	const uint32_t idPart = jobIDCounter;
+	const auto jobID = ((jobIDCounter++) | (static_cast<uint8_t>(group) << JOB_ID_BITS));
+
+	InternalRenderJob j = { job, idPart };
+	jobIDToIndex[idPart] = jobGroups[static_cast<uint8_t>(group)].size();
+	jobGroups[static_cast<uint8_t>(group)].push_back(j);
 	return jobID;
 }
 
+
 void SE::Graphics::Renderer::RemoveRenderJob(uint32_t jobID)
 {
-	const uint32_t index = jobIDToIndex[jobID];
-	generalJobs[index] = generalJobs.back();
-	jobIDToIndex[generalJobs[index].jobID] = index;
-	generalJobs.pop_back();
-	jobIDToIndex.erase(jobID);
+	//Which entry in the jobGroups map
+	const uint8_t jobGroup = (jobID >> JOB_ID_BITS) & JOB_GROUP_MASK;
+	//Which entry in jobIDToIndex map
+	const uint32_t idPart = (jobID & JOB_ID_MASK);
+	//Which index in the entry in the jobgroups map
+	const uint32_t indexInMap = jobIDToIndex[idPart];
+	//The ID part of the jobID that will move places inside the vector
+	const uint32_t replacementID = jobGroups[jobGroup].back().jobID;
+	//The index of the job that will move places
+	const uint32_t replacementIndex = jobIDToIndex[replacementID];
+	jobGroups[jobGroup][indexInMap] = jobGroups[jobGroup][replacementIndex];
+	jobGroups[jobGroup].pop_back();
+	jobIDToIndex[replacementID] = indexInMap;
+	jobIDToIndex.erase(idPart);
+}
+
+void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const RenderJob& newJob)
+{
+	const uint8_t jobGroup = (jobID >> JOB_ID_BITS) & JOB_GROUP_MASK;
+	const uint32_t idPart = (jobID & JOB_ID_MASK);
+	const uint32_t indexInMap = jobIDToIndex[idPart];
+	jobGroups[jobGroup][indexInMap].job = newJob;
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
@@ -444,7 +465,7 @@ int SE::Graphics::Renderer::Render() {
 	//RemoveRenderJobs();
 
 	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
+	//float clearColor[] = { 0, 0, 1, 1 };
 
 
 
@@ -511,70 +532,84 @@ int SE::Graphics::Renderer::Render() {
 	timeCluster[GPUTimer]->Stop("Rendering-GPU");
 
 
-	///********** Render line jobs (primarily for debugging) ************/
+	/////********** Render line jobs (primarily for debugging) ************/
 
-	timeCluster[GPUTimer]->Start("LineJob-GPU");
-	timeCluster[CPUTimer]->Start("LineJob-CPU");
-	device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
-	graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
-	for(auto& lineJob : lineRenderJobs)
-	{
-		if (lineJob.verticesToDrawCount == 0)
-			continue;
-		graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
-		graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
-		graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
-		device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
-	}
-	timeCluster[CPUTimer]->Stop("LineJob-CPU");
-	timeCluster[GPUTimer]->Stop("LineJob-GPU");
+	//timeCluster[GPUTimer]->Start("LineJob-GPU");
+	//timeCluster[CPUTimer]->Start("LineJob-CPU");
+	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
+	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
+	//for(auto& lineJob : lineRenderJobs)
+	//{
+	//	if (lineJob.verticesToDrawCount == 0)
+	//		continue;
+	//	graphicResourceHandler->UpdateConstantBuffer(&lineJob.transform, sizeof(lineJob.transform), singleTransformConstantBuffer);
+	//	graphicResourceHandler->SetMaterial(lineJob.vertexShaderHandle, lineJob.pixelShaderHandle);
+	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
+	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
+	//}
+	//timeCluster[CPUTimer]->Stop("LineJob-CPU");
+	//timeCluster[GPUTimer]->Stop("LineJob-GPU");
 
 	///********END render line jobs************/
 
 	/******************General Jobs*********************/
-
-	for(auto& j : generalJobs)
+	timeCluster[CPUTimer]->Start("JobJob-CPU");
+	timeCluster[GPUTimer]->Start("JobJob-GPU");
+	bool first = true;
+	for (auto& group : jobGroups)
 	{
-		int32_t drawn = 0;
-		pipelineHandler->SetPipeline(j.job.pipeline);
-		if(j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
+		for (auto& j : group.second)
 		{
-			j.job.mappingFunc(drawn, 1);
-			devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
-		}
-		else if(j.job.indexCount != 0 && j.job.instanceCount == 0)
-		{
-			j.job.mappingFunc(drawn, 1);
-			devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
-		}
-		else if(j.job.indexCount == 0 && j.job.instanceCount != 0)
-		{
-			while (drawn < j.job.instanceCount)
+			int32_t drawn = 0;
+			if (first)
 			{
-				j.job.mappingFunc(drawn, j.job.instanceCount);
-				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
-				devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
-				drawn += toDraw;
+				pipelineHandler->SetPipelineForced(j.job.pipeline);
+				first = false;
 			}
-		}
-		else if(j.job.indexCount != 0 && j.job.instanceCount != 0)
-		{
-			while (drawn < j.job.instanceCount)
+			else
 			{
-				j.job.mappingFunc(drawn, j.job.instanceCount);
-				const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
-				devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
-				drawn += toDraw;
+				pipelineHandler->SetPipeline(j.job.pipeline);
 			}
-		}
-		else if(j.job.vertexCount == 0)
-		{
-			j.job.mappingFunc(drawn, 0);
-			devContext->DrawAuto();
+			if (j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
+			{
+				j.job.mappingFunc(drawn, 1);
+				devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
+			}
+			else if (j.job.indexCount != 0 && j.job.instanceCount == 0)
+			{
+				j.job.mappingFunc(drawn, 1);
+				devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
+			}
+			else if (j.job.indexCount == 0 && j.job.instanceCount != 0)
+			{
+				while (drawn < j.job.instanceCount)
+				{
+					j.job.mappingFunc(drawn, j.job.instanceCount);
+					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
+					drawn += toDraw;
+				}
+			}
+			else if (j.job.indexCount != 0 && j.job.instanceCount != 0)
+			{
+				while (drawn < j.job.instanceCount)
+				{
+					j.job.mappingFunc(drawn, j.job.instanceCount);
+					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
+					drawn += toDraw;
+				}
+			}
+			else if (j.job.vertexCount == 0)
+			{
+				j.job.mappingFunc(drawn, 0);
+				devContext->DrawAuto();
+			}
 		}
 	}
-
+	timeCluster[CPUTimer]->Stop("JobJob-CPU");
+	timeCluster[GPUTimer]->Stop("JobJob-GPU");
 
 	/*****************End General Jobs******************/
 
