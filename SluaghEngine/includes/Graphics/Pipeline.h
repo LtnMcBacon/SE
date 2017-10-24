@@ -139,28 +139,13 @@ namespace SE
 			Utilz::GUID inputLayout;
 		};
 
-		struct VertexShaderStage
-		{
-			static const size_t maxConstantBuffers = 8;
-			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount;
-		};
-
-		struct GeometryShaderStage
-		{
-			static const size_t maxConstantBuffers = 8;
-			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount;
-		};
-
 		struct StreamOutStage
 		{
 			Utilz::GUID streamOutTarget;
 		};
 
-		struct PixelShaderStage
+
+		struct ShaderStage
 		{
 			static const size_t maxConstantBuffers = 8;
 			static const size_t maxTextures = 8;
@@ -169,11 +154,10 @@ namespace SE
 			Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
-			Utilz::GUID samplers[maxSamplers];			
+			Utilz::GUID samplers[maxSamplers];
 			uint8_t constantBufferCount;
 			uint8_t textureCount;
 			uint8_t samplerCount;
-			
 		};
 
 		struct OutputMergerStage
@@ -204,11 +188,11 @@ namespace SE
 		struct Pipeline
 		{
 			InputAssemblerStage IAStage;
-			VertexShaderStage	VSStage;
-			GeometryShaderStage	GSStage;
+			ShaderStage	VSStage;
+			ShaderStage	GSStage;
 			StreamOutStage		SOStage;
 			RasterizerStage		RStage;
-			PixelShaderStage	PSStage;
+			ShaderStage	PSStage;
 			OutputMergerStage	OMStage;
 		};
 	}

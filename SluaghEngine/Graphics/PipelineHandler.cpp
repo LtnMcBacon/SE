@@ -3,11 +3,12 @@
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 #include <vector>
-SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer)
+SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	renderTargetViews["backbuffer"] = backbuffer;
+	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
 	vertexBuffers[""].buffer = nullptr;
 	vertexBuffers[""].stride = 0;
@@ -31,7 +32,7 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 {
 	//lots of loops...
 	for (auto& r : vertexBuffers)
-		if(r.second.buffer) r.second.buffer->Release();
+		if (r.second.buffer) r.second.buffer->Release();
 	for (auto& r : indexBuffers)
 		if (r.second.buffer) r.second.buffer->Release();
 	for (auto& r : inputLayouts)
@@ -49,6 +50,8 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : shaderResourceViews)
 		if (r.second)r.second->Release();
 	for (auto& r : renderTargetViews)
+		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+	for (auto& r : depthStencilViews)
 		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
@@ -105,7 +108,7 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 	const auto exists = indexBuffers.find(id);
 	if (exists != indexBuffers.end())
 		return;
-	
+
 	D3D11_BUFFER_DESC bd;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bd.ByteWidth = indexSize * indexCount;
@@ -127,23 +130,22 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 	indexBuffers[id].stride = indexSize;
 }
 
-void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount,
-	size_t elementStride, uint32_t flags)
+void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags)
 {
-	if(flags & BIND_VERTEX)
+	if (flags & BIND_VERTEX)
 	{
 		const auto exists = vertexBuffers.find(id);
 		if (exists != vertexBuffers.end())
 			return;
 	}
-	else if(flags & BIND_INDEX)
+	else if (flags & BIND_INDEX)
 	{
 		const auto exists = indexBuffers.find(id);
 		if (exists != indexBuffers.end())
 			return;
 
 	}
-	else if(flags & BIND_CONSTANT)
+	else if (flags & BIND_CONSTANT)
 	{
 		const auto exists = constantBuffers.find(id);
 		if (exists != constantBuffers.end())
@@ -159,28 +161,34 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	if (flags & BufferFlags::BIND_VERTEX) bd.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
 	if (flags & BufferFlags::BIND_INDEX) bd.BindFlags |= D3D11_BIND_INDEX_BUFFER;
 	if (flags & BufferFlags::BIND_STREAMOUT) bd.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-	bd.ByteWidth = elementCount * elementStride;
+	bd.ByteWidth = maxElements * elementStride;
 	bd.CPUAccessFlags = 0;
 	if (flags & BufferFlags::CPU_WRITE) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 	if (flags & BufferFlags::CPU_READ) bd.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.MiscFlags = 0;
-	bd.StructureByteStride = elementStride;
-	
+	bd.StructureByteStride = 0;
+
 	ID3D11Buffer* buffer;
 	HRESULT hr;
+
 	if (data)
 	{
+		void* dummy = operator new(elementStride * maxElements);
+		memcpy(dummy, data, elementCount * elementStride);
 		D3D11_SUBRESOURCE_DATA d;
-		d.pSysMem = data;
+		d.pSysMem = dummy;
 		d.SysMemPitch = 0;
 		d.SysMemSlicePitch = 0;
 		hr = device->CreateBuffer(&bd, &d, &buffer);
+		operator delete(dummy);
 	}
 	else
 	{
 		hr = device->CreateBuffer(&bd, nullptr, &buffer);
+
 	}
+
 	if (FAILED(hr))
 		throw std::exception("Failed to create buffer");
 
@@ -188,15 +196,16 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 		vertexBuffers[id].buffer = buffer;
 		vertexBuffers[id].stride = elementStride;
 	}
-	else if(flags & BIND_INDEX)
+	else if (flags & BIND_INDEX)
 	{
 		indexBuffers[id].buffer = buffer;
 		indexBuffers[id].stride = elementStride;
 	}
-	else if(flags & BIND_CONSTANT)
+	else if (flags & BIND_CONSTANT)
 	{
 		constantBuffers[id] = buffer;
 	}
+
 }
 
 void SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)
@@ -240,7 +249,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 	//Create the input layout with the help of shader reflection
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
-	
+
 	if (FAILED(hr))
 		throw std::exception("Failed to reflect vertex shader.");
 
@@ -329,7 +338,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (sbd.Name == sibd.Name)
+				if (std::string(sbd.Name) == std::string(sibd.Name))
 				{
 					const auto cbExists = constantBuffers.find(sbd.Name);
 					if (cbExists == constantBuffers.end())
@@ -371,8 +380,57 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 	if (FAILED(hr))
 		throw std::exception("Could not create geometry shader.");
 
-
 	geometryShaders[id] = gs;
+
+	ID3D11ShaderReflection* reflection;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+		throw std::exception("Failed to create geometry shader reflection");
+
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							throw std::exception("Failed to create constant buffer.");
+						constantBuffers[sbd.Name] = buffer;
+					}
+
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
+	reflection->Release();
 }
 
 void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size)
@@ -389,36 +447,87 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
 	std::vector<D3D11_SO_DECLARATION_ENTRY> SOEntries;
-	for(int i = 0; i < shaderDesc.InputParameters; ++i)
+	for (int i = 0; i < shaderDesc.InputParameters; ++i)
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC signatureParameterDesc;
 		reflection->GetInputParameterDesc(i, &signatureParameterDesc);
+		BYTE mask = signatureParameterDesc.Mask;
+		int varCount = 0;
+		while (mask)
+		{
+			if (mask & 0x01) varCount++;
+			mask = mask >> 1;
+		}
+
 		D3D11_SO_DECLARATION_ENTRY sode;
 		sode.SemanticName = signatureParameterDesc.SemanticName;
 		sode.Stream = signatureParameterDesc.Stream;
 		sode.OutputSlot = 0;
 		sode.StartComponent = 0;
-		if (signatureParameterDesc.Mask == 1)
-			sode.ComponentCount = 1;
+		sode.ComponentCount = varCount;
+		/*if (signatureParameterDesc.Mask == 1)
+		sode.ComponentCount = 1;
 		else if (signatureParameterDesc.Mask <= 3)
-			sode.ComponentCount = 2;
+		sode.ComponentCount = 2;
 		else if (signatureParameterDesc.Mask <= 7)
-			sode.ComponentCount = 3;
+		sode.ComponentCount = 3;
 		else if (signatureParameterDesc.Mask <= 15)
-			sode.ComponentCount = 4;
+		sode.ComponentCount = 4;*/
 		sode.SemanticIndex = signatureParameterDesc.SemanticIndex;
-		
+
 		SOEntries.push_back(sode);
 	}
 	uint32_t bufferStrides = 0;
 	for (auto& e : SOEntries)
-		bufferStrides += e.ComponentCount;
+		bufferStrides += e.ComponentCount * 4;
+
 	ID3D11GeometryShader* gs;
 	hr = device->CreateGeometryShaderWithStreamOutput(data, size, SOEntries.data(), SOEntries.size(), &bufferStrides, 1, D3D11_SO_NO_RASTERIZED_STREAM, nullptr, &gs);
 	if (FAILED(hr))
 		throw std::exception("Failed to create geometry shader with output stream");
 
 	geometryShaders[id] = gs;
+
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							throw std::exception("Failed to create constant buffer.");
+						constantBuffers[sbd.Name] = buffer;
+					}
+
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
 
 	reflection->Release();
 }
@@ -444,11 +553,11 @@ void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, voi
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
 
-	for(int i = 0; i < shaderDesc.BoundResources; ++i)
+	for (int i = 0; i < shaderDesc.BoundResources; ++i)
 	{
 		D3D11_SHADER_INPUT_BIND_DESC sibd;
 		reflection->GetResourceBindingDesc(i, &sibd);
-		if(sibd.Type == D3D_SIT_TEXTURE)
+		if (sibd.Type == D3D_SIT_TEXTURE)
 		{
 			const Utilz::GUID bindGuid(sibd.Name);
 			const Utilz::GUID combinedGuid = id + bindGuid;
@@ -621,18 +730,18 @@ void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id,
 
 	D3D11_RASTERIZER_DESC rd;
 	rd.AntialiasedLineEnable = false;
-	switch(state.cullMode)
+	switch (state.cullMode)
 	{
-	case CullMode::CULL_BACK: rd.CullMode	= D3D11_CULL_BACK; break;
-	case CullMode::CULL_FRONT: rd.CullMode	= D3D11_CULL_FRONT; break;
-	case CullMode::CULL_NONE: rd.CullMode	= D3D11_CULL_NONE; break;
+	case CullMode::CULL_BACK: rd.CullMode = D3D11_CULL_BACK; break;
+	case CullMode::CULL_FRONT: rd.CullMode = D3D11_CULL_FRONT; break;
+	case CullMode::CULL_NONE: rd.CullMode = D3D11_CULL_NONE; break;
 	}
-	switch(state.fillMode)
+	switch (state.fillMode)
 	{
 	case FillMode::FILL_SOLID:		rd.FillMode = D3D11_FILL_SOLID; break;
 	case FillMode::FILL_WIREFRAME:  rd.FillMode = D3D11_FILL_WIREFRAME; break;
 	}
-	switch(state.windingOrder)
+	switch (state.windingOrder)
 	{
 	case WindingOrder::CLOCKWISE:		 rd.FrontCounterClockwise = false; break;
 	case WindingOrder::COUNTERCLOCKWISE: rd.FrontCounterClockwise = true; break;
@@ -643,7 +752,7 @@ void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id,
 	rd.MultisampleEnable = false;
 	rd.ScissorEnable = false;
 	rd.SlopeScaledDepthBias = 0;
-	
+
 	ID3D11RasterizerState* rs;
 	HRESULT hr = device->CreateRasterizerState(&rd, &rs);
 	if (FAILED(hr))
@@ -680,8 +789,8 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	case BlendOperation::MIN: rtbd[0].BlendOp = D3D11_BLEND_OP_MIN; break;
 	case BlendOperation::SUB: rtbd[0].BlendOp = D3D11_BLEND_OP_SUBTRACT; break;
 	}
-	
-	switch(state.blendOperationAlpha)
+
+	switch (state.blendOperationAlpha)
 	{
 	case BlendOperation::ADD: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; break;
 	case BlendOperation::MAX: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_MAX; break;
@@ -689,7 +798,7 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	case BlendOperation::SUB: rtbd[0].BlendOpAlpha = D3D11_BLEND_OP_SUBTRACT; break;
 	}
 
-	switch(state.dstBlend)
+	switch (state.dstBlend)
 	{
 	case Blend::BLEND_FACTOR:	rtbd[0].DestBlend = D3D11_BLEND_BLEND_FACTOR; break;
 	case Blend::DEST_ALPHA:		rtbd[0].DestBlend = D3D11_BLEND_DEST_ALPHA; break;
@@ -733,7 +842,7 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	case Blend::SRC_COLOR:		rtbd[0].DestBlendAlpha = D3D11_BLEND_SRC_COLOR; break;
 	case Blend::ZERO:			rtbd[0].DestBlendAlpha = D3D11_BLEND_ZERO; break;
 	}
-	
+
 	switch (state.srcBlendAlpha)
 	{
 	case Blend::BLEND_FACTOR:	rtbd[0].SrcBlendAlpha = D3D11_BLEND_BLEND_FACTOR; break;
@@ -749,10 +858,10 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	case Blend::ZERO:			rtbd[0].SrcBlendAlpha = D3D11_BLEND_ZERO; break;
 	}
 	rtbd[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	
+
 	bd.AlphaToCoverageEnable = false;
 	bd.RenderTarget[0] = rtbd[0];
-	
+
 	ID3D11BlendState* blendState;
 	HRESULT hr = device->CreateBlendState(&bd, &blendState);
 	if (FAILED(hr))
@@ -778,7 +887,7 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& i
 		return;
 	D3D11_DEPTH_STENCIL_DESC dsd;
 	dsd.DepthEnable = state.enableDepth;
-	switch(state.comparisonOperation)
+	switch (state.comparisonOperation)
 	{
 	case ComparisonOperation::EQUAL:			dsd.DepthFunc = D3D11_COMPARISON_EQUAL; break;
 	case ComparisonOperation::GREATER:			dsd.DepthFunc = D3D11_COMPARISON_GREATER; break;
@@ -787,7 +896,7 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& i
 	case ComparisonOperation::LESS_EQUAL:		dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; break;
 	case ComparisonOperation::NO_COMPARISON:	dsd.DepthFunc = D3D11_COMPARISON_NEVER; break;
 	}
-	
+
 	dsd.DepthWriteMask = state.enableDepth ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 
 	dsd.StencilEnable = true;
@@ -848,7 +957,7 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	case AddressingMode::CLAMP:		sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; break;
 	case AddressingMode::MIRROR:	sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR; break;
 	}
-	switch(state.filter)
+	switch (state.filter)
 	{
 	case Filter::ANISOTROPIC:	sd.Filter = D3D11_FILTER_ANISOTROPIC; break;
 	case Filter::LINEAR:		sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; break;
@@ -888,7 +997,7 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 	desc.Height = target.height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	switch(target.format)
+	switch (target.format)
 	{
 	case TextureFormat::R32G32B32A32_FLOAT: desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
 	case TextureFormat::R8G8B8A8_UNORM:		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
@@ -920,7 +1029,7 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 			throw std::exception("Failed to create shader resource view");
 		shaderResourceViews[id] = srv;
 	}
-	
+
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
 	rtvd.Format = desc.Format;
@@ -984,7 +1093,7 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id
 		throw std::exception("Failed to create depth stencil view");
 	depthStencilViews[id] = dsv;
 
-	if(bindAsTexture)
+	if (bindAsTexture)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 		srvd.Format = desc.Format;
@@ -997,7 +1106,7 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id
 			throw std::exception("Failed to create shader resource view from depth stencil");
 		shaderResourceViews[id] = srv;
 	}
-	
+
 	texture->Release();
 }
 
@@ -1018,33 +1127,36 @@ void SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& i
 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
+	ID3D11Buffer *nullBuffer = nullptr;
+	uint32_t offset = 0;
+	deviceContext->SOSetTargets(1, &nullBuffer, &offset);
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
 	if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
 	{
-		uint32_t offset = 0;
+
 		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
 	}
 	SetRasterizerStage(pipeline.RStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
 	currentPipeline = pipeline;
-	
+
 }
 
 void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
 	const auto& cIA = currentPipeline.IAStage;
-	if (pIA.topology != cIA.topology)
-		switch (pIA.topology)
-		{
-		case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
-		case PrimitiveTopology::LINE_STRIP:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); break;
-		case PrimitiveTopology::POINT_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-		case PrimitiveTopology::TRIANGLE_LIST:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-		case PrimitiveTopology::TRIANGLE_STRIP:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
-		}
+	//if (pIA.topology != cIA.topology)
+	switch (pIA.topology)
+	{
+	case PrimitiveTopology::LINE_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+	case PrimitiveTopology::LINE_STRIP:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP); break;
+	case PrimitiveTopology::POINT_LIST:		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+	case PrimitiveTopology::TRIANGLE_LIST:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+	case PrimitiveTopology::TRIANGLE_STRIP:	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+	}
 	if (pIA.indexBuffer != cIA.indexBuffer)
 	{
 		auto ib = indexBuffers.find(pIA.indexBuffer);
@@ -1073,11 +1185,13 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 	}
 }
 
-void SE::Graphics::PipelineHandler::SetVertexShaderStage(const VertexShaderStage& vss)
+
+
+void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 {
 	const auto& c = currentPipeline.VSStage;
 
-	if(vss.shader != c.shader)
+	if (vss.shader != c.shader)
 	{
 		const auto vs = vertexShaders.find(vss.shader);
 		if (vs != vertexShaders.end())
@@ -1085,16 +1199,16 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const VertexShaderStage
 		else
 			deviceContext->VSSetShader(nullptr, nullptr, 0);
 	}
-	for(int i = 0; i < vss.constantBufferCount; ++i)
+	for (int i = 0; i < vss.constantBufferCount; ++i)
 	{
-		if(vss.constantBuffers[i] != c.constantBuffers[i])
+		if (vss.constantBuffers[i] != c.constantBuffers[i])
 		{
 			auto cb = constantBuffers.find(vss.constantBuffers[i]);
-			if(cb != constantBuffers.end())
+			if (cb != constantBuffers.end())
 			{
 				const auto cbid = vss.shader + vss.constantBuffers[i];
 				auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-				if(bind != shaderAndResourceNameToBindSlot.end())
+				if (bind != shaderAndResourceNameToBindSlot.end())
 				{
 					deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
 				}
@@ -1107,9 +1221,37 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const VertexShaderStage
 			}
 		}
 	}
+	for (int i = 0; i < vss.textureCount; ++i)
+	{
+		if (vss.textures[i] != c.textures[i] || vss.textureBindings[i] != c.textureBindings[i])
+		{
+			auto srv = shaderResourceViews.find(vss.textures[i]);
+			if (srv != shaderResourceViews.end())
+			{
+				const auto bindSlotID = vss.shader + vss.textureBindings[i];
+				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+				{
+					deviceContext->VSSetShaderResources(bind->second, 1, &srv->second);
+				}
+			}
+		}
+	}
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < vss.samplerCount; ++i)
+	{
+		if (vss.samplers[i] != c.samplers[i])
+		{
+			const auto samp = samplerStates.find(vss.samplers[i]);
+			if (samp != samplerStates.end())
+				samplers[i] = samp->second;
+		}
+	}
+	if (vss.samplerCount)
+		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
 }
 
-void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const GeometryShaderStage& gss)
+void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gss)
 {
 	const auto& c = currentPipeline.GSStage;
 
@@ -1143,6 +1285,35 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const GeometryShaderS
 			}
 		}
 	}
+
+	for (int i = 0; i < gss.textureCount; ++i)
+	{
+		if (gss.textures[i] != c.textures[i] || gss.textureBindings[i] != c.textureBindings[i])
+		{
+			auto srv = shaderResourceViews.find(gss.textures[i]);
+			if (srv != shaderResourceViews.end())
+			{
+				const auto bindSlotID = gss.shader + gss.textureBindings[i];
+				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+				{
+					deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
+				}
+			}
+		}
+	}
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < gss.samplerCount; ++i)
+	{
+		if (gss.samplers[i] != c.samplers[i])
+		{
+			const auto samp = samplerStates.find(gss.samplers[i]);
+			if (samp != samplerStates.end())
+				samplers[i] = samp->second;
+		}
+	}
+	if(gss.samplerCount)
+		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs)
@@ -1156,17 +1327,17 @@ void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs
 			deviceContext->RSSetState(rast->second);
 		}
 	}
-	if(rs.viewport != c.viewport)
+	if (rs.viewport != c.viewport)
 	{
 		const auto vp = viewports.find(rs.viewport);
-		if(vp != viewports.end())
+		if (vp != viewports.end())
 		{
 			deviceContext->RSSetViewports(1, &vp->second);
 		}
 	}
 }
 
-void SE::Graphics::PipelineHandler::SetPixelShaderStage(const PixelShaderStage& pss)
+void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 {
 	const auto& c = currentPipeline.PSStage;
 
@@ -1201,33 +1372,34 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const PixelShaderStage& 
 		}
 	}
 
-	for(int i = 0; i < pss.textureCount; ++i)
+	for (int i = 0; i < pss.textureCount; ++i)
 	{
-		if(pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
+		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
 		{
 			auto srv = shaderResourceViews.find(pss.textures[i]);
-			if(srv != shaderResourceViews.end())
+			if (srv != shaderResourceViews.end())
 			{
 				const auto bindSlotID = pss.shader + pss.textureBindings[i];
 				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
-				if(bind != shaderAndResourceNameToBindSlot.end())
+				if (bind != shaderAndResourceNameToBindSlot.end())
 				{
 					deviceContext->PSSetShaderResources(bind->second, 1, &srv->second);
 				}
 			}
 		}
 	}
-	ID3D11SamplerState* samplers[PixelShaderStage::maxSamplers] = { nullptr };
-	for(int i = 0; i < pss.samplerCount; ++i)
+	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	for (int i = 0; i < pss.samplerCount; ++i)
 	{
-		if(pss.samplers[i] != c.samplers[i])
+		if (pss.samplers[i] != c.samplers[i])
 		{
 			const auto samp = samplerStates.find(pss.samplers[i]);
 			if (samp != samplerStates.end())
 				samplers[i] = samp->second;
 		}
 	}
-	deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
+	if(pss.samplerCount)
+		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
 }
 
 void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage& oms)
@@ -1248,7 +1420,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		}
 	}
 	ID3D11DepthStencilView* depthview = nullptr;
-	if(oms.depthStencilView != c.depthStencilView)
+	if (oms.depthStencilView != c.depthStencilView)
 	{
 		changed = true;
 		const auto dsv = depthStencilViews.find(oms.depthStencilView);
@@ -1259,7 +1431,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 	if (changed)
 		deviceContext->OMSetRenderTargets(oms.renderTargetCount, renderTargets, depthview);
 
-	if(oms.blendState != c.blendState)
+	if (oms.blendState != c.blendState)
 	{
 		const auto bs = blendStates.find(oms.blendState);
 		if (bs != blendStates.end())
@@ -1269,10 +1441,10 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		}
 	}
 
-	if(oms.depthStencilState != c.depthStencilState)
+	if (oms.depthStencilState != c.depthStencilState)
 	{
 		const auto dss = depthStencilStates.find(oms.depthStencilState);
-		if(dss != depthStencilStates.end())
+		if (dss != depthStencilStates.end())
 		{
 			deviceContext->OMSetDepthStencilState(dss->second, 0);
 		}
