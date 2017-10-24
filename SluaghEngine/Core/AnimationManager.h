@@ -38,7 +38,7 @@ namespace SE
 			void Pause(const Entity& entity)const override;
 			
 		private:
-			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
+			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info);
 
 
 			/**

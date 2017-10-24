@@ -10,46 +10,54 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
 	Allocate(128);
-	defaultTextureHandle = 0;
+	defaultTexture = "BlackPink.sei";
+	defaultPixelShader = "SimplePS.hlsl";
+	defaultTextureBinding = "DiffuseColor";
+	defaultSampler = "AnisotropicSampler";
 
 	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
-
-	auto res = initInfo.resourceHandler->LoadResource(Utilz::GUID("SimplePS.hlsl"), { this , &MaterialManager::LoadDefaultShader });
+	auto res = initInfo.resourceHandler->LoadResource(defaultPixelShader, [this](auto guid, auto data, auto size)
+	{
+		this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		/*if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;*/
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
+	auto& defM = guidToMaterial[defaultMaterial];
 
 	res = initInfo.resourceHandler->LoadResource("Cube.mat",
-		[this](auto guid, auto data, auto size) {
-		matDataInfo matinfo;
-		LoadMaterialFile(data, size, matinfo);
-		materials.push_back(matinfo);
+		[this, &defM](auto guid, auto data, auto size) {
+		LoadMaterialFile(data, size, defM);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
 		throw std::exception("Could not load default material.");
+	defaultTexture = defM.info.textures[0];
+	defaultTextureBinding = defM.info.bindings[0];
 
-	res = initInfo.resourceHandler->LoadResource("BlackPink.sei",
+	res = initInfo.resourceHandler->LoadResource(defaultTexture,
 		[this](auto guid, auto data, auto size) {
-		defaultTextureHandle = LoadTexture(data, size);
-		if (defaultTextureHandle == -1)
+		auto result = LoadTexture(guid, data, size);
+		if (result < 0)
 			return ResourceHandler::InvokeReturn::Fail;
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
 		throw std::exception("Could not load default texture.");
+
+	Graphics::SamplerState info;
+	info.filter = Graphics::Filter::ANISOTROPIC;
+	info.maxAnisotropy = 4;
+	info.addressU = Graphics::AddressingMode::WRAP;
+	info.addressV = Graphics::AddressingMode::WRAP;
+	initInfo.renderer->GetPipelineHandler()->CreateSamplerState(defaultSampler, info);
 }
 
 SE::Core::MaterialManager::~MaterialManager()
 {
-	for (auto& mat : materials)
-	{
-		if (mat.info.amountOfTex > 0)
-		{
-			delete[] mat.info.tex;
-			delete[] mat.info.textureChannel;
-		}
-	}
 	delete materialInfo.data;
 }
 
@@ -75,113 +83,90 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	materialInfo.used++;
 
 	//Check if shader already is loaded.
-	const auto shaderFind = guidToShaderIndex.find(info.shader);
-	auto& shaderIndex = guidToShaderIndex[info.shader];
-	if(shaderFind == guidToShaderIndex.end())
+	const auto shaderFind = guidToShader.find(info.shader);
+	auto& shaderInfo = guidToShader[info.shader];
+	if(shaderFind == guidToShader.end())
 	{
 		//Not loaded, load it.
-		shaderIndex = shaders.size();
-		shaders.push_back({ defaultShaderHandle, 0 });
 
-		auto res = initInfo.resourceHandler->LoadResource(info.shader, { this, &MaterialManager::LoadShader });
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, [this](auto guid, auto data, auto size) {
+			initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+			/*if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;*/
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
 		if (res)
 		{
 			initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, res);
 		}
 	}
-	shaders[shaderIndex].refCount++;
-	materialInfo.shaderIndex[newEntry] = shaderIndex;
+	shaderInfo.refCount++;
+	materialInfo.shader[newEntry] = info.shader;
 	
-	matDataInfo matinfo;
 	// material file
-	const auto materialFind = guidToMaterialIndex.find(info.materialFile);
-	auto& materialIndex = guidToMaterialIndex[info.materialFile];
-	if (materialFind == guidToMaterialIndex.end())
+	const auto materialFind = guidToMaterial.find(info.materialFile);
+	auto& material = guidToMaterial[info.materialFile];
+	if (materialFind == guidToMaterial.end())
 	{
-		materialIndex = materials.size();
-		materials.push_back(materials[0]);
+		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, [this, &material, async, entity](auto guid, auto data, auto size) {
 
-		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, [this, materialIndex, &matinfo](auto guid, auto data, auto size) {
+			auto result = LoadMaterialFile(data, size, material);
+			if(result < 0)
+				return ResourceHandler::InvokeReturn::Fail;
 
-			LoadMaterialFile(data, size, matinfo);
-			materials[materialIndex] = matinfo;
+			LoadTextures(material, entity);
+
+			if (async)
+				toUpdate.push({ guid });
 
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		}, false, behavior);
+		}, async, behavior);
 
 		if (res)
 		{
 			initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, res);
 		}
 	}
-	materialInfo.materialIndex[newEntry] = materialIndex;
 
-	for (uint32_t i = 0; i < materials[materialIndex].info.amountOfTex; ++i)
-	{
-		auto& reflection = shaders[shaderIndex].shaderReflection;
-		const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
-		if (bindName != reflection.textureNameToBindSlot.end())
-		{
-			materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
-		}
-		const auto bindName2 = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
-		if (bindName2 != reflection.textureNameToBindSlot.end())
-		{
-			materialInfo.textureBindings[newEntry].bindings[1] = bindName2->second;
-		}
-	}
-	if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
-	{
-		auto& reflection = shaders[shaderIndex].shaderReflection;
-		const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID("DiffuseColor"));
-		if (bindName != reflection.textureNameToBindSlot.end())
-		{
-			materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
-		}
-	}
+	if (async)
+		materialInfo.material[newEntry] = defaultMaterial;
+	else
+		materialInfo.material[newEntry] = info.materialFile;
+
+
+	//for (uint32_t i = 0; i < material.info.amountOfTex; ++i)
+	//{
+
+	//	materialInfo.textures[newEntry].textures[i] = materials[materialIndex].info.tex[i];
+	//	auto& reflection = shaders[shaderIndex].shaderReflection;
+	//	const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
+	//	if (bindName != reflection.textureNameToBindSlot.end())
+	//	{
+	//		materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
+	//	}
+	//	const auto bindName2 = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
+	//	if (bindName2 != reflection.textureNameToBindSlot.end())
+	//	{
+	//		materialInfo.textureBindings[newEntry].bindings[1] = bindName2->second;
+	//	}
+	//}
+	//if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
+	//{
+	//	auto& reflection = shaders[shaderIndex].shaderReflection;
+	//	const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID("DiffuseColor"));
+	//	if (bindName != reflection.textureNameToBindSlot.end())
+	//	{
+	//		materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
+	//	}
+	//}
 
 	
 	// Textures, materials.
 	{	
-		for (uint32_t i = 0; i < materials[materialIndex].info.amountOfTex; ++i)
+		
+		if (material.info.amountOfTex == 0)	//sets default tex if no tex
 		{
-			const auto textureFind = guidToTextureIndex.find(materials[materialIndex].info.tex[i]);
-			auto& textureIndex = guidToTextureIndex[materials[materialIndex].info.tex[i]];
-			if (textureFind == guidToTextureIndex.end())
-			{
-				textureIndex = textures.size();
-				textures.push_back({ defaultTextureHandle });
-
-
-				auto res = initInfo.resourceHandler->LoadResource(materials[materialIndex].info.tex[i], [this, textureIndex, async](auto guid, auto data, auto size) {
-
-					auto handle = LoadTexture(data, size);
-					if (handle == -1)
-						return ResourceHandler::InvokeReturn::Fail;
-
-					if (async)
-						toUpdate.push({ textureIndex, handle });
-					else
-						textures[textureIndex].textureHandle = handle;
-
-					return ResourceHandler::InvokeReturn::DecreaseRefcount;
-				}, async, behavior);
-
-				if (res)
-				{
-					initInfo.console->PrintChannel("Could not load texture. Using default instead. GUID: %u, Error: %d\n", "Resources", matinfo.info.tex[i], res);
-				}
-			}
-			textures[textureIndex].entities.push_back(entity);
-			materialInfo.textureIndices[newEntry].indices[i] = textureIndex;
-		}
-		if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
-		{
-			auto& textureIndex = guidToTextureIndex[Utilz::GUID("BlackPink.sei")];
-			if (textures.size() == 0)
-				textures.push_back({ defaultTextureHandle });
-			textures[textureIndex].entities.push_back(entity);
-			materialInfo.textureIndices[newEntry].indices[0] = textureIndex;
+			materialInfo.material[newEntry] = defaultMaterial;
 		}
 		
 	}
@@ -197,9 +182,18 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 	while (!toUpdate.wasEmpty())
 	{
 		auto& job = toUpdate.top();
-		textures[job.textureIndex].textureHandle = job.newHandle;
-		for (auto& e : textures[job.textureIndex].entities)
-			initInfo.renderableManager->UpdateRenderableObject(e);
+		auto& material = guidToMaterial[job.material];
+		for (auto& e : material.entities)
+		{
+			auto find = entityToMaterialInfo.find(e);
+			if (find != entityToMaterialInfo.end())
+			{
+				materialInfo.material[entityToMaterialInfo[e]] = job.material;
+				initInfo.renderableManager->UpdateRenderableObject(e);
+			}
+			
+		}
+			
 		toUpdate.pop();
 	}
 	timer->Stop("MaterialManager");
@@ -218,17 +212,13 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.textureBindings = (TextureBindings*)(newData.entity + newData.allocated);
-	newData.textureIndices = (TextureIndices*)(newData.textureBindings + newData.allocated);
-	newData.shaderIndex = (size_t*)(newData.textureIndices + newData.allocated);
-	newData.materialIndex = (size_t*)(newData.shaderIndex + newData.allocated);
+	newData.shader = (Utilz::GUID*)(newData.entity + newData.allocated);
+	newData.material = (Utilz::GUID*)(newData.shader + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));
-	memcpy(newData.textureBindings, materialInfo.textureBindings, materialInfo.used * sizeof(TextureBindings));
-	memcpy(newData.textureIndices, materialInfo.textureIndices, materialInfo.used * sizeof(TextureIndices));
-	memcpy(newData.shaderIndex, materialInfo.shaderIndex, materialInfo.used * sizeof(size_t));
-	memcpy(newData.materialIndex, materialInfo.materialIndex, materialInfo.used * sizeof(size_t));
+	memcpy(newData.shader, materialInfo.shader, materialInfo.used * sizeof(Utilz::GUID));
+	memcpy(newData.material, materialInfo.material, materialInfo.used * sizeof(Utilz::GUID));
 
 	// Delete old data;
 	operator delete(materialInfo.data);
@@ -249,7 +239,7 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	// Copy the data
 	materialInfo.entity[index] = last_entity;
 
-	auto& reflection = shaders[materialInfo.shaderIndex[index]].shaderReflection;
+	/*auto& reflection = shaders[materialInfo.shaderIndex[index]].shaderReflection;
 	const size_t textureCount = reflection.textureNameToBindSlot.size();
 	for(int i = 0; i < textureCount; ++i)
 	{
@@ -257,9 +247,21 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 		materialInfo.textureIndices[index].indices[i] = materialInfo.textureIndices[last].indices[i];
 		materialInfo.textureBindings[index].bindings[i] = materialInfo.textureBindings[last].bindings[i];
 	}
+*/
 
-	shaders[materialInfo.shaderIndex[index]].refCount--;
-	materialInfo.shaderIndex[index] = materialInfo.shaderIndex[last];
+	auto& material = guidToMaterial[materialInfo.material[index]];
+	material.entities.remove(entity);
+	for (size_t i = 0; i < material.info.amountOfTex; i++)
+	{
+		auto& texture = guidToTexture[material.info.textures[i]];
+		texture.entities.remove(entity);
+	}
+
+
+
+	materialInfo.shader[index] = materialInfo.shader[last];
+	materialInfo.material[index] = materialInfo.material[last];
+
 
 	// Replace the index for the last_entity 
 	entityToMaterialInfo[last_entity] = index;
@@ -293,24 +295,33 @@ void SE::Core::MaterialManager::GarbageCollection()
 	StopProfile;
 }
 
-void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderObjectInfo * info)
+void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob* info)
 {
 	auto& find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
-		info->pixelShader = shaders[materialInfo.shaderIndex[find->second]].shaderHandle;
-		auto& reflection = shaders[materialInfo.shaderIndex[find->second]].shaderReflection;
-		const int textureCount = reflection.textureNameToBindSlot.size();
-		info->textureCount = textureCount;
-		for (int i = 0; i < textureCount; ++i)
-		{
-			info->textureBindings[i] = materialInfo.textureBindings[find->second].bindings[i];
-			info->textureHandles[i] = textures[materialInfo.textureIndices[find->second].indices[i]].textureHandle;
-		}
+
+
+		//info->pipeline.PSStage.shader = shaders[materialInfo.shaderIndex[find->second]].shaderHandle;
+		//auto& reflection = shaders[materialInfo.shaderIndex[find->second]].shaderReflection;
+		//const int textureCount = reflection.textureNameToBindSlot.size();
+		//info->textureCount = textureCount;
+		//for (int i = 0; i < textureCount; ++i)
+		//{
+		//	info->textureBindings[i] = materialInfo.textureBindings[find->second].bindings[i];
+		//	info->textureHandles[i] = textures[materialInfo.textureIndices[find->second].indices[i]].textureHandle;
+		//}
 	}
 	else
 	{
-		info->pixelShader = defaultShaderHandle;
+		info->pipeline.PSStage.shader = defaultPixelShader;
+		info->pipeline.PSStage.textureCount = 1;
+		info->pipeline.PSStage.textureBindings[0] = defaultTextureBinding;
+		info->pipeline.PSStage.textures[0] = defaultTexture;
+		info->pipeline.PSStage.samplers[0] = defaultSampler;
+		info->pipeline.PSStage.samplerCount = 1;
+
+	/*	info->pixelShader = defaultShaderHandle;
 		auto& reflection = defaultShaderReflection;
 		const int textureCount = reflection.textureNameToBindSlot.size();
 		info->textureCount = textureCount;
@@ -320,20 +331,38 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 			info->textureBindings[i] = b.second;
 			info->textureHandles[i] = defaultTextureHandle;
 			++i;
-		}
+		}*/
 	}
 }
 
-SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
+
+void SE::Core::MaterialManager::LoadTextures(matDataInfo material, const Entity& entity)
 {
-	StartProfile;
-	defaultShaderHandle = initInfo.renderer->CreatePixelShader(data, size, &defaultShaderReflection);
-	if (defaultShaderHandle == -1)
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
+	for (uint32_t i = 0; i < material.info.amountOfTex; ++i)
+	{
+		const auto textureFind = guidToTexture.find(material.info.textures[i]);
+		auto& texture = guidToTexture[material.info.textures[i]];
+		if (textureFind == guidToTexture.end())
+		{
+			auto res = initInfo.resourceHandler->LoadResource(material.info.textures[i], [this, &material](auto guid, auto data, auto size) {
+
+				auto handle = LoadTexture(guid, data, size);
+				if (handle < 0)
+					return ResourceHandler::InvokeReturn::Fail;
+
+				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			});
+
+			if (res)
+			{
+				initInfo.console->PrintChannel("Could not load texture. Using default instead. GUID: %u, Error: %d\n", "Resources", material.info.textures[i], res);
+			}
+		}
+		texture.entities.push_back(entity);
+	}
 }
 
-int SE::Core::MaterialManager::LoadTexture(void * data, size_t size)
+int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID& guid, void * data, size_t size)
 {
 	StartProfile;
 	Graphics::TextureDesc td;
@@ -345,48 +374,32 @@ int SE::Core::MaterialManager::LoadTexture(void * data, size_t size)
 
 	/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
 	if (td.width * td.height * 4 != size - sizeof(td))
-		ProfileReturnConst( -1);
+		return -1;
 
 	void* rawTextureData = ((char*)data) + sizeof(td);
-	auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
-	ProfileReturnConst(handle);
+	/*auto result = */initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
+
+	return 0;
 	
 }
 
-void SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo)
+int SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo)
 {
-	StartProfile;
 	//using namespace std::chrono_literals;
 
 	//std::this_thread::sleep_for(1s);
 	size_t offset = sizeof(uint32_t);
 	memcpy(&dataIinfo.info.amountOfTex, (char*)data, sizeof(uint32_t));
-	if (dataIinfo.info.amountOfTex > 0)
-	{
-		dataIinfo.info.tex = new Utilz::GUID[dataIinfo.info.amountOfTex];
-		dataIinfo.info.textureChannel = new Utilz::GUID[dataIinfo.info.amountOfTex];
-	}
+	if (dataIinfo.info.amountOfTex > Graphics::ShaderStage::maxTextures)
+		return -1;
+
 	memcpy(&dataIinfo.attrib, (char*)data + offset, sizeof(Graphics::MaterialAttributes));
 	offset += sizeof(Graphics::MaterialAttributes);
 	for (int i = 0; i < dataIinfo.info.amountOfTex; i++)
 	{
-		memcpy(&dataIinfo.info.tex[i], (char*)data + offset, sizeof(Utilz::GUID));
+		memcpy(&dataIinfo.info.textures[i], (char*)data + offset, sizeof(Utilz::GUID));
 		offset += sizeof(Utilz::GUID);
-		memcpy(&dataIinfo.info.textureChannel[i], (char*)data + offset, sizeof(Utilz::GUID));
+		memcpy(&dataIinfo.info.bindings[i], (char*)data + offset, sizeof(Utilz::GUID));
 		offset += sizeof(Utilz::GUID);
 	}
-	ProfileReturnVoid;
-}
-
-SE::ResourceHandler::InvokeReturn SE::Core::MaterialManager::LoadShader(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	const size_t shaderIndex = guidToShaderIndex[guid];
-
-	auto handle = initInfo.renderer->CreatePixelShader(data, size, &shaders[shaderIndex].shaderReflection);
-	if (handle == -1)
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	shaders[shaderIndex].shaderHandle = handle;
-
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }

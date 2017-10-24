@@ -185,25 +185,25 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	StopProfile;
 }
 
-void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderObjectInfo * info)
+void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob * info)
 {
 	StartProfile;
-	// Get the entity register from the animationManager
-	auto &entityIndex = entityToIndex.find(entity);
+	//// Get the entity register from the animationManager
+	//auto &entityIndex = entityToIndex.find(entity);
 
-	// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
-	if (entityIndex == entityToIndex.end()) {
-		info->type = Graphics::RenderObjectInfo::JobType::STATIC;
-	}
+	//// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
+	//if (entityIndex == entityToIndex.end()) {
+	//	info->type = Graphics::RenderObjectInfo::JobType::STATIC;
+	//}
 
-	// Otherwise, there was an animated entity and we should use the skinned vertex shader
-	else {
+	//// Otherwise, there was an animated entity and we should use the skinned vertex shader
+	//else {
 
-		info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
-		info->animationJob = animationData.job[entityIndex->second];
-		info->vertexShader = skinnedShader;
-		info->skeletonIndex = animationData.skeletonIndex[entityIndex->second];
-	}
+	//	info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
+	//	info->animationJob = animationData.job[entityIndex->second];
+	//	info->vertexShader = skinnedShader;
+	//	info->skeletonIndex = animationData.skeletonIndex[entityIndex->second];
+	//}
 	StopProfile;
 }
 
