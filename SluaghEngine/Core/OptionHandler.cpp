@@ -1,4 +1,4 @@
-#include <Core\OptionHandler.h>
+#include "OptionHandler.h"
 #include <Utilz\INIReader.h>
 #include <Profiler.h>
 
@@ -20,7 +20,7 @@ namespace SE {
 
 		}
 
-		int OptionHandler::Initialize(const std::string& filename)
+		int OptionHandler::Initialize(const char* filename)
 		{
 			StartProfile;
 			Utilz::INIReader reader;
@@ -124,7 +124,7 @@ namespace SE {
 			ProfileReturnConst(defaultVal);
 		}
 
-		std::string OptionHandler::GetOptionString(const std::string& section, const std::string& optionName, std::string defaultVal)
+		std::string OptionHandler::GetOptionString(const std::string& section, const std::string& optionName, const std::string& defaultVal)
 		{
 			StartProfile;
 			if (optionMap.size() > 0)
@@ -226,14 +226,14 @@ namespace SE {
 			if (fileLoaded == optionMap.end())
 			{
 				std::map<std::string, std::string> value;
-				value[optionName] = std::to_string(newValue);
+				value[optionName] = newValue ? "true" : "false";
 				optionMap[section] = value;
 				ProfileReturnVoid;
 			}
 			else
 			{
 				std::map<std::string, std::string> &values = optionMap[section];
-				values[optionName] = std::to_string(newValue);
+				values[optionName] = newValue ? "true" : "false";
 				ProfileReturnVoid
 			}
 			ProfileReturnVoid;

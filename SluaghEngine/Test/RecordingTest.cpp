@@ -1,7 +1,7 @@
 #include "RecordingTest.h"
 #include <window/IWindow.h>
 #include <Graphics/IRenderer.h>
-#include "Utilz/Console.h"
+//#include "Utilz/Console.h"
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -28,20 +28,20 @@ RecordingTest::~RecordingTest()
 
 static void KeyCall()
 {
-	SE::Utilz::Console::Print("Callback called.\n");
+	//SE::Utilz::Console::Print("Callback called.\n");
 }
 
 static void MouseCall(int x, int y)
 {
-	SE::Utilz::Console::Print("Clicked at %d, %d.\n", x, y);
+	//SE::Utilz::Console::Print("Clicked at %d, %d.\n", x, y);
 }
 
 static void MouseMotionCall(int rx, int ry, int x, int y)
 {
-	SE::Utilz::Console::Print("Moved mouse %d, %d pixels.\n", rx, ry);
+//	SE::Utilz::Console::Print("Moved mouse %d, %d pixels.\n", rx, ry);
 }
 
-bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
+bool RecordingTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	//create a window pointer
@@ -76,12 +76,14 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	bool running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
-		if (window->ButtonPressed(0))
+		if (window->ButtonDown(0))
 			running = false;
 		if (window->ButtonDown(3))
 			console->Print("Action button %d down.\n", 3);
@@ -132,12 +134,14 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 	running = true;
 	while (running)
 	{
+		window->UpdateTime();
+		window->GetDelta();
 		window->Frame();
 		if (window->ButtonDown(6))
 			console->Print("Mouse right down\n");
 		if (window->ButtonPressed(1))
 			console->Print("Action button %d pressed\n", 1);
-		if (window->ButtonPressed(0))
+		if (window->ButtonDown(0))
 			running = false;
 		if (window->ButtonDown(3))
 			console->Print("Action button %d down.\n", 3);
@@ -150,7 +154,7 @@ bool RecordingTest::Run(SE::Utilz::IConsoleBackend* console)
 			int x, y;
 			window->GetMousePos(x, y);
 			console->Print("Mouse at: %d, %d\n", x, y);
-		}
+		}	
 	}
 
 	window->Shutdown();

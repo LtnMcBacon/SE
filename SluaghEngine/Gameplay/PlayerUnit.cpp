@@ -2,8 +2,7 @@
 #include <Profiler.h>
 #include "Flowfield.h"
 #include "ProjectileData.h"
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 
 bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yMov)
 {
@@ -144,7 +143,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	//------------------------
 
-	DirectX::XMFLOAT3 tempRot = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity);
+	DirectX::XMFLOAT3 tempRot = CoreInit::managers.transformManager->GetRotation(this->unitEntity);
 
 	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
 	DirectX::XMVECTOR mouseVector = {inputs.mousePosX - xPos, 0.0f, inputs.mousePosY - yPos, 0.0f};
@@ -158,7 +157,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	tempRot.y = side * DirectX::XMVectorGetY(DirectX::XMVector3AngleBetweenVectors(defaultVector, mouseVector));
 
-	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
+	CoreInit::managers.transformManager->SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
 
 	//-----------------------
 
@@ -175,7 +174,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);

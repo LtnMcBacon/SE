@@ -64,9 +64,6 @@
     <Filter Include="Source Files\IGameState\GameOverState">
       <UniqueIdentifier>{3690d693-1bb5-4589-839e-d7a5681a9d8b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Game">
-      <UniqueIdentifier>{264fab68-8213-4add-a8c7-5f7055dd148c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Game">
       <UniqueIdentifier>{06a9c891-0b67-4e25-b6c8-defa974d05d0}</UniqueIdentifier>
     </Filter>
@@ -121,6 +118,9 @@
     <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves">
       <UniqueIdentifier>{5f0829e5-22ff-4147-ab4b-cea835a40ea2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{a38a7654-0ea8-4291-9311-3704ce9d25af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -155,9 +155,6 @@
     </ClCompile>
     <ClCompile Include="GameOverState.cpp">
       <Filter>Source Files\IGameState\GameOverState</Filter>
-    </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="PlayerUnit.cpp">
       <Filter>Source Files\GameUnits</Filter>
@@ -216,6 +213,12 @@
     <ClCompile Include="FlowFieldMovementLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
+    <ClCompile Include="CoreInit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -232,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\Flowfield.h">
       <Filter>Header Files\Flowfield</Filter>
-    </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h">
       <Filter>Header Files\IGameState\MainMenuState</Filter>
@@ -328,6 +328,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreInit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Game.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,7 +12,7 @@ namespace SE
 			MaterialManagerTest();
 			~MaterialManagerTest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

@@ -199,6 +199,8 @@ namespace SE {
 			inline D3D11_TEXTURE2D_DESC GetTexDesc() {
 				return gBB_Desc;
 			}
+
+			ID3D11Texture2D* GetBackBufferTexture();
 		private:
 
 			ID3D11Device*			gDevice;

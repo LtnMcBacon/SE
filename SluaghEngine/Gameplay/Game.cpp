@@ -1,32 +1,33 @@
 #include <Game.h>
+#include "CoreInit.h"
 
-void SE::Gameplay::Game::Initiate()
+void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
+	CoreInit::Init(engine);
+
 	//should be read from file later on but hardcoded now
-	input = SE::Core::Engine::GetInstance().GetWindow();
 
-	input->MapActionButton(uint32_t(GameInput::EXIT_GAME), Window::KeyEscape);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::EXIT_GAME), Window::KeyEscape);
 
-	input->MapActionButton(uint32_t(GameInput::UP), Window::KeyW);
-	input->MapActionButton(uint32_t(GameInput::DOWN), Window::KeyS);
-	input->MapActionButton(uint32_t(GameInput::LEFT), Window::KeyA);
-	input->MapActionButton(uint32_t(GameInput::RIGHT), Window::KeyD);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::UP), Window::KeyW);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::DOWN), Window::KeyS);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::LEFT), Window::KeyA);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::RIGHT), Window::KeyD);
 
-	input->MapActionButton(uint32_t(GameInput::SKILL1), Window::Key1);
-	input->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
-	input->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL1), Window::Key1);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
-	state = new PlayState(input);
+	//state = new PlayState(CoreInit::subSystems.window);
 }
 
 void SE::Gameplay::Game::Run()
 {
-	auto& engine = Core::Engine::GetInstance();
 	void* data = nullptr;
 	SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState;
 
-	while (!SE::Core::Engine::GetInstance().GetWindow()->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
+	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 	{
 		 newState = state->Update(data);
 
@@ -42,6 +43,12 @@ void SE::Gameplay::Game::Run()
 			 }
 		 }
 
-		 engine.Frame(1 / 60.0f);
+		 CoreInit::engine->BeginFrame();
+		 CoreInit::engine->EndFrame();
 	}
+}
+
+void SE::Gameplay::Game::Shutdown()
+{
+	//delete state;
 }

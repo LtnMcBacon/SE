@@ -1,5 +1,5 @@
 #include "MaterialManagerTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 
 #include <Utilz\Timer.h>
 
@@ -22,91 +22,82 @@ enum ActionButton
 	Right,
 	Fullscreen
 };
-bool SE::Test::MaterialManagerTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::MaterialManagerTest::Run(DevConsole::IConsole * console)
 {
-	auto& engine = Core::Engine::GetInstance();
-	engine.Init(Core::Engine::InitializationInfo());
-	auto& em = engine.GetEntityManager();
-	auto& mm = engine.GetMaterialManager();
-	auto& tm = engine.GetTransformManager();
-	auto& cm = engine.GetCameraManager();
-	Core::Entity entity = em.Create();
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
+	Core::Entity entity = managers.entityManager->Create();
 
-	Core::MaterialManager::CreateInfo info;
-	Utilz::GUID textures[] = { Utilz::GUID("Diffuse.sei"), Utilz::GUID("purewhite.sei") };
-	Utilz::GUID resourceNames[] = { Utilz::GUID("diffuseTex"), Utilz::GUID("diffuseTexSec") };
+	Core::IMaterialManager::CreateInfo info;
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
 	info.shader = shader;
-	info.shaderResourceNames = resourceNames;
-	info.textureFileNames = textures;
-	info.textureCount = 2;
+	info.materialFile = material;
 
 
 	
-	mm.Create(entity, info);
-	auto& camera = em.Create();
-	cm.Bind(camera);
-	cm.SetActive(camera);
-	tm.SetRotation(camera, 0.9f, 0.0f, 0.0f);
-	tm.SetPosition(camera, { 0.0f, 10.0f, -20.0f });
-
-	auto& rm = engine.GetRenderableManager();
-
-	tm.Create(entity);
-
-	rm.CreateRenderableObject(entity, Utilz::GUID("MCModell.mesh"));
-	rm.ToggleRenderableObject(entity, true);
-
-	auto w = engine.GetWindow();
+	managers.materialManager->Create(entity, info);
+	auto& camera = managers.entityManager->Create();
+	managers.cameraManager->Create(camera);
+	managers.cameraManager->SetActive(camera);
+	managers.transformManager->SetRotation(camera, 0.9f, 0.0f, 0.0f);
+	managers.transformManager->SetPosition(camera, { 0.0f, 10.0f, -20.0f });
 
 
-	w->MapActionButton(ActionButton::Exit, Window::KeyEscape);
-	w->MapActionButton(ActionButton::Hide, Window::KeyO);
-	w->MapActionButton(ActionButton::Show, Window::KeyK);
-	w->MapActionButton(ActionButton::Up, Window::KeyW);
-	w->MapActionButton(ActionButton::Down, Window::KeyS);
-	w->MapActionButton(ActionButton::Left, Window::KeyA);
-	w->MapActionButton(ActionButton::Right, Window::KeyD);
-	w->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+	managers.transformManager->Create(entity);
+
+	managers.renderableManager->CreateRenderableObject(entity, { "MCModell.mesh" });
+	managers.renderableManager->ToggleRenderableObject(entity, true);
+
+	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
+	subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
+	subSystem.window->MapActionButton(ActionButton::Up, Window::KeyW);
+	subSystem.window->MapActionButton(ActionButton::Down, Window::KeyS);
+	subSystem.window->MapActionButton(ActionButton::Left, Window::KeyA);
+	subSystem.window->MapActionButton(ActionButton::Right, Window::KeyD);
+	subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 
 	bool running = true;
 	Utilz::Timer timer;
-	auto& oh = engine.GetOptionHandler();
 
-	bool full = oh.GetOptionBool("Window", "fullScreen", 0);
+	bool full = subSystem.optionsHandler->GetOptionBool("Window", "fullScreen", 0);
 	while (running)
 	{
 		timer.Tick();
 		float dt = timer.GetDelta();
-		if (w->ButtonPressed(ActionButton::Exit))
+		if (subSystem.window->ButtonPressed(ActionButton::Exit))
 			running = false;
 		
-		if (w->ButtonPressed(ActionButton::Hide))
-			rm.ToggleRenderableObject(entity, false);
-		if (w->ButtonPressed(ActionButton::Show))
-			rm.ToggleRenderableObject(entity, true);
+		if (subSystem.window->ButtonPressed(ActionButton::Hide))
+			managers.renderableManager->ToggleRenderableObject(entity, false);
+		if (subSystem.window->ButtonPressed(ActionButton::Show))
+			managers.renderableManager->ToggleRenderableObject(entity, true);
 
-		if (w->ButtonPressed(ActionButton::Fullscreen))
+		if (subSystem.window->ButtonPressed(ActionButton::Fullscreen))
 		{
 			full = full ? 0 : 1;
-			oh.SetOptionBool("Window", "fullScreen", full);
-			oh.Trigger();
+			subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", full);
+			subSystem.optionsHandler->Trigger();
 		}
 
-		if (w->ButtonDown(ActionButton::Up))
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
-		if (w->ButtonDown(ActionButton::Down))
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
-		if (w->ButtonDown(ActionButton::Right))
-			tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
-		if (w->ButtonDown(ActionButton::Left))
-			tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Up))
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Down))
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Right))
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Left))
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 
-		engine.Frame(0.01f);	
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 
-	engine.Release();
+	engine->Release(); delete engine;
 
 	return true;
 }

@@ -9,7 +9,7 @@ namespace SE
 		class CPUTimeCluster : public TimeCluster
 		{
 		public:
-			CPUTimeCluster() : TimeCluster() {};
+			CPUTimeCluster() : TimeCluster(){};
 			~CPUTimeCluster() {};
 
 
@@ -19,7 +19,7 @@ namespace SE
 			};
 			inline void Stop(const Utilz::IDHash& id)override
 			{
-				timers[id].stopTime = std::chrono::high_resolution_clock::now();
+				timers[id].time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - timers[id].startTime).count();
 			}
 
 			/**
@@ -29,7 +29,7 @@ namespace SE
 			template<typename Ratio = std::milli>
 			inline float GetTime(const Utilz::IDHash& id)
 			{
-				return std::chrono::duration<float, Ratio>(timers[id].stopTime - timers[id].startTime).count();
+				return timers[id].time;
 			}
 
 
@@ -42,8 +42,7 @@ namespace SE
 			struct Timer
 			{
 				std::chrono::high_resolution_clock::time_point startTime;
-				std::chrono::high_resolution_clock::time_point stopTime;
-				Timer() : startTime(std::chrono::high_resolution_clock::now()), stopTime(std::chrono::high_resolution_clock::now()) {};
+				float time = 0.0f;
 			};
 
 			std::map<Utilz::IDHash, Timer, Utilz::IDHash::Compare> timers;

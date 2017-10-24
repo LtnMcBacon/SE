@@ -2,11 +2,11 @@
 #include <Gameplay/BehaviouralTreeFactory.h>
 #include <Profiler.h>
 #include <Utilz/GUID.h>
-#include "Core/Engine.h"
+#include "Core/IEngine.h"
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyBlackboard.h"
 #include "Gameplay/BehaviouralTree.h"
-
+#include <Gameplay\Game.h>
 using namespace SE;
 using namespace Test;
 
@@ -20,12 +20,17 @@ BehaviouralTreeFactoryTest::~BehaviouralTreeFactoryTest()
 
 }
 
-bool BehaviouralTreeFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
+bool BehaviouralTreeFactoryTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	bool passing = true;
-	auto& engine = Core::Engine::GetInstance();
-	engine.Init(Core::Engine::InitializationInfo());
+	auto engine = Core::CreateEngine();
+	Gameplay::Game game;
+	engine->Init();
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
+	
 	Gameplay::BehaviouralTreeFactory factory;
 	passing &= factory.LoadTree(Utilz::GUID("data.SEFBT"));
 	
@@ -62,7 +67,8 @@ bool BehaviouralTreeFactoryTest::Run(SE::Utilz::IConsoleBackend* console)
 		passing &= false;
 	}
 
-	Core::Engine::GetInstance().Release();
+	game.Shutdown();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(passing);
 }

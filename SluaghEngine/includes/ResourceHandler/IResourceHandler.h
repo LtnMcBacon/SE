@@ -16,14 +16,6 @@ namespace SE
 {
 	namespace ResourceHandler
 	{
-
-
-		struct LoadStruct
-		{
-			size_t guidCount;
-			Utilz::GUID* resourceToLoad;
-		};
-
 		enum class InvokeReturn : uint8_t
 		{
 			Success,
@@ -42,15 +34,26 @@ namespace SE
 			LAZY
 		};
 
+		enum class UnloadingStrategy : uint8_t
+		{
+			Linear,
+			FIFO
+		};
+	
+		struct InitializationInfo
+		{
+			size_t maxMemory = 256*1024*1024;
+			UnloadingStrategy unloadingStrat = UnloadingStrategy::Linear;
+		};
+
 		/**
 		*
 		* @brief Resource Handler Interface
 		*
-		* @details The virtual resource handler class.
+		* @details The virtual resource handler class. The resource handler is used to loaded all assets.
+		* @sa LoadResource
 		*
 		**/
-
-
 		class IResourceHandler
 		{
 		public:
@@ -69,9 +72,12 @@ namespace SE
 			*	example usage of the function. Note that links will be automatically generated to documented entities
 			* @endcode
 			*/
-			virtual int Initialize() = 0;
+			virtual int Initialize(const InitializationInfo& initInfo) = 0;
 
 			virtual void Shutdown() = 0;
+
+			virtual void UpdateInfo(const InitializationInfo& initInfo) = 0;
+
 
 			/**
 			* @brief	Load the given resource
@@ -110,9 +116,6 @@ namespace SE
 			* @sa LoadResourceDelegate
 			*/
 			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
-
-			virtual int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
-
 
 			/**
 			* @brief	Unload the given resource

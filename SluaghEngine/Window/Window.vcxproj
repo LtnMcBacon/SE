@@ -79,7 +79,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
@@ -87,14 +87,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.dll</TargetExt>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
@@ -102,7 +102,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.dll</TargetExt>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\$(ProjectName)\;$(SolutionDir)includes\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(SolutionDir)Build\lib\$(Platform)\;$(LibraryPath)</LibraryPath>

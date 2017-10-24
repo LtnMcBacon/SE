@@ -1,6 +1,5 @@
-#include <RenderableManager.h>
+#include "RenderableManager.h"
 #include <Profiler.h>
-#include <Utilz\Console.h>
 
 #include <Graphics\VertexStructs.h>
 #include <Graphics\FileHeaders.h>
@@ -11,48 +10,54 @@
 #pragma comment(lib, "Utilz.lib")
 #endif
 
+using namespace std::chrono_literals;
 
-
-SE::Core::RenderableManager::RenderableManager(ResourceHandler::IResourceHandler * resourceHandler, Graphics::IRenderer * renderer, const EntityManager & entityManager, TransformManager * transformManager)
-	:resourceHandler(resourceHandler), renderer(renderer), entityManager(entityManager), transformManager(transformManager)
+SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
+	: initInfo(initInfo)
 {
+	_ASSERT(initInfo.resourceHandler);
+	_ASSERT(initInfo.renderer);
+	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.console);
+	switch (initInfo.unloadingStrat)
+	{
+	case ResourceHandler::UnloadingStrategy::Linear:
+		Unload = &RenderableManager::LinearUnload;
+		break;
+	default:
+		break;
+	}
 
-	_ASSERT(resourceHandler);
-	_ASSERT(renderer);
-	_ASSERT(transformManager);
-
-	StartProfile;
 	Allocate(128);
-	transformManager->SetDirty += {this, &RenderableManager::SetDirty};
-	defaultMeshHandle = 0;
-	defaultShader = 0;
+	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
 
-	auto res = resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), [this](auto guid, auto data, auto size) {
-		defaultMeshHandle = LoadModel(data, size);
-		if (defaultMeshHandle == -1)
+	auto res = initInfo.resourceHandler->LoadResource(Utilz::GUID("Placeholder_Block.mesh"), [this](auto guid, auto data, auto size) {
+		auto handle = LoadModel(data, size);
+		if (handle == -1)
 			return ResourceHandler::InvokeReturn::Fail;
+		guidToBufferInfoIndex[guid] = bufferInfo.size();
+		bufferInfo.push_back({ handle, BufferState::Loaded, size });
+		bufferInfo[bufferInfo.size() - 1].entities.push_back(0);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	if (res)
-		throw std::exception("Could not load default mesh.");
-	bufferInfo.push_back({ defaultMeshHandle });
-	guidToBufferInfoIndex["Placeholder_Block.mesh"] = 0;
+		throw std::exception("Could not load default mesh");
 
-	res = resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
+	res = initInfo.resourceHandler->LoadResource(Utilz::GUID("SimpleVS.hlsl"), { this , &RenderableManager::LoadDefaultShader });
 	if (res)
-		throw std::exception("Could not load default vertex shader.");
+		throw std::exception("Could not load default shader");
 
 
-	StopProfile;
+	
 }
 
 SE::Core::RenderableManager::~RenderableManager()
 {
-	operator delete(renderableObjectInfo.data);
 
+	operator delete(renderableObjectInfo.data);
 }
 
-void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const Utilz::GUID& meshGUID, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
@@ -60,7 +65,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 	if (find == entityToRenderableObjectInfoIndex.end())
 	{
 		// Check if the entity is alive
-		if (!entityManager.Alive(entity))
+		if (!initInfo.entityManager->Alive(entity))
 			ProfileReturnVoid;
 
 		// Make sure we have enough memory.
@@ -73,15 +78,18 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
 		renderableObjectInfo.visible[newEntry] = 0u;
-		renderableObjectInfo.fillSolid[newEntry] = 1;
-		renderableObjectInfo.transparency[newEntry] = 0;
+		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
+		renderableObjectInfo.transparency[newEntry] = info.transparent ? 1u : 0u;
+
+		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &RenderableManager::Destroy });
+
 
 		// Transform binding
 		renderableObjectInfo.topology[newEntry] = Graphics::RenderObjectInfo::PrimitiveTopology::TRIANGLE_LIST;
 
 
 		// Load the model
-		LoadResource(meshGUID, newEntry, async, behavior);
+		LoadResource(info.meshGUID, newEntry, async, behavior);
 
 
 
@@ -110,14 +118,14 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 		if (visible)
 		{
-			const uint32_t jobID = renderer->EnableRendering(info);
+			const uint32_t jobID = initInfo.renderer->EnableRendering(info);
 			renderableObjectInfo.jobID[find->second] = jobID;
 			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
-			transformManager->SetAsDirty(entity);
+			initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
 		{
-			renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
+			initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
 
 	}
@@ -127,20 +135,25 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 
 
-void SE::Core::RenderableManager::Frame()
+void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
+	_ASSERT(timer);
 	StartProfile;
+	timer->Start("RenderableManager");
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
 	{
 		auto& job = toUpdate.top();
 		bufferInfo[job.bufferIndex].bufferHandle = job.newHandle;
+		bufferInfo[job.bufferIndex].size = job.size;
+		bufferInfo[job.bufferIndex].state = BufferState::Loaded;
 		for (auto& e : bufferInfo[job.bufferIndex].entities)
 			UpdateRenderableObject(e);
 		toUpdate.pop();
 	}
 	UpdateDirtyTransforms();
+	timer->Stop("RenderableManager");
 	ProfileReturnVoid;
 }
 
@@ -150,12 +163,47 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
 	info->topology = renderableObjectInfo.topology[index];
 	info->vertexShader = defaultShader;
-	info->fillSolid = renderableObjectInfo.fillSolid[index];
+	info->fillSolid = renderableObjectInfo.wireframe[index] ? 0u : 1u;
 	info->transparency = renderableObjectInfo.transparency[index];
 
 	// Gather Renderobjectinfo from other managers
 	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
 }
+
+void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
+{
+	size_t freed = 0;
+	std::vector<size_t> toFree;
+	if (!initInfo.renderer->IsUnderLimit(sizeToAdd))
+	{
+		for (size_t i = 0; i < bufferInfo.size(); i++)
+		{
+			if (bufferInfo[i].state == BufferState::Loaded && bufferInfo[i].entities.size() == 0)
+			{
+				freed += bufferInfo[i].size;
+				toFree.push_back(i);
+
+				if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
+					break;
+			}
+		}
+	}
+	if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
+	{
+		bufferLock.lock();
+		for (auto& r : toFree)
+		{
+			if (bufferInfo[r].state == BufferState::Loaded && bufferInfo[r].entities.size() == 0)
+			{
+				initInfo.renderer->DestroyVertexBuffer(bufferInfo[r].bufferHandle);
+				bufferInfo[r].state = BufferState::Dead;
+			}
+		}
+		bufferLock.unlock();
+		std::this_thread::sleep_for(200ms);
+	}
+}
+
 
 void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 {
@@ -166,46 +214,38 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 		{
 			Graphics::RenderObjectInfo info;
 			CreateRenderObjectInfo(find->second, &info);
-			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
+			initInfo.renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
 		}
 	}
 }
 
-void SE::Core::RenderableManager::SetFillSolid(const Entity & entity, uint8_t fillSolid)
+void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wireFrame)
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		if (renderableObjectInfo.visible[find->second] == 1u)
+		{		
+			Graphics::RenderObjectInfo info;
+			CreateRenderObjectInfo(find->second, &info);
+			initInfo.renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
+		}
+		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
+	}
+}
+
+void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool transparency)
 {
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		if (renderableObjectInfo.visible[find->second] == 1u)
 		{
-			renderableObjectInfo.fillSolid[find->second] = fillSolid;
 			Graphics::RenderObjectInfo info;
 			CreateRenderObjectInfo(find->second, &info);
-			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
+			initInfo.renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
 		}
-		else
-		{
-			renderableObjectInfo.fillSolid[find->second] = fillSolid;
-		}
-	}
-}
-
-void SE::Core::RenderableManager::SetTransparency(const Entity & entity, uint8_t transparency)
-{
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end())
-	{
-		if (renderableObjectInfo.visible[find->second] == 1u)
-		{
-			renderableObjectInfo.transparency[find->second] = transparency;
-			Graphics::RenderObjectInfo info;
-			CreateRenderObjectInfo(find->second, &info);
-			renderer->UpdateRenderingBuffer(renderableObjectInfo.jobID[find->second], info);
-		}
-		else
-		{
-			renderableObjectInfo.transparency[find->second] = transparency;
-		}
+		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 	}
 }
 
@@ -226,8 +266,8 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.topology = (Graphics::RenderObjectInfo::PrimitiveTopology*)(newData.bufferIndex + newData.allocated);
 	newData.visible = (uint8_t*)(newData.topology + newData.allocated);
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
-	newData.fillSolid = (uint8_t*)(newData.jobID + newData.allocated);
-	newData.transparency = (uint8_t*)(newData.fillSolid + newData.allocated);
+	newData.wireframe = (uint8_t*)(newData.jobID + newData.allocated);
+	newData.transparency = (uint8_t*)(newData.wireframe + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
@@ -235,7 +275,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.topology, renderableObjectInfo.topology, renderableObjectInfo.used * sizeof(Graphics::RenderObjectInfo::PrimitiveTopology));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
-	memcpy(newData.fillSolid, renderableObjectInfo.fillSolid, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(bool));
 	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
 
 	// Delete old data;
@@ -253,7 +293,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	const Entity last_entity = renderableObjectInfo.entity[last];
 
 	if(renderableObjectInfo.visible[index])
-		renderer->DisableRendering(renderableObjectInfo.jobID[index]);
+		initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[index]);
 
 
 	bufferInfo[renderableObjectInfo.bufferIndex[index]].entities.remove(entity); // Decrease the refcount
@@ -265,7 +305,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.topology[index] = renderableObjectInfo.topology[last];
 	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 	renderableObjectInfo.jobID[index] = renderableObjectInfo.jobID[last];
-	renderableObjectInfo.fillSolid[index] = renderableObjectInfo.fillSolid[last];
+	renderableObjectInfo.wireframe[index] = renderableObjectInfo.wireframe[last];
 	renderableObjectInfo.transparency[index] = renderableObjectInfo.transparency[last];
 
 
@@ -278,15 +318,25 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	StopProfile;
 }
 
+void SE::Core::RenderableManager::Destroy(const Entity & entity)
+{
+	ToggleRenderableObject(entity, false);
+	/*auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		Destroy(find->second);
+	}*/
+}
+
 void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 40U)
+	while (renderableObjectInfo.used > 0 && alive_in_row < 50U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);
-		if (entityManager.Alive(renderableObjectInfo.entity[i]))
+		if (initInfo.entityManager->Alive(renderableObjectInfo.entity[i]))
 		{
 			alive_in_row++;
 			continue;
@@ -300,7 +350,7 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
 	StartProfile;
-
+	auto arr = initInfo.transformManager->GetCleanedTransforms();
 	for (auto& dirty : dirtyEntites)
 	{
 		auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
@@ -308,8 +358,8 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 		{			
 			if (renderableObjectInfo.visible[find->second])
 			{
-				auto& transform = transformManager->dirtyTransforms[dirty.transformIndex];
-				renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
+				auto& transform = arr[dirty.transformIndex];
+				initInfo.renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
 			}				
 		}
 	}
@@ -322,7 +372,7 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
 {
 	StartProfile;
-	defaultShader = renderer->CreateVertexShader(data, size);
+	defaultShader = initInfo.renderer->CreateVertexShader(data, size);
 	if (defaultShader == -1)
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
@@ -334,29 +384,50 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	// Load model
 	auto& findBuffer = guidToBufferInfoIndex.find(meshGUID); // See if it the mesh is loaded.
 	auto& bufferIndex = guidToBufferInfoIndex[meshGUID]; // Get a reference to the buffer index
-	if (findBuffer == guidToBufferInfoIndex.end())	// If it wasn't loaded, load it.	
+	bufferLock.lock();
+	if (findBuffer == guidToBufferInfoIndex.end() || bufferInfo[bufferIndex].state == BufferState::Dead)	// If it wasn't loaded, load it.	
 	{
-		bufferInfo.push_back({ defaultMeshHandle }); // Init the mesh to default mesh.
-		bufferIndex = bufferInfo.size() - 1;
-		auto res = resourceHandler->LoadResource(meshGUID, [this, bufferIndex,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
+		if (findBuffer == guidToBufferInfoIndex.end())
+		{
+			bufferIndex = bufferInfo.size();
+			bufferInfo.push_back({ bufferInfo[0].bufferHandle, BufferState::Loading });
+		}
+		else
+		{
+			bufferInfo[bufferIndex].bufferHandle = bufferInfo[0].bufferHandle;
+			bufferInfo[bufferIndex].state = BufferState::Loading;
+		}
+	
+		bufferLock.unlock();
+
+		auto res = initInfo.resourceHandler->LoadResource(meshGUID, [this, bufferIndex,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {		
 			auto bufferHandle = LoadModel(data, size);
 			if (bufferHandle == -1)
 				return ResourceHandler::InvokeReturn::Fail;
 
-			if (async)
-				toUpdate.push({ bufferIndex, bufferHandle });
+			(*this.*Unload)(size);
+		
+			if (async) 
+			{
+				toUpdate.push({ bufferIndex, bufferHandle, size });
+			}
+			
 			else
+			{
 				bufferInfo[bufferIndex].bufferHandle = bufferHandle;
+				bufferInfo[bufferIndex].size = size;
+				bufferInfo[bufferIndex].state = BufferState::Loaded;
+			}
+				
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		}, async, behavior);
 		
 		
-		//{ this , &RenderableManager::LoadModel }, async, behavior);
 		if (res)
-			Utilz::Console::Print("Model %u could not be loaded. Using default instead.\n", meshGUID);
+			initInfo.console->PrintChannel("Model %u could not be loaded, Error: %d. Using default instead.\n", "Resources", meshGUID, res);
 
 	}
-
+	else bufferLock.unlock();
 	bufferInfo[bufferIndex].entities.push_back(renderableObjectInfo.entity[newEntry]);
 	renderableObjectInfo.bufferIndex[newEntry] = bufferIndex;
 	StopProfile;
@@ -365,9 +436,6 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 {
 	StartProfile;
-	//using namespace std::chrono_literals;
-
-	//std::this_thread::sleep_for(1s);
 
 	auto bufferHandle = -1;
 
@@ -375,37 +443,14 @@ int SE::Core::RenderableManager::LoadModel(void* data, size_t size)
 	if (meshHeader->vertexLayout == 0) {
 
 		Vertex* v = (Vertex*)(meshHeader + 1);
-		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
+		bufferHandle = initInfo.renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(Vertex));
 
 	}
 
 	else {
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 
-		
-		for (uint32_t i = 0; i < meshHeader->nrOfVertices; i++) {
-			float weight = 0;
-			weight = v[i].weights[0] + v[i].weights[1] + v[i].weights[2] + v[i].weights[3];
-
-			if (v[i].weights[3] != 0) {
-
-				//Utilz::Console::Print("Weight was not zero");
-			}
-
-			// The total weight could be very close to 1, or just over it, like for example 1.00012.
-			if (weight > 1.1) {
-
-				//Utilz::Console::Print("Vertex weights greater than 1");
-			}
-
-			// The total weight should never be lower than 0
-			else if (weight < 0) {
-
-				//Utilz::Console::Print("Vertex weights lower than 0");
-			}
-		}
-
-		bufferHandle = renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+		bufferHandle = initInfo.renderer->CreateVertexBuffer(v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 
 	ProfileReturnConst( bufferHandle);

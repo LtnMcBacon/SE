@@ -12,7 +12,7 @@ namespace SE
 			ResourceHandlerTest();
 			~ResourceHandlerTest();
 
-			bool Run(Utilz::IConsoleBackend* backend);
+			bool Run(DevConsole::IConsole* backend);
 		};
 	}
 }

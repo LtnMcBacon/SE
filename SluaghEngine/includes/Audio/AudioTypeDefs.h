@@ -1,4 +1,4 @@
-#pragma once
+
 #ifndef SE_AUDIO_AUDIO_TYPEDEF_H
 #define SE_AUDIO_AUDIO_TYPEDEF_H
 

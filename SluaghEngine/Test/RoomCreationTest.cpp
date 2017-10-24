@@ -1,11 +1,12 @@
 #include "RoomCreationTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
 #include <chrono>
 #include <Profiler.h>
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
+#include <Gameplay\Game.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -29,48 +30,41 @@ SE::Test::RoomCreationTest::~RoomCreationTest()
 
 }
 
-bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::RoomCreationTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
+	auto engine = Core::CreateEngine();
+	Gameplay::Game game;
+	engine->Init();
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
-		ProfileReturnConst(false)
-	}
-
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
-
-	auto floor = em.Create();
-	auto player = em.Create();
+	auto floor = managers.entityManager->Create();
+	auto player = managers.entityManager->Create();
 	const int numberOfBlocks = 25 * 25;
 	SE::Core::Entity entities[numberOfBlocks];
 
 	for (int i = 0; i < numberOfBlocks; i++)
-		entities[i] = em.Create();
+		entities[i] = managers.entityManager->Create();
 
-	tm.Create(player);
-	tm.SetPosition(player, DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
-	tm.SetScale(player, 1.5f);
-	tm.Create(floor);
-	tm.SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
+	managers.transformManager->Create(player);
+	managers.transformManager->SetPosition(player, DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	managers.transformManager->SetScale(player, 1.5f);
+	managers.transformManager->Create(floor);
+	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
 
 	for (int i = 0; i < numberOfBlocks; i++)
-		tm.Create(entities[i]);
+		managers.transformManager->Create(entities[i]);
 
 
 
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Floor.mesh"));
-	rm.ToggleRenderableObject(floor, true);
+	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Floor.mesh"});
+	managers.renderableManager->ToggleRenderableObject(floor, true);
 
-	rm.CreateRenderableObject(player, Utilz::GUID("Placeholder_Arrow.mesh"));
-	rm.ToggleRenderableObject(player, true);
-	tm.SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
+	managers.renderableManager->CreateRenderableObject(player, { "Placeholder_Arrow.mesh" });
+	managers.renderableManager->ToggleRenderableObject(player, true);
+	managers.transformManager->SetRotation(player, -DirectX::XM_PIDIV2, 0, 0);
 
 	auto Block = Utilz::GUID("HighWall.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
@@ -119,60 +113,60 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		{
 			if (testRoom->tileValues[x][y])
 			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Block);
-				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+				managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 				numberOfEntitesPlaced++;
 			}
 			else
 			{
-				rm.CreateRenderableObject(entities[numberOfEntitesPlaced], Arrow);
-				rm.ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Arrow });
+				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 				float xMagnitude = 0.0f;
 				float zMagnitude = 0.0f;
 				pos enemyPos;
 				enemyPos.x = x + 0.5f;
 				enemyPos.y = y + 0.5f;
 				testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-				tm.SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x+0.5f, 0.5f, y + 0.5f));
-				tm.SetScale(entities[numberOfEntitesPlaced], 0.25f);
+				managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x+0.5f, 0.5f, y + 0.5f));
+				managers.transformManager->SetScale(entities[numberOfEntitesPlaced], 0.25f);
 				if (xMagnitude == 1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
 				}
 				else if (xMagnitude == -1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV2, 0.0f);
 				}
 				else if (zMagnitude == 1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI, 0.0f);
 				}
 				else if (zMagnitude == -1.0f)
 				{
-					tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, 0.0f, 0.0f);
 
 				}
 				else if (xMagnitude == 0.707f)
 				{
 					if (zMagnitude == 0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
 					}
 					else if (zMagnitude == -0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
 					}
 				}
 				else if (xMagnitude == -0.707f)
 				{
 					if (zMagnitude == 0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
 					}
 					else if (zMagnitude == -0.707f)
 					{
-						tm.SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+						managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, DirectX::XM_PIDIV4, 0.0f);
 					}
 				}
 				numberOfEntitesPlaced++;
@@ -201,16 +195,16 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		enemy->SetYPosition(enemyPos.y + .5f);
 
 		//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		rm.CreateRenderableObject(enemy->GetEntity(), Block);
-		rm.ToggleRenderableObject(enemy->GetEntity(), true);
-		tm.SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-		tm.SetScale(enemy->GetEntity(), 0.5f);
+		managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
+		managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
+		managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
+		managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
 		testRoom->AddEnemyToRoom(enemy);
 	}
 
-	e.GetWindow()->MapActionButton(0, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(1, Window::Key1);
-	e.GetWindow()->MapActionButton(2, Window::Key2);
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(1, Window::Key1);
+	subSystem.window->MapActionButton(2, Window::Key2);
 	pos playerPos;
 	playerPos.x = 1.5f;
 	playerPos.y = 1.5f;
@@ -224,16 +218,16 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
-		if (e.GetWindow()->ButtonPressed(0))
+		if (subSystem.window->ButtonPressed(0))
 			running = false;
-		if (e.GetWindow()->ButtonPressed(1))
+		if (subSystem.window->ButtonPressed(1))
 		{
 			stepping = !stepping;
 		}
 
 		if (stepping)
 		{
-			if (e.GetWindow()->ButtonDown(2))
+			if (subSystem.window->ButtonDown(2))
 			{
 				testRoom->Update(dt, playerPos.x, playerPos.y);
 			}
@@ -241,13 +235,14 @@ bool SE::Test::RoomCreationTest::Run(SE::Utilz::IConsoleBackend* console)
 		else {
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
-		e.Frame(dt);
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
 	delete testRoom;
 
-	e.Release();
-
+	game.Shutdown();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(true)
 }
