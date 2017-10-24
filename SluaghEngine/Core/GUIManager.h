@@ -221,7 +221,7 @@ namespace SE
 			std::map<size_t, Entity> jobToEnt;
 			std::vector<Graphics::GUITextureInfo> textureInfo;
 			std::vector<Entity> textureEnt;
-			std::map<Entity, bool, EntityHasher> dirtyEnt;
+			std::unordered_map<Entity, bool, EntityHasher> dirtyEnt;
 
 			std::default_random_engine generator;
 

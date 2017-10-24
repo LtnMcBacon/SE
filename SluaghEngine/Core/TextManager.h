@@ -214,7 +214,7 @@ namespace SE
 			std::vector<Graphics::TextGUI> loadedTexts;
 			std::vector<Entity> textEnt;
 			std::map<size_t, Entity> textJobobToEnt;
-			std::map<Entity, bool, EntityHasher> dirtyEnt;
+			std::unordered_map<Entity, bool, EntityHasher> dirtyEnt;
 
 			std::default_random_engine generator;
 
