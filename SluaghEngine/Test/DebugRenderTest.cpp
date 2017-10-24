@@ -51,7 +51,7 @@ bool SE::Test::DebugRenderManagerTest::Run(Utilz::IConsoleBackend * console)
 		tm.Create(ents[i], { (float)(i*5.0f),0.0f,0.0f }, { 0.0f,3.14f,0.0f }, { 4.0f,4.0f,4.0f });
 		//tm.Create(ents[i]);
 		rm.CreateRenderableObject(ents[i], Utilz::GUID("Placeholder_Block.mesh"));
-		//rm.ToggleRenderableObject(ents[i], true);
+		rm.ToggleRenderableObject(ents[i], true);
 		colm.CreateBoundingHierarchy(ents[i], "Placeholder_Block.mesh");
 		drm.ToggleDebugRendering(ents[i], true);
 		drm.DrawCross(ents[i], 1.0f);
