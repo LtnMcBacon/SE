@@ -278,7 +278,7 @@ bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 	ProfileReturnConst(true);
 }
 
-bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY)
+bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY) const
 {
 	StartProfile;
 	if(int(startX) == int(endX))
@@ -301,7 +301,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 	}
 	else if(int(startY) == int(endY))
 	{
-		int distance = abs(int(startY) - int(endY));
+		int distance = abs(int(startX) - int(endX));
 		int x = int(startX);
 		int y = int(startY);
 		if (startX < endX)
@@ -319,43 +319,190 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 	}
 	else
 	{
-		/*Breseham's Line ALgorithm*/
-		int deltaX = int(endX) - int(startX);
-		int deltaY = int(endY) - int(startY);
-		int delta = 2*(deltaY-deltaX);
-		int xStart(startX);
-		int yStart(startY);
-		int xEnd(endX);
-		int ySign = (yStart - int(endY)) / abs(yStart - int(endY));
-		if(xStart < xEnd)
+		/*
+		 * Breseham's Line ALgorithm
+		 * https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+		 *  Octants:
+		 *	 \2 | 1/
+		 *	3 \ | / 0
+		 *	 ---+---
+		 *	4 / | \ 7
+		 *	 /5 | 6\	
+		 *	 
+		 */
+
+		float m = (endY - startY) / (endX - startX);
+		
+		/*Decide octant*/
+		int octant = 0;
+
+		if(0.f < m && m <= 1.f)
 		{
-			for(int i = xStart; i < xEnd; i++)
+			if (startX < endX)
+				octant = 0;
+			else
+				octant = 4;
+		}
+		else if(1.f < m)
+		{
+			if (startY < endY)
+				octant = 1;
+			else
+				octant = 5;
+		}
+		else if(m < -1.f)
+		{
+			if (startY < endY)
+				octant = 2;
+			else
+				octant = 6;
+		}
+		else
+		{
+			if (endX < startX)
+				octant = 3;
+			else
+				octant = 7;
+		}
+		float xStart = 0.f;
+		float xEnd = 0.f;
+		float yStart = 0.f;
+		float yEnd = 0.f;
+		switch(octant)
+		{
+		case 0:
+			xStart = startX;
+			xEnd = endX;
+			yStart = startY;
+			yEnd = endY;
+			break;
+
+		case 1:
+			xStart = startX;
+			xEnd = endX;
+			yStart = startY;
+			yEnd = endY;
+			break;
+
+		case 2:
+			xStart = endX;
+			xEnd = startX;
+			yStart = startY;
+			yEnd = endY;
+			break;
+
+		case 3:
+			xStart = endX;
+			xEnd = startX;
+			yStart = startY;
+			yEnd = endY;
+			break;
+
+		case 4:
+			xStart = endX;
+			xEnd = startX;
+			yStart = endY;
+			yEnd = startY;
+			break;
+
+		case 5:
+			xStart = endX;
+			xEnd = startX;
+			yStart = endY;
+			yEnd = startY;
+			break;
+
+		case 6:
+			xStart = startX;
+			xEnd = endX;
+			yStart = endY;
+			yEnd = startY;
+			break;
+
+		case 7:
+			xStart = startX;
+			xEnd = endX;
+			yStart = endY;
+			yEnd = startY;
+			break;
+
+		default: 
+			break;
+		}
+
+		if(m < 0.f) /*Negative Slope*/
+		{
+			if(octant == 2 || octant == 6) /*Loop over y*/
 			{
-				if (map[i][yStart])
-					ProfileReturnConst(false);
-				if (delta > 0)
+				
+				int x = int(xStart);
+				float eps = 0;
+				for (int y = int(yStart); y < int(yEnd); y++)
 				{
-					delta += 2 * deltaX;
-					yStart += ySign;
+					if (map[x][y])
+						ProfileReturnConst(false);
+					eps += m;
+					if (eps > -0.5f)
+					{
+						x--;
+						eps += 1.f;
+					}
 				}
-				delta += 2 * deltaY;
+			}
+			else /*Loop over x*/
+			{
+				int y = yStart;
+				float eps = 0;
+				for (int x = int(xStart); x <= int(xEnd); x++)
+				{
+					if (map[x][y])
+						ProfileReturnConst(false);
+					eps += m;
+					if (eps > -0.5f)
+					{
+						y--;
+						eps += 1.f;
+					}
+				}
 			}
 		}
 		else
 		{
-			for (int i = xStart; i < xEnd; i--)
+			if (octant == 1 || octant == 5) /*Loop over y*/
 			{
-				if (map[i][yStart])
-					ProfileReturnConst(false);
-				if (delta > 0)
+				
+				int x = int(xStart);
+				float eps = 0;
+				for(int y = int(yStart); y < int(yEnd); y++)
 				{
-					delta += 2 * deltaX;
-					yStart += ySign;
+					if (map[x][y])
+						ProfileReturnConst(false);
+					eps += m;
+					if(eps < 0.5f)
+					{
+						x++;
+						eps -= 1.f;
+					}
 				}
-				delta += 2 * deltaY;
+			}
+			else /*Loop over x*/
+			{
+				
+				int y = int(yStart);
+				float eps = 0;
+				for (int x = int(xStart); x <= int(xEnd); x++)
+				{
+					if (map[x][y])
+						ProfileReturnConst(false);
+					eps += m;
+					if (eps < 0.5f)
+					{
+						y++;
+						eps -= 1.f;
+					}
+				}
 			}
 		}
-
 	}
 
 	ProfileReturnConst(true);

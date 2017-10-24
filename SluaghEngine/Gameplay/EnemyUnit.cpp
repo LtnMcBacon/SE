@@ -17,8 +17,19 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 		{
 			this->health -= DamageEventVector[i].amount;
 		}
+
+		for (int i = 0; i < ConditionEventVector.size(); i++)
+		{
+			if(ConditionEventVector[i].type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+			{
+				this->stunDuration += ConditionEventVector[i].duration;
+			}
+		}
 	}
 	DamageEventVector.clear();
+	ConditionEventVector.clear();
+
+
 
 	ProfileReturnVoid;
 
@@ -31,6 +42,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	* Code body
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
+	
 	if (myBehaviouralTree)
 	{
 		myBlackboard->extents = 0.25;
@@ -38,6 +50,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 		myBlackboard->checkedThisFrame = false;
 		myBehaviouralTree->Tick();
 	}
+
 	ProfileReturnVoid;
 }
 
@@ -58,7 +71,12 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	*/
 	ResolveEvents();
 	DecideAction();
-	PerformAction(dt);
+	if (stunDuration <= 0.f)
+	{
+		PerformAction(dt);
+	}
+	else
+		stunDuration -= dt;
 	ProfileReturnVoid;
 }
 
@@ -75,8 +93,8 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	previousMovement{0,0},
 	sample(0)
 {
-	extends = 0.25f; /*Should not be hardcoded! Obviously*/
-	radius = sqrt(extends*extends + extends*extends);
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+	radius = sqrt(extents*extents + extents*extents);
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()

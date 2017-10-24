@@ -370,7 +370,7 @@ namespace SE
 			/**
 			 * @brief Check if line of sight is blocked between two points
 			 */
-			bool CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY);
+			bool CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY) const;
 
 			/**
 			 * @brief Get distance to closest wall (VERY GREEDY AS OF NOW!)

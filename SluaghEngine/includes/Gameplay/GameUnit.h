@@ -172,6 +172,7 @@ namespace SE
 			float health;
 			float xPos;
 			float yPos;
+			float extents;
 
 			float stunDuration;
 
@@ -194,6 +195,11 @@ namespace SE
 			inline const Core::Entity &GetEntity() const
 			{
 				return unitEntity;
+			}
+
+			inline float GetExtent()
+			{
+				return extents;
 			}
 
 			void DestroyEntity();

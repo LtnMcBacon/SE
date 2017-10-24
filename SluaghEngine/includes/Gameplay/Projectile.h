@@ -32,7 +32,8 @@ namespace SE
 		{
 			NONE,
 			OBJECT,
-			ENEMY
+			ENEMY,
+			PLAYER
 		};
 
 		enum class RotationStyle
@@ -283,6 +284,11 @@ namespace SE
 			inline float GetSpeed()
 			{
 				return speed;
+			}
+
+			inline ValidTarget GetValidTarget()
+			{
+				return target;
 			}
 
 		};

@@ -66,6 +66,38 @@ namespace SE
 			IBehaviour* CreateMoveTowardsPlayerLeaf(NodeData* dataArray, int nodeID);
 
 			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateGlaistigAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateResetAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAddTimeToAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
 			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
 			*
 			*
@@ -74,12 +106,28 @@ namespace SE
 			IBehaviour* CreateTimerConditionLeaf(NodeData* dataArray, int nodeID);
 
 			/**
+			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateLineOfSightConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
 			* @brief	Create a RangeToPlayerCondition Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a AttackCooldownZeroCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAttackCooldownZeroCondition(NodeData* dataArray, int nodeID);
 
 			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.

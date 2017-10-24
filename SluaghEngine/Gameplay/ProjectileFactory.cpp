@@ -167,7 +167,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		for (int j = 0; j < nrOfBehaviours; j++)
 		{
 			GetLine(fileData, line, position);
-			AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, line.c_str()));
+			AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, data.ownerUnit,line.c_str()));
 		}
 
 		newProjectiles.push_back(temp);
@@ -177,14 +177,23 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 	StopProfile;
 }
 
-std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ParseBehaviour(Projectile & p, const char * fileData)
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ParseBehaviour(Projectile & p, std::weak_ptr<GameUnit*> ownerUnit,const char * fileData)
 {
 	StartProfile;
 
 	const unsigned int maxValueSize = 50;
-	unsigned int functionToReturnIndex = fileData[0] - 48;
+	unsigned int functionToReturnIndex = 0;
+	unsigned int counter = 0;
+	do
+	{
+		functionToReturnIndex *= pow(10,counter);
+
+		functionToReturnIndex += fileData[counter] - 48;
+
+	}while(fileData[++counter] != '(');
+
 	std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
-	int position = 2;
+	int position = counter + 1;
 	char parameterData[maxValueSize];
 	char currentType = 0;
 
@@ -192,7 +201,12 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	while (fileData[position] != ')')
 	{
 		currentType = fileData[position];
-
+		if(currentType == 'O')
+		{
+			BehaviourParameter temp;
+			temp.data = ownerUnit;
+			parameters.push_back(temp);
+		}
 		if (currentType == 'P')
 		{
 			BehaviourParameter temp;
@@ -244,8 +258,18 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 			for (int i = 0; i < nrOfFunctionsInList; i++)
 			{
 				unsigned int nrOfParantheses = 1;
-				char functionIndex = fileData[currentPosition + 1];
-				currentPosition += 2;
+				int powCounter = 0;
+				counter = currentPosition + 1;
+				unsigned int functionIndex = 0;
+				do
+				{
+					functionIndex *= pow(10, powCounter);
+
+					functionIndex += fileData[counter] - 48;
+					powCounter++;
+
+				} while (fileData[++counter] != '(');
+				currentPosition += powCounter + 1;
 				unsigned int innerStartPosition = currentPosition;
 
 				do
@@ -262,11 +286,15 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 					}
 
 				} while (nrOfParantheses > 0);
-
-				parameterData[0] = functionIndex;
-				memcpy(parameterData + 1, fileData + innerStartPosition, currentPosition - innerStartPosition + 1);
+				for (int i = powCounter - 1; i > 0; i--)
+				{
+					parameterData[i] = functionIndex % int(pow(10, i)) + 48;
+					functionIndex = functionIndex / 10;
+				}
+				parameterData[0] = functionIndex+48;
+				memcpy(parameterData + powCounter, fileData + innerStartPosition, currentPosition - innerStartPosition + 1);
 			
-				functionsInList.push_back(ParseBehaviour(p, parameterData));
+				functionsInList.push_back(ParseBehaviour(p, ownerUnit,parameterData));
 
 				currentPosition += 2;
 			}
@@ -279,8 +307,18 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 		else if (currentType == 'B')
 		{
 			unsigned int nrOfParantheses = 1;
-			char functionIndex = fileData[position + 1];
-			position += 2;
+			counter = position + 1;
+			int powCounter = 0;
+			unsigned int functionIndex = 0;
+			do
+			{
+				functionIndex *= pow(10, powCounter);
+
+				functionIndex += fileData[counter] - 48;
+				powCounter++;
+
+			} while (fileData[++counter] != '(');
+			position += powCounter + 1;
 			unsigned int startPosition = position;
 
 			do
@@ -298,12 +336,17 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 				
 			} while (nrOfParantheses > 0);
 
+			for (int i = powCounter-1; i > 0; i--)
+			{
+				parameterData[i] = functionIndex % int(pow(10, i-1)) + 48;
+				functionIndex = functionIndex / 10;
+			}
 			parameterData[0] = functionIndex;
-			memcpy(parameterData + 1, fileData + startPosition, position - startPosition + 1);
+			memcpy(parameterData + powCounter, fileData + startPosition, position - startPosition + 1);
 
 			BehaviourParameter temp;
 			temp.data = std::vector<std::function<bool(Projectile* projectile, float dt)>>();
-			std::get<std::vector<std::function<bool(Projectile* projectile, float dt)>>>(temp.data).push_back(ParseBehaviour(p, parameterData));
+			std::get<std::vector<std::function<bool(Projectile* projectile, float dt)>>>(temp.data).push_back(ParseBehaviour(p, ownerUnit, parameterData));
 			parameters.push_back(temp);
 
 		}
@@ -663,7 +706,7 @@ TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourPara
 		test.style = RotationStyle::SELF;
 		p->SetRotationStyle(test);
 
-		return true;
+		return false;
 	};
 
 	return targeter;
@@ -671,21 +714,54 @@ TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourPara
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	PlayerUnit* player = ptrs.player;
+	std::weak_ptr<GameUnit*> owner = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	Room* currentRoom = *ptrs.currentRoom;
 
 
-	auto LineOfSight = [player, currentRoom](Projectile* p, float dt) -> bool
+	auto LineOfSight = [owner, currentRoom](Projectile* p, float dt) -> bool
 	{
-		return currentRoom->CheckLineOfSightBetweenPoints(
-			player->GetXPosition(),
-			player->GetYPosition(),
-			p->GetXPosition(),
-			p->GetYPosition()
-		);
+		if (auto target = owner.lock())
+		{
+			auto ownerPtr = *target.get();
+			return currentRoom->CheckLineOfSightBetweenPoints(
+				ownerPtr->GetXPosition(),
+				ownerPtr->GetYPosition(),
+				p->GetXPosition(),
+				p->GetYPosition()
+			);
+		}
+		else
+			return false;
 	};
 
 	return LineOfSight;
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
+LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	PlayerUnit* player = ptrs.player;
+	
+	auto LockToPlayer = [player](Projectile* p, float dt) -> bool
+	{
+		p->SetXPosition(player->GetXPosition());
+		p->SetYPosition(player->GetYPosition());
+		return false;
+	};
+
+	return LockToPlayer;
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KillSelfBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	
+	auto Suicide = [](Projectile* p, float dt) -> bool
+	{
+		p->SetActive(false);
+		return false;
+	};
+
+	return Suicide;
 }
 
 
@@ -700,6 +776,7 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 			auto unit = *owner.get();
 			ConditionEvent cEvent;
 			cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+			cEvent.duration = 2.25f;
 			unit->AddConditionEvent(cEvent);
 		}
 
@@ -762,6 +839,9 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IFCaseBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LineOfSightConditionBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LockToPlayerBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillSelfBehaviour, this, std::placeholders::_1));
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()

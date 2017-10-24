@@ -233,7 +233,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		pos enemyPos;
 		do
@@ -297,6 +297,7 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	bool stepping = false;
 	bool running = true;
+	blackBoard.currentRoom = testRoom;
 	//unsigned char counter = 0;
 	float dt = 1.0f / 60.0f;
 	while (running)
@@ -440,12 +441,6 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
 
-		projectileManager->AddProjectiles(newProjectiles);
-
-		projectileManager->UpdateProjectilePositions(dt);
-		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
-		projectileManager->UpdateProjectileActions(dt);
-
 
 		playerPos.x = player->GetXPosition();
 		playerPos.y = player->GetYPosition();
@@ -474,6 +469,15 @@ bool SE::Test::GlaistigTest::Run(SE::Utilz::IConsoleBackend* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		e.Frame(dt);
+		
+		projectileManager->AddProjectiles(newProjectiles);
+		projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+		blackBoard.enemyProjectiles.clear();
+
+		projectileManager->UpdateProjectilePositions(dt);
+		testRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+		projectileManager->UpdateProjectileActions(dt);
+		projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 
 
 		/*	Utilz::TimeMap times;

@@ -11,6 +11,13 @@
 #include "ObstacleOnPositionCondition.h"
 #include "MakeVulnerableLeaf.h"
 #include "MakeInvulnerableLeaf.h"
+#include "GlaistigAttackLeaf.h"
+#include "LineOfSightCondition.h"
+#include "ResetAttackCooldownLeaf.h"
+#include "AttackCooldownZeroCondition.h"
+#include "AddTimeToAttackCooldownLeaf.h"
+#include "TickDownAttackCooldownLeaf.h"
+
 
 /*Composites*/
 #include "IComposite.h"

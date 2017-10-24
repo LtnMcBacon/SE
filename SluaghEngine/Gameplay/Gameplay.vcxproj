@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
+    <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
@@ -35,6 +37,7 @@
     <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
     <ClCompile Include="Inverter.cpp" />
+    <ClCompile Include="LineOfSightCondition.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
     <ClCompile Include="MakeInvulnerableLeaf.cpp" />
@@ -52,13 +55,17 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileFactory.cpp" />
     <ClCompile Include="ProjectileManger.cpp" />
+    <ClCompile Include="ResetAttackCooldownLeaf.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="Succeeder.cpp" />
+    <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
@@ -74,11 +81,13 @@
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\GlaistigAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
     <ClInclude Include="..\includes\Gameplay\IComposite.h" />
     <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
     <ClInclude Include="..\includes\Gameplay\Inverter.h" />
     <ClInclude Include="..\includes\Gameplay\KeyBindings.h" />
+    <ClInclude Include="..\includes\Gameplay\LineOfSightCondition.h" />
     <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
@@ -99,14 +108,15 @@
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GlaistigAttackLeaf.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

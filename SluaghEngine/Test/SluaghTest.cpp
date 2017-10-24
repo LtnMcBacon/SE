@@ -263,7 +263,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		pos enemyPos;
 		do
@@ -333,6 +333,7 @@ bool SE::Test::SlaughTest::Run(SE::Utilz::IConsoleBackend* console)
 	//unsigned char counter = 0;
 	float dt = 1.0f / 60.0f;
 	std::vector<float> enemyDistances;
+	blackBoard.currentRoom = testRoom;
 	while (running)
 	{
 		newProjectiles.clear();

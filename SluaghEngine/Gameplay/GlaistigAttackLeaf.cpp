@@ -4,7 +4,7 @@
 #include <Gameplay/EnemyBlackboard.h>
 #include <Gameplay/EnemyUnit.h>
 
-const SE::Utilz::GUID SE::Gameplay::GlaistigAttackLeaf::glaistigAttackFileGUID = Utilz::GUID("GlaistigAttack.SEP");
+const SE::Utilz::GUID SE::Gameplay::GlaistigAttackLeaf::glaistigAttackFileGUID = Utilz::GUID("GlaistigProjectile.SEP");
 
 SE::Gameplay::GlaistigAttackLeaf::GlaistigAttackLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
@@ -14,17 +14,25 @@ SE::Gameplay::GlaistigAttackLeaf::GlaistigAttackLeaf(EnemyBlackboard* enemyBlack
 
 SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 {
-	ProjectileData newProjectile;
+	if(enemyBlackboard->attackCooldown <= 0.f)
+	{
+		ProjectileData newProjectile;
 
-	newProjectile.fileNameGuid = glaistigAttackFileGUID;
-	newProjectile.ownerUnit = enemyBlackboard->ownerPointer->GetSharedPtr();
-	newProjectile.target = ValidTarget::PLAYER;
-	newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
-	newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
-	newProjectile.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MAGICAL,
-		DamageEvent::DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
-	
-	gameBlackboard->enemyProjectiles.push_back(newProjectile);
+		newProjectile.fileNameGuid = glaistigAttackFileGUID;
+		newProjectile.ownerUnit = enemyBlackboard->ownerPointer->GetSharedPtr();
+		newProjectile.target = ValidTarget::PLAYER;
+		newProjectile.startPosX = gameBlackboard->playerPositionX;
+		newProjectile.startPosY = gameBlackboard->playerPositionY;
+		newProjectile.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MAGICAL,
+			DamageEvent::DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
 
-	return SE::Gameplay::Status::BEHAVIOUR_SUCCESS;
+		gameBlackboard->enemyProjectiles.push_back(newProjectile);
+		myStatus = Status::BEHAVIOUR_SUCCESS;
+
+	}
+	else
+	{
+		myStatus = Status::BEHAVIOUR_RUNNING;
+	}
+	return myStatus;
 }

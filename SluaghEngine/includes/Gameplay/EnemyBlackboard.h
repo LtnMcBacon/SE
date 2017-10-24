@@ -1,5 +1,6 @@
 #ifndef SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 #define SE_GAMEPLAY_ENEMY_BLACKBOARD_H
+#include "EventStructs.h"
 
 namespace SE
 {
@@ -46,6 +47,8 @@ namespace SE
 			bool invurnerable = false;
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
+			ConditionEvent::ConditionTypes activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			float attackCooldown = 0.f;
 
 		};
 	}

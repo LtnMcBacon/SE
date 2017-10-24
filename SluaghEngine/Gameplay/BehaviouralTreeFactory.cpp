@@ -65,6 +65,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateObstacleOnPositionConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "AttackCooldownZeroCondition")
+	{
+		finishedBehaviour = CreateAttackCooldownZeroCondition(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
@@ -72,6 +76,26 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if (dataArray[nodeID].Type == "MakeVulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeVulnerableLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "GlaistigAttackLeaf")
+	{
+		finishedBehaviour = CreateGlaistigAttackLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "LineOfSightCondition")
+	{
+		finishedBehaviour = CreateLineOfSightConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "ResetAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateResetAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "AddTimeToAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateAddTimeToAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "TickDownAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateTickDownAttackCooldownLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -132,10 +156,40 @@ IBehaviour* BehaviouralTreeFactory::CreateMoveTowardsPlayerLeaf(NodeData* dataAr
 	ProfileReturn(new MoveTowardsPlayerLeaf(nullptr, nullptr));
 }
 
+IBehaviour* BehaviouralTreeFactory::CreateGlaistigAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	
+	ProfileReturn(new GlaistigAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateResetAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	return new ResetAttackCooldownLeaf(nullptr, nullptr);
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateAddTimeToAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	float time = std::stof(dataArray[nodeID].nodeData[0]);
+	return new AddTimeToAttackCooldownLeaf(nullptr, nullptr, time);
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	return new TickDownAttackCooldownLeaf(nullptr, nullptr);
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateTimerConditionLeaf(NodeData* dataArray, int nodeID)
 {
 	float timer = std::stof(dataArray[nodeID].nodeData[0]);
 	return new TimerCondition(nullptr, nullptr, timer);
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateLineOfSightConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+
+	ProfileReturnConst(new LineOfSightCondition(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID)
@@ -143,6 +197,11 @@ IBehaviour* BehaviouralTreeFactory::CreateRangeToPlayerConditionLeaf(NodeData* d
 	float min = std::stof(dataArray[nodeID].nodeData[0]);
 	float max = std::stof(dataArray[nodeID].nodeData[1]);
 	return new RangeToPlayerCondition(nullptr, nullptr, min, max);
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateAttackCooldownZeroCondition(NodeData* dataArray, int nodeID)
+{
+	return new AttackCooldownZeroCondition(nullptr, nullptr);
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID)

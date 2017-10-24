@@ -52,6 +52,13 @@ namespace SE
 			*/
 			void AddProjectiles(std::vector<ProjectileData>& newProjectiles);
 
+			/**
+			 * @brief Check collision between the target and all projectiles. If a collision occours,
+			 * the projectile's data will be copied to the collision object, before the projectile get's an 
+			 * "On collision" signal. unitTarget is whether the unit is a "Player", "Enemy", or something else.
+			 */
+			void CheckCollisionBetweenUnitAndProjectiles(GameUnit* unit, ValidTarget unitTarget);
+
 		private:
 			ProjectileManager(const ProjectileManager& other) = delete;
 			ProjectileManager(const ProjectileManager&& other) = delete;
@@ -62,6 +69,10 @@ namespace SE
 			ProjectileFactory factory;
 			int nrOfProjectiles = 0;
 
+			/**
+			 * @brief HelperFunction for collision checks
+			 */
+			bool CheckCollisionHelperFunction(GameUnit* unit, BoundingRect projectileRect);
 
 		public:
 

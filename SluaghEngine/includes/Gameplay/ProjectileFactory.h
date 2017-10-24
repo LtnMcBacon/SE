@@ -85,7 +85,7 @@ namespace SE
 
 			void GetLine(const std::string& file, std::string& line, int& pos);
 			void LoadNewProjectiles(const ProjectileData& data);
-			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, const char* fileData);
+			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, std::weak_ptr<GameUnit*> ownerUnit, const char* fileData);
 			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, const char* valueData);
 
 			
@@ -167,6 +167,16 @@ namespace SE
 			 * @brief	Adds a condition to check line of sight between owner and the projectile
 			 */
 			std::function<bool(Projectile* projectile, float dt)> LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to check line of sight between owner and the projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to check line of sight between owner and the projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> KillSelfBehaviour(std::vector<BehaviourParameter> parameters);
 
 
 
