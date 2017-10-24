@@ -17,49 +17,49 @@ namespace SE
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
-			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
-			void UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
-			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
-			void DestroyIndexBuffer(const Utilz::GUID& id) override;
-			void DestroyVertexBuffer(const Utilz::GUID& id) override;
+			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
+			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
+			int CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
+			int DestroyIndexBuffer(const Utilz::GUID& id) override;
+			int DestroyVertexBuffer(const Utilz::GUID& id) override;
 
-			void CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
 
-			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void DestroyVertexShader(const Utilz::GUID& id) override;
-			void DestroyGeometryShader(const Utilz::GUID& id) override;
-			void DestroyPixelShader(const Utilz::GUID& id) override;
-			void DestroyComputeShader(const Utilz::GUID& id) override;
+			int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int DestroyVertexShader(const Utilz::GUID& id) override;
+			int DestroyGeometryShader(const Utilz::GUID& id) override;
+			int DestroyPixelShader(const Utilz::GUID& id) override;
+			int DestroyComputeShader(const Utilz::GUID& id) override;
 
-			void CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
-			void UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
-			void DestroyConstantBuffer(const Utilz::GUID& id) override;
+			int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
+			int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int DestroyConstantBuffer(const Utilz::GUID& id) override;
 
-			void CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
-			void DestroyTexture(const Utilz::GUID& id) override;
+			int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
+			int DestroyTexture(const Utilz::GUID& id) override;
 
-			void CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state) override;
-			void DestroyRasterizerState(const Utilz::GUID& id) override;
+			int CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state) override;
+			int DestroyRasterizerState(const Utilz::GUID& id) override;
 
-			void CreateBlendState(const Utilz::GUID& id, const BlendState& state) override;
-			void DestroyBlendState(const Utilz::GUID& id) override;
+			int CreateBlendState(const Utilz::GUID& id, const BlendState& state) override;
+			int DestroyBlendState(const Utilz::GUID& id) override;
 
-			void CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state) override;
-			void DestroyDepthStencilState(const Utilz::GUID& id) override;
+			int CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state) override;
+			int DestroyDepthStencilState(const Utilz::GUID& id) override;
 
-			void CreateSamplerState(const Utilz::GUID& id, const SamplerState& state) override;
-			void DestroySamplerState(const Utilz::GUID& id) override;
+			int CreateSamplerState(const Utilz::GUID& id, const SamplerState& state) override;
+			int DestroySamplerState(const Utilz::GUID& id) override;
 
-			void CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) override;
-			void DestroyRenderTarget(const Utilz::GUID& id) override;
+			int CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) override;
+			int DestroyRenderTarget(const Utilz::GUID& id) override;
 
-			void CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
-			void DestroyDepthStencilView(const Utilz::GUID& id) override;
+			int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
+			int DestroyDepthStencilView(const Utilz::GUID& id) override;
 
 			void SetPipeline(const Pipeline& pipeline) override;
 			void SetPipelineForced(const Pipeline& pipeline) override;

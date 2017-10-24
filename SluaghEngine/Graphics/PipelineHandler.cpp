@@ -3,6 +3,14 @@
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 #include <vector>
+enum RETURN_CODES
+{
+	SUCCESS = 0,
+	EXISTS = 1,
+	NOT_FOUND = -1,
+	DEVICE_FAIL = -2
+};
+
 SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv)
 {
 	this->device = device;
@@ -63,13 +71,12 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 		if (r.second)r.second->Release();
 }
 
-void SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
+int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
 	size_t stride, bool dynamic)
 {
-	StartProfile;
 	const auto exists = vertexBuffers.find(id);
 	if (exists != vertexBuffers.end())
-		ProfileReturnVoid;
+		return EXISTS;
 
 	D3D11_BUFFER_DESC bd;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -93,38 +100,40 @@ void SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, vo
 		hr = device->CreateBuffer(&bd, nullptr, &buffer);
 	}
 	if (FAILED(hr))
-		throw std::exception("Failed to create Vertex Buffer");
+		return DEVICE_FAIL;
 	vertexBuffers[id].buffer = buffer;
 	vertexBuffers[id].stride = stride;
-	ProfileReturnVoid;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto find = vertexBuffers.find(id);
 	if (find == vertexBuffers.end())
-		throw std::exception("Unknown id referenced in UpdateDynamicVertexBuffer");
+		return NOT_FOUND;
 	D3D11_MAPPED_SUBRESOURCE ms;
 	deviceContext->Map(find->second.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	memcpy(ms.pData, data, size);
 	deviceContext->Unmap(find->second.buffer, 0);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
 {
 	auto exists = vertexBuffers.find(id);
 	if (exists == vertexBuffers.end())
-		return;
+		return NOT_FOUND;
 	exists->second.buffer->Release();
 	vertexBuffers.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount,
+int SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount,
 	size_t indexSize)
 {
 	const auto exists = indexBuffers.find(id);
 	if (exists != indexBuffers.end())
-		return;
+		return EXISTS;
 
 	D3D11_BUFFER_DESC bd;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -141,32 +150,33 @@ void SE::Graphics::PipelineHandler::CreateIndexBuffer(const Utilz::GUID& id, voi
 	sd.SysMemSlicePitch = 0;
 	HRESULT hr = device->CreateBuffer(&bd, &sd, &buffer);
 	if (FAILED(hr))
-		throw std::exception("Failed to create Index Buffer");
+		return DEVICE_FAIL;
 
 	indexBuffers[id].buffer = buffer;
 	indexBuffers[id].stride = indexSize;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags)
+int SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags)
 {
 	if (flags & BIND_VERTEX)
 	{
 		const auto exists = vertexBuffers.find(id);
 		if (exists != vertexBuffers.end())
-			return;
+			return EXISTS;
 	}
 	else if (flags & BIND_INDEX)
 	{
 		const auto exists = indexBuffers.find(id);
 		if (exists != indexBuffers.end())
-			return;
+			return EXISTS;
 
 	}
 	else if (flags & BIND_CONSTANT)
 	{
 		const auto exists = constantBuffers.find(id);
 		if (exists != constantBuffers.end())
-			return;
+			return EXISTS;
 	}
 	else
 	{
@@ -205,11 +215,10 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	else
 	{
 		hr = device->CreateBuffer(&bd, nullptr, &buffer);
-
 	}
 
 	if (FAILED(hr))
-		throw std::exception("Failed to create buffer");
+		return DEVICE_FAIL;
 
 	if (flags & BIND_VERTEX) {
 		vertexBuffers[id].buffer = buffer;
@@ -224,23 +233,24 @@ void SE::Graphics::PipelineHandler::CreateBuffer(const Utilz::GUID& id, void* da
 	{
 		constantBuffers[id] = buffer;
 	}
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyIndexBuffer(const Utilz::GUID& id)
 {
 	auto exists = indexBuffers.find(id);
 	if (exists == indexBuffers.end())
-		return;
+		return NOT_FOUND;
 	exists->second.buffer->Release();
 	indexBuffers.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateViewport(const Utilz::GUID& id, const Viewport& viewport)
+int SE::Graphics::PipelineHandler::CreateViewport(const Utilz::GUID& id, const Viewport& viewport)
 {
 	const auto exists = viewports.find(id);
 	if (exists != viewports.end())
-		return;
+		return EXISTS;
 	D3D11_VIEWPORT vp;
 	vp.Width = viewport.width;
 	vp.Height = viewport.height;
@@ -249,20 +259,20 @@ void SE::Graphics::PipelineHandler::CreateViewport(const Utilz::GUID& id, const 
 	vp.TopLeftX = viewport.topLeftX;
 	vp.TopLeftY = viewport.topLeftY;
 	viewports[id] = vp;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, void* data, size_t size)
 {
-	StartProfile;
 	const auto exists = vertexShaders.find(id);
 	if (exists != vertexShaders.end())
-		ProfileReturnVoid;
+		return EXISTS;
 	ID3D11VertexShader* vs;
 	ID3D11InputLayout* inputLayout;
 
 	HRESULT hr = device->CreateVertexShader(data, size, nullptr, &vs);
 	if (FAILED(hr))
-		throw std::exception("Failed to create vertex shader");
+		return DEVICE_FAIL;
 
 	vertexShaders[id] = vs;
 	//Create the input layout with the help of shader reflection
@@ -270,7 +280,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 
 	if (FAILED(hr))
-		throw std::exception("Failed to reflect vertex shader.");
+		return DEVICE_FAIL;
 
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
@@ -340,7 +350,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 	{
 		hr = device->CreateInputLayout(inputElementDescs.data(), inputElementDescs.size(), data, size, &inputLayout);
 		if (FAILED(hr))
-			throw std::exception("Failed to create input layout");
+			return DEVICE_FAIL;
 
 		inputLayouts[id] = inputLayout;
 	}
@@ -372,7 +382,7 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 						ID3D11Buffer* buffer;
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
-							throw std::exception("Failed to create constant buffer.");
+							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
 					}
 
@@ -385,26 +395,26 @@ void SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, vo
 		}
 	}
 	reflection->Release();
-	ProfileReturnVoid;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto exists = geometryShaders.find(id);
 	if (exists != geometryShaders.end())
-		return;
+		return EXISTS;
 
 	ID3D11GeometryShader* gs;
 	HRESULT hr = device->CreateGeometryShader(data, size, nullptr, &gs);
 	if (FAILED(hr))
-		throw std::exception("Could not create geometry shader.");
+		return DEVICE_FAIL;
 
 	geometryShaders[id] = gs;
 
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
-		throw std::exception("Failed to create geometry shader reflection");
+		return DEVICE_FAIL;
 
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
@@ -437,7 +447,7 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 						ID3D11Buffer* buffer;
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
-							throw std::exception("Failed to create constant buffer.");
+							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
 					}
 
@@ -450,18 +460,19 @@ void SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, 
 		}
 	}
 	reflection->Release();
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto exists = geometryShaders.find(id);
 	if (exists != geometryShaders.end())
-		return;
+		return EXISTS;
 
 	ID3D11ShaderReflection* reflection;
 	HRESULT hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
-		throw std::exception("Failed to create geometry shader reflection");
+		return NOT_FOUND;
 
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
@@ -484,14 +495,6 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 		sode.OutputSlot = 0;
 		sode.StartComponent = 0;
 		sode.ComponentCount = varCount;
-		/*if (signatureParameterDesc.Mask == 1)
-		sode.ComponentCount = 1;
-		else if (signatureParameterDesc.Mask <= 3)
-		sode.ComponentCount = 2;
-		else if (signatureParameterDesc.Mask <= 7)
-		sode.ComponentCount = 3;
-		else if (signatureParameterDesc.Mask <= 15)
-		sode.ComponentCount = 4;*/
 		sode.SemanticIndex = signatureParameterDesc.SemanticIndex;
 
 		SOEntries.push_back(sode);
@@ -503,7 +506,7 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 	ID3D11GeometryShader* gs;
 	hr = device->CreateGeometryShaderWithStreamOutput(data, size, SOEntries.data(), SOEntries.size(), &bufferStrides, 1, D3D11_SO_NO_RASTERIZED_STREAM, nullptr, &gs);
 	if (FAILED(hr))
-		throw std::exception("Failed to create geometry shader with output stream");
+		return DEVICE_FAIL;
 
 	geometryShaders[id] = gs;
 
@@ -535,7 +538,7 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 						ID3D11Buffer* buffer;
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
-							throw std::exception("Failed to create constant buffer.");
+							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
 					}
 
@@ -549,25 +552,26 @@ void SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::G
 	}
 
 	reflection->Release();
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto exists = pixelShaders.find(id);
 	if (exists != pixelShaders.end())
-		return;
+		return EXISTS;
 
 	ID3D11PixelShader* ps;
 	HRESULT hr = device->CreatePixelShader(data, size, nullptr, &ps);
 	if (FAILED(hr))
-		throw std::exception("Could not create pixel shader");
+		return DEVICE_FAIL;
 
 	pixelShaders[id] = ps;
 
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
-		throw std::exception("Failed to reflect vertex shader.");
+		return DEVICE_FAIL;
 
 	D3D11_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
@@ -585,63 +589,69 @@ void SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, voi
 	}
 
 	reflection->Release();
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto exists = computeShaders.find(id);
 	if (exists != computeShaders.end())
-		return;
+		return EXISTS;
 
 	ID3D11ComputeShader* cs;
 	HRESULT hr = device->CreateComputeShader(data, size, nullptr, &cs);
 	if (FAILED(hr))
-		throw std::exception("Failed to create compute shader");
+		return DEVICE_FAIL;
 
 	computeShaders[id] = cs;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyVertexShader(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyVertexShader(const Utilz::GUID& id)
 {
 	auto exists = vertexShaders.find(id);
 	if (exists == vertexShaders.end())
-		return;
+		return NOT_FOUND;
 	exists->second->Release();
 	vertexShaders.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyGeometryShader(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyGeometryShader(const Utilz::GUID& id)
 {
 	auto exists = geometryShaders.find(id);
 	if (exists == geometryShaders.end())
-		return;
+		return NOT_FOUND;
 	exists->second->Release();
 	geometryShaders.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyPixelShader(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyPixelShader(const Utilz::GUID& id)
 {
 	auto exists = pixelShaders.find(id);
 	if (exists == pixelShaders.end())
-		return;
+		return NOT_FOUND;
 	exists->second->Release();
 	pixelShaders.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
 {
 	auto exists = computeShaders.find(id);
 	if (exists == computeShaders.end())
-		return;
+		return NOT_FOUND;
 	exists->second->Release();
 	computeShaders.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData)
+int SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData)
 {
 	const auto exists = constantBuffers.find(id);
 	if (exists != constantBuffers.end())
-		return;
+		return EXISTS;
 
 	D3D11_BUFFER_DESC bd;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -668,41 +678,43 @@ void SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, 
 	}
 	
 	if (FAILED(hr))
-		throw std::exception("Failed to create constant buffer");
+		return DEVICE_FAIL;
 
 	constantBuffers[id] = buffer;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size)
+int SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size)
 {
 	const auto exists = constantBuffers.find(id);
 	if (exists == constantBuffers.end())
-		throw std::exception("Nonexistant constant buffer referenced in UpdateConstantBuffer");
+		return NOT_FOUND;
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	HRESULT hr = deviceContext->Map(exists->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	if (FAILED(hr))
-		throw std::exception("Failed to map constant buffer");
+		return DEVICE_FAIL;
 	memcpy(mappedData.pData, data, size);
 	deviceContext->Unmap(exists->second, 0);
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyConstantBuffer(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyConstantBuffer(const Utilz::GUID& id)
 {
 	auto exists = constantBuffers.end();
 	if (exists == constantBuffers.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	constantBuffers.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height)
+int SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height)
 {
 	const auto exists = shaderResourceViews.find(id);
 	if (exists != shaderResourceViews.end())
-		return;
+		return EXISTS;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -724,7 +736,7 @@ void SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* d
 	d.SysMemSlicePitch = 0;
 	HRESULT hr = device->CreateTexture2D(&desc, &d, &texture);
 	if (FAILED(hr))
-		throw std::exception("Failed to create texture.");
+		return DEVICE_FAIL;
 
 	ID3D11ShaderResourceView* srv;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -734,27 +746,29 @@ void SE::Graphics::PipelineHandler::CreateTexture(const Utilz::GUID& id, void* d
 	srvDesc.Texture2D.MipLevels = 1;
 	hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
 	if (FAILED(hr))
-		throw std::exception("Failed to create shader resource view");
+		return DEVICE_FAIL;
 
 	texture->Release();
 	shaderResourceViews[id] = srv;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyTexture(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyTexture(const Utilz::GUID& id)
 {
 	auto exists = shaderResourceViews.find(id);
 	if (exists == shaderResourceViews.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	shaderResourceViews.erase(id);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state)
+int SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state)
 {
 	const auto exists = rasterizerStates.find(id);
 	if (exists != rasterizerStates.end())
-		return;
+		return EXISTS;
 
 	D3D11_RASTERIZER_DESC rd;
 	rd.AntialiasedLineEnable = false;
@@ -784,26 +798,27 @@ void SE::Graphics::PipelineHandler::CreateRasterizerState(const Utilz::GUID& id,
 	ID3D11RasterizerState* rs;
 	HRESULT hr = device->CreateRasterizerState(&rd, &rs);
 	if (FAILED(hr))
-		throw std::exception("Failed to create rasterizer state");
+		return DEVICE_FAIL;
 	rasterizerStates[id] = rs;
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyRasterizerState(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyRasterizerState(const Utilz::GUID& id)
 {
 	auto exists = rasterizerStates.find(id);
 	if (exists == rasterizerStates.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	rasterizerStates.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, const BlendState& state)
+int SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, const BlendState& state)
 {
 	const auto exists = blendStates.find(id);
 	if (exists != blendStates.end())
-		return;
+		return EXISTS;
 
 	D3D11_BLEND_DESC bd;
 	bd.IndependentBlendEnable = false;
@@ -893,26 +908,28 @@ void SE::Graphics::PipelineHandler::CreateBlendState(const Utilz::GUID& id, cons
 	ID3D11BlendState* blendState;
 	HRESULT hr = device->CreateBlendState(&bd, &blendState);
 	if (FAILED(hr))
-		throw std::exception("Failed to create blend state");
+		return DEVICE_FAIL;
 
 	blendStates[id] = blendState;
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyBlendState(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyBlendState(const Utilz::GUID& id)
 {
 	auto exists = blendStates.find(id);
 	if (exists == blendStates.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	blendStates.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state)
+int SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state)
 {
 	const auto exists = depthStencilStates.find(id);
 	if (exists != depthStencilStates.end())
-		return;
+		return EXISTS;
 	D3D11_DEPTH_STENCIL_DESC dsd;
 	dsd.DepthEnable = state.enableDepth;
 	switch (state.comparisonOperation)
@@ -947,25 +964,25 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilState(const Utilz::GUID& i
 		throw std::exception("Failed to create depth stencil state");
 
 	depthStencilStates[id] = dss;
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyDepthStencilState(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyDepthStencilState(const Utilz::GUID& id)
 {
 	auto exists = depthStencilStates.find(id);
 	if (exists == depthStencilStates.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	depthStencilStates.erase(exists);
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, const SamplerState& state)
+int SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, const SamplerState& state)
 {
 	const auto exists = samplerStates.find(id);
 	if (exists != samplerStates.end())
-		return;
+		return EXISTS;
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(D3D11_SAMPLER_DESC));
 
@@ -1000,27 +1017,28 @@ void SE::Graphics::PipelineHandler::CreateSamplerState(const Utilz::GUID& id, co
 	ID3D11SamplerState* samplerState;
 	HRESULT hr = device->CreateSamplerState(&sd, &samplerState);
 	if (FAILED(hr))
-		throw std::exception("Failed to create samplerstate");
+		return DEVICE_FAIL;
 
 	samplerStates[id] = samplerState;
-
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroySamplerState(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroySamplerState(const Utilz::GUID& id)
 {
 	auto exists = samplerStates.find(id);
 	if (exists == samplerStates.end())
-		return;
+		return NOT_FOUND;
 
 	exists->second->Release();
 	samplerStates.erase(exists);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target)
+int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target)
 {
 	const auto exists = shaderResourceViews.find(id);
 	if (exists != shaderResourceViews.end())
-		return;
+		return EXISTS;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = target.width;
@@ -1044,7 +1062,7 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 	ID3D11Texture2D* texture;
 	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
 	if (FAILED(hr))
-		throw std::exception("Failed to create texture.");
+		return DEVICE_FAIL;
 
 	if (target.bindAsShaderResource)
 	{
@@ -1056,7 +1074,7 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 		srvDesc.Texture2D.MipLevels = 1;
 		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
 		if (FAILED(hr))
-			throw std::exception("Failed to create shader resource view");
+			return DEVICE_FAIL;
 		shaderResourceViews[id] = srv;
 	}
 
@@ -1068,29 +1086,31 @@ void SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, co
 	ID3D11RenderTargetView* rtv;
 	hr = device->CreateRenderTargetView(texture, &rtvd, &rtv);
 	if (FAILED(hr))
-		throw std::exception("Failed to create render target view");
+		return DEVICE_FAIL;
 
 	renderTargetViews[id] = rtv;
 
 	texture->Release();
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 {
 	auto rtv = renderTargetViews.find(id);
 	if (rtv == renderTargetViews.end())
-		return;
+		return NOT_FOUND;
 	rtv->second->Release();
 	renderTargetViews.erase(rtv);
 
 	auto srv = shaderResourceViews.find(id);
 	if (srv == shaderResourceViews.end())
-		return;
+		return NOT_FOUND;
 	srv->second->Release();
 	shaderResourceViews.erase(srv);
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
+int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
 {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -1115,12 +1135,12 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id
 
 	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
 	if (FAILED(hr))
-		throw std::exception("Failed to create depth stencil texture");
+		return DEVICE_FAIL;
 
 	ID3D11DepthStencilView* dsv;
 	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
 	if (FAILED(hr))
-		throw std::exception("Failed to create depth stencil view");
+		return DEVICE_FAIL;
 	depthStencilViews[id] = dsv;
 
 	if (bindAsTexture)
@@ -1133,26 +1153,29 @@ void SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id
 		ID3D11ShaderResourceView* srv;
 		hr = device->CreateShaderResourceView(texture, &srvd, &srv);
 		if (FAILED(hr))
-			throw std::exception("Failed to create shader resource view from depth stencil");
+			return DEVICE_FAIL;
 		shaderResourceViews[id] = srv;
 	}
 
 	texture->Release();
+	return SUCCESS;
 }
 
-void SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
+int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
 {
 	auto dsv = depthStencilViews.find(id);
 	if (dsv == depthStencilViews.end())
-		return;
+		return NOT_FOUND;
 	dsv->second->Release();
 	depthStencilViews.erase(dsv);
 
 	auto srv = shaderResourceViews.find(id);
-	if (srv == shaderResourceViews.end())
-		return;
-	srv->second->Release();
-	shaderResourceViews.erase(srv);
+	if (srv != shaderResourceViews.end())
+	{
+		srv->second->Release();
+		shaderResourceViews.erase(srv);
+	}
+	return SUCCESS;
 }
 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)

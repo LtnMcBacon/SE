@@ -117,15 +117,16 @@ bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 		entityToJobID.erase(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		entityRendersBoundingVolume.erase(entity);
+		dirty = true;
 	}
 	else
 	{
-		initInfo.transformManager->Create(entity);
-		initInfo.transformManager->SetAsDirty(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())
 			ProfileReturnConst(false);
+		initInfo.transformManager->Create(entity);
+		initInfo.transformManager->SetAsDirty(entity);
 		entityRendersBoundingVolume.insert(entity);
 		bool found = false;
 		for (int i = 0; i < awaitingBoundingBoxes.size(); ++i)
@@ -233,8 +234,8 @@ SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelSha
 void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
-	const auto find = entityToLineList.find(entity);
-	if (find != entityToLineList.end())
+	//const auto find = entityToLineList.find(entity);
+	//if (find != entityToLineList.end())
 	{
 		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index])));
 	}
