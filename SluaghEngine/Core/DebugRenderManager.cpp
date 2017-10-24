@@ -16,12 +16,12 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	vertexShaderID = "DebugLineVS.hlsl";
 	pixelShaderID = "DebugLinePS.hlsl";
 	transformBufferID = "DebugLineW";
-	resourceHandler->LoadResource(pixelShaderID, { this, &DebugRenderManager::LoadLinePixelShader });
-	resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
+	initInfo.resourceHandler->LoadResource(pixelShaderID, { this, &DebugRenderManager::LoadLinePixelShader });
+	initInfo.resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
 
 	initInfo.transformManager->RegisterSetDirty({ this, &DebugRenderManager::SetDirty });
 
-	auto pipelineHandler = renderer->GetPipelineHandler();
+	auto pipelineHandler = initInfo.renderer->GetPipelineHandler();
 
 	vertexBufferID = Utilz::GUID("DebugRenderManager");
 	pipelineHandler->CreateVertexBuffer(vertexBufferID, nullptr, maximumLinesToRender * 2, sizeof(Point3D), true);
@@ -82,7 +82,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 			job.vertexCount = verticesToDraw;
 			job.mappingFunc = [this, ent](int a, int b)
 			{
-				renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &cachedTransforms[ent], sizeof(DirectX::XMFLOAT4X4));
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &cachedTransforms[ent], sizeof(DirectX::XMFLOAT4X4));
 			};
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
@@ -120,8 +120,8 @@ bool SE::Core::DebugRenderManager::ToggleDebugRendering(const Entity& entity, bo
 	}
 	else
 	{
-		transformManager->Create(entity);
-		transformManager->SetAsDirty(entity);
+		initInfo.transformManager->Create(entity);
+		initInfo.transformManager->SetAsDirty(entity);
 		//In case we don't leave it up to the caller to not enable the same entity twice
 		const auto alreadyRendering = entityRendersBoundingVolume.find(entity);
 		if (alreadyRendering != entityRendersBoundingVolume.end())

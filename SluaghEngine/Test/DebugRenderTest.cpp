@@ -73,7 +73,7 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(Console, Window::KeyC);
 	
 
-	engine.GetDevConsole().Show();
+	subSystem.devConsole->Show();
 	Utilz::Timer timer;
 	uint32_t removeIndex = 0;
 	bool showConsole = false;
