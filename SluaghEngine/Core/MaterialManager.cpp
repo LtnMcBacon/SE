@@ -8,6 +8,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.renderableManager);
+	_ASSERT(initInfo.console);
 	Allocate(128);
 	defaultTextureHandle = 0;
 

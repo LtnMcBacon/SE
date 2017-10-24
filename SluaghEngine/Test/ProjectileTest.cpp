@@ -11,6 +11,8 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
 #include <Gameplay\Game.h>
+#include <Imgui\imgui.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -44,6 +46,8 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	game.Initiate(engine);
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
+	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
+
 
 	
 
@@ -301,6 +305,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	bool running = true;
 	//unsigned char counter = 0;
 	float dt = 1.0f / 60.0f;
+
 	while (running)
 	{
 		newProjectiles.clear();
@@ -338,23 +343,16 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 			subSystem.devConsole->Toggle();
 		}
 
+
 		int mX = 0;
 		int mY = 0;
-		subSystem.window->GetMousePos(mX, mY);
-
 		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DirectX::XMVECTOR rayD;
-		Utilz::Tools::RayToView(mX, mY, width, height, rayD);
-		DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
-		DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 
-		rayO = DirectX::XMVector4Transform(rayO, viewM);
-		rayD = DirectX::XMVector4Transform(rayD, viewM);
-		rayD = XMVector3Normalize(rayD);
+		subSystem.window->GetMousePos(mX, mY);
+		managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
-		//float distance = 0.0f;
 		float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
-		//bool pickTest = managers.collisionManager->PickEntity(floor, rayO, rayD, &distance);
 
 		auto clickPos = rayO + rayD*distance;
 
@@ -476,6 +474,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		engine->BeginFrame();
+
 		engine->EndFrame();
 
 

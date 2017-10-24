@@ -39,8 +39,6 @@ PlayState::~PlayState()
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
-	Utilz::Tools tools;
-
 	if (input->ButtonDown(uint32_t(GameInput::UP)))
 	{
 		movement.upButton = true;
@@ -63,13 +61,11 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 
 	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 	DirectX::XMVECTOR rayD;
-	Utilz::Tools::RayToView(mX, mY, CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800), CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600), rayD);
-	DirectX::XMFLOAT4X4 tempView = CoreInit::managers.cameraManager->GetViewInv(cam);
-	DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 
-	rayO = DirectX::XMVector4Transform(rayO, viewM);
-	rayD = DirectX::XMVector4Transform(rayD, viewM);
-	rayD = DirectX::XMVector3Normalize(rayD);
+
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 

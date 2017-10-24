@@ -68,6 +68,8 @@ bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 								pos.x, pos.y, pos.z, 1.0f };
 	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
 	subSystem.window->MapActionButton(Click, Window::MouseLeft);
+	float aspect = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
 	bool running = true;
 	while (running)
 	{
@@ -80,7 +82,7 @@ bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 			{
 				DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 				DirectX::XMVECTOR rayD;
-				Utilz::Tools::RayToView(x, y, width, height, rayD);
+				Utilz::Tools::RayToView({ x, y, width, height }, aspect, rayD);
 				DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
 				DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 

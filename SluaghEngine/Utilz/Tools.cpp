@@ -9,10 +9,10 @@ void SE::Utilz::Tools::GetLocalMatrix(const DirectX::XMMATRIX & worldM, const Di
 	out =  XMMatrixMultiply(invViewM, invWorl);
 }
 
-void SE::Utilz::Tools::RayToView(int sx, int sy, float height, float width, DirectX::XMVECTOR & out)
+void SE::Utilz::Tools::RayToView(const Rectr & rect, float aspect, DirectX::XMVECTOR & out)
 {
-	float x = ((2.0f * sx / width) - 1.0f) / (1.f / ((width / height)*tan(1.570796f / 2.f)));
-	float y = ((-2.0f * sy / height) + 1.0f) / (1.f / tan(1.570796f / 2.f));
+	float x = ((2.0f * rect.sx / rect.width) - 1.0f) / (1.f / ((rect.width / rect.height)*tan(aspect / 2.f)));
+	float y = ((-2.0f * rect.sy / rect.height) + 1.0f) / (1.f / tan(aspect / 2.f));
 
 	out = { x, y, 1.0f, 0.0f };
 }

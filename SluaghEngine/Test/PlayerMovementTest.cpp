@@ -293,6 +293,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 	bool running = true;
 	//unsigned char counter = 0;
 	float dt = 1.0f / 60.0f;
+
 	while (running)
 	{
 		managers.transformManager->Rotate(player->GetEntity(), 0.0f, 1.0f*dt, 0.0f);
@@ -329,13 +330,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 
 			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 			DirectX::XMVECTOR rayD;
-			Utilz::Tools::RayToView(mX, mY, width, height, rayD);
-			DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
-			DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
-			
-			rayO = DirectX::XMVector4Transform(rayO, viewM);
-			rayD = DirectX::XMVector4Transform(rayD, viewM);
-			rayD = XMVector3Normalize(rayD);
+
+			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
 
 			float distance = XMVectorGetY(rayO)/-XMVectorGetY(rayD);
 			//bool pickTest = managers.collisionManager->PickEntity(floor, rayO, rayD, &distance);

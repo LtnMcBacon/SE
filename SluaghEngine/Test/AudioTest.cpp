@@ -7,7 +7,7 @@
 #pragma comment(lib, "coreD.lib")
 #pragma comment(lib, "windowD.lib")
 #else
-#pragma comment(lib, "core->lib")
+#pragma comment(lib, "Core.lib")
 #pragma comment(lib, "window.lib")
 #endif
 #undef PlaySound
