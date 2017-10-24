@@ -1,5 +1,5 @@
 #include "BloomTest.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Utilz\Timer.h>
 
 #ifdef _DEBUG
@@ -36,25 +36,17 @@ namespace SE
 		{
 		}
 
-		bool BloomTest::Run(Utilz::IConsoleBackend* console)
+		bool BloomTest::Run(DevConsole::IConsole* console)
 		{
-			auto& e = Core::Engine::GetInstance();
-			auto re = e.Init(Core::Engine::InitializationInfo());
-			e.GetWindow();
-			if (re)
-			{
-				console->Print("Could not init Core, Error: %d.", re);
-			}
-
-
-			auto renderer = e.GetRenderer();
-			auto resourceManager = e.GetResourceHandler();
-
+			auto engine = Core::CreateEngine();
+			engine->Init();
+			auto managers = engine->GetManagers();
+			auto subSystem = engine->GetSubsystems();
 
 			int horizontalHandle, verticalHandle;
 
-			resourceManager->LoadResource("HorizontalBloomPass.hlsl", [renderer, &horizontalHandle](auto guid, auto data, auto size) {
-				horizontalHandle = renderer->CreateComputeShader(data, size);
+			subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem, &horizontalHandle](auto guid, auto data, auto size) {
+				horizontalHandle = subSystem.renderer->CreateComputeShader(data, size);
 
 				if (horizontalHandle > -1)
 					return ResourceHandler::InvokeReturn::DecreaseRefcount;
@@ -62,8 +54,8 @@ namespace SE
 					return ResourceHandler::InvokeReturn::Fail;
 			});
 
-			resourceManager->LoadResource("VerticalBloomPass.hlsl", [renderer, &verticalHandle](auto guid, auto data, auto size) {
-				verticalHandle = renderer->CreateComputeShader(data, size);
+			subSystem.resourceHandler->LoadResource("VerticalBloomPass.hlsl", [subSystem, &verticalHandle](auto guid, auto data, auto size) {
+				verticalHandle = subSystem.renderer->CreateComputeShader(data, size);
 
 				if (verticalHandle > -1)
 					return ResourceHandler::InvokeReturn::DecreaseRefcount;
@@ -72,7 +64,7 @@ namespace SE
 			});
 
 
-			renderer->EnableBloom(horizontalHandle, verticalHandle);
+			subSystem.renderer->EnableBloom(horizontalHandle, verticalHandle);
 
 
 
@@ -80,117 +72,102 @@ namespace SE
 			// Modified RenderableManagerTest Copy Below
 			//
 
+			auto camera = managers.entityManager->Create();
+			managers.cameraManager->Create(camera);
+			managers.cameraManager->SetActive(camera);
+			managers.transformManager->SetRotation(camera, 0.0f, 0.0f, 0.0f);
+			managers.transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
 
+			subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+			subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
+			subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
+			subSystem.window->MapActionButton(ActionButton::Up, Window::KeyW);
+			subSystem.window->MapActionButton(ActionButton::Down, Window::KeyS);
+			subSystem.window->MapActionButton(ActionButton::Left, Window::KeyA);
+			subSystem.window->MapActionButton(ActionButton::Right, Window::KeyD);
+			subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+			subSystem.window->MapActionButton(ActionButton::TL, Window::KeyLeft);
 
-			auto& em = e.GetEntityManager();
-			auto& rm = e.GetRenderableManager();
-			auto& tm = e.GetTransformManager();
-			auto& cm = e.GetCameraManager();
-			auto& am = e.GetAnimationManager();
-			auto& mm = e.GetMaterialManager();
-			auto& level = em.Create();
-			auto& mainC = em.Create();
-			auto& camera = em.Create();
-			auto& lm = e.GetLightManager();
-
-			auto handle = e.GetWindow();
-
-			tm.Create(level);
-
-			cm.Bind(camera);
-			cm.SetActive(camera);
-			tm.SetRotation(camera, 0.0f, 0.0f, 0.0f);
-			tm.SetPosition(camera, { 0.0f, 1.0f, -5.0f });
-
-			handle->MapActionButton(ActionButton::Exit, Window::KeyEscape);
-			handle->MapActionButton(ActionButton::Hide, Window::KeyO);
-			handle->MapActionButton(ActionButton::Show, Window::KeyK);
-			handle->MapActionButton(ActionButton::Up, Window::KeyW);
-			handle->MapActionButton(ActionButton::Down, Window::KeyS);
-			handle->MapActionButton(ActionButton::Left, Window::KeyA);
-			handle->MapActionButton(ActionButton::Right, Window::KeyD);
-			handle->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
-			handle->MapActionButton(ActionButton::TL, Window::KeyLeft);
-
-			handle->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
-			handle->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
+			subSystem.window->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
+			subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 			/*rm.CreateRenderableObject(level, Utilz::GUID("Placeholder_level.obj"));
 			rm.ToggleRenderableObject(level, true);*/
 
-			tm.Create(mainC);
-			tm.SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-			tm.SetRotation(mainC, 0.0f, 3.14f, 0.0f);
+			auto mainC = managers.entityManager->Create();
+			managers.transformManager->Create(mainC);
+			managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+			managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
-			Core::MaterialManager::CreateInfo info;
+			Core::IMaterialManager::CreateInfo info;
 			auto material = Utilz::GUID("MCModell.mat");
 			auto shader = Utilz::GUID("SimpleLightBloomPS.hlsl");
 			info.shader = shader;
 			info.materialFile = material;
 
-			mm.Create(mainC, info, true);
+			managers.materialManager->Create(mainC, info, true);
 
-			rm.CreateRenderableObject(mainC, Utilz::GUID("MCModell.mesh"), true);
-			rm.ToggleRenderableObject(mainC, true);
+			managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
+			managers.renderableManager->ToggleRenderableObject(mainC, true);
 
-			auto& l = em.Create();
-			Core::AddLightInfo d;
+			auto& l = managers.entityManager->Create();
+			Core::ILightManager::CreateInfo d;
 			d.radius = 100.0f;
 			d.pos = { 0.0f, 5.0f, -5.0f };
 			d.color = { 1, 1,1 };
-			lm.AddLight(l, d);
-			lm.ToggleLight(l, true);
+			managers.lightManager->Create(l, d);
+			managers.lightManager->ToggleLight(l, true);
 
-			e.GetWindow()->MapActionButton(0, Window::KeyEscape);
+			subSystem.window->MapActionButton(0, Window::KeyEscape);
 
 			bool running = true;
 
 
 
 			Utilz::Timer timer;
-			e.GetDevConsole().Show();
+			subSystem.devConsole->Toggle();
 
-			auto e1 = em.Create();
-			em.Destroy(e1);
+			auto e1 = managers.entityManager->Create();
+			managers.entityManager->Destroy(e1);
 
-			auto e2 = em.Create();
-			em.Destroy(e2);
+			auto e2 = managers.entityManager->Create();
+			managers.entityManager->Destroy(e2);
 
-			auto e3 = em.Create();
-			em.Destroy(e3);
+			auto e3 = managers.entityManager->Create();
+			managers.entityManager->Destroy(e3);
 			while (running)
 			{
-				if (e.GetWindow()->ButtonPressed(0))
+				if (subSystem.window->ButtonPressed(0))
 					running = false;
 
 				timer.Tick();
 				float dt = (float)timer.GetDelta();
 
-				if (handle->ButtonDown(ActionButton::Up))
-					tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
-				if (handle->ButtonDown(ActionButton::Down))
-					tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
-				if (handle->ButtonDown(ActionButton::Right))
-					tm.Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
-				if (handle->ButtonDown(ActionButton::Left))
-					tm.Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
-				if (handle->ButtonDown(ActionButton::Rise))
-					tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
-				if (handle->ButtonDown(ActionButton::Sink))
-					tm.Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
-				if (handle->ButtonDown(ActionButton::TL))
-					tm.Rotate(camera, 0.0f, 0.01f, 0.0f);
-				tm.Rotate(mainC, 0.0f, 0.01f, 0.0f);
+				if (subSystem.window->ButtonDown(ActionButton::Up))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::Down))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
+				if (subSystem.window->ButtonDown(ActionButton::Right))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::Left))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::Rise))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::Sink))
+					managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
+				if (subSystem.window->ButtonDown(ActionButton::TL))
+					managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
+				managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
 				//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
 
-				e.BeginFrame();
+				engine->BeginFrame();
 
-				e.Frame(dt);
+				engine->EndFrame();
 			}
 
 
-			e.Release();
-
+			engine->Release();
+			delete engine;
 
 			return true;
 		}

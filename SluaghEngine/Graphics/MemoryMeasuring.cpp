@@ -41,7 +41,7 @@ namespace SE
 			return -1;
 		}
 
-		int MemoryMeasuring::printUsage(SE::Utilz::IConsoleBackend* console)
+		int MemoryMeasuring::printUsage(SE::DevConsole::IConsole* console)
 		{
 			DXGI_QUERY_VIDEO_MEMORY_INFO info;
 			if (SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))

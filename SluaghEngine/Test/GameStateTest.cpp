@@ -1,7 +1,7 @@
 #include "GameStateTest.h"
 #include<Gameplay\IGameState.h>
 #include <Profiler.h>
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <chrono>
 #include <window/IWindow.h>
 #include <Gameplay\MainMenuState.h>
@@ -9,6 +9,7 @@
 #include "Gameplay/PlayState.h"
 #include "Gameplay/GameOverState.h"
 #include "Gameplay/CharacterCreationState.h"
+#include <Gameplay\Game.h>
 using namespace SE;
 using namespace Gameplay;
 using namespace Test;
@@ -27,22 +28,16 @@ enum
 {
 	Exit
 };
-bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
+bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 {
 
 	StartProfile;
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		ProfileReturnConst(false);
-	}
-
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
+	auto engine = Core::CreateEngine();
+	Game game;
+	engine->Init();
+	game.Initiate(engine);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
 
 	
 
@@ -53,21 +48,18 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	IGameState::State OldState = SwitchState;
 
-	Window::IWindow* Input = e.GetWindow();
+	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(1, Window::KeyW);
+	subSystem.window->MapActionButton(2, Window::KeyS);
+	subSystem.window->MapActionButton(3, Window::KeyA);
+	subSystem.window->MapActionButton(4, Window::KeyD);
+	IGameState* Game = new MainMenuState(subSystem.window);
 	
-	Input->MapActionButton(0, Window::KeyEscape);
-	Input->MapActionButton(1, Window::KeyW);
-	Input->MapActionButton(2, Window::KeyS);
-	Input->MapActionButton(3, Window::KeyA);
-	Input->MapActionButton(4, Window::KeyD);
-	IGameState* Game = new MainMenuState(Input);
-	
-	auto w = e.GetWindow();
-	w->MapActionButton(Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
 	void* passableInfo = nullptr;
 	while (running)
 	{
-		if (w->ButtonPressed(Exit))
+		if (subSystem.window->ButtonPressed(Exit))
 			running = false;
 		
 		SwitchState = Game->Update(passableInfo);
@@ -79,7 +71,7 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 			case IGameState::MAIN_MENU_STATE:
 				console->Print("Making Main Menu State!\n");
 				delete Game;
-				Game = new MainMenuState(Input);
+				Game = new MainMenuState(subSystem.window);
 				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 	
 				break;
@@ -90,18 +82,18 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 			case IGameState::GAME_OVER_STATE:
 				console->Print("Making Game over State!\n");
 				delete Game;
-				Game = new GameOverState(Input);
+				Game = new GameOverState(subSystem.window);
 				break;
 			case IGameState::CHARACTER_CREATION_STATE:
 				console->Print("Making Character Creation State!\n");
 				delete Game;
-				Game = new CharacterCreationState(Input);
+				Game = new CharacterCreationState(subSystem.window);
 		
 				break;
 			case IGameState::PAUSE_STATE:
 				console->Print("Making Pause State!\n");
 				delete Game;
-				Game = new PauseState(Input);
+				Game = new PauseState(subSystem.window);
 				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 		
 				break;
@@ -112,11 +104,13 @@ bool GameStateTest::Run(SE::Utilz::IConsoleBackend* console)
 		}
 		delete passableInfo;
 		OldState = SwitchState;
-		e.Frame(1/60.f);
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 	delete Game;
 
-	e.Release();
+	game.Shutdown();
+	engine->Release(); delete engine;
 
 	ProfileReturnConst(true);
 }

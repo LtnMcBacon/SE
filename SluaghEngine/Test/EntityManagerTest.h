@@ -1,8 +1,6 @@
 #ifndef SE_TEST_ENTITY_MANAGER_TEST_H_
 #define SE_TEST_ENTITY_MANAGER_TEST_H_
 #include "Test.h"
-#include <Core/EntityManager.h>
-#include <iostream>
 
 
 namespace SE
@@ -15,7 +13,7 @@ namespace SE
 			EntityManagerTest();
 			~EntityManagerTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

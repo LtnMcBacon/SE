@@ -1,23 +1,15 @@
-#include <Core\Engine.h>
-#ifdef _DEBUG
-#pragma comment(lib, "CoreD.lib")
-#else
-#pragma comment(lib, "Core.lib")
-#endif
+#include "CoreInit.h"
 
 using namespace SE;
 int main()
 {
-	auto& engine = Core::Engine::GetInstance();
-	Core::Engine::InitializationInfo initInfo;
-	engine.Init(initInfo);
-	
+	Gameplay::CoreInit::Init(Core::CreateEngine());
 	// Gameplay game;
 	// game.Init();
 	// game.Run();
 	// game.Shutdown();
 
-	engine.Release();
+	Gameplay::CoreInit::Shutdown();
 
 	return 0;
 }

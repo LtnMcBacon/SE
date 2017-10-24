@@ -20,7 +20,7 @@ SE::Test::InitGraphicsTest::InitGraphicsTest::~InitGraphicsTest()
 {
 }
 
-bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::InitGraphicsTest::Run(DevConsole::IConsole * console)
 {
 	StartProfile;
 	Graphics::IRenderer* r = Graphics::CreateRenderer();

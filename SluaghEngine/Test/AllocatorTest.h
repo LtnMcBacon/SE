@@ -15,7 +15,7 @@ namespace SE
 			AllocatorTest();
 			~AllocatorTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

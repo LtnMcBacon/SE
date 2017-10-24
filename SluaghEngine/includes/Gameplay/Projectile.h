@@ -2,7 +2,7 @@
 #define _SE_GAMEPLAY_PROJECTILE_H_
 
 #include "GameUnit.h"
-
+#include <functional>
 
 namespace SE
 {

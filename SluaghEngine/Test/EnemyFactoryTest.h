@@ -13,7 +13,7 @@ namespace SE
 			EnemyFactoryTest();
 			~EnemyFactoryTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 
 

@@ -13,7 +13,7 @@ namespace SE
 			PickingTest();
 			~PickingTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

@@ -13,7 +13,7 @@ namespace SE
 			BehaviouralTreeFactoryTest();
 			~BehaviouralTreeFactoryTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 
 
