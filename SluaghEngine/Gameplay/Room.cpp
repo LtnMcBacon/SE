@@ -319,7 +319,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 	}
 	else
 	{
-		/*
+		/**
 		 * Breseham's Line ALgorithm
 		 * https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
 		 *  Octants:
