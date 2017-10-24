@@ -27,7 +27,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	device = new DeviceManager();
 	HRESULT hr = device->Init((HWND)initInfo.window);
 	if (FAILED(hr))
-		return -1;
+		return hr;
 
 	dev = device->GetDevice();
 	devContext = device->GetDeviceContext();

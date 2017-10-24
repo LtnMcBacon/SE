@@ -30,9 +30,19 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 
-	InitSubSystems();
-	InitManagers();
 
+
+	try
+	{
+		InitSubSystems();
+		InitManagers();
+	}
+	catch (const std::exception& e)
+	{
+		// A manager or sub system could not be initiated.
+		this->Release();
+		return -1;
+	}
 
 	SetupDebugConsole();
 
@@ -130,7 +140,9 @@ void SE::Core::Engine::InitSubSystems()
 	if (!subSystems.optionsHandler)
 	{
 		subSystems.optionsHandler = CreateOptionsHandler();
-		subSystems.optionsHandler->Initialize("Config.ini");
+		auto res = subSystems.optionsHandler->Initialize("Config.ini");
+		if (res < 0)
+			throw std::exception("Could not initiate optionsHandler.");
 	}
 	if (!subSystems.resourceHandler)
 	{
@@ -138,7 +150,9 @@ void SE::Core::Engine::InitSubSystems()
 		ResourceHandler::InitializationInfo info;
 		info.maxMemory = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
 		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
-		subSystems.resourceHandler->Initialize(info);
+		auto res = subSystems.resourceHandler->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate resourceHandler.");
 	}
 	if (!subSystems.window)
 	{
@@ -149,7 +163,9 @@ void SE::Core::Engine::InitSubSystems()
 		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
-		subSystems.window->Initialize(info);
+		auto res = subSystems.window->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate window.");
 	}
 	if (!subSystems.renderer)
 	{
@@ -157,12 +173,16 @@ void SE::Core::Engine::InitSubSystems()
 		Graphics::InitializationInfo info;
 		info.window = subSystems.window->GetHWND();
 		info.maxVRAMUsage = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
-		subSystems.renderer->Initialize(info);
+		auto res = subSystems.renderer->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate renderer.");
 	}
 	if (!subSystems.devConsole)
 	{
 		subSystems.devConsole = CreateConsole(subSystems.renderer, subSystems.window);
-		subSystems.devConsole->Initialize();
+		auto res = subSystems.devConsole->Initialize();
+		if (res < 0)
+			throw std::exception("Could not initiate devConsole.");
 	}
 	StopProfile;
 }
