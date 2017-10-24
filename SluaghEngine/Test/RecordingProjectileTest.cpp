@@ -11,6 +11,7 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
 #include <Gameplay\Game.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -126,21 +127,17 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 
 #pragma region AudioData
-	managers.audioManager->LoadSound(Utilz::GUID("BLoop.wav"));
-	managers.audioManager->LoadSound(Utilz::GUID("BLoop2.wav"));
-	int delay = 0;
-	while (managers.audioManager->CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10 && managers.audioManager->CheckIfLoaded(Utilz::GUID("BLoop2.wav")))
-	{
-		delay++;
-	}
-
 	auto soundEnt = managers.entityManager->Create();
+	Core::IAudioManager::CreateInfo ausioInfo1;
+	ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
+	ausioInfo1.soundType = Audio::SoundIndexName::BakgroundSound;
+	managers.audioManager->Create(soundEnt, ausioInfo1);
+	Core::IAudioManager::CreateInfo ausioInfo2;
+	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
+	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
+	managers.audioManager->Create(soundEnt, ausioInfo2);
 
-	int soundID[2];
-	soundID[0] = managers.audioManager->CreateStream(soundEnt, Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound);
-	soundID[1] = managers.audioManager->CreateStream(soundEnt, Utilz::GUID("BLoop2.wav"), Audio::SoundIndexName::BakgroundSound);
-	if (soundID[0] > -1)
-		managers.audioManager->StreamSound(soundEnt, soundID[0]);
+	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
 
 
@@ -188,7 +185,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	data.color = DirectX::XMFLOAT3(0.3, 0.3, 0.3);
 	data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
 	data.radius = 150.0;
-	managers.lightManager->AddLight(light[4], data);
+	managers.lightManager->Create(light[4], data);
 	managers.lightManager->ToggleLight(light[4], true);
 #pragma endregion LightDataSet
 
@@ -377,17 +374,17 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	};
 
 
-	win->MapActionButton(UP, Window::KeyW);
-	win->MapActionButton(RIGHT, Window::KeyD);
-	win->MapActionButton(DOWN, Window::KeyS);
-	win->MapActionButton(LEFT, Window::KeyA);
-	win->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	win->MapActionButton(SPACE, Window::KeySpace);
-	win->MapActionButton(CONSOLE, Window::Key1);
-	win->MapActionButton(FULLSCREEN, Window::KeyT);
-	win->MapActionButton(SIZE19, Window::KeyY);
-	win->MapActionButton(SIZE12, Window::KeyU);
-
+	subSystem.window->MapActionButton(UP, Window::KeyW);
+	subSystem.window->MapActionButton(RIGHT, Window::KeyD);
+	subSystem.window->MapActionButton(DOWN, Window::KeyS);
+	subSystem.window->MapActionButton(LEFT, Window::KeyA);
+	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+	subSystem.window->MapActionButton(CONSOLE, Window::Key1);
+	subSystem.window->MapActionButton(FULLSCREEN, Window::KeyT);
+	subSystem.window->MapActionButton(SIZE19, Window::KeyY);
+	subSystem.window->MapActionButton(SIZE12, Window::KeyU);
+	
 		pos playerPos;
 		playerPos.x = 1.5f;
 		playerPos.y = 1.5f;
@@ -415,45 +412,45 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		audioTime += dt;
 		if (audioTime > 60.0)
 		{
-			am.StopSound(soundEnt, soundID[audio]);
+			managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
 			audio = (audio + 1) % 2;
-			am.StreamSound(soundEnt, soundID[audio]);
+			managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
 			audioTime = 0.0;
 		}
 		if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
 		{
 			change = true;
-			bool fs = om.GetOptionBool("Window", "fullScreen", true);
+			bool fs = subSystem.optionsHandler->GetOptionBool("Window", "fullScreen", true);
 			if (fs == true)
-				om.SetOptionBool("Window", "fullScreen", false);
+				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", false);
 			else
-				om.SetOptionBool("Window", "fullScreen", true);
+				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", true);
 		}
 		if (subSystem.window->ButtonPressed(MoveDir::SIZE19))
 		{
-			size_t height = om.GetOptionUnsignedInt("Window", "height", 1080);
-			size_t width = om.GetOptionUnsignedInt("Window", "width", 1920);
+			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
 			if (height != 1080 || width != 1920)
 			{
-				om.SetOptionUnsignedInt("Window", "height", 1080);
-				om.SetOptionUnsignedInt("Window", "width", 1920);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
 				change = true;
 			}
 		}
-		if (subSystem.window->->ButtonPressed(MoveDir::CONSOLE))
+		if (subSystem.window->ButtonPressed(MoveDir::SIZE12))
 		{
-			size_t height = om.GetOptionUnsignedInt("Window", "height", 1080);
-			size_t width = om.GetOptionUnsignedInt("Window", "width", 1920);
+			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
 			if (height != 720 || width != 1280)
 			{
-				om.SetOptionUnsignedInt("Window", "height", 720);
-				om.SetOptionUnsignedInt("Window", "width", 1280);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 720);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1280);
 				change = true;
 			}
 		}
 		if (change == true)
 		{
-			om.Trigger();
+			subSystem.optionsHandler->Trigger();
 		}
 		newProjectiles.clear();
 
