@@ -20,7 +20,12 @@ using namespace SE::Utilz::Memory;
 #pragma comment(lib, "DevConsole.lib")
 #endif
 
-
+#ifdef __linux__ 
+//linux code goes here
+#elif _WIN32 || _WIN64
+#include <Windows.h>
+#else
+#endif
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
 	StartProfile;
@@ -40,6 +45,16 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	catch (const std::exception& e)
 	{
 		// A manager or sub system could not be initiated.
+		printf("Error in engine init: %s", e.what());
+
+#ifdef _WIN32 || _WIN64
+		int msgboxID = MessageBox(
+			NULL,
+			e.what(),
+			"Engine Error",
+			MB_ICONERROR | MB_OK
+		);
+#endif
 		this->Release();
 		return -1;
 	}
