@@ -20,20 +20,20 @@ namespace SE {
 
 		}
 
-		void TextManager::CreateRenderableText(const Entity& entity, const Graphics::TextGUI& inTextInfo)
+		void TextManager::Create(CreateInfo info)
 		{
 			StartProfile;
 
 			// Check if the entity is alive
-			if (!initInfo.entityManager->Alive(entity))
+			if (!initInfo.entityManager->Alive(info.entity))
 				ProfileReturnVoid;
 
-			if (inTextInfo.fontID >= guidToFont.size())
+			if (info.inTextInfo.fontID >= guidToFont.size())
 				ProfileReturnVoid;
 
-			entID[entity].ID = loadedTexts.size();
-			textEnt.push_back(entity);
-			loadedTexts.push_back(inTextInfo);
+			entID[info.entity].ID = loadedTexts.size();
+			textEnt.push_back(info.entity);
+			loadedTexts.push_back(info.inTextInfo);
 			if (!loadedTexts[loadedTexts.size() - 1].anchor)
 			{
 				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
@@ -68,7 +68,7 @@ namespace SE {
 			StopProfile;
 		}
 
-		int TextManager::CreateTextFont(const Utilz::GUID& fontFile)
+		int TextManager::MakeFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
 			auto ret = initInfo.resourceHandler->LoadResource(fontFile, { this, &TextManager::LoadFont });
@@ -80,12 +80,25 @@ namespace SE {
 		{
 			StartProfile;
 			timer->Start("GUIManager");
+			for (auto& dirt : dirtyEnt)
+			{
+				// Check if the entity is alive
+				if (!initInfo.entityManager->Alive(dirt.first))
+					continue;
+				if (dirt.second == true && entID[dirt.first].show == true)
+				{
+					ToggleRenderableText(dirt.first, false);
+					ToggleRenderableText(dirt.first, true);
+				}
+				dirt.second = false;
+			}
+			dirtyEnt.clear();
 			GarbageCollection();
 			timer->Stop("GUIManager");
 			StopProfile;
 		}
 
-		void TextManager::update2DText()
+		void TextManager::updateText()
 		{
 			StartProfile;
 			if (loadedTexts.size() > 0)
@@ -108,7 +121,7 @@ namespace SE {
 			return ResourceHandler::InvokeReturn::Success;
 		}
 
-		void TextManager::DestroyText(size_t index)
+		void TextManager::Destroy(size_t index)
 		{
 			StartProfile;
 			// Temp variables
@@ -144,17 +157,30 @@ namespace SE {
 				}
 				alive_in_row = 0;
 				ToggleRenderableText(textEnt[i], false);
-				DestroyText(i);
+				Destroy(i);
 			}
 			StopProfile;
 		}
 
-		void TextManager::Destroy(size_t index)
-		{
-		}
-
 		void TextManager::Destroy(const Entity & entity)
 		{
+			StartProfile;
+			// Temp variables
+			size_t last = loadedTexts.size() - 1;
+			size_t index = entID[entity].ID;
+			const Entity last_entity = textEnt[last];
+
+			// Copy the data
+			textEnt[index] = last_entity;
+			loadedTexts[index] = loadedTexts[last];
+			entID[last_entity] = entID[entity];
+
+			// Remove last spot 
+			entID.erase(entity);
+			loadedTexts.pop_back();
+			textEnt.pop_back();
+
+			StopProfile;
 		}
 	}
 }

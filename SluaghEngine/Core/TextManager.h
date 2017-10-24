@@ -33,7 +33,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			void CreateRenderableText(const Entity& entity, const Graphics::TextGUI& textInfo)override;
+			void Create(CreateInfo info)override;
 
 			/**
 			* @brief Create a new font
@@ -42,7 +42,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			int CreateTextFont(const Utilz::GUID& fontFile)override;
+			int MakeFont(const Utilz::GUID& fontFile)override;
 
 			/**
 			* @brief	Hide/Show the renderable text
@@ -65,6 +65,10 @@ namespace SE
 				{
 					loadedTexts[fileLoaded->second.ID].text = text;
 					loadedTexts[fileLoaded->second.ID].hashString = std::hash<std::wstring>()(text);
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -74,6 +78,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].fontID = fontID;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -83,6 +91,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].colour = colour;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -92,6 +104,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].pos = pos;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -101,6 +117,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].origin = origin;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -110,6 +130,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].scale = scale;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -119,6 +143,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].effect = effect;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -128,6 +156,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].rotation = rotation;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -137,6 +169,10 @@ namespace SE
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].layerDepth = layerDepth;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -156,24 +192,14 @@ namespace SE
 			* @brief Resets all GUI to be rescaled to new resolution
 			* @endcode
 			*/
-			void update2DText()override;
+			void updateText()override;
 
 		private:
 			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
 
-
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			void DestroyText(size_t index);
-
-			struct EntBindIDGUID
-			{
-				Utilz::GUID GUID;
-				size_t ID;
-				size_t jobID;
-				bool show = false;
-			};
 
 			struct showID
 			{
@@ -188,13 +214,7 @@ namespace SE
 			std::vector<Graphics::TextGUI> loadedTexts;
 			std::vector<Entity> textEnt;
 			std::map<size_t, Entity> textJobobToEnt;
-
-			//Texture variables
-			std::unordered_map<Entity, EntBindIDGUID, EntityHasher> entTextureID;
-			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;
-			std::map<size_t, Entity> jobToEnt;
-			std::vector<Graphics::GUITextureInfo> textureInfo;
-			std::vector<Entity> textureEnt;
+			std::map<Entity, bool, EntityHasher> dirtyEnt;
 
 			std::default_random_engine generator;
 
@@ -202,8 +222,6 @@ namespace SE
 
 			float height = 720.0;
 			float width = 1280.0;
-
-			bool garbage = false;
 		};
 	}
 }

@@ -16,37 +16,32 @@ namespace SE {
 
 		}
 
-		int GUIManager::Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)
+		int GUIManager::Create(CreateInfo info)
 		{
 			StartProfile;
-			auto fileLoaded = textureGUID.find(texFile);
+			auto fileLoaded = textureGUID.find(info.texFile);
 			if (fileLoaded == textureGUID.end())
 			{
-				textureGUID[texFile].textureHandle = -1;
-				initInfo.resourceHandler->LoadResource(texFile, { this, &GUIManager::LoadTexture });
-				ProfileReturnConst(-1);
-			}
-			else if (textureGUID[texFile].textureHandle != -1)
-			{
-				ProfileReturn(textureGUID[texFile].textureHandle);
+				textureGUID[info.texFile].textureHandle = -1;
+				initInfo.resourceHandler->LoadResource(info.texFile, { this, &GUIManager::LoadTexture });
 			}
 
 			// Check if the entity is alive
-			if (!initInfo.entityManager->Alive(entity))
+			if (!initInfo.entityManager->Alive(info.entity))
 				ProfileReturnConst(-1);
 
-			auto entLoaded = entTextureID.find(entity);
+			auto entLoaded = entTextureID.find(info.entity);
 			if (entLoaded == entTextureID.end())
 			{
-				entTextureID[entity].ID = textureInfo.size();
-				entTextureID[entity].GUID = texFile;
-				textureGUID[texFile].refCount++;
-				textureEnt.push_back(entity);
-				textureInfo.push_back(texInfo);
-				textureInfo[textureInfo.size() - 1].textureID = textureGUID[texFile].textureHandle;
+				entTextureID[info.entity].ID = textureInfo.size();
+				entTextureID[info.entity].GUID = info.texFile;
+				textureGUID[info.texFile].refCount++;
+				textureEnt.push_back(info.entity);
+				textureInfo.push_back(info.texInfo);
+				textureInfo[textureInfo.size() - 1].textureID = textureGUID[info.texFile].textureHandle;
 				if (!textureInfo[textureInfo.size() - 1].anchor)
 				{
-					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[texFile].width / 2, textureGUID[texFile].height / 2);
+					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[info.texFile].width / 2, textureGUID[info.texFile].height / 2);
 					textureInfo[textureInfo.size() - 1].pos = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].pos.x / width, textureInfo[textureInfo.size() - 1].pos.y / height);
 					textureInfo[textureInfo.size() - 1].scale = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].scale.x / width, textureInfo[textureInfo.size() - 1].scale.y / height);
 				}
@@ -87,6 +82,19 @@ namespace SE {
 		{
 			StartProfile;
 			timer->Start("GUIManager");
+			for (auto& dirt : dirtyEnt)
+			{
+				// Check if the entity is alive
+				if (!initInfo.entityManager->Alive(dirt.first))
+					continue;
+				if (dirt.second == true && entTextureID[dirt.first].show == true)
+				{
+					ToggleRenderableTexture(dirt.first, false);
+					ToggleRenderableTexture(dirt.first, true);
+				}
+				dirt.second = false;
+			}
+			dirtyEnt.clear();
 			GarbageCollection();
 			timer->Stop("GUIManager");
 			StopProfile;
@@ -109,7 +117,7 @@ namespace SE {
 			StopProfile;
 		}
 
-		void GUIManager::DestroyTexture(size_t index)
+		void GUIManager::Destroy(size_t index)
 		{
 			StartProfile;
 			// Temp variables
@@ -146,17 +154,31 @@ namespace SE {
 				}
 				alive_in_row = 0;
 				ToggleRenderableTexture(textureEnt[i], false);
-				DestroyTexture(i);
+				Destroy(i);
 			}
 			StopProfile;
 		}
 
-		void GUIManager::Destroy(size_t index)
-		{
-		}
-
 		void GUIManager::Destroy(const Entity & entity)
 		{
+			StartProfile;
+			// Temp variables
+			size_t last = textureInfo.size() - 1;
+			size_t index = entTextureID[entity].ID;
+			const Entity last_entity = textureEnt[last];
+
+			// Copy the data
+			textureEnt[index] = last_entity;
+			textureInfo[index] = textureInfo[last];
+			textureGUID[entTextureID[entity].GUID].refCount--;
+			entTextureID[last_entity].ID = entTextureID[entity].ID;
+
+			// Remove last spot 
+			entTextureID.erase(entity);
+			textureInfo.pop_back();
+			textureEnt.pop_back();
+
+			StopProfile;
 		}
 
 		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)

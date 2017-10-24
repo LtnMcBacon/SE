@@ -33,7 +33,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			int Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo)override;
+			int Create(CreateInfo info)override;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -56,6 +56,10 @@ namespace SE
 				if (fileLoaded != entTextureID.end())
 				{
 					textureInfo[fileLoaded->second.ID].colour = colour;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -64,7 +68,16 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].pos = pos;
+					
+					if (textureInfo[fileLoaded->second.ID].anchor == true)
+						textureInfo[fileLoaded->second.ID].pos = pos;
+					else
+						textureInfo[fileLoaded->second.ID].pos = DirectX::XMFLOAT2(textureInfo[fileLoaded->second.ID].pos.x / width, textureInfo[fileLoaded->second.ID].pos.y / height);
+
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -72,8 +85,15 @@ namespace SE
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
-				{
-					textureInfo[fileLoaded->second.ID].origin = origin;
+				{			
+					if (textureInfo[fileLoaded->second.ID].anchor == true)
+						textureInfo[fileLoaded->second.ID].origin = origin;
+					else
+						textureInfo[fileLoaded->second.ID].origin = DirectX::XMFLOAT2(textureGUID[fileLoaded->second.GUID].width / 2, textureGUID[fileLoaded->second.GUID].height / 2);
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -82,7 +102,14 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].scale = scale;
+					if (textureInfo[fileLoaded->second.ID].anchor == true)
+						textureInfo[fileLoaded->second.ID].scale = scale;
+					else
+						textureInfo[fileLoaded->second.ID].scale = DirectX::XMFLOAT2(textureInfo[fileLoaded->second.ID].scale.x / width, textureInfo[fileLoaded->second.ID].scale.y / height);
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -92,6 +119,10 @@ namespace SE
 				if (fileLoaded != entTextureID.end())
 				{
 					textureInfo[fileLoaded->second.ID].effect = effect;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -100,14 +131,11 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
+					textureInfo[fileLoaded->second.ID].rotation = rotation;
 					if (fileLoaded->second.show == true)
 					{
-						ToggleRenderableTexture(entity, false);
-						textureInfo[fileLoaded->second.ID].rotation = rotation;
-						ToggleRenderableTexture(entity, true);
-					}
-					else
-						textureInfo[fileLoaded->second.ID].rotation = rotation;
+						dirtyEnt[entity] = true;
+					}	
 				}
 			};
 
@@ -117,7 +145,12 @@ namespace SE
 				if (fileLoaded != entTextureID.end())
 				{
 					textureInfo[fileLoaded->second.ID].layerDepth = layerDepth;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
+				
 			};
 
 			inline void SetTextureID(const Entity& entity, Utilz::GUID& guid) override {
@@ -130,6 +163,10 @@ namespace SE
 					fileLoaded->second.GUID = guid;
 					textureInfo[fileLoaded->second.ID].textureID = guidLoaded->second.textureHandle;
 					guidLoaded->second.refCount++;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -139,6 +176,10 @@ namespace SE
 				if (fileLoaded != entTextureID.end())
 				{
 					textureInfo[fileLoaded->second.ID].rect = rect;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
 				}
 			};
 
@@ -164,7 +205,6 @@ namespace SE
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			void DestroyTexture(size_t index);
 			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			struct EntBindIDGUID
@@ -175,35 +215,22 @@ namespace SE
 				bool show = false;
 			};
 
-			struct showID
-			{
-				size_t ID;
-				size_t jobID;
-				bool show = false;
-			};
-
-			// Text variables
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
-			std::unordered_map<Entity, showID, EntityHasher> entID;
-			std::vector<Graphics::TextGUI> loadedTexts;
-			std::vector<Entity> textEnt;
-			std::map<size_t, Entity> textJobobToEnt;
-
 			//Texture variables
 			std::unordered_map<Entity, EntBindIDGUID, EntityHasher> entTextureID;
 			std::map<Utilz::GUID, Graphics::TexUsage, Utilz::GUID::Compare> textureGUID;		
 			std::map<size_t, Entity> jobToEnt;
 			std::vector<Graphics::GUITextureInfo> textureInfo;
 			std::vector<Entity> textureEnt;
+			std::map<Entity, bool, EntityHasher> dirtyEnt;
 
 			std::default_random_engine generator;
 
 			InitializationInfo initInfo;
 
+			
+			
 			float height = 720.0;
 			float width = 1280.0;
-
-			bool garbage = false;
 		};
 	}
 }

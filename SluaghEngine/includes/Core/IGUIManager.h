@@ -41,9 +41,9 @@ namespace SE
 
 			struct CreateInfo
 			{
-				Utilz::GUID meshGUID;
-				bool transparent = false;
-				bool wireframe = false;
+				const Entity& entity;
+				Utilz::GUID texFile;
+				Graphics::GUITextureInfo& texInfo;
 			};
 
 
@@ -56,7 +56,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			virtual int Create(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo) = 0;
+			virtual int Create(CreateInfo info) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable texture

@@ -39,9 +39,8 @@ namespace SE
 
 			struct CreateInfo
 			{
-				Utilz::GUID meshGUID;
-				bool transparent = false;
-				bool wireframe = false;
+				const Entity& entity;
+				const Graphics::TextGUI& inTextInfo;
 			};
 
 
@@ -54,7 +53,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			virtual void CreateRenderableText(const Entity& entity, const Graphics::TextGUI& textInfo) = 0;
+			virtual void Create(CreateInfo info) = 0;
 
 			/**
 			* @brief Create a new font
@@ -63,7 +62,7 @@ namespace SE
 			* @retval -1 Something went wrong.
 			* @endcode
 			*/
-			virtual int CreateTextFont(const Utilz::GUID& fontFile) = 0;
+			virtual int MakeFont(const Utilz::GUID& fontFile) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable text
@@ -100,7 +99,7 @@ namespace SE
 			* @brief Resets all GUI to be rescaled to new resolution
 			* @endcode
 			*/
-			virtual void update2DText() = 0;
+			virtual void updateText() = 0;
 
 		protected:
 			ITextManager() {};

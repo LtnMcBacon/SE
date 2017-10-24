@@ -497,6 +497,7 @@ void SE::Core::Engine::OptionUpdate()
 	//	ImGuiDX11SDL_Shutdown();
 	//	ImGuiDX11SDL_Init(subSystems.renderer, subSystems.window);
 		managers.guiManager->updateGUI();
+		managers.textManager->updateText();
 	}
 	
 	ProfileReturnVoid;
