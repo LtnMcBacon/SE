@@ -273,6 +273,21 @@
     <ClCompile Include="StunnedCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
+    <ClCompile Include="FaceThePlayerLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="WhileChannelingLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\Gameplay\ChannelingCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="FailUntilSuccess.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="RestartingSequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -442,6 +457,21 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FaceThePlayerLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FailUntilSuccess.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RestartingSequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

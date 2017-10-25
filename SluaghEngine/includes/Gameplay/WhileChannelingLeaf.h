@@ -1,21 +1,21 @@
-#ifndef SE_GAMEPLAY_MAKE_VULNERABLE_LEAF_H
-#define SE_GAMPELAY_MAKE_VULNERABLE_LEAF_H
+#ifndef SE_GAMEPLAY_WHILE_CHANNELING_LEAF_H
+#define SE_GAMPELAY_WHILE_CHANNELING_LEAF_H
 #include "IBehaviour.h"
 namespace SE
 {
 	namespace Gameplay
 	{
-		class MakeVulnerableLeaf : public IBehaviour
+		class WhileChannelingLeaf : public IBehaviour
 		{
 		private:
-			MakeVulnerableLeaf() = delete;
+			WhileChannelingLeaf() = delete;
 		public:
-			MakeVulnerableLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
+			WhileChannelingLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 				IBehaviour(enemyBlackboard, gameBlackboard)
 			{
 				myStatus = Status::BEHAVIOUR_SUCCESS;
 			};
-			~MakeVulnerableLeaf()
+			~WhileChannelingLeaf()
 			{
 
 			};
@@ -24,9 +24,11 @@ namespace SE
 
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{
-				return new MakeVulnerableLeaf(enemyBlackboard, gameBlackboard);
+				return new WhileChannelingLeaf(enemyBlackboard, gameBlackboard);
 			};
 		};
+
+		
 	}
 }
 

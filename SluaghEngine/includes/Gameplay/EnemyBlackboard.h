@@ -47,6 +47,7 @@ namespace SE
 			bool invurnerable = false;
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
+			bool channeling = false;
 			ConditionEvent::ConditionTypes activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
 			float attackCooldown = 0.f;
 

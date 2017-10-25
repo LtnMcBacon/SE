@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Gameplay\ChannelingCondition.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
     <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
@@ -27,6 +28,8 @@
     <ClCompile Include="CoreInit.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
+    <ClCompile Include="FaceThePlayerLeaf.cpp" />
+    <ClCompile Include="FailUntilSuccess.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="FlowFieldMovementLeaf.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -57,6 +60,7 @@
     <ClCompile Include="ProjectileFactory.cpp" />
     <ClCompile Include="ProjectileManger.cpp" />
     <ClCompile Include="ResetAttackCooldownLeaf.cpp" />
+    <ClCompile Include="RestartingSequence.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
@@ -64,6 +68,7 @@
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
+    <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
@@ -71,12 +76,15 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
+    <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
     <ClInclude Include="..\includes\Gameplay\DecisionTree.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
+    <ClInclude Include="..\includes\Gameplay\FaceThePlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\FailUntilSuccess.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\Game.h" />
@@ -112,6 +120,7 @@
     <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
     <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\RestartingSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
@@ -120,6 +129,7 @@
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
   </ItemGroup>

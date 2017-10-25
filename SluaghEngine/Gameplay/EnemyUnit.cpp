@@ -21,6 +21,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 		{
 			if(ConditionEventVector[i].type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
 			{
+				myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
 				this->stunDuration += ConditionEventVector[i].duration;
 			}
 		}
@@ -71,8 +72,14 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ResolveEvents();
 	DecideAction();
 	if (stunDuration > 0.f)
+	{
 		stunDuration -= dt;
-	
+		if(stunDuration <= 0.f)
+		{
+			myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			stunDuration = 0.f;
+		}
+	}
 	PerformAction(dt);
 	ProfileReturnVoid;
 }

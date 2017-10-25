@@ -69,6 +69,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateAttackCooldownZeroConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "ChannelingCondition")
+	{
+		finishedBehaviour = CreateChannelingConditionLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
@@ -101,6 +105,14 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "FaceThePlayerLeaf")
+	{
+		finishedBehaviour = CreateFaceThePlayerLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "WhileChannelingLeaf")
+	{
+		finishedBehaviour = CreateWhileChannelingLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -118,6 +130,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateRandomSelector(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "RestartingSequence")
+	{
+		finishedBehaviour = CreateRestartingSequence(dataArray, nodeID);
+	}
 		/*Check for Decorators*/
 	else if (dataArray[nodeID].Type == "Inverter")
 	{
@@ -134,6 +150,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if (dataArray[nodeID].Type == "Succeeder")
 	{
 		finishedBehaviour = CreateSucceeder(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "FailUntilSuccess")
+	{
+		finishedBehaviour = CreateFailUntilSuccess(dataArray, nodeID);
 	}
 
 	ProfileReturn(finishedBehaviour);
@@ -218,6 +238,11 @@ IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeDa
 	return new ObstacleOnPositionCondition(nullptr, nullptr);
 }
 
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateChannelingConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	return new ChannelingCondition(nullptr, nullptr);
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID)
 {
 	return new MakeInvulnerableLeaf(nullptr, nullptr);
@@ -226,6 +251,16 @@ IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArr
 IBehaviour* BehaviouralTreeFactory::CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID)
 {
 	return new MakeVulnerableLeaf(nullptr, nullptr);
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateFaceThePlayerLeaf(NodeData* dataArray, int nodeID)
+{
+	return new FaceThePlayerLeaf(nullptr, nullptr);
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
+{
+	return new WhileChannelingLeaf(nullptr, nullptr);
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
@@ -277,6 +312,18 @@ IBehaviour* BehaviouralTreeFactory::CreateRandomSelector(NodeData* dataArray, in
 	ProfileReturn(returnBehaviour);
 }
 
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateRestartingSequence(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	RestartingSequence* returnBehaviour = new RestartingSequence(nullptr, nullptr);
+	for (auto& childID : dataArray[nodeID].childID)
+	{
+		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
+	}
+
+	ProfileReturn(returnBehaviour);
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateInverter(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
@@ -308,6 +355,14 @@ IBehaviour* BehaviouralTreeFactory::CreateSucceeder(NodeData* dataArray, int nod
 	IBehaviour* childNode = CreateFromType(dataArray, dataArray[nodeID].childID[0]);
 
 	ProfileReturn(new Succeeder(nullptr, nullptr, childNode));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateFailUntilSuccess(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	IBehaviour* childNode = CreateFromType(dataArray, dataArray[nodeID].childID[0]);
+
+	ProfileReturn(new FailUntilSuccess(nullptr, nullptr, childNode));
 }
 
 bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, NodeData* dataArray, size_t size)

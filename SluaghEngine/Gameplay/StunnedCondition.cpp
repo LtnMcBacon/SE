@@ -17,8 +17,10 @@ SE::Gameplay::Status SE::Gameplay::StunnedCondition::Update()
 	StartProfile;
 
 	if (enemyBlackboard->activeCondition == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+	{
 		myStatus = Status::BEHAVIOUR_SUCCESS;
-
+		enemyBlackboard->channeling = false;
+	}
 	else
 		myStatus = Status::BEHAVIOUR_FAILURE;
 

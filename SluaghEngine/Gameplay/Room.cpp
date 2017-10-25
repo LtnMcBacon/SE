@@ -171,36 +171,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	{
 		yCollision = -1;
 		collision = true;
-	}/*
-
-	 if(tileValues[xLeftAfterFloored][yDownAfterFloored])
-	 {
-	 xCollision = -1;
-	 yCollision = -1;
-	 collision = true;
-
-	 }
-	 if(tileValues[xLeftAfterFloored][yUpAfterFloored])
-	 {
-	 xCollision = -1;
-	 yCollision = 1;
-	 collision = true;
-
-	 }
-	 if(tileValues[xRightAfterFloored][yUpAfterFloored])
-	 {
-	 xCollision = 1;
-	 yCollision = 1;
-	 collision = true;
-
-	 }
-	 if(tileValues[xRightAfterFloored][yDownAfterFloored])
-	 {
-	 xCollision = 1;
-	 yCollision = -1;
-	 collision = true;
-
-	 }*/
+	}
 	ProfileReturn(collision);
 }
 
@@ -432,7 +403,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 		default: 
 			break;
 		}
-		float stepSize = 0.15f;
+		float stepSize = 0.1f;
 		if(m < 0.f) /*Negative Slope*/
 		{
 			if(octant == 2 || octant == 6) /*Loop over y*/
