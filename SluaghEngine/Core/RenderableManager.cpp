@@ -19,6 +19,8 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.console);
+
+	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
 	switch (initInfo.unloadingStrat)
 	{
 	case ResourceHandler::UnloadingStrategy::Linear:
@@ -72,6 +74,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 SE::Core::RenderableManager::~RenderableManager()
 {
+	delete rmInstancing;
 
 	operator delete(renderableObjectInfo.data);
 }
