@@ -530,7 +530,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 			}
 
 			Rotation test;
-			test.force = totalRot;
+			test.force = totalRot*dt;
 			test.style = RotationStyle::SELF;
 			p->SetRotationStyle(test);
 
