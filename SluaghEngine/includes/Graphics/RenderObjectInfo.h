@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <bitset>
 #include <algorithm>
+#include <Graphics\FileHeaders.h>
 #undef min //F you microsoft...
 namespace SE
 {
@@ -39,6 +40,8 @@ namespace SE
 			int skeletonIndex;
 			uint8_t fillSolid;
 			uint8_t transparency;
+			int matIndex;
+			Graphics::MaterialAttributes material;
 			RenderObjectInfo()
 			{
 				bufferHandle = -1;
@@ -74,6 +77,8 @@ namespace SE
 				topology = rhs.topology;
 				fillSolid = rhs.fillSolid;
 				transparency = rhs.transparency;
+				matIndex = rhs.matIndex;
+				material = rhs.material;
 				return *this;
 			}
 			RenderObjectInfo(const RenderObjectInfo& rhs)
@@ -93,6 +98,8 @@ namespace SE
 				topology = rhs.topology;
 				fillSolid = rhs.fillSolid;
 				transparency = rhs.transparency;
+				matIndex = rhs.matIndex;
+				material = rhs.material;
 			}
 			RenderObjectInfo(RenderObjectInfo&& rhs)
 			{
@@ -111,6 +118,8 @@ namespace SE
 				topology = rhs.topology;
 				fillSolid = rhs.fillSolid;
 				transparency = rhs.transparency;
+				matIndex = rhs.matIndex;
+				material = rhs.material;
 			}
 			/**
 			* @brief Computes the difference between two RenderObjectInfo structs in terms of how many attributes are different. As such, a - b == b - a.
@@ -135,6 +144,7 @@ namespace SE
 				stateChanges = (stateChanges << 1) | (skeletonIndex != rhs.skeletonIndex);
 				stateChanges = (stateChanges << 1) | (fillSolid != rhs.fillSolid);
 				stateChanges = (stateChanges << 1) | (transparency != rhs.transparency);
+				stateChanges = (stateChanges << 1) | (matIndex != rhs.matIndex);
 				std::bitset<32> bits(stateChanges);
 				return bits.count() + std::abs((int)textureCount - (int)rhs.textureCount);
 			}
