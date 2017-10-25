@@ -42,7 +42,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Utilz::CPUTimeCluster timers;
 
-	timers.Start("Init");
+	timers.Start(CREATE_ID_HASH("Init"));
 	auto engine = Core::CreateEngine();
 	engine->Init();
 	auto managers = engine->GetManagers();
@@ -106,8 +106,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 	Utilz::Timer timer;
-	timers.Stop("Init");
-	timers.Start("Running");
+	timers.Stop(CREATE_ID_HASH("Init"));
+	timers.Start(CREATE_ID_HASH("Running"));
 	subSystem.devConsole->Toggle();
 
 	auto e1 = managers.entityManager->Create();
@@ -195,7 +195,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		engine->EndFrame();
 	}
 
-	timers.Stop("Running");
+	timers.Stop(CREATE_ID_HASH("Running"));
 
 	Utilz::TimeMap times;
 	timers.GetMap(times);

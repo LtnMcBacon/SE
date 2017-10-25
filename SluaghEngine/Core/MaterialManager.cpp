@@ -177,7 +177,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start("MaterialManager");
+	timer->Start(CREATE_ID_HASH("MaterialManager"));
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -197,7 +197,7 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 			
 		toUpdate.pop();
 	}
-	timer->Stop("MaterialManager");
+	timer->Stop(CREATE_ID_HASH("MaterialManager"));
 	StopProfile;
 }
 

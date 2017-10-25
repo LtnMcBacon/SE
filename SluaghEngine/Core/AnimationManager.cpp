@@ -97,9 +97,9 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
-	timer->Start("AnimationManager");
+	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	GarbageCollection();
-	timer->Stop("AnimationManager");
+	timer->Stop(CREATE_ID_HASH("AnimationManager"));
 }
 
 void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID & animation, float speed)

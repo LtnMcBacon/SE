@@ -58,19 +58,7 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info);
 
-			struct MatInfo
-			{
-				uint32_t amountOfTex;
-				Utilz::GUID bindings[Graphics::ShaderStage::maxTextures];				
-				Utilz::GUID textures[Graphics::ShaderStage::maxTextures];
-			};
-
-			struct matDataInfo
-			{
-				Graphics::MaterialAttributes attrib;
-				MatInfo info;
-				std::list<Entity> entities;
-			};
+		
 
 			void LoadTextures(matDataInfo material, const Entity& entity);
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);

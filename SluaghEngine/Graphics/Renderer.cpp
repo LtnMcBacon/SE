@@ -471,10 +471,11 @@ int SE::Graphics::Renderer::Render() {
 
 
 
-	gpuTimer->Start("Rendering GPU");
+	cpuTimer.Start(CREATE_ID_HASH("Rendering-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("Rendering-GPU"));
 	//The previousJob is necessary to see what state changes need to be performed when rendering
 	//the next bucket.
-	cpuTimer.Start("Rendering");
+	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -510,9 +511,8 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
 		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
-	cpuTimer.Stop("Rendering");
-	gpuTimer->Stop("Rendering GPU");
-
+	gpuTimer->Stop(CREATE_ID_HASH("Rendering-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("Rendering-CPU"));
 
 	/////********** Render line jobs (primarily for debugging) ************/
 
@@ -536,8 +536,8 @@ int SE::Graphics::Renderer::Render() {
 	///********END render line jobs************/
 
 	/******************General Jobs*********************/
-	cpuTimer.Start("RenderasdJob");
-	gpuTimer->Start("RenderJobGPU");
+	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
@@ -590,15 +590,15 @@ int SE::Graphics::Renderer::Render() {
 			}
 		}
 	}
-	cpuTimer.Stop("RenderasdJob");
-	gpuTimer->Stop("RenderJobGPU");
-
+	
+	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
 
 
 	//********* Render sprite overlays ********/
-	gpuTimer->Start("GUIJob GPU");
-	cpuTimer.Start("GUIJob");
+	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("GUIJob-GPU"));
 	if (renderTextureJobs.size() && renderTextJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
@@ -613,8 +613,9 @@ int SE::Graphics::Renderer::Render() {
 		}
 		spriteBatch->End();
 	}
-	cpuTimer.Stop("GUIJob");
-	gpuTimer->Stop("GUIJob GPU");
+	gpuTimer->Stop(CREATE_ID_HASH("GUIJob-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("GUIJob-CPU"));
+
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
@@ -622,8 +623,8 @@ int SE::Graphics::Renderer::Render() {
 	//********* Apply bloom post-processing ********/
 	if (bloom)
 	{
-		cpuTimer.Start("Bloom");
-		gpuTimer->Start("Bloom GPU");
+		cpuTimer.Start(CREATE_ID_HASH("Bloom-CPU"));
+		gpuTimer->Start(CREATE_ID_HASH("Bloom-GPU"));
 
 
 		ID3D11ShaderResourceView* shaderResourceViews[] = {
@@ -661,8 +662,8 @@ int SE::Graphics::Renderer::Render() {
 		device->GetDeviceContext()->CopyResource(device->GetBackBufferTexture(), graphicResourceHandler->GetBloomBufferTexture());
 
 
-		gpuTimer->Stop("Bloom GPU");
-		cpuTimer.Stop("Bloom");
+		gpuTimer->Stop(CREATE_ID_HASH("Bloom-GPU"));
+		cpuTimer.Stop(CREATE_ID_HASH("Bloom-CPU"));
 	}
 	//******* END Apply bloom post-processing ******/
 

@@ -197,7 +197,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start("CameraManager");
+	timer->Start(CREATE_ID_HASH("CameraManager"));
 	GarbageCollection();
 	if (currentActive.activeCamera != ~0u)
 	{
@@ -228,7 +228,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 
 
 	}
-	timer->Stop("CameraManager");
+	timer->Stop(CREATE_ID_HASH("CameraManager"));
 	StopProfile;
 }
 

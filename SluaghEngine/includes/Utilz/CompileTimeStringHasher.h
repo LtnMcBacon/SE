@@ -8,6 +8,7 @@
 
 // This don't take into account the nul char
 #define COMPILE_TIME_CRC32_STR(x) (SE::Utilz::MM<sizeof(x)-1>::crc32(x))
+#define CREATE_ID_HASH(x) ( SE::Utilz::IDHash(x, SE::Utilz::MM<sizeof(x)-1>::crc32(x)))
 namespace SE
 {
 	namespace Utilz
@@ -43,7 +44,7 @@ namespace SE
 
 
 			bool operator==(const IDHash& other)const { return this->hash == other.hash; };
-			constexpr IDHash(const char* str) : hash(COMPILE_TIME_CRC32_STR(str)), str(str) {};
+			constexpr IDHash(const char* str, uint32_t hash) : hash(hash), str(str) {};
 
 			uint32_t hash;
 			const char* str;

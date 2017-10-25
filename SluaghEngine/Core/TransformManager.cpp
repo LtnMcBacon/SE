@@ -351,7 +351,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start("TransformManager");
+	timer->Start(CREATE_ID_HASH("TransformManager"));
 	dirtyTransforms.clear();
 	dirtyTransforms.reserve(data.used);
 	for(int i = 0; i < data.used; ++i)
@@ -361,7 +361,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 	}
 
 	GarbageCollection();
-	timer->Stop("TransformManager");
+	timer->Stop(CREATE_ID_HASH("TransformManager"));
 	StopProfile;
 }
 

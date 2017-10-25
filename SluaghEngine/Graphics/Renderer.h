@@ -450,7 +450,7 @@ namespace SE
 			inline void GetProfilingInformation(Utilz::TimeMap& map)override
 			{
 				cpuTimer.GetMap(map);
-			//	gpuTimer->GetMap(map);
+				gpuTimer->GetMap(map);
 			}
 
 			int EnableBloom(int handleHorizontal, int handleVertical);

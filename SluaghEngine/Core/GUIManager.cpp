@@ -149,9 +149,9 @@ namespace SE {
 		void GUIManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start("GUIManager");
+			timer->Start(CREATE_ID_HASH("GUIManager"));
 			GarbageCollection();
-			timer->Stop("GUIManager");
+			timer->Stop(CREATE_ID_HASH("GUIManager"));
 			StopProfile;
 		}
 

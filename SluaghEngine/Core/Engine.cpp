@@ -78,7 +78,7 @@ int SE::Core::Engine::BeginFrame()
 		ProfileReturnConst( -1);
 
 	frameBegun = true;
-	timeClus.Start("Frame");
+	timeClus.Start(CREATE_ID_HASH("Frame"));
 	subSystems.window->Frame();
 	subSystems.devConsole->BeginFrame();
 	subSystems.renderer->BeginFrame();
@@ -106,7 +106,7 @@ int SE::Core::Engine::EndFrame()
 	subSystems.renderer->EndFrame();
 
 
-	timeClus.Stop("Frame");
+	timeClus.Stop(CREATE_ID_HASH("Frame"));
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -434,7 +434,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			static float maxFrameTime = 0.0f;
 			static float minFrameTime = 999999999.0f;
 			static float avg100Frames = 0.0f;
-			const auto frame = map.find("Frame");
+			const auto frame = map.find(CREATE_ID_HASH("Frame"));
 			if (frame != map.end())
 			{
 				static float runningSum = 0.0f;

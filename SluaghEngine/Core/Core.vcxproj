@@ -181,6 +181,7 @@
     <ClCompile Include="IRenderableManager.cpp" />
     <ClCompile Include="ITransformManager.cpp" />
     <ClCompile Include="LightManager.cpp" />
+    <ClCompile Include="MaterialLoading.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="OptionHandler.cpp" />
     <ClCompile Include="ParticleSystemManager.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="MaterialLoading.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="OptionHandler.h" />
     <ClInclude Include="ParticleSystemManager.h" />

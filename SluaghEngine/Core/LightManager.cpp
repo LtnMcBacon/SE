@@ -77,9 +77,9 @@ namespace SE {
 		void LightManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start("LightManger");
+			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
-			timer->Stop("LightManger");
+			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;
 		}
 		
