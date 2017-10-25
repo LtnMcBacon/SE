@@ -222,13 +222,13 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[currentActive.activeCamera], cameraData.aspectRatio[currentActive.activeCamera], cameraData.nearPlane[currentActive.activeCamera], cameraData.farPlane[currentActive.activeCamera]);
 
 			XMFLOAT4X4 viewProjMatrix;
-			XMStoreFloat4x4(&viewProjMatrix, viewproj);
 			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 
-			XMFLOAT3 fPos;
-			XMStoreFloat3(&fPos, pos);
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &fPos, sizeof(DirectX::XMFLOAT3));
+			XMFLOAT3 fpos;
+			XMStoreFloat3(&fpos, pos);
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &fpos, sizeof(XMFLOAT3));
+
 
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		}

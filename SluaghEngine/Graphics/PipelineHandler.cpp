@@ -385,9 +385,9 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						vertexShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -451,9 +451,9 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						geometryShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -543,9 +543,9 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						geometryShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -621,9 +621,9 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						pixelShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					pixelShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;

@@ -87,8 +87,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("MCModell.mat");
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModgell.mat");
+	auto shader = Utilz::GUID("SimpleLigghtPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 

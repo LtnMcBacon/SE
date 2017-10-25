@@ -106,7 +106,7 @@ namespace SE {
 			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
 
-		/*	struct LightDataBuffer
+			struct LightDataBuffer
 			{
 				DirectX::XMFLOAT4 size;
 				Graphics::LightData data[20];
@@ -116,10 +116,10 @@ namespace SE {
 			data.data[0].pos = DirectX::XMFLOAT4(0.25f, 1.0f, -1.0f, 100.0f);
 			data.data[0].colour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightDataBuffer", &data, sizeof(LightDataBuffer));
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));*/
+			//initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));
 
 
-			if (anyTogglesThisFrame)
+		/*	if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
 					auto cb = *(LightDataBuffer*)data;
@@ -140,7 +140,7 @@ namespace SE {
 				});
 				anyTogglesThisFrame = false;
 			}
-
+*/
 
 			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;
