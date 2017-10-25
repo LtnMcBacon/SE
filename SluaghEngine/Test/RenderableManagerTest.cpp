@@ -42,9 +42,15 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Utilz::CPUTimeCluster timers;
 
-	timers.Start("Init");
+	timers.Start(CREATE_ID_HASH("Init"));
 	auto engine = Core::CreateEngine();
-	engine->Init();
+	auto r = engine->Init();
+	if (r < 0)
+	{
+		delete engine;
+		return false;
+	}
+		
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
@@ -88,7 +94,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	managers.materialManager->Create(mainC, info, true);
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
+
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -106,8 +113,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 	Utilz::Timer timer;
-	timers.Stop("Init");
-	timers.Start("Running");
+	timers.Stop(CREATE_ID_HASH("Init"));
+	timers.Start(CREATE_ID_HASH("Running"));
 	subSystem.devConsole->Toggle();
 
 	auto e1 = managers.entityManager->Create();
@@ -195,7 +202,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		engine->EndFrame();
 	}
 
-	timers.Stop("Running");
+	timers.Stop(CREATE_ID_HASH("Running"));
 
 	Utilz::TimeMap times;
 	timers.GetMap(times);

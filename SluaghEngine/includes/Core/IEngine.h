@@ -26,6 +26,7 @@
 #include "IGUIManager.h"
 #include "IDecalManager.h"
 #include <DevConsole\IConsole.h>
+#include "ITextManager.h"
 
 namespace SE
 {
@@ -51,6 +52,7 @@ namespace SE
 				IMaterialManager* materialManager = nullptr;
 				ILightManager* lightManager = nullptr;
 				IDebugRenderManager* debugRenderManager = nullptr;
+				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
 				IDecalManager* decalManager;
 			};

@@ -111,6 +111,15 @@
     <ClCompile Include="ImGuiConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialLoading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ITextManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
     <ClCompile Include="IDecalManager.cpp">
       <Filter>Interface\cpp</Filter>
     </ClCompile>
@@ -210,6 +219,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialLoading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\ITextManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="TextManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Core\IDecalManager.h">

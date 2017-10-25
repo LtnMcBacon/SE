@@ -11,7 +11,7 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 
 	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
 
-	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+//	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
 	
 	currentActive.activeCamera = ~0u;
 
@@ -81,9 +81,7 @@ void SE::Core::CameraManager::UpdateCamera(const CreateInfo & info)
 		cameraData.nearPlane[currentActive.activeCamera] = info.nearPlane;
 		cameraData.farPlane[currentActive.activeCamera] = info.farPlance;
 
-		initInfo.transformManager->SetPosition(currentActive.entity, info.posistion);
-		initInfo.transformManager->SetRotation(currentActive.entity, info.rotation.x, info.rotation.y, info.rotation.z);
-		initInfo.transformManager->SetAsDirty(currentActive.entity);
+		initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
 	}
 	StopProfile;
 }
@@ -197,7 +195,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start("CameraManager");
+	timer->Start(CREATE_ID_HASH("CameraManager"));
 	GarbageCollection();
 	if (currentActive.activeCamera != ~0u)
 	{
@@ -219,7 +217,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
-			initInfo.renderer->UpdateView((float*)&viewProjMatrix);
+			initInfo.renderer->UpdateView((float*)&viewProjMatrix, DirectX::XMFLOAT4(initInfo.transformManager->GetPosition(currentActive.entity).x, initInfo.transformManager->GetPosition(currentActive.entity).y, initInfo.transformManager->GetPosition(currentActive.entity).z, 1.0f));
 			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
@@ -228,7 +226,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 
 
 	}
-	timer->Stop("CameraManager");
+	timer->Stop(CREATE_ID_HASH("CameraManager"));
 	StopProfile;
 }
 

@@ -42,7 +42,7 @@ namespace SE {
 			{
 				auto res = initInfo.resourceHandler->LoadResource(createInfo.soundFile, [this](auto guid, auto data, auto size) {
 					guidToSound[guid].handle = audioHandler->LoadSound(data, size);
-					return ResourceHandler::InvokeReturn::DecreaseRefcount;
+					return ResourceHandler::InvokeReturn::Success;
 				});
 				if (res)
 				{
@@ -116,9 +116,9 @@ namespace SE {
 		void AudioManager::Frame(Utilz::TimeCluster * timer)
 		{
 			_ASSERT(timer);
-			timer->Start("AudioManager");
+			timer->Start(CREATE_ID_HASH("AudioManager"));
 			GarbageCollection();
-			timer->Stop("AudioManager");
+			timer->Stop(CREATE_ID_HASH("AudioManager"));
 		}
 
 		void AudioManager::GarbageCollection()

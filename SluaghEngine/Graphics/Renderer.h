@@ -9,7 +9,8 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
-#include <Utilz\TimeCluster.h>
+#include "GPUTimeCluster.h"
+#include <Utilz\CPUTimeCluster.h>
 
 
 namespace SE
@@ -191,7 +192,7 @@ namespace SE
 			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			int UpdateView(float* viewMatrix) override;
+			int UpdateView(float* viewMatrix, const DirectX::XMFLOAT4& cameraPos) override;
 
 			/**
 			* @brief Renders the scene
@@ -448,8 +449,8 @@ namespace SE
 			*/
 			inline void GetProfilingInformation(Utilz::TimeMap& map)override
 			{
-				for(auto& t : timeCluster)
-					t->GetMap(map);
+				cpuTimer.GetMap(map);
+				gpuTimer->GetMap(map);
 			}
 
 			int EnableBloom(int handleHorizontal, int handleVertical);
@@ -462,7 +463,6 @@ namespace SE
 			Renderer& operator=(const Renderer& other) = delete;
 
 			InitializationInfo initInfo;
-
 
 			IPipelineHandler* pipelineHandler;
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
@@ -483,6 +483,8 @@ namespace SE
 
 			int oncePerFrameBufferID;
 			int lightBufferID = -1;
+			int materialBufferID = -1;
+			int cameraBufferID = -1;
 
 			DeviceManager* device;
 			ID3D11Device* dev;
@@ -573,6 +575,7 @@ namespace SE
 
 			std::mutex lightLock;
 			std::vector<LightData> renderLightJobs;
+			DirectX::XMFLOAT4 newCameraPos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 0.0);
 
 			/*********** END Renderjob Queues **************/
 
@@ -615,9 +618,8 @@ namespace SE
 
 			/********* END Bloom ************/
 
-			static const uint8_t GPUTimer = 0;
-			static const uint8_t CPUTimer = 1;
-			std::vector<Utilz::TimeCluster*> timeCluster;
+			Utilz::CPUTimeCluster cpuTimer;
+			GPUTimeCluster* gpuTimer;
 		};
 
 	}
