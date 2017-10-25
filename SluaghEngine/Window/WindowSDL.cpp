@@ -357,8 +357,15 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	SDL_SetWindowFullscreen(window, createFlags);
 
-	if (changed == true)
+	if (changed == true && fullScreen == false)
+	{
 		SDL_SetWindowSize(window, width, height);
+	}
+	int w;
+	int h;
+	SDL_GetWindowSize(window, &w, &h);
+	width = w;
+	height = h;
 
 	ProfileReturn(changed);
 }
