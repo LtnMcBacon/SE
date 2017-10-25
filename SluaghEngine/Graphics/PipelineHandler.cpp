@@ -71,6 +71,35 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 		if (r.second)r.second->Release();
 }
 
+int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
+{
+	const auto exists = renderTargetViews.find(id);
+	if (exists != renderTargetViews.end())
+		return EXISTS;
+	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
+	renderTargetViews[id] = renderTargetView;
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
+{
+	const auto exists = depthStencilViews.find(id);
+	if (exists != depthStencilViews.end())
+		return EXISTS;
+	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
+{
+	const auto exists = shaderResourceViews.find(id);
+	if (exists != shaderResourceViews.end())
+		return EXISTS;
+	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
+	return SUCCESS;
+}
+
 int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
 	size_t stride, bool dynamic)
 {

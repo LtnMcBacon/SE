@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
+
 namespace SE
 {
 	namespace Graphics
@@ -16,6 +18,10 @@ namespace SE
 			PipelineHandler(const PipelineHandler& other) = delete;
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
+
+			int AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv) override;
+			int AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv) override;
+			int AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv) override;
 
 			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
@@ -93,7 +99,7 @@ namespace SE
 				uint32_t stride;
 			};
 			Pipeline currentPipeline;
-
+			std::unordered_set<Utilz::GUID, Utilz::GUID::Hasher> manuallyAddedResources;
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
