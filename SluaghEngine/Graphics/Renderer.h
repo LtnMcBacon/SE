@@ -74,6 +74,14 @@ namespace SE
 			void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) override;
 
 			/**
+			* @brief Allow for modifying an existing renderjob. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] callback The callback function where you can change the job.
+			* @sa AddRenderJob
+			*/
+			void ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob& job)>& callback) override;
+
+			/**
 			* @brief    Sets a render job
 			* @param[in] handles The handles struct
 			* @retval Returns a handle to the job on success.

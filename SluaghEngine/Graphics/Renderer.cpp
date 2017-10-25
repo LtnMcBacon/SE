@@ -138,6 +138,14 @@ void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const RenderJob& ne
 	jobGroups[jobGroup][indexInMap].job = newJob;
 }
 
+void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob&job)>& callback)
+{
+	const uint8_t jobGroup = (jobID >> JOB_ID_BITS) & JOB_GROUP_MASK;
+	const uint32_t idPart = (jobID & JOB_ID_MASK);
+	const uint32_t indexInMap = jobIDToIndex[idPart];
+	callback(jobGroups[jobGroup][indexInMap].job);
+}
+
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
 {
 	StartProfile;
