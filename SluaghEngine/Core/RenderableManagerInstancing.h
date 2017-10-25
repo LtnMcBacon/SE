@@ -15,23 +15,24 @@ namespace SE
 			~RenderableManagerInstancing();
 
 			Utilz::GUID AddEntity(const Entity& entity, const Graphics::RenderJob& job);
+			void RemoveEntity(const Entity& entity);
 
 		private:
-
-
-
+			struct BucketAndID
+			{
+				Utilz::GUID bucket;
+				size_t index;
+			};
 			struct RenderBucket
 			{
 				Graphics::Pipeline pipeline;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				std::vector<Entity> indexToEntity;
 			};
-	
-			struct BucketAndID
-			{
-				Utilz::GUID bucket;
-				size_t index;
-			};
+
+			void RemoveFromBucket(const BucketAndID& bucketAndID);
+
+		
 
 			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;
 			std::unordered_map<Utilz::GUID, RenderBucket, Utilz::GUID::Hasher> pipelineToRenderBucket;

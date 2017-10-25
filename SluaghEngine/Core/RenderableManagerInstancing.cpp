@@ -1,5 +1,5 @@
 #include "RenderableManagerInstancing.h"
-
+#include <Profiler.h>
 
 
 SE::Core::RenderableManagerInstancing::RenderableManagerInstancing()
@@ -13,6 +13,7 @@ SE::Core::RenderableManagerInstancing::~RenderableManagerInstancing()
 
 SE::Utilz::GUID SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, const Graphics::RenderJob & job)
 {
+	StartProfile;
 	//job.pipeline.SetID();
 
 	const auto findBucket = pipelineToRenderBucket.find(job.pipeline.id);
@@ -22,64 +23,40 @@ SE::Utilz::GUID SE::Core::RenderableManagerInstancing::AddEntity(const Entity & 
 	const auto findEntity = entityToBucketAndIndexInBucket.find(entity);
 	auto& bucketAndIndexInBucket = entityToBucketAndIndexInBucket[entity];
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
+		bucket.pipeline = job.pipeline;
+
+	if (findEntity != entityToBucketAndIndexInBucket.end()) // The entity is in another bucket.
+		RemoveFromBucket(bucketAndIndexInBucket);
+
+	bucketAndIndexInBucket = { job.pipeline.id, bucket.transforms.size() };
+	bucket.indexToEntity.push_back(entity);
+	bucket.transforms.push_back({});
+	StopProfile;
+}
+
+void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
+{
+	StartProfile;
+	auto findEntity = entityToBucketAndIndexInBucket.find(entity);
+	if (findEntity != entityToBucketAndIndexInBucket.end())
 	{
-		if (findEntity == entityToBucketAndIndexInBucket.end()) // The entity is not in another bucket.
-		{
-			bucket.pipeline = job.pipeline;
-			bucketAndIndexInBucket = { job.pipeline.id, 0 };
-			bucket.indexToEntity.push_back(entity);
-			bucket.transforms.push_back({});
-
-		}
-		else // The entity is in another bucket.
-		{
-
-		}
-	}
-	else // This bucket existed.
-	{
-		if (findEntity == entityToBucketAndIndexInBucket.end()) // The entity is not in another bucket.
-		{
-			bucketAndIndexInBucket = { job.pipeline.id, bucket.indexToEntity.size() };
-			bucket.indexToEntity.push_back(entity);
-			bucket.transforms.push_back({});
-		}
-		else // The entity is in another bucket.
-		{
-
-		}
+		RemoveFromBucket(findEntity->second);
+		entityToBucketAndIndexInBucket.erase(entity);
 	}
 
 
+	StopProfile;
+}
 
-	const auto findBucketAndID = entityToRenderBucketAndID.find(entity);
-	auto& bucketAndID = entityToRenderBucketAndID[entity];
-	if (findBucketAndID == entityToRenderBucketAndID.end()) // Entity is not in any bucket.
-	{
-		for(size_t i = 0; i< renderBuckets.size(); i++)
-		{
-			auto& bucket = renderBuckets[i];
-			if (bucket.pipeline == job.pipeline) // The job fits in an already existing bucket.
-			{
-				bucketAndID.ID = bucket.transforms.size();
-				bucket.transforms.push_back({});
-				bucketAndID.bucket = i;
+void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID)
+{
+	auto& currentBucket = pipelineToRenderBucket[bucketAndID.bucket];
+	const auto last = currentBucket.transforms.size() - 1;
 
-				goto Done;
-			}
-			
-		}
-
-		bucketAndID.bucket = renderBuckets.size();
-		renderBuckets.push_back({ job.pipeline });
-		
-		bucketAndID.ID = 0;
-		renderBuckets[bucketAndID.bucket].transforms.push_back({});
-		
-	}
-
-
-Done:
-
-	return;
+	// Switch the last entity in the bucket to the removed slot
+	currentBucket.transforms[bucketAndID.index] = currentBucket.transforms[last];
+	currentBucket.indexToEntity[bucketAndID.index] = currentBucket.indexToEntity[last];
+	entityToBucketAndIndexInBucket[currentBucket.indexToEntity[last]].index = bucketAndID.index;
+	currentBucket.transforms.pop_back();
+	currentBucket.indexToEntity.pop_back();
 }
