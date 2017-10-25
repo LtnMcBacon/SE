@@ -15,7 +15,7 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 	if (result < 0)
 		throw std::exception("Could not create OncePerFrame buffer");
 
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("CameraPos", sizeof(XMFLOAT4), nullptr);
+	result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("CameraPos", sizeof(XMFLOAT4), nullptr);
 	if (result < 0)
 		throw std::exception("Could not create CameraPos buffer");
 
