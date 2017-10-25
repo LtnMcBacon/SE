@@ -17,6 +17,8 @@ namespace SE
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
+			int MergeHandlers(IPipelineHandler* other) override;
+
 			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;

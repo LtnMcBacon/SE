@@ -43,7 +43,10 @@ namespace SE
 			{
 				return pipelineHandler;
 			};
-
+			IPipelineHandler* GetSecondaryPipelineHandler() override
+			{
+				return secPipelineHandler;
+			}
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
@@ -465,6 +468,8 @@ namespace SE
 			InitializationInfo initInfo;
 
 			IPipelineHandler* pipelineHandler;
+			IPipelineHandler* secPipelineHandler;
+
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 

@@ -34,6 +34,8 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
+	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -87,6 +89,7 @@ void SE::Graphics::Renderer::Shutdown()
 //	if (myThread.joinable())
 		//myThread.join();
 
+	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();

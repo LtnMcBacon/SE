@@ -71,6 +71,13 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 		if (r.second)r.second->Release();
 }
 
+int SE::Graphics::PipelineHandler::MergeHandlers(IPipelineHandler * other)
+{
+	// TODO: Move everything from other to this. Then clear other.
+
+	return 0;
+}
+
 int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
 	size_t stride, bool dynamic)
 {

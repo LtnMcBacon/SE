@@ -52,11 +52,12 @@ namespace SE
 			virtual void Shutdown() = 0;
 
 			virtual IPipelineHandler* GetPipelineHandler() = 0;
+			virtual IPipelineHandler* GetSecondaryPipelineHandler() = 0;
 
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
-			* @param[in] group The group (enum) the job should belong to.
+			* @param[in] group The RenderGroup (enum) the job should belong to.
 			* @retval Returns a handle to the job on success.
 			* @retval -1 on failure.
 			* @sa RenderJob, RenderGroup
