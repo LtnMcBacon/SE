@@ -51,7 +51,6 @@ namespace SE {
 				}
 			}
 
-
 			int handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
 			if (handle < 0)
 			{
