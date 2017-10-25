@@ -24,6 +24,7 @@
 #include "ILightManager.h"
 #include "IDebugRenderManager.h"
 #include "IGUIManager.h"
+#include "IDecalManager.h"
 #include <DevConsole\IConsole.h>
 
 namespace SE
@@ -51,6 +52,7 @@ namespace SE
 				ILightManager* lightManager = nullptr;
 				IDebugRenderManager* debugRenderManager = nullptr;
 				IGUIManager* guiManager = nullptr;
+				IDecalManager* decalManager;
 			};
 			struct Subsystems
 			{

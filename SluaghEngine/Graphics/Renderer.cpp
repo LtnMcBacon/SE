@@ -34,6 +34,9 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
+	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
+	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
+	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();

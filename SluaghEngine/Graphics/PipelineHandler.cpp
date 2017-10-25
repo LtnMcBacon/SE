@@ -18,26 +18,33 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	renderTargetViews["backbuffer"] = backbuffer;
 	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
-	vertexBuffers[""].buffer = nullptr;
-	vertexBuffers[""].stride = 0;
-	indexBuffers[""].buffer = nullptr;
-	indexBuffers[""].stride = 0;
-	inputLayouts[""] = nullptr;
-	vertexShaders[""] = nullptr;
-	geometryShaders[""] = nullptr;
-	pixelShaders[""] = nullptr;
-	computeShaders[""] = nullptr;
-	constantBuffers[""] = nullptr;
-	shaderResourceViews[""] = nullptr;
-	renderTargetViews[""] = nullptr;
-	samplerStates[""] = nullptr;
-	blendStates[""] = nullptr;
-	rasterizerStates[""] = nullptr;
-	depthStencilStates[""] = nullptr;
+	vertexBuffers[Utilz::GUID()].buffer = nullptr;
+	vertexBuffers[Utilz::GUID()].stride = 0;
+	indexBuffers[Utilz::GUID()].buffer = nullptr;
+	indexBuffers[Utilz::GUID()].stride = 0;
+	inputLayouts[Utilz::GUID()] = nullptr;
+	vertexShaders[Utilz::GUID()] = nullptr;
+	geometryShaders[Utilz::GUID()] = nullptr;
+	pixelShaders[Utilz::GUID()] = nullptr;
+	computeShaders[Utilz::GUID()] = nullptr;
+	constantBuffers[Utilz::GUID()] = nullptr;
+	shaderResourceViews[Utilz::GUID()] = nullptr;
+	renderTargetViews[Utilz::GUID()] = nullptr;
+	samplerStates[Utilz::GUID()] = nullptr;
+	blendStates[Utilz::GUID()] = nullptr;
+	rasterizerStates[Utilz::GUID()] = nullptr;
+	depthStencilStates[Utilz::GUID()] = nullptr;
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
 {
+	//Remove resources that are not owned by the pipelinehandler (added by AddExisting...)
+	for(auto b : manuallyAddedResources)
+	{
+		renderTargetViews.erase(b);
+		shaderResourceViews.erase(b);
+		depthStencilViews.erase(b);
+	}
 	//lots of loops...
 	for (auto& r : vertexBuffers)
 		if (r.second.buffer) r.second.buffer->Release();
@@ -88,6 +95,7 @@ int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID
 	if (exists != depthStencilViews.end())
 		return EXISTS;
 	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
+	manuallyAddedResources.insert(id);
 	return SUCCESS;
 }
 
@@ -97,6 +105,7 @@ int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::G
 	if (exists != shaderResourceViews.end())
 		return EXISTS;
 	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
+	manuallyAddedResources.insert(id);
 	return SUCCESS;
 }
 

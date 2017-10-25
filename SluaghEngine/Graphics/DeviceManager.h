@@ -200,6 +200,11 @@ namespace SE {
 				return gBB_Desc;
 			}
 
+			inline ID3D11ShaderResourceView* GetDepthStencilSRV()
+			{
+				return gDepthStencilSRV;
+			}
+
 			ID3D11Texture2D* GetBackBufferTexture();
 		private:
 
@@ -212,6 +217,7 @@ namespace SE {
 			
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
+			ID3D11ShaderResourceView* gDepthStencilSRV;
 			ID3D11DepthStencilState * pDSState;
 
 			ID3D11BlendState*		blendSolidState;

@@ -48,8 +48,9 @@ namespace SE
 		private:
 
 		protected:
-			DECLDIR_CORE IDecalManager* CreateDecalManager(const IDecalManager::InitializationInfo& initInfo);
+			
 		};
+		DECLDIR_CORE IDecalManager* CreateDecalManager(const IDecalManager::InitializationInfo& initInfo);
 	}
 }
 

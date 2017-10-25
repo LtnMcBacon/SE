@@ -14,6 +14,21 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	blendState = "DecalBlend";
 	textureBindName = "DecalDiffuse";
 
+	this->initInfo.resourceHandler->LoadResource(vertexShader, [this](auto guid, void* data, size_t size)
+	{
+		auto res = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	this->initInfo.resourceHandler->LoadResource(pixelShader, [this](auto guid, void* data, size_t size)
+	{
+		auto res = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
 	BlendState bs;
 	bs.enable = true;
 	bs.blendOperation = BlendOperation::ADD;
