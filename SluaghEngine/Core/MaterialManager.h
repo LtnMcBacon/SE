@@ -9,6 +9,7 @@
 #include <random>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+#include "MaterialLoading.h"
 
 namespace SE
 {
@@ -60,18 +61,10 @@ namespace SE
 
 		
 
-			void LoadTextures(matDataInfo material, const Entity& entity);
-			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
-			int LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo);
+			
+			MaterialLoading mLoading;
+		
 
-			struct TextureData
-			{
-				std::list<Entity> entities;
-			};
-			struct ShaderData
-			{
-				size_t refCount;
-			};
 			struct MaterialData
 			{
 				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID);
@@ -84,9 +77,7 @@ namespace SE
 			};
 			
 
-			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
-			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
-			std::map<Utilz::GUID, matDataInfo, Utilz::GUID::Compare> guidToMaterial;
+			
 
 			InitializationInfo initInfo;
 			std::default_random_engine generator;

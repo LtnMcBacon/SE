@@ -2,7 +2,7 @@
 #include <Profiler.h>
 //#include <Utilz\Console.h>
 
-SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo)
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo), mLoading(initInfo.renderer, initInfo.resourceHandler)
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
@@ -14,37 +14,25 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	defaultPixelShader = "SimplePS.hlsl";
 	defaultTextureBinding = "DiffuseColor";
 	defaultSampler = "AnisotropicSampler";
+	defaultMaterial = "Cube.map";
 
 	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
-	auto res = initInfo.resourceHandler->LoadResource(defaultPixelShader, [this](auto guid, auto data, auto size)
-	{
-		this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
-		/*if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;*/
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	auto res = mLoading.LoadShader(defaultPixelShader);
 	if (res)
 		throw std::exception("Could not load default pixel shader.");
-	auto& defM = guidToMaterial[defaultMaterial];
 
-	res = initInfo.resourceHandler->LoadResource("Cube.mat",
-		[this, &defM](auto guid, auto data, auto size) {
-		LoadMaterialFile(data, size, defM);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+
+
+	MaterialFileData mdata;
+	res = mLoading.LoadMaterialFile(defaultMaterial, mdata);
 	if (res)
 		throw std::exception("Could not load default material.");
-	defaultTexture = defM.info.textures[0];
-	defaultTextureBinding = defM.info.bindings[0];
+	
+	defaultTexture = mdata.textureInfo.textures[0];
+	defaultTextureBinding = mdata.textureInfo.bindings[0];
 
-	res = initInfo.resourceHandler->LoadResource(defaultTexture,
-		[this](auto guid, auto data, auto size) {
-		auto result = LoadTexture(guid, data, size);
-		if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	res = mLoading.LoadTexture(defaultTexture);
 	if (res)
 		throw std::exception("Could not load default texture.");
 
@@ -83,7 +71,22 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
 
-	//Check if shader already is loaded.
+	if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
+	{
+		mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
+	}
+	else if(!mLoading.IsShaderLoaded(info.shader)) // Shader is not loaded and materialfile is.
+	{
+		mLoading.LoadShaderAndTextures(info.shader, info.materialFile, async, behavior); // Load shader and textures, (textures we get from the materialfile)
+	}
+	else if(!mLoading.IsMaterialFileLoaded(info.materialFile)) // Shader is loaded and materialfile is not.
+	{
+		mLoading.LoadMaterialFileAndTextures(info.materialFile, async, behavior); // Load the materialfile and textures.
+	}
+	else // Both shader and material was loaded
+	{
+		mLoading.LoadTextures(info.materialFile, async, behavior); // Load any textures that may not be loaded.
+	}
 	const auto shaderFind = guidToShader.find(info.shader);
 	auto& shaderInfo = guidToShader[info.shader];
 	if(shaderFind == guidToShader.end())
@@ -361,47 +364,4 @@ void SE::Core::MaterialManager::LoadTextures(matDataInfo material, const Entity&
 		}
 		texture.entities.push_back(entity);
 	}
-}
-
-int SE::Core::MaterialManager::LoadTexture(const Utilz::GUID& guid, void * data, size_t size)
-{
-	StartProfile;
-	Graphics::TextureDesc td;
-	memcpy(&td, data, sizeof(td));
-
-	//using namespace std::chrono_literals;
-
-	//std::this_thread::sleep_for(1s);
-
-	/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
-	if (td.width * td.height * 4 != size - sizeof(td))
-		return -1;
-
-	void* rawTextureData = ((char*)data) + sizeof(td);
-	/*auto result = */initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
-
-	return 0;
-	
-}
-
-int SE::Core::MaterialManager::LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo)
-{
-	//using namespace std::chrono_literals;
-
-	//std::this_thread::sleep_for(1s);
-	size_t offset = sizeof(uint32_t);
-	memcpy(&dataIinfo.info.amountOfTex, (char*)data, sizeof(uint32_t));
-	if (dataIinfo.info.amountOfTex > Graphics::ShaderStage::maxTextures)
-		return -1;
-
-	memcpy(&dataIinfo.attrib, (char*)data + offset, sizeof(Graphics::MaterialAttributes));
-	offset += sizeof(Graphics::MaterialAttributes);
-	for (int i = 0; i < dataIinfo.info.amountOfTex; i++)
-	{
-		memcpy(&dataIinfo.info.textures[i], (char*)data + offset, sizeof(Utilz::GUID));
-		offset += sizeof(Utilz::GUID);
-		memcpy(&dataIinfo.info.bindings[i], (char*)data + offset, sizeof(Utilz::GUID));
-		offset += sizeof(Utilz::GUID);
-	}
-	return 0;
 }
