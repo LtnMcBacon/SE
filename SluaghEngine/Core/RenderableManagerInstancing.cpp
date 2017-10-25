@@ -84,7 +84,10 @@ void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& 
 	entityToBucketAndIndexInBucket[currentBucket.indexToEntity[last]].index = bucketAndID.index;
 	currentBucket.transforms.pop_back();
 	currentBucket.indexToEntity.pop_back();
-
 	if (currentBucket.transforms.size() == 0)
 		renderer->RemoveRenderJob(currentBucket.jobID);
+	else
+	{
+		// TODO: Change instance count for job.
+	}
 }

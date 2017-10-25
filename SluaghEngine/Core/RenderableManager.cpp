@@ -148,7 +148,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		}
 		else
 		{
-			initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
+			rmInstancing->RemoveEntity(entity);
+			//initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
 
 	}
@@ -351,8 +352,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	const Entity entity = renderableObjectInfo.entity[index];
 	const Entity last_entity = renderableObjectInfo.entity[last];
 
-	if(renderableObjectInfo.visible[index])
-		initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[index]);
+	if (renderableObjectInfo.visible[index])
+		rmInstancing->RemoveEntity(entity);
 
 
 	guidToBufferInfo[renderableObjectInfo.mesh[index]].entities.remove(entity); // Decrease the refcount
