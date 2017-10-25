@@ -165,20 +165,24 @@ namespace SE {
 		void TextManager::Destroy(const Entity & entity)
 		{
 			StartProfile;
-			// Temp variables
-			size_t last = loadedTexts.size() - 1;
-			size_t index = entID[entity].ID;
-			const Entity last_entity = textEnt[last];
+			auto fileLoaded = entID.find(entity);
+			if (fileLoaded != entID.end())
+			{
+				// Temp variables
+				size_t last = loadedTexts.size() - 1;
+				size_t index = entID[entity].ID;
+				const Entity last_entity = textEnt[last];
 
-			// Copy the data
-			textEnt[index] = last_entity;
-			loadedTexts[index] = loadedTexts[last];
-			entID[last_entity] = entID[entity];
+				// Copy the data
+				textEnt[index] = last_entity;
+				loadedTexts[index] = loadedTexts[last];
+				entID[last_entity] = entID[entity];
 
-			// Remove last spot 
-			entID.erase(entity);
-			loadedTexts.pop_back();
-			textEnt.pop_back();
+				// Remove last spot 
+				entID.erase(entity);
+				loadedTexts.pop_back();
+				textEnt.pop_back();
+			}
 
 			StopProfile;
 		}

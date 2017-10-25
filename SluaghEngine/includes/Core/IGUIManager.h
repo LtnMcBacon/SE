@@ -41,9 +41,9 @@ namespace SE
 
 			struct CreateInfo
 			{
-				const Entity& entity;
+				Entity entity;
 				Utilz::GUID texFile;
-				Graphics::GUITextureInfo& texInfo;
+				Graphics::GUITextureInfo texInfo;
 			};
 
 

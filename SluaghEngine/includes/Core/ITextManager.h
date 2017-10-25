@@ -39,8 +39,8 @@ namespace SE
 
 			struct CreateInfo
 			{
-				const Entity& entity;
-				const Graphics::TextGUI& inTextInfo;
+				Entity entity;
+				Graphics::TextGUI inTextInfo;
 			};
 
 

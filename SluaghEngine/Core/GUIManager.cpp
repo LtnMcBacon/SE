@@ -162,21 +162,25 @@ namespace SE {
 		void GUIManager::Destroy(const Entity & entity)
 		{
 			StartProfile;
-			// Temp variables
-			size_t last = textureInfo.size() - 1;
-			size_t index = entTextureID[entity].ID;
-			const Entity last_entity = textureEnt[last];
+			auto fileLoaded = entTextureID.find(entity);
+			if (fileLoaded != entTextureID.end())
+			{
+				// Temp variables
+				size_t last = textureInfo.size() - 1;
+				size_t index = entTextureID[entity].ID;
+				const Entity last_entity = textureEnt[last];
 
-			// Copy the data
-			textureEnt[index] = last_entity;
-			textureInfo[index] = textureInfo[last];
-			textureGUID[entTextureID[entity].GUID].refCount--;
-			entTextureID[last_entity].ID = entTextureID[entity].ID;
+				// Copy the data
+				textureEnt[index] = last_entity;
+				textureInfo[index] = textureInfo[last];
+				textureGUID[entTextureID[entity].GUID].refCount--;
+				entTextureID[last_entity].ID = entTextureID[entity].ID;
 
-			// Remove last spot 
-			entTextureID.erase(entity);
-			textureInfo.pop_back();
-			textureEnt.pop_back();
+				// Remove last spot 
+				entTextureID.erase(entity);
+				textureInfo.pop_back();
+				textureEnt.pop_back();
+			}
 
 			StopProfile;
 		}
