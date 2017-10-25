@@ -16,6 +16,7 @@ GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 	this->unitEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(this->unitEntity, DirectX::XMFLOAT3(xPos, 1.5f, yPos));
 	mySelf = std::make_shared<GameUnit*>(this);
+	zPos = 0.f;
 }
 
 GameUnit::~GameUnit()
@@ -69,7 +70,8 @@ void GameUnit::MoveEntity(float xMovement, float yMovement)
 	StartProfile;
 	xPos += xMovement;
 	yPos += yMovement;
-	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
+	
+	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, zPos, yPos });
 	StopProfile;
 }
 

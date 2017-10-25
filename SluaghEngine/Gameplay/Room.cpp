@@ -292,13 +292,13 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 		if(startY < endY)
 		{
 			for (int i = 0; i < distance; i++)
-				if (map[x][y + i])
+				if (tileValues[x][y + i])
 					ProfileReturnConst(false);
 		}
 		else
 		{
 			for (int i = 0; i < distance; i++)
-				if (map[x][y - i])
+				if (tileValues[x][y - i])
 					ProfileReturnConst(false);
 		}
 	}
@@ -310,13 +310,13 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 		if (startX < endX)
 		{
 			for (int i = 0; i < distance; i++)
-				if (map[x+i][y])
+				if (tileValues[x+i][y])
 					ProfileReturnConst(false);
 		}
 		else
 		{
 			for (int i = 0; i < distance; i++)
-				if (map[x-i][y])
+				if (tileValues[x-i][y])
 					ProfileReturnConst(false);
 		}
 	}
@@ -442,7 +442,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 				float eps = 0;
 				for (int y = int(yStart); y < int(yEnd); y++)
 				{
-					if (map[x][y])
+					if (tileValues[x][y])
 						ProfileReturnConst(false);
 					eps += m;
 					if (eps > -0.5f)
@@ -458,7 +458,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 				float eps = 0;
 				for (int x = int(xStart); x <= int(xEnd); x++)
 				{
-					if (map[x][y])
+					if (tileValues[x][y])
 						ProfileReturnConst(false);
 					eps += m;
 					if (eps > -0.5f)
@@ -478,7 +478,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 				float eps = 0;
 				for(int y = int(yStart); y < int(yEnd); y++)
 				{
-					if (map[x][y])
+					if (tileValues[x][y])
 						ProfileReturnConst(false);
 					eps += m;
 					if(eps < 0.5f)
@@ -495,7 +495,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 				float eps = 0;
 				for (int x = int(xStart); x <= int(xEnd); x++)
 				{
-					if (map[x][y])
+					if (tileValues[x][y])
 						ProfileReturnConst(false);
 					eps += m;
 					if (eps < 0.5f)
@@ -524,7 +524,7 @@ float Room::DistanceToClosestWall(float startX, float startY)
 	{
 		/*Check left side*/
 		for (int i = yStart - yDistance; i <= yStart + yDistance; i++)
-			if (map[xStart - xDistance][i])
+			if (tileValues[xStart - xDistance][i])
 			{
 				float xDist = startX - (xDistance - 1);
 				float yDist = i - yStart + startY;
@@ -534,7 +534,7 @@ float Room::DistanceToClosestWall(float startX, float startY)
 			}
 		/*Check right side*/
 		for (int i = yStart - yDistance; i <= yStart + yDistance; i++)
-			if (map[xStart + xDistance][i])
+			if (tileValues[xStart + xDistance][i])
 			{
 				float xDist = startX + (xDistance - 1);
 				float yDist = i - yStart + startY;
@@ -544,7 +544,7 @@ float Room::DistanceToClosestWall(float startX, float startY)
 			}
 		/*Check Up*/
 		for (int i = xStart - xDistance; i <= xStart + xDistance; i++)
-			if (map[i][yStart + yDistance])
+			if (tileValues[i][yStart + yDistance])
 			{
 				float yDist = startY + (xDistance - 1);
 				float xDist = i - xStart + startX;
@@ -555,7 +555,7 @@ float Room::DistanceToClosestWall(float startX, float startY)
 			}
 		/*Check Down*/
 		for (int i = xStart - xDistance; i <= xStart + xDistance; i++)
-			if (map[i][yStart - yDistance])
+			if (tileValues[i][yStart - yDistance])
 			{
 				float yDist = startY - (xDistance - 1);
 				float xDist = i - xStart + startX;
@@ -817,7 +817,7 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 
 bool Room::PointInsideWall(float x, float y)
 {
-	return !map[int(x)][int(y)];
+	return !tileValues[int(x)][int(y)];
 }
 Room::Room(Utilz::GUID fileName)
 {

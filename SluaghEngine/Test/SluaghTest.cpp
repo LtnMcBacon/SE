@@ -157,7 +157,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
-
+				player->SetZPosition(1.5f);
 				break;
 			}
 		}
@@ -553,6 +553,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		{
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
+		projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 		engine->BeginFrame();
 
 		engine->EndFrame();
@@ -645,6 +646,8 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		
 		testRoom->Update(dt, playerPos.x, playerPos.y);
 
+		projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+		blackBoard.enemyProjectiles.clear();
 		engine->BeginFrame();
 
 		engine->EndFrame();
@@ -653,6 +656,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 
 	delete testRoom;
 	delete player;
+	delete RoomArr;
 
 
 	game.Shutdown();

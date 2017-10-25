@@ -129,7 +129,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
-
+				player->SetZPosition(1.5f);
 				break;
 			}
 		}

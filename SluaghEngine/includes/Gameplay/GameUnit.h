@@ -158,9 +158,11 @@ namespace SE
 			inline float GetHealth() const { return health; };
 			inline float GetXPosition() { return xPos; };
 			inline float GetYPosition() { return yPos; };
+			inline float GetZPosition() { return zPos; };
 
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
+			inline void SetZPosition(float value) { zPos = value; };
 
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
@@ -172,6 +174,7 @@ namespace SE
 			float health;
 			float xPos;
 			float yPos;
+			float zPos;
 			float extents;
 
 			float stunDuration;

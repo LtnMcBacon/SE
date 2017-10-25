@@ -125,7 +125,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
-
+				player->SetZPosition(1.5f);
 				break;
 			}
 		}
@@ -133,6 +133,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 
 	managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+	
 
 	managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 	managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
@@ -466,6 +467,8 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		{
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
+		projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+		blackBoard.enemyProjectiles.clear();
 		engine->BeginFrame();
 
 		engine->EndFrame();
@@ -482,6 +485,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 
 	delete testRoom;
 	delete player;
+	delete RoomArr;
 
 
 	game.Shutdown();
