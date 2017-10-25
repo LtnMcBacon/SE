@@ -57,12 +57,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 
-
-	auto& level = managers.entityManager->Create();
 	auto& mainC = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
-
-	managers.transformManager->Create(level);
 
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);
