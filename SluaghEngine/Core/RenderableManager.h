@@ -143,11 +143,6 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-			Utilz::GUID defaultMesh;
-			Utilz::GUID defaultVertexShader;
-			Utilz::GUID solidRasterizer;
-			Utilz::GUID wireframeRasterizer;
-
 			enum class BufferState
 			{
 				Loaded,

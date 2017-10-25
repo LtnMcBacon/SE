@@ -12,6 +12,11 @@
 
 using namespace std::chrono_literals;
 
+static const SE::Utilz::GUID solid("Solid");
+static const SE::Utilz::GUID wireframe("Wireframe");
+static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
+static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
+
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
 {
@@ -32,9 +37,6 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 	Allocate(128);
 	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
-
-	defaultMesh = "Placeholder_Block.mesh";
-	defaultVertexShader = "SimpleVS.hlsl";
 
 	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, [this](auto guid, auto data, auto size) {
 		auto& binfo = guidToBufferInfo[guid];
@@ -58,16 +60,13 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	info.fillMode = Graphics::FillMode::FILL_SOLID;
 	info.windingOrder = Graphics::WindingOrder::CLOCKWISE;
 
-	solidRasterizer = "Solid";
-	wireframeRasterizer = "Wireframe";
-
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solidRasterizer, info);
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solid, info);
 	if (result < 0)
 		throw std::exception("Could not create Solid Rasterizer.");
 
 	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
 
-	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframeRasterizer, info);
+	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
 	if (result < 0)
 		throw std::exception("Could not create wireframe Rasterizer.");
 }
