@@ -20,13 +20,13 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 
 	const auto findBucket = pipelineToRenderBucket.find(job.pipeline.id);
 	auto& bucket = pipelineToRenderBucket[job.pipeline.id];
-	
+
 
 	const auto findEntity = entityToBucketAndIndexInBucket.find(entity);
 	auto& bucketAndIndexInBucket = entityToBucketAndIndexInBucket[entity];
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
 		bucket = new RenderBucket(job.pipeline);
-		bucket->pipeline = job.pipeline;
+	bucket->pipeline = job.pipeline;
 
 	if (findEntity != entityToBucketAndIndexInBucket.end()) // The entity is in another bucket.
 		RemoveFromBucket(bucketAndIndexInBucket);
@@ -34,14 +34,19 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	bucketAndIndexInBucket = { job.pipeline.id, bucket->transforms.size() };
 	bucket->indexToEntity.push_back(entity);
 	bucket->transforms.push_back({});
-	
 
-	
+
+
 	job.maxInstances = 256;
 	job.instanceCount = bucket->transforms.size();
 	job.mappingFunc.push_back([bucket](auto a, auto b) {
 		renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
+
+	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
+		bucket->jobID = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+	else
+		renderer->ChangeRenderJob(bucket->jobID, job);
 
 	StopProfile;
 }
@@ -71,4 +76,7 @@ void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& 
 	entityToBucketAndIndexInBucket[currentBucket.indexToEntity[last]].index = bucketAndID.index;
 	currentBucket.transforms.pop_back();
 	currentBucket.indexToEntity.pop_back();
+
+	if (currentBucket.transforms.size() == 0)
+		renderer->RemoveRenderJob(currentBucket.jobID);
 }

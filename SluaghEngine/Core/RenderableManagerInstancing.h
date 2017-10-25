@@ -30,6 +30,7 @@ namespace SE
 			{
 				RenderBucket(const Graphics::Pipeline& p) : pipeline(p) {};
 				Graphics::Pipeline pipeline;
+				uint32_t jobID;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				std::vector<Entity> indexToEntity;
 			};
