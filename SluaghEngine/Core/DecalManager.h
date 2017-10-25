@@ -1,0 +1,58 @@
+#ifndef SE_CORE_DECAL_MANAGER_H_
+#define SE_CORE_DECAL_MANAGER_H_
+
+#include "IDecalManager.h"
+#include <unordered_map>
+
+namespace SE
+{
+	namespace Core
+	{
+		
+		class DecalManager : public IDecalManager
+		{
+		public:
+			DecalManager(const IDecalManager::InitializationInfo& initInfo);
+			~DecalManager();
+			void Frame(Utilz::TimeCluster* timer) override;
+
+			/*@brief See IDecalManager
+			*/
+			int Create(const Entity& entity, const Utilz::GUID& textureName) override;
+
+			/*
+			* @brief See IDecalManager
+			*/
+			int Remove(const Entity& entity) override;
+
+		private:
+			IDecalManager::InitializationInfo initInfo;
+
+			Utilz::GUID vertexShader;
+			Utilz::GUID pixelShader;
+			Utilz::GUID wvpConstantBuffer;
+			Utilz::GUID inverseViewProj;
+			Utilz::GUID inverseWorld;
+			Utilz::GUID blendState;
+			Utilz::GUID textureBindName;
+			/**<The base pipeline, entities will have different textures but the rest is the same*/
+			Graphics::Pipeline defaultPipeline;
+
+			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;
+			std::unordered_map<Utilz::GUID, std::vector<DirectX::XMFLOAT4X4>, Utilz::GUID::Hasher> decalToTransforms;
+
+		protected:
+
+			void Destroy(size_t index) override;
+
+			void Destroy(const Entity& entity) override;
+
+			void GarbageCollection() override;
+		};
+
+
+	}
+}
+
+
+#endif

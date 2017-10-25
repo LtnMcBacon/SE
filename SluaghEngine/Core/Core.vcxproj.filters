@@ -111,6 +111,12 @@
     <ClCompile Include="ImGuiConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IDecalManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DecalManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h">
@@ -204,6 +210,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IDecalManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
