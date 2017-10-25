@@ -38,6 +38,7 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 
 	
 	job.maxInstances = 256;
+	job.instanceCount = bucket->transforms.size();
 	job.mappingFunc.push_back([bucket](auto a, auto b) {
 		renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
