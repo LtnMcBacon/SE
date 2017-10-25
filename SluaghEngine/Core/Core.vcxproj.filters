@@ -120,6 +120,9 @@
     <ClCompile Include="ITextManager.cpp">
       <Filter>Interface\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="RenderableManagerInstancing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h">
@@ -222,6 +225,9 @@
       <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="TextManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableManagerInstancing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
