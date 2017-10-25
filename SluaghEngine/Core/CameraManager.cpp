@@ -81,9 +81,7 @@ void SE::Core::CameraManager::UpdateCamera(const CreateInfo & info)
 		cameraData.nearPlane[currentActive.activeCamera] = info.nearPlane;
 		cameraData.farPlane[currentActive.activeCamera] = info.farPlance;
 
-		initInfo.transformManager->SetPosition(currentActive.entity, info.posistion);
-		initInfo.transformManager->SetRotation(currentActive.entity, info.rotation.x, info.rotation.y, info.rotation.z);
-		initInfo.transformManager->SetAsDirty(currentActive.entity);
+		initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
 	}
 	StopProfile;
 }
@@ -219,7 +217,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 
 			XMFLOAT4X4 viewProjMatrix;
 			XMStoreFloat4x4(&viewProjMatrix, viewproj);
-			initInfo.renderer->UpdateView((float*)&viewProjMatrix);
+			initInfo.renderer->UpdateView((float*)&viewProjMatrix, DirectX::XMFLOAT4(initInfo.transformManager->GetPosition(currentActive.entity).x, initInfo.transformManager->GetPosition(currentActive.entity).y, initInfo.transformManager->GetPosition(currentActive.entity).z, 1.0f));
 			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 			cameraData.dirty[currentActive.activeCamera] = ~0u;

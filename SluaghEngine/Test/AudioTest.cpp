@@ -36,50 +36,14 @@ namespace SE
 			}
 			auto managers = e->GetManagers();
 			auto subSystems = e->GetSubsystems();
-			//if (managers.audioManager->LoadSound(Utilz::GUID("Canary.wav")) == 0)
-			//{
-			//	console->Print("Sound already loaded??????\n");
-			//	e->Release();
-			//	return false;
-			//}
-
-			//if (audio.LoadSound(Utilz::GUID("BLoop.wav")) == 0)
-			//{
-			//	console->Print("Sound already loaded??????\n");
-			//	e->Release();
-			//	return false;
-			//}
-
-			int delay = 0;
-			//while (audio.CheckIfLoaded(Utilz::GUID("Canary.wav")) == 0 && audio.CheckIfLoaded(Utilz::GUID("BLoop.wav")) == 0 && delay < 10)
-			//{
-			//	delay++;
-			//}
 
 			auto soundEnt = managers.entityManager->Create();
-		//	int soundID[10]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 			managers.audioManager->Create(soundEnt, { "BLoop.wav", Audio::SoundIndexName::BakgroundSound });
-			/*if (soundID[0] == -1)
-			{
-				console->Print("Sound is not loaded!!!!!!!!\n");
-				e->Release();
-				return false;
-			}
-			else if (soundID[0] == -2)
-			{
-				console->Print("No device!!!!!!\n");
-				e->Release();
-				return false;
-			}
-			else*/
+
 			{	
 #pragma region GUI
 
 				auto entText = managers.entityManager->Create();
-
-				// Load textures for GUI
-				managers.guiManager->Create2D(Utilz::GUID("GUITest.sei"));
-				managers.guiManager->Create2D(Utilz::GUID("TransparentTest.sei"));
 
 				// Text creation
 				Graphics::TextGUI guiText;
@@ -94,8 +58,8 @@ namespace SE
 				guiText.rotation = 0;
 				guiText.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				
-				managers.guiManager->CreateRenderableText(entText, guiText);
-				managers.guiManager->ToggleRenderableText(entText, true);
+				managers.textManager->Create({ entText, guiText });
+				managers.textManager->ToggleRenderableText(entText, true);
 
 				// GUI texture creation
 				auto entTexture = managers.entityManager->Create();
@@ -109,8 +73,7 @@ namespace SE
 				guiTexture.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture.rect = nullptr;	//not needed default nullptr
 
-				
-				managers.guiManager->Bind2D(entTexture, Utilz::GUID("GUITest.sei"), guiTexture);
+				managers.guiManager->Create({ entTexture, Utilz::GUID("GUITest.sei"), guiTexture });
 				managers.guiManager->ToggleRenderableTexture(entTexture, true);
 
 				// GUI texture creation2
@@ -126,7 +89,7 @@ namespace SE
 				guiTexture2.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Bind2D(entTexture2, Utilz::GUID("GUITest.sei"), guiTexture2);
+				managers.guiManager->Create({ entTexture2, Utilz::GUID("GUITest.sei"), guiTexture2 });
 				managers.guiManager->ToggleRenderableTexture(entTexture2, true);
 
 				// GUI texture creation3
@@ -141,7 +104,7 @@ namespace SE
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
 				guiTexture3.rect = nullptr;	//not needed default nullptr
 
-				managers.guiManager->Bind2D(entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3);
+				managers.guiManager->Create({ entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3 });
 				managers.guiManager->ToggleRenderableTexture(entTexture3, true);
 
 				// GUI texture creation4
@@ -157,7 +120,7 @@ namespace SE
 				guiTexture4.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Bind2D(entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4);
+				managers.guiManager->Create({ entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4 });
 				managers.guiManager->ToggleRenderableTexture(entTexture4, true);
 
 				// GUI texture creation5
@@ -173,7 +136,7 @@ namespace SE
 				guiTexture5.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Bind2D(entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5);
+				managers.guiManager->Create({ entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5 });
 				managers.guiManager->ToggleRenderableTexture(entTexture5, true);
 
 #pragma endregion GUI

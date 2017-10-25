@@ -15,6 +15,7 @@
 
 #include "IManager.h"
 #include "IEntityManager.h"
+#include <DevConsole\IConsole.h>
 
 namespace SE
 {
@@ -35,35 +36,18 @@ namespace SE
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
 				IEntityManager* entityManager;
+				DevConsole::IConsole* console;
 			};
 
 			struct CreateInfo
 			{
-				Utilz::GUID meshGUID;
-				bool transparent = false;
-				bool wireframe = false;
+				Entity entity;
+				Utilz::GUID texFile;
+				Graphics::GUITextureInfo texInfo;
 			};
 
 
 			virtual ~IGUIManager() {};
-
-			/**
-			* @brief	Bind a renderable text to entity
-			*
-			* @param[in] entity The entity to bind the renderable text to.
-			* @param[in] textInfo Struct with the required information.
-			*
-			*/
-			virtual void CreateRenderableText(const Entity& entity, const Graphics::TextGUI& textInfo) = 0;
-
-			/**
-			* @brief Create a new font
-			* @param[in] fontFile The GUID to the font file.
-			* @retval 0+ Font ID
-			* @retval -1 Something went wrong.
-			* @endcode
-			*/
-			virtual int CreateTextFont(const Utilz::GUID& fontFile) = 0;
 
 			/**
 			* @brief Create a new 2D texture for GUI
@@ -72,16 +56,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			virtual int Create2D(const Utilz::GUID& texFile) = 0;
-
-			/**
-			* @brief	Hide/Show the renderable text
-			*
-			* @param[in] entity Which entity.
-			* @param[in] show True to show, false to hide.
-			*
-			*/
-			virtual void ToggleRenderableText(const Entity& entity, bool show) = 0;
+			virtual int Create(CreateInfo info) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -92,30 +67,6 @@ namespace SE
 			*/
 			virtual void ToggleRenderableTexture(const Entity& entity, bool show) = 0;
 
-			/**
-			* @brief Create a new 2D texture for GUI
-			* @param[in] entity Which entity.
-			* @param[in] texFile The GUID to the texture file to use.
-			* @retval 0 Bind successful
-			* @retval -1 Entity not alive or texFile none existing.
-			* @endcode
-			*/
-			virtual int Bind2D(const Entity& entity, Utilz::GUID texFile, Graphics::GUITextureInfo& texInfo) = 0;
-
-
-			// sets for Text
-			virtual  void SetText(const Entity& entity, std::wstring text) = 0;
-			virtual  void SetTextFontID(const Entity& entity, size_t fontID) = 0;
-			virtual  void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) = 0;
-			virtual  void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos) = 0;
-			virtual  void SetTextOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) = 0;
-
-			virtual  void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
-
-			virtual  void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect) = 0;
-
-			virtual  void SetTextRotation(const Entity& entity, float rotation) = 0;
-			virtual  void SetTextLayerDepth(const Entity& entity, float layerDepth) = 0;
 			// sets for texture
 			virtual  void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour) = 0;
 			virtual  void SetTexturePos(const Entity& entity, DirectX::XMFLOAT2 pos) = 0;
