@@ -127,7 +127,15 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
-			IBehaviour* CreateAttackCooldownZeroCondition(NodeData* dataArray, int nodeID);
+			IBehaviour* CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a StunnedCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateStunnedConditionLeaf(NodeData* dataArray, int nodeID);
 
 			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.

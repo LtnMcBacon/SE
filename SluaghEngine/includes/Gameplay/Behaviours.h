@@ -9,6 +9,7 @@
 #include "TimerCondition.h"
 #include "RangeToPlayerCondition.h"
 #include "ObstacleOnPositionCondition.h"
+#include "StunnedCondition.h"
 #include "MakeVulnerableLeaf.h"
 #include "MakeInvulnerableLeaf.h"
 #include "GlaistigAttackLeaf.h"

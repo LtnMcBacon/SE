@@ -485,6 +485,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	delete testRoom;
 	delete player;
 
+	delete RoomArr;
 
 	
 

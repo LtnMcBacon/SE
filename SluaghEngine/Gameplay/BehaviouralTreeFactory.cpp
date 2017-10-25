@@ -67,7 +67,7 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	}
 	else if(dataArray[nodeID].Type == "AttackCooldownZeroCondition")
 	{
-		finishedBehaviour = CreateAttackCooldownZeroCondition(dataArray, nodeID);
+		finishedBehaviour = CreateAttackCooldownZeroConditionLeaf(dataArray, nodeID);
 	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
@@ -96,6 +96,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if(dataArray[nodeID].Type == "TickDownAttackCooldownLeaf")
 	{
 		finishedBehaviour = CreateTickDownAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "StunnedCondition")
+	{
+		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -199,9 +203,14 @@ IBehaviour* BehaviouralTreeFactory::CreateRangeToPlayerConditionLeaf(NodeData* d
 	return new RangeToPlayerCondition(nullptr, nullptr, min, max);
 }
 
-IBehaviour* BehaviouralTreeFactory::CreateAttackCooldownZeroCondition(NodeData* dataArray, int nodeID)
+IBehaviour* BehaviouralTreeFactory::CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID)
 {
 	return new AttackCooldownZeroCondition(nullptr, nullptr);
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStunnedConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	return new StunnedCondition(nullptr, nullptr);
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID)

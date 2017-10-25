@@ -70,12 +70,10 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	*/
 	ResolveEvents();
 	DecideAction();
-	if (stunDuration <= 0.f)
-	{
-		PerformAction(dt);
-	}
-	else
+	if (stunDuration > 0.f)
 		stunDuration -= dt;
+	
+	PerformAction(dt);
 	ProfileReturnVoid;
 }
 

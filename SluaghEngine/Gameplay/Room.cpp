@@ -432,40 +432,44 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 		default: 
 			break;
 		}
-
+		float stepSize = 0.15f;
 		if(m < 0.f) /*Negative Slope*/
 		{
 			if(octant == 2 || octant == 6) /*Loop over y*/
 			{
 				
-				int x = int(xStart);
+				float x = xEnd;
+				float y = yStart;
 				float eps = 0;
-				for (int y = int(yStart); y < int(yEnd); y++)
+				while (y < yEnd)
 				{
-					if (tileValues[x][y])
+					if (tileValues[int(x)][int(y)])
 						ProfileReturnConst(false);
-					eps += m;
-					if (eps > -0.5f)
+					eps += m*stepSize;
+					if (eps < -0.5f)
 					{
 						x--;
 						eps += 1.f;
 					}
+					y += stepSize;
 				}
 			}
 			else /*Loop over x*/
 			{
-				int y = yStart;
+				float y = yEnd;
+				float x = xStart;
 				float eps = 0;
-				for (int x = int(xStart); x <= int(xEnd); x++)
+				while (x < xEnd)
 				{
-					if (tileValues[x][y])
+					if (tileValues[int(x)][int(y)])
 						ProfileReturnConst(false);
-					eps += m;
-					if (eps > -0.5f)
+					eps += m*stepSize;
+					if (eps < -0.5f)
 					{
 						y--;
 						eps += 1.f;
 					}
+					x += stepSize;
 				}
 			}
 		}
@@ -474,35 +478,40 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 			if (octant == 1 || octant == 5) /*Loop over y*/
 			{
 				
-				int x = int(xStart);
+				float x = xStart;
+				float y = yStart;
 				float eps = 0;
-				for(int y = int(yStart); y < int(yEnd); y++)
+				while(y < yEnd)
 				{
-					if (tileValues[x][y])
+					if (tileValues[int(x)][int(y)])
 						ProfileReturnConst(false);
-					eps += m;
-					if(eps < 0.5f)
+					eps += m*stepSize;
+					if(eps > 0.5f)
 					{
 						x++;
 						eps -= 1.f;
 					}
+					y += stepSize;
 				}
+					
+				
 			}
 			else /*Loop over x*/
 			{
-				
-				int y = int(yStart);
+				float x = xStart;
+				float y = yStart;
 				float eps = 0;
-				for (int x = int(xStart); x <= int(xEnd); x++)
+				while(x < xEnd)
 				{
-					if (tileValues[x][y])
+					if (tileValues[int(x)][int(y)])
 						ProfileReturnConst(false);
-					eps += m;
-					if (eps < 0.5f)
+					eps += m*stepSize;
+					if (eps > 0.5f)
 					{
 						y++;
 						eps -= 1.f;
 					}
+					x += stepSize;
 				}
 			}
 		}
@@ -709,7 +718,7 @@ int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		//if (abs(p.GetXPosition() - enemyUnits[i]->GetXPosition()) < (p.GetExtentX() + enemyUnits[i]->GetExtent()) && abs(p.GetYPosition() - enemyUnits[i]->GetYPosition()) < (p.GetExtentY() + enemyUnits[i]->GetExtent()))
+		
 		if(abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
 		{
 			ProfileReturnConst(i);
@@ -749,64 +758,8 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
 	}
 
-	//if we at some point want to have a reflection vector from enemies as well then comment in the two sections below and change so that the two last points in the below calls corresponds to
-	//the lines formed by taking the centerpoint of the enemy we collided with and adding/subtracting the extent of the enemy
-
-	//if (collidedLeft)
-	//{
-	//	if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // top line
-	//	{
-	//		yPower += 1.0f;
-	//	}
-	//	else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)))) // bottom line
-	//	{
-	//		yPower -= 1.0f;
-	//	}
-
-	//	if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(ceil(r.upperLeftX), int(r.upperLeftY)), LinePoint(ceil(r.upperLeftX), ceil(r.upperLeftY)))) // right line
-	//	{
-	//		xPower += 1.0f;
-	//	}
-	//	else if (LineCollision(LinePoint(r.lowerLeftX, r.lowerLeftY), LinePoint(r.upperLeftX, r.upperLeftY), LinePoint(int(r.upperLeftX), int(r.upperLeftY)), LinePoint(int(r.upperLeftX), ceil(r.upperLeftY)))) // left line
-	//	{
-	//		xPower -= 1.0f;
-	//	}
-	//}
-
-	//if (collidedRight)
-	//{
-	//	if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), ceil(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // top line
-	//	{
-	//		yPower += 1.0f;
-	//	}
-	//	else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), int(r.upperRightY)))) // bottom line
-	//	{
-	//		yPower -= 1.0f;
-	//	}
-
-	//	if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(ceil(r.upperRightX), int(r.upperRightY)), LinePoint(ceil(r.upperRightX), ceil(r.upperRightY)))) // right line
-	//	{
-	//		xPower += 1.0f;
-	//	}
-	//	else if (LineCollision(LinePoint(r.lowerRightX, r.lowerRightY), LinePoint(r.upperRightX, r.upperRightY), LinePoint(int(r.upperRightX), int(r.upperRightY)), LinePoint(int(r.upperRightX), ceil(r.upperRightY)))) // left line
-	//	{
-	//		xPower -= 1.0f;
-	//	}
-	//}
-
 	if (cData.type != CollisionType::NONE)
 	{
-		///*Normalize the collision vector*/
-		//float moveTot = abs(xPower) + abs(yPower);
-		//if (moveTot != 0.0f)
-		//{
-		//	xPower /= moveTot;
-		//	yPower /= moveTot;
-		//}
-
-		//cData.xVec = xPower;
-		//cData.yVec = yPower;
-
 		projectile.SetCollisionData(cData);
 
 		ProfileReturnConst(true);
@@ -826,7 +779,6 @@ Room::Room(Utilz::GUID fileName)
 	loadfromFile(fileName);
 
 	start.x = start.y = 1.5f;
-	//memcpy(this->tileValues, tileValues, 25 * 25 * sizeof(char));
 	bool foundStart = false;
 	//for (int x = 0; x < 25 && !foundStart; x++)
 	//{
@@ -912,6 +864,5 @@ float Room::FloorCheck(int x, int y)
 	rotation += 270;
 
 	rotation *= 3.1416 / 180; 
-	return rotation; 
-	StopProfile; 
+	ProfileReturnConst(rotation);
 }
