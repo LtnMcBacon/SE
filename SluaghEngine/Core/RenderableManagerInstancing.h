@@ -4,6 +4,7 @@
 #include <Graphics\RenderJob.h>
 #include <unordered_map>
 #include <DirectXMath.h>
+#include <Graphics\IRenderer.h>
 namespace SE
 {
 	namespace Core
@@ -11,13 +12,15 @@ namespace SE
 		class RenderableManagerInstancing
 		{
 		public:
-			RenderableManagerInstancing();
+			RenderableManagerInstancing(Graphics::IRenderer* renderer);
 			~RenderableManagerInstancing();
 
-			Utilz::GUID AddEntity(const Entity& entity, const Graphics::RenderJob& job);
+			void AddEntity(const Entity& entity, Graphics::RenderJob& job);
 			void RemoveEntity(const Entity& entity);
 
 		private:
+			Graphics::IRenderer* renderer;
+
 			struct BucketAndID
 			{
 				Utilz::GUID bucket;
@@ -25,6 +28,7 @@ namespace SE
 			};
 			struct RenderBucket
 			{
+				RenderBucket(const Graphics::Pipeline& p) : pipeline(p) {};
 				Graphics::Pipeline pipeline;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				std::vector<Entity> indexToEntity;
@@ -35,7 +39,7 @@ namespace SE
 		
 
 			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;
-			std::unordered_map<Utilz::GUID, RenderBucket, Utilz::GUID::Hasher> pipelineToRenderBucket;
+			std::unordered_map<Utilz::GUID, RenderBucket*, Utilz::GUID::Hasher> pipelineToRenderBucket;
 		};
 	}
 }
