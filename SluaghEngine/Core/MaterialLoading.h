@@ -8,7 +8,8 @@
 #include <map>
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
-
+#include <Utilz\CircularFiFo.h>
+#include <mutex>
 namespace SE
 {
 	namespace Core
@@ -32,7 +33,7 @@ namespace SE
 		};
 		struct ShaderData
 		{
-			size_t refCount;
+			size_t refCount = 0;
 		};
 
 		class MaterialLoading
@@ -57,9 +58,9 @@ namespace SE
 			int LoadMaterialFileAndTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 
 
-			int LoadTextures(MaterialFileData& material, bool async, ResourceHandler::Behavior behavior);
+			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 			int LoadTexture(const Utilz::GUID& guid);
-
+			bool IsTextureLoaded(const Utilz::GUID& guid)const;
 
 			
 
@@ -71,8 +72,21 @@ namespace SE
 			ResourceHandler::IResourceHandler* resourceHandler;
 
 			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
+			std::mutex shaderLock;
+
 			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
+			std::mutex textureLock;
+
 			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
+			std::mutex materialLock;
+
+			struct FullUpdateStruct
+			{
+				Utilz::GUID shader;
+				Utilz::GUID material;
+				MaterialFileData mdata;
+			};
+			Utilz::CircularFiFo<FullUpdateStruct, 10> toUpdateFull;
 		};
 	}
 }

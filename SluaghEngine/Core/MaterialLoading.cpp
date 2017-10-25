@@ -32,6 +32,32 @@ bool SE::Core::MaterialLoading::IsMaterialFileLoaded(const Utilz::GUID & guid) c
 
 int SE::Core::MaterialLoading::LoadShaderAndMaterialFileAndTextures(const Utilz::GUID & shader, const Utilz::GUID & materialFile, bool async, ResourceHandler::Behavior behavior)
 {
+
+	// Load the shader, material and textures
+	resourceHandler->LoadResource(shader, [this, materialFile](auto guid, auto data, auto size)
+	{
+		// Create the shader
+		auto result = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		
+
+		// Load the material
+		FullUpdateStruct fus;
+		result = LoadMaterialFile(materialFile, fus.mdata);
+		if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+
+		// Load all the textures
+		result = LoadTextures(mdata, false, ResourceHandler::Behavior::QUICK);
+		if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+
+		// All things are now loaded
+		toUpdateFull.push({guid, materialFile, mdata})
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	},async, behavior);
 	return 0;
 }
 
@@ -45,11 +71,21 @@ int SE::Core::MaterialLoading::LoadMaterialFileAndTextures(const Utilz::GUID & m
 	return 0;
 }
 
-int SE::Core::MaterialLoading::LoadTextures(MaterialFileData & material, bool async, ResourceHandler::Behavior behavior)
+int SE::Core::MaterialLoading::LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior)
 {
+	auto& material = guidToMaterial[materialFile];
 	for (uint8_t i = 0; i < material.textureInfo.numTextures; i++)
 	{
-		//auto findTexture = 
+		if (!IsTextureLoaded(material.textureInfo.textures[i]))
+		{
+			resourceHandler->LoadResource(material.textureInfo.textures[i],
+				[this](auto guid, auto data, auto size) {
+				auto result = LoadTexture(guid, data, size);
+				if (result < 0)
+					return ResourceHandler::InvokeReturn::Fail;
+				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			}, async, behavior);
+		}
 	}
 
 	return 0;
@@ -66,6 +102,12 @@ int SE::Core::MaterialLoading::LoadTexture(const Utilz::GUID & texture)
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
+}
+
+bool SE::Core::MaterialLoading::IsTextureLoaded(const Utilz::GUID & guid) const
+{
+	auto findTexture = guidToTexture.find(guid);
+	return findTexture != guidToTexture.end();
 }
 
 int SE::Core::MaterialLoading::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)const
@@ -88,6 +130,11 @@ int SE::Core::MaterialLoading::LoadShader(const Utilz::GUID & shader)
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 		if (result < 0)
 			return ResourceHandler::InvokeReturn::Fail;
+
+		shaderLock.lock();
+		guidToShader[guid].refCount++;
+		shaderLock.unlock();
+
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	return 0;

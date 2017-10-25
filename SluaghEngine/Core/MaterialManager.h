@@ -61,7 +61,11 @@ namespace SE
 
 		
 
-			
+			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
+			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
+			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
+
+
 			MaterialLoading mLoading;
 		
 

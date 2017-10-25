@@ -71,22 +71,53 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
 
-	if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
+	//if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
+	//{
+	//	mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
+	//}
+	//else if(!mLoading.IsShaderLoaded(info.shader)) // Shader is not loaded and materialfile is.
+	//{
+	//	mLoading.LoadShaderAndTextures(info.shader, info.materialFile, async, behavior); // Load shader and textures, (textures we get from the materialfile)
+	//}
+	//else if(!mLoading.IsMaterialFileLoaded(info.materialFile)) // Shader is loaded and materialfile is not.
+	//{
+	//	mLoading.LoadMaterialFileAndTextures(info.materialFile, async, behavior); // Load the materialfile and textures.
+	//}
+	//else // Both shader and material was loaded
+	//{
+	//	mLoading.LoadTextures(info.materialFile, async, behavior); // Load any textures that may not be loaded.
+	//}
+
+
+	if (!mLoading.IsShaderLoaded(info.shader))
 	{
-		mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
+		if (auto res = mLoading.LoadShader(info.shader))
+			materialInfo.shader[newEntry] = info.shader;
+		else
+		{
+			initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, res);
+			materialInfo.shader[newEntry] = defaultPixelShader;
+		}
 	}
-	else if(!mLoading.IsShaderLoaded(info.shader)) // Shader is not loaded and materialfile is.
+
+	MaterialFileData mdata;
+	if (!mLoading.IsMaterialFileLoaded(info.materialFile))
 	{
-		mLoading.LoadShaderAndTextures(info.shader, info.materialFile, async, behavior); // Load shader and textures, (textures we get from the materialfile)
+		if(auto res = mLoading.LoadMaterialFile(info.materialFile, mdata))
+			materialInfo.material[newEntry] = info.materialFile;
+		else
+		{
+			initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, res);
+			materialInfo.material[newEntry] = defaultMaterial;
+		}
 	}
-	else if(!mLoading.IsMaterialFileLoaded(info.materialFile)) // Shader is loaded and materialfile is not.
-	{
-		mLoading.LoadMaterialFileAndTextures(info.materialFile, async, behavior); // Load the materialfile and textures.
-	}
-	else // Both shader and material was loaded
-	{
-		mLoading.LoadTextures(info.materialFile, async, behavior); // Load any textures that may not be loaded.
-	}
+		
+
+	
+
+
+
+
 	const auto shaderFind = guidToShader.find(info.shader);
 	auto& shaderInfo = guidToShader[info.shader];
 	if(shaderFind == guidToShader.end())
@@ -128,7 +159,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 		if (res)
 		{
-			initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, res);
+			
 		}
 	}
 
