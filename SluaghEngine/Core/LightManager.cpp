@@ -32,9 +32,9 @@ namespace SE {
 
 			// chexk if entity exist
 			auto& fileLoaded = entityToLightData.find(entity);
+			auto& data = entityToLightData[entity];
 			if (fileLoaded == entityToLightData.end())
 			{
-				LightData data;
 				data.visible = false;
 				data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
 				data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
@@ -58,7 +58,7 @@ namespace SE {
 			auto fileLoaded = entityToLightData.find(entity);
 			if (fileLoaded != entityToLightData.end())
 			{
-				fileLoaded->second.visible = show;
+				
 				if (show && !fileLoaded->second.visible)
 				{
 					anyTogglesThisFrame = true;
@@ -95,7 +95,7 @@ namespace SE {
 					fileLoaded->second.show = false;
 					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;*/
 				}
-
+				fileLoaded->second.visible = show;
 			}
 			ProfileReturnVoid;
 		}
@@ -122,7 +122,7 @@ namespace SE {
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
-					auto cb = *(LightDataBuffer*)data;
+					auto& cb = *(LightDataBuffer*)data;
 					uint32_t count = 0;
 					for (auto& l : entityToLightData)
 					{
