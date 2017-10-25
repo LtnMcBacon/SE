@@ -1,63 +1,15 @@
 #include <Gameplay\ProjectileFactory.h>
 #include <Profiler.h>
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include <Core/IEngine.h>
 #include "EnemyUnit.h"
 
 #include "CoreInit.h"
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
 	StartProfile;
-	//Rotation rot;
-	//rot.force = 0.0f;
-
-	//SE::Gameplay::Projectile temp(data, rot, 0.5f, 6.0f, 0.1f, 0.1f, SE::Gameplay::ValidTarget::ENEMIES, data.eventDamage, data.eventHealing, data.eventCondition);
-
-	//auto& e = Core::Engine::GetInstance();
-	//auto& em = e.GetEntityManager();
-	//auto& rm = e.GetRenderableManager();
-	//auto& tm = e.GetTransformManager();
-
-	//tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(data.startPosX, 0.5f, data.startPosY));
-	//tm.SetRotation(temp.GetEntity(), 0.0f, data.startRotation, 0.0f);
-	//tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f));
-
-	//rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID("Placeholder_Block.mesh"));
-	//rm.ToggleRenderableObject(temp.GetEntity(), true);
-
-	//std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters;
-	//std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters2;
-	//parameters.resize(4);
-	//parameters2.resize(4);
-
-	//AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, BounceBehaviour(parameters));
-	//AddRotationInvertion(temp, TypeOfFunction::CONTINUOUS, 0.25f);
-	//AddRotationModifier(temp, TypeOfFunction::CONTINUOUS, 0.2f);
-	//AddLifeTime(temp, TypeOfFunction::ON_DEATH, 6.0f);
-	//AddRotationModifier(temp, TypeOfFunction::ON_DEATH, -0.4f);
-
-	/*parameters[0].behaviour.f = 60.0f * 0.08f;
-	AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));*/
-	//parameters[0].data = 60.0f * 0.08f;
-	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TargetClosestEnemyBehaviour(parameters));
-
-	//parameters2[0].data = 10.0f;
-
-	//parameters[0].data = 1.0f;
-	//std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> tempFuncs;
-	//tempFuncs.push_back(SpeedModifierBehaviour(parameters2));
-	//parameters[1].data = tempFuncs;
-	//parameters[2].data = &temp;
-	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, TimeConditionAddBehaviour(parameters));
-
-	//AddBehaviourToProjectile(temp, TypeOfFunction::ON_COLLISION, ParseBehaviour(temp, "0()"));
-	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "5(f{4.8})"));
-	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0})],P)"));
-	//AddBehaviourToProjectile(temp, TypeOfFunction::CONTINUOUS, ParseBehaviour(temp, "7(f{2.0},L[B1(f{1.0}),B6(f{0.0},L[B1(f{-10.0})],P)],P)")); // 7(f{ 2.0 }, L[B1(f{ 1.0 }), B6(f{ 0.0 }, L[B1(f{ -10.0 })], P)], P)
 
 	LoadNewProjectiles(data);
-	//newProjectiles.push_back(temp);
-
+	
 	StopProfile;
 	
 }
@@ -92,12 +44,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	};
 
-	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(data.fileNameGuid, lambda);
-
-	auto& e = Core::Engine::GetInstance();
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& tm = e.GetTransformManager();
+	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(data.fileNameGuid, lambda);
 
 	std::string line;
 	int position = 0;
@@ -158,12 +105,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 
 		Projectile temp(projData, rotData, projectileSpeed, timeToLive, projectileWidth, projectileHeight, data.target, data.eventDamage, data.eventHealing, data.eventCondition);
 
-		tm.SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
-		tm.SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
-		tm.SetScale(temp.GetEntity(), DirectX::XMFLOAT3(meshScale, meshScale, meshScale));
+		CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
+		CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
+		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(meshScale, meshScale, meshScale));
 
-		rm.CreateRenderableObject(temp.GetEntity(), Utilz::GUID(meshName));
-		rm.ToggleRenderableObject(temp.GetEntity(), true);
+		CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { Utilz::GUID(meshName) });
+		CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
 
 		for (int j = 0; j < nrOfBehaviours; j++)
 		{
@@ -677,8 +624,7 @@ TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourPara
 		float xTarget = player->GetXPosition(), 
 		yTarget = player->GetYPosition();
 
-		auto& tm = Core::Engine::GetInstance().GetTransformManager();
-		DirectX::XMFLOAT3 forward = tm.GetForward(p->GetEntity());
+		DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 
 		xTarget -= p->GetXPosition();
 		yTarget -= p->GetYPosition();

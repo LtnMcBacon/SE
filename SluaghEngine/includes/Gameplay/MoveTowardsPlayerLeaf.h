@@ -1,13 +1,13 @@
 #ifndef SE_GAMEPLAY_MOVE_TOWARDS_PLAYER_LEAF_H
 #define SE_GAMEPLAY_MOVE_TOWARDS_PLAYER_LEAF_H
 #include "IBehaviour.h"
-#include "Core/TransformManager.h"
+#include <Core/IEngine.h>
 
 namespace SE
 {
 	namespace Core
 	{
-		class TransformManager;
+		class ITransformManager;
 	}
 	namespace Gameplay
 	{
@@ -15,7 +15,7 @@ namespace SE
 		{
 		private:
 			MoveTowardsPlayerLeaf() = delete;
-			Core::TransformManager* transformManager;
+			Core::ITransformManager* transformManager;
 			float rotationSpeed = DirectX::XM_2PI;
 		public:
 			MoveTowardsPlayerLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);

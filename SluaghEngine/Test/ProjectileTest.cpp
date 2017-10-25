@@ -141,21 +141,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 	managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
-	Core::Entity rotatingBox1 = managers.entityManager->Create();
-	Core::Entity rotatingBox2 = managers.entityManager->Create();
-	Core::Entity rotatingBox3 = managers.entityManager->Create();
-	managers.transformManager->Create(rotatingBox1, { 0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
-	managers.transformManager->Create(rotatingBox2, { -0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
-	managers.transformManager->Create(rotatingBox3, { 0.25f, 0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.1f,0.1f,0.1f });
-	managers.renderableManager->CreateRenderableObject(rotatingBox1, { Block });
-	managers.renderableManager->CreateRenderableObject(rotatingBox2, { Block });
-	managers.renderableManager->CreateRenderableObject(rotatingBox3, { Block });
-	managers.transformManager->BindChild(player->GetEntity(), rotatingBox1,true,true);
-	managers.transformManager->BindChild(player->GetEntity(), rotatingBox2, true,true);
-	managers.transformManager->BindChild(rotatingBox2, rotatingBox3, true, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox1, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox2, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox3, true);
 
 	SE::Core::Entity camera = managers.entityManager->Create();
 
@@ -385,8 +370,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 			actionInput.skill1Button = true;
 		}
 
-		managers.transformManager->Rotate(rotatingBox2, 0.0f, dt * 6.28, 0.0f);
-		managers.transformManager->Rotate(rotatingBox3, 0.0f, dt*3.14, 0.0f);
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 

@@ -210,7 +210,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos;// +0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos;// +0.2 * cosf(temp.startRotation);
 		temp.target = ValidTarget::ENEMIES;

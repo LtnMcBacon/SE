@@ -2,14 +2,14 @@
 #include "Gameplay/EnemyBlackboard.h"
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyUnit.h"
-#include "Core/Engine.h"
 #include <Profiler.h>
+#include "CoreInit.h"
 
 
 SE::Gameplay::MoveTowardsPlayerLeaf::MoveTowardsPlayerLeaf(EnemyBlackboard * enemyBlackboard, GameBlackboard * gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
 {
-	transformManager = &SE::Core::Engine::GetInstance().GetTransformManager();
+	transformManager = CoreInit::managers.transformManager;
 }
 
 SE::Gameplay::MoveTowardsPlayerLeaf::~MoveTowardsPlayerLeaf()
