@@ -165,23 +165,26 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 	timer->Start(CREATE_ID_HASH("RenderableManager"));
 	GarbageCollection();
 
-	if (!toUpdate.wasEmpty())
+
+	while (!toUpdate.wasEmpty())
 	{
-		while (!toUpdate.wasEmpty())
+		auto& job = toUpdate.top();
+		auto& binfo = guidToBufferInfo[job.mesh];
+		binfo.state = BufferState::Loaded;
+		binfo.size = job.size;
+		for (auto& e : binfo.entities)
 		{
-			auto& job = toUpdate.top();
-			auto& binfo = guidToBufferInfo[job.mesh];
-			binfo.state = BufferState::Loaded;
-			binfo.size = job.size;
-			for (auto& e : binfo.entities)
+			const auto findEntity = entityToRenderableObjectInfoIndex.find(e);
+			if (findEntity != entityToRenderableObjectInfoIndex.end())
 			{
 				renderableObjectInfo.mesh[entityToRenderableObjectInfoIndex[e]] = job.mesh;
 				UpdateRenderableObject(e);
-			}
-				
-			toUpdate.pop();
+			}		
 		}
+
+		toUpdate.pop();
 	}
+
 
 	UpdateDirtyTransforms();
 	timer->Stop(CREATE_ID_HASH("RenderableManager"));
@@ -451,7 +454,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 			if (result < 0)
 				return ResourceHandler::InvokeReturn::Fail;
 
-			(*this.*Unload)(size);
+			//(*this.*Unload)(size);
 		
 			if (async) 
 			{
@@ -495,11 +498,11 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* da
 	if (meshHeader->vertexLayout == 0) {
 		Vertex* v = (Vertex*)(meshHeader + 1);
 		
-		/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(Vertex));
+		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(Vertex));
 	}
 	else {
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-		/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 	ProfileReturnConst(result);
 }
