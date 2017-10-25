@@ -11,8 +11,47 @@ SE::Core::RenderableManagerInstancing::~RenderableManagerInstancing()
 {
 }
 
-void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, const Graphics::RenderJob & job)
+SE::Utilz::GUID SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, const Graphics::RenderJob & job)
 {
+	//job.pipeline.SetID();
+
+	const auto findBucket = pipelineToRenderBucket.find(job.pipeline.id);
+	auto& bucket = pipelineToRenderBucket[job.pipeline.id];
+	
+
+	const auto findEntity = entityToBucketAndIndexInBucket.find(entity);
+	auto& bucketAndIndexInBucket = entityToBucketAndIndexInBucket[entity];
+	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
+	{
+		if (findEntity == entityToBucketAndIndexInBucket.end()) // The entity is not in another bucket.
+		{
+			bucket.pipeline = job.pipeline;
+			bucketAndIndexInBucket = { job.pipeline.id, 0 };
+			bucket.indexToEntity.push_back(entity);
+			bucket.transforms.push_back({});
+
+		}
+		else // The entity is in another bucket.
+		{
+
+		}
+	}
+	else // This bucket existed.
+	{
+		if (findEntity == entityToBucketAndIndexInBucket.end()) // The entity is not in another bucket.
+		{
+			bucketAndIndexInBucket = { job.pipeline.id, bucket.indexToEntity.size() };
+			bucket.indexToEntity.push_back(entity);
+			bucket.transforms.push_back({});
+		}
+		else // The entity is in another bucket.
+		{
+
+		}
+	}
+
+
+
 	const auto findBucketAndID = entityToRenderBucketAndID.find(entity);
 	auto& bucketAndID = entityToRenderBucketAndID[entity];
 	if (findBucketAndID == entityToRenderBucketAndID.end()) // Entity is not in any bucket.

@@ -17,6 +17,9 @@ namespace SE
 			Utilz::GUID AddEntity(const Entity& entity, const Graphics::RenderJob& job);
 
 		private:
+
+
+
 			struct RenderBucket
 			{
 				Graphics::Pipeline pipeline;
@@ -24,7 +27,13 @@ namespace SE
 				std::vector<Entity> indexToEntity;
 			};
 	
-			std::unordered_map<Entity, size_t, EntityHasher> entityToIndexInBucket;
+			struct BucketAndID
+			{
+				Utilz::GUID bucket;
+				size_t index;
+			};
+
+			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;
 			std::unordered_map<Utilz::GUID, RenderBucket, Utilz::GUID::Hasher> pipelineToRenderBucket;
 		};
 	}
