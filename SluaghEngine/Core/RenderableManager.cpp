@@ -200,7 +200,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
-	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? "Wireframe" : "Solid";
+	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? wireframe : solid;
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
 	info->instanceCount = 0;
@@ -265,10 +265,10 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 	{
 		if (renderableObjectInfo.visible[find->second])
 		{
-			//Graphics::RenderJob info;
-			//CreateRenderObjectInfo(find->second, &info);
-			//info.pipeline.SetID();
-			//initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			Graphics::RenderJob info;
+			CreateRenderObjectInfo(find->second, &info);
+			info.pipeline.SetID();
+			rmInstancing->AddEntity(entity, info);
 		}
 	}
 }
@@ -278,11 +278,11 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == 1u)
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.wireframe[find->second]) != wireFrame)
 		{		
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			rmInstancing->AddEntity(entity, info);
 		}
 		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
 	}
@@ -293,11 +293,11 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == 1u)
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			rmInstancing->AddEntity(entity, info);
 		}
 		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 	}
