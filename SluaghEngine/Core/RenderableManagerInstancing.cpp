@@ -39,7 +39,7 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 
 	job.maxInstances = 256;
 	job.instanceCount = bucket->transforms.size();
-	job.mappingFunc.push_back([bucket](auto a, auto b) {
+	job.mappingFunc.push_back([this, bucket](auto a, auto b) {
 		renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
 
@@ -63,6 +63,14 @@ void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
 
 
 	StopProfile;
+}
+
+void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entity, const DirectX::XMFLOAT4X4 & transform)
+{
+	auto& bai = entityToBucketAndIndexInBucket[entity];
+	DirectX::XMFLOAT4X4 transposed;
+	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
+	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
 }
 
 void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID)

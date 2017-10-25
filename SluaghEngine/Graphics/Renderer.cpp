@@ -585,9 +585,10 @@ int SE::Graphics::Renderer::Render() {
 			{
 				while (drawn < j.job.instanceCount)
 				{
-					for (auto& mf : j.job.mappingFunc)
-						mf(drawn, j.job.instanceCount);
+				
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
@@ -595,10 +596,10 @@ int SE::Graphics::Renderer::Render() {
 			else if (j.job.indexCount != 0 && j.job.instanceCount != 0)
 			{
 				while (drawn < j.job.instanceCount)
-				{
-					for (auto& mf : j.job.mappingFunc)
-						mf(drawn, j.job.instanceCount);
+				{		
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}

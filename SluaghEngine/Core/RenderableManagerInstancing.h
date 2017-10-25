@@ -17,7 +17,7 @@ namespace SE
 
 			void AddEntity(const Entity& entity, Graphics::RenderJob& job);
 			void RemoveEntity(const Entity& entity);
-
+			void UpdateTransform(const Entity& entity, const DirectX::XMFLOAT4X4& transform);
 		private:
 			Graphics::IRenderer* renderer;
 

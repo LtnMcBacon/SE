@@ -140,8 +140,9 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 		if (visible)
 		{
-			const uint32_t jobID = initInfo.renderer->AddRenderJob(info, Graphics::RenderGroup::SECOND_PASS);
-			renderableObjectInfo.jobID[find->second] = jobID;
+			rmInstancing->AddEntity(entity, info);
+			//const uint32_t jobID = initInfo.renderer->AddRenderJob(info, Graphics::RenderGroup::SECOND_PASS);
+			//renderableObjectInfo.jobID[find->second] = jobID;
 			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
 			initInfo.transformManager->SetAsDirty(entity);
 		}
@@ -408,19 +409,18 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
 	StartProfile;
-	//auto arr = initInfo.transformManager->GetCleanedTransforms();
-	//for (auto& dirty : dirtyEntites)
-	//{
-	//	auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
-	//	if (find != entityToRenderableObjectInfoIndex.end())
-	//	{			
-	//		if (renderableObjectInfo.visible[find->second])
-	//		{
-	//			auto& transform = arr[dirty.transformIndex];
-	//			initInfo.renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
-	//		}				
-	//	}
-	//}
+	auto arr = initInfo.transformManager->GetCleanedTransforms();
+	for (auto& dirty : dirtyEntites)
+	{
+		auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
+		if (find != entityToRenderableObjectInfoIndex.end())
+		{			
+			if (renderableObjectInfo.visible[find->second])
+			{
+				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+			}				
+		}
+	}
 
 	dirtyEntites.clear();
 	StopProfile;
