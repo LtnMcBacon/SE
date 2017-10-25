@@ -43,16 +43,11 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	
 	//Decals do not use the input assembler.
 	defaultPipeline.VSStage.shader = vertexShader;
-	defaultPipeline.VSStage.constantBuffers[0] = wvpConstantBuffer;
-	defaultPipeline.VSStage.constantBufferCount = 1;
 	defaultPipeline.PSStage.textureBindings[0] = "DepthSRV";
 	defaultPipeline.PSStage.textures[0] = "DepthSRV";
 	defaultPipeline.PSStage.textureBindings[1] = textureBindName;
 	//The texture name will be set for each decal that uses a different texture
 	defaultPipeline.PSStage.textureCount = 2;
-	defaultPipeline.PSStage.constantBuffers[0] = inverseViewProj;
-	defaultPipeline.PSStage.constantBuffers[1] = inverseWorld;
-	defaultPipeline.PSStage.constantBufferCount = 2;
 	defaultPipeline.OMStage.renderTargets[0] = "backbuffer";
 	defaultPipeline.OMStage.renderTargetCount = 1;
 	defaultPipeline.OMStage.depthStencilView = "";

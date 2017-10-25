@@ -54,7 +54,7 @@ namespace SE
 				IDebugRenderManager* debugRenderManager = nullptr;
 				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
-				IDecalManager* decalManager;
+				IDecalManager* decalManager = nullptr;
 			};
 			struct Subsystems
 			{
