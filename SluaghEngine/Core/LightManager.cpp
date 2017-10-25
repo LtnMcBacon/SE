@@ -153,18 +153,16 @@ namespace SE {
 			StartProfile;
 			uint32_t alive_in_row = 0;
 
-			while (lights.size() > 0 && alive_in_row < 4U)
+			while (entityToLightData.size() > 0 && alive_in_row < 4U)
 			{
-				std::uniform_int_distribution<uint32_t> distribution(0U, lights.size() - 1U);
+				std::uniform_int_distribution<uint32_t> distribution(0U, entityToLightData.size() - 1U);
 				uint32_t i = distribution(generator);
-				if (initInfo.entityManager->Alive(ent[i]))
+				if (initInfo.entityManager->Alive(indexToEntity[i]))
 				{
 					alive_in_row++;
 					continue;
 				}
-				alive_in_row = 0;
-				//size_t tempJobID = initInfo.renderer->DisableLightRendering(entID[ent[i]].jobID);
-				
+				alive_in_row = 0;	
 				Destroy(i);
 			}
 			StopProfile;
@@ -174,19 +172,17 @@ namespace SE {
 		{
 			StartProfile;
 			// Temp variables
-			size_t last = lights.size() - 1;
-			const Entity entity = ent[index];
-			const Entity last_entity = ent[last];
+			size_t last = entityToLightData.size() - 1;
+			const Entity entity = indexToEntity[index];
+			const Entity last_entity = indexToEntity[last];
 
 			// Copy the data
-			ent[index] = last_entity;
-			lights[index] = lights[last];
-			entID[last_entity] = entID[entity];
+			indexToEntity[index] = last_entity;
+			entityToLightData[last_entity] = entityToLightData[entity];
 
 			// Remove last spot 
-			entID.erase(entity);
-			lights.pop_back();
-			ent.pop_back();
+			entityToLightData.erase(entity);
+			indexToEntity.pop_back();
 
 			StopProfile;
 		}
@@ -198,8 +194,8 @@ namespace SE {
 		void LightManager::UpdateDirtyPos(const Entity& entity, size_t index)
 		{
 			StartProfile;
-			auto find = entID.find(entity);
-			if (find != entID.end())
+			auto find = entityToLightData.find(entity);
+			if (find != entityToLightData.end())
 			{
 				dirtyEntites.push_back({ index, entity });
 			//	initInfo.renderer->UpdateLightPos(initInfo.transformManager->GetPosition(entity), find->second.jobID);
