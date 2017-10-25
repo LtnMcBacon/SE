@@ -14,23 +14,18 @@ namespace SE
 			RenderableManagerInstancing();
 			~RenderableManagerInstancing();
 
-			void AddEntity(const Entity& entity, const Graphics::RenderJob& job);
+			Utilz::GUID AddEntity(const Entity& entity, const Graphics::RenderJob& job);
 
 		private:
 			struct RenderBucket
 			{
 				Graphics::Pipeline pipeline;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
+				std::vector<Entity> indexToEntity;
 			};
-
-			struct RenderBucketAndID
-			{
-				size_t bucket;
-				size_t ID;
-			};
-
-			std::vector<RenderBucket> renderBuckets;
-			std::unordered_map<Entity, RenderBucketAndID, Core::EntityHasher> entityToRenderBucketAndID;
+	
+			std::unordered_map<Entity, size_t, EntityHasher> entityToIndexInBucket;
+			std::unordered_map<Utilz::GUID, RenderBucket, Utilz::GUID::Hasher> pipelineToRenderBucket;
 		};
 	}
 }
