@@ -13,35 +13,35 @@ namespace SE {
 
 			initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 
-		/*	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(float) * 4 + sizeof(float) * 20 * 2 * 4);
+			uint32_t numLights = 0;
+			auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(LightDataBuffer));
 			if (result < 0)
-				throw std::exception("Could not create LightDataBuffer");*/
+				throw std::exception("Could not create LightDataBuffer");
 		}
 
 		LightManager::~LightManager()
 		{
 		}
 
-		void LightManager::Create(const Entity & entity, const CreateInfo & data)
+		void LightManager::Create(const Entity & entity, const CreateInfo & info)
 		{
 			StartProfile;
 			// Check if the entity is alive
 			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
 
-			// chexk if entity exist in text 
-			auto& fileLoaded = entID.find(entity);
-			if (fileLoaded == entID.end())
+			// chexk if entity exist
+			auto& fileLoaded = entityToLightData.find(entity);
+			if (fileLoaded == entityToLightData.end())
 			{
-				entID[entity].ID = lights.size();
-				Graphics::LightData d;
-				d.colour = { data.color.x, data.color.y, data.color.z, 1.0f };
-				d.pos = { data.pos.x, data.pos.y, data.pos.z, data.radius };
-				lights.push_back(d);
+				LightData data;
+				data.visible = false;
+				data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
+				data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
 
-				initInfo.transformManager->Create(entity, data.pos);
+				initInfo.transformManager->Create(entity, info.pos);
 
-				ent.push_back(entity);
+				indexToEntity.push_back(entity);
 
 			}
 			ProfileReturnVoid;
@@ -55,23 +55,45 @@ namespace SE {
 				ProfileReturnVoid;
 
 			// chexk if entity exist in text 
-			auto fileLoaded = entID.find(entity);
-			if (fileLoaded != entID.end())
+			auto fileLoaded = entityToLightData.find(entity);
+			if (fileLoaded != entityToLightData.end())
 			{
-				if (show && !fileLoaded->second.show)
+				fileLoaded->second.visible = show;
+				if (show && !fileLoaded->second.visible)
 				{
-					DirectX::XMFLOAT3 tempPos = initInfo.transformManager->GetPosition(entity);
-					lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
-					fileLoaded->second.jobID = initInfo.renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
-					jobToEnt[fileLoaded->second.jobID] = entity;
-					fileLoaded->second.show = true;
+					anyTogglesThisFrame = true;
+					//DirectX::XMFLOAT3 tempPos = initInfo.transformManager->GetPosition(entity);
+					//lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
+					//fileLoaded->second.jobID = initInfo.renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
+					//jobToEnt[fileLoaded->second.jobID] = entity;
+					
+					/*initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
+						auto cb = *(LightDataBuffer*)data;
+						uint32_t count = 0;
+						for (auto& l : entityToLightData)
+						{
+							if (l.second.visible)
+							{
+								cb.data[count].colour = l.second.colour;
+								cb.data[count].pos = l.second.pos;
+								count++;
+							}
+							if (count == 20)
+								break;
+						}
+						cb.size[0] = count;
+
+					});*/
+
+					
 
 				}
-				else if (!show && fileLoaded->second.show)
+				else if (!show && fileLoaded->second.visible)
 				{
-					size_t tempJobID = initInfo.renderer->DisableLightRendering(fileLoaded->second.jobID);
+					anyTogglesThisFrame = true;
+					/*size_t tempJobID = initInfo.renderer->DisableLightRendering(fileLoaded->second.jobID);
 					fileLoaded->second.show = false;
-					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
+					entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;*/
 				}
 
 			}
@@ -84,7 +106,7 @@ namespace SE {
 			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
 
-			struct LightDataBuffer
+		/*	struct LightDataBuffer
 			{
 				DirectX::XMFLOAT4 size;
 				Graphics::LightData data[20];
@@ -94,7 +116,30 @@ namespace SE {
 			data.data[0].pos = DirectX::XMFLOAT4(0.25f, 1.0f, -1.0f, 100.0f);
 			data.data[0].colour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightDataBuffer", &data, sizeof(LightDataBuffer));
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));*/
+
+
+			if (anyTogglesThisFrame)
+			{
+				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
+					auto cb = *(LightDataBuffer*)data;
+					uint32_t count = 0;
+					for (auto& l : entityToLightData)
+					{
+						if (l.second.visible)
+						{
+							cb.data[count].colour = l.second.colour;
+							cb.data[count].pos = l.second.pos;
+							count++;
+						}
+						if (count == 20)
+							break;
+					}
+					cb.size[0] = count;
+
+				});
+				anyTogglesThisFrame = false;
+			}
 
 
 			timer->Stop(CREATE_ID_HASH("LightManger"));
@@ -118,8 +163,8 @@ namespace SE {
 					continue;
 				}
 				alive_in_row = 0;
-				size_t tempJobID = initInfo.renderer->DisableLightRendering(entID[ent[i]].jobID);
-				entID[jobToEnt[tempJobID]].jobID = entID[ent[i]].jobID;
+				//size_t tempJobID = initInfo.renderer->DisableLightRendering(entID[ent[i]].jobID);
+				
 				Destroy(i);
 			}
 			StopProfile;
@@ -154,9 +199,10 @@ namespace SE {
 		{
 			StartProfile;
 			auto find = entID.find(entity);
-			if (find != entID.end() && entID[entity].show == true)
+			if (find != entID.end())
 			{
-				initInfo.renderer->UpdateLightPos(initInfo.transformManager->GetPosition(entity), find->second.jobID);
+				dirtyEntites.push_back({ index, entity });
+			//	initInfo.renderer->UpdateLightPos(initInfo.transformManager->GetPosition(entity), find->second.jobID);
 			}
 			ProfileReturnVoid;
 		}

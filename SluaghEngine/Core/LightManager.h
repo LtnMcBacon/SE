@@ -31,22 +31,41 @@ namespace SE
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
 			void UpdateDirtyPos(const Entity& entity, size_t index);
-			struct showID
+			struct DirtyEntityInfo
 			{
-				size_t ID;
-				size_t jobID;
-				bool show = false;
+				size_t transformIndex;
+				Entity entity;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
+
+			struct LightData
+			{
+				DirectX::XMFLOAT4 colour;	//colour (rgba)
+				DirectX::XMFLOAT4 pos;	//pos (pos + range)
+				bool visible;
+			};
+
+			
+			struct LightAttributes
+			{
+				DirectX::XMFLOAT4 colour;	//colour (rgba)
+				DirectX::XMFLOAT4 pos;	//pos (pos + range)
+			};
+			struct LightDataBuffer
+			{
+				uint32_t size[4];
+				LightAttributes data[20];
 			};
 
 			// Light variables
-			std::unordered_map<Entity, showID, EntityHasher> entID;
-			std::vector<Graphics::LightData> lights;
-			std::vector<Entity> ent;
-			std::map<size_t, Entity> jobToEnt;
+			std::unordered_map<Entity, LightData, EntityHasher> entityToLightData;
+			std::vector<Entity> indexToEntity;
 
 			std::default_random_engine generator;
 
 			InitializationInfo initInfo;
+
+			bool anyTogglesThisFrame = false;
 		};
 	}
 }

@@ -36,7 +36,10 @@ namespace SE
 			int DestroyPixelShader(const Utilz::GUID& id) override;
 			int DestroyComputeShader(const Utilz::GUID& id) override;
 
+			int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
 			int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int MapConstantBuffer(const Utilz::GUID& id, const std::function<void(void* mappedResource)>& mapCallback) override;
+			int DestroyConstantBuffer(const Utilz::GUID& id) override;
 
 			int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
 			int DestroyTexture(const Utilz::GUID& id) override;
@@ -62,9 +65,6 @@ namespace SE
 			void SetPipeline(const Pipeline& pipeline) override;
 			void SetPipelineForced(const Pipeline& pipeline) override;
 		private:
-			int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
-			int DestroyConstantBuffer(const Utilz::GUID& id) override;
-
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void SetVertexShaderStage(const ShaderStage& vss);
 			void SetGeometryShaderStage(const ShaderStage& gss);

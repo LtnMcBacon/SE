@@ -743,6 +743,23 @@ int SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, v
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::MapConstantBuffer(const Utilz::GUID & id, const std::function<void(void*mappedResource)>& mapCallback)
+{
+	const auto exists = constantBuffers.find(id);
+	if (exists == constantBuffers.end())
+		return NOT_FOUND;
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	HRESULT hr = deviceContext->Map(exists->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	mapCallback(mappedData.pData);
+
+	deviceContext->Unmap(exists->second, 0);
+	return SUCCESS;
+}
+
 int SE::Graphics::PipelineHandler::DestroyConstantBuffer(const Utilz::GUID& id)
 {
 	auto exists = constantBuffers.end();
