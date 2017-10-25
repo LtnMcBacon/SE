@@ -137,7 +137,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		renderableObjectInfo.visible[find->second] = visible ? 1u : 0u;
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
-
+		info.pipeline.SetID();
 		if (visible)
 		{
 			rmInstancing->AddEntity(entity, info);
@@ -207,12 +207,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->instanceCount = 0;
 	info->maxInstances = 1;
 
-	info->mappingFunc .push_back( [this](auto a, auto b)
-	{
-		DirectX::XMFLOAT4X4 id;
-		DirectX::XMStoreFloat4x4(&id, DirectX::XMMatrixIdentity());
-		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &id, sizeof(id));
-	});
 
 
 //	info->pipeline.
@@ -272,9 +266,10 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 	{
 		if (renderableObjectInfo.visible[find->second])
 		{
-			Graphics::RenderJob info;
-			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			//Graphics::RenderJob info;
+			//CreateRenderObjectInfo(find->second, &info);
+			//info.pipeline.SetID();
+			//initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
 		}
 	}
 }
