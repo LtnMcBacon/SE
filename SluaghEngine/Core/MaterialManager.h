@@ -80,9 +80,6 @@ namespace SE
 				Utilz::GUID* material;
 			};
 			
-
-			
-
 			InitializationInfo initInfo;
 			std::default_random_engine generator;
 

@@ -1,5 +1,5 @@
 #include "PipelineHandler.h"
-#include "Profiler.h"
+#include <Profiler.h>
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 #include <vector>
@@ -18,22 +18,22 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	renderTargetViews["backbuffer"] = backbuffer;
 	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
-	vertexBuffers[""].buffer = nullptr;
-	vertexBuffers[""].stride = 0;
-	indexBuffers[""].buffer = nullptr;
-	indexBuffers[""].stride = 0;
-	inputLayouts[""] = nullptr;
-	vertexShaders[""] = nullptr;
-	geometryShaders[""] = nullptr;
-	pixelShaders[""] = nullptr;
-	computeShaders[""] = nullptr;
-	constantBuffers[""] = nullptr;
-	shaderResourceViews[""] = nullptr;
-	renderTargetViews[""] = nullptr;
-	samplerStates[""] = nullptr;
-	blendStates[""] = nullptr;
-	rasterizerStates[""] = nullptr;
-	depthStencilStates[""] = nullptr;
+	vertexBuffers[Utilz::GUID()].buffer = nullptr;
+	vertexBuffers[Utilz::GUID()].stride = 0;
+	indexBuffers[Utilz::GUID()].buffer = nullptr;
+	indexBuffers[Utilz::GUID()].stride = 0;
+	inputLayouts[Utilz::GUID()] = nullptr;
+	vertexShaders[Utilz::GUID()] = { nullptr };
+	geometryShaders[Utilz::GUID()] = { nullptr };
+	pixelShaders[Utilz::GUID()] = { nullptr };
+	computeShaders[Utilz::GUID()] =  nullptr ;
+	constantBuffers[Utilz::GUID()] = nullptr;
+	shaderResourceViews[Utilz::GUID()] = nullptr;
+	renderTargetViews[Utilz::GUID()] = nullptr;
+	samplerStates[Utilz::GUID()] = nullptr;
+	blendStates[Utilz::GUID()] = nullptr;
+	rasterizerStates[Utilz::GUID()] = nullptr;
+	depthStencilStates[Utilz::GUID()] = nullptr;
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
@@ -46,11 +46,11 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : inputLayouts)
 		if (r.second) r.second->Release();
 	for (auto& r : vertexShaders)
-		if (r.second)r.second->Release();
+		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : geometryShaders)
-		if (r.second)r.second->Release();
+		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : pixelShaders)
-		if (r.second)r.second->Release();
+		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : computeShaders)
 		if (r.second)r.second->Release();
 	for (auto& r : constantBuffers)
@@ -108,14 +108,15 @@ int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, voi
 
 int SE::Graphics::PipelineHandler::UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size)
 {
+	StartProfile;
 	const auto find = vertexBuffers.find(id);
 	if (find == vertexBuffers.end())
-		return NOT_FOUND;
+		ProfileReturnConst( NOT_FOUND);
 	D3D11_MAPPED_SUBRESOURCE ms;
 	deviceContext->Map(find->second.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	memcpy(ms.pData, data, size);
 	deviceContext->Unmap(find->second.buffer, 0);
-	return SUCCESS;
+	ProfileReturnConst(SUCCESS);
 }
 
 int SE::Graphics::PipelineHandler::DestroyVertexBuffer(const Utilz::GUID& id)
@@ -274,7 +275,7 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	vertexShaders[id] = vs;
+	vertexShaders[id] = { vs };
 	//Create the input layout with the help of shader reflection
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
@@ -362,7 +363,7 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 		{
 			//Can't get the size from the RBD, can't get bindslot from the SBD...	
 			//Find the sbd with the same name to get the size.
-			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
 			{
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
@@ -384,6 +385,7 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
+						vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					}
 
 					const Utilz::GUID cbNameGuid(sbd.Name);
@@ -409,7 +411,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	geometryShaders[id] = gs;
+	geometryShaders[id] = { gs };
 
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
@@ -427,7 +429,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 		{
 			//Can't get the size from the RBD, can't get bindslot from the SBD...	
 			//Find the sbd with the same name to get the size.
-			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
 			{
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
@@ -449,6 +451,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
+						geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					}
 
 					const Utilz::GUID cbNameGuid(sbd.Name);
@@ -508,7 +511,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	geometryShaders[id] = gs;
+	geometryShaders[id] = { gs };
 
 	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
 	{
@@ -518,7 +521,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 		{
 			//Can't get the size from the RBD, can't get bindslot from the SBD...	
 			//Find the sbd with the same name to get the size.
-			for (unsigned int j = 0; i < shaderDesc.ConstantBuffers; ++j)
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
 			{
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
@@ -540,6 +543,7 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
+						geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					}
 
 					const Utilz::GUID cbNameGuid(sbd.Name);
@@ -566,7 +570,7 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	pixelShaders[id] = ps;
+	pixelShaders[id] = { ps };
 
 	ID3D11ShaderReflection* reflection;
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
@@ -587,7 +591,47 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 			shaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
 		}
 	}
+	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							return DEVICE_FAIL;
+						constantBuffers[sbd.Name] = buffer;
+						pixelShaders[id].constantBuffers.push_back(sbd.Name);
+					}
 
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
 	reflection->Release();
 	return SUCCESS;
 }
@@ -612,7 +656,7 @@ int SE::Graphics::PipelineHandler::DestroyVertexShader(const Utilz::GUID& id)
 	auto exists = vertexShaders.find(id);
 	if (exists == vertexShaders.end())
 		return NOT_FOUND;
-	exists->second->Release();
+	exists->second.shader->Release();
 	vertexShaders.erase(exists);
 	return SUCCESS;
 }
@@ -622,7 +666,7 @@ int SE::Graphics::PipelineHandler::DestroyGeometryShader(const Utilz::GUID& id)
 	auto exists = geometryShaders.find(id);
 	if (exists == geometryShaders.end())
 		return NOT_FOUND;
-	exists->second->Release();
+	exists->second.shader->Release();
 	geometryShaders.erase(exists);
 	return SUCCESS;
 }
@@ -632,7 +676,7 @@ int SE::Graphics::PipelineHandler::DestroyPixelShader(const Utilz::GUID& id)
 	auto exists = pixelShaders.find(id);
 	if (exists == pixelShaders.end())
 		return NOT_FOUND;
-	exists->second->Release();
+	exists->second.shader->Release();
 	pixelShaders.erase(exists);
 	return SUCCESS;
 }
@@ -1180,6 +1224,7 @@ int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id
 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
+	StartProfile;
 	ID3D11Buffer *nullBuffer = nullptr;
 	uint32_t offset = 0;
 	//deviceContext->SOSetTargets(1, &nullBuffer, &offset);
@@ -1194,10 +1239,12 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	SetRasterizerStage(pipeline.RStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 {
+	StartProfile;
 	uint32_t offset = 0;
 	ForcedSetInputAssemblerStage(pipeline.IAStage);
 	ForcedSetVertexShaderStage(pipeline.VSStage);
@@ -1207,10 +1254,12 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 	ForcedSetRasterizerStage(pipeline.RStage);
 	ForcedSetPixelShaderStage(pipeline.PSStage);
 	ForcedSetOutputMergerStage(pipeline.OMStage);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
+	StartProfile;
 	auto& cIA = currentPipeline.IAStage;
 	if (pIA.topology != cIA.topology)
 	{
@@ -1254,47 +1303,35 @@ void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerS
 			cIA.inputLayout = pIA.inputLayout;
 		}
 	}
+
+	StopProfile;
 }
 
-
+#undef min
+#include <algorithm>
 
 void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 {
+	StartProfile;
 	auto& c = currentPipeline.VSStage;
 
 	if (vss.shader != c.shader)
 	{
-		const auto vs = vertexShaders.find(vss.shader);
-		if (vs != vertexShaders.end())
-			deviceContext->VSSetShader(vs->second, nullptr, 0);
-		else
-			deviceContext->VSSetShader(nullptr, nullptr, 0);
+
+		_ASSERT_EXPR(vertexShaders.find(vss.shader) != vertexShaders.end(), "Create vertex shader has not been called for vertex shader in pipeline.");
+		const auto& shader = vertexShaders[vss.shader];
+		deviceContext->VSSetShader(shader.shader, nullptr, 0); // Yes, bind it
 		c.shader = vss.shader;
-	}
-	for (int i = 0; i < vss.constantBufferCount; ++i)
-	{
-		if (vss.constantBuffers[i] != c.constantBuffers[i])
+
+		for (auto& cbg : shader.constantBuffers) // Any constant buffers
 		{
-			auto cb = constantBuffers.find(vss.constantBuffers[i]);
-			if (cb != constantBuffers.end())
-			{
-				const auto cbid = vss.shader + vss.constantBuffers[i];
-				auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-				{
-					deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
-				}
-				else
-				{
-					bind = shaderAndResourceNameToBindSlot.find(vss.constantBuffers[i]);
-					if (bind != shaderAndResourceNameToBindSlot.end())
-						deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
-				}
-				c.constantBuffers[i] = vss.constantBuffers[i];
-			}
+			auto& cb = constantBuffers[cbg];
+			auto& binding = shaderAndResourceNameToBindSlot[vss.shader + cbg];
+			deviceContext->VSSetConstantBuffers(binding, 1, &cb);
 		}
+
 	}
-	c.constantBufferCount = vss.constantBufferCount;
+/*
 	for (int i = 0; i < vss.textureCount; ++i)
 	{
 		if (vss.textures[i] != c.textures[i] || vss.textureBindings[i] != c.textureBindings[i])
@@ -1327,23 +1364,30 @@ void SE::Graphics::PipelineHandler::SetVertexShaderStage(const ShaderStage& vss)
 	}
 	c.samplerCount = vss.samplerCount;
 	if (vss.samplerCount)
-		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
+		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);*/
+
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gss)
 {
+	StartProfile;
 	auto& c = currentPipeline.GSStage;
 
 	if (gss.shader != c.shader)
 	{
-		const auto gs = geometryShaders.find(gss.shader);
-		if (gs != geometryShaders.end())
-			deviceContext->GSSetShader(gs->second, nullptr, 0);
-		else
-			deviceContext->GSSetShader(nullptr, nullptr, 0);
+		_ASSERT_EXPR(geometryShaders.find(gss.shader) != geometryShaders.end(), "Create geometry shader has not been called for geometry shader in pipeline.");
+		const auto& shader = geometryShaders[gss.shader];
+		deviceContext->GSSetShader(shader.shader, nullptr, 0);
 		c.shader = gss.shader;
+		for (auto& cbg : shader.constantBuffers) // Any constant buffers
+		{
+			auto& cb = constantBuffers[cbg];
+			auto& binding = shaderAndResourceNameToBindSlot[gss.shader + cbg];
+			deviceContext->GSSetConstantBuffers(binding, 1, &cb);
+		}
 	}
-	for (int i = 0; i < gss.constantBufferCount; ++i)
+	/*for (int i = 0; i < gss.constantBufferCount; ++i)
 	{
 		if (gss.constantBuffers[i] != c.constantBuffers[i])
 		{
@@ -1366,44 +1410,46 @@ void SE::Graphics::PipelineHandler::SetGeometryShaderStage(const ShaderStage& gs
 			}
 		}
 	}
-	c.constantBufferCount = gss.constantBufferCount;
-	for (int i = 0; i < gss.textureCount; ++i)
-	{
-		if (gss.textures[i] != c.textures[i] || gss.textureBindings[i] != c.textureBindings[i])
-		{
-			auto srv = shaderResourceViews.find(gss.textures[i]);
-			if (srv != shaderResourceViews.end())
-			{
-				const auto bindSlotID = gss.shader + gss.textureBindings[i];
-				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-				{
-					deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
-				}
-			}
-			c.textures[i] = gss.textures[i];
-			c.textureBindings[i] = gss.textureBindings[i];
-		}
-	}
-	c.textureCount = gss.textureCount;
-	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
-	for (int i = 0; i < gss.samplerCount; ++i)
-	{
-		if (gss.samplers[i] != c.samplers[i])
-		{
-			const auto samp = samplerStates.find(gss.samplers[i]);
-			if (samp != samplerStates.end())
-				samplers[i] = samp->second;
-			c.samplers[i] = gss.samplers[i];
-		}
-	}
-	c.samplerCount = gss.samplerCount;
-	if (gss.samplerCount)
-		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
+	c.constantBufferCount = gss.constantBufferCount;*/
+	//for (int i = 0; i < gss.textureCount; ++i)
+	//{
+	//	if (gss.textures[i] != c.textures[i] || gss.textureBindings[i] != c.textureBindings[i])
+	//	{
+	//		auto srv = shaderResourceViews.find(gss.textures[i]);
+	//		if (srv != shaderResourceViews.end())
+	//		{
+	//			const auto bindSlotID = gss.shader + gss.textureBindings[i];
+	//			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+	//			if (bind != shaderAndResourceNameToBindSlot.end())
+	//			{
+	//				deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
+	//			}
+	//		}
+	//		c.textures[i] = gss.textures[i];
+	//		c.textureBindings[i] = gss.textureBindings[i];
+	//	}
+	//}
+	//c.textureCount = gss.textureCount;
+	//ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	//for (int i = 0; i < gss.samplerCount; ++i)
+	//{
+	//	if (gss.samplers[i] != c.samplers[i])
+	//	{
+	//		const auto samp = samplerStates.find(gss.samplers[i]);
+	//		if (samp != samplerStates.end())
+	//			samplers[i] = samp->second;
+	//		c.samplers[i] = gss.samplers[i];
+	//	}
+	//}
+	//c.samplerCount = gss.samplerCount;
+	//if (gss.samplerCount)
+	//	deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs)
 {
+	StartProfile;
 	auto& c = currentPipeline.RStage;
 	if (rs.rasterizerState != c.rasterizerState)
 	{
@@ -1423,45 +1469,29 @@ void SE::Graphics::PipelineHandler::SetRasterizerStage(const RasterizerStage& rs
 			c.viewport = rs.viewport;
 		}
 	}
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 {
+	StartProfile;
 	auto& c = currentPipeline.PSStage;
 
 	if (pss.shader != c.shader)
 	{
-		const auto ps = pixelShaders.find(pss.shader);
-		if (ps != pixelShaders.end())
-			deviceContext->PSSetShader(ps->second, nullptr, 0);
-		else
-			deviceContext->PSSetShader(nullptr, nullptr, 0);
+		_ASSERT_EXPR(pixelShaders.find(pss.shader) != pixelShaders.end(), "Create pixel shader has not been called for pixel shader in pipeline.");
+		const auto& shader = pixelShaders[pss.shader];
+		deviceContext->PSSetShader(shader.shader, nullptr, 0);
 		c.shader = pss.shader;
-	}
-	for (int i = 0; i < pss.constantBufferCount; ++i)
-	{
-		if (pss.constantBuffers[i] != c.constantBuffers[i])
+
+		for (auto& cbg : shader.constantBuffers) // Any constant buffers
 		{
-			auto cb = constantBuffers.find(pss.constantBuffers[i]);
-			if (cb != constantBuffers.end())
-			{
-				const auto cbid = pss.shader + pss.constantBuffers[i];
-				auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-				{
-					deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
-				}
-				else
-				{
-					bind = shaderAndResourceNameToBindSlot.find(pss.constantBuffers[i]);
-					if (bind != shaderAndResourceNameToBindSlot.end())
-						deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
-				}
-				c.constantBuffers[i] = pss.constantBuffers[i];
-			}
+			auto& cb = constantBuffers[cbg];
+			auto& binding = shaderAndResourceNameToBindSlot[pss.shader + cbg];
+			deviceContext->PSSetConstantBuffers(binding, 1, &cb);
 		}
 	}
-	c.constantBufferCount = pss.constantBufferCount;
+	
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
 		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
@@ -1495,10 +1525,12 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 	c.samplerCount = pss.samplerCount;
 	if (pss.samplerCount)
 		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage& oms)
 {
+	StartProfile;
 	auto& c = currentPipeline.OMStage;
 	ID3D11RenderTargetView* renderTargets[OutputMergerStage::maxRenderTargets] = { nullptr };
 	bool changed = false;
@@ -1548,11 +1580,12 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 			deviceContext->OMSetDepthStencilState(dss->second, 0);
 		}
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
+	StartProfile;
 	auto& cIA = currentPipeline.IAStage;
 	switch (pIA.topology)
 	{
@@ -1587,133 +1620,49 @@ void SE::Graphics::PipelineHandler::ForcedSetInputAssemblerStage(const InputAsse
 		deviceContext->IASetInputLayout(il->second);
 		cIA.inputLayout = pIA.inputLayout;
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetVertexShaderStage(const ShaderStage& vss)
 {
+	StartProfile;
 	auto& c = currentPipeline.VSStage;
 
-	const auto vs = vertexShaders.find(vss.shader);
-	if (vs != vertexShaders.end())
-		deviceContext->VSSetShader(vs->second, nullptr, 0);
-	else
-		deviceContext->VSSetShader(nullptr, nullptr, 0);
+	_ASSERT_EXPR(vertexShaders.find(vss.shader) != vertexShaders.end(), "Create vertex shader has not been called for vertex shader in pipeline.");
+	const auto& shader = vertexShaders[vss.shader];
+	deviceContext->VSSetShader(shader.shader, nullptr, 0); // Yes, bind it
 	c.shader = vss.shader;
 
-	for (int i = 0; i < vss.constantBufferCount; ++i)
+	for (auto& cbg : shader.constantBuffers) // Any constant buffers
 	{
-		auto cb = constantBuffers.find(vss.constantBuffers[i]);
-		if (cb != constantBuffers.end())
-		{
-			const auto cbid = vss.shader + vss.constantBuffers[i];
-			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-			if (bind != shaderAndResourceNameToBindSlot.end())
-			{
-				deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			else
-			{
-				bind = shaderAndResourceNameToBindSlot.find(vss.constantBuffers[i]);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-					deviceContext->VSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			c.constantBuffers[i] = vss.constantBuffers[i];
-		}
+		auto& cb = constantBuffers[cbg];
+		auto& binding = shaderAndResourceNameToBindSlot[vss.shader + cbg];
+		deviceContext->VSSetConstantBuffers(binding, 1, &cb);
 	}
-	c.constantBufferCount = vss.constantBufferCount;
-	for (int i = 0; i < vss.textureCount; ++i)
-	{
-		auto srv = shaderResourceViews.find(vss.textures[i]);
-		if (srv != shaderResourceViews.end())
-		{
-			const auto bindSlotID = vss.shader + vss.textureBindings[i];
-			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
-			if (bind != shaderAndResourceNameToBindSlot.end())
-			{
-				deviceContext->VSSetShaderResources(bind->second, 1, &srv->second);
-			}
-		}
-		c.textures[i] = vss.textures[i];
-		c.textureBindings[i] = vss.textureBindings[i];
-	}
-	c.textureCount = vss.textureCount;
-	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
-	for (int i = 0; i < vss.samplerCount; ++i)
-	{
-		const auto samp = samplerStates.find(vss.samplers[i]);
-		if (samp != samplerStates.end())
-			samplers[i] = samp->second;
-		c.samplers[i] = vss.samplers[i];
-	}
-	c.samplerCount = vss.samplerCount;
-	if (vss.samplerCount)
-		deviceContext->VSSetSamplers(0, vss.samplerCount, samplers);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetGeometryShaderStage(const ShaderStage& gss)
 {
+	StartProfile;
 	auto& c = currentPipeline.GSStage;
 
-	const auto gs = geometryShaders.find(gss.shader);
-	if (gs != geometryShaders.end())
-		deviceContext->GSSetShader(gs->second, nullptr, 0);
-	else
-		deviceContext->GSSetShader(nullptr, nullptr, 0);
+	_ASSERT_EXPR(geometryShaders.find(gss.shader) != geometryShaders.end(), "Create geometry shader has not been called for geometry shader in pipeline.");
+	const auto& shader = geometryShaders[gss.shader];
+	deviceContext->GSSetShader(shader.shader, nullptr, 0);
 	c.shader = gss.shader;
-
-	for (int i = 0; i < gss.constantBufferCount; ++i)
+	for (auto& cbg : shader.constantBuffers) // Any constant buffers
 	{
-		auto cb = constantBuffers.find(gss.constantBuffers[i]);
-		if (cb != constantBuffers.end())
-		{
-			const auto cbid = gss.shader + gss.constantBuffers[i];
-			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-			if (bind != shaderAndResourceNameToBindSlot.end())
-			{
-				deviceContext->GSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			else
-			{
-				bind = shaderAndResourceNameToBindSlot.find(gss.constantBuffers[i]);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-					deviceContext->GSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			c.constantBuffers[i] = gss.constantBuffers[i];
-		}
+		auto& cb = constantBuffers[cbg];
+		auto& binding = shaderAndResourceNameToBindSlot[gss.shader + cbg];
+		deviceContext->GSSetConstantBuffers(binding, 1, &cb);
 	}
-	c.constantBufferCount = gss.constantBufferCount;
-	for (int i = 0; i < gss.textureCount; ++i)
-	{
-		auto srv = shaderResourceViews.find(gss.textures[i]);
-		if (srv != shaderResourceViews.end())
-		{
-			const auto bindSlotID = gss.shader + gss.textureBindings[i];
-			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
-			if (bind != shaderAndResourceNameToBindSlot.end())
-			{
-				deviceContext->GSSetShaderResources(bind->second, 1, &srv->second);
-			}
-		}
-		c.textures[i] = gss.textures[i];
-		c.textureBindings[i] = gss.textureBindings[i];
-	}
-	c.textureCount = gss.textureCount;
-	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
-	for (int i = 0; i < gss.samplerCount; ++i)
-	{
-		const auto samp = samplerStates.find(gss.samplers[i]);
-		if (samp != samplerStates.end())
-			samplers[i] = samp->second;
-		c.samplers[i] = gss.samplers[i];
-	}
-	c.samplerCount = gss.samplerCount;
-	if (gss.samplerCount)
-		deviceContext->GSSetSamplers(0, gss.samplerCount, samplers);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetRasterizerStage(const RasterizerStage& rs)
 {
+	StartProfile;
 	auto& c = currentPipeline.RStage;
 	const auto rast = rasterizerStates.find(rs.rasterizerState);
 	if (rast != rasterizerStates.end())
@@ -1728,41 +1677,27 @@ void SE::Graphics::PipelineHandler::ForcedSetRasterizerStage(const RasterizerSta
 		deviceContext->RSSetViewports(1, &vp->second);
 		c.viewport = rs.viewport;
 	}
-
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetPixelShaderStage(const ShaderStage& pss)
 {
+	StartProfile;
 	auto& c = currentPipeline.PSStage;
 
-	const auto ps = pixelShaders.find(pss.shader);
-	if (ps != pixelShaders.end())
-		deviceContext->PSSetShader(ps->second, nullptr, 0);
-	else
-		deviceContext->PSSetShader(nullptr, nullptr, 0);
+
+	_ASSERT_EXPR(pixelShaders.find(pss.shader) != pixelShaders.end(), "Create pixel shader has not been called for pixel shader in pipeline.");
+	const auto& shader = pixelShaders[pss.shader];
+	deviceContext->PSSetShader(shader.shader, nullptr, 0);
 	c.shader = pss.shader;
 
-	for (int i = 0; i < pss.constantBufferCount; ++i)
+	for (auto& cbg : shader.constantBuffers) // Any constant buffers
 	{
-		auto cb = constantBuffers.find(pss.constantBuffers[i]);
-		if (cb != constantBuffers.end())
-		{
-			const auto cbid = pss.shader + pss.constantBuffers[i];
-			auto bind = shaderAndResourceNameToBindSlot.find(cbid);
-			if (bind != shaderAndResourceNameToBindSlot.end())
-			{
-				deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			else
-			{
-				bind = shaderAndResourceNameToBindSlot.find(pss.constantBuffers[i]);
-				if (bind != shaderAndResourceNameToBindSlot.end())
-					deviceContext->PSSetConstantBuffers(bind->second, 1, &cb->second);
-			}
-			c.constantBuffers[i] = pss.constantBuffers[i];
-		}
+		auto& cb = constantBuffers[cbg];
+		auto& binding = shaderAndResourceNameToBindSlot[pss.shader + cbg];
+		deviceContext->PSSetConstantBuffers(binding, 1, &cb);
 	}
-	c.constantBufferCount = pss.constantBufferCount;
+
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
 		auto srv = shaderResourceViews.find(pss.textures[i]);
@@ -1790,10 +1725,12 @@ void SE::Graphics::PipelineHandler::ForcedSetPixelShaderStage(const ShaderStage&
 	c.samplerCount = pss.samplerCount;
 	if (pss.samplerCount)
 		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
+	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMergerStage& oms)
 {
+	StartProfile;
 	auto& c = currentPipeline.OMStage;
 	ID3D11RenderTargetView* renderTargets[OutputMergerStage::maxRenderTargets] = { nullptr };
 	bool changed = false;
@@ -1834,4 +1771,5 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 		deviceContext->OMSetDepthStencilState(dss->second, 0);
 		c.depthStencilState = oms.depthStencilState;
 	}
+	StopProfile;
 }

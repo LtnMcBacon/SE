@@ -28,9 +28,7 @@ namespace SE
 			virtual int DestroyPixelShader(const Utilz::GUID& id) = 0;
 			virtual int DestroyComputeShader(const Utilz::GUID& id) = 0;
 
-			virtual int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) = 0;
 			virtual int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) = 0;
-			virtual int DestroyConstantBuffer(const Utilz::GUID& id) = 0;
 
 			virtual int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) = 0;
 			virtual int DestroyTexture(const Utilz::GUID& id) = 0;
@@ -59,7 +57,9 @@ namespace SE
 			 * @param[in] pipeline The pipeline to set.
 			 */
 			virtual void SetPipelineForced(const Pipeline& pipeline) = 0;
-
+		private:
+			virtual int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) = 0;
+			virtual int DestroyConstantBuffer(const Utilz::GUID& id) = 0;
 		};
 	}
 }

@@ -150,15 +150,15 @@ namespace SE
 
 		struct ShaderStage
 		{
-			static const size_t maxConstantBuffers = 4;
+		//	static const size_t maxConstantBuffers = 4;
 			static const size_t maxTextures = 4;
 			static const size_t maxSamplers = 1;
 			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
+		//	Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
 			Utilz::GUID samplers[maxSamplers];
-			uint8_t constantBufferCount = 0;
+		//	uint8_t constantBufferCount = 0;
 			uint8_t textureCount = 0;
 			uint8_t samplerCount = 0;
 		};
@@ -197,6 +197,8 @@ namespace SE
 			RasterizerStage		RStage;
 			ShaderStage	PSStage;
 			OutputMergerStage	OMStage;
+
+			ShaderStage CSStage;
 		};
 	}
 }

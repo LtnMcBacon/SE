@@ -191,9 +191,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.OMStage.depthStencilView = "backbuffer";
 
 	info->pipeline.VSStage.shader = defaultVertexShader;
-	info->pipeline.VSStage.constantBufferCount = 2;
-	info->pipeline.VSStage.constantBuffers[0] = "OncePerFrame";
-	info->pipeline.VSStage.constantBuffers[1] = "OncePerObject";
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
@@ -205,12 +202,12 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->instanceCount = 0;
 	info->maxInstances = 1;
 
-	info->mappingFunc = [this](auto a, auto b)
+	info->mappingFunc .push_back( [this](auto a, auto b)
 	{
 		DirectX::XMFLOAT4X4 id;
 		DirectX::XMStoreFloat4x4(&id, DirectX::XMMatrixIdentity());
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &id, sizeof(id));
-	};
+	});
 
 
 //	info->pipeline.

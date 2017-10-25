@@ -44,7 +44,13 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	timers.Start(CREATE_ID_HASH("Init"));
 	auto engine = Core::CreateEngine();
-	engine->Init();
+	auto r = engine->Init();
+	if (r < 0)
+	{
+		delete engine;
+		return false;
+	}
+		
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
@@ -86,7 +92,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	info.shader = shader;
 	info.materialFile = material;
 
-	//managers.materialManager->Create(mainC, info, true);
+	managers.materialManager->Create(mainC, info, true);
+
 
 	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);

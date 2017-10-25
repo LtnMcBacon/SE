@@ -571,19 +571,22 @@ int SE::Graphics::Renderer::Render() {
 			}
 			if (j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
 			{
-				j.job.mappingFunc(drawn, 1);
+				for(auto& mf : j.job.mappingFunc)
+					mf(drawn, 1);
 				devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount != 0 && j.job.instanceCount == 0)
 			{
-				j.job.mappingFunc(drawn, 1);
+				for (auto& mf : j.job.mappingFunc)
+					mf(drawn, 1);
 				devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount == 0 && j.job.instanceCount != 0)
 			{
 				while (drawn < j.job.instanceCount)
 				{
-					j.job.mappingFunc(drawn, j.job.instanceCount);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, j.job.instanceCount);
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
@@ -593,7 +596,8 @@ int SE::Graphics::Renderer::Render() {
 			{
 				while (drawn < j.job.instanceCount)
 				{
-					j.job.mappingFunc(drawn, j.job.instanceCount);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, j.job.instanceCount);
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
@@ -601,7 +605,8 @@ int SE::Graphics::Renderer::Render() {
 			}
 			else if (j.job.vertexCount == 0)
 			{
-				j.job.mappingFunc(drawn, 0);
+				for (auto& mf : j.job.mappingFunc)
+					mf(drawn, 0);
 				devContext->DrawAuto();
 			}
 		}

@@ -31,9 +31,9 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	pipeline.IAStage.vertexBuffer = vertexBufferID;
 	pipeline.IAStage.inputLayout = vertexShaderID;
 	pipeline.VSStage.shader = vertexShaderID;
-	pipeline.VSStage.constantBuffers[0] = transformBufferID; //Created when shader is created.
-	pipeline.VSStage.constantBuffers[1] = "OncePerFrame"; //Updated by camera manager
-	pipeline.VSStage.constantBufferCount = 2;
+	//pipeline.VSStage.constantBuffers[0] = transformBufferID; //Created when shader is created.
+	//pipeline.VSStage.constantBuffers[1] = "OncePerFrame"; //Updated by camera manager
+	//pipeline.VSStage.constantBufferCount = 2;
 	pipeline.PSStage.shader = pixelShaderID;
 	pipeline.OMStage.renderTargets[0] = "backbuffer";
 	pipeline.OMStage.renderTargetCount = 1;
@@ -80,10 +80,10 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 			Entity ent = m.first;
 			job.vertexOffset = startVertex;
 			job.vertexCount = verticesToDraw;
-			job.mappingFunc = [this, ent](int a, int b)
+			job.mappingFunc .push_back( [this, ent](int a, int b)
 			{
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &cachedTransforms[ent], sizeof(DirectX::XMFLOAT4X4));
-			};
+			});
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
 			{

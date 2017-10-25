@@ -11,7 +11,7 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 
 	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
 
-	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+//	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
 	
 	currentActive.activeCamera = ~0u;
 

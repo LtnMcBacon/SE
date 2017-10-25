@@ -14,26 +14,26 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	defaultPixelShader = "SimplePS.hlsl";
 	defaultTextureBinding = "DiffuseColor";
 	defaultSampler = "AnisotropicSampler";
-	defaultMaterial = "Cube.map";
+	defaultMaterial = "Cube.mat";
 
 	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 	auto res = mLoading.LoadShader(defaultPixelShader);
-	if (res)
+	if (res < 0)
 		throw std::exception("Could not load default pixel shader.");
 
 
 
-	MaterialFileData mdata;
-	res = mLoading.LoadMaterialFile(defaultMaterial, mdata);
-	if (res)
+	res = mLoading.LoadMaterialFile(defaultMaterial);
+	if (res < 0)
 		throw std::exception("Could not load default material.");
-	
+	auto& mdata = mLoading.GetMaterialFile(defaultMaterial);
+
 	defaultTexture = mdata.textureInfo.textures[0];
 	defaultTextureBinding = mdata.textureInfo.bindings[0];
 
 	res = mLoading.LoadTexture(defaultTexture);
-	if (res)
+	if (res < 0)
 		throw std::exception("Could not load default texture.");
 
 	Graphics::SamplerState info;
@@ -88,122 +88,36 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	//	mLoading.LoadTextures(info.materialFile, async, behavior); // Load any textures that may not be loaded.
 	//}
 
-
-	if (!mLoading.IsShaderLoaded(info.shader))
+	auto result = mLoading.LoadShader(info.shader);
+	if (result < 0)
 	{
-		if (auto res = mLoading.LoadShader(info.shader))
-			materialInfo.shader[newEntry] = info.shader;
-		else
-		{
-			initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, res);
-			materialInfo.shader[newEntry] = defaultPixelShader;
-		}
+		initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, result);
+		materialInfo.shader[newEntry] = defaultPixelShader;
 	}
-
-	MaterialFileData mdata;
-	if (!mLoading.IsMaterialFileLoaded(info.materialFile))
-	{
-		if(auto res = mLoading.LoadMaterialFile(info.materialFile, mdata))
-			materialInfo.material[newEntry] = info.materialFile;
-		else
-		{
-			initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, res);
-			materialInfo.material[newEntry] = defaultMaterial;
-		}
-	}
-		
-
-	
-
-
-
-
-	const auto shaderFind = guidToShader.find(info.shader);
-	auto& shaderInfo = guidToShader[info.shader];
-	if(shaderFind == guidToShader.end())
-	{
-		//Not loaded, load it.
-
-		auto res = initInfo.resourceHandler->LoadResource(info.shader, [this](auto guid, auto data, auto size) {
-			initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
-			/*if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;*/
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		});
-		if (res)
-		{
-			initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, res);
-		}
-	}
-	shaderInfo.refCount++;
-	materialInfo.shader[newEntry] = info.shader;
-	
-	// material file
-	const auto materialFind = guidToMaterial.find(info.materialFile);
-	auto& material = guidToMaterial[info.materialFile];
-	if (materialFind == guidToMaterial.end())
-	{
-		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, [this, &material, async, entity](auto guid, auto data, auto size) {
-
-			auto result = LoadMaterialFile(data, size, material);
-			if(result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-
-			LoadTextures(material, entity);
-
-			if (async)
-				toUpdate.push({ guid });
-
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		}, async, behavior);
-
-		if (res)
-		{
-			
-		}
-	}
-
-	if (async)
-		materialInfo.material[newEntry] = defaultMaterial;
 	else
+		materialInfo.shader[newEntry] = info.shader;
+	result = mLoading.LoadMaterialFile(info.materialFile);
+	if (result < 0)
+	{
+		initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, result);
+		materialInfo.material[newEntry] = defaultMaterial;
+	}
+	else
+	{
 		materialInfo.material[newEntry] = info.materialFile;
+	}
+	auto& mdata = mLoading.GetMaterialFile(info.materialFile);
 
+	mdata.entities.push_back(entity);
 
-	//for (uint32_t i = 0; i < material.info.amountOfTex; ++i)
-	//{
-
-	//	materialInfo.textures[newEntry].textures[i] = materials[materialIndex].info.tex[i];
-	//	auto& reflection = shaders[shaderIndex].shaderReflection;
-	//	const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
-	//	if (bindName != reflection.textureNameToBindSlot.end())
-	//	{
-	//		materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
-	//	}
-	//	const auto bindName2 = reflection.textureNameToBindSlot.find(Utilz::GUID(materials[materialIndex].info.textureChannel[i]));
-	//	if (bindName2 != reflection.textureNameToBindSlot.end())
-	//	{
-	//		materialInfo.textureBindings[newEntry].bindings[1] = bindName2->second;
-	//	}
-	//}
-	//if (materials[materialIndex].info.amountOfTex == 0)	//sets default tex if no tex
-	//{
-	//	auto& reflection = shaders[shaderIndex].shaderReflection;
-	//	const auto bindName = reflection.textureNameToBindSlot.find(Utilz::GUID("DiffuseColor"));
-	//	if (bindName != reflection.textureNameToBindSlot.end())
-	//	{
-	//		materialInfo.textureBindings[newEntry].bindings[0] = bindName->second;
-	//	}
-	//}
-
-	
-	// Textures, materials.
-	{	
-		
-		if (material.info.amountOfTex == 0)	//sets default tex if no tex
+	for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
+	{
+		result = mLoading.LoadTexture(mdata.textureInfo.textures[i]);
+		if (result  < 0)
 		{
-			materialInfo.material[newEntry] = defaultMaterial;
+			initInfo.console->PrintChannel("Could not load texture. Using default instead. GUID: %u, Error: %d\n", "Resources", mdata.textureInfo.textures[i], result);
+			mdata.textureInfo.textures[i] = defaultTexture;
 		}
-		
 	}
 	StopProfile;
 }
@@ -284,13 +198,7 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	}
 */
 
-	auto& material = guidToMaterial[materialInfo.material[index]];
-	material.entities.remove(entity);
-	for (size_t i = 0; i < material.info.amountOfTex; i++)
-	{
-		auto& texture = guidToTexture[material.info.textures[i]];
-		texture.entities.remove(entity);
-	}
+	mLoading.UnloadMaterialFile(materialInfo.material[index], entity);
 
 
 
@@ -335,7 +243,26 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	auto& find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
+		auto& mdata = mLoading.GetMaterialFile(materialInfo.material[find->second]);
+		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
+		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
 
+		for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
+		{
+			info->pipeline.PSStage.textureBindings[i] = mdata.textureInfo.bindings[i];
+			info->pipeline.PSStage.textures[i] = mdata.textureInfo.textures[i];
+		}
+		
+		info->pipeline.PSStage.samplers[0] = defaultSampler;
+		info->pipeline.PSStage.samplerCount = 1;
+		
+		auto& attrib = mdata.attrib;
+		info->mappingFunc.push_back([this,attrib](auto a, auto b)
+		{
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("MaterialAttributes", (void*)&attrib, sizeof(attrib));
+		});
+
+		//info->pipeline.PSStage.constantBufferCount = 3;
 
 		//info->pipeline.PSStage.shader = shaders[materialInfo.shaderIndex[find->second]].shaderHandle;
 		//auto& reflection = shaders[materialInfo.shaderIndex[find->second]].shaderReflection;
@@ -367,32 +294,5 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 			info->textureHandles[i] = defaultTextureHandle;
 			++i;
 		}*/
-	}
-}
-
-
-void SE::Core::MaterialManager::LoadTextures(matDataInfo material, const Entity& entity)
-{
-	for (uint32_t i = 0; i < material.info.amountOfTex; ++i)
-	{
-		const auto textureFind = guidToTexture.find(material.info.textures[i]);
-		auto& texture = guidToTexture[material.info.textures[i]];
-		if (textureFind == guidToTexture.end())
-		{
-			auto res = initInfo.resourceHandler->LoadResource(material.info.textures[i], [this, &material](auto guid, auto data, auto size) {
-
-				auto handle = LoadTexture(guid, data, size);
-				if (handle < 0)
-					return ResourceHandler::InvokeReturn::Fail;
-
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
-			});
-
-			if (res)
-			{
-				initInfo.console->PrintChannel("Could not load texture. Using default instead. GUID: %u, Error: %d\n", "Resources", material.info.textures[i], res);
-			}
-		}
-		texture.entities.push_back(entity);
 	}
 }

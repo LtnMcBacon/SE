@@ -29,7 +29,7 @@ namespace SE
 		};
 		struct TextureData
 		{
-			std::list<Entity> entities;
+			size_t refCount = 0;
 		};
 		struct ShaderData
 		{
@@ -50,19 +50,20 @@ namespace SE
 			int LoadShader(const Utilz::GUID& guid);
 			bool IsShaderLoaded(const Utilz::GUID& guid)const;
 
-			int LoadMaterialFile(const Utilz::GUID& guid, MaterialFileData& matInfo);
+			int LoadMaterialFile(const Utilz::GUID& guid);
+			MaterialFileData& GetMaterialFile(const Utilz::GUID& guid);
 			bool IsMaterialFileLoaded(const Utilz::GUID& guid)const;
+			void UnloadMaterialFile(const Utilz::GUID& guid, const Entity& entity);
+
 
 			int LoadShaderAndMaterialFileAndTextures(const Utilz::GUID& shader, const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 			int LoadShaderAndTextures(const Utilz::GUID& shader, const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 			int LoadMaterialFileAndTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 
 
-			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
+			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior, const std::function<void(const Utilz::GUID&, int)>& errorCallback);
 			int LoadTexture(const Utilz::GUID& guid);
 			bool IsTextureLoaded(const Utilz::GUID& guid)const;
-
-			
 
 		private:
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size)const;
@@ -80,13 +81,11 @@ namespace SE
 			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
 			std::mutex materialLock;
 
-			struct FullUpdateStruct
+			struct MaterialUpdateStruct
 			{
-				Utilz::GUID shader;
 				Utilz::GUID material;
-				MaterialFileData mdata;
 			};
-			Utilz::CircularFiFo<FullUpdateStruct, 10> toUpdateFull;
+			Utilz::CircularFiFo<MaterialUpdateStruct, 10> toUpdateFull;
 		};
 	}
 }

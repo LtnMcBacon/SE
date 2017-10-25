@@ -2,6 +2,7 @@
 #define SE_GRAPHICS_RENDER_JOB_H_
 #include "Pipeline.h"
 #include <functional>
+#include <vector>
 namespace SE
 {
 	namespace Graphics
@@ -25,7 +26,7 @@ namespace SE
 			int instanceCount = 0;
 			int instanceOffset = 0;
 			int maxInstances = 0;
-			std::function<void(int, int)> mappingFunc;
+			std::vector<std::function<void(int, int)>> mappingFunc;
 		};
 	}
 }

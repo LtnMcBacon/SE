@@ -12,6 +12,10 @@ namespace SE {
 			_ASSERT(initInfo.transformManager);
 
 			initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
+
+		/*	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(float) * 4 + sizeof(float) * 20 * 2 * 4);
+			if (result < 0)
+				throw std::exception("Could not create LightDataBuffer");*/
 		}
 
 		LightManager::~LightManager()
@@ -79,6 +83,20 @@ namespace SE {
 			StartProfile;
 			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
+
+			struct LightDataBuffer
+			{
+				DirectX::XMFLOAT4 size;
+				Graphics::LightData data[20];
+			};
+			LightDataBuffer data;
+			data.size = DirectX::XMFLOAT4(1.0f, 0.0f,0.0f,0.0);
+			data.data[0].pos = DirectX::XMFLOAT4(0.25f, 1.0f, -1.0f, 100.0f);
+			data.data[0].colour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightDataBuffer", &data, sizeof(LightDataBuffer));
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));
+
+
 			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;
 		}
