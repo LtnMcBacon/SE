@@ -69,21 +69,17 @@ namespace SE
 
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(int) + sizeof(int);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				int* skeletonIndex;
-				int* job;
+				Utilz::GUID* skeleton;
 			};
 			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkeletonIndex;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkelAnimationIndex;
 
 
 			AnimationSystem animationSystem;

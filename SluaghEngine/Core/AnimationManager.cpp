@@ -53,46 +53,41 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
-	animationData.job[index] = -1;
 
 	// Load skeleton
-	auto& findSkeleton = guidToSkeletonIndex.find(info.skeleton);
-	auto& skelIndex = guidToSkeletonIndex[info.skeleton];
-	if (findSkeleton == guidToSkeletonIndex.end())
+	if (!animationSystem.IsSkeletonLoaded(info.skeleton))
 	{
 
-		auto res = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
+		auto result = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
 			auto result = LoadSkeleton(guid, data, size);
 			if (result < 0)
 				return ResourceHandler::InvokeReturn::Fail;
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		});
-		if (res)
+		if (result < 0)
 		{
-			//Utilz::Console::Print("Could not load skeleton %u. Error: %d\n", info.skeleton, res);
+			initInfo.console->PrintChannel("Could not load skeleton %u. Error: %d\n", "Resources", info.skeleton, result);
 			animationData.used--;
 			ProfileReturnVoid;
 		}
 	}
 
-	animationData.skeletonIndex[index] = skelIndex;
+	animationData.skeleton[index] = info.skeleton;
 
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
 	{
-		auto& findSkelAnim = guidToSkelAnimationIndex.find(info.animations[i]);
-		auto& skelAnimIndex = guidToSkelAnimationIndex[info.animations[i]];
-		if (findSkelAnim == guidToSkelAnimationIndex.end())
+		if (!animationSystem.IsAnimationLoaded(info.animations[i]))
 		{
-			auto res = initInfo.resourceHandler->LoadResource(info.animations[i], [this, skelIndex, &skelAnimIndex](auto guid, auto data, auto size) {
-				skelAnimIndex = LoadAnimation(data, size);
-				if (skelAnimIndex == -1)
+			auto result = initInfo.resourceHandler->LoadResource(info.animations[i], [this](auto guid, auto data, auto size) {
+				auto result = LoadAnimation(guid, data, size);
+				if (result < 0)
 					return ResourceHandler::InvokeReturn::Fail;
 				return ResourceHandler::InvokeReturn::DecreaseRefcount;
 			});
-			if (res)
+			if (result < 0)
 			{
-				initInfo.console->PrintChannel("Could not load animation %u. Error: %d", "Resources", info.skeleton, res);
+				initInfo.console->PrintChannel("Could not load animation %u. Error: %d", "Resources", info.animations[i], result);
 				ProfileReturnVoid;
 			}
 		}
@@ -116,8 +111,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		auto& findSkelAnim = guidToSkelAnimationIndex.find(animation);
-		if (findSkelAnim != guidToSkelAnimationIndex.end())
+		if (animationSystem.IsAnimationLoaded(animation))
 		{
 			//Graphics::AnimationJobInfo info;
 			//info.animating = true;
@@ -144,8 +138,8 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);
+		/*if (animationData.job[entityIndex->second] >= 0)
+			initInfo.renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);*/
 
 	}
 	StopProfile;
@@ -158,8 +152,8 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->SetKeyFrame(animationData.job[entityIndex->second], keyFrame);
+		/*if (animationData.job[entityIndex->second] >= 0)
+			initInfo.renderer->SetKeyFrame(animationData.job[entityIndex->second], keyFrame);*/
 
 	}
 	StopProfile;
@@ -172,8 +166,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->StartAnimation(animationData.job[entityIndex->second]);
+		/*if (animationData.job[entityIndex->second] >= 0)
+			initInfo.renderer->StartAnimation(animationData.job[entityIndex->second]);*/
 
 	}
 	StopProfile;
@@ -186,8 +180,8 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->PauseAnimation(animationData.job[entityIndex->second]);
+		/*if (animationData.job[entityIndex->second] >= 0)
+			initInfo.renderer->PauseAnimation(animationData.job[entityIndex->second]);*/
 	}
 	StopProfile;
 }
@@ -200,7 +194,8 @@ void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Grap
 
 	// there was an animated entity and we should use the skinned vertex shader
 	if (entityIndex != entityToIndex.end()) {
-		
+		info->pipeline.VSStage.shader = SkinnedVertexShader;
+		info->maxInstances = 8;
 	}
 	StopProfile;
 }
@@ -218,13 +213,11 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.skeletonIndex = (int*)(newData.entity + newData.size);
-	newData.job = (int*)(newData.skeletonIndex + newData.allocated);
+	newData.skeleton = (Utilz::GUID*)(newData.entity + newData.size);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
-	memcpy(newData.skeletonIndex, animationData.skeletonIndex, animationData.used * sizeof(int));
-	memcpy(newData.job, animationData.job, animationData.used * sizeof(int));
+	memcpy(newData.skeleton, animationData.skeleton, animationData.used * sizeof(Utilz::GUID));
 
 	// Delete old data;
 	operator delete(animationData.data);
@@ -244,8 +237,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 	// Copy the data
 	animationData.entity[index] = last_entity;
-	animationData.skeletonIndex[index] = animationData.skeletonIndex[last];
-	animationData.job[index] = animationData.job[last];
+	animationData.skeleton[index] = animationData.skeleton[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;

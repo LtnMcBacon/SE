@@ -41,6 +41,12 @@ int SE::Core::AnimationSystem::AddSkeleton(const Utilz::GUID& guid, JointAttribu
 
 }
 
+bool SE::Core::AnimationSystem::IsSkeletonLoaded(const Utilz::GUID & guid) const
+{
+	auto const findS = skeletons.find(guid);
+	return findS != skeletons.end();
+}
+
 int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
 
 	// The number of joints must be larger 0
@@ -84,6 +90,12 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 	}
 	return -1;
 
+}
+
+bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) const
+{
+	auto const findA = animations.find(guid);
+	return findA != animations.end();
 }
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
