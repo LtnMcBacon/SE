@@ -68,7 +68,7 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			virtual void ToggleRenderableObject(const Entity& entity, bool show) = 0;
+			virtual void ToggleRenderableObject(const Entity& entity, bool visible) = 0;
 
 			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
 		

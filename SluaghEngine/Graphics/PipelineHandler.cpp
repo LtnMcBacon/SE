@@ -1760,7 +1760,6 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 	StartProfile;
 	auto& c = currentPipeline.OMStage;
 	ID3D11RenderTargetView* renderTargets[OutputMergerStage::maxRenderTargets] = { nullptr };
-	bool changed = false;
 	for (int i = 0; i < oms.renderTargetCount; ++i)
 	{
 		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);

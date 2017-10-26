@@ -76,10 +76,7 @@ namespace SE {
 
 		int AudioSound::Initialize()
 		{
-			StartProfile;
-			using namespace Utilz::Memory;
-			sampleStack.InitStackAlloc(20_mb);
-			ProfileReturnConst(0);
+			return 0;
 		}
 
 		size_t AudioSound::LoadSound(AudioFile* sound)
@@ -92,15 +89,10 @@ namespace SE {
 			sfvirtual.write = sfvirt::sf_vio_write1;
 			sfvirtual.tell = sfvirt::sf_vio_tell1;
 			SF_INFO info;
-			//info.format = SF_FORMAT_WAV;
+			info.format = SF_FORMAT_WAV;
 			SNDFILE* music = sf_open_virtual(&sfvirtual, SFM_READ, &info, sound);
-			//SNDFILE* music2 = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
-			/*if (sizeof(music) != sizeof(music2))
-			{
-				int hej = 0;
-			}*/
 			int samples = (info.channels * info.frames);
-			float* sampleData = (float*)sampleStack.GetMemoryAligned(samples * sizeof(float), sizeof(float));
+			float* sampleData = new float[samples];
 			if (sampleData == nullptr)
 			{
 				sf_close(music);
@@ -109,9 +101,9 @@ namespace SE {
 			sf_read_float(music, sampleData, samples);
 			sf_close(music);
 
-			AudioSample tempAS;
-			tempAS.info = info;
-			tempAS.samples = sampleData;
+			AudioSample *tempAS = new AudioSample;
+			tempAS->info = info;
+			tempAS->samples = sampleData;
 
 			soundSample.push_back(tempAS);
 			delete sound;
@@ -124,7 +116,7 @@ namespace SE {
 			if (soundType == BakgroundSound)
 			{
 				AudioOut *outData = new AudioOut();
-				outData->sample = &soundSample[soundID];
+				outData->sample = soundSample[soundID];
 				outData->pData.currentPos = 0;
 				outData->pData.volume = (masterVol * bakgroundVol) / 10000;
 				ProfileReturn((void*)outData);
@@ -132,7 +124,7 @@ namespace SE {
 			else if (soundType == EffectSound)
 			{
 				AudioOut *outData = new AudioOut();
-				outData->sample = &soundSample[soundID];
+				outData->sample = soundSample[soundID];
 				outData->pData.currentPos = 0;
 				outData->pData.volume = (masterVol * effectVol) / 10000;
 				ProfileReturn((void*)outData);
@@ -162,7 +154,11 @@ namespace SE {
 		void AudioSound::Shutdown()
 		{
 			StartProfile;
-			sampleStack.ClearStackAlloc();
+			for (auto& sound : soundSample)
+			{
+				delete sound->samples;
+				delete sound;
+			}
 			soundSample.clear();
 			StopProfile;
 		}

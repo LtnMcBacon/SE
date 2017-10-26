@@ -48,7 +48,7 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const CreateInfo& meshGUID, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -57,7 +57,7 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableObject(const Entity& entity, bool show)override;
+			void ToggleRenderableObject(const Entity& entity, bool visible)override;
 
 			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback)override
 			{
@@ -113,7 +113,7 @@ namespace SE
 
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
 			
-			void LoadResource(const Utilz::GUID& meshGUID, size_t index, bool async, ResourceHandler::Behavior behavior);
+			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 		
 			struct RenderableObjectData
 			{

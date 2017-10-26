@@ -41,7 +41,7 @@ namespace SE
 
 			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
 
-			UnloadingStrategy Unload;
+			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;
 
 			/**
 			* @brief	Allocate more memory
@@ -70,9 +70,9 @@ namespace SE
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
-				Data* resourceData;
-				uint16_t* refCount;
-				State* state;
+				Data* resourceData = nullptr;
+				uint16_t* refCount = nullptr;
+				State* state = nullptr;
 			};
 		
 

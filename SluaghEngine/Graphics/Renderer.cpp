@@ -637,12 +637,12 @@ int SE::Graphics::Renderer::Render() {
 		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
@@ -1292,12 +1292,10 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 //	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 //}
 
-int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
+int SE::Graphics::Renderer::EnableBloom(int handleHorizontal, int handleVertical)
 {
-	int status = -1;
-
-	bloomHorizontalHandle = bloomHorizontalHandle;
-	bloomVerticalHandle = verticalHandle;
+	bloomHorizontalHandle = handleHorizontal;
+	bloomVerticalHandle = handleVertical;
 
 	int texture2DHandles[3];
 
@@ -1353,9 +1351,7 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 
 
 	bloom = true;
-	status = 0;
-
-	return status;
+	return 0;
 }
 
 int SE::Graphics::Renderer::DisableBloom()

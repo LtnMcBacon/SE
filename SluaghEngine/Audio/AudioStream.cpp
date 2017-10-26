@@ -115,7 +115,8 @@ namespace SE {
 		{
 			StartProfile;
 			PaError err;
-			err = Pa_StopStream(stream[streamID]);
+			err = Pa_AbortStream(stream[streamID]);
+			//err = Pa_StopStream(stream[streamID]);
 			if (err != paNoError)
 				ProfileReturnConst(-1);
 			sampleOut[streamID]->pData.currentPos = 0;
