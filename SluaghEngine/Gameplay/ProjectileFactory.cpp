@@ -758,14 +758,15 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
-	auto StunOwnerUnit = [ownerPtr](Projectile* p, float dt) -> bool
+	float duration = std::get<float>(parameters[1].data);
+	auto StunOwnerUnit = [ownerPtr, duration](Projectile* p, float dt) -> bool
 	{
 		if (auto owner = ownerPtr.lock())
 		{
 			auto unit = *owner.get();
 			ConditionEvent cEvent;
 			cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
-			cEvent.duration = 2.25f;
+			cEvent.duration = duration;
 			unit->AddConditionEvent(cEvent);
 		}
 
