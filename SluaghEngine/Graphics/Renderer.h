@@ -9,6 +9,8 @@
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
+#include <ToolKit\SpriteFont.h>
+#include <ToolKit\SpriteBatch.h>
 #include "GPUTimeCluster.h"
 #include <Utilz\CPUTimeCluster.h>
 

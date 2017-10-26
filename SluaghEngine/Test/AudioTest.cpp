@@ -48,7 +48,7 @@ namespace SE
 				// Text creation
 				Graphics::TextGUI guiText;
 				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiText.effect = DirectX::SpriteEffects_None;
+				guiText.effect = Graphics::Effect::NoEffect;
 				guiText.fontID = 0;
 				guiText.text = L"Is this pizza heaven????";
 				guiText.hashString = std::hash<std::wstring>()(guiText.text);
@@ -65,7 +65,7 @@ namespace SE
 				auto entTexture = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture;
 				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture.effect = DirectX::SpriteEffects_FlipBoth;
+				guiTexture.effect = Graphics::Effect::BothFlipEffect;
 				guiTexture.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture.layerDepth = 0.1;
 				guiTexture.pos = DirectX::XMFLOAT2(940.0, 560.0);
@@ -80,7 +80,7 @@ namespace SE
 				auto entTexture2 = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture2;
 				guiTexture2.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture2.effect = DirectX::SpriteEffects_FlipHorizontally;
+				guiTexture2.effect = Graphics::Effect::HoriFlipEffect;
 				guiTexture2.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture2.layerDepth = 0.1;
 				guiTexture2.pos = DirectX::XMFLOAT2(940.0, 200.0);
@@ -96,7 +96,7 @@ namespace SE
 				auto entTexture3 = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture3;
 				guiTexture3.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture3.effect = DirectX::SpriteEffects_FlipVertically;
+				guiTexture3.effect = Graphics::Effect::VertiFlipEffect;
 				guiTexture3.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture3.layerDepth = 0.1;
 				guiTexture3.pos = DirectX::XMFLOAT2(300.0, 200.0);
@@ -111,7 +111,7 @@ namespace SE
 				auto entTexture4 = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture4;
 				guiTexture4.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture4.effect = DirectX::SpriteEffects_None;
+				guiTexture4.effect = Graphics::Effect::NoEffect;
 				guiTexture4.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture4.layerDepth = 0.1;
 				guiTexture4.pos = DirectX::XMFLOAT2(300.0, 560.0);
@@ -127,7 +127,7 @@ namespace SE
 				auto entTexture5 = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture5;
 				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture5.effect = DirectX::SpriteEffects_None;
+				guiTexture5.effect = Graphics::Effect::NoEffect;
 				guiTexture5.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture5.layerDepth = 0;
 				guiTexture5.pos = DirectX::XMFLOAT2(800.0, 400.0);

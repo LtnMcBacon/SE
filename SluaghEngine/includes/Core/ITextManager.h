@@ -82,7 +82,7 @@ namespace SE
 
 			virtual  void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
 
-			virtual  void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect) = 0;
+			virtual  void SetTextEffect(const Entity& entity, Graphics::Effect effect) = 0;
 
 			virtual  void SetTextRotation(const Entity& entity, float rotation) = 0;
 			virtual  void SetTextLayerDepth(const Entity& entity, float layerDepth) = 0;
