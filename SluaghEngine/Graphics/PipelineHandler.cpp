@@ -1573,6 +1573,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 	}
 	c.textureCount = pss.textureCount;
 	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	bool samplerChanged = false;
 	for (int i = 0; i < pss.samplerCount; ++i)
 	{
 		if (pss.samplers[i] != c.samplers[i])
@@ -1581,10 +1582,11 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 			if (samp != samplerStates.end())
 				samplers[i] = samp->second;
 			c.samplers[i] = pss.samplers[i];
+			samplerChanged = true;
 		}
 	}
 	c.samplerCount = pss.samplerCount;
-	if (pss.samplerCount)
+	if (samplerChanged)
 		deviceContext->PSSetSamplers(0, pss.samplerCount, samplers);
 	StopProfile;
 }
