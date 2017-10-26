@@ -117,6 +117,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.visible[newEntry] = 0u;
 		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
 		renderableObjectInfo.transparency[newEntry] = info.transparent ? 1u : 0u;
+		renderableObjectInfo.shadow[newEntry] = info.shadow ? 1u : 0u;
 
 		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &RenderableManager::Destroy });
 
@@ -323,6 +324,24 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	}
 }
 
+void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
+
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end()) 
+	{
+
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow){
+
+			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
+			Graphics::RenderJob info;
+			CreateRenderObjectInfo(find->second, &info);
+			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+
+		}
+	}
+}
+
 void SE::Core::RenderableManager::Allocate(size_t size)
 {
 	StartProfile;
@@ -342,6 +361,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
 	newData.wireframe = (uint8_t*)(newData.jobID + newData.allocated);
 	newData.transparency = (uint8_t*)(newData.wireframe + newData.allocated);
+	newData.shadow = (uint8_t*)(newData.shadow + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
@@ -351,6 +371,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
 	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(bool));
 	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(bool));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -372,7 +393,6 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 	guidToBufferInfo[renderableObjectInfo.mesh[index]].entities.remove(entity); // Decrease the refcount
 
-
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.mesh[index] = renderableObjectInfo.mesh[last];
@@ -381,7 +401,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	renderableObjectInfo.jobID[index] = renderableObjectInfo.jobID[last];
 	renderableObjectInfo.wireframe[index] = renderableObjectInfo.wireframe[last];
 	renderableObjectInfo.transparency[index] = renderableObjectInfo.transparency[last];
-
+	renderableObjectInfo.shadow[index] = renderableObjectInfo.shadow[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;

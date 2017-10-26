@@ -62,31 +62,8 @@ namespace SE {
 				if (show && !fileLoaded->second.visible)
 				{
 					anyTogglesThisFrame = true;
-					//DirectX::XMFLOAT3 tempPos = initInfo.transformManager->GetPosition(entity);
-					//lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
-					//fileLoaded->second.jobID = initInfo.renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
-					//jobToEnt[fileLoaded->second.jobID] = entity;
-					
-					/*initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
-						auto cb = *(LightDataBuffer*)data;
-						uint32_t count = 0;
-						for (auto& l : entityToLightData)
-						{
-							if (l.second.visible)
-							{
-								cb.data[count].colour = l.second.colour;
-								cb.data[count].pos = l.second.pos;
-								count++;
-							}
-							if (count == 20)
-								break;
-						}
-						cb.size[0] = count;
 
-					});*/
-
-					
-
+				
 				}
 				else if (!show && fileLoaded->second.visible)
 				{
@@ -106,19 +83,6 @@ namespace SE {
 			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
 
-		/*	struct LightDataBuffer
-			{
-				DirectX::XMFLOAT4 size;
-				Graphics::LightData data[20];
-			};
-			LightDataBuffer data;
-			data.size = DirectX::XMFLOAT4(1.0f, 0.0f,0.0f,0.0);
-			data.data[0].pos = DirectX::XMFLOAT4(0.25f, 1.0f, -1.0f, 100.0f);
-			data.data[0].colour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightDataBuffer", &data, sizeof(LightDataBuffer));*/
-			//initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));
-
-
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
@@ -130,6 +94,7 @@ namespace SE {
 						{
 							cb.data[count].colour = l.second.colour;
 							cb.data[count].pos = l.second.pos;
+							cb.data[count].castShadow.x = l.second.castShadow;
 							count++;
 						}
 						if (count == 20)

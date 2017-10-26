@@ -75,6 +75,8 @@ namespace SE
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
 		private:
 		
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
@@ -128,6 +130,7 @@ namespace SE
 				uint32_t* jobID;
 				uint8_t* wireframe;
 				uint8_t* transparency;
+				uint8_t* shadow;
 			};
 			InitializationInfo initInfo;
 			std::default_random_engine generator;	

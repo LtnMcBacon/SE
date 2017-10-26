@@ -43,6 +43,7 @@ namespace SE
 				DirectX::XMFLOAT4 colour;	//colour (rgba)
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
 				bool visible;
+				bool castShadow;
 			};
 
 			
@@ -50,6 +51,7 @@ namespace SE
 			{
 				DirectX::XMFLOAT4 colour;	//colour (rgba)
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
+				DirectX::XMFLOAT4 castShadow;
 			};
 			struct LightDataBuffer
 			{
