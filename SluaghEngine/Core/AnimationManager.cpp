@@ -196,6 +196,7 @@ void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Grap
 	if (entityIndex != entityToIndex.end()) {
 		info->pipeline.VSStage.shader = SkinnedVertexShader;
 		info->maxInstances = 8;
+		info->specialHaxxor = "SkinnedOncePerObject";
 	}
 	StopProfile;
 }

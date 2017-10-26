@@ -220,7 +220,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
 	info->maxInstances = 256;
-
+	info->specialHaxxor = "OncePerObject";
 
 
 //	info->pipeline.
