@@ -10,6 +10,8 @@
 #include <Utilz\CircularFiFo.h>
 #include <thread>
 #include <Utilz\TimeCluster.h>
+#include <ToolKit\SpriteFont.h>
+#include <ToolKit\SpriteBatch.h>
 
 
 namespace SE
@@ -611,9 +613,10 @@ namespace SE
 
 			bool bloom = false;
 
-			int bloomHorizontalHandle, bloomVerticalHandle;
-			int bloomShaderResourceViewHandles[3];
-			int bloomUnorderedAccessViewHandles[2];
+			int bloomHorizontalHandle = -1;
+			int bloomVerticalHandle = -1;
+			int bloomShaderResourceViewHandles[3] = { -1, -1, -1 };
+			int bloomUnorderedAccessViewHandles[2] = { -1, -1 };
 
 			/********* END Bloom ************/
 

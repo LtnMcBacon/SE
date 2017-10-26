@@ -132,10 +132,10 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
 	ausioInfo1.soundType = Audio::SoundIndexName::BakgroundSound;
 	managers.audioManager->Create(soundEnt, ausioInfo1);
-	/*Core::IAudioManager::CreateInfo ausioInfo2;
+	Core::IAudioManager::CreateInfo ausioInfo2;
 	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
 	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
-	managers.audioManager->Create(soundEnt2, ausioInfo2);*/
+	managers.audioManager->Create(soundEnt, ausioInfo2);
 
 	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
@@ -254,7 +254,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 		player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-		managers.transformManager->BindChild(player->GetEntity(), camera, false);
+		managers.transformManager->BindChild(player->GetEntity(), camera, false, true);
 		managers.transformManager->Move(camera, -5 * cameraTranslation);
 		managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
@@ -370,7 +370,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		CONSOLE = 9,
 		FULLSCREEN = 10,
 		SIZE19 = 11,
-		SIZE12 = 12
+		SIZE12 = 12,
+		LEFT_MOUSE = 13
 	};
 
 
@@ -379,6 +380,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	subSystem.window->MapActionButton(DOWN, Window::KeyS);
 	subSystem.window->MapActionButton(LEFT, Window::KeyA);
 	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	subSystem.window->MapActionButton(LEFT_MOUSE, Window::MouseLeft);
 	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
 	subSystem.window->MapActionButton(CONSOLE, Window::Key1);
 	subSystem.window->MapActionButton(FULLSCREEN, Window::KeyT);
@@ -409,13 +411,21 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	{
 		float dt = subSystem.window->GetDelta();
 		audioTime += dt;
-		/*if (audioTime > 60.0)
+		if (audioTime > 20.0)
 		{
-			managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
 			audio = (audio + 1) % 2;
-			managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
+			if (audio == 0)
+			{
+				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop2.wav"));
+				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
+			}
+			else
+			{
+				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
+				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
+			}
 			audioTime = 0.0;
-		}*/
+		}
 		if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
 		{
 			change = true;
@@ -492,12 +502,10 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 			DirectX::XMVECTOR rayD;
-			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, subSystem.window->Width(), subSystem.window->Height(), rayO, rayD);
 
 
-			//float distance = 0.0f;
 			float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
-			//bool pickTest = managers.collisionManager->PickEntity(floor, rayO, rayD, &distance);
 
 			auto clickPos = rayO + rayD*distance;
 
