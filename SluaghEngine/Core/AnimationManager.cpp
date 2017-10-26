@@ -3,6 +3,7 @@
 
 
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
+static const SE::Utilz::GUID VS_SKINNED_DATA("VS_SKINNED_DATA");
 
 SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
@@ -11,10 +12,7 @@ SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo
 	_ASSERT(initInfo.console);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
-	_ASSERT(initInfo.renderableManager);
 
-	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::SetRenderObjectInfo });
-	
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
@@ -186,20 +184,44 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	StopProfile;
 }
 
-void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob * info)
+void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
-	// Get the entity register from the animationManager
-	const auto entityIndex = entityToIndex.find(entity);
+	auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		if (visible)
+			animationSystem.AddEntity(entity, animationData.skeleton[find->second], animationData.animation[find->second]);
+		else
+			animationSystem.RemoveEntity(entity);
+	
 
-	// there was an animated entity and we should use the skinned vertex shader
-	if (entityIndex != entityToIndex.end()) {
-		info->pipeline.VSStage.shader = SkinnedVertexShader;
-		info->maxInstances = 8;
-		info->specialHaxxor = "SkinnedOncePerObject";
 	}
 	StopProfile;
 }
+//
+//void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob * info)
+//{
+//	StartProfile;
+//	// Get the entity register from the animationManager
+//	const auto entityIndex = entityToIndex.find(entity);
+//
+//	// there was an animated entity and we should use the skinned vertex shader
+//	if (entityIndex != entityToIndex.end()) {
+//		info->pipeline.VSStage.shader = SkinnedVertexShader;
+//		info->maxInstances = 8;
+//		info->specialHaxxor = "SkinnedOncePerObject";
+//		
+//		info->mappingFunc.push_back([this](auto a, auto b) {
+//			initInfo.renderer->GetPipelineHandler()->MapConstantBuffer(VS_SKINNED_DATA, [](void* data) {
+//				animationSystem.MapBuffer(data, a, b);
+//			});			
+//		});
+//
+//
+//	}
+//	StopProfile;
+//}
 
 void SE::Core::AnimationManager::Allocate(size_t size)
 {
@@ -215,10 +237,12 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.skeleton = (Utilz::GUID*)(newData.entity + newData.size);
+	newData.animation = (Utilz::GUID*)(newData.skeleton + newData.size);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.skeleton, animationData.skeleton, animationData.used * sizeof(Utilz::GUID));
+	memcpy(newData.animation, animationData.animation, animationData.used * sizeof(Utilz::GUID));
 
 	// Delete old data;
 	operator delete(animationData.data);
@@ -239,6 +263,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 	// Copy the data
 	animationData.entity[index] = last_entity;
 	animationData.skeleton[index] = animationData.skeleton[last];
+	animationData.animation[index] = animationData.animation[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;

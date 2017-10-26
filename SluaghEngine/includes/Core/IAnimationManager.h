@@ -32,7 +32,6 @@ namespace SE
 				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
-				IRenderableManager* renderableManager;
 			};
 			struct CreateInfo
 			{
@@ -51,6 +50,9 @@ namespace SE
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
 			virtual void Start(const Entity& entity)const = 0;
 			virtual void Pause(const Entity& entity)const = 0;
+
+			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
+
 		protected:
 			IAnimationManager() {};
 	

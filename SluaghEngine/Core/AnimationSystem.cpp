@@ -98,6 +98,14 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
+void SE::Core::AnimationSystem::AddEntity(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation)
+{
+}
+
+void SE::Core::AnimationSystem::RemoveEntity(const Entity & entity)
+{
+}
+
 void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
@@ -154,6 +162,10 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 		Interpolate(joint, animTimePos, out);
 	}
 	StopProfile;
+}
+
+void SE::Core::AnimationSystem::MapBuffer(void * data, int done, int toDraw) const
+{
 }
 
 void SE::Core::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const {

@@ -318,7 +318,6 @@ void SE::Core::Engine::InitAnimationManager()
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
-		info.renderableManager = managers.renderableManager;
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
