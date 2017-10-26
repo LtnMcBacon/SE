@@ -148,7 +148,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 		engine->BeginFrame();
 
-		if (ImGui::Button("CreateBakedTest", { 100, 100 }))
+		if (ImGui::Button("CreateBakedTest"))
 		{
 			if (!managers.entityManager->Alive(e1))
 			{
@@ -159,11 +159,11 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 				managers.renderableManager->ToggleRenderableObject(e1, true);
 			}		
 		}
-		if (ImGui::Button("DestroyBakedTest", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest"))
 		{
 			managers.entityManager->Destroy(e1);
 		}
-		if (ImGui::Button("CreateBakedTest2", { 100, 100 }))
+		if (ImGui::Button("CreateBakedTest2"))
 		{
 			if (!managers.entityManager->Alive(e2))
 			{
@@ -174,12 +174,12 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 				managers.renderableManager->ToggleRenderableObject(e2, true);
 			}
 		}
-		if (ImGui::Button("DestroyBakedTest2", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest2"))
 		{
 			managers.entityManager->Destroy(e2);
 		}
 
-		if (ImGui::Button("CreateBakedTest3", { 100, 100 }))
+		if (ImGui::Button("CreateBakedTest3"))
 		{
 			if (!managers.entityManager->Alive(e3))
 			{
@@ -190,7 +190,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 				managers.renderableManager->ToggleRenderableObject(e3, true);
 			}
 		}
-		if (ImGui::Button("DestroyBakedTest3", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest3"))
 		{
 			managers.entityManager->Destroy(e3);
 		}
