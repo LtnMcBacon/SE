@@ -32,6 +32,7 @@
     <ClCompile Include="FailUntilSuccess.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="FlowFieldMovementLeaf.cpp" />
+    <ClCompile Include="ForestTrainer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />

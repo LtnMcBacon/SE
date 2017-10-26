@@ -206,7 +206,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-	if (input.skill1Button)
+	if (input.skill1Button && attackCooldown <= 0.f) 
 	{
 		ProjectileData temp;
 
@@ -219,7 +219,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.fileNameGuid = "testProjectile.SEP";
 
 		newProjectiles.push_back(temp);
+
+		attackCooldown = 1.f * attackSpeed;
 	}
+	if (attackCooldown > 0.f)
+		attackCooldown -= dt;
 	ResolveEvents();
 	ClearConditionEvents();
 	ClearDamageEvents();
