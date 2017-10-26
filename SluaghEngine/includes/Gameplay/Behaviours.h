@@ -10,6 +10,7 @@
 #include "RangeToPlayerCondition.h"
 #include "ObstacleOnPositionCondition.h"
 #include "StunnedCondition.h"
+#include "ChannelingCondition.h"
 #include "MakeVulnerableLeaf.h"
 #include "MakeInvulnerableLeaf.h"
 #include "GlaistigAttackLeaf.h"
@@ -18,7 +19,8 @@
 #include "AttackCooldownZeroCondition.h"
 #include "AddTimeToAttackCooldownLeaf.h"
 #include "TickDownAttackCooldownLeaf.h"
-
+#include "FaceThePlayerLeaf.h"
+#include "WhileChannelingLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"
@@ -26,6 +28,7 @@
 #include "RandomSequence.h"
 #include "Selector.h"
 #include "Sequence.h"
+#include "RestartingSequence.h"
 
 /*Decorators*/
 #include "IDecorator.h"
@@ -33,6 +36,7 @@
 #include "Repeater.h"
 #include "RepeatUntilFail.h"
 #include "Succeeder.h"
+#include "FailUntilSuccess.h"
 
 
 #endif

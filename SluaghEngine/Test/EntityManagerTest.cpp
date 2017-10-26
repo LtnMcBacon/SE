@@ -79,5 +79,6 @@ bool EntityManagerTest::Run(SE::DevConsole::IConsole* console)
 				
 		}
 	}
+	delete em;
 	ProfileReturnConst( true);
 }

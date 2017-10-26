@@ -14,7 +14,7 @@ SE::Gameplay::GlaistigAttackLeaf::GlaistigAttackLeaf(EnemyBlackboard* enemyBlack
 
 SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 {
-	if(enemyBlackboard->attackCooldown <= 0.f)
+	if(!enemyBlackboard->channeling)
 	{
 		ProjectileData newProjectile;
 
@@ -27,12 +27,11 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 			DamageEvent::DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
 
 		gameBlackboard->enemyProjectiles.push_back(newProjectile);
-		myStatus = Status::BEHAVIOUR_SUCCESS;
 
+		enemyBlackboard->channeling = true;
 	}
-	else
-	{
-		myStatus = Status::BEHAVIOUR_RUNNING;
-	}
+	myStatus = Status::BEHAVIOUR_SUCCESS;
+
+	
 	return myStatus;
 }

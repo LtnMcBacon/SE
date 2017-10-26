@@ -151,6 +151,14 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
+			IBehaviour* CreateChannelingConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
 			IBehaviour* CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID);
 
 			/**
@@ -160,6 +168,22 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateFaceThePlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateWhileChannelingLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
 
@@ -191,6 +215,13 @@ namespace SE
 			*/
 			IBehaviour* CreateRandomSelector(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create a Sequence Node with the data given on position nodeID in dataArray.
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateRestartingSequence(NodeData* dataArray, int nodeID);
+
 			/*Create Decorators*/
 
 			/**
@@ -221,6 +252,12 @@ namespace SE
 			*/
 			IBehaviour* CreateSucceeder(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create a FailUntilSuccess Node with the data given on position nodeID in dataArray.
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateFailUntilSuccess(NodeData* dataArray, int nodeID);
 			/**
 			* @brief	Create a BehaviouralTree from the NodeData created in 
 			* LoadTreeFromResourceHandler

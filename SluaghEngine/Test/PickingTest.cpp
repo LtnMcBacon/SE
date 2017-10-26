@@ -45,12 +45,12 @@ bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
-
+	managers.transformManager->Create(floor);
 	managers.transformManager->BindChild(floor, camera);
 	managers.transformManager->Move(camera, -5 * cameraTranslation);
 	managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	managers.transformManager->Create(floor);
+	
 	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Block.mesh"});

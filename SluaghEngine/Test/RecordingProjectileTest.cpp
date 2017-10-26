@@ -11,6 +11,7 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
 #include <Gameplay\Game.h>
+
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -124,11 +125,17 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 
 #pragma region AudioData
-		auto soundEnt = managers.entityManager->Create();
-		int soundID;
-		managers.audioManager->Create(soundEnt, { Utilz::GUID("BLoop.wav"), Audio::SoundIndexName::BakgroundSound });
+	auto soundEnt = managers.entityManager->Create();
+	Core::IAudioManager::CreateInfo ausioInfo1;
+	ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
+	ausioInfo1.soundType = Audio::SoundIndexName::BakgroundSound;
+	managers.audioManager->Create(soundEnt, ausioInfo1);
+	Core::IAudioManager::CreateInfo ausioInfo2;
+	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
+	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
+	managers.audioManager->Create(soundEnt, ausioInfo2);
 
-		managers.audioManager->PlaySound(soundEnt, "BLoop.wav");
+	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
 
 
@@ -173,8 +180,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.lightManager->ToggleLight(light[3], true);
 
 		//Light 5
-		data.color = DirectX::XMFLOAT3(0.2, 0.2, 0.2);
-		data.pos = DirectX::XMFLOAT3(80.0, 40.0, 0.0);
+		data.color = DirectX::XMFLOAT3(0.8, 0.8, 0.8);
+		data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
 		data.radius = 150.0;
 		managers.lightManager->Create(light[4], data);
 		managers.lightManager->ToggleLight(light[4], true);
@@ -268,7 +275,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 		player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-		managers.transformManager->BindChild(player->GetEntity(), camera, false);
+		managers.transformManager->BindChild(player->GetEntity(), camera, false, true);
 		managers.transformManager->Move(camera, -5 * cameraTranslation);
 		managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
@@ -385,26 +392,34 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		subSystem.window->MapActionButton(1, Window::Key1);
 		subSystem.window->MapActionButton(2, Window::Key2);
 
-		enum MoveDir
-		{
-			UP = 3,
-			RIGHT = 4,
-			DOWN = 5,
-			LEFT = 6,
-			RIGHT_MOUSE = 7,
-			SPACE = 8,
-			CONSOLE = 9
-		};
+	enum MoveDir
+	{
+		UP = 3,
+		RIGHT = 4,
+		DOWN = 5,
+		LEFT = 6,
+		RIGHT_MOUSE = 7,
+		SPACE = 8,
+		CONSOLE = 9,
+		FULLSCREEN = 10,
+		SIZE19 = 11,
+		SIZE12 = 12,
+		LEFT_MOUSE = 13
+	};
 
 
-		subSystem.window->MapActionButton(UP, Window::KeyW);
-		subSystem.window->MapActionButton(RIGHT, Window::KeyD);
-		subSystem.window->MapActionButton(DOWN, Window::KeyS);
-		subSystem.window->MapActionButton(LEFT, Window::KeyA);
-		subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-		subSystem.window->MapActionButton(SPACE, Window::KeySpace);
-		subSystem.window->MapActionButton(CONSOLE, Window::Key1);
-
+	subSystem.window->MapActionButton(UP, Window::KeyW);
+	subSystem.window->MapActionButton(RIGHT, Window::KeyD);
+	subSystem.window->MapActionButton(DOWN, Window::KeyS);
+	subSystem.window->MapActionButton(LEFT, Window::KeyA);
+	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+	subSystem.window->MapActionButton(LEFT_MOUSE, Window::MouseLeft);
+	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+	subSystem.window->MapActionButton(CONSOLE, Window::Key1);
+	subSystem.window->MapActionButton(FULLSCREEN, Window::KeyT);
+	subSystem.window->MapActionButton(SIZE19, Window::KeyY);
+	subSystem.window->MapActionButton(SIZE12, Window::KeyU);
+	
 		pos playerPos;
 		playerPos.x = 1.5f;
 		playerPos.y = 1.5f;
@@ -419,18 +434,67 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			0, 0, tScale.z, 0,
 			tPos.x, tPos.y, tPos.z, 1.0f };
 
-		bool stepping = false;
-		bool running = true;
-		engine->BeginFrame();
-		engine->EndFrame();
-		float aspect = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
-
-
-		while (running)
+	bool stepping = false;
+	bool running = true;
+	subSystem.window->UpdateTime();
+	float audioTime = 0.0;
+	int audio = 0;
+	bool change = false;
+	while (running)
+	{
+		float dt = subSystem.window->GetDelta();
+		audioTime += dt;
+		if (audioTime > 20.0)
 		{
-			float dt = subSystem.window->GetDelta();
-
-			newProjectiles.clear();
+			audio = (audio + 1) % 2;
+			if (audio == 0)
+			{
+				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop2.wav"));
+				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
+			}
+			else
+			{
+				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
+				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
+			}
+			audioTime = 0.0;
+		}
+		if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
+		{
+			change = true;
+			bool fs = subSystem.optionsHandler->GetOptionBool("Window", "fullScreen", true);
+			if (fs == true)
+				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", false);
+			else
+				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", true);
+		}
+		if (subSystem.window->ButtonPressed(MoveDir::SIZE19))
+		{
+			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
+			if (height != 1080 || width != 1920)
+			{
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
+				change = true;
+			}
+		}
+		if (subSystem.window->ButtonPressed(MoveDir::SIZE12))
+		{
+			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
+			if (height != 720 || width != 1280)
+			{
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 720);
+				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1280);
+				change = true;
+			}
+		}
+		if (change == true)
+		{
+			subSystem.optionsHandler->Trigger();
+		}
+		newProjectiles.clear();
 
 			Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
 			float movX = 0.0f;
@@ -471,12 +535,10 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 			DirectX::XMVECTOR rayD;
-			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+			managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, subSystem.window->Width(), subSystem.window->Height(), rayO, rayD);
 
 
-			//float distance = 0.0f;
 			float distance = XMVectorGetY(rayO) / -XMVectorGetY(rayD);
-			//bool pickTest = managers.collisionManager->PickEntity(floor, rayO, rayD, &distance);
 
 			auto clickPos = rayO + rayD*distance;
 

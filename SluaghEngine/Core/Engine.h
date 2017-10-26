@@ -124,6 +124,7 @@ namespace SE
 			void InitMaterialManager();
 			void InitLightManager();
 			void InitDebugRenderManager();
+			void InitTextManager();
 			void InitGUIManager();
 
 			void SetupDebugConsole();

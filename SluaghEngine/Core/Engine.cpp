@@ -183,6 +183,7 @@ void SE::Core::Engine::InitManagers()
 	InitMaterialManager();
 	InitLightManager();
 	InitDebugRenderManager();
+	InitTextManager();
 	InitGUIManager();
 	StopProfile;
 }
@@ -333,6 +334,19 @@ void SE::Core::Engine::InitDebugRenderManager()
 	managersVec.push_back(managers.debugRenderManager);
 }
 
+void SE::Core::Engine::InitTextManager()
+{
+	if (!managers.textManager)
+	{
+		ITextManager::InitializationInfo info;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.entityManager = managers.entityManager;
+		managers.textManager = CreateTextManager(info);
+	}
+	managersVec.push_back(managers.textManager);
+}
+
 void SE::Core::Engine::InitGUIManager()
 {
 	if (!managers.guiManager)
@@ -473,6 +487,7 @@ void SE::Core::Engine::OptionUpdate()
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
 	ICameraManager::CreateInfo camInfo;
+	subSystems.optionsHandler->SetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
 	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
 	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
 	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
@@ -489,6 +504,7 @@ void SE::Core::Engine::OptionUpdate()
 	//	ImGuiDX11SDL_Shutdown();
 	//	ImGuiDX11SDL_Init(subSystems.renderer, subSystems.window);
 		managers.guiManager->updateGUI();
+		managers.textManager->updateText();
 	}
 	
 	ProfileReturnVoid;
