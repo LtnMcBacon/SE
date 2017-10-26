@@ -5,7 +5,7 @@
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID VS_SKINNED_DATA("VS_SKINNED_DATA");
 
-SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo) : initInfo(initInfo)
+SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo), RenderableManager({initInfo.resourceHandler, initInfo.renderer, initInfo.console, initInfo.entityManager, initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear}, 10)
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
@@ -31,7 +31,7 @@ SE::Core::AnimationManager::~AnimationManager()
 	operator delete(animationData.data);
 }
 
-void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const CreateInfo & info)
+void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IAnimationManager::CreateInfo & info)
 {
 	StartProfile;
 	auto& find = entityToIndex.find(entity);
@@ -52,27 +52,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
 
-	// Load model
-	auto& findBuffer = guidToBufferInfo.find(info.mesh); // See if it the mesh is loaded.
-	auto& bufferInfo = guidToBufferInfo[info.mesh]; // Get a reference to the bufferinfo
-	if (findBuffer == guidToBufferInfo.end())	// If it wasn't loaded, load it.	
-	{
-		auto res = initInfo.resourceHandler->LoadResource(info.mesh, [this](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {
-			int vertexCount = 0;
-			auto result = LoadModel(guid, data, size, vertexCount);
-			if (result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		});
-
-
-		if (res)
-			initInfo.console->PrintChannel("Model %u could not be loaded, Error: %d.\n", "Resources", info.mesh, res);
-
-	}
-
-	animationData.mesh[index] = info.mesh;
-
+	LoadResource(info.mesh, index, false, ResourceHandler::Behavior::QUICK);
 
 
 	// Load skeleton
@@ -251,6 +231,8 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	StartProfile;
 	_ASSERT(size > animationData.allocated);
 
+	RenderableManager::Allocate(size);
+
 	// Allocate new memory
 	AnimationData newData;
 	newData.allocated = size;
@@ -259,13 +241,10 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.mesh = (Utilz::GUID*)(newData.entity + newData.size);
-	newData.skeleton = (Utilz::GUID*)(newData.mesh + newData.size);
-	
+	newData.skeleton = (Utilz::GUID*)(newData.entity + newData.size);
 
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
-	memcpy(newData.mesh, animationData.mesh, animationData.used * sizeof(Utilz::GUID));
 	memcpy(newData.skeleton, animationData.skeleton, animationData.used * sizeof(Utilz::GUID));
 	
 	// Delete old data;
@@ -279,6 +258,8 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 {
 	StartProfile;
 
+	RenderableManager::Destroy(index);
+
 	// Temp variables
 	size_t last = animationData.used - 1;
 	const Entity entity = animationData.entity[index];
@@ -286,9 +267,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 	// Copy the data
 	animationData.entity[index] = last_entity;
-	animationData.mesh[index] = animationData.mesh[last];
 	animationData.skeleton[index] = animationData.skeleton[last];
-	
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
@@ -341,21 +320,4 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 	return animationSystem.AddAnimation(guid,matrices, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
-}
-
-int SE::Core::AnimationManager::LoadModel(const Utilz::GUID & meshGUID, void * data, size_t size, int & vertexCount)
-{
-	int result = 0;
-	auto meshHeader = (Graphics::Mesh_Header*)data;
-	vertexCount = meshHeader->nrOfVertices;
-	if (meshHeader->vertexLayout == 0) {
-		Vertex* v = (Vertex*)(meshHeader + 1);
-
-		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(Vertex));
-	}
-	else {
-		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
-	}
-	return result;
 }

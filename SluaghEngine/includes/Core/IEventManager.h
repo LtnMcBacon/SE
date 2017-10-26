@@ -8,7 +8,7 @@
 #define DECLDIR_CORE __declspec(dllimport)
 #endif
 
-#include <Entity.h>
+#include "Entity.h"
 #include <Utilz\Delegate.h>
 #include <Graphics\RenderJob.h>
 
@@ -19,6 +19,7 @@ namespace SE
 		class IEventManager
 		{
 		public:
+			virtual ~IEventManager() {};
 
 			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
 			virtual void TriggerSetRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) = 0;
