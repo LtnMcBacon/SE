@@ -179,7 +179,6 @@ bool SE::Test::FlowFieldTest::Run(SE::DevConsole::IConsole* console)
 
 	bool running = true;
 	unsigned char counter = 0;
-	float dt = 1 / 60.0f;
 	while (running)
 	{
 		if (subSystem.window->ButtonPressed(Exit))

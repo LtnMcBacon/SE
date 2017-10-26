@@ -38,8 +38,6 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	pipeline.OMStage.renderTargets[0] = "backbuffer";
 	pipeline.OMStage.renderTargetCount = 1;
 	pipeline.OMStage.depthStencilView = "backbuffer";
-
-	
 }
 
 SE::Core::DebugRenderManager::~DebugRenderManager()

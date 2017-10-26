@@ -1505,13 +1505,11 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 		if(ExportTexture(meshMaterial.textures[textureIndex], textureFolder)) {
 
 			// Write the texture name
-			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
 			string textureName = meshMaterial.textures[textureIndex].textureName + ".sei";
 
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureName)), sizeof(Utilz::GUID));
 
 			// Write the texture channel
-			size = (uint32_t)meshMaterial.textures[textureIndex].textureChannel.size();
 			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
 
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureChannel)), sizeof(Utilz::GUID));
@@ -1520,10 +1518,6 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 		}
 
 		else {
-
-			string textureName = "NULL";
-			uint32_t size = (uint32_t)textureName.size();
-
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("BlackPink.sei")), sizeof(Utilz::GUID));
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("DiffuseColor")), sizeof(Utilz::GUID));
 
