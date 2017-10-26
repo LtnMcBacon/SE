@@ -37,6 +37,7 @@
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
 #include "BloomTest.h"
+#include "DecalTest.h"
 
 
 #ifdef _DEBUG
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 101196;
+	//_crtBreakAlloc = 2025;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
@@ -99,6 +100,7 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
+	AddTest(DecalTest);
 //	AddTest(BloomTest);
   
 	volatile bool running = true;
