@@ -106,27 +106,19 @@ void DeviceManager::Shutdown() {
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
 	pDSState->Release();
-
-//	gDepthStencil->Release();
 	gDepthStencilView->Release();
 	gDepthStencilSRV->Release();
-	gDeviceContext->Release();
 	blendSolidState->Release();
 	blendTransState->Release();
 	rasterSolidState->Release();
 	rasterWireState->Release();
-
-#ifdef _DEBUG
-
-	/*reportLiveObjects(gDevice);*/
-
-#endif
 	gSwapChain->Release();
-
-
 	gSecDeviceContext->Release();
 	gDeviceContext->Release();
-	gDevice->Release();;
+#ifdef _DEBUG
+//	reportLiveObjects(gDevice);
+#endif
+	gDevice->Release();
 
 	StopProfile;
 }

@@ -502,8 +502,6 @@ namespace SE
 			int cameraBufferID = -1;
 
 			DeviceManager* device;
-			ID3D11Device* dev;
-			ID3D11DeviceContext* devContext;
 			GraphicResourceHandler* graphicResourceHandler;
 			MemoryMeasuring memMeasure;
 
@@ -601,7 +599,7 @@ namespace SE
 			//std::map<size_t, size_t> lightID;
 
 			// fonts
-			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
+			DirectX::SpriteBatch* spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
 
 			static const int lightBufferSize = 20;

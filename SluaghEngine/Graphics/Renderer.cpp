@@ -29,8 +29,6 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	if (FAILED(hr))
 		return hr;
 
-	dev = device->GetDevice();
-	devContext = device->GetDeviceContext();
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
@@ -39,7 +37,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
 	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
 
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+	spriteBatch = new DirectX::SpriteBatch(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
 
@@ -91,7 +89,8 @@ void SE::Graphics::Renderer::Shutdown()
 
 //	if (myThread.joinable())
 		//myThread.join();
-	spriteBatch.release();
+	delete spriteBatch;
+	fonts.clear();
 	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
@@ -588,13 +587,13 @@ int SE::Graphics::Renderer::Render() {
 			{
 				for(auto& mf : j.job.mappingFunc)
 					mf(drawn, 1);
-				devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
+				device->GetDeviceContext()->Draw(j.job.vertexCount, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount != 0 && j.job.instanceCount == 0)
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 1);
-				devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
+				device->GetDeviceContext()->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount == 0 && j.job.instanceCount != 0)
 			{
@@ -604,7 +603,7 @@ int SE::Graphics::Renderer::Render() {
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					for (auto& mf : j.job.mappingFunc)
 						mf(drawn, toDraw);
-					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
+					device->GetDeviceContext()->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
 			}
@@ -615,7 +614,7 @@ int SE::Graphics::Renderer::Render() {
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					for (auto& mf : j.job.mappingFunc)
 						mf(drawn, toDraw);
-					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
+					device->GetDeviceContext()->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
 			}
@@ -623,7 +622,7 @@ int SE::Graphics::Renderer::Render() {
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 0);
-				devContext->DrawAuto();
+				device->GetDeviceContext()->DrawAuto();
 			}
 		}
 	}
@@ -646,7 +645,7 @@ int SE::Graphics::Renderer::Render() {
 
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			fonts[job.fontID].DrawString(spriteBatch, job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
