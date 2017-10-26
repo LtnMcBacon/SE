@@ -38,9 +38,9 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 
-	RandomForest<SE::Gameplay::PlayerMovementActions, SE::Gameplay::PlayerAttackActions> testForest;
+	Gameplay::DecisionTree::RandomForest<SE::Gameplay::PlayerMovementActions, SE::Gameplay::PlayerAttackActions> testForest;
 
-	class DistanceToClosestEnemy : public IFeature
+	class DistanceToClosestEnemy : public Gameplay::DecisionTree::IFeature
 	{
 	private:
 		float answer;
@@ -54,7 +54,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		DistanceToClosestEnemy* copy() override { return new DistanceToClosestEnemy(answer); }
 	};
 
-	class DistanceXandYToClosestEnemy : public IFeature
+	class DistanceXandYToClosestEnemy : public Gameplay::DecisionTree::IFeature
 	{
 	private:
 		float answer;
@@ -419,7 +419,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
 
 			testForest.AddTrainingExample(
-				std::vector<IFeature*>({
+				std::vector<Gameplay::DecisionTree::IFeature*>({
 				new DistanceToClosestEnemy(distance),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
@@ -554,6 +554,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 			testRoom->Update(dt, playerPos.x, playerPos.y);
 		}
 		projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+		blackBoard.enemyProjectiles.clear();
 		engine->BeginFrame();
 
 		engine->EndFrame();
@@ -585,7 +586,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 			SE::Gameplay::PlayerAttackActions playerAttack;
 
 			testForest.GetAnswer(
-				std::vector<IFeature*>({
+				std::vector<Gameplay::DecisionTree::IFeature*>({
 				new DistanceToClosestEnemy(distance),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
@@ -593,7 +594,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				playerMovement);
 
 			testForest.GetAnswer(
-				std::vector<IFeature*>({
+				std::vector<Gameplay::DecisionTree::IFeature*>({
 				new DistanceToClosestEnemy(distance),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
 				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
