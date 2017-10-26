@@ -65,7 +65,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 		throw std::exception("Could not create Solid Rasterizer.");
 
 	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
-
+	info.cullMode = Graphics::CullMode::CULL_BACK;
 	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
 	if (result < 0)
 		throw std::exception("Could not create wireframe Rasterizer.");
@@ -139,6 +139,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		if (visible)
 		{
 			rmInstancing->AddEntity(entity, info);
+			//rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 			initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
@@ -266,6 +267,7 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 	}
 }
@@ -275,12 +277,14 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.wireframe[find->second]) != wireFrame)
+		bool p = static_cast<bool>(renderableObjectInfo.wireframe[find->second]);
+		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
+		if (renderableObjectInfo.visible[find->second] == 1u &&  p != wireFrame)
 		{
-			renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}
@@ -295,8 +299,9 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 		{
 			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
-			CreateRenderObjectInfo(find->second, &info);
+			CreateRenderObjectInfo(find->second, &info); 
 			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}

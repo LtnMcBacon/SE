@@ -21,7 +21,6 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	const auto findBucket = pipelineToRenderBucket.find(job.pipeline.id);
 	auto& bucket = pipelineToRenderBucket[job.pipeline.id];
 
-
 	const auto findEntity = entityToBucketAndIndexInBucket.find(entity);
 	auto& bucketAndIndexInBucket = entityToBucketAndIndexInBucket[entity];
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
@@ -33,13 +32,24 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 			renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 		});
 	}
+	else
+	{
+		if(findEntity != entityToBucketAndIndexInBucket.end())
+			if (bucket->pipeline.id == job.pipeline.id)
+				ProfileReturnVoid;
+	}
+
+	DirectX::XMFLOAT4X4 transform;
 
 	if (findEntity != entityToBucketAndIndexInBucket.end()) // The entity is in another bucket.
-		RemoveFromBucket(bucketAndIndexInBucket);
+		RemoveFromBucket(bucketAndIndexInBucket, &transform);
 
 	bucketAndIndexInBucket = { job.pipeline.id, bucket->transforms.size() };
 	bucket->indexToEntity.push_back(entity);
-	bucket->transforms.push_back({});
+
+	//DirectX::XMFLOAT4X4 transposed;
+	//DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
+	bucket->transforms.push_back(transform);
 
 
 
@@ -63,7 +73,7 @@ void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
 	auto findEntity = entityToBucketAndIndexInBucket.find(entity);
 	if (findEntity != entityToBucketAndIndexInBucket.end())
 	{
-		RemoveFromBucket(findEntity->second);
+		RemoveFromBucket(findEntity->second, nullptr);
 		entityToBucketAndIndexInBucket.erase(entity);
 	}
 
@@ -79,12 +89,14 @@ void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entit
 	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
 }
 
-void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID)
+void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform)
 {
 	auto& currentBucket = *pipelineToRenderBucket[bucketAndID.bucket];
 	const auto last = currentBucket.transforms.size() - 1;
 
 	// Switch the last entity in the bucket to the removed slot
+	if(transform)
+		*transform = currentBucket.transforms[bucketAndID.index];
 	currentBucket.transforms[bucketAndID.index] = currentBucket.transforms[last];
 	currentBucket.indexToEntity[bucketAndID.index] = currentBucket.indexToEntity[last];
 	entityToBucketAndIndexInBucket[currentBucket.indexToEntity[last]].index = bucketAndID.index;

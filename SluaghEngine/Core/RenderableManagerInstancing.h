@@ -35,7 +35,7 @@ namespace SE
 				std::vector<Entity> indexToEntity;
 			};
 
-			void RemoveFromBucket(const BucketAndID& bucketAndID);
+			void RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform);
 
 		
 
