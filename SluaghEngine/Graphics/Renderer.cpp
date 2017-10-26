@@ -91,15 +91,16 @@ void SE::Graphics::Renderer::Shutdown()
 
 //	if (myThread.joinable())
 		//myThread.join();
-
+	spriteBatch.release();
 	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
-	device->Shutdown();
+	
 
 	delete gpuTimer;
 	delete graphicResourceHandler;
 	delete animationSystem;
+	device->Shutdown();
 	delete device;
 }
 
