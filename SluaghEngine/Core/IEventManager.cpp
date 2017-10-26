@@ -1,12 +1,7 @@
-#include "IEventManager.h"
+#include <IEventManager.h>
+#include "EventManager.h"
 
-
-
-IEventManager::IEventManager()
+DECLDIR_CORE SE::Core::IEventManager * SE::Core::CreateEventManager()
 {
-}
-
-
-IEventManager::~IEventManager()
-{
+	return new EventManager;
 }

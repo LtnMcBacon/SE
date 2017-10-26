@@ -120,6 +120,7 @@ int SE::Core::Engine::Release()
 		delete *rit;
 
 	delete managers.entityManager;
+	delete managers.eventManager;
 
 	subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
@@ -208,6 +209,10 @@ void SE::Core::Engine::InitManagers()
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
 
+	if (!managers.eventManager)
+		managers.eventManager = CreateEventManager();
+
+
 	InitAudioManager();
 	InitTransformManager();
 	InitParticleSystemManager();
@@ -220,6 +225,7 @@ void SE::Core::Engine::InitManagers()
 	InitDebugRenderManager();
 	InitTextManager();
 	InitGUIManager();
+	
 	StopProfile;
 }
 
@@ -393,6 +399,7 @@ void SE::Core::Engine::InitGUIManager()
 	}
 	managersVec.push_back(managers.guiManager);
 }
+
 
 void SE::Core::Engine::SetupDebugConsole()
 {

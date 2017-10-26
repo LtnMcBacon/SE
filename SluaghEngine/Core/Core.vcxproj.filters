@@ -139,6 +139,9 @@
       <Filter>Source Files\RenderObjects</Filter>
     </ClCompile>
     <ClCompile Include="IEventManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,7 +257,10 @@
     <ClInclude Include="AnimationStructs.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="IEventManager.h">
+    <ClInclude Include="..\includes\Core\IEventManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

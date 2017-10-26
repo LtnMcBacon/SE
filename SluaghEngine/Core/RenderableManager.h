@@ -64,11 +64,6 @@ namespace SE
 				SetRenderObjectInfoEvent += callback;
 			}
 
-			inline void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity& entity, bool)>& callback)override
-			{
-				ToggleVisible += callback;
-			}
-
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
