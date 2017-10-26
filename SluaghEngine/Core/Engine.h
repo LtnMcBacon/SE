@@ -151,7 +151,7 @@ namespace SE
 		
 	
 			Utilz::CPUTimeCluster timeClus;
-			bool frameBegun;
+			bool frameBegun = false;
 		};
 
 	}

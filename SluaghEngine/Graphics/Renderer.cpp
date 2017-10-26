@@ -1276,12 +1276,10 @@ void SE::Graphics::Renderer::PauseAnimation(int job)
 	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
 }
 
-int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
+int SE::Graphics::Renderer::EnableBloom(int handleHorizontal, int handleVertical)
 {
-	int status = -1;
-
-	bloomHorizontalHandle = bloomHorizontalHandle;
-	bloomVerticalHandle = verticalHandle;
+	bloomHorizontalHandle = handleHorizontal;
+	bloomVerticalHandle = handleVertical;
 
 	int texture2DHandles[3];
 
@@ -1337,9 +1335,7 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 
 
 	bloom = true;
-	status = 0;
-
-	return status;
+	return 0;
 }
 
 int SE::Graphics::Renderer::DisableBloom()
