@@ -50,7 +50,9 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
 		bucket->jobID = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
 	else
-		renderer->ChangeRenderJob(bucket->jobID, job);
+		renderer->ChangeRenderJob(bucket->jobID, [&job](Graphics::RenderJob& ejob) {
+		ejob.instanceCount = job.instanceCount;
+	});
 
 	StopProfile;
 }
