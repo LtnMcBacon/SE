@@ -60,8 +60,8 @@ namespace SE
 			*/
 			void GarbageCollection()override;
 
-			int LoadSkeleton(void*data, size_t size);
-			int LoadAnimation(void * data, size_t size);
+			int LoadSkeleton(const Utilz::GUID& guid, void*data, size_t size);
+			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
 	
 
 			InitializationInfo initInfo;
@@ -84,6 +84,9 @@ namespace SE
 
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkeletonIndex;
 			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkelAnimationIndex;
+
+
+			AnimationSystem animationSystem;
 		};
 	}
 }

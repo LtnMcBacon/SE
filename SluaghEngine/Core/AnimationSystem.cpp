@@ -13,14 +13,13 @@ SE::Core::AnimationSystem::~AnimationSystem() {
 
 }
 
-int SE::Core::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
+int SE::Core::AnimationSystem::AddSkeleton(const Utilz::GUID& guid, JointAttributes* jointData, size_t nrOfJoints) {
+
 
 	// The number of joints must be larger 0
+	
 	if (nrOfJoints > 0){
-
-		// Temporary skeleton
-		Skeleton skeleton;
-
+		auto& skeleton = skeletons[guid];
 		// Load all the bindposes and their corresponding parent index
 		// Parent index of the first root joint will never be used, since there is no parent
 		for (size_t i = 0; i < nrOfJoints; i++) {
@@ -34,27 +33,19 @@ int SE::Core::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_t nr
 
 		}
 
-		// Push back the new skeleton
-		skeletons.push_back(skeleton);
-
-		*skeletonID = skeletons.size() - 1;
-
 		return 0;
 
 	}
 
-	else {
+	return -1;
 
-		return -1;
-	}
 }
 
-int SE::Core::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, int *animationID) {
+int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
 
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0) {
-
-		Animation currentAnimation;
+		auto& currentAnimation = animations[guid];
 		currentAnimation.Length = nrOfKeyframes;
 
 		for (size_t i = 0; i < nrOfJoints; i++) {
@@ -89,25 +80,17 @@ int SE::Core::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, size_
 			currentAnimation.Joints.push_back(jointKeyFrame);
 		}
 
-		*animationID = animations.size();
-		animations.push_back(currentAnimation);
-		
-
 		return 0;
-
 	}
+	return -1;
 
-	else {
-
-		return -1;
-	}
 }
 
-void SE::Core::AnimationSystem::UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at) {
+void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
-	auto& skeleton = skeletons[skeletonIndex];
-	auto& animation = animations[animIndex];
+	auto& skeleton = skeletons[skeletonGUID];
+	auto& animation = animations[animationGUID];
 
 	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
 	std::vector<XMMATRIX> interpolatedJointTransforms;

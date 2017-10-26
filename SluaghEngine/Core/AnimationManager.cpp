@@ -61,9 +61,9 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const Cr
 	if (findSkeleton == guidToSkeletonIndex.end())
 	{
 
-		auto res = initInfo.resourceHandler->LoadResource(info.skeleton, [this, &skelIndex](auto guid, auto data, auto size) {
-			skelIndex = LoadSkeleton(data, size);
-			if (skelIndex == -1)
+		auto res = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
+			auto result = LoadSkeleton(guid, data, size);
+			if (result < 0)
 				return ResourceHandler::InvokeReturn::Fail;
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		});
@@ -119,18 +119,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		auto& findSkelAnim = guidToSkelAnimationIndex.find(animation);
 		if (findSkelAnim != guidToSkelAnimationIndex.end())
 		{
-			Graphics::AnimationJobInfo info;
-			info.animating = true;
-			info.speed = speed;
-			info.timePos = 0.0f;
-			info.animationHandle = findSkelAnim->second;
-			if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
-				initInfo.renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
-			else
-			{
-				animationData.job[entityIndex->second] = initInfo.renderer->StartAnimation(info); // Create a new animation job
-				initInfo.renderableManager->UpdateRenderableObject(entity); // And update the renderable manager.
-			}
+			//Graphics::AnimationJobInfo info;
+			//info.animating = true;
+			//info.speed = speed;
+			//info.timePos = 0.0f;
+			//info.animationHandle = findSkelAnim->second;
+			//if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
+			//	initInfo.renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
+			//else
+			//{
+			//	animationData.job[entityIndex->second] = initInfo.renderer->StartAnimation(info); // Create a new animation job
+			//	initInfo.renderableManager->UpdateRenderableObject(entity); // And update the renderable manager.
+			//}
 		}
 
 	}
@@ -278,24 +278,26 @@ void SE::Core::AnimationManager::GarbageCollection()
 	StopProfile;
 }
 
-int SE::Core::AnimationManager::LoadSkeleton(void * data, size_t size)
+int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID& guid, void * data, size_t size)
 {
-	auto skelH = (Graphics::Skeleton_Header*)data;
+	auto skelH = (Skeleton_Header*)data;
 
 	// After the skeleton header, there will only be joints
-	auto jointAttr = (Graphics::JointAttributes*)(skelH + 1);
+	auto jointAttr = (JointAttributes*)(skelH + 1);
 
-	return initInfo.renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
+	return animationSystem.AddSkeleton(jointAttr, skelH->nrOfJoints,);
+
+	//return initInfo.renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
 }
 
-int SE::Core::AnimationManager::LoadAnimation(void * data, size_t size)
+int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * data, size_t size)
 {
-	auto animH = (Graphics::Animation_Header*)data;
+	//auto animH = (Graphics::Animation_Header*)data;
 
-	// After the animation header, there will only be matrices of type XMFLOAT4X4
-	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
+	//// After the animation header, there will only be matrices of type XMFLOAT4X4
+	//auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	
+	//
 
-	return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
+	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }
