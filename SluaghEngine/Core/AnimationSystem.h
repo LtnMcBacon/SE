@@ -1,18 +1,16 @@
-#ifndef ANIMATIONSYSTEM_H
-#define ANIMATIONSYSTEM_H
+#ifndef SE_CORE_ANIMATIONSYSTEM_H_
+#define SE_CORE_ANIMATIONSYSTEM_H_
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
 #include <vector>
 
 #include <DirectXMath.h>
 
-#include <Graphics\FileHeaders.h>
-#include <Graphics\AnimationStructs.h>
+#include <AnimationFileHeaders.h>
+#include "AnimationStructs.h"
 
 namespace SE
 {
-	namespace Graphics
+	namespace Core
 	{
 
 		class AnimationSystem {

@@ -8,6 +8,8 @@
 #include <random>
 #include <Utilz\CircularFiFo.h>
 
+#include "AnimationSystem.h"
+
 namespace SE
 {
 	namespace Core

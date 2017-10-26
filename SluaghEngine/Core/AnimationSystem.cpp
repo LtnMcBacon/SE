@@ -3,17 +3,17 @@
 
 using namespace DirectX;
 
-SE::Graphics::AnimationSystem::AnimationSystem() {
+SE::Core::AnimationSystem::AnimationSystem() {
 
 	skeletons.reserve(3);
 }
 
-SE::Graphics::AnimationSystem::~AnimationSystem() {
+SE::Core::AnimationSystem::~AnimationSystem() {
 
 
 }
 
-int SE::Graphics::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
+int SE::Core::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_t nrOfJoints, int *skeletonID) {
 
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0){
@@ -23,12 +23,12 @@ int SE::Graphics::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_
 
 		// Load all the bindposes and their corresponding parent index
 		// Parent index of the first root joint will never be used, since there is no parent
-		for (UINT i = 0; i < nrOfJoints; i++) {
+		for (size_t i = 0; i < nrOfJoints; i++) {
 
 			Joint joint;
 
 			joint.parentIndex = jointData[i].ParentIndex;
-			joint.inverseBindPoseMatrix = XMLoadFloat4x4(&jointData[i].bindposeMatrix);
+			joint.inverseBindPoseMatrix = XMLoadFloat4x4((XMFLOAT4X4*)&jointData[i].bindposeMatrix);
 
 			skeleton.Hierarchy.push_back(joint);
 
@@ -49,7 +49,7 @@ int SE::Graphics::AnimationSystem::AddSkeleton(JointAttributes* jointData, size_
 	}
 }
 
-int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, int *animationID) {
+int SE::Core::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints, int *animationID) {
 
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0) {
@@ -57,12 +57,12 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 		Animation currentAnimation;
 		currentAnimation.Length = nrOfKeyframes;
 
-		for (UINT i = 0; i < nrOfJoints; i++) {
+		for (size_t i = 0; i < nrOfJoints; i++) {
 
 			// Every joint requires its own set of keyframes of the animation
 			JointKeyFrame jointKeyFrame;
 
-			for (UINT j = 0; j < nrOfKeyframes; j++) {
+			for (size_t j = 0; j < nrOfKeyframes; j++) {
 
 				Keyframe currentKeyFrame;
 
@@ -103,7 +103,7 @@ int SE::Graphics::AnimationSystem::AddAnimation(DirectX::XMFLOAT4X4* matrices, s
 	}
 }
 
-void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at) {
+void SE::Core::AnimationSystem::UpdateAnimation(int animIndex, int skeletonIndex, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
 	auto& skeleton = skeletons[skeletonIndex];
@@ -122,7 +122,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 	}
 	
 	//With all the calculated matrices at our disposal, let's update the transformations in the secondary joint array
-	for (UINT i = 0; i < skeleton.Hierarchy.size(); i++) {
+	for (size_t i = 0; i < skeleton.Hierarchy.size(); i++) {
 
 		// Create a reference to the currenct joint to be processed
 		Joint &b = skeleton.Hierarchy[i];
@@ -136,7 +136,7 @@ void SE::Graphics::AnimationSystem::UpdateAnimation(int animIndex, int skeletonI
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const {
+void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const {
 
 	StartProfile;
 	// Animation has just started, so return the first keyframe
@@ -161,7 +161,7 @@ void SE::Graphics::AnimationSystem::CalculateJointMatrix(int jointIndex,const An
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const {
+void SE::Core::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const {
 	
 	StartProfile;
 	XMVECTOR S = XMLoadFloat4(&joint.Keyframes[0].Scale);
@@ -174,7 +174,7 @@ void SE::Graphics::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& 
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) const {
+void SE::Core::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) const {
 
 	StartProfile;
 	size_t animationLength = static_cast<size_t>(animation.Length - 1);
@@ -189,7 +189,7 @@ void SE::Graphics::AnimationSystem::ReturnLastFrameMatrix(const JointKeyFrame& j
 	StopProfile;
 }
 
-void SE::Graphics::AnimationSystem::Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out) const
+void SE::Core::AnimationSystem::Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out) const
 {
 	StartProfile;
 	// I am using an int here to truncate the animation timepose to know which matrices I am interested about

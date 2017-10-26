@@ -11,7 +11,7 @@ SE::Graphics::Renderer::Renderer()
 	oncePerFrameBufferID = -1;
 	device = nullptr;
 	graphicResourceHandler = nullptr;
-	animationSystem = nullptr;
+	//animationSystem = nullptr;
 	memMeasure.Init();
 }
 
@@ -38,7 +38,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
-	animationSystem = new AnimationSystem();
+	//animationSystem = new AnimationSystem();
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -96,7 +96,7 @@ void SE::Graphics::Renderer::Shutdown()
 
 	delete gpuTimer;
 	delete graphicResourceHandler;
-	delete animationSystem;
+//	delete animationSystem;
 	delete device;
 }
 
@@ -1219,78 +1219,78 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 	device->ResizeSwapChain((HWND)windowHandle);
 }
 
-
-int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
-{
-	int job = -1;
-	if (freeAnimationJobIndicies.size())
-	{
-		job = freeAnimationJobIndicies.top();
-		freeAnimationJobIndicies.pop();
-	}
-	else
-	{
-		job = static_cast<int>(jobIDToAnimationJob.size());
-		jobIDToAnimationJob.push_back(info);
-	}
-	
-	return job;
-}
-
-void SE::Graphics::Renderer::StopAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	freeAnimationJobIndicies.push(job);
-}
-
-void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
-}
-
-void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
-}
-
-void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
-
-void SE::Graphics::Renderer::StartAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
-}
-
-void SE::Graphics::Renderer::PauseAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
+//
+//int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+//{
+//	int job = -1;
+//	if (freeAnimationJobIndicies.size())
+//	{
+//		job = freeAnimationJobIndicies.top();
+//		freeAnimationJobIndicies.pop();
+//	}
+//	else
+//	{
+//		job = static_cast<int>(jobIDToAnimationJob.size());
+//		jobIDToAnimationJob.push_back(info);
+//	}
+//	
+//	return job;
+//}
+//
+//void SE::Graphics::Renderer::StopAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	freeAnimationJobIndicies.push(job);
+//}
+//
+//void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
+//}
+//
+//void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
+//}
+//
+//void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
+//
+//void SE::Graphics::Renderer::StartAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
+//}
+//
+//void SE::Graphics::Renderer::PauseAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
 
 int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
 {
