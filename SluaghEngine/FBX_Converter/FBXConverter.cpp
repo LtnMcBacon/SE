@@ -1518,9 +1518,6 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 		}
 
 		else {
-
-			string textureName = "NULL";
-
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("BlackPink.sei")), sizeof(Utilz::GUID));
 			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("DiffuseColor")), sizeof(Utilz::GUID));
 
