@@ -45,7 +45,7 @@ namespace SE
 				float time = 0.0f;
 			};
 
-			std::map<Utilz::IDHash, Timer, Utilz::IDHash::Compare> timers;
+			std::unordered_map<Utilz::IDHash, Timer, Utilz::IDHash::Hasher> timers;
 		};
 	}
 }

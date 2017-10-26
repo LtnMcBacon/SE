@@ -95,7 +95,7 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start("ParticleSystemManager");
+	timer->Start(CREATE_ID_HASH("ParticleSystemManager"));
 	GarbageCollection();
 
 	while (!toUpdate.wasEmpty())
@@ -116,7 +116,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 		toUpdate.pop();
 
 	}
-	timer->Stop("ParticleSystemManager");
+	timer->Stop(CREATE_ID_HASH("ParticleSystemManager"));
 	StopProfile;
 }
 

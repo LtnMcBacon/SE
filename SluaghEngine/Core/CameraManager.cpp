@@ -11,8 +11,14 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 
 	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
 
-	initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
-	
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+	if (result < 0)
+		throw std::exception("Could not create OncePerFrame buffer");
+
+	result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("CameraPos", sizeof(XMFLOAT4), nullptr);
+	if (result < 0)
+		throw std::exception("Could not create CameraPos buffer");
+
 	currentActive.activeCamera = ~0u;
 
 	Allocate(2);
@@ -195,7 +201,7 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start("CameraManager");
+	timer->Start(CREATE_ID_HASH("CameraManager"));
 	GarbageCollection();
 	if (currentActive.activeCamera != ~0u)
 	{
@@ -216,17 +222,21 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[currentActive.activeCamera], cameraData.aspectRatio[currentActive.activeCamera], cameraData.nearPlane[currentActive.activeCamera], cameraData.farPlane[currentActive.activeCamera]);
 
 			XMFLOAT4X4 viewProjMatrix;
-			XMStoreFloat4x4(&viewProjMatrix, viewproj);
-			initInfo.renderer->UpdateView((float*)&viewProjMatrix, DirectX::XMFLOAT4(initInfo.transformManager->GetPosition(currentActive.entity).x, initInfo.transformManager->GetPosition(currentActive.entity).y, initInfo.transformManager->GetPosition(currentActive.entity).z, 1.0f));
 			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
+
+			XMFLOAT3 fpos;
+			XMStoreFloat3(&fpos, pos);
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &fpos, sizeof(XMFLOAT3));
+
+
 			cameraData.dirty[currentActive.activeCamera] = ~0u;
 		}
 
 
 
 	}
-	timer->Stop("CameraManager");
+	timer->Stop(CREATE_ID_HASH("CameraManager"));
 	StopProfile;
 }
 

@@ -70,8 +70,8 @@ namespace SE
 			*/
 			virtual void ToggleRenderableObject(const Entity& entity, bool visible) = 0;
 
-			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)>&& callback) = 0;
-
+			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
+		
 			virtual void UpdateRenderableObject(const Entity& entity) = 0;
 
 			virtual void ToggleWireframe(const Entity& entity, bool wireFrame) = 0;

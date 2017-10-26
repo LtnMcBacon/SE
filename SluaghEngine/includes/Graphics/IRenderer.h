@@ -8,12 +8,13 @@
 #include <Graphics\LightInfo.h>
 #include "ShaderSettings.h"
 #include "LineRenderJob.h"
-#include "AnimationStructs.h"
+//#include "AnimationStructs.h"
 #include "FileHeaders.h"
-#include "AnimationJobInfo.h"
+//#include "AnimationJobInfo.h"
 #include <Utilz\TimeCluster.h>
 #include "IPipelineHandler.h"
 #include "RenderJob.h"
+#include <functional>
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -52,11 +53,12 @@ namespace SE
 			virtual void Shutdown() = 0;
 
 			virtual IPipelineHandler* GetPipelineHandler() = 0;
+			virtual IPipelineHandler* GetSecondaryPipelineHandler() = 0;
 
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
-			* @param[in] group The group (enum) the job should belong to.
+			* @param[in] group The RenderGroup (enum) the job should belong to.
 			* @retval Returns a handle to the job on success.
 			* @retval -1 on failure.
 			* @sa RenderJob, RenderGroup
@@ -77,6 +79,14 @@ namespace SE
 			* @sa AddRenderJob
 			*/
 			virtual void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) = 0;
+
+			/**
+			* @brief Allow for modifying an existing renderjob. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] callback The callback function where you can change the job.
+			* @sa AddRenderJob
+			*/
+			virtual void ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob& job)>& callback) = 0;
 
 			/**
 			* @brief    Sets a render job
@@ -340,79 +350,79 @@ namespace SE
 			* @endcode
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
-			
-			/**
-			* @brief Create a skeleton
-			* @param[in] jointData The joint data.
-			* @param[in] nrOfJoints The number of joints.
-			* @endcode
-			*/
-			virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
+			//
+			///**
+			//* @brief Create a skeleton
+			//* @param[in] jointData The joint data.
+			//* @param[in] nrOfJoints The number of joints.
+			//* @endcode
+			//*/
+			//virtual int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) = 0;
 
-			/**
-			* @brief Create an animation
-			* @param[in] matrices The animation keyframes
-			* @param[in] nrOfKeyframes The number of keyframes.
-			* @param[in] nrOfJoints The number of joints.
-			* @endcode
-			*/
-			virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) = 0;
+			///**
+			//* @brief Create an animation
+			//* @param[in] matrices The animation keyframes
+			//* @param[in] nrOfKeyframes The number of keyframes.
+			//* @param[in] nrOfJoints The number of joints.
+			//* @endcode
+			//*/
+			//virtual int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) = 0;
 
-			/**
-			* @brief Start a new animation job
-			* @param[in] info Animation info
-			* @sa AnimationJobInfo
-			* @retval -1 On fail.
-			* @retval handle The job id.
-			* @endcode
-			*/
-			virtual int StartAnimation(const AnimationJobInfo& info) = 0;
+			///**
+			//* @brief Start a new animation job
+			//* @param[in] info Animation info
+			//* @sa AnimationJobInfo
+			//* @retval -1 On fail.
+			//* @retval handle The job id.
+			//* @endcode
+			//*/
+			//virtual int StartAnimation(const AnimationJobInfo& info) = 0;
 
-			/**
-			* @brief Stop an animation (This removes the job)
-			* @param[in] job The job top stop
-			* @endcode
-			*/
-			virtual void StopAnimation(int job) = 0;
+			///**
+			//* @brief Stop an animation (This removes the job)
+			//* @param[in] job The job top stop
+			//* @endcode
+			//*/
+			//virtual void StopAnimation(int job) = 0;
 
-			/**
-			* @brief Update an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] info Animation info
-			* @sa AnimationJobInfo
-			* @endcode
-			*/
-			virtual void UpdateAnimation(int job, const AnimationJobInfo& info) = 0;
+			///**
+			//* @brief Update an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] info Animation info
+			//* @sa AnimationJobInfo
+			//* @endcode
+			//*/
+			//virtual void UpdateAnimation(int job, const AnimationJobInfo& info) = 0;
 
-			/**
-			* @brief Set the speed of an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] speed The speed
-			* @endcode
-			*/
-			virtual void SetAnimationSpeed(int job, float speed) = 0;
+			///**
+			//* @brief Set the speed of an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] speed The speed
+			//* @endcode
+			//*/
+			//virtual void SetAnimationSpeed(int job, float speed) = 0;
 
-			/**
-			* @brief Set the speed of an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] keyframe The keyframe
-			* @endcode
-			*/
-			virtual void SetKeyFrame(int job, float keyframe) = 0;
+			///**
+			//* @brief Set the speed of an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] keyframe The keyframe
+			//* @endcode
+			//*/
+			//virtual void SetKeyFrame(int job, float keyframe) = 0;
 
-			/**
-			* @brief Start an animation job
-			* @param[in] job Which animation job to Start
-			* @endcode
-			*/
-			virtual void StartAnimation(int job) = 0;
+			///**
+			//* @brief Start an animation job
+			//* @param[in] job Which animation job to Start
+			//* @endcode
+			//*/
+			//virtual void StartAnimation(int job) = 0;
 
-			/**
-			* @brief Pause an animation job
-			* @param[in] job Which animation job to pause
-			* @endcode
-			*/
-			virtual void PauseAnimation(int job) = 0;
+			///**
+			//* @brief Pause an animation job
+			//* @param[in] job Which animation job to pause
+			//* @endcode
+			//*/
+			//virtual void PauseAnimation(int job) = 0;
 
 			/**
 			* @brief	The amount of VRam currently used.

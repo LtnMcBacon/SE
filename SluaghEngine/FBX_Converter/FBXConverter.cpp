@@ -614,10 +614,10 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 	string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
 
-	logFile.open(logFileName, ofstream::out);
-	logFile.close();
+	//logFile.open(logFileName, ofstream::out);
+	//logFile.close();
 
-	logFile.open(logFileName, ofstream::app);
+	//logFile.open(logFileName, ofstream::app);
 
 	if (pFbxRootNode) {
 
@@ -657,10 +657,10 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 				}
 
-				logFile << "Vertex " << iControlPointIndex << endl;
-				logFile << "Weights: " << vertex.weights[0] << " " << vertex.weights[1] << " " << vertex.weights[2] << " " << vertex.weights[3] << endl;
-				logFile << "BoneIndices: " << vertex.boneIndices[0] + 1 << " " << vertex.boneIndices[1] + 1  << " " << vertex.boneIndices[2] + 1 << " " << vertex.boneIndices[3] + 1 << endl;
-				logFile << endl;
+				//logFile << "Vertex " << iControlPointIndex << endl;
+				//logFile << "Weights: " << vertex.weights[0] << " " << vertex.weights[1] << " " << vertex.weights[2] << " " << vertex.weights[3] << endl;
+				//logFile << "BoneIndices: " << vertex.boneIndices[0] + 1 << " " << vertex.boneIndices[1] + 1  << " " << vertex.boneIndices[2] + 1 << " " << vertex.boneIndices[3] + 1 << endl;
+				//logFile << endl;
 
 				vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
 				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
@@ -672,7 +672,7 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 	}
 
-	logFile.close();
+//	logFile.close();
 }
 
 XMFLOAT3 SE::FBX::FBXConverter::CreateBinormals(FbxMesh* meshNode, int j, int k) {

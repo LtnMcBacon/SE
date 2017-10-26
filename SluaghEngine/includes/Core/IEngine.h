@@ -26,6 +26,7 @@
 #include "IGUIManager.h"
 #include <DevConsole\IConsole.h>
 #include "ITextManager.h"
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -53,6 +54,7 @@ namespace SE
 				IDebugRenderManager* debugRenderManager = nullptr;
 				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
+				IEventManager* eventManager = nullptr;
 			};
 			struct Subsystems
 			{

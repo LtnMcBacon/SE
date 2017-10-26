@@ -101,7 +101,6 @@ void DeviceManager::Shutdown() {
 
 	StartProfile;
 
-	gSwapChain->Release();
 
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
@@ -110,7 +109,7 @@ void DeviceManager::Shutdown() {
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 
-	gDeviceContext->Release();
+	
 	blendSolidState->Release();
 	blendTransState->Release();
 	rasterSolidState->Release();
@@ -121,6 +120,11 @@ void DeviceManager::Shutdown() {
 	/*reportLiveObjects(gDevice);*/
 
 #endif
+	gSwapChain->Release();
+
+
+	gSecDeviceContext->Release();
+	gDeviceContext->Release();
 	gDevice->Release();;
 
 	StopProfile;
@@ -159,11 +163,15 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 	);
 
-
 	if (FAILED(hr)) {
 		ProfileReturnConst(hr);
 	}
 
+	hr = gDevice->CreateDeferredContext(0, &gSecDeviceContext);
+
+	if (FAILED(hr)) {
+		ProfileReturnConst(hr);
+	}
 	ProfileReturnConst(hr);
 }
 
