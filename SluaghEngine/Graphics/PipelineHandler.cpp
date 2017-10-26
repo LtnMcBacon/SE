@@ -1599,7 +1599,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 	bool changed = false;
 	for (int i = 0; i < oms.renderTargetCount; ++i)
 	{
-		if (oms.renderTargets[i] != c.renderTargets[i])
+		//if (oms.renderTargets[i] != c.renderTargets[i])
 		{
 			changed = true;
 			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);

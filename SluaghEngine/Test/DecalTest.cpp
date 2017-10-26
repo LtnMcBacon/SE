@@ -18,9 +18,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		delete engine;
 		return false;
 	}
-	engine->Release();
-	delete engine;
-	return true;
+
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
@@ -33,17 +31,20 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	auto window = subSystem.window;
 
 	Core::Entity camera = em->Create();
+	Core::ICameraManager::CreateInfo cmci;
+	cmci.aspectRatio = 1280.0f / 720.0f;
 	tm->Create(camera, { 0, 0, -10 });
-	cm->Create(camera);
+	cm->Create(camera, cmci);
 	cm->SetActive(camera);
 
 	Core::Entity box = em->Create();
-	tm->Create(box, { 0,0,0 }, { 0,0,0 }, { 10,10,1 });
+	tm->Create(box, { 0,0,0 }, { 0,1.48f,0 }, { 5,5,3 });
 	Core::IRenderableManager::CreateInfo rmci;
 	rmci.meshGUID = "Placeholder_Block.mesh";
 	rmci.transparent = false;
 	rmci.wireframe = false;
-	rm->CreateRenderableObject(camera, rmci);
+	rm->CreateRenderableObject(box, rmci, false);
+	rm->ToggleRenderableObject(box, true);
 
 	Core::Entity decal = em->Create();
 	tm->Create(decal, { 0,0, -0.25f });

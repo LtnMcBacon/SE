@@ -30,17 +30,26 @@ namespace SE
 
 			Utilz::GUID vertexShader;
 			Utilz::GUID pixelShader;
-			Utilz::GUID wvpConstantBuffer;
+			Utilz::GUID worldConstantBuffer;
 			Utilz::GUID inverseViewProj;
 			Utilz::GUID inverseWorld;
 			Utilz::GUID blendState;
 			Utilz::GUID textureBindName;
 			/**<The base pipeline, entities will have different textures but the rest is the same*/
 			Graphics::Pipeline defaultPipeline;
-
+			struct DecalTransforms
+			{
+				std::vector<DirectX::XMFLOAT4X4> world;
+				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
+			};
+			DirectX::XMMATRIX cachedViewProj;
 			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;
-			std::unordered_map<Utilz::GUID, std::vector<DirectX::XMFLOAT4X4>, Utilz::GUID::Hasher> decalToTransforms;
+			std::unordered_map<Entity, uint32_t, EntityHasher> entityToTransformIndex;
+			std::unordered_map<Utilz::GUID, DecalTransforms, Utilz::GUID::Hasher> decalToTransforms;
+			std::unordered_map<Utilz::GUID, uint32_t, Utilz::GUID::Hasher> decalToJobID;
+			bool dirty;
 
+			void SetDirty(const Entity& entity, size_t index);
 		protected:
 
 			void Destroy(size_t index) override;
