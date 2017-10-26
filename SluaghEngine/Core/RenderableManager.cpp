@@ -99,7 +99,6 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		{
 			rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
-			//initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
 		{
@@ -132,7 +131,11 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 			const auto findEntity = entityToRenderableObjectInfoIndex.find(e);
 			if (findEntity != entityToRenderableObjectInfoIndex.end())
 			{
-				renderableObjectInfo.mesh[entityToRenderableObjectInfoIndex[e]] = job.mesh;
+				renderableObjectInfo.mesh[findEntity->second] = job.mesh;
+				guidToBufferInfo[job.mesh].size = job.size;
+				guidToBufferInfo[job.mesh].vertexCount = job.vertexCount;
+				guidToBufferInfo[job.mesh].state = BufferState::Loaded;
+
 				UpdateRenderableObject(e);
 			}		
 		}
@@ -243,7 +246,7 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
-			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			//rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}
@@ -260,7 +263,7 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
 			rmInstancing->AddEntity(entity, info);
-			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+		//	rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}
