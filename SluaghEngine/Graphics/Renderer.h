@@ -11,6 +11,7 @@
 #include <thread>
 #include <Utilz\TimeCluster.h>
 
+
 namespace SE
 {
 	namespace Graphics
@@ -35,6 +36,38 @@ namespace SE
 			* @endcode
 			*/
 			void Shutdown() override;
+
+
+			IPipelineHandler* GetPipelineHandler() override
+			{
+				return pipelineHandler;
+			};
+
+			/**
+			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
+			* @param[in] job Struct containing all information required to render.
+			* @param[in] group The group (enum) the job should belong to.
+			* @retval Returns a handle to the job on success.
+			* @retval -1 on failure.
+			* @sa RenderJob, RenderGroup
+			*/
+			uint32_t AddRenderJob(const RenderJob& job, RenderGroup group) override;
+
+			/**
+			* @brief Removes a renderjob that has been added by AddRenderJob
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @sa AddRenderJob
+			*/
+			void RemoveRenderJob(uint32_t jobID) override;
+
+			/**
+			* @brief Replaces an existing renderjob with a new one. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] newJob The job to replace the existing job with.
+			* @warning Performance heavy if used excessively.
+			* @sa AddRenderJob
+			*/
+			void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) override;
 
 			/**
 			* @brief    Sets a render job
@@ -158,7 +191,7 @@ namespace SE
 			* @retval return_value_0 Returns 0 on success.
 			* @endcode
 			*/
-			int UpdateView(float* viewMatrix) override;
+			int UpdateView(float* viewMatrix, const DirectX::XMFLOAT4& cameraPos) override;
 
 			/**
 			* @brief Renders the scene
@@ -430,12 +463,11 @@ namespace SE
 
 			InitializationInfo initInfo;
 
-
+			IPipelineHandler* pipelineHandler;
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 
 			DirectX::XMFLOAT4X4 newViewProjTransposed;
-
 
 			struct OncePerFrameConstantBuffer
 			{
@@ -450,11 +482,35 @@ namespace SE
 
 			int oncePerFrameBufferID;
 			int lightBufferID = -1;
+			int materialBufferID = -1;
+			int cameraBufferID = -1;
 
 			DeviceManager* device;
-
+			ID3D11Device* dev;
+			ID3D11DeviceContext* devContext;
 			GraphicResourceHandler* graphicResourceHandler;
 			MemoryMeasuring memMeasure;
+
+			/***********General render jobs ***************/
+			
+			struct InternalRenderJob
+			{
+				RenderJob job;
+				uint32_t jobID;
+			};
+			uint32_t jobIDCounter = 0;
+			static const uint32_t JOB_GROUP_BITS = 4;
+			static const uint32_t JOB_ID_BITS = 28;
+			static const uint32_t JOB_ID_MASK = (1 << JOB_ID_BITS) - 1;
+			static const uint32_t JOB_GROUP_MASK = (1 << JOB_GROUP_BITS) - 1;
+
+			std::unordered_map<uint32_t, uint32_t> jobIDToIndex;
+			std::map<uint8_t, std::vector<InternalRenderJob>> jobGroups;
+			
+
+
+
+			/***********End General Render Jobs************/
 
 			/******** Instanced render job members ********/
 			static const uint32_t maxDrawInstances = 256;
@@ -518,6 +574,7 @@ namespace SE
 
 			std::mutex lightLock;
 			std::vector<LightData> renderLightJobs;
+			DirectX::XMFLOAT4 newCameraPos = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 0.0);
 
 			/*********** END Renderjob Queues **************/
 
