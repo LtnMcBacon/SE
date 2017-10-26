@@ -304,6 +304,7 @@ void SE::Core::Engine::InitRenderableManager()
 	{
 		IRenderableManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
@@ -338,7 +339,7 @@ void SE::Core::Engine::InitMaterialManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
-		info.renderableManager = managers.renderableManager;
+		info.eventManager = managers.eventManager;
 		info.console = subSystems.devConsole;
 		managers.materialManager = CreateMaterialManager(info);
 	}

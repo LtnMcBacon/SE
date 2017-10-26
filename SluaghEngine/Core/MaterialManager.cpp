@@ -7,7 +7,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.entityManager);
-	_ASSERT(initInfo.renderableManager);
+	_ASSERT(initInfo.eventManager);
 	_ASSERT(initInfo.console);
 	Allocate(128);
 	defaultTexture = "BlackPink.sei";
@@ -16,7 +16,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	defaultSampler = "AnisotropicSampler";
 	defaultMaterial = "Cube.mat";
 
-	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
+	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 	auto res = mLoading.LoadShader(defaultPixelShader);
 	if (res < 0)
@@ -138,7 +138,7 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 			if (find != entityToMaterialInfo.end())
 			{
 				materialInfo.material[entityToMaterialInfo[e]] = job.material;
-				initInfo.renderableManager->UpdateRenderableObject(e);
+				initInfo.eventManager->TriggerUpdateRenderableObject(e);
 			}
 			
 		}

@@ -8,6 +8,9 @@
 #define DECLDIR_CORE __declspec(dllimport)
 #endif
 
+#include <Entity.h>
+#include <Utilz\Delegate.h>
+#include <Graphics\RenderJob.h>
 
 namespace SE
 {
@@ -20,7 +23,11 @@ namespace SE
 			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
 			virtual void TriggerSetRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) = 0;
 
+			virtual void RegisterToSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>&& callback) = 0;
+			virtual void TriggerSetDirty(const Entity& entity, size_t index) = 0;
 
+			virtual void RegisterToUpdateRenderableObject(const Utilz::Delegate<void(const Entity&)>&& callback) = 0;
+			virtual void TriggerUpdateRenderableObject(const Entity& entity) = 0;
 		protected:
 			IEventManager() {};
 			

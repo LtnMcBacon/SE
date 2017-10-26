@@ -236,7 +236,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->transparency = renderableObjectInfo.transparency[index];*/
 
 	// Gather Renderobjectinfo from other managers
-	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
+	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
 }
 
 void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)

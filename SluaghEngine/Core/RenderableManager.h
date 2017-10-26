@@ -59,11 +59,6 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool visible)override;
 
-			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback)override
-			{
-				SetRenderObjectInfoEvent += callback;
-			}
-
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
@@ -78,9 +73,7 @@ namespace SE
 		private:
 		
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-			Utilz::Event<void(const Entity& entity, Graphics::RenderJob* info)> SetRenderObjectInfoEvent;
-			Utilz::Event<void(const Entity& entity, bool)> ToggleVisible;
-			
+
 			void LinearUnload(size_t sizeToAdd);
 
 			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
