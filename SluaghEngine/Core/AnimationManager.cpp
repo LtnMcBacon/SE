@@ -15,8 +15,8 @@ SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo
 
 	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::SetRenderObjectInfo });
 	
-	auto result = initInfo.resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), [this](auto guid, auto data, auto size) {
-		auto result = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(SkinnedVertexShader, data, size);
+	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
+		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
 			return ResourceHandler::InvokeReturn::Fail;
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;

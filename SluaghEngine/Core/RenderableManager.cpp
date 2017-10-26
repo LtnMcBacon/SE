@@ -219,8 +219,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.OMStage.blendState = renderableObjectInfo.transparency[index] ? Transparency : Utilz::GUID();
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
-	info->instanceCount = 0;
-	info->maxInstances = 1;
+	info->maxInstances = 256;
 
 
 

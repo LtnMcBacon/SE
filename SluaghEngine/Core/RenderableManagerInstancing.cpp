@@ -27,9 +27,10 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	{
 		bucket = new RenderBucket(job.pipeline);
 		bucket->pipeline = job.pipeline;
-		job.maxInstances = 256;
-		job.mappingFunc.push_back([this, bucket](auto a, auto b) {
-			renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
+	//	job.maxInstances = 256; Set from the outside
+		auto hax = job.specialHaxxor;
+		job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+			renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 		});
 	}
 	else

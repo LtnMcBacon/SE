@@ -1120,72 +1120,72 @@ void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const Ren
 	}
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
-		int boneBindslot;
-		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
-		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+	//	int boneBindslot;
+	//	const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
+	//	graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 
-		
-
-
+	//	
 
 
 
 
 
-		std::vector<DirectX::XMFLOAT4X4> inversVec;
-		for (int i = 0; i < bucket.transforms.size(); i++)
-		{
-			DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
-			invers = DirectX::XMMatrixInverse(nullptr, invers);
-			DirectX::XMFLOAT4X4 fInvers;
-			DirectX::XMStoreFloat4x4(&fInvers, invers);
-			inversVec.push_back(fInvers);
-		}
-
-	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
-
-	
 
 
-		// TODO: Change the hlsl code to fit.
-		// TODO: Should be updated with the instanceCount and maxDrawInstances
-		struct XMS
-		{
-			DirectX::XMFLOAT4X4 s[30];
-		};
+	//	std::vector<DirectX::XMFLOAT4X4> inversVec;
+	//	for (int i = 0; i < bucket.transforms.size(); i++)
+	//	{
+	//		DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+	//		invers = DirectX::XMMatrixInverse(nullptr, invers);
+	//		DirectX::XMFLOAT4X4 fInvers;
+	//		DirectX::XMStoreFloat4x4(&fInvers, invers);
+	//		inversVec.push_back(fInvers);
+	//	}
 
-		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
-			for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
-			{
-				auto animationJobIndex = bucket.animationJob[i];
-				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
-				{
-					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
-					if (ajob.animating) // If the animation is playing
-						ajob.timePos += ajob.speed; // TODO: Delta time.
+	///*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
 
-					animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
-				}
-				else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
-				{
-					// TODO:
-				}
-			}
-		});
+	//
 
 
-		//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+	//	// TODO: Change the hlsl code to fit.
+	//	// TODO: Should be updated with the instanceCount and maxDrawInstances
+	//	struct XMS
+	//	{
+	//		DirectX::XMFLOAT4X4 s[30];
+	//	};
 
-		const size_t instanceCount = bucket.transforms.size();
-		for (int i = 0; i < instanceCount; i += 8)
-		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
-			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
-			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
-		}
+	//	//graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
+	//	//	for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+	//	//	{
+	//	//		auto animationJobIndex = bucket.animationJob[i];
+	//	//		if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
+	//	//		{
+	//	//			auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+	//	//			if (ajob.animating) // If the animation is playing
+	//	//				ajob.timePos += ajob.speed; // TODO: Delta time.
+
+	//	//			animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+	//	//		}
+	//	//		else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
+	//	//		{
+	//	//			// TODO:
+	//	//		}
+	//	//	}
+	//	//});
+
+
+	//	//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	////	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+
+	//	const size_t instanceCount = bucket.transforms.size();
+	//	for (int i = 0; i < instanceCount; i += 8)
+	//	{
+	//		const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
+	//		const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+	//		graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
+	//		device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+	//	}
 	}
 }
 

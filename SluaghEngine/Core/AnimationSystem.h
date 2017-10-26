@@ -35,8 +35,8 @@ namespace SE
 			void ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) const;
 			void Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out) const;
 
-			std::unordered_map<Utilz::GUID, Skeleton, Utilz::GUID::Compare> skeletons;
-			std::unordered_map<Utilz::GUID, Animation, Utilz::GUID::Compare> animations;
+			std::unordered_map<Utilz::GUID, Skeleton, Utilz::GUID::Hasher> skeletons;
+			std::unordered_map<Utilz::GUID, Animation, Utilz::GUID::Hasher> animations;
 		};
 
 	}

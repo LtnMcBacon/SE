@@ -27,6 +27,7 @@ namespace SE
 			int instanceOffset = 0;
 			int maxInstances = 0;
 			std::vector<std::function<void(int, int)>> mappingFunc;
+			Utilz::GUID specialHaxxor;
 		};
 	}
 }
