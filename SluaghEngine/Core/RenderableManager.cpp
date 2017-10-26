@@ -139,8 +139,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		if (visible)
 		{
 			rmInstancing->AddEntity(entity, info);
-			//rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
-			initInfo.transformManager->SetAsDirty(entity);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			//initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
 		{
