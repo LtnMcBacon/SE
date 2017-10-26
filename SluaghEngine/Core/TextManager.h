@@ -137,7 +137,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextEffect(const Entity& entity, DirectX::SpriteEffects effect)override {
+			inline void SetTextEffect(const Entity& entity, Graphics::Effect effect)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())

@@ -90,6 +90,16 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 }
 
+void SE::Gameplay::Projectile::RecreateEntity(Utilz::GUID meshGuid)
+{
+	//this->DestroyEntity();
+
+	this->unitEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(this->unitEntity);
+	CoreInit::managers.renderableManager->CreateRenderableObject(this->unitEntity, { meshGuid });
+
+}
+
 void SE::Gameplay::Projectile::UpdateBounding()
 {
 	StartProfile;

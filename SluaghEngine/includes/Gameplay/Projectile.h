@@ -3,6 +3,7 @@
 
 #include "GameUnit.h"
 #include <functional>
+#include <Utilz\GUID.h>
 
 namespace SE
 {
@@ -148,6 +149,8 @@ namespace SE
 			{
 				return eventCondition;
 			}
+
+			void RecreateEntity(Utilz::GUID meshGuid);
 
 		private:
 

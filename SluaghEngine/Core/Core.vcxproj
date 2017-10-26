@@ -156,7 +156,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationSystem.cpp" />
+    <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="IEventManager.cpp" />
     <ClCompile Include="ITextManager.cpp" />
+    <ClCompile Include="RenderableManagerInstancing.cpp" />
     <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="AudioManager.cpp" />
@@ -183,6 +187,7 @@
     <ClCompile Include="IRenderableManager.cpp" />
     <ClCompile Include="ITransformManager.cpp" />
     <ClCompile Include="LightManager.cpp" />
+    <ClCompile Include="MaterialLoading.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="OptionHandler.cpp" />
     <ClCompile Include="ParticleSystemManager.cpp" />
@@ -191,6 +196,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Entity.h" />
+    <ClInclude Include="..\includes\Core\IEventManager.h" />
     <ClInclude Include="..\includes\Core\ITextManager.h" />
     <ClInclude Include="..\includes\Core\IAnimationManager.h" />
     <ClInclude Include="..\includes\Core\IAudioManager.h" />
@@ -207,6 +213,10 @@
     <ClInclude Include="..\includes\Core\IParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
+    <ClInclude Include="AnimationStructs.h" />
+    <ClInclude Include="AnimationSystem.h" />
+    <ClInclude Include="EventManager.h" />
+    <ClInclude Include="RenderableManagerInstancing.h" />
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="AudioManager.h" />
@@ -218,6 +228,7 @@
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="MaterialLoading.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="OptionHandler.h" />
     <ClInclude Include="ParticleSystemManager.h" />

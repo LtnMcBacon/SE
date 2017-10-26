@@ -1,7 +1,7 @@
 #ifndef SE_GRAPHICS_IPIPELINEHANDLER_H_
 #define SE_GRAPHICS_IPIPELINEHANDLER_H_
 #include "Pipeline.h"
-
+#include <functional>
 namespace SE
 {
 	namespace Graphics
@@ -10,6 +10,8 @@ namespace SE
 		{
 		public:
 			virtual ~IPipelineHandler() = 0 {};
+
+			virtual int MergeHandlers(IPipelineHandler* other) = 0;
 
 			virtual int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) = 0;
 			virtual int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) = 0;
@@ -30,6 +32,7 @@ namespace SE
 
 			virtual int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) = 0;
 			virtual int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) = 0;
+			virtual int MapConstantBuffer(const Utilz::GUID& id, const std::function<void(void* mappedResource)>& mapCallback) = 0;
 			virtual int DestroyConstantBuffer(const Utilz::GUID& id) = 0;
 
 			virtual int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) = 0;
@@ -59,7 +62,7 @@ namespace SE
 			 * @param[in] pipeline The pipeline to set.
 			 */
 			virtual void SetPipelineForced(const Pipeline& pipeline) = 0;
-
+			
 		};
 	}
 }

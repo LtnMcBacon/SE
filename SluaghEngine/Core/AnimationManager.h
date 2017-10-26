@@ -8,6 +8,8 @@
 #include <random>
 #include <Utilz\CircularFiFo.h>
 
+#include "AnimationSystem.h"
+
 namespace SE
 {
 	namespace Core
@@ -37,10 +39,9 @@ namespace SE
 			void Start(const Entity& entity)const override;
 			void Pause(const Entity& entity)const override;
 			
+			void ToggleVisible(const Entity& entity, bool visible)override;
+
 		private:
-			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
-
-
 			/**
 			* @brief	Allocate more memory
 			*/
@@ -58,32 +59,40 @@ namespace SE
 			*/
 			void GarbageCollection()override;
 
-			int LoadSkeleton(void*data, size_t size);
-			int LoadAnimation(void * data, size_t size);
-			ResourceHandler::InvokeReturn LoadSkinnedShader(const Utilz::GUID& guid, void* data, size_t size);
-			int skinnedShader;
-
+			int LoadSkeleton(const Utilz::GUID& guid, void*data, size_t size);
+			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
+	
 
 			InitializationInfo initInfo;
 			std::default_random_engine generator;
 
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(int) + sizeof(int);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID)*2;
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				int* skeletonIndex;
-				int* job;
+				Utilz::GUID* mesh;
+				Utilz::GUID* skeleton;
 			};
 			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
 
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkeletonIndex;
-			std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToSkelAnimationIndex;
+
+			AnimationSystem animationSystem;
+
+
+			struct BufferInfo
+			{
+				int vertexCount;
+			};
+
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
+			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
+
 		};
 	}
 }

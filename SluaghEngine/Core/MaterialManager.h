@@ -9,6 +9,7 @@
 #include <random>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+#include "MaterialLoading.h"
 
 namespace SE
 {
@@ -56,90 +57,46 @@ namespace SE
 			*/
 			void GarbageCollection()override;
 
-			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderObjectInfo* info);
+			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info);
 
-			struct MatInfo
-			{
-				uint32_t amountOfTex;
-				Utilz::GUID* tex;				
-				Utilz::GUID* textureChannel;
-			};
+		
 
-			struct matDataInfo
-			{
-				Graphics::MaterialAttributes attrib;
-				MatInfo info;
-			};
+			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
+			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
+			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
 
-			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void*data, size_t size);
-			int LoadTexture(void*data, size_t size);
-			void LoadMaterialFile(void * data, size_t size, matDataInfo& dataIinfo);
-			ResourceHandler::InvokeReturn LoadShader(const Utilz::GUID& guid, void*data, size_t size);
-			
-			struct TextureBindings
-			{
-				int8_t bindings[Graphics::RenderObjectInfo::maxTextureBinds];
-			};
-			struct TextureIndices
-			{
-				int8_t indices[Graphics::RenderObjectInfo::maxTextureBinds];
-			};
 
-			struct TextureData
-			{
-				int textureHandle;
-				std::list<Entity> entities;
-			};
-			struct ShaderData
-			{
-				int shaderHandle;
-				size_t refCount;
-				Graphics::ShaderSettings shaderReflection;
-			};
+			MaterialLoading mLoading;
+		
+
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(TextureBindings) + sizeof(TextureIndices) + sizeof(size_t) * 2;
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				TextureBindings* textureBindings;
-				TextureIndices* textureIndices;
-				size_t* shaderIndex;
-				size_t* materialIndex;
+				Utilz::GUID* shader;
+				Utilz::GUID* material;
 			};
 			
-
-			std::vector<ShaderData> shaders;
-			std::vector<TextureData> textures;
-			std::vector<matDataInfo> materials;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToShaderIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToTextureIndex;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToMaterialIndex;
-
 			InitializationInfo initInfo;
 			std::default_random_engine generator;
 
 			MaterialData materialInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToMaterialInfo;
 
-			int defaultTextureHandle;
-			int defaultShaderHandle;
-			Graphics::ShaderSettings defaultShaderReflection;
+			Utilz::GUID defaultPixelShader;
+			Utilz::GUID defaultTexture;
+			Utilz::GUID defaultTextureBinding;
+			Utilz::GUID defaultSampler;
+			Utilz::GUID defaultMaterial;
 
 			struct toUpdateStruct
 			{
-				size_t textureIndex;
-				int newHandle;
+				Utilz::GUID material;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
-
-			struct toUpdateMatStruct
-			{
-				size_t materialIndex;
-				Graphics::MaterialAttributes attrib;
-			};
-			Utilz::CircularFiFo<toUpdateMatStruct, 10> toUpdateMat;
 		};
 	}
 }

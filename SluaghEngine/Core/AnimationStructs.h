@@ -8,7 +8,7 @@
 namespace SE 
 {
 
-	namespace Graphics
+	namespace Core
 	{
 
 		struct Keyframe {

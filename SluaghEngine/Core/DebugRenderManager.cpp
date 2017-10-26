@@ -31,15 +31,13 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	pipeline.IAStage.vertexBuffer = vertexBufferID;
 	pipeline.IAStage.inputLayout = vertexShaderID;
 	pipeline.VSStage.shader = vertexShaderID;
-	pipeline.VSStage.constantBuffers[0] = transformBufferID; //Created when shader is created.
-	pipeline.VSStage.constantBuffers[1] = "OncePerFrame"; //Updated by camera manager
-	pipeline.VSStage.constantBufferCount = 2;
+	//pipeline.VSStage.constantBuffers[0] = transformBufferID; //Created when shader is created.
+	//pipeline.VSStage.constantBuffers[1] = "OncePerFrame"; //Updated by camera manager
+	//pipeline.VSStage.constantBufferCount = 2;
 	pipeline.PSStage.shader = pixelShaderID;
 	pipeline.OMStage.renderTargets[0] = "backbuffer";
 	pipeline.OMStage.renderTargetCount = 1;
 	pipeline.OMStage.depthStencilView = "backbuffer";
-
-	
 }
 
 SE::Core::DebugRenderManager::~DebugRenderManager()
@@ -49,7 +47,7 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start("DebugRenderManager");
+	timer->Start(CREATE_ID_HASH("DebugRenderManager"));
 	GarbageCollection();
 	CreateBoundingBoxes();
 	if (dirty)
@@ -80,10 +78,10 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 			Entity ent = m.first;
 			job.vertexOffset = startVertex;
 			job.vertexCount = verticesToDraw;
-			job.mappingFunc = [this, ent](int a, int b)
+			job.mappingFunc .push_back( [this, ent](int a, int b)
 			{
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(transformBufferID, &cachedTransforms[ent], sizeof(DirectX::XMFLOAT4X4));
-			};
+			});
 			auto f = entityToJobID.find(m.first);
 			if (f == entityToJobID.end())
 			{
@@ -100,7 +98,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 		}
 		dirty = false;
 	}
-	timer->Stop("DebugRenderManager");
+	timer->Stop(CREATE_ID_HASH("DebugRenderManager"));
 	ProfileReturnVoid;
 }
 

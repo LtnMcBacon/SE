@@ -98,7 +98,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
-	Gameplay::PlayerUnit* player;
+	Gameplay::PlayerUnit* player = nullptr;
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)

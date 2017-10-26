@@ -17,6 +17,8 @@
 #include <Utilz\Event.h>
 #include <Utilz\CircularFiFo.h>
 
+#include "RenderableManagerInstancing.h"
+
 namespace SE
 {
 	namespace Core
@@ -46,7 +48,7 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const CreateInfo& meshGUID, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -55,12 +57,13 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableObject(const Entity& entity, bool show)override;
+			void ToggleRenderableObject(const Entity& entity, bool visible)override;
 
-			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderObjectInfo* info)>&& callback)override
+			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback)override
 			{
 				SetRenderObjectInfoEvent += callback;
 			}
+
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
@@ -74,9 +77,9 @@ namespace SE
 
 		private:
 		
-			void CreateRenderObjectInfo(size_t index, Graphics::RenderObjectInfo * info);
-			Utilz::Event<void(const Entity& entity, Graphics::RenderObjectInfo* info)> SetRenderObjectInfoEvent;
-
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+			Utilz::Event<void(const Entity& entity, Graphics::RenderJob* info)> SetRenderObjectInfoEvent;
+			Utilz::Event<void(const Entity& entity, bool)> ToggleVisible;
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -108,18 +111,18 @@ namespace SE
 
 			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
-			int LoadModel(void* data, size_t size);
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
 			
-			void LoadResource(const Utilz::GUID& meshGUID, size_t index, bool async, ResourceHandler::Behavior behavior);
+			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(size_t) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				size_t* bufferIndex;
+				Utilz::GUID* mesh;
 				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
 				uint32_t* jobID;
@@ -136,13 +139,10 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-
+			RenderableManagerInstancing* rmInstancing;
 
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
-
-			int defaultShader;
-
 
 			enum class BufferState
 			{
@@ -153,22 +153,20 @@ namespace SE
 
 			struct BufferInfo
 			{
-				int bufferHandle;
 				BufferState state;
 				size_t size;
+				int vertexCount;
 				std::list<Entity> entities;
 			};
 
-			std::vector<BufferInfo> bufferInfo;
-			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToBufferInfoIndex;
+			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
 			std::mutex bufferLock;
-
 
 			struct toUpdateStruct
 			{
-				size_t bufferIndex;
-				int newHandle;
+				Utilz::GUID mesh;
 				size_t size;
+				int vertexCount;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};

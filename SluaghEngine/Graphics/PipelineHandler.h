@@ -17,6 +17,8 @@ namespace SE
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
+			int MergeHandlers(IPipelineHandler* other) override;
+
 			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
@@ -38,6 +40,7 @@ namespace SE
 
 			int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
 			int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int MapConstantBuffer(const Utilz::GUID& id, const std::function<void(void* mappedResource)>& mapCallback) override;
 			int DestroyConstantBuffer(const Utilz::GUID& id) override;
 
 			int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
@@ -64,7 +67,6 @@ namespace SE
 			void SetPipeline(const Pipeline& pipeline) override;
 			void SetPipelineForced(const Pipeline& pipeline) override;
 		private:
-
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void SetVertexShaderStage(const ShaderStage& vss);
 			void SetGeometryShaderStage(const ShaderStage& gss);
@@ -94,12 +96,29 @@ namespace SE
 			};
 			Pipeline currentPipeline;
 
+
+			struct VertexShaderInfo
+			{
+				ID3D11VertexShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;		
+			};
+			struct GeomtryShaderInfo
+			{
+				ID3D11GeometryShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+			struct PixelShaderInfo
+			{
+				ID3D11PixelShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
-			std::unordered_map<Utilz::GUID, ID3D11VertexShader*, Utilz::GUID::Hasher> vertexShaders;
-			std::unordered_map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Hasher> geometryShaders;
-			std::unordered_map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Hasher> pixelShaders;
+			std::unordered_map<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
+			std::unordered_map<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
+			std::unordered_map<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
 			std::unordered_map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Hasher> computeShaders;
 			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
@@ -113,6 +132,7 @@ namespace SE
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
 
+			//std::mutex mapLock;
 		};
 	}
 }

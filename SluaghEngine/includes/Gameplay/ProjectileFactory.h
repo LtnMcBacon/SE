@@ -9,8 +9,9 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include "Utilz/GUID.h"
 
-
 #include <variant>
+#include <unordered_map>
+#include <map>
 
 namespace SE
 {
@@ -43,6 +44,16 @@ namespace SE
 				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::weak_ptr<GameUnit*>> data;
 			};
 
+			struct LoadedProjectile
+			{
+				float projectileWidth, projectileHeight, rotationAroundUnit, distanceFromUnit, projectileRotation, rotationPerSec, projectileSpeed, timeToLive;
+				Utilz::GUID meshName;
+				float meshScale;
+				std::string particleEffect;
+				int nrOfBehaviours;
+				std::vector<std::string> behaviours;
+			};
+
 			/**
 			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
 			*/
@@ -58,6 +69,8 @@ namespace SE
 			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
 
 			std::vector<Projectile> newProjectiles;
+
+			std::map<Utilz::GUID, std::vector<LoadedProjectile>, Utilz::GUID::Compare> loadedProjectiles;
 
 		public:
 
@@ -97,12 +110,12 @@ namespace SE
 			/**
 			* @brief Acts as an AND checker to be used with IfCaseBehaviour
 			*/
-			std::function<bool(Projectile* projectile, float dt)> ANDConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions*/);
+			std::function<bool(Projectile* projectile, float dt)> ANDConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 
 			/**
 			* @brief Acts as an OR checker to be used with IfCaseBehaviour
 			*/
-			std::function<bool(Projectile* projectile, float dt)> ORConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions*/);
+			std::function<bool(Projectile* projectile, float dt)> ORConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 			
 			/**
 			* @brief	Adds bounce behaviour to the projectile
@@ -112,7 +125,7 @@ namespace SE
 			/**
 			* @brief	Adds speed changing behaviour to the projectile
 			*/
-			std::function<bool(Projectile* projectile, float dt)> SpeedModifierBehaviour(std::vector<BehaviourParameter> parameters/*float speedModifier*/);
+			std::function<bool(Projectile* projectile, float dt)> SpeedAddDynamicBehaviour(std::vector<BehaviourParameter> parameters/*float speedModifier*/);
 
 			/**
 			* @brief	Adds rotation changing behaviour to the projectile
@@ -127,7 +140,7 @@ namespace SE
 			/**
 			* @brief	Adds lifetime behaviour to the projectile
 			*/
-			std::function<bool(Projectile* projectile, float dt)> LifeTimeBehaviour(std::vector<BehaviourParameter> parameters/*float timeToIncrease*/);
+			std::function<bool(Projectile* projectile, float dt)> LifeTimeAddStaticBehaviour(std::vector<BehaviourParameter> parameters/*float timeToIncrease*/);
 
 			/**
 			* @brief	Adds Targeting closest enemy behaviour to the projectile
@@ -151,12 +164,7 @@ namespace SE
 			/**
 			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeConditionRunBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
-
-			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
-			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeConditionAddBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionBehaviour(std::vector<BehaviourParameter> parameters/*float delay, bool repeat, Projectile* projectile*/);
 			
 			/**
 			 * @brief	Adds a behaviour for projectiles to follow the player

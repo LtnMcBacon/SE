@@ -4,8 +4,7 @@
 #define SE_GRAPHICS_GUI_INFO_H_
 #include <DirectXMath.h>
 #include <Utilz\GUID.h>
-#include <ToolKit\SpriteFont.h>
-#include <ToolKit\SpriteBatch.h>
+
 
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTKD.lib")
@@ -17,6 +16,14 @@ namespace SE
 {
 	namespace Graphics
 	{
+		enum Effect
+		{
+			NoEffect = 0,
+			HoriFlipEffect = 1,
+			VertiFlipEffect = 2,
+			BothFlipEffect = HoriFlipEffect | VertiFlipEffect
+		};
+
 		struct TextGUI
 		{
 			size_t fontID;
@@ -26,7 +33,7 @@ namespace SE
 			DirectX::XMFLOAT2 pos;
 			DirectX::XMFLOAT2 origin;			
 			DirectX::XMFLOAT2 scale;
-			DirectX::SpriteEffects effect;
+			Effect effect;
 			float rotation;		
 			float layerDepth;
 			bool anchor = false;
@@ -39,7 +46,7 @@ namespace SE
 			DirectX::XMFLOAT4 colour;
 			DirectX::XMFLOAT2 origin;
 			DirectX::XMFLOAT2 scale;
-			DirectX::SpriteEffects effect;
+			Effect effect;
 			RECT* rect = nullptr;
 			float rotation;
 			float layerDepth;
