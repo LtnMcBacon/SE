@@ -9,7 +9,7 @@ namespace SE
 	{
 		struct CoreInit
 		{
-			static void Init(Core::IEngine* engine);
+			static void Init(Core::IEngine* engineIn);
 			static void Shutdown();
 
 			static SE::Core::IEngine::Subsystems subSystems;

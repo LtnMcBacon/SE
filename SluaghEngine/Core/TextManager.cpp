@@ -79,7 +79,7 @@ namespace SE {
 		void TextManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start("GUIManager");
+			timer->Start(CREATE_ID_HASH( "GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -94,7 +94,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop("GUIManager");
+			timer->Stop(CREATE_ID_HASH("GUIManager"));
 			StopProfile;
 		}
 

@@ -74,7 +74,7 @@ namespace SE
 			virtual  void SetTextureOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) = 0;
 			virtual  void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
 
-			virtual  void SetTextureEffect(const Entity& entity, DirectX::SpriteEffects effect) = 0;
+			virtual  void SetTextureEffect(const Entity& entity, Graphics::Effect effect) = 0;
 
 			virtual  void SetTextureRotation(const Entity& entity, float rotation) = 0;
 

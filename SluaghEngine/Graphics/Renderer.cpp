@@ -11,7 +11,7 @@ SE::Graphics::Renderer::Renderer()
 	oncePerFrameBufferID = -1;
 	device = nullptr;
 	graphicResourceHandler = nullptr;
-	animationSystem = nullptr;
+	//animationSystem = nullptr;
 	memMeasure.Init();
 }
 
@@ -27,16 +27,18 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	device = new DeviceManager();
 	HRESULT hr = device->Init((HWND)initInfo.window);
 	if (FAILED(hr))
-		return -1;
+		return hr;
 
 	dev = device->GetDevice();
 	devContext = device->GetDeviceContext();
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
+	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
-	animationSystem = new AnimationSystem();
+	//animationSystem = new AnimationSystem();
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -61,8 +63,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 		throw std::exception("Could not create LightDataBuffer");
 	}
 
-	timeCluster.push_back(new GPUTimeCluster(device->GetDevice(), device->GetDeviceContext()));
-	timeCluster.push_back(new Utilz::CPUTimeCluster);
+	gpuTimer = new GPUTimeCluster(device->GetDevice(), device->GetDeviceContext());
 
 	running = true;
 	//myThread = std::thread(&Renderer::Frame, this);
@@ -88,14 +89,14 @@ void SE::Graphics::Renderer::Shutdown()
 //	if (myThread.joinable())
 		//myThread.join();
 
+	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
 
-	for(auto& t : timeCluster)
-		delete t;
+	delete gpuTimer;
 	delete graphicResourceHandler;
-	delete animationSystem;
+//	delete animationSystem;
 	delete device;
 }
 
@@ -135,6 +136,14 @@ void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const RenderJob& ne
 	const uint32_t idPart = (jobID & JOB_ID_MASK);
 	const uint32_t indexInMap = jobIDToIndex[idPart];
 	jobGroups[jobGroup][indexInMap].job = newJob;
+}
+
+void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob&job)>& callback)
+{
+	const uint8_t jobGroup = (jobID >> JOB_ID_BITS) & JOB_GROUP_MASK;
+	const uint32_t idPart = (jobID & JOB_ID_MASK);
+	const uint32_t indexInMap = jobIDToIndex[idPart];
+	callback(jobGroups[jobGroup][indexInMap].job);
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
@@ -488,10 +497,11 @@ int SE::Graphics::Renderer::Render() {
 	graphicResourceHandler->BindConstantBuffer(GraphicResourceHandler::ShaderStage::PIXEL, cameraBufferID, 3);
 
 
-	timeCluster[GPUTimer]->Start("Rendering-GPU");
+	cpuTimer.Start(CREATE_ID_HASH("Rendering-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("Rendering-GPU"));
 	//The previousJob is necessary to see what state changes need to be performed when rendering
 	//the next bucket.
-	timeCluster[CPUTimer]->Start("Rendering-CPU");
+	
 	RenderObjectInfo previousJob;
 	previousJob.textureCount = 0;
 	for (int i = 0; i < RenderObjectInfo::maxTextureBinds; ++i)
@@ -528,14 +538,13 @@ int SE::Graphics::Renderer::Render() {
 		RenderABucket(renderBuckets[transparentIndices[iteration]], previousJob);
 		previousJob = renderBuckets[transparentIndices[iteration]].stateInfo;
 	}
-	timeCluster[CPUTimer]->Stop("Rendering-CPU");
-	timeCluster[GPUTimer]->Stop("Rendering-GPU");
-
+	gpuTimer->Stop(CREATE_ID_HASH("Rendering-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("Rendering-CPU"));
 
 	/////********** Render line jobs (primarily for debugging) ************/
 
-	//timeCluster[GPUTimer]->Start("LineJob-GPU");
-	//timeCluster[CPUTimer]->Start("LineJob-CPU");
+	//gpuTimer->Start("LineJob-GPU");
+	//cpuTimer.Start("LineJob-CPU");
 	//device->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	//graphicResourceHandler->BindVSConstantBuffer(oncePerFrameBufferID, 1);
 	//graphicResourceHandler->BindVSConstantBuffer(singleTransformConstantBuffer, 2);
@@ -548,14 +557,14 @@ int SE::Graphics::Renderer::Render() {
 	//	graphicResourceHandler->SetVertexBuffer(lineJob.vertexBufferHandle);
 	//	device->GetDeviceContext()->Draw(lineJob.verticesToDrawCount, lineJob.firstVertex);
 	//}
-	//timeCluster[CPUTimer]->Stop("LineJob-CPU");
-	//timeCluster[GPUTimer]->Stop("LineJob-GPU");
+	//cpuTimer.Stop("LineJob-CPU");
+	//gpuTimer->Stop("LineJob-GPU");
 
 	///********END render line jobs************/
 
 	/******************General Jobs*********************/
-	timeCluster[CPUTimer]->Start("JobJob-CPU");
-	timeCluster[GPUTimer]->Start("JobJob-GPU");
+	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
@@ -573,20 +582,24 @@ int SE::Graphics::Renderer::Render() {
 			}
 			if (j.job.indexCount == 0 && j.job.instanceCount == 0 && j.job.vertexCount != 0)
 			{
-				j.job.mappingFunc(drawn, 1);
+				for(auto& mf : j.job.mappingFunc)
+					mf(drawn, 1);
 				devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount != 0 && j.job.instanceCount == 0)
 			{
-				j.job.mappingFunc(drawn, 1);
+				for (auto& mf : j.job.mappingFunc)
+					mf(drawn, 1);
 				devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount == 0 && j.job.instanceCount != 0)
 			{
 				while (drawn < j.job.instanceCount)
 				{
-					j.job.mappingFunc(drawn, j.job.instanceCount);
+				
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
@@ -594,45 +607,48 @@ int SE::Graphics::Renderer::Render() {
 			else if (j.job.indexCount != 0 && j.job.instanceCount != 0)
 			{
 				while (drawn < j.job.instanceCount)
-				{
-					j.job.mappingFunc(drawn, j.job.instanceCount);
+				{		
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
 			}
 			else if (j.job.vertexCount == 0)
 			{
-				j.job.mappingFunc(drawn, 0);
+				for (auto& mf : j.job.mappingFunc)
+					mf(drawn, 0);
 				devContext->DrawAuto();
 			}
 		}
 	}
-	timeCluster[CPUTimer]->Stop("JobJob-CPU");
-	timeCluster[GPUTimer]->Stop("JobJob-GPU");
-
+	
+	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
 
 
 	//********* Render sprite overlays ********/
-	timeCluster[GPUTimer]->Start("GUIJob-GPU");
-	timeCluster[CPUTimer]->Start("GUIJob-CPU");
+	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
+	gpuTimer->Start(CREATE_ID_HASH("GUIJob-GPU"));
 	if (renderTextureJobs.size() && renderTextJobs.size())
 	{
 		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos, job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, job.effect, job.layerDepth);
+			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}
-	timeCluster[CPUTimer]->Stop("GUIJob-CPU");
-	timeCluster[GPUTimer]->Stop("GUIJob-GPU");
+	gpuTimer->Stop(CREATE_ID_HASH("GUIJob-GPU"));
+	cpuTimer.Stop(CREATE_ID_HASH("GUIJob-CPU"));
+
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
 
@@ -640,8 +656,8 @@ int SE::Graphics::Renderer::Render() {
 	//********* Apply bloom post-processing ********/
 	if (bloom)
 	{
-		timeCluster[CPUTimer]->Start("Bloom_CPU");
-		timeCluster[GPUTimer]->Start("Bloom_GPU");
+		cpuTimer.Start(CREATE_ID_HASH("Bloom-CPU"));
+		gpuTimer->Start(CREATE_ID_HASH("Bloom-GPU"));
 
 
 		ID3D11ShaderResourceView* shaderResourceViews[] = {
@@ -679,8 +695,8 @@ int SE::Graphics::Renderer::Render() {
 		device->GetDeviceContext()->CopyResource(device->GetBackBufferTexture(), graphicResourceHandler->GetBloomBufferTexture());
 
 
-		timeCluster[GPUTimer]->Stop("Bloom_GPU");
-		timeCluster[CPUTimer]->Stop("Bloom_CPU");
+		gpuTimer->Stop(CREATE_ID_HASH("Bloom-GPU"));
+		cpuTimer.Stop(CREATE_ID_HASH("Bloom-CPU"));
 	}
 	//******* END Apply bloom post-processing ******/
 
@@ -1104,72 +1120,72 @@ void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const Ren
 	}
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
-		int boneBindslot;
-		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
-		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+	//	int boneBindslot;
+	//	const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
+	//	graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 
-		
-
-
+	//	
 
 
 
 
 
-		std::vector<DirectX::XMFLOAT4X4> inversVec;
-		for (int i = 0; i < bucket.transforms.size(); i++)
-		{
-			DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
-			invers = DirectX::XMMatrixInverse(nullptr, invers);
-			DirectX::XMFLOAT4X4 fInvers;
-			DirectX::XMStoreFloat4x4(&fInvers, invers);
-			inversVec.push_back(fInvers);
-		}
-
-	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
-
-	
 
 
-		// TODO: Change the hlsl code to fit.
-		// TODO: Should be updated with the instanceCount and maxDrawInstances
-		struct XMS
-		{
-			DirectX::XMFLOAT4X4 s[30];
-		};
+	//	std::vector<DirectX::XMFLOAT4X4> inversVec;
+	//	for (int i = 0; i < bucket.transforms.size(); i++)
+	//	{
+	//		DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+	//		invers = DirectX::XMMatrixInverse(nullptr, invers);
+	//		DirectX::XMFLOAT4X4 fInvers;
+	//		DirectX::XMStoreFloat4x4(&fInvers, invers);
+	//		inversVec.push_back(fInvers);
+	//	}
 
-		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
-			for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
-			{
-				auto animationJobIndex = bucket.animationJob[i];
-				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
-				{
-					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
-					if (ajob.animating) // If the animation is playing
-						ajob.timePos += ajob.speed; // TODO: Delta time.
+	///*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
 
-					animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
-				}
-				else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
-				{
-					// TODO:
-				}
-			}
-		});
+	//
 
 
-		//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+	//	// TODO: Change the hlsl code to fit.
+	//	// TODO: Should be updated with the instanceCount and maxDrawInstances
+	//	struct XMS
+	//	{
+	//		DirectX::XMFLOAT4X4 s[30];
+	//	};
 
-		const size_t instanceCount = bucket.transforms.size();
-		for (int i = 0; i < instanceCount; i += 8)
-		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
-			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
-			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
-		}
+	//	//graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
+	//	//	for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+	//	//	{
+	//	//		auto animationJobIndex = bucket.animationJob[i];
+	//	//		if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
+	//	//		{
+	//	//			auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+	//	//			if (ajob.animating) // If the animation is playing
+	//	//				ajob.timePos += ajob.speed; // TODO: Delta time.
+
+	//	//			animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+	//	//		}
+	//	//		else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
+	//	//		{
+	//	//			// TODO:
+	//	//		}
+	//	//	}
+	//	//});
+
+
+	//	//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	////	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+
+	//	const size_t instanceCount = bucket.transforms.size();
+	//	for (int i = 0; i < instanceCount; i += 8)
+	//	{
+	//		const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
+	//		const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+	//		graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
+	//		device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+	//	}
 	}
 }
 
@@ -1203,85 +1219,83 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 	device->ResizeSwapChain((HWND)windowHandle);
 }
 
+//
+//int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+//{
+//	int job = -1;
+//	if (freeAnimationJobIndicies.size())
+//	{
+//		job = freeAnimationJobIndicies.top();
+//		freeAnimationJobIndicies.pop();
+//	}
+//	else
+//	{
+//		job = static_cast<int>(jobIDToAnimationJob.size());
+//		jobIDToAnimationJob.push_back(info);
+//	}
+//	
+//	return job;
+//}
+//
+//void SE::Graphics::Renderer::StopAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	freeAnimationJobIndicies.push(job);
+//}
+//
+//void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
+//}
+//
+//void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
+//}
+//
+//void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
+//
+//void SE::Graphics::Renderer::StartAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
+//}
+//
+//void SE::Graphics::Renderer::PauseAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
 
-int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+int SE::Graphics::Renderer::EnableBloom(int handleHorizontal, int handleVertical)
 {
-	int job = -1;
-	if (freeAnimationJobIndicies.size())
-	{
-		job = freeAnimationJobIndicies.top();
-		freeAnimationJobIndicies.pop();
-	}
-	else
-	{
-		job = static_cast<int>(jobIDToAnimationJob.size());
-		jobIDToAnimationJob.push_back(info);
-	}
-	
-	return job;
-}
-
-void SE::Graphics::Renderer::StopAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	freeAnimationJobIndicies.push(job);
-}
-
-void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
-}
-
-void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
-}
-
-void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
-
-void SE::Graphics::Renderer::StartAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
-}
-
-void SE::Graphics::Renderer::PauseAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
-
-int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
-{
-	int status = -1;
-
-	bloomHorizontalHandle = bloomHorizontalHandle;
-	bloomVerticalHandle = verticalHandle;
+	bloomHorizontalHandle = handleHorizontal;
+	bloomVerticalHandle = handleVertical;
 
 	int texture2DHandles[3];
 
@@ -1337,9 +1351,7 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 
 
 	bloom = true;
-	status = 0;
-
-	return status;
+	return 0;
 }
 
 int SE::Graphics::Renderer::DisableBloom()

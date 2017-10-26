@@ -20,7 +20,12 @@ using namespace SE::Utilz::Memory;
 #pragma comment(lib, "DevConsole.lib")
 #endif
 
-
+#ifdef __linux__ 
+//linux code goes here
+#elif _WIN32 || _WIN64
+#include <Windows.h>
+#else
+#endif
 int SE::Core::Engine::Init(const InitializationInfo& info)
 {
 	StartProfile;
@@ -30,9 +35,29 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	perFrameStackAllocator = new Utilz::StackAllocator;
 	perFrameStackAllocator->InitStackAlloc(1024U * 1024U * 5U);
 
-	InitSubSystems();
-	InitManagers();
 
+
+	try
+	{
+		InitSubSystems();
+		InitManagers();
+	}
+	catch (const std::exception& e)
+	{
+		// A manager or sub system could not be initiated.
+		printf("Error in engine init: %s", e.what());
+
+#ifdef _WIN32 || _WIN64
+		int msgboxID = MessageBox(
+			NULL,
+			e.what(),
+			"Engine Error",
+			MB_ICONERROR | MB_OK
+		);
+#endif
+		this->Release();
+		return -1;
+	}
 
 	SetupDebugConsole();
 
@@ -53,7 +78,7 @@ int SE::Core::Engine::BeginFrame()
 		ProfileReturnConst( -1);
 
 	frameBegun = true;
-	timeClus.Start("Frame");
+	timeClus.Start(CREATE_ID_HASH("Frame"));
 	subSystems.window->Frame();
 	subSystems.devConsole->BeginFrame();
 	subSystems.renderer->BeginFrame();
@@ -81,7 +106,7 @@ int SE::Core::Engine::EndFrame()
 	subSystems.renderer->EndFrame();
 
 
-	timeClus.Stop("Frame");
+	timeClus.Stop(CREATE_ID_HASH("Frame"));
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -95,6 +120,7 @@ int SE::Core::Engine::Release()
 		delete *rit;
 
 	delete managers.entityManager;
+	delete managers.eventManager;
 
 	subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
@@ -130,7 +156,9 @@ void SE::Core::Engine::InitSubSystems()
 	if (!subSystems.optionsHandler)
 	{
 		subSystems.optionsHandler = CreateOptionsHandler();
-		subSystems.optionsHandler->Initialize("Config.ini");
+		auto res = subSystems.optionsHandler->Initialize("Config.ini");
+		if (res < 0)
+			throw std::exception("Could not initiate optionsHandler.");
 	}
 	if (!subSystems.resourceHandler)
 	{
@@ -138,7 +166,9 @@ void SE::Core::Engine::InitSubSystems()
 		ResourceHandler::InitializationInfo info;
 		info.maxMemory = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
 		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
-		subSystems.resourceHandler->Initialize(info);
+		auto res = subSystems.resourceHandler->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate resourceHandler.");
 	}
 	if (!subSystems.window)
 	{
@@ -149,7 +179,9 @@ void SE::Core::Engine::InitSubSystems()
 		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
-		subSystems.window->Initialize(info);
+		auto res = subSystems.window->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate window.");
 	}
 	if (!subSystems.renderer)
 	{
@@ -157,12 +189,16 @@ void SE::Core::Engine::InitSubSystems()
 		Graphics::InitializationInfo info;
 		info.window = subSystems.window->GetHWND();
 		info.maxVRAMUsage = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
-		subSystems.renderer->Initialize(info);
+		auto res = subSystems.renderer->Initialize(info);
+		if (res < 0)
+			throw std::exception("Could not initiate renderer.");
 	}
 	if (!subSystems.devConsole)
 	{
 		subSystems.devConsole = CreateConsole(subSystems.renderer, subSystems.window);
-		subSystems.devConsole->Initialize();
+		auto res = subSystems.devConsole->Initialize();
+		if (res < 0)
+			throw std::exception("Could not initiate devConsole.");
 	}
 	StopProfile;
 }
@@ -172,6 +208,10 @@ void SE::Core::Engine::InitManagers()
 	StartProfile;
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
+
+	if (!managers.eventManager)
+		managers.eventManager = CreateEventManager();
+
 
 	InitAudioManager();
 	InitTransformManager();
@@ -185,6 +225,7 @@ void SE::Core::Engine::InitManagers()
 	InitDebugRenderManager();
 	InitTextManager();
 	InitGUIManager();
+	
 	StopProfile;
 }
 
@@ -283,7 +324,6 @@ void SE::Core::Engine::InitAnimationManager()
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
-		info.renderableManager = managers.renderableManager;
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
@@ -360,6 +400,7 @@ void SE::Core::Engine::InitGUIManager()
 	managersVec.push_back(managers.guiManager);
 }
 
+
 void SE::Core::Engine::SetupDebugConsole()
 {
 	subSystems.devConsole->AddFrameCallback([this]()
@@ -413,7 +454,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			static float maxFrameTime = 0.0f;
 			static float minFrameTime = 999999999.0f;
 			static float avg100Frames = 0.0f;
-			const auto frame = map.find("Frame");
+			const auto frame = map.find(CREATE_ID_HASH("Frame"));
 			if (frame != map.end())
 			{
 				static float runningSum = 0.0f;

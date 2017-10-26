@@ -373,7 +373,7 @@ namespace SE {
 			std::vector<ID3D11RenderTargetView*> renderTargetViews;
 			std::vector<ID3D11Texture2D*> texture2Ds;
 			std::vector<ID3D11UnorderedAccessView*> unorderedAccessViews;
-			int bloomBufferTextureHandle;
+			int bloomBufferTextureHandle = -1;
 		};
 	}
 }

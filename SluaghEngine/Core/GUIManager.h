@@ -113,7 +113,7 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureEffect(const Entity& entity, DirectX::SpriteEffects effect)override {
+			inline void SetTextureEffect(const Entity& entity, Graphics::Effect effect)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())

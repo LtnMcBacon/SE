@@ -159,7 +159,7 @@ bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const Direc
 void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
-	timer->Start("CollisionManager");
+	timer->Start(CREATE_ID_HASH("CollisionManager"));
 	GarbageCollection();
 
 	{
@@ -213,7 +213,7 @@ void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 		toUpdate.pop();
 	}
 
-	timer->Stop("CollisionManager");
+	timer->Stop(CREATE_ID_HASH("CollisionManager"));
 	StopProfile;
 }
 

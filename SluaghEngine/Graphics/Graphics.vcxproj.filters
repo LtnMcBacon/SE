@@ -45,13 +45,7 @@
     <ClInclude Include="..\includes\Graphics\GUIInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Graphics\LightInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\AnimationStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Graphics\VertexStructs.h">
@@ -61,9 +55,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MemoryMeasuring.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Graphics\AnimationJobInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUTimeCluster.h">
@@ -96,9 +87,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphicResourceHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimationSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MemoryMeasuring.cpp">
