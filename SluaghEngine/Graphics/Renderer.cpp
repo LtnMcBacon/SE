@@ -37,6 +37,8 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
 	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
 	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
+	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
 	animationSystem = new AnimationSystem();
@@ -90,6 +92,7 @@ void SE::Graphics::Renderer::Shutdown()
 //	if (myThread.joinable())
 		//myThread.join();
 
+	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -136,6 +139,14 @@ void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const RenderJob& ne
 	const uint32_t idPart = (jobID & JOB_ID_MASK);
 	const uint32_t indexInMap = jobIDToIndex[idPart];
 	jobGroups[jobGroup][indexInMap].job = newJob;
+}
+
+void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob&job)>& callback)
+{
+	const uint8_t jobGroup = (jobID >> JOB_ID_BITS) & JOB_GROUP_MASK;
+	const uint32_t idPart = (jobID & JOB_ID_MASK);
+	const uint32_t indexInMap = jobIDToIndex[idPart];
+	callback(jobGroups[jobGroup][indexInMap].job);
 }
 
 int SE::Graphics::Renderer::EnableRendering(const RenderObjectInfo & handles)
@@ -588,9 +599,10 @@ int SE::Graphics::Renderer::Render() {
 			{
 				while (drawn < j.job.instanceCount)
 				{
-					for (auto& mf : j.job.mappingFunc)
-						mf(drawn, j.job.instanceCount);
+				
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
@@ -598,10 +610,10 @@ int SE::Graphics::Renderer::Render() {
 			else if (j.job.indexCount != 0 && j.job.instanceCount != 0)
 			{
 				while (drawn < j.job.instanceCount)
-				{
-					for (auto& mf : j.job.mappingFunc)
-						mf(drawn, j.job.instanceCount);
+				{		
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
+					for (auto& mf : j.job.mappingFunc)
+						mf(drawn, toDraw);
 					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}

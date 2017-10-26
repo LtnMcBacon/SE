@@ -57,12 +57,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 
-
-	auto& level = managers.entityManager->Create();
 	auto& mainC = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
-
-	managers.transformManager->Create(level);
 
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);
@@ -152,49 +148,56 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 		engine->BeginFrame();
 
-		if (ImGui::Button("CreateBakedTest", { 100, 100 }))
+		if (ImGui::Button("CreateBakedTest"))
 		{
 			if (!managers.entityManager->Alive(e1))
 			{
 				e1 = managers.entityManager->Create();
 				managers.transformManager->Create(e1);
 				managers.transformManager->SetPosition(e1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e1, { "bakedTest.mesh" }, true);
+				managers.renderableManager->CreateRenderableObject(e1, { "bakedTest.mesh" }, false);
 				managers.renderableManager->ToggleRenderableObject(e1, true);
 			}		
 		}
-		if (ImGui::Button("DestroyBakedTest", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest"))
 		{
 			managers.entityManager->Destroy(e1);
 		}
-		if (ImGui::Button("CreateBakedTest2", { 100, 100 }))
+		static bool e1w = false;
+		if (ImGui::Button("WireframeBakedTest"))
+		{
+			e1w = !e1w;
+			managers.renderableManager->ToggleWireframe(e1, e1w);
+			
+		}
+		if (ImGui::Button("CreateBakedTest2"))
 		{
 			if (!managers.entityManager->Alive(e2))
 			{
 				e2 = managers.entityManager->Create();
 				managers.transformManager->Create(e2);
 				managers.transformManager->SetPosition(e2, DirectX::XMFLOAT3(-2.0f, -2.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e2, { "bakedTest2.mesh" }, true);
+				managers.renderableManager->CreateRenderableObject(e2, { "bakedTest2.mesh" }, false);
 				managers.renderableManager->ToggleRenderableObject(e2, true);
 			}
 		}
-		if (ImGui::Button("DestroyBakedTest2", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest2"))
 		{
 			managers.entityManager->Destroy(e2);
 		}
 
-		if (ImGui::Button("CreateBakedTest3", { 100, 100 }))
+		if (ImGui::Button("CreateBakedTest3"))
 		{
 			if (!managers.entityManager->Alive(e3))
 			{
 				e3 = managers.entityManager->Create();
 				managers.transformManager->Create(e3);
 				managers.transformManager->SetPosition(e3, DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e3, { "bakedTest3.mesh" }, true);
+				managers.renderableManager->CreateRenderableObject(e3, { "bakedTest3.mesh" }, false);
 				managers.renderableManager->ToggleRenderableObject(e3, true);
 			}
 		}
-		if (ImGui::Button("DestroyBakedTest3", { 100, 100 }))
+		if (ImGui::Button("DestroyBakedTest3"))
 		{
 			managers.entityManager->Destroy(e3);
 		}

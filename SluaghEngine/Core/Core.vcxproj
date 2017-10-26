@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ITextManager.cpp" />
+    <ClCompile Include="RenderableManagerInstancing.cpp" />
     <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="AudioManager.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="..\includes\Core\IParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
+    <ClInclude Include="RenderableManagerInstancing.h" />
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="AudioManager.h" />

@@ -12,6 +12,11 @@
 
 using namespace std::chrono_literals;
 
+static const SE::Utilz::GUID solid("Solid");
+static const SE::Utilz::GUID wireframe("Wireframe");
+static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
+static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
+
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
 {
@@ -19,6 +24,8 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.console);
+
+	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
 	switch (initInfo.unloadingStrat)
 	{
 	case ResourceHandler::UnloadingStrategy::Linear:
@@ -30,9 +37,6 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 	Allocate(128);
 	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
-
-	defaultMesh = "Placeholder_Block.mesh";
-	defaultVertexShader = "SimpleVS.hlsl";
 
 	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, [this](auto guid, auto data, auto size) {
 		auto& binfo = guidToBufferInfo[guid];
@@ -56,22 +60,20 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	info.fillMode = Graphics::FillMode::FILL_SOLID;
 	info.windingOrder = Graphics::WindingOrder::CLOCKWISE;
 
-	solidRasterizer = "Solid";
-	wireframeRasterizer = "Wireframe";
-
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solidRasterizer, info);
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solid, info);
 	if (result < 0)
 		throw std::exception("Could not create Solid Rasterizer.");
 
 	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
-
-	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframeRasterizer, info);
+	info.cullMode = Graphics::CullMode::CULL_BACK;
+	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
 	if (result < 0)
 		throw std::exception("Could not create wireframe Rasterizer.");
 }
 
 SE::Core::RenderableManager::~RenderableManager()
 {
+	delete rmInstancing;
 
 	operator delete(renderableObjectInfo.data);
 }
@@ -134,17 +136,15 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		renderableObjectInfo.visible[find->second] = visible ? 1u : 0u;
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
-
 		if (visible)
 		{
-			const uint32_t jobID = initInfo.renderer->AddRenderJob(info, Graphics::RenderGroup::SECOND_PASS);
-			renderableObjectInfo.jobID[find->second] = jobID;
-			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
-			initInfo.transformManager->SetAsDirty(entity);
+			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			//initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
 		{
-			initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
+			rmInstancing->RemoveEntity(entity);
 		}
 
 	}
@@ -161,23 +161,26 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 	timer->Start(CREATE_ID_HASH("RenderableManager"));
 	GarbageCollection();
 
-	if (!toUpdate.wasEmpty())
+
+	while (!toUpdate.wasEmpty())
 	{
-		while (!toUpdate.wasEmpty())
+		auto& job = toUpdate.top();
+		auto& binfo = guidToBufferInfo[job.mesh];
+		binfo.state = BufferState::Loaded;
+		binfo.size = job.size;
+		for (auto& e : binfo.entities)
 		{
-			auto& job = toUpdate.top();
-			auto& binfo = guidToBufferInfo[job.mesh];
-			binfo.state = BufferState::Loaded;
-			binfo.size = job.size;
-			for (auto& e : binfo.entities)
+			const auto findEntity = entityToRenderableObjectInfoIndex.find(e);
+			if (findEntity != entityToRenderableObjectInfoIndex.end())
 			{
 				renderableObjectInfo.mesh[entityToRenderableObjectInfoIndex[e]] = job.mesh;
 				UpdateRenderableObject(e);
-			}
-				
-			toUpdate.pop();
+			}		
 		}
+
+		toUpdate.pop();
 	}
+
 
 	UpdateDirtyTransforms();
 	timer->Stop(CREATE_ID_HASH("RenderableManager"));
@@ -196,18 +199,12 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
-	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? "Wireframe" : "Solid";
+	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? wireframe : solid;
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
 	info->instanceCount = 0;
 	info->maxInstances = 1;
 
-	info->mappingFunc .push_back( [this](auto a, auto b)
-	{
-		DirectX::XMFLOAT4X4 id;
-		DirectX::XMStoreFloat4x4(&id, DirectX::XMMatrixIdentity());
-		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerObject", &id, sizeof(id));
-	});
 
 
 //	info->pipeline.
@@ -269,7 +266,8 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 	}
 }
@@ -279,13 +277,16 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == 1u)
-		{		
+		bool p = static_cast<bool>(renderableObjectInfo.wireframe[find->second]);
+		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
+		if (renderableObjectInfo.visible[find->second] == 1u &&  p != wireFrame)
+		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
-		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
+		
 	}
 }
 
@@ -294,13 +295,15 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
-		if (renderableObjectInfo.visible[find->second] == 1u)
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
+			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
-			CreateRenderObjectInfo(find->second, &info);
-			initInfo.renderer->ChangeRenderJob(renderableObjectInfo.jobID[find->second], info);
+			CreateRenderObjectInfo(find->second, &info); 
+			rmInstancing->AddEntity(entity, info);
+			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
-		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
+		
 	}
 }
 
@@ -347,8 +350,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	const Entity entity = renderableObjectInfo.entity[index];
 	const Entity last_entity = renderableObjectInfo.entity[last];
 
-	if(renderableObjectInfo.visible[index])
-		initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[index]);
+	if (renderableObjectInfo.visible[index])
+		rmInstancing->RemoveEntity(entity);
 
 
 	guidToBufferInfo[renderableObjectInfo.mesh[index]].entities.remove(entity); // Decrease the refcount
@@ -405,19 +408,18 @@ void SE::Core::RenderableManager::GarbageCollection()
 void SE::Core::RenderableManager::UpdateDirtyTransforms()
 {
 	StartProfile;
-	//auto arr = initInfo.transformManager->GetCleanedTransforms();
-	//for (auto& dirty : dirtyEntites)
-	//{
-	//	auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
-	//	if (find != entityToRenderableObjectInfoIndex.end())
-	//	{			
-	//		if (renderableObjectInfo.visible[find->second])
-	//		{
-	//			auto& transform = arr[dirty.transformIndex];
-	//			initInfo.renderer->UpdateTransform(renderableObjectInfo.jobID[find->second], (float*)&transform);
-	//		}				
-	//	}
-	//}
+	auto arr = initInfo.transformManager->GetCleanedTransforms();
+	for (auto& dirty : dirtyEntites)
+	{
+		auto& find = entityToRenderableObjectInfoIndex.find(dirty.entity);
+		if (find != entityToRenderableObjectInfoIndex.end())
+		{			
+			if (renderableObjectInfo.visible[find->second])
+			{
+				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+			}				
+		}
+	}
 
 	dirtyEntites.clear();
 	StopProfile;
@@ -453,7 +455,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 			if (result < 0)
 				return ResourceHandler::InvokeReturn::Fail;
 
-			(*this.*Unload)(size);
+			//(*this.*Unload)(size);
 		
 			if (async) 
 			{
@@ -497,11 +499,11 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* da
 	if (meshHeader->vertexLayout == 0) {
 		Vertex* v = (Vertex*)(meshHeader + 1);
 		
-		/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(Vertex));
+		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(Vertex));
 	}
 	else {
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
-		/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
+		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
 	ProfileReturnConst(result);
 }

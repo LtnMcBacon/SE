@@ -43,7 +43,10 @@ namespace SE
 			{
 				return pipelineHandler;
 			};
-
+			IPipelineHandler* GetSecondaryPipelineHandler() override
+			{
+				return secPipelineHandler;
+			}
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
@@ -69,6 +72,14 @@ namespace SE
 			* @sa AddRenderJob
 			*/
 			void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) override;
+
+			/**
+			* @brief Allow for modifying an existing renderjob. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] callback The callback function where you can change the job.
+			* @sa AddRenderJob
+			*/
+			void ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob& job)>& callback) override;
 
 			/**
 			* @brief    Sets a render job
@@ -465,6 +476,8 @@ namespace SE
 			InitializationInfo initInfo;
 
 			IPipelineHandler* pipelineHandler;
+			IPipelineHandler* secPipelineHandler;
+
 			/**<Is cleared at the start at each frame, contents can be fetched by GetErrorLogs*/
 			std::vector<std::string> errorLog;
 

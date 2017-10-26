@@ -17,6 +17,8 @@
 #include <Utilz\Event.h>
 #include <Utilz\CircularFiFo.h>
 
+#include "RenderableManagerInstancing.h"
+
 namespace SE
 {
 	namespace Core
@@ -136,15 +138,10 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-
+			RenderableManagerInstancing* rmInstancing;
 
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
-
-			Utilz::GUID defaultMesh;
-			Utilz::GUID defaultVertexShader;
-			Utilz::GUID solidRasterizer;
-			Utilz::GUID wireframeRasterizer;
 
 			enum class BufferState
 			{

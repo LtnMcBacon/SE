@@ -109,6 +109,13 @@ int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::G
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::MergeHandlers(IPipelineHandler * other)
+{
+	// TODO: Move everything from other to this. Then clear other.
+
+	return 0;
+}
+
 int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
 	size_t stride, bool dynamic)
 {
@@ -488,9 +495,9 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						geometryShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -580,9 +587,9 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						geometryShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					geometryShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -658,9 +665,9 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						pixelShaders[id].constantBuffers.push_back(sbd.Name);
+						
 					}
-
+					pixelShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -776,6 +783,23 @@ int SE::Graphics::PipelineHandler::UpdateConstantBuffer(const Utilz::GUID& id, v
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 	memcpy(mappedData.pData, data, size);
+	deviceContext->Unmap(exists->second, 0);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::MapConstantBuffer(const Utilz::GUID & id, const std::function<void(void*mappedResource)>& mapCallback)
+{
+	const auto exists = constantBuffers.find(id);
+	if (exists == constantBuffers.end())
+		return NOT_FOUND;
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	HRESULT hr = deviceContext->Map(exists->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	mapCallback(mappedData.pData);
+
 	deviceContext->Unmap(exists->second, 0);
 	return SUCCESS;
 }

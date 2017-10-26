@@ -277,11 +277,8 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	else
 	{
 		info->pipeline.PSStage.shader = defaultPixelShader;
-		info->pipeline.PSStage.textureCount = 1;
-		info->pipeline.PSStage.textureBindings[0] = defaultTextureBinding;
-		info->pipeline.PSStage.textures[0] = defaultTexture;
-		info->pipeline.PSStage.samplers[0] = defaultSampler;
-		info->pipeline.PSStage.samplerCount = 1;
+		info->pipeline.PSStage.textureCount = 0;
+		info->pipeline.PSStage.samplerCount = 0;
 
 	/*	info->pixelShader = defaultShaderHandle;
 		auto& reflection = defaultShaderReflection;

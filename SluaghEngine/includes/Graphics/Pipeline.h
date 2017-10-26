@@ -140,11 +140,20 @@ namespace SE
 			Utilz::GUID indexBuffer;
 			PrimitiveTopology topology;
 			Utilz::GUID inputLayout;
+
+			Utilz::GUID GetID()const
+			{
+				return vertexBuffer + indexBuffer + inputLayout;
+			}
 		};
 
 		struct StreamOutStage
 		{
 			Utilz::GUID streamOutTarget;
+			Utilz::GUID GetID()const
+			{
+				return streamOutTarget;
+			}
 		};
 
 
@@ -161,6 +170,13 @@ namespace SE
 		//	uint8_t constantBufferCount = 0;
 			uint8_t textureCount = 0;
 			uint8_t samplerCount = 0;
+
+			Utilz::GUID GetID()const
+			{
+				return shader + textures[0] + textures[1] + textures[2] + textures[3]
+					+ textureBindings[0] + textureBindings[1] + textureBindings[2] + textureBindings[3]
+					+ samplers[0];
+			}
 		};
 
 		struct OutputMergerStage
@@ -171,6 +187,11 @@ namespace SE
 			Utilz::GUID renderTargets[maxRenderTargets];
 			Utilz::GUID depthStencilView;
 			uint8_t renderTargetCount = 0;
+
+			Utilz::GUID GetID()const
+			{
+				return blendState + depthStencilState + depthStencilView + renderTargets[0] + renderTargets[1] + renderTargets[2] + renderTargets[3];
+			}
 		};
 		struct Viewport
 		{
@@ -186,6 +207,11 @@ namespace SE
 		{
 			Utilz::GUID rasterizerState;
 			Utilz::GUID viewport;
+
+			Utilz::GUID GetID()const
+			{
+				return rasterizerState + viewport;
+			}
 		};
 
 		struct Pipeline
@@ -199,6 +225,21 @@ namespace SE
 			OutputMergerStage	OMStage;
 
 			ShaderStage CSStage;
+
+			Utilz::GUID id;
+			void SetID()
+			{
+				id = IAStage.GetID() + VSStage.GetID() + 
+					GSStage.GetID() + SOStage.GetID() + 
+					RStage.GetID() + PSStage.GetID() + 
+					OMStage.GetID() + CSStage.GetID();
+			}
+			bool operator==(const Pipeline& other)const
+			{
+				return this->id == other.id;
+			}
+
+
 		};
 	}
 }

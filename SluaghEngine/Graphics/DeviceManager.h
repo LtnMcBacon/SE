@@ -160,6 +160,7 @@ namespace SE {
 
 			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
+			inline ID3D11DeviceContext*    GetSecondaryDeviceContext() { return gSecDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
 			inline ID3D11BlendState*	   GetBlendState() { return blendTransState; };
@@ -210,6 +211,7 @@ namespace SE {
 
 			ID3D11Device*			gDevice;
 			ID3D11DeviceContext*	gDeviceContext;
+			ID3D11DeviceContext*	gSecDeviceContext;
 			IDXGISwapChain*			gSwapChain;
 			
 			ID3D11Texture2D*		gBackBuffer;

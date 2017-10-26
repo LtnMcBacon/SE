@@ -14,6 +14,7 @@
 #include <Utilz\TimeCluster.h>
 #include "IPipelineHandler.h"
 #include "RenderJob.h"
+#include <functional>
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -52,11 +53,12 @@ namespace SE
 			virtual void Shutdown() = 0;
 
 			virtual IPipelineHandler* GetPipelineHandler() = 0;
+			virtual IPipelineHandler* GetSecondaryPipelineHandler() = 0;
 
 			/**
 			* @brief Adds a renderjob to be rendered, is rendered until RemoveRenderJob is called
 			* @param[in] job Struct containing all information required to render.
-			* @param[in] group The group (enum) the job should belong to.
+			* @param[in] group The RenderGroup (enum) the job should belong to.
 			* @retval Returns a handle to the job on success.
 			* @retval -1 on failure.
 			* @sa RenderJob, RenderGroup
@@ -77,6 +79,14 @@ namespace SE
 			* @sa AddRenderJob
 			*/
 			virtual void ChangeRenderJob(uint32_t jobID, const RenderJob& newJob) = 0;
+
+			/**
+			* @brief Allow for modifying an existing renderjob. The job must have been added by AddRenderJob.
+			* @param[in] jobID The ID retrieved from AddRenderJob
+			* @param[in] callback The callback function where you can change the job.
+			* @sa AddRenderJob
+			*/
+			virtual void ChangeRenderJob(uint32_t jobID, const std::function<void(RenderJob& job)>& callback) = 0;
 
 			/**
 			* @brief    Sets a render job
