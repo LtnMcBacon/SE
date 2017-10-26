@@ -2,6 +2,8 @@
 #include <Profiler.h>
 
 
+static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
+
 SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
 	_ASSERT(initInfo.renderer);
@@ -12,10 +14,15 @@ SE::Core::AnimationManager::AnimationManager(const InitializationInfo & initInfo
 	_ASSERT(initInfo.renderableManager);
 
 	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::SetRenderObjectInfo });
-	skinnedShader = 0;
-	auto res = initInfo.resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), { this, &AnimationManager::LoadSkinnedShader });
-	if (res)
-		throw std::exception("Could not load default skinned vertex shader.");
+	
+	auto result = initInfo.resourceHandler->LoadResource(Utilz::GUID("SkinnedVS.hlsl"), [this](auto guid, auto data, auto size) {
+		auto result = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(SkinnedVertexShader, data, size);
+		if (result < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if (result < 0)
+		throw std::exception("Could not load SkinnedVertexShader.");
 
 
 	Allocate(10);
@@ -188,22 +195,13 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob * info)
 {
 	StartProfile;
-	//// Get the entity register from the animationManager
-	//auto &entityIndex = entityToIndex.find(entity);
+	// Get the entity register from the animationManager
+	const auto entityIndex = entityToIndex.find(entity);
 
-	//// If the entity index is equal to the end of the undordered map, it means that no animated entity was found
-	//if (entityIndex == entityToIndex.end()) {
-	//	info->type = Graphics::RenderObjectInfo::JobType::STATIC;
-	//}
-
-	//// Otherwise, there was an animated entity and we should use the skinned vertex shader
-	//else {
-
-	//	info->type = Graphics::RenderObjectInfo::JobType::SKINNED;
-	//	info->animationJob = animationData.job[entityIndex->second];
-	//	info->vertexShader = skinnedShader;
-	//	info->skeletonIndex = animationData.skeletonIndex[entityIndex->second];
-	//}
+	// there was an animated entity and we should use the skinned vertex shader
+	if (entityIndex != entityToIndex.end()) {
+		
+	}
 	StopProfile;
 }
 
@@ -300,12 +298,4 @@ int SE::Core::AnimationManager::LoadAnimation(void * data, size_t size)
 	
 
 	return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
-}
-
-SE::ResourceHandler::InvokeReturn SE::Core::AnimationManager::LoadSkinnedShader(const Utilz::GUID & guid, void * data, size_t size)
-{
-	skinnedShader = initInfo.renderer->CreateVertexShader(data, size);
-	if (skinnedShader == -1)
-		return ResourceHandler::InvokeReturn::Fail;
-	return ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
