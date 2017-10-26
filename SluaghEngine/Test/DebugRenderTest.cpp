@@ -48,8 +48,8 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 		managers.renderableManager->CreateRenderableObject(ents[i], { "Placeholder_Block.mesh" });
 		managers.renderableManager->ToggleRenderableObject(ents[i], true);
 		
-		managers.debugRenderManager->ToggleDebugRendering(ents[i], true);
-		managers.debugRenderManager->DrawCross(ents[i], 1.0f);
+	//	managers.debugRenderManager->ToggleDebugRendering(ents[i], true);
+	//	managers.debugRenderManager->DrawCross(ents[i], 1.0f);
 
 	}
 

@@ -423,9 +423,8 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					}
-
+					vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
