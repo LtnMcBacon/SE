@@ -204,7 +204,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		});
 
-		int random = rand() % nrOfRooms + 1;
+		int random = rand() % nrOfRooms;
 
 		Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
