@@ -73,8 +73,8 @@ namespace SE
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
+				Utilz::GUID* mesh;
 				Utilz::GUID* skeleton;
-				Utilz::GUID* animation;
 			};
 			
 			AnimationData animationData;
@@ -83,6 +83,16 @@ namespace SE
 
 
 			AnimationSystem animationSystem;
+
+
+			struct BufferInfo
+			{
+				int vertexCount;
+			};
+
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
+			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
+
 		};
 	}
 }

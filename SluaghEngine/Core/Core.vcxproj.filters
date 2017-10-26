@@ -138,6 +138,9 @@
     <ClCompile Include="RenderableManagerInstancing.cpp">
       <Filter>Source Files\RenderObjects</Filter>
     </ClCompile>
+    <ClCompile Include="IEventManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioManager.h">
@@ -250,6 +253,9 @@
     </ClInclude>
     <ClInclude Include="AnimationStructs.h">
       <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="IEventManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -35,6 +35,7 @@ namespace SE
 			};
 			struct CreateInfo
 			{
+				Utilz::GUID mesh;
 				Utilz::GUID skeleton;
 				size_t animationCount;
 				Utilz::GUID* animations;

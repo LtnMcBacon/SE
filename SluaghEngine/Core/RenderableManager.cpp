@@ -507,8 +507,6 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount)
 {
-	StartProfile;
-
 	int result = 0;
 	auto meshHeader = (Graphics::Mesh_Header*)data;
 	vertexCount = meshHeader->nrOfVertices;
@@ -521,7 +519,7 @@ int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* da
 		VertexDeformer* v = (VertexDeformer*)(meshHeader + 1);
 		result = initInfo.renderer->GetPipelineHandler()->CreateVertexBuffer(meshGUID, v, meshHeader->nrOfVertices, sizeof(VertexDeformer));
 	}
-	ProfileReturnConst(result);
+	return result;
 }
 
 void SE::Core::RenderableManager::SetDirty(const Entity & entity, size_t index)
