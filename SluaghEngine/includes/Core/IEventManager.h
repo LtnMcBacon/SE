@@ -17,6 +17,10 @@ namespace SE
 		{
 		public:
 
+			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
+			virtual void TriggerSetRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) = 0;
+
+
 		protected:
 			IEventManager() {};
 			

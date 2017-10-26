@@ -51,7 +51,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		int msgboxID = MessageBox(
 			NULL,
 			e.what(),
-			"Engine Error",
+			"Engine Init Error",
 			MB_ICONERROR | MB_OK
 		);
 #endif

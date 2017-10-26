@@ -23,9 +23,11 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
+	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.eventManager);
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.console);
-
+	
 	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
 	switch (initInfo.unloadingStrat)
 	{
