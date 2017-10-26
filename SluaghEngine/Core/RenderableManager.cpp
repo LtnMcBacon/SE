@@ -16,6 +16,7 @@ static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
 static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
+static const SE::Utilz::GUID Transparency("RMTransparency");
 
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
@@ -69,6 +70,21 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
 	if (result < 0)
 		throw std::exception("Could not create wireframe Rasterizer.");
+
+
+	Graphics::BlendState bs;
+	bs.enable = true;
+	bs.blendOperation = Graphics::BlendOperation::ADD;
+	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.srcBlendAlpha = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlendAlpha = Graphics::Blend::ONE;
+
+	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
+	if (result < 0)
+		throw std::exception("Could not create Transparency Blendstate.");
+
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -200,6 +216,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
 	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? wireframe : solid;
+	info->pipeline.OMStage.blendState = renderableObjectInfo.transparency[index] ? Transparency : Utilz::GUID();
 
 	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
 	info->instanceCount = 0;
