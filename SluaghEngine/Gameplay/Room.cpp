@@ -226,6 +226,8 @@ bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 {
 	StartProfile;
 
+
+
 	if (enemyUnits.size() == 0)
 	{
 		return false;
@@ -255,237 +257,29 @@ bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY) const
 {
 	StartProfile;
-	if(int(startX) == int(endX))
+	static const int stepsize = 100;
+	float deltaX = endX - startX;
+	float deltaY = endY - startY;
+	float deltaTot = abs(deltaX) + abs(deltaY);
+
+	if (int(deltaTot) == 0.f)
+		ProfileReturnConst(true);
+
+	deltaX /= stepsize;
+	deltaY /= stepsize;
+
+	float x = startX;
+	float y = startY;
+
+
+
+	for(int i = 0 ; i < stepsize; i++)
 	{
-		int distance = abs(int(startY) - int(endY));
-		int x = int(startX);
-		int y = int(startY);
-		if(startY < endY)
-		{
-			for (int i = 0; i < distance; i++)
-				if (tileValues[x][y + i])
-					ProfileReturnConst(false);
-		}
-		else
-		{
-			for (int i = 0; i < distance; i++)
-				if (tileValues[x][y - i])
-					ProfileReturnConst(false);
-		}
-	}
-	else if(int(startY) == int(endY))
-	{
-		int distance = abs(int(startX) - int(endX));
-		int x = int(startX);
-		int y = int(startY);
-		if (startX < endX)
-		{
-			for (int i = 0; i < distance; i++)
-				if (tileValues[x+i][y])
-					ProfileReturnConst(false);
-		}
-		else
-		{
-			for (int i = 0; i < distance; i++)
-				if (tileValues[x-i][y])
-					ProfileReturnConst(false);
-		}
-	}
-	else
-	{
-		/**
-		 * Breseham's Line ALgorithm
-		 * https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
-		 *  Octants:
-		 *	 \2 | 1/
-		 *	3 \ | / 0
-		 *	 ---+---
-		 *	4 / | \ 7
-		 *	 /5 | 6\	
-		 *	 
-		 */
+		if (tileValues[int(x)][int(y)])
+			ProfileReturnConst(false);
 
-		float m = (endY - startY) / (endX - startX);
-		
-		/*Decide octant*/
-		int octant = 0;
-
-		if(0.f < m && m <= 1.f)
-		{
-			if (startX < endX)
-				octant = 0;
-			else
-				octant = 4;
-		}
-		else if(1.f < m)
-		{
-			if (startY < endY)
-				octant = 1;
-			else
-				octant = 5;
-		}
-		else if(m < -1.f)
-		{
-			if (startY < endY)
-				octant = 2;
-			else
-				octant = 6;
-		}
-		else
-		{
-			if (endX < startX)
-				octant = 3;
-			else
-				octant = 7;
-		}
-		float xStart = 0.f;
-		float xEnd = 0.f;
-		float yStart = 0.f;
-		float yEnd = 0.f;
-		switch(octant)
-		{
-		case 0:
-			xStart = startX;
-			xEnd = endX;
-			yStart = startY;
-			yEnd = endY;
-			break;
-
-		case 1:
-			xStart = startX;
-			xEnd = endX;
-			yStart = startY;
-			yEnd = endY;
-			break;
-
-		case 2:
-			xStart = endX;
-			xEnd = startX;
-			yStart = startY;
-			yEnd = endY;
-			break;
-
-		case 3:
-			xStart = endX;
-			xEnd = startX;
-			yStart = startY;
-			yEnd = endY;
-			break;
-
-		case 4:
-			xStart = endX;
-			xEnd = startX;
-			yStart = endY;
-			yEnd = startY;
-			break;
-
-		case 5:
-			xStart = endX;
-			xEnd = startX;
-			yStart = endY;
-			yEnd = startY;
-			break;
-
-		case 6:
-			xStart = startX;
-			xEnd = endX;
-			yStart = endY;
-			yEnd = startY;
-			break;
-
-		case 7:
-			xStart = startX;
-			xEnd = endX;
-			yStart = endY;
-			yEnd = startY;
-			break;
-
-		default: 
-			break;
-		}
-		float stepSize = 0.1f;
-		if(m < 0.f) /*Negative Slope*/
-		{
-			if(octant == 2 || octant == 6) /*Loop over y*/
-			{
-				
-				float x = xEnd;
-				float y = yStart;
-				float eps = 0;
-				while (y < yEnd)
-				{
-					if (tileValues[int(x)][int(y)])
-						ProfileReturnConst(false);
-					eps += m*stepSize;
-					if (eps < -0.5f)
-					{
-						x--;
-						eps += 1.f;
-					}
-					y += stepSize;
-				}
-			}
-			else /*Loop over x*/
-			{
-				float y = yEnd;
-				float x = xStart;
-				float eps = 0;
-				while (x < xEnd)
-				{
-					if (tileValues[int(x)][int(y)])
-						ProfileReturnConst(false);
-					eps += m*stepSize;
-					if (eps < -0.5f)
-					{
-						y--;
-						eps += 1.f;
-					}
-					x += stepSize;
-				}
-			}
-		}
-		else
-		{
-			if (octant == 1 || octant == 5) /*Loop over y*/
-			{
-				
-				float x = xStart;
-				float y = yStart;
-				float eps = 0;
-				while(y < yEnd)
-				{
-					if (tileValues[int(x)][int(y)])
-						ProfileReturnConst(false);
-					eps += m*stepSize;
-					if(eps > 0.5f)
-					{
-						x++;
-						eps -= 1.f;
-					}
-					y += stepSize;
-				}
-					
-				
-			}
-			else /*Loop over x*/
-			{
-				float x = xStart;
-				float y = yStart;
-				float eps = 0;
-				while(x < xEnd)
-				{
-					if (tileValues[int(x)][int(y)])
-						ProfileReturnConst(false);
-					eps += m*stepSize;
-					if (eps > 0.5f)
-					{
-						y++;
-						eps -= 1.f;
-					}
-					x += stepSize;
-				}
-			}
-		}
+		x += deltaX;
+		y += deltaY;
 	}
 
 	ProfileReturnConst(true);
