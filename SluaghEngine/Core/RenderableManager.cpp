@@ -136,19 +136,14 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		renderableObjectInfo.visible[find->second] = visible ? 1u : 0u;
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
-		info.pipeline.SetID();
 		if (visible)
 		{
 			rmInstancing->AddEntity(entity, info);
-			//const uint32_t jobID = initInfo.renderer->AddRenderJob(info, Graphics::RenderGroup::SECOND_PASS);
-			//renderableObjectInfo.jobID[find->second] = jobID;
-			//Dummy-move to make the entity "dirty" so that the transform is sent to the renderer
 			initInfo.transformManager->SetAsDirty(entity);
 		}
 		else
 		{
 			rmInstancing->RemoveEntity(entity);
-			//initInfo.renderer->DisableRendering(renderableObjectInfo.jobID[find->second]);
 		}
 
 	}
@@ -270,7 +265,6 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			info.pipeline.SetID();
 			rmInstancing->AddEntity(entity, info);
 		}
 	}
@@ -282,12 +276,13 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.wireframe[find->second]) != wireFrame)
-		{		
+		{
+			renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
 		}
-		renderableObjectInfo.wireframe[find->second] = wireFrame ? 1u : 0u;
+		
 	}
 }
 
@@ -298,11 +293,12 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	{
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
+			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
 		}
-		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
+		
 	}
 }
 

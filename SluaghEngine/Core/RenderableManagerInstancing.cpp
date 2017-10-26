@@ -16,7 +16,7 @@ SE::Core::RenderableManagerInstancing::~RenderableManagerInstancing()
 void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Graphics::RenderJob & job)
 {
 	StartProfile;
-	//job.pipeline.SetID();
+	job.pipeline.SetID();
 
 	const auto findBucket = pipelineToRenderBucket.find(job.pipeline.id);
 	auto& bucket = pipelineToRenderBucket[job.pipeline.id];
