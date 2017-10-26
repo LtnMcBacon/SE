@@ -285,19 +285,17 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID& guid, void * dat
 	// After the skeleton header, there will only be joints
 	auto jointAttr = (JointAttributes*)(skelH + 1);
 
-	return animationSystem.AddSkeleton(jointAttr, skelH->nrOfJoints,);
-
-	//return initInfo.renderer->CreateSkeleton(jointAttr, skelH->nrOfJoints);
+	return animationSystem.AddSkeleton(guid, jointAttr, skelH->nrOfJoints);
 }
 
 int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * data, size_t size)
 {
-	//auto animH = (Graphics::Animation_Header*)data;
+	auto animH = (Animation_Header*)data;
 
-	//// After the animation header, there will only be matrices of type XMFLOAT4X4
-	//auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
+	// After the animation header, there will only be matrices of type XMFLOAT4X4
+	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	//
+	return animationSystem.AddAnimation(guid,matrices, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }
