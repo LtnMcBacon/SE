@@ -10,6 +10,8 @@
 #include <Utilz\CircularFiFo.h>
 #include <thread>
 #include <Utilz\TimeCluster.h>
+#include <ToolKit\SpriteFont.h>
+#include <ToolKit\SpriteBatch.h>
 
 
 namespace SE
