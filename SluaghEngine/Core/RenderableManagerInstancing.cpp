@@ -93,6 +93,8 @@ void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& 
 	if (currentBucket.transforms.size() == 0)
 	{
 		renderer->RemoveRenderJob(currentBucket.jobID);
+		delete pipelineToRenderBucket[bucketAndID.bucket];
+		pipelineToRenderBucket.erase(bucketAndID.bucket);
 	}	
 	else
 	{
@@ -102,4 +104,6 @@ void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& 
 		});
 		// TODO: Change instance count for job.
 	}
+
+	
 }
