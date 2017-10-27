@@ -28,7 +28,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		health += healing.amount;
 	}
 	
-
+	this->health = 100.f;
 	ProfileReturnVoid;
 
 }

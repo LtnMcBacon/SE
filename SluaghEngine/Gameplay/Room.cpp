@@ -286,7 +286,7 @@ bool Room::CheckLineOfSightBetweenPoints(float startX, float startY, float endX,
 	ProfileReturnConst(true);
 }
 
-float Room::DistanceToClosestWall(float startX, float startY)
+float Room::DistanceToClosestWall(float startX, float startY, float &distX, float &distY)
 {
 	StartProfile;
 	/*We should never have a room of this size*/
@@ -305,7 +305,11 @@ float Room::DistanceToClosestWall(float startX, float startY)
 				float yDist = i - yStart + startY;
 				float dist = sqrt(xDist*xDist + yDist*yDist);
 				if (dist < distance)
+				{
 					distance = dist;
+					distX = xDist;
+					distY = yDist;
+				}
 			}
 		/*Check right side*/
 		for (int i = yStart - yDistance; i <= yStart + yDistance; i++)
@@ -315,7 +319,11 @@ float Room::DistanceToClosestWall(float startX, float startY)
 				float yDist = i - yStart + startY;
 				float dist = sqrt(xDist*xDist + yDist*yDist);
 				if (dist < distance)
+				{
 					distance = dist;
+					distX = xDist;
+					distY = yDist;
+				}
 			}
 		/*Check Up*/
 		for (int i = xStart - xDistance; i <= xStart + xDistance; i++)
@@ -325,7 +333,11 @@ float Room::DistanceToClosestWall(float startX, float startY)
 				float xDist = i - xStart + startX;
 				float dist = sqrt(xDist*xDist + yDist*yDist);
 				if (dist < distance)
+				{
 					distance = dist;
+					distX = xDist;
+					distY = yDist;
+				}
 
 			}
 		/*Check Down*/
@@ -336,7 +348,11 @@ float Room::DistanceToClosestWall(float startX, float startY)
 				float xDist = i - xStart + startX;
 				float dist = sqrt(xDist*xDist + yDist*yDist);
 				if (dist < distance)
+				{
 					distance = dist;
+					distX = xDist;
+					distY = yDist;
+				}
 
 			}
 		yDistance++;
