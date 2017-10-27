@@ -391,7 +391,7 @@ namespace SE
 			/**
 			 * @brief Get distance to closest wall (VERY GREEDY AS OF NOW!)
 			 */
-			float DistanceToClosestWall(float startX, float startY);
+			float DistanceToClosestWall(float startX, float startY, float &distX, float &distY);
 
 			/**
 			 * @brief Get distance to all enemies
@@ -408,6 +408,8 @@ namespace SE
 					}
 				}
 			}
+
+			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 
 	}
