@@ -51,7 +51,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		int msgboxID = MessageBox(
 			NULL,
 			e.what(),
-			"Engine Error",
+			"Engine Init Error",
 			MB_ICONERROR | MB_OK
 		);
 #endif
@@ -304,6 +304,7 @@ void SE::Core::Engine::InitRenderableManager()
 	{
 		IRenderableManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
@@ -323,6 +324,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
+		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
@@ -338,7 +340,7 @@ void SE::Core::Engine::InitMaterialManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
-		info.renderableManager = managers.renderableManager;
+		info.eventManager = managers.eventManager;
 		info.console = subSystems.devConsole;
 		managers.materialManager = CreateMaterialManager(info);
 	}

@@ -35,6 +35,7 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize);
 			~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -59,36 +60,17 @@ namespace SE
 			*/
 			void ToggleRenderableObject(const Entity& entity, bool visible)override;
 
-			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback)override
-			{
-				SetRenderObjectInfoEvent += callback;
-			}
-
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void UpdateRenderableObject(const Entity& entity)override;
-
 			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
-		private:
-		
-			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-			Utilz::Event<void(const Entity& entity, Graphics::RenderJob* info)> SetRenderObjectInfoEvent;
-			Utilz::Event<void(const Entity& entity, bool)> ToggleVisible;
-			
-			void LinearUnload(size_t sizeToAdd);
-
-			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
-
-			UnloadingStrategy Unload;
-
-
-			void SetDirty(const Entity& entity, size_t index);
+		protected:
+			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 
 			/**
 			* @brief	Allocate more memory
@@ -98,6 +80,22 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
+		private:
+			void Init();
+
+			void UpdateRenderableObject(const Entity& entity);
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+
+			void LinearUnload(size_t sizeToAdd);
+
+			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
+
+			UnloadingStrategy Unload;
+
+
+			void SetDirty(const Entity& entity, size_t index);
+
+			
 			/**
 			* @brief	Remove an enitity
 			*/
@@ -113,19 +111,17 @@ namespace SE
 
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
 			
-			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
+
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				Utilz::GUID* mesh;
-				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
-				uint32_t* jobID;
 				uint8_t* wireframe;
 				uint8_t* transparency;
 			};
