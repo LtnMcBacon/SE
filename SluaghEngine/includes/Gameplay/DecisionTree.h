@@ -121,8 +121,11 @@ namespace SE
 
 					~FeatureList()
 					{
-						for (auto feature : features)
+						for (auto &feature : features)
+						{
 							delete feature;
+							feature = nullptr;
+						}
 					}
 
 					inline bool Compare(Answer compareToo)
@@ -190,9 +193,11 @@ namespace SE
 						for (int i = 0; i < numberOfChildren; i++)
 						{
 							delete children[i];
+							children[i] = nullptr;
 						}
 						if (numberOfChildren)
 							delete[] children;
+						children = nullptr;
 					}
 
 					Answer answer;
@@ -383,7 +388,7 @@ namespace SE
 				* subtree can split on data regardless of another subtree's split.
 				*/
 				std::vector<bool> leftForSplit(startData[0]->features.size(), true);
-				for (auto feature : startData[0]->features)
+				for (auto &feature : startData[0]->features)
 				{
 					splitingGroups.push_back(feature->SplitingPoints());
 				}
@@ -634,6 +639,7 @@ namespace SE
 
 							SplitContiniousFeature(below, attribute, lowValue, median, returnVector);
 							delete below;
+							below = nullptr;
 						}
 					}
 				}
@@ -669,6 +675,7 @@ namespace SE
 							/*If not, we recursiverly split the new vector.*/
 							SplitContiniousFeature(above, attribute, median, highValue, returnVector);
 							delete above;
+							above = nullptr;
 						}
 					}
 				}
@@ -704,11 +711,12 @@ namespace SE
 
 						/*Calculate the remainder for this dataset*/
 						double remainder = 0.0;
-						for (auto dataSet : dataAfterSplit)
+						for (auto &dataSet : dataAfterSplit)
 						{
 							if (dataSet->list.size())
 								remainder += Remainder(dataSet, size);
 							delete dataSet;
+							dataSet = nullptr;
 							
 						}
 
@@ -733,21 +741,26 @@ namespace SE
 			{
 				StartProfile;
 				Node* node = nullptr;
+
+				VectorWrapper* temp = new VectorWrapper;
+				temp->list = data->list;
+
 				/*Check what attribute that should be used for this split*/
-				int attributeToSplitOn = Gains(data, leftForSplit);
+				int attributeToSplitOn = Gains(temp, leftForSplit);
 				/*If the attribute is not continous, build the root with the BuildRootForNonContionus function*/
 				if (splitingGroups[attributeToSplitOn] != -1)
 				{
 					leftForSplit[attributeToSplitOn] = false;
-					node = BuildRootForNonContinousFeature(data, leftForSplit, attributeToSplitOn);
+					node = BuildRootForNonContinousFeature(temp, leftForSplit, attributeToSplitOn);
 				}
 				/*Otherwise, build the root with the BuildRootForFloat function*/
 				else
 				{
 					leftForSplit[attributeToSplitOn] = false;
-					node = BuildRootForContiniousFeature(data, leftForSplit, attributeToSplitOn);
+					node = BuildRootForContiniousFeature(temp, leftForSplit, attributeToSplitOn);
 				}
 				node->splitData = attributeToSplitOn;
+				delete temp;
 				ProfileReturnConst(node);
 			}
 
@@ -931,6 +944,14 @@ namespace SE
 						node->children[i]->numberOfChildren = 0;
 					}
 				}
+				for(auto &split : dataSplit)
+				{
+					if (split)
+					{
+						delete split;
+						split = nullptr;
+					}
+				}
 				ProfileReturnConst(node);
 			}
 
@@ -1067,8 +1088,14 @@ namespace SE
 					}
 				}
 
-				for (auto split : dataSplit)
-					delete split;
+				for (auto& split : dataSplit)
+				{
+					if (split)
+					{
+						delete split;
+						split = nullptr;
+					}
+				}
 
 				node->splitData = attributeToSplitOn;
 				ProfileReturnConst(node);

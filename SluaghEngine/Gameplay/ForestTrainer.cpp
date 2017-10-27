@@ -8,6 +8,7 @@ void SE::Gameplay::ForestTrainer::TrainingExample(ForestStruct& frameData, bool 
 	StartProfile;
 	if (startOfCombat)
 		playerHealthPreviousFrame = frameData.thePlayer->GetHealth();
+	featureCounter = 0;
 	AddPreCalculatedFeatures(frameData);
 	AddPlayerRelatedFeatures(frameData.thePlayer);
 	AddClosestEnemyRelatedFeatures(frameData.closestUnitToPlayer, frameData.thePlayer);
