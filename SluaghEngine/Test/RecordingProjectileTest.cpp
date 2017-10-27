@@ -122,8 +122,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-		auto Block = Utilz::GUID("Placeholder_Block.mesh");
-		auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
 #pragma region AudioData
@@ -189,41 +187,64 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.lightManager->ToggleLight(light[4], true);
 #pragma endregion LightDataSet
 
-		/*Place out the level*/
-		char mapRepresentation[25][25] =
-		{
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-		};
+		auto Block = SE::Utilz::GUID{ "HighWall.mesh" };
+		auto Arrow = SE::Utilz::GUID{ "Placeholder_Arrow.mesh" };
+		auto Door = SE::Utilz::GUID{ "Door.mesh" };
+
 		int numberOfEntitesPlaced = 0;
 		int numberOfArrows = 0;
-		Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
+		uint32_t nrOfRooms;
+		Utilz::GUID* RoomArr;
 
-		Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
-		managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+		subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
+		{
+			nrOfRooms = *(uint32_t *)data;
+			RoomArr = new Utilz::GUID[nrOfRooms];
+			memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
+
+		int random = rand() % nrOfRooms;
+
+		Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
+
+		Gameplay::PlayerUnit* player = nullptr;
+		for (int x = 0; x < 25; x++)
+		{
+			for (int y = 0; y < 25; y++)
+			{
+				if (testRoom->tileValues[x][y] == 1)
+				{
+					float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+					int xOffset = 0, yOffset = 0;
+					if (rotation == 0)
+					{
+						yOffset = 1;
+					}
+					else if (rotation == 90)
+					{
+						xOffset = 1;
+					}
+					else if (rotation == 180)
+					{
+						yOffset = -1;
+					}
+					else if (rotation == 270)
+					{
+						xOffset = -1;
+					}
+					player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+
+					break;
+				}
+			}
+		}
+
+
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+
+		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
 		Core::IMaterialManager::CreateInfo playerInfo;
 		material = Utilz::GUID("MCModell.mat");
@@ -268,14 +289,23 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (mapRepresentation[x][y])
+				if (testRoom->tileValues[x][y] == 10)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 					numberOfEntitesPlaced++;
 				}
-				else
+				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
+				{
+					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
+					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
+					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+
+					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, testRoom->FloorCheck(x, y), 0.0f);
+					numberOfEntitesPlaced++;
+				}
+				else if (testRoom->tileValues[x][y] == 0)
 				{
 					managers.renderableManager->CreateRenderableObject(arrows[numberOfArrows], { Arrow });
 					managers.renderableManager->ToggleRenderableObject(arrows[numberOfArrows], true);
@@ -344,12 +374,15 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			{
 				enemyPos.x = rand() % 25;
 				enemyPos.y = rand() % 25;
-			} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
+			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
 			enemy->SetXPosition(enemyPos.x + .5f);
 			enemy->SetYPosition(enemyPos.y + .5f);
 
+			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
+			managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
+			managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
 			managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
 			managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
 			testRoom->AddEnemyToRoom(enemy);
@@ -532,7 +565,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			{
 				for (int y = 0; y < 25; y++)
 				{
-					if (mapRepresentation[x][y])
+					if (testRoom->tileValues[x][y])
 					{
 
 					}

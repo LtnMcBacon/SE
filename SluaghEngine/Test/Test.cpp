@@ -37,6 +37,9 @@
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
 #include "BloomTest.h"
+#include "RandRoomTest.h"
+#include "GlaistigTest.h"
+#include "SlaughTest.h"
 
 
 #ifdef _DEBUG
@@ -91,6 +94,8 @@ int main(int argc, char** argv)
 	AddTest(BehavioursTest);
 	AddTest(BehaviouralTreeFactoryTest);
 	AddTest(EnemyFactoryTest);
+	AddTest(GlaistigTest);
+	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
 
@@ -99,7 +104,8 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-	//AddTest(BloomTest);
+//	AddTest(BloomTest);
+	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

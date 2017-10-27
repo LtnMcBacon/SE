@@ -6,9 +6,12 @@
 #include <Gameplay\ProjectileData.h>
 #include <Gameplay\Room.h>
 #include <Gameplay\PlayerUnit.h>
+#include <ResourceHandler\IResourceHandler.h>
+#include "Utilz/GUID.h"
 
-#include <new>
 #include <variant>
+#include <unordered_map>
+#include <map>
 
 namespace SE
 {
@@ -33,27 +36,22 @@ namespace SE
 		{
 		private:
 
+			/**
+			* @brief	Wrapper for a parameter of a behaviour, uses variant to be able to hold whatever type might be needed
+			*/
 			struct BehaviourParameter
 			{
-				//union Union
-				//{
-				//	float f;
-				//	int i;
-				//	bool b;
-				//	std::vector<std::function<bool(Projectile* projectile, float dt)>> functions;
-				//	Projectile* projectile;
-				//	std::vector<BehaviourParameter> subParameters;
+				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::weak_ptr<GameUnit*>> data;
+			};
 
-				//	Union() {}
-				//	//Union(const Union& other)
-				//	//{
-				//	//	
-				//	//}
-				//	~Union() {}
-				//} U;
-
-				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::vector<BehaviourParameter>> data;
-
+			struct LoadedProjectile
+			{
+				float projectileWidth, projectileHeight, rotationAroundUnit, distanceFromUnit, projectileRotation, rotationPerSec, projectileSpeed, timeToLive;
+				Utilz::GUID meshName;
+				float meshScale;
+				std::string particleEffect;
+				int nrOfBehaviours;
+				std::vector<std::string> behaviours;
 			};
 
 			/**
@@ -70,6 +68,10 @@ namespace SE
 
 			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
 
+			std::vector<Projectile> newProjectiles;
+
+			std::map<Utilz::GUID, std::vector<LoadedProjectile>, Utilz::GUID::Compare> loadedProjectiles;
+
 		public:
 
 			/**
@@ -80,7 +82,13 @@ namespace SE
 			* @retval Projectile The newly created projectile
 			*
 			*/
-			SE::Gameplay::Projectile CreateNewProjectile(ProjectileData data);
+			void CreateNewProjectile(const ProjectileData& data);
+
+			inline void GetNewProjectiles(std::vector<Projectile>& vectorToAddTo)
+			{
+				vectorToAddTo.insert(vectorToAddTo.end(), newProjectiles.begin(), newProjectiles.end());
+				newProjectiles.clear();
+			}
 
 
 		private:
@@ -88,9 +96,27 @@ namespace SE
 			ProjectileFactory(const ProjectileFactory&& other) = delete;
 			ProjectileFactory& operator=(const ProjectileFactory& rhs) = delete;
 
-			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, char* fileData);
-			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, char* valueData);
+			void GetLine(const std::string& file, std::string& line, int& pos);
+			void LoadNewProjectiles(const ProjectileData& data);
+			std::function<bool(Projectile* projectile, float dt)> ParseBehaviour(Projectile& p, std::weak_ptr<GameUnit*> ownerUnit, const char* fileData);
+			void ParseValue(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter>& parameters, const char* valueData);
 
+			
+			/**
+			* @brief Acts as an if case
+			*/
+			std::function<bool(Projectile* projectile, float dt)> IFCaseBehaviour(std::vector<BehaviourParameter> parameters/*vector Conditions, vector ifTrue, vector ifFalse*/);
+
+			/**
+			* @brief Acts as an AND checker to be used with IfCaseBehaviour
+			*/
+			std::function<bool(Projectile* projectile, float dt)> ANDConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+			/**
+			* @brief Acts as an OR checker to be used with IfCaseBehaviour
+			*/
+			std::function<bool(Projectile* projectile, float dt)> ORConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+			
 			/**
 			* @brief	Adds bounce behaviour to the projectile
 			*/
@@ -99,7 +125,7 @@ namespace SE
 			/**
 			* @brief	Adds speed changing behaviour to the projectile
 			*/
-			std::function<bool(Projectile* projectile, float dt)> SpeedModifierBehaviour(std::vector<BehaviourParameter> parameters/*float speedModifier*/);
+			std::function<bool(Projectile* projectile, float dt)> SpeedAddDynamicBehaviour(std::vector<BehaviourParameter> parameters/*float speedModifier*/);
 
 			/**
 			* @brief	Adds rotation changing behaviour to the projectile
@@ -114,24 +140,53 @@ namespace SE
 			/**
 			* @brief	Adds lifetime behaviour to the projectile
 			*/
-			std::function<bool(Projectile* projectile, float dt)> LifeTimeBehaviour(std::vector<BehaviourParameter> parameters/*float timeToIncrease*/);
+			std::function<bool(Projectile* projectile, float dt)> LifeTimeAddStaticBehaviour(std::vector<BehaviourParameter> parameters/*float timeToIncrease*/);
 
 			/**
 			* @brief	Adds Targeting closest enemy behaviour to the projectile
 			*/
 			std::function<bool(Projectile* projectile, float dt)> TargetClosestEnemyBehaviour(std::vector<BehaviourParameter> parameters/*float rotPerSecond*/);
 
+			/**
+			* @brief Add stun ownerUnit behaviour to the projectile
+			*/
+			std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> LifeStealBehaviour(
+				std::vector<BehaviourParameter> parameters
+			);
 
+			/**
+			 * @brief Add stun ownerUnit behaviour to the projectile
+			 */
+			std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> StunOwnerUnitBehaviour(
+				std::vector<BehaviourParameter> parameters
+			);
 
 			/**
 			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeConditionRunBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionBehaviour(std::vector<BehaviourParameter> parameters/*float delay, bool repeat, Projectile* projectile*/);
+			
+			/**
+			 * @brief	Adds a behaviour for projectiles to follow the player
+			 */
+			std::function<bool(Projectile* projectile, float dt)> TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			 * @brief	Adds a condition to check line of sight between owner and the projectile
+			 */
+			std::function<bool(Projectile* projectile, float dt)> LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to check line of sight between owner and the projectile
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeConditionAddBehaviour(std::vector<BehaviourParameter> parameters/*float delay, std::function<bool(Projectile* projectile, float dt)> func, Projectile* projectile*/);
+			std::function<bool(Projectile* projectile, float dt)> LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to check line of sight between owner and the projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> KillSelfBehaviour(std::vector<BehaviourParameter> parameters);
+
+
 
 			/**
 			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile

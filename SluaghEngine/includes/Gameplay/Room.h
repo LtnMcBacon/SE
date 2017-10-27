@@ -4,7 +4,7 @@
 #include "EnemyUnit.h"
 #include "FlowField.h"
 #include "Projectile.h"
-
+#include <Utilz\GUID.h>
 namespace SE
 {
 	namespace Gameplay
@@ -31,6 +31,9 @@ namespace SE
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
+			
+
+
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
@@ -50,6 +53,11 @@ namespace SE
 			};
 
 		public:
+
+			/*@brief store values from raw file*/
+			/*@warning may replace "char map" ????*/
+			char tileValues[25][25];
+
 			/**
 			*
 			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
@@ -218,16 +226,30 @@ namespace SE
 			*/
 			void ProjectileAgainstWalls(Projectile& projectile);
 
-			int PointCollision(float x, float y);
+			int PointCollisionWithEnemy(float x, float y);
 
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
 			*/
 			bool ProjectileAgainstEnemies(Projectile& projectile);
 
+			/**
+			* @brief	Function for loding in a raw file to the rooms
+			*/
+			void loadfromFile(Utilz::GUID fileName); 
+
+			/**
+			 * @brief Check if a point is inside a wall
+			 */
+			inline bool PointInsideWall(float x, float y);
+
+
 		public:
-			Room(char map[25][25]);
+			Room(Utilz::GUID fileName);
 			~Room();
+
+			float FloorCheck(int x, int y); 
+			
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -359,6 +381,22 @@ namespace SE
 			* @brief	finds the closest enemy to xPos and yPos nad sets xReturn and yReturn to that enemies position, if no enemies exist then false is returned
 			*/
 			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
+			bool GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit);
+
+			/**
+			 * @brief Check if line of sight is blocked between two points
+			 */
+			bool CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY) const;
+
+			/**
+			 * @brief Get distance to closest wall (VERY GREEDY AS OF NOW!)
+			 */
+			float DistanceToClosestWall(float startX, float startY);
+
+			/**
+			 * @brief Get distance to all enemies
+			 */
+			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
 			inline void GetMap(char toReturn[25][25])
 			{

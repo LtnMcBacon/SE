@@ -7,8 +7,10 @@ using namespace Gameplay;
 
 void RandomSequence::OnInitialization()
 {
+	StartProfile;
 	std::shuffle(myChildren.begin(), myChildren.end(), generator);
 	currentChild = myChildren.begin();
+	StopProfile;
 }
 
 Status RandomSequence::Update()

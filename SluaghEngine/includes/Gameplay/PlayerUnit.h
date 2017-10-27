@@ -221,6 +221,8 @@ namespace SE
 				equippedWeaponType weapon	  = equippedWeaponType::NONE;
 				equippedElementalType element = equippedElementalType::NONE;
 
+				
+
 			};
 			stats baseStat;
 			stats newStat;
@@ -259,7 +261,8 @@ namespace SE
 			**/
 			void changeElementType(stats::equippedElementalType element);
 			
-
+			float attackSpeed = 1.0f;
+			float attackCooldown = 0.f;
 		public:
 			
 			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
