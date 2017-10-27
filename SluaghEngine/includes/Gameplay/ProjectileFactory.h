@@ -186,6 +186,27 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> KillSelfBehaviour(std::vector<BehaviourParameter> parameters);
 
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> IsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CloseToEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters/*float minDistance*/);
+
+			/**
+			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CloseToPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters/*float minDistance*/);
+
+
 
 
 			/**
