@@ -70,7 +70,8 @@ int main()
 	pipeline.VSStage.constantBufferCount = 1;
 	pipeline.GSStage.shader = "ParticleGSUpdate.hlsl";
 	pipeline.GSStage.constantBuffers[0] = "ParticleInfo";
-	pipeline.GSStage.constantBufferCount = 1;
+	pipeline.GSStage.constantBuffers[1] = "velocityBuffer";
+	pipeline.GSStage.constantBufferCount = 2;
 	pipeline.SOStage.streamOutTarget = "OutStreamBuffer2";
 	
 	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON});
@@ -78,13 +79,14 @@ int main()
 	XMFLOAT4X4 cameraMatrix;
 	XMMATRIX camera = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
 	XMStoreFloat4x4(&cameraMatrix, camera);
+	XMFLOAT2 velocity = { 0.0f, 1.0f };
 
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
-	updateParticleJob.mappingFunc = [&pipelineHandler](int a, int b) {
+	updateParticleJob.mappingFunc = [&pipelineHandler, &velocity](int a, int b) {
 		XMFLOAT4X4 identity;
 		XMStoreFloat4x4(&identity, XMMatrixIdentity());
-	//	pipelineHandler->UpdateConstantBuffer("OncePerObject", &identity, sizeof(XMFLOAT4X4));
+		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &velocity, sizeof(XMFLOAT2));
 	};
 	updateParticleJob.vertexCount = 1;
 	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob);
@@ -137,8 +139,8 @@ int main()
 		Engine.BeginFrame();
 
 		ImGui::Begin("TestWin");
-		ImGui::SliderFloat("TestSlideX", &particle[0].pos.x, -2.0f, 1.0f);
-		ImGui::SliderFloat("TestSlideY", &particle[0].pos.y, -2.0f, 1.0f);
+		ImGui::SliderFloat("Velocity X", &velocity.x, -1.0f, 1.0f);
+		ImGui::SliderFloat("Velocity Y", &velocity.y, -1.0f, 1.0f);
 		
 		
 		//** swapping renderjobs for particle outstream
