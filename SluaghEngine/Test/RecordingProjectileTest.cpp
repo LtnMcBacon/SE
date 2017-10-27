@@ -241,11 +241,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		}
 
 
-		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
-
-		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
-		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
-
 		Core::IMaterialManager::CreateInfo playerInfo;
 		material = Utilz::GUID("MCModell.mat");
 		shader = Utilz::GUID("SimpleLightPS.hlsl");

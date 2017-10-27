@@ -324,9 +324,7 @@ namespace SE
 				}
 				~RandomForest()
 				{
-					for (auto set : trainingData)
-						for (auto sample : set)
-							delete sample;
+					
 					DeleteAllTrees();
 				}
 
@@ -349,9 +347,6 @@ namespace SE
 					if (trainingData.size() == numberOfSamplesBeforeNewTree)
 					{
 						CreateNewTrees();
-						for (auto set : trainingData)
-							for (auto sample : set)
-								delete sample;
 						trainingData.clear();
 					}
 					StopProfile;

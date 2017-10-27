@@ -10,7 +10,7 @@
 #include <Utilz\Tools.h>
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
-#include "Gameplay/RandomForest.h"
+#include "Gameplay/ForestTrainer.h"
 #include "Gameplay/PlayerPossibleActions.h"
 #include "Gameplay/Game.h"
 
@@ -38,51 +38,33 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 
-	Gameplay::DecisionTree::RandomForest<SE::Gameplay::PlayerMovementActions, SE::Gameplay::PlayerAttackActions> testForest;
-
-	class DistanceToClosestEnemy : public Gameplay::DecisionTree::IFeature
-	{
-	private:
-		float answer;
-	public:
-		DistanceToClosestEnemy(float answer) : answer(answer)
-		{
-		};
-		int SplitingPoints() override { return -1; };
-		int SplitingGroupForSample() override { return int(answer); };
-		float ConvertToFloat() override { return answer; };
-		DistanceToClosestEnemy* copy() override { return new DistanceToClosestEnemy(answer); }
-	};
-
-	class DistanceXandYToClosestEnemy : public Gameplay::DecisionTree::IFeature
-	{
-	private:
-		float answer;
-	public:
-		DistanceXandYToClosestEnemy(float answer) : answer(answer)
-		{
-		};
-		int SplitingPoints() override { return -1; };
-		int SplitingGroupForSample() override { return int(answer); };
-		float ConvertToFloat() override { return answer; };
-		DistanceXandYToClosestEnemy* copy() override { return new DistanceXandYToClosestEnemy(answer); }
-	};
-
-	testForest.SetNumberOfPossibleAnswersForDecisionTrees({9, 2});
-
 	using namespace DirectX;
+
+	Core::IEngine::InitializationInfo info;
+
+	info.subSystems.optionsHandler = Core::CreateOptionsHandler();
+	info.subSystems.optionsHandler->Initialize("Config.ini");
+
+	float width = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
+
+	Window::InitializationInfo winInfo;
+	winInfo.winState = Window::WindowState::Record;
+	winInfo.height = height;
+	winInfo.width = width;
+	winInfo.windowTitle = "Recording";
+	winInfo.fullScreen = false;
+
+	info.subSystems.window = Window::CreateNewWindow();
+	info.subSystems.window->Initialize(winInfo);
+
 	auto engine = Core::CreateEngine();
 	Gameplay::Game game;
-	engine->Init();
+	engine->Init(info);
 	game.Initiate(engine);
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 
-
-
-
-	float width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-	float height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
 	auto floor = managers.entityManager->Create();
 	const int numberOfBlocks = 25 * 25;
@@ -268,6 +250,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	eFactory.LoadEnemyIntoMemory(enemyGUID);
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
+	
 	for (int i = 0; i < 1; i++)
 	{
 		pos enemyPos;
@@ -324,13 +307,36 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 
 	bool stepping = false;
 	bool running = true;
-	//unsigned char counter = 0;
-	float dt = 1.0f / 60.0f;
 
 	std::vector<float> enemyDistances;
+
+
+	auto SpawnEnemy = [&testRoom, &eFactory, enemyGUID, &blackBoard]() mutable -> void
+	{
+		if(testRoom->NumberOfEnemiesInRoom() < 2)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = rand() % 25;
+				enemyPos.y = rand() % 25;
+			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+			enemy->SetXPosition(enemyPos.x + .5f);
+			enemy->SetYPosition(enemyPos.y + .5f);
+
+			testRoom->AddEnemyToRoom(enemy);
+		}
+	};
+	SE::Gameplay::ForestTrainer Sluagh;
+	SE::Gameplay::ForestTrainer::ForestStruct frameData;
+	frameData.thePlayer = player;
 	blackBoard.currentRoom = testRoom;
 	while (running)
 	{
+		float dt = subSystem.window->GetDelta();
+		SpawnEnemy();
 		newProjectiles.clear();
 
 		Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
@@ -402,11 +408,14 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		if (subSystem.window->ButtonDown(MoveDir::SPACE))
 		{
 			actionInput.skill1Button = true;
-			playerAttack = SE::Gameplay::PlayerAttackActions::PLAYER_ATTACK_NONE;
+			playerAttack = SE::Gameplay::PlayerAttackActions::PLAYER_ATTACK_SHOOT;
 		}
 		float distance;
 		enemyDistances.clear();
 		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
+		int mX = 0;
+		int mY = 0;
+		subSystem.window->GetMousePos(mX, mY);
 		if (enemyDistances.size())
 		{
 			Gameplay::EnemyUnit* closestEnemy = nullptr;
@@ -415,21 +424,40 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				player->GetYPosition(),
 				closestEnemy);
 
-			distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
-				(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
+			frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
+				player->GetXPosition(),
+				player->GetYPosition(),
+				closestEnemy->GetXPosition(),
+				closestEnemy->GetYPosition()
+			);
 
-			testForest.AddTrainingExample(
-				std::vector<Gameplay::DecisionTree::IFeature*>({
-				new DistanceToClosestEnemy(distance),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
-			}),
-				playerMovement, playerAttack);
+			frameData.closestUnitToPlayer = closestEnemy;
+
+			testRoom->GetClosestEnemy(
+				mX,
+				mY,
+				closestEnemy);
+
+			frameData.closestEnemyToMouseBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
+				mX,
+				mY,
+				closestEnemy->GetXPosition(),
+				closestEnemy->GetYPosition()
+			);
+
+			frameData.closestUnitToMouse = closestEnemy;
+
+			frameData.distanceToAllEnemies = enemyDistances;
+
+			testRoom->DistanceToClosestWall(player->GetXPosition(), player->GetYPosition(),
+				frameData.distanceToClosestWallX, frameData.distanceToClosestWallY);
+
+			frameData.attack = playerAttack;
+			frameData.move = playerMovement;
+
 		}
 
-		int mX = 0;
-		int mY = 0;
-		subSystem.window->GetMousePos(mX, mY);
+		Sluagh.TrainingExample(frameData);
 		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DirectX::XMVECTOR rayD;
 		managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
@@ -515,6 +543,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 			}
 
 		}
+		
 
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
@@ -560,46 +589,47 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		engine->EndFrame();
 
 
-		/*	Utilz::TimeMap times;
-		e.GetProfilingInformation(times);
-		for (auto& t : times)
-		console->Print("%s: %f\n", t.first.str, t.second);*/
 	}
 	running = true;
 	while (running)
 	{
+		float dt = subSystem.window->GetDelta();
+		SpawnEnemy();
 		enemyDistances.clear();
 		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
 		if (enemyDistances.size())
 		{
-			Gameplay::EnemyUnit* closestEnemy = nullptr;
-			testRoom->GetClosestEnemy(
-				player->GetXPosition(),
-				player->GetYPosition(),
-				closestEnemy);
+			if (enemyDistances.size())
+			{
+				Gameplay::EnemyUnit* closestEnemy = nullptr;
+				testRoom->GetClosestEnemy(
+					player->GetXPosition(),
+					player->GetYPosition(),
+					closestEnemy);
+
+				frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
+					player->GetXPosition(),
+					player->GetYPosition(),
+					closestEnemy->GetXPosition(),
+					closestEnemy->GetYPosition()
+				);
+
+				frameData.closestUnitToPlayer = closestEnemy;
+
+				frameData.closestEnemyToMouseBlockedByWall = frameData.closestEnemyToPlayerBlockedByWall;
+
+				frameData.closestUnitToMouse = closestEnemy;
+
+				frameData.distanceToAllEnemies = enemyDistances;
+
+				testRoom->DistanceToClosestWall(player->GetXPosition(), player->GetYPosition(),
+					frameData.distanceToClosestWallX, frameData.distanceToClosestWallY);
 
 
-			float distance = sqrtf((player->GetXPosition() - closestEnemy->GetXPosition()) * (player->GetXPosition() - closestEnemy->GetXPosition()) +
-				(player->GetYPosition() - closestEnemy->GetYPosition())*(player->GetYPosition() - closestEnemy->GetYPosition()));
-
-			SE::Gameplay::PlayerMovementActions playerMovement;
-			SE::Gameplay::PlayerAttackActions playerAttack;
-
-			testForest.GetAnswer(
-				std::vector<Gameplay::DecisionTree::IFeature*>({
-				new DistanceToClosestEnemy(distance),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
-			}),
-				playerMovement);
-
-			testForest.GetAnswer(
-				std::vector<Gameplay::DecisionTree::IFeature*>({
-				new DistanceToClosestEnemy(distance),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetXPosition() - player->GetXPosition()),
-				new DistanceXandYToClosestEnemy(closestEnemy->GetYPosition() - player->GetYPosition())
-			}),
-				playerAttack);
+			}
+			Sluagh.DataForSluaghCalculations(frameData);
+			SE::Gameplay::PlayerMovementActions playerMovement = Sluagh.GetSlaughMovement();
+			SE::Gameplay::PlayerAttackActions playerAttack = Sluagh.GetSlaughAttack();		
 
 			Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
 			Gameplay::PlayerUnit::ActionInput actionInput(false, false);
@@ -653,6 +683,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 
 		engine->EndFrame();
 	}
+
 	delete projectileManager;
 
 	delete testRoom;
