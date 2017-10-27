@@ -27,6 +27,7 @@ namespace SE
 			struct RenderBucket
 			{
 				RenderBucket(const Graphics::Pipeline& p) : pipeline(p) {};
+				virtual ~RenderBucket() {};
 				Graphics::Pipeline pipeline;
 				uint32_t jobID;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
@@ -36,16 +37,9 @@ namespace SE
 			};
 			virtual RenderBucket* CreateBucket(Graphics::RenderJob & job);
 			
-
-		private:
 			Graphics::IRenderer* renderer;
 
-		
-
-			
-		
-
-			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;
+			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;	
 			std::unordered_map<Utilz::GUID, RenderBucket*, Utilz::GUID::Hasher> pipelineToRenderBucket;
 		};
 	}

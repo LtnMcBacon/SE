@@ -73,14 +73,17 @@ void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
 
 void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entity, const DirectX::XMFLOAT4X4 & transform)
 {
+	StartProfile;
 	auto& bai = entityToBucketAndIndexInBucket[entity];
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
 	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
+	StopProfile;
 }
 
 SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::RenderableManagerInstancing::CreateBucket(Graphics::RenderJob & job)
 {
+	StartProfile;
 	auto bucket = new RenderBucket(job.pipeline);
 	bucket->pipeline = job.pipeline;
 	//	job.maxInstances = 256; Set from the outside
@@ -88,7 +91,7 @@ SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::RenderableManage
 	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
 		renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
-	return bucket;
+	ProfileReturnConst(bucket);
 }
 
 void SE::Core::RenderableManagerInstancing::RenderBucket::AddEntity(const Entity & entity, const DirectX::XMFLOAT4X4 & transform, BucketAndID & bucketAndID)
@@ -100,6 +103,7 @@ void SE::Core::RenderableManagerInstancing::RenderBucket::AddEntity(const Entity
 
 void SE::Core::RenderableManagerInstancing::RenderBucket::RemoveFromBucket(RenderableManagerInstancing* rm, size_t index, DirectX::XMFLOAT4X4 * transform)
 {
+	StartProfile;
 	const auto last = transforms.size() - 1;
 
 	// Switch the last entity in the bucket to the removed slot
@@ -122,7 +126,6 @@ void SE::Core::RenderableManagerInstancing::RenderBucket::RemoveFromBucket(Rende
 		{
 			job.instanceCount--;
 		});
-		// TODO: Change instance count for job.
 	}
-
+	StopProfile;
 }

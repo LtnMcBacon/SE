@@ -29,7 +29,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 }
 
 SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
-	size_t allocsize) : initInfo(initInfo)
+	size_t allocsize, RenderableManagerInstancing* rmI) : initInfo(initInfo), rmInstancing(rmI)
 {
 	
 	Init();

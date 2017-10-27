@@ -102,18 +102,16 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "MCModell.mesh";
+	sai.mesh = "bakedTest.mesh";
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
+	Utilz::GUID anims[] = { "BaseLayer_bakedTest.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimation(mainC, sai);
-	managers.animationManager->Start(mainC, "IdleAnimation_bakedTest.anim", 1.0f);
+//	managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");
 	managers.animationManager->ToggleVisible(mainC, true);
-
-	//managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 
 	auto& c2 = managers.entityManager->Create();
@@ -165,6 +163,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		timer.Tick();
 		float dt = timer.GetDelta();
+		managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
 
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
@@ -186,7 +185,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		engine->BeginFrame();
 	
-		//ImGui::Begin("Animation Stuff");
+		ImGui::Begin("Animation Stuff");
 
 		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
@@ -199,7 +198,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string( entityToChange.id)).c_str());
 		
-		//ImGui::End();
+		ImGui::End();
 		
 		engine->EndFrame();
 	}
