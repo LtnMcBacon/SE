@@ -99,7 +99,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 
 	// Create material for character
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("Placeholder_Block.mat");
+	auto material = Utilz::GUID("MCModell.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
@@ -114,7 +114,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	managers.materialManager->Create(floor, floorInfo, true);
 
 	// Create renderable objects from the entities
-	managers.renderableManager->CreateRenderableObject(mainC, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 	managers.renderableManager->ToggleShadow(mainC, true);
 
@@ -173,7 +173,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::TL))
 			managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
-		//managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 		engine->BeginFrame();
