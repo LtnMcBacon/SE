@@ -200,9 +200,7 @@ namespace SE
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddCollisionFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddDeathFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddBehaviourFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
 
 			int AddBehaviourData(BehaviourData data);
 			BehaviourData& GetBehaviourData(int index);

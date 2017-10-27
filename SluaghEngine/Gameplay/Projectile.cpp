@@ -48,22 +48,11 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	if (collisionData.type != CollisionType::NONE)
 	{
 		active = false;
-
-		for (int i = 0; i < onCollision.size(); i++)
-		{
-			functionsToRun.push_back(onCollision[i]);
-		}
-
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
 	{
 		active = false;
-
-		for (int i = 0; i < onDeath.size(); i++)
-		{
-			functionsToRun.push_back(onDeath[i]);
-		}
 	}
 
 	while (tempStorage.size())
@@ -74,12 +63,13 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
-		if (!functionsToRun[i](this, dt))
-		{
-			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
-			functionsToRun.pop_back();
-			i--;
-		}
+		functionsToRun[i](this, dt);
+		//if (!functionsToRun[i](this, dt))
+		//{
+		//	std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
+		//	functionsToRun.pop_back();
+		//	i--;
+		//}
 	}
 
 	collisionData = CollisionData();
@@ -92,8 +82,6 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 void SE::Gameplay::Projectile::RecreateEntity(Utilz::GUID meshGuid)
 {
-	//this->DestroyEntity();
-
 	this->unitEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(this->unitEntity);
 	CoreInit::managers.renderableManager->CreateRenderableObject(this->unitEntity, { meshGuid });
@@ -265,19 +253,9 @@ SE::Gameplay::Projectile::~Projectile()
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::Projectile::AddContinuousFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddBehaviourFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
 	tempStorage.push_back(func);
-}
-
-void SE::Gameplay::Projectile::AddCollisionFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
-{
-	onCollision.push_back(func);
-}
-
-void SE::Gameplay::Projectile::AddDeathFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
-{
-	onDeath.push_back(func);
 }
 
 int SE::Gameplay::Projectile::AddBehaviourData(BehaviourData data)
