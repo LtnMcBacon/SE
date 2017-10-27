@@ -61,7 +61,9 @@ namespace SE
 
 			int LoadSkeleton(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
-	
+			
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
+
 
 			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
@@ -79,7 +81,7 @@ namespace SE
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-			AnimationSystem animationSystem;
+			AnimationSystem* animationSystem;
 		};
 	}
 }

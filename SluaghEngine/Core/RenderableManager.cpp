@@ -27,11 +27,12 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 }
 
-SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, size_t allocsize) : initInfo(initInfo)
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
+	size_t allocsize, RenderableManagerInstancing* rmInstancing) : initInfo(initInfo), rmInstancing(rmInstancing)
 {
 	Init();
 
-	//Allocate(allocsize);
+	Allocate(allocsize);
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -168,18 +169,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
 
-
-//	info->pipeline.
-
-/*
-	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
-	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	info->topology = renderableObjectInfo.topology[index];
-	info->vertexShader = defaultShader;
-	info->fillSolid = renderableObjectInfo.wireframe[index] ? 0u : 1u;
-	info->transparency = renderableObjectInfo.transparency[index];*/
-
-	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
 }
 
@@ -246,7 +235,6 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			rmInstancing->AddEntity(entity, info);
-			//rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}
@@ -263,10 +251,19 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
 			rmInstancing->AddEntity(entity, info);
-		//	rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		
 	}
+}
+
+bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		return static_cast<bool>(renderableObjectInfo.visible[find->second]);
+	}
+	return false;
 }
 
 void SE::Core::RenderableManager::Allocate(size_t size)
@@ -502,7 +499,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 		
 		
 		if (res)
-			initInfo.console->PrintChannel("Model %u could not be loaded, Error: %d. Using default instead.\n", "Resources", meshGUID, res);
+			initInfo.console->PrintChannel("Resources", "Model %u could not be loaded, Error: %d. Using default instead.\n",  meshGUID, res);
 		else if(!async)
 			renderableObjectInfo.mesh[newEntry] = meshGUID;
 	}

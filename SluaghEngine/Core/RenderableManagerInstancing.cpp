@@ -25,13 +25,7 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	auto& bucketAndIndexInBucket = entityToBucketAndIndexInBucket[entity];
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
 	{
-		bucket = new RenderBucket(job.pipeline);
-		bucket->pipeline = job.pipeline;
-	//	job.maxInstances = 256; Set from the outside
-		auto hax = job.specialHaxxor;
-		job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
-			renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
-		});
+		bucket = CreateBucket(job);		
 	}
 	else
 	{
@@ -88,6 +82,18 @@ void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entit
 	DirectX::XMFLOAT4X4 transposed;
 	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
 	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
+}
+
+SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::RenderableManagerInstancing::CreateBucket(Graphics::RenderJob & job)
+{
+	auto bucket = new RenderBucket(job.pipeline);
+	bucket->pipeline = job.pipeline;
+	//	job.maxInstances = 256; Set from the outside
+	auto hax = job.specialHaxxor;
+	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+		renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
+	});
+	return bucket;
 }
 
 void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform)
