@@ -13,19 +13,12 @@ namespace SE
 		{
 		public:
 			RenderableManagerInstancing(Graphics::IRenderer* renderer);
-			~RenderableManagerInstancing();
+			virtual ~RenderableManagerInstancing();
 
 			void AddEntity(const Entity& entity, Graphics::RenderJob& job);
 			void RemoveEntity(const Entity& entity);
 			void UpdateTransform(const Entity& entity, const DirectX::XMFLOAT4X4& transform);
-		private:
-			Graphics::IRenderer* renderer;
-
-			struct BucketAndID
-			{
-				Utilz::GUID bucket;
-				size_t index;
-			};
+		protected:
 			struct RenderBucket
 			{
 				RenderBucket(const Graphics::Pipeline& p) : pipeline(p) {};
@@ -34,6 +27,17 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				std::vector<Entity> indexToEntity;
 			};
+
+			virtual RenderBucket* CreateBucket(Graphics::RenderJob & job);
+		private:
+			Graphics::IRenderer* renderer;
+
+			struct BucketAndID
+			{
+				Utilz::GUID bucket;
+				size_t index;
+			};
+			
 
 			void RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform);
 

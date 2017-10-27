@@ -268,7 +268,7 @@ int SE::Core::ImGuiConsole::AddCommand(const DevConsole::DevConsole_Command & co
 
 #include <stdarg.h>  // For va_start, etc.
 
-void SE::Core::ImGuiConsole::PrintChannel(const char * line, const char * channel, ...)
+void SE::Core::ImGuiConsole::PrintChannel(const char * channel, const char * line, ...)
 {
 	std::string fmt_str = line;
 	size_t size = fmt_str.size() * 2;
@@ -334,7 +334,7 @@ void SE::Core::ImGuiConsole::VPrint(const char * line, va_list args)
 	delete[] formatted;
 }
 
-void SE::Core::ImGuiConsole::VPrint(const char * line, va_list args, const char * channel)
+void SE::Core::ImGuiConsole::VPrint(const char * channel, const char * line, va_list args)
 {
 	std::string fmt_str = line;
 	size_t size = fmt_str.size() * 2;

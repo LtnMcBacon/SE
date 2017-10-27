@@ -7,7 +7,7 @@
 #include <list>
 #include <random>
 #include <Utilz\CircularFiFo.h>
-
+#include "RenderableManager.h"
 #include "AnimationSystem.h"
 
 namespace SE
@@ -20,13 +20,13 @@ namespace SE
 		};
 
 
-		class AnimationManager : public IAnimationManager
+		class AnimationManager : public IAnimationManager, public RenderableManager
 		{
 		public:
-			AnimationManager(const InitializationInfo& initInfo);
+			AnimationManager(const IAnimationManager::InitializationInfo& initInfo);
 			~AnimationManager();
 
-			void CreateAnimation(const Entity& entity, const CreateInfo& info)override;
+			void CreateAnimation(const Entity& entity, const IAnimationManager::CreateInfo& info)override;
 
 			/**
 			* @brief	Called each frame, to update the state.
@@ -61,38 +61,27 @@ namespace SE
 
 			int LoadSkeleton(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
-	
+			
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
 
-			InitializationInfo initInfo;
+
+			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
 
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID)*2;
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				Utilz::GUID* mesh;
 				Utilz::GUID* skeleton;
 			};
 			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-
-
-			AnimationSystem animationSystem;
-
-
-			struct BufferInfo
-			{
-				int vertexCount;
-			};
-
-			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
-			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
-
+			AnimationSystem* animationSystem;
 		};
 	}
 }

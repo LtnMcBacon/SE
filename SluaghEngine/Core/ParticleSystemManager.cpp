@@ -52,7 +52,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 			}, async, behavior);
 
 			if (res)
-				initInfo.console->PrintChannel("Could not load particle system file. GUID: %u, Error: %d", "Resources", info.systemFile, res);
+				initInfo.console->PrintChannel("Resources", "Could not load particle system file. GUID: %u, Error: %d",  info.systemFile, res);
 		}
 
 		particleSystemData.push_back({});
