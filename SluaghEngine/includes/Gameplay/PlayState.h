@@ -28,7 +28,7 @@ namespace SE
 		{
 		public:
 			PlayState();
-			PlayState(Window::IWindow* Input);
+			PlayState(Window::IWindow* Input, SE::Core::IEngine* engine);
 			~PlayState();
 			/**
 			* @brief	The update loop for the Play state process.

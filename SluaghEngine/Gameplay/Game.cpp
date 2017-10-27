@@ -4,6 +4,7 @@
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
 	CoreInit::Init(engine);
+	this->engine = engine;
 
 	//should be read from file later on but hardcoded now
 
@@ -18,7 +19,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
-	//state = new PlayState(CoreInit::subSystems.window);
+	state = new PlayState(CoreInit::subSystems.window, engine);
 }
 
 void SE::Gameplay::Game::Run()
@@ -38,7 +39,7 @@ void SE::Gameplay::Game::Run()
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
-					state = new SE::Gameplay::PlayState(input);
+					state = new SE::Gameplay::PlayState(input, engine);
 				}
 			 }
 		 }
