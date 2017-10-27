@@ -108,11 +108,12 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::GUID anims[] = { "BaseLayer_bakedTest.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimation(mainC, sai);
-//	managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
+
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");
 	managers.animationManager->ToggleVisible(mainC, true);
 
+	managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
 
 	auto& c2 = managers.entityManager->Create();
 	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
@@ -163,8 +164,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		timer.Tick();
 		float dt = timer.GetDelta();
-		managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
-
+	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (subSystem.window->ButtonDown(ActionButton::Down))

@@ -160,9 +160,7 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);*/
-
+		animationData.animInfo[entityIndex->second].animationSpeed= speed;
 	}
 	StopProfile;
 }
@@ -189,9 +187,10 @@ void SE::Core::AnimationManager::Start(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->StartAnimation(animationData.job[entityIndex->second]);*/
-
+		if (renderableManager->IsVisible(entity))
+		{
+			animationData.playing[entityIndex->second] = 1u;
+		}
 	}
 	StopProfile;
 }
@@ -203,8 +202,7 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->PauseAnimation(animationData.job[entityIndex->second]);*/
+		animationData.playing[entityIndex->second] = 0u;
 	}
 	StopProfile;
 }
@@ -212,11 +210,9 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
-	auto find = entityToIndex.find(entity);
-	if (find != entityToIndex.end())
-	{
-		renderableManager->ToggleRenderableObject(entity, visible);
-	}
+
+	renderableManager->ToggleRenderableObject(entity, visible);
+	
 	StopProfile;
 }
 

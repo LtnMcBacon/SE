@@ -138,7 +138,7 @@ void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID,
 		b.GlobalTx = interpolatedJointTransforms[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx * XMMatrixScaling(-1, 1, 1)));
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));// *XMMatrixScaling(-1, 1, 1)));
 	}
 	StopProfile;
 }
@@ -250,7 +250,7 @@ void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity
 {
 	RenderBucket::AddEntity(entity, transform, bucketAndID);
 
- 	matrices.push_back(mats);
+  matrices.push_back(mats);
 }
 
 void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
