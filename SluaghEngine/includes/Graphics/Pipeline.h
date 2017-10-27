@@ -161,7 +161,7 @@ namespace SE
 		{
 		//	static const size_t maxConstantBuffers = 4;
 			static const size_t maxTextures = 4;
-			static const size_t maxSamplers = 1;
+			static const size_t maxSamplers = 2;
 			Utilz::GUID shader;
 		//	Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];

@@ -1264,6 +1264,7 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	SetRasterizerStage(pipeline.RStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
+
 	StopProfile;
 }
 
