@@ -71,7 +71,7 @@ namespace SE
 				guiTexture.pos = DirectX::XMFLOAT2(940.0, 560.0);
 				guiTexture.rotation = 0;
 				guiTexture.scale = DirectX::XMFLOAT2(1.0, 1.0);
-				guiTexture.rect = nullptr;	//not needed default nullptr
+				//guiTexture.rect = nullptr;	//not needed default nullptr
 
 				managers.guiManager->Create({ entTexture, Utilz::GUID("GUITest.sei"), guiTexture });
 				managers.guiManager->ToggleRenderableTexture(entTexture, true);
@@ -86,7 +86,7 @@ namespace SE
 				guiTexture2.pos = DirectX::XMFLOAT2(940.0, 200.0);
 				guiTexture2.rotation = 0;
 				guiTexture2.scale = DirectX::XMFLOAT2(1.0, 1.0);
-				guiTexture2.rect = nullptr;	//not needed default nullptr
+				//guiTexture2.rect = nullptr;	//not needed default nullptr
 
 
 				managers.guiManager->Create({ entTexture2, Utilz::GUID("GUITest.sei"), guiTexture2 });
@@ -102,7 +102,7 @@ namespace SE
 				guiTexture3.pos = DirectX::XMFLOAT2(300.0, 200.0);
 				guiTexture3.rotation = 0;
 				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
-				guiTexture3.rect = nullptr;	//not needed default nullptr
+			//	guiTexture3.rect = nullptr;	//not needed default nullptr
 
 				managers.guiManager->Create({ entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3 });
 				managers.guiManager->ToggleRenderableTexture(entTexture3, true);
@@ -117,7 +117,7 @@ namespace SE
 				guiTexture4.pos = DirectX::XMFLOAT2(300.0, 560.0);
 				guiTexture4.rotation = 0;
 				guiTexture4.scale = DirectX::XMFLOAT2(1.0, 1.0);
-				guiTexture4.rect = nullptr;	//not needed default nullptr
+				//guiTexture4.rect = nullptr;	//not needed default nullptr
 
 
 				managers.guiManager->Create({ entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4 });
@@ -133,7 +133,7 @@ namespace SE
 				guiTexture5.pos = DirectX::XMFLOAT2(800.0, 400.0);
 				guiTexture5.rotation = DirectX::XM_PIDIV2;
 				guiTexture5.scale = DirectX::XMFLOAT2(0.5, 0.5);
-				guiTexture5.rect = nullptr;	//not needed default nullptr
+				//guiTexture5.rect = nullptr;	//not needed default nullptr
 
 
 				managers.guiManager->Create({ entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5 });

@@ -82,7 +82,7 @@ namespace SE
 
 			virtual  void SetTextureID(const Entity& entity, Utilz::GUID& guid) = 0;
 
-			virtual  void SetTextureRect(const Entity& entity, RECT* rect) = 0;
+			virtual  void SetTextureRect(const Entity& entity, Graphics::RECT& rect) = 0;
 
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc

@@ -72,7 +72,6 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 		for (auto& m : entityToLineList)
 		{
 			const size_t verticesToDraw = m.second.size() * 2;
-			Graphics::LineRenderJob lineRenderJob;
 			Graphics::RenderJob job;
 			job.pipeline = pipeline;
 			Entity ent = m.first;

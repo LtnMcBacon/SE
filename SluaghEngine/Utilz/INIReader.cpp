@@ -39,7 +39,17 @@ namespace SE
 			}
 			else
 			{
-				ProfileReturnConst(-1);
+				std::ofstream create(filename, std::ios::out | std::ios::binary);
+				create.close();
+				myfile.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
+				if (myfile.is_open())
+				{
+					ProfileReturnConst(0);
+				}
+				else
+				{
+					ProfileReturnConst(-1);
+				}
 			}
 
 			std::string section;
