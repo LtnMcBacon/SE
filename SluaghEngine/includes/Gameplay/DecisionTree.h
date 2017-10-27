@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <Profiler.h>
 
 #undef max
 #undef min
@@ -50,6 +51,12 @@ namespace SE
 				 *  @brief Convert the feature into a float, for splitting in a continous space.
 				 */
 				virtual float ConvertToFloat() = 0;
+
+				/**
+				 * @brief Change the answer
+				 */
+
+				virtual void ChangeAnswer(...) {};
 
 				/**
 				 * @brief Copy the IFeature (ProfileReturnConst(pointer to sub-class, copy data)

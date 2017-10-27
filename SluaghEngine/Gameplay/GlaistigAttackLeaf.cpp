@@ -3,6 +3,7 @@
 #include <Gameplay/GameBlackboard.h>
 #include <Gameplay/EnemyBlackboard.h>
 #include <Gameplay/EnemyUnit.h>
+#include <Profiler.h>
 
 const SE::Utilz::GUID SE::Gameplay::GlaistigAttackLeaf::glaistigAttackFileGUID = Utilz::GUID("GlaistigProjectile.SEP");
 
@@ -14,6 +15,7 @@ SE::Gameplay::GlaistigAttackLeaf::GlaistigAttackLeaf(EnemyBlackboard* enemyBlack
 
 SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 {
+	StartProfile;
 	if(!enemyBlackboard->channeling)
 	{
 		ProjectileData newProjectile;
@@ -33,5 +35,5 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 	myStatus = Status::BEHAVIOUR_SUCCESS;
 
 	
-	return myStatus;
+	ProfileReturnConst(myStatus);
 }

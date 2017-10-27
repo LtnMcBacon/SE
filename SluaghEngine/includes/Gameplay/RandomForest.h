@@ -3,6 +3,8 @@
 
 #include "DecisionTree.h"
 #include <tuple>
+#include <Profiler.h>
+
 namespace SE
 {
 	namespace Gameplay
@@ -360,8 +362,6 @@ namespace SE
 				{
 					StartProfile;
 					answer = AskTheForest<Answer>(toClassify);
-					for (auto feature : toClassify)
-						delete feature;
 					StopProfile;
 				}
 			};

@@ -136,6 +136,9 @@
     <Filter Include="Header Files\AI\Sluagh\RandomForest\DecisionTree">
       <UniqueIdentifier>{42ab7291-5b8b-4bdc-8063-105e61e032a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\AI\Slaugh">
+      <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -287,6 +290,9 @@
     </ClCompile>
     <ClCompile Include="RestartingSequence.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="ForestTrainer.cpp">
+      <Filter>Source Files\AI\Slaugh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
