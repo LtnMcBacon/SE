@@ -3,6 +3,7 @@
 #include <window/IWindow.h>
 
 #include <Gameplay\KeyBindings.h>
+#include <Core\IEngine.h>
 
 namespace SE
 {
@@ -51,6 +52,7 @@ namespace SE
 
 		protected:
 			Window::IWindow* input;
+			SE::Core::IEngine* engine;
 
 		};
 

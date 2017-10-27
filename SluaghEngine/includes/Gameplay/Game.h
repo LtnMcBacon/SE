@@ -20,6 +20,7 @@ namespace SE
 		private:
 			IGameState* state;
 			Window::IWindow* input;
+			SE::Core::IEngine* engine;
 
 		public:
 			void Initiate(Core::IEngine* engine);

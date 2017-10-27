@@ -1,11 +1,14 @@
 #ifndef SE_GAMEPLAY_GAME_BLACKBOARD_H
 #define SE_GAMEPLAY_GAME_BLACKBOARD_H
+#include "ProjectileData.h"
+#include <vector>
 
 namespace SE
 {
 	namespace Gameplay
 	{
 		class FlowField;
+		class Room;
 		/**
 		*
 		* @brief The struct holding all the data the enemies should know from the gamestate.
@@ -44,8 +47,10 @@ namespace SE
 			float deltaTime = 0.f;
 
 			const FlowField* roomFlowField;
+			const Room* currentRoom;
 			/*Player resistances here*/
 			/*Player attack data*/
+			std::vector<ProjectileData> enemyProjectiles;
 
 
 		};
