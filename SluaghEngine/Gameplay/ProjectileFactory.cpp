@@ -391,6 +391,7 @@ void SE::Gameplay::ProjectileFactory::ParseValue(std::vector<SE::Gameplay::Proje
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::IFCaseBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> conditions = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[0].data);
 	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> ifTrue = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[1].data);
 	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> ifFalse = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[2].data);
@@ -426,11 +427,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return true;
 	};
 
-	return Brancher;
+	ProfileReturnConst(Brancher);
 }
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ANDConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> arguments = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[0].data);
 
 	auto AND = [arguments](Projectile* p, float dt) -> bool
@@ -446,11 +448,12 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 		return true;
 	};
 
-	return AND;
+	ProfileReturnConst(AND);
 }
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ORConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>> arguments = std::get<std::vector<std::function<bool(SE::Gameplay::Projectile* projectile, float dt)>>>(parameters[0].data);
 
 	auto OR = [arguments](Projectile* p, float dt) -> bool
@@ -466,11 +469,12 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 		return false;
 	};
 
-	return OR;
+	ProfileReturnConst(OR);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::BounceBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	auto bounce = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() != CollisionType::OBJECT)
@@ -483,11 +487,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return false;
 	};
 
-	return bounce;
+	ProfileReturnConst(bounce);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::SpeedAddDynamicBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	float speedModifier = std::get<float>(parameters[0].data);
 
 	auto speed = [speedModifier](Projectile* p, float dt) -> bool
@@ -499,13 +504,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return false;
 	};
 
-	return speed;
-
-	//AddBehaviourToProjectile(projectile, type, speed);
+	ProfileReturnConst(speed);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationModifierBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	float rotationModifier = std::get<float>(parameters[0].data);
 
 	auto rotation = [rotationModifier](Projectile* p, float dt) -> bool
@@ -517,13 +521,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return false;
 	};
 
-	return rotation;
-
-	//AddBehaviourToProjectile(projectile, type, rotation);
+	ProfileReturnConst(rotation);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationInvertionBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	BehaviourData data;
 	float intervall = std::get<float>(parameters[0].data);
 	data.f = intervall;
@@ -547,13 +550,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return true;
 	};
 
-	return inverter;
-
-	//AddBehaviourToProjectile(projectile, type, inverter);
+	ProfileReturnConst(inverter);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::LifeTimeAddStaticBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	float timeToIncrease = std::get<float>(parameters[0].data);
 
 	auto timeIncreaser = [timeToIncrease](Projectile* p, float dt) -> bool
@@ -566,13 +568,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return false;
 	};
 
-	return timeIncreaser;
-
-	//AddBehaviourToProjectile(projectile, type, timeIncreaser);
+	ProfileReturnConst(timeIncreaser);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	Room* currentRoom = *ptrs.currentRoom;
 	float rotPerSecond = std::get<float>(parameters[0].data);
 
@@ -623,13 +624,12 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		return false;
 	};
 
-	return targeter;
-
-	//AddBehaviourToProjectile(projectile, type, targeter);
+	ProfileReturnConst(targeter);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TimeConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	BehaviourData data;
 	float startTime = data.f = std::get<float>(parameters[0].data);
 	bool repeat = std::get<bool>(parameters[1].data);
@@ -654,12 +654,13 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		}
 	};
 
-	return timer;
+	ProfileReturnConst(timer);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
+	StartProfile;
 	Room* currentRoom = *ptrs.currentRoom;
 	PlayerUnit* player = ptrs.player;
 	float rotPerSecond = std::get<float>(parameters[0].data);
@@ -700,11 +701,12 @@ TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourPara
 		return false;
 	};
 
-	return targeter;
+	ProfileReturnConst(targeter);
 }
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::LineOfSightConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::weak_ptr<GameUnit*> owner = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	Room* currentRoom = *ptrs.currentRoom;
 
@@ -724,12 +726,13 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 			return false;
 	};
 
-	return LineOfSight;
+	ProfileReturnConst(LineOfSight);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	PlayerUnit* player = ptrs.player;
 	
 	auto LockToPlayer = [player](Projectile* p, float dt) -> bool
@@ -739,24 +742,26 @@ LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	return LockToPlayer;
+	ProfileReturnConst(LockToPlayer);
 }
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KillSelfBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	auto Suicide = [](Projectile* p, float dt) -> bool
 	{
 		p->SetActive(false);
 		return false;
 	};
 
-	return Suicide;
+	ProfileReturnConst(Suicide);
 }
 
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	float duration = std::get<float>(parameters[1].data);
 	auto StunOwnerUnit = [ownerPtr, duration](Projectile* p, float dt) -> bool
@@ -773,12 +778,13 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	return StunOwnerUnit;
+	ProfileReturnConst(StunOwnerUnit);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	float percent = std::get<float>(parameters[1].data);
 	auto LifeSteal = [ownerPtr, percent](Projectile* p, float dt) -> bool
@@ -796,7 +802,7 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	return LifeSteal;
+	ProfileReturnConst(LifeSteal);
 }
 
 void SE::Gameplay::ProjectileFactory::AddBehaviourToProjectile(Projectile & p, TypeOfFunction type, const std::function<bool(Projectile*projectile, float dt)>& func)

@@ -7,6 +7,9 @@
 #include "Behaviours.h"
 #include "BehaviouralTree.h"
 
+#undef min
+#undef max
+
 namespace
 {
 	/*Found at: https://stackoverflow.com/questions/236129/most-elegant-way-to-split-a-string */
@@ -189,24 +192,28 @@ IBehaviour* BehaviouralTreeFactory::CreateGlaistigAttackLeaf(NodeData* dataArray
 
 IBehaviour* BehaviouralTreeFactory::CreateResetAttackCooldownLeaf(NodeData* dataArray, int nodeID)
 {
-	return new ResetAttackCooldownLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn(new ResetAttackCooldownLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateAddTimeToAttackCooldownLeaf(NodeData* dataArray, int nodeID)
 {
+	StartProfile;
 	float time = std::stof(dataArray[nodeID].nodeData[0]);
-	return new AddTimeToAttackCooldownLeaf(nullptr, nullptr, time);
+	ProfileReturn(new AddTimeToAttackCooldownLeaf(nullptr, nullptr, time));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID)
 {
-	return new TickDownAttackCooldownLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn(new TickDownAttackCooldownLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateTimerConditionLeaf(NodeData* dataArray, int nodeID)
 {
+	StartProfile;
 	float timer = std::stof(dataArray[nodeID].nodeData[0]);
-	return new TimerCondition(nullptr, nullptr, timer);
+	ProfileReturn(new TimerCondition(nullptr, nullptr, timer));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateLineOfSightConditionLeaf(NodeData * dataArray, int nodeID)
@@ -218,49 +225,58 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateLineOfSightConditionLea
 
 IBehaviour* BehaviouralTreeFactory::CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID)
 {
+	StartProfile;
 	float min = std::stof(dataArray[nodeID].nodeData[0]);
 	float max = std::stof(dataArray[nodeID].nodeData[1]);
-	return new RangeToPlayerCondition(nullptr, nullptr, min, max);
+	ProfileReturn(new RangeToPlayerCondition(nullptr, nullptr, min, max));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID)
 {
-	return new AttackCooldownZeroCondition(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn(new AttackCooldownZeroCondition(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStunnedConditionLeaf(NodeData * dataArray, int nodeID)
 {
-	return new StunnedCondition(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new StunnedCondition(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID)
 {
-	return new ObstacleOnPositionCondition(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new ObstacleOnPositionCondition(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateChannelingConditionLeaf(NodeData * dataArray, int nodeID)
 {
-	return new ChannelingCondition(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new ChannelingCondition(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID)
 {
-	return new MakeInvulnerableLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new MakeInvulnerableLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID)
 {
-	return new MakeVulnerableLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new MakeVulnerableLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateFaceThePlayerLeaf(NodeData* dataArray, int nodeID)
 {
-	return new FaceThePlayerLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new FaceThePlayerLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
 {
-	return new WhileChannelingLeaf(nullptr, nullptr);
+	StartProfile;
+	ProfileReturn( new WhileChannelingLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
@@ -417,7 +433,7 @@ ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandle
 		delete[] dataArray;
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	}
-	/*Return 0 for success, -1 for fail, 1 for refcount*/
+	/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
 	delete[] dataArray;
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }

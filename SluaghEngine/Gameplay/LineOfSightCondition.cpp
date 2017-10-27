@@ -23,8 +23,7 @@ SE::Gameplay::Status SE::Gameplay::LineOfSightCondition::Update()
 		enemyBlackboard->ownerPointer->GetXPosition(),
 		enemyBlackboard->ownerPointer->GetYPosition(),
 		gameBlackboard->playerPositionX,
-		gameBlackboard->playerPositionY
-	))
+		gameBlackboard->playerPositionY))
 	{
 		ProfileReturnConst(Status::BEHAVIOUR_SUCCESS);
 	}

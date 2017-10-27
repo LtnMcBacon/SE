@@ -69,6 +69,7 @@ bool SE::Gameplay::Room::OnSegment(LinePoint p, LinePoint q, LinePoint r)
 
 int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 {
+	StartProfile;
 	// See http://www.geeksforgeeks.org/orientation-3-ordered-points/
 	// for details of below formula.
 	float val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
@@ -76,7 +77,7 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 	if (val == 0)
 		return 0;  // colinear
 
-	return (val > 0) ? 1 : 2; // clock or counterclock wise
+	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
 
 void Room::Update(float dt, float playerX, float playerY)
@@ -349,6 +350,7 @@ float Room::DistanceToClosestWall(float startX, float startY)
 
 void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& returnVector)
 {
+	StartProfile;
 	for(auto enemy : enemyUnits)
 	{
 		float distX = startX - enemy->GetXPosition();
@@ -356,6 +358,7 @@ void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& 
 
 		returnVector.push_back(sqrt(distX*distX + distY*distY));
 	}
+	StopProfile;
 }
 
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)

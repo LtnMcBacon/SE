@@ -53,7 +53,7 @@ SE::Gameplay::Status SE::Gameplay::FaceThePlayerLeaf::Update()
 	if (rotationAmmount > DirectX::XM_PI)
 		side = -1;
 
-	if (rotationAmmount > 0.00025)
+	if (rotationAmmount > 0.0025)
 	{
 		if (rotationAmmount > rotationSpeed*dt)
 			rotationAmmount = rotationSpeed*dt;
