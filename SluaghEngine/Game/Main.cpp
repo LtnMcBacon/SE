@@ -28,10 +28,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	int nCmdShow)
 {
 	SE::Gameplay::Game game;
-	game.Initiate(Core::CreateEngine());
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	game.Initiate(engine);
 	game.Run();
 
 	game.Shutdown();
+	engine->Release();
+	delete engine;
 
 	return 0;
 }
