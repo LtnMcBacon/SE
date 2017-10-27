@@ -1,4 +1,5 @@
-#include "RenderableManagerTest.h"
+
+#include "ShadowTest.h"
 #include <Core\IEngine.h>
 #include <Profiler.h>
 #include <Utilz\CpuTimeCluster.h>
@@ -27,17 +28,19 @@ enum ActionButton
 };
 
 
-SE::Test::RenderableManagerTest::RenderableManagerTest()
-{
+SE::Test::ShadowTest::ShadowTest() {
+
+
 }
 
 
-SE::Test::RenderableManagerTest::~RenderableManagerTest()
-{
+SE::Test::ShadowTest::~ShadowTest() {
+
+
 }
 
-bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
-{
+bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
+
 	StartProfile;
 
 	Utilz::CPUTimeCluster timers;
@@ -50,19 +53,26 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		delete engine;
 		return false;
 	}
-		
+
+	// Get managers and subsystem
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
+	// Create entities
 	auto& mainC = managers.entityManager->Create();
+	auto& floor = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
 
+	// Create camera
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);
+
+	// Set camera transformations
 	managers.transformManager->SetRotation(camera, 0.0f, 0.0f, 0.0f);
 	managers.transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
 
+	// Map keyboard buttons
 	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
 	subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
 	subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
@@ -76,35 +86,55 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
 	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
+	// Create transformation for character and floor
 	managers.transformManager->Create(mainC);
+	managers.transformManager->Create(floor);
+
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
+	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, -1.0f, 0.0));
+	managers.transformManager->SetScale(floor, DirectX::XMFLOAT3(10.0f, 10.0f, 10.0));
 
+	// Create material for character
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("MCModell.mat");
+	auto material = Utilz::GUID("Placeholder_Block.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
+	// Create material for floor
+	Core::IMaterialManager::CreateInfo floorInfo;
+	auto floorMaterial = Utilz::GUID("floorTest.mat");
+	floorInfo.shader = shader;
+	floorInfo.materialFile = floorMaterial;
+
 	managers.materialManager->Create(mainC, info, true);
+	managers.materialManager->Create(floor, floorInfo, true);
 
-
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
+	// Create renderable objects from the entities
+	managers.renderableManager->CreateRenderableObject(mainC, { "Placeholder_Block.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
+	managers.renderableManager->ToggleShadow(mainC, true);
 
+	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" }, false);
+	managers.renderableManager->ToggleRenderableObject(floor, true);
+
+	// Create light
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 0.0f, 5.0f, -5.0f };
+	d.pos = { 0.0f, 0.0f, -5.0f };
 	d.color = { 1, 1,1 };
+	d.dir = { 0.0f, 0.0f, 1.0f };
+	d.castShadow = true;
+	d.isOrtographic = false;
+
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
-
-
 
 	Utilz::Timer timer;
 	timers.Stop(CREATE_ID_HASH("Init"));
@@ -128,77 +158,23 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		float dt = (float)timer.GetDelta();
 
 		if (subSystem.window->ButtonDown(ActionButton::Up))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, 0.01f*dt });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (subSystem.window->ButtonDown(ActionButton::Down))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.0f, -0.01f*dt });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -0.01f*dt });
 		if (subSystem.window->ButtonDown(ActionButton::Right))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.01f*dt, 0.0f, 0.0f });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.01f*dt, 0.0f, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::Left))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { -0.01f*dt, 0.0f, 0.0f });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ -0.01f*dt, 0.0f, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::Rise))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, -0.01f*dt, 0.0f });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::Sink))
-			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.01f*dt, 0.0f });
+			managers.transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::TL))
 			managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
-		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
+		//managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 		engine->BeginFrame();
-
-		if (ImGui::Button("CreateBakedTest"))
-		{
-			if (!managers.entityManager->Alive(e1))
-			{
-				e1 = managers.entityManager->Create();
-				managers.transformManager->Create(e1);
-				managers.transformManager->SetPosition(e1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e1, { "bakedTest.mesh" }, false);
-				managers.renderableManager->ToggleRenderableObject(e1, true);
-			}		
-		}
-		if (ImGui::Button("DestroyBakedTest"))
-		{
-			managers.entityManager->Destroy(e1);
-		}
-		static bool e1w = false;
-		if (ImGui::Button("WireframeBakedTest"))
-		{
-			e1w = !e1w;
-			managers.renderableManager->ToggleWireframe(e1, e1w);
-			
-		}
-		if (ImGui::Button("CreateBakedTest2"))
-		{
-			if (!managers.entityManager->Alive(e2))
-			{
-				e2 = managers.entityManager->Create();
-				managers.transformManager->Create(e2);
-				managers.transformManager->SetPosition(e2, DirectX::XMFLOAT3(-2.0f, -2.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e2, { "bakedTest2.mesh" }, false);
-				managers.renderableManager->ToggleRenderableObject(e2, true);
-			}
-		}
-		if (ImGui::Button("DestroyBakedTest2"))
-		{
-			managers.entityManager->Destroy(e2);
-		}
-
-		if (ImGui::Button("CreateBakedTest3"))
-		{
-			if (!managers.entityManager->Alive(e3))
-			{
-				e3 = managers.entityManager->Create();
-				managers.transformManager->Create(e3);
-				managers.transformManager->SetPosition(e3, DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e3, { "bakedTest3.mesh" }, false);
-				managers.renderableManager->ToggleRenderableObject(e3, true);
-			}
-		}
-		if (ImGui::Button("DestroyBakedTest3"))
-		{
-			managers.entityManager->Destroy(e3);
-		}
 
 		engine->EndFrame();
 	}
@@ -208,7 +184,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	Utilz::TimeMap times;
 	timers.GetMap(times);
 	engine->GetProfilingInformation(times);
-	for(auto& t: times)
+	for (auto& t : times)
 		console->Print("%s: %f\n", t.first.str, t.second);
 
 	engine->Release(); delete engine;

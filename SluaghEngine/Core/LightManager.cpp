@@ -1,6 +1,7 @@
 #include"LightManager.h"
 #include <Profiler.h>
 
+using namespace DirectX;
 
 namespace SE {
 	namespace Core {
@@ -38,6 +39,18 @@ namespace SE {
 				data.visible = false;
 				data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
 				data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
+				data.dir = { info.dir.x, info.dir.y, info.dir.z, 1.0f };
+				data.castShadow = info.castShadow;
+
+				// If entity is shadow caster, push back to shadow casters
+				if (data.castShadow == true) {
+
+					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(3.14 / 2, 1, 0.1, info.radius);
+
+					shadowCasters.push_back({ entity, proj, info.dir});
+
+
+				}
 
 				initInfo.transformManager->Create(entity, info.pos);
 
@@ -103,9 +116,36 @@ namespace SE {
 					cb.size[0] = count;
 
 				});
+
 				anyTogglesThisFrame = false;
 			}
 
+			if (shadowCasters.size() > 0) {
+
+				auto& k = shadowCasters[0];
+				auto pos = initInfo.transformManager->GetPosition(k.entity);
+
+				initInfo.transformManager->SetForward(k.entity, k.dir);
+
+				auto dir = initInfo.transformManager->GetForward(k.entity);
+				auto right = initInfo.transformManager->GetRight(k.entity);
+
+				auto vDir = XMLoadFloat3(&dir);
+				auto vRight = XMLoadFloat3(&right);
+
+				auto vUp = XMVector3Cross(vDir, vRight);
+
+				XMMATRIX view = XMMatrixLookToLH(XMLoadFloat3(&pos), vDir, vUp);
+
+				view *= k.lProj;
+
+				view = XMMatrixTranspose(view);
+
+				XMFLOAT4X4 viewProj;
+				XMStoreFloat4x4(&viewProj, view);
+
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
+			}
 
 			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;

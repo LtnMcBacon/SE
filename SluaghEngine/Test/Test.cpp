@@ -37,6 +37,7 @@
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
 #include "BloomTest.h"
+#include "ShadowTest.h"
 
 
 #ifdef _DEBUG
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
 	AddTest(EnemyFactoryTest);
 
 	AddTest(PickingTest);
-
+	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);

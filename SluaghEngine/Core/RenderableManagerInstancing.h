@@ -15,7 +15,7 @@ namespace SE
 			RenderableManagerInstancing(Graphics::IRenderer* renderer);
 			~RenderableManagerInstancing();
 
-			void AddEntity(const Entity& entity, Graphics::RenderJob& job);
+			void AddEntity(const Entity& entity, Graphics::RenderJob& job, Graphics::RenderGroup group = Graphics::RenderGroup::SECOND_PASS);
 			void RemoveEntity(const Entity& entity);
 			void UpdateTransform(const Entity& entity, const DirectX::XMFLOAT4X4& transform);
 		private:

@@ -16,6 +16,7 @@ static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
 static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
+static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
 
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
@@ -36,6 +37,8 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 		break;
 	}
 
+	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+
 	Allocate(128);
 	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
 
@@ -55,6 +58,17 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	if (res)
 		throw std::exception("Could not load default shader");
 
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
 
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
@@ -71,7 +85,6 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	if (result < 0)
 		throw std::exception("Could not create wireframe Rasterizer.");
 
-
 	Graphics::BlendState bs;
 	bs.enable = true;
 	bs.blendOperation = Graphics::BlendOperation::ADD;
@@ -85,6 +98,17 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
 
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	Graphics::Viewport vp;
+
+	vp.width = 512;
+	vp.height = 512;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
 }
 
 SE::Core::RenderableManager::~RenderableManager()
@@ -238,6 +262,27 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	SetRenderObjectInfoEvent(renderableObjectInfo.entity[index], info);
 }
 
+void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
+{
+	info->pipeline.OMStage.renderTargets[0] = Utilz::GUID();
+	info->pipeline.OMStage.renderTargetCount = 1;
+	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
+
+	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+
+	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
+	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
+	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+
+	info->pipeline.RStage.rasterizerState = solid;
+	info->pipeline.RStage.viewport = "shadowVP";
+
+	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->maxInstances = 256;
+	info->specialHaxxor = "OncePerObject";
+
+}
+
 void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
 {
 	size_t freed = 0;
@@ -334,9 +379,9 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
 			Graphics::RenderJob info;
-			CreateRenderObjectInfo(find->second, &info);
-			rmInstancing->AddEntity(entity, info);
-			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			CreateShadowRenderObjectInfo(find->second, &info);
+			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS);
+			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 
 		}
 	}
@@ -361,7 +406,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.jobID = (uint32_t*)(newData.visible + newData.allocated);
 	newData.wireframe = (uint8_t*)(newData.jobID + newData.allocated);
 	newData.transparency = (uint8_t*)(newData.wireframe + newData.allocated);
-	newData.shadow = (uint8_t*)(newData.shadow + newData.allocated);
+	newData.shadow = (uint8_t*)(newData.transparency + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));

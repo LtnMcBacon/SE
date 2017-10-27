@@ -565,6 +565,7 @@ int SE::Graphics::Renderer::Render() {
 	/******************General Jobs*********************/
 	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
 	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
+	
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
@@ -708,6 +709,9 @@ int SE::Graphics::Renderer::Render() {
 
 int SE::Graphics::Renderer::BeginFrame()
 {
+
+	pipelineHandler->ClearAllRenderTargets();
+
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
 	

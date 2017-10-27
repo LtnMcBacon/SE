@@ -42,6 +42,7 @@ namespace SE
 			{
 				DirectX::XMFLOAT4 colour;	//colour (rgba)
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
+				DirectX::XMFLOAT4 dir;
 				bool visible;
 				bool castShadow;
 			};
@@ -53,11 +54,26 @@ namespace SE
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
 				DirectX::XMFLOAT4 castShadow;
 			};
+
+			struct LightViewProj {
+
+				DirectX::XMFLOAT4X4 lViewProj;
+			};
+
 			struct LightDataBuffer
 			{
 				uint32_t size[4];
 				LightAttributes data[20];
 			};
+
+			struct ShadowCaster {
+
+				Entity entity;
+				DirectX::XMMATRIX lProj;
+				DirectX::XMFLOAT3 dir;
+			};
+
+			std::vector<ShadowCaster> shadowCasters;
 
 			// Light variables
 			std::unordered_map<Entity, LightData, EntityHasher> entityToLightData;
