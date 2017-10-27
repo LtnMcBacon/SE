@@ -19,6 +19,11 @@ namespace SE
 			void RemoveEntity(const Entity& entity);
 			void UpdateTransform(const Entity& entity, const DirectX::XMFLOAT4X4& transform);
 		protected:
+			struct BucketAndID
+			{
+				Utilz::GUID bucket;
+				size_t index;
+			};
 			struct RenderBucket
 			{
 				RenderBucket(const Graphics::Pipeline& p) : pipeline(p) {};
@@ -26,21 +31,18 @@ namespace SE
 				uint32_t jobID;
 				std::vector<DirectX::XMFLOAT4X4> transforms;
 				std::vector<Entity> indexToEntity;
+				virtual void AddEntity(const Entity& entity, const DirectX::XMFLOAT4X4& transform, BucketAndID& bucketAndID);
+				virtual void RemoveFromBucket(RenderableManagerInstancing* rm, size_t index, DirectX::XMFLOAT4X4* transform);
 			};
-
 			virtual RenderBucket* CreateBucket(Graphics::RenderJob & job);
+			
+
 		private:
 			Graphics::IRenderer* renderer;
 
-			struct BucketAndID
-			{
-				Utilz::GUID bucket;
-				size_t index;
-			};
+		
+
 			
-
-			void RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform);
-
 		
 
 			std::unordered_map<Entity, BucketAndID, EntityHasher> entityToBucketAndIndexInBucket;

@@ -35,7 +35,7 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
-			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmInstancing);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize);
 			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;

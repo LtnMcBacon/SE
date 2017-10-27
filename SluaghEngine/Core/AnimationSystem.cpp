@@ -6,11 +6,9 @@ using namespace DirectX;
 SE::Core::AnimationSystem::AnimationSystem(Graphics::IRenderer* renderer) : RenderableManagerInstancing(renderer)
 {
 
-	skeletons.reserve(3);
 }
 
 SE::Core::AnimationSystem::~AnimationSystem() {
-	RenderableManagerInstancing::~RenderableManagerInstancing();
 
 }
 

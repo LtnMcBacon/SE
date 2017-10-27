@@ -94,15 +94,15 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
-	auto material = Utilz::GUID("bakedTest.mat");
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;	
 	info.materialFile = material;
 
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "bakedTest.mesh";
+	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
 	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
@@ -127,7 +127,13 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	//managers.renderableManager->ToggleRenderableObject(c2, true);
 
-
+	auto& l = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo d;
+	d.radius = 100.0f;
+	d.pos = { 0.0f, 5.0f, -5.0f };
+	d.color = { 1, 1,1 };
+	managers.lightManager->Create(l, d);
+	managers.lightManager->ToggleLight(l, true);
 
 
 	subSystem.window->MapActionButton(0, Window::KeyEscape);

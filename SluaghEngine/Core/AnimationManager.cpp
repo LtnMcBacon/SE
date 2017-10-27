@@ -9,7 +9,7 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 RenderableManager({initInfo.resourceHandler, initInfo.renderer, 
 	initInfo.console, initInfo.entityManager,
 	initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear}, 
-	10, new AnimationSystem(initInfo.renderer))
+	10)
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
@@ -17,8 +17,8 @@ RenderableManager({initInfo.resourceHandler, initInfo.renderer,
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
 
-	animationSystem = (AnimationSystem*)rmInstancing;
-
+	animationSystem = new AnimationSystem(initInfo.renderer);
+	rmInstancing = animationSystem;
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
@@ -311,9 +311,9 @@ void SE::Core::AnimationManager::CreateRenderObjectInfo(size_t index, Graphics::
 
 	StartProfile;
 	RenderableManager::CreateRenderObjectInfo(index, info);
-	info->pipeline.VSStage.shader = SkinnedVertexShader;
-	info->maxInstances = 8;
-	info->specialHaxxor = "SkinnedOncePerObject";
+	//info->pipeline.VSStage.shader = SkinnedVertexShader;
+	//info->maxInstances = 8;
+	//info->specialHaxxor = "SkinnedOncePerObject";
 
 	//info->mappingFunc.push_back([this](auto a, auto b) {
 	//	initInfo.renderer->GetPipelineHandler()->MapConstantBuffer(VS_SKINNED_DATA, [](void* data) {

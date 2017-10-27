@@ -21,6 +21,7 @@ static const SE::Utilz::GUID Transparency("RMTransparency");
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
 {
+	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
 	Init();
 
 	Allocate(128);
@@ -28,8 +29,9 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 }
 
 SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
-	size_t allocsize, RenderableManagerInstancing* rmInstancing) : initInfo(initInfo), rmInstancing(rmInstancing)
+	size_t allocsize) : initInfo(initInfo)
 {
+	
 	Init();
 
 	Allocate(allocsize);
@@ -340,7 +342,7 @@ void SE::Core::RenderableManager::Init()
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
 
-	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	
 	switch (initInfo.unloadingStrat)
 	{
 	case ResourceHandler::UnloadingStrategy::Linear:
