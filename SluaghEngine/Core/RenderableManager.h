@@ -35,8 +35,8 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
-			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize);
-			~RenderableManager();
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmInstancing);
+			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
 			RenderableManager& operator=(const RenderableManager& other) = delete;
@@ -69,6 +69,8 @@ namespace SE
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
+			bool IsVisible(const Entity& entity)const;
+
 		protected:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 
@@ -80,12 +82,16 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
+
+			RenderableManagerInstancing* rmInstancing;
+
+			virtual void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+
 		private:
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);
-			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-
+			
 			void LinearUnload(size_t sizeToAdd);
 
 			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
@@ -135,8 +141,7 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			RenderableManagerInstancing* rmInstancing;
-
+			
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 

@@ -5,13 +5,19 @@
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID VS_SKINNED_DATA("VS_SKINNED_DATA");
 
-SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo), RenderableManager({initInfo.resourceHandler, initInfo.renderer, initInfo.console, initInfo.entityManager, initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear}, 10)
+SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo), 
+RenderableManager({initInfo.resourceHandler, initInfo.renderer, 
+	initInfo.console, initInfo.entityManager,
+	initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear}, 
+	10, new AnimationSystem(initInfo.renderer))
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.console);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
+
+	animationSystem = (AnimationSystem*)rmInstancing;
 
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
@@ -51,12 +57,16 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
-
-	LoadResource(info.mesh, index, false, ResourceHandler::Behavior::QUICK);
+	
+	
+	CreateRenderableObject(entity, { info.mesh });
+	
+		
+		//LoadResource(info.mesh, index, false, ResourceHandler::Behavior::QUICK);
 
 
 	// Load skeleton
-	if (!animationSystem.IsSkeletonLoaded(info.skeleton))
+	if (!animationSystem->IsSkeletonLoaded(info.skeleton))
 	{
 
 		auto result = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
@@ -67,7 +77,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 		});
 		if (result < 0)
 		{
-			initInfo.console->PrintChannel("Could not load skeleton %u. Error: %d\n", "Resources", info.skeleton, result);
+			initInfo.console->PrintChannel("Resources", "Could not load skeleton %u. Error: %d\n",  info.skeleton, result);
 			animationData.used--;
 			ProfileReturnVoid;
 		}
@@ -78,7 +88,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
 	{
-		if (!animationSystem.IsAnimationLoaded(info.animations[i]))
+		if (!animationSystem->IsAnimationLoaded(info.animations[i]))
 		{
 			auto result = initInfo.resourceHandler->LoadResource(info.animations[i], [this](auto guid, auto data, auto size) {
 				auto result = LoadAnimation(guid, data, size);
@@ -88,7 +98,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 			});
 			if (result < 0)
 			{
-				initInfo.console->PrintChannel("Could not load animation %u. Error: %d", "Resources", info.animations[i], result);
+				initInfo.console->PrintChannel("Resources", "Could not load animation %u. Error: %d",  info.animations[i], result);
 				ProfileReturnVoid;
 			}
 		}
@@ -112,7 +122,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationSystem.IsAnimationLoaded(animation))
+		if (animationSystem->IsAnimationLoaded(animation))
 		{
 			//Graphics::AnimationJobInfo info;
 			//info.animating = true;
@@ -193,45 +203,19 @@ void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visib
 	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 	{
-		/*if (visible)
-			animationSystem.AddEntity(entity, animationData.skeleton[find->second], animationData.animation[find->second]);
-		else
-			animationSystem.RemoveEntity(entity);
-	*/
-
+			RenderableManager::ToggleRenderableObject(entity, visible);
+			/*if(visible)
+				animationSystem.AddEntity(entity, animationData.skeleton[find->second], animationData.animation[find->second]);
+			else
+				animationSystem.RemoveEntity(entity);*/
 	}
 	StopProfile;
 }
-//
-//void SE::Core::AnimationManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob * info)
-//{
-//	StartProfile;
-//	// Get the entity register from the animationManager
-//	const auto entityIndex = entityToIndex.find(entity);
-//
-//	// there was an animated entity and we should use the skinned vertex shader
-//	if (entityIndex != entityToIndex.end()) {
-//		info->pipeline.VSStage.shader = SkinnedVertexShader;
-//		info->maxInstances = 8;
-//		info->specialHaxxor = "SkinnedOncePerObject";
-//		
-//		info->mappingFunc.push_back([this](auto a, auto b) {
-//			initInfo.renderer->GetPipelineHandler()->MapConstantBuffer(VS_SKINNED_DATA, [](void* data) {
-//				animationSystem.MapBuffer(data, a, b);
-//			});			
-//		});
-//
-//
-//	}
-//	StopProfile;
-//}
 
 void SE::Core::AnimationManager::Allocate(size_t size)
 {
 	StartProfile;
 	_ASSERT(size > animationData.allocated);
-
-	RenderableManager::Allocate(size);
 
 	// Allocate new memory
 	AnimationData newData;
@@ -307,7 +291,7 @@ int SE::Core::AnimationManager::LoadSkeleton(const Utilz::GUID& guid, void * dat
 	// After the skeleton header, there will only be joints
 	auto jointAttr = (JointAttributes*)(skelH + 1);
 
-	return animationSystem.AddSkeleton(guid, jointAttr, skelH->nrOfJoints);
+	return animationSystem->AddSkeleton(guid, jointAttr, skelH->nrOfJoints);
 }
 
 int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * data, size_t size)
@@ -317,7 +301,27 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 	// After the animation header, there will only be matrices of type XMFLOAT4X4
 	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	return animationSystem.AddAnimation(guid,matrices, animH->animationLength, animH->nrOfJoints);
+	return animationSystem->AddAnimation(guid,matrices, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
+}
+
+void SE::Core::AnimationManager::CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)
+{
+
+	StartProfile;
+	RenderableManager::CreateRenderObjectInfo(index, info);
+	info->pipeline.VSStage.shader = SkinnedVertexShader;
+	info->maxInstances = 8;
+	info->specialHaxxor = "SkinnedOncePerObject";
+
+	//info->mappingFunc.push_back([this](auto a, auto b) {
+	//	initInfo.renderer->GetPipelineHandler()->MapConstantBuffer(VS_SKINNED_DATA, [](void* data) {
+	//		animationSystem.MapBuffer(data, a, b);
+	//	});
+	//});
+
+
+
+	StopProfile;
 }

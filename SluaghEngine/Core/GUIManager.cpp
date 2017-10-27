@@ -48,8 +48,7 @@ namespace SE {
 				ProfileReturnConst(0);
 			}
 
-			initInfo.console->PrintChannel("Entity already exist.");
-			ProfileReturnConst(0);
+			ProfileReturnConst(-1);
 		}
 
 		void GUIManager::ToggleRenderableTexture(const Entity & entity, bool show)

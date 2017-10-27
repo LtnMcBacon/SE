@@ -3,13 +3,14 @@
 
 using namespace DirectX;
 
-SE::Core::AnimationSystem::AnimationSystem() {
+SE::Core::AnimationSystem::AnimationSystem(Graphics::IRenderer* renderer) : RenderableManagerInstancing(renderer)
+{
 
 	skeletons.reserve(3);
 }
 
 SE::Core::AnimationSystem::~AnimationSystem() {
-
+	RenderableManagerInstancing::~RenderableManagerInstancing();
 
 }
 
@@ -98,13 +99,6 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
-void SE::Core::AnimationSystem::AddEntity(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation)
-{
-}
-
-void SE::Core::AnimationSystem::RemoveEntity(const Entity & entity)
-{
-}
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;

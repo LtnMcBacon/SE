@@ -102,6 +102,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "bakedTest.mesh";
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
 	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
@@ -109,24 +110,22 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->CreateAnimation(mainC, sai);
 	managers.animationManager->Start(mainC, "IdleAnimation_bakedTest.anim", 1.0f);
 
-
-	managers.renderableManager->CreateRenderableObject(mainC, { "bakedTest.mesh" });
-
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");
+	managers.animationManager->ToggleVisible(mainC, true);
 
-	managers.renderableManager->ToggleRenderableObject(mainC, true);
+	//managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 
 	auto& c2 = managers.entityManager->Create();
-	managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
-	managers.materialManager->Create(c2, info);
-	managers.animationManager->CreateAnimation(c2, sai);
-	managers.animationManager->Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
-	managers.renderableManager->CreateRenderableObject(c2, { "bakedTest.mesh" });
+	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
+	//managers.materialManager->Create(c2, info);
+	//managers.animationManager->CreateAnimation(c2, sai);
+	//managers.animationManager->Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
+	//managers.renderableManager->CreateRenderableObject(c2, { "bakedTest.mesh" });
 
-	managers.collisionManager->CreateBoundingHierarchy(c2, "bakedTest.mesh");
+	//managers.collisionManager->CreateBoundingHierarchy(c2, "bakedTest.mesh");
 
-	managers.renderableManager->ToggleRenderableObject(c2, true);
+	//managers.renderableManager->ToggleRenderableObject(c2, true);
 
 
 
