@@ -107,7 +107,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	sai.animationCount = 1;
 	Utilz::GUID anims[] = { "BaseLayer_bakedTest.anim" };
 	sai.animations = anims;
-	managers.animationManager->CreateAnimation(mainC, sai);
+	managers.animationManager->CreateAnimatedObject(mainC, sai);
 
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");

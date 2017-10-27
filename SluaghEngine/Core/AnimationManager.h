@@ -26,7 +26,7 @@ namespace SE
 			AnimationManager(const IAnimationManager::InitializationInfo& initInfo);
 			~AnimationManager();
 
-			void CreateAnimation(const Entity& entity, const IAnimationManager::CreateInfo& info)override;
+			void CreateAnimatedObject(const Entity& entity, const IAnimationManager::CreateInfo& info)override;
 
 			/**
 			* @brief	Called each frame, to update the state.

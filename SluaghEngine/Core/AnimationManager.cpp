@@ -43,7 +43,7 @@ SE::Core::AnimationManager::~AnimationManager()
 	operator delete(animationData.data);
 }
 
-void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IAnimationManager::CreateInfo & info)
+void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, const IAnimationManager::CreateInfo & info)
 {
 	StartProfile;
 	auto& find = entityToIndex.find(entity);
@@ -189,7 +189,10 @@ void SE::Core::AnimationManager::Start(const Entity & entity)const
 	{
 		if (renderableManager->IsVisible(entity))
 		{
-			animationData.playing[entityIndex->second] = 1u;
+			if (animationSystem->IsAnimationLoaded(animationData.animInfo[entityIndex->second].animation))
+			{
+				animationData.playing[entityIndex->second] = 1u;
+			}
 		}
 	}
 	StopProfile;
