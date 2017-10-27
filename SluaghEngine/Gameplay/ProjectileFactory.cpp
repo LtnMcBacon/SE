@@ -757,6 +757,66 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(Suicide);
 }
 
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto Collided = [](Projectile* p, float dt) -> bool
+	{
+		return (p->GetCollisionType() != CollisionType::NONE);
+	};
+
+	ProfileReturnConst(Collided);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::IsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto IsAlive = [](Projectile* p, float dt) -> bool
+	{
+		return p->GetActive();
+	};
+
+	ProfileReturnConst(IsAlive);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::CloseToEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+
+	float minDistance = std::get<float>(parameters[0].data);
+	Room* currentRoom = *ptrs.currentRoom;
+
+	auto Close = [minDistance, currentRoom](Projectile* p, float dt) -> bool
+	{
+		float xTarget, yTarget;
+		currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget);
+
+		float distance = sqrt((xTarget - p->GetXPosition()) * (xTarget - p->GetXPosition()) + (yTarget - p->GetYPosition()) * (yTarget - p->GetYPosition()));
+
+		return distance < minDistance;
+	};
+
+	ProfileReturnConst(Close);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::CloseToPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+
+	float minDistance = std::get<float>(parameters[0].data);
+	SE::Gameplay::PlayerUnit* player = ptrs.player;
+
+	auto Suicide = [minDistance, player](Projectile* p, float dt) -> bool
+	{
+
+		float distance = sqrt((player->GetXPosition() - p->GetXPosition()) * (player->GetXPosition() - p->GetXPosition()) + (player->GetYPosition() - p->GetYPosition()) * (player->GetYPosition() - p->GetYPosition()));
+
+		return distance < minDistance;
+	};
+
+	ProfileReturnConst(Suicide);
+}
+
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
@@ -839,6 +899,10 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillSelfBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ANDConditionBehaviour, this, std::placeholders::_1));
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ORConditionBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedConditionBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IsAliveConditionBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToEnemyConditionBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToPlayerConditionBehaviour, this, std::placeholders::_1));
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()
@@ -847,6 +911,12 @@ SE::Gameplay::ProjectileFactory::~ProjectileFactory()
 	/*
 	* Code body
 	*/
+	int nrOfBehaviours = behaviourFunctions.size();
+	for (int i = 0; i < nrOfBehaviours; i++)
+	{
+		behaviourFunctions.pop_back();
+	}
+
 	ProfileReturnVoid;
 }
 
