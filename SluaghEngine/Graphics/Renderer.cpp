@@ -151,12 +151,13 @@ size_t SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & han
 		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
 		float height = gBB_Desc.Height;
 		float width = gBB_Desc.Width;
-
-		renderTextureJobs[job].rect.bottom = renderTextureJobs[job].rect.bottom * height;
-		renderTextureJobs[job].rect.top = renderTextureJobs[job].rect.top * height;
-		renderTextureJobs[job].rect.right = renderTextureJobs[job].rect.right * width;
-		renderTextureJobs[job].rect.left = renderTextureJobs[job].rect.left * width;
-
+		if (renderTextureJobs[job].rect)
+		{
+			renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
+			renderTextureJobs[job].rect->top = renderTextureJobs[job].rect->top * height;
+			renderTextureJobs[job].rect->right = renderTextureJobs[job].rect->right * width;
+			renderTextureJobs[job].rect->left = renderTextureJobs[job].rect->left * width;
+		}
 		renderTextureJobs[job].scale = DirectX::XMFLOAT2(renderTextureJobs[job].scale.x * width, renderTextureJobs[job].scale.y * height);
 		renderTextureJobs[job].pos = DirectX::XMFLOAT2(renderTextureJobs[job].pos.x * width, renderTextureJobs[job].pos.y * height);
 	}
@@ -252,7 +253,7 @@ int SE::Graphics::Renderer::Render()
 		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos,(tagRECT*)&job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos,(tagRECT*)job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 
 		for (auto& job : renderTextJobs)

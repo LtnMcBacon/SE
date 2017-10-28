@@ -53,7 +53,7 @@ namespace SE
 			DirectX::XMFLOAT2 origin;
 			DirectX::XMFLOAT2 scale;
 			Effect effect;
-			RECT rect;
+			RECT* rect = nullptr;
 			float rotation;
 			float layerDepth;
 			bool anchor = false;

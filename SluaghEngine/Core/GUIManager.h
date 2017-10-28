@@ -175,7 +175,7 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].rect = rect;
+					*textureInfo[fileLoaded->second.ID].rect = rect;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
