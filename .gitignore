@@ -23,11 +23,16 @@ External*
 *.bat
 *.bin
 *.ini
+*.mesh
+*.anim
+*.mat
+*.skel
+*.png
+*.jpg
+*.raw
+*.bmp
 
-Korv/
 rawLoaderEntries.txt
-FBXTemp/
-Korv/
 *Recording.bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
