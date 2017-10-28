@@ -70,7 +70,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	entityToMaterialInfo[entity] = newEntry;
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
-
+	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
 	//if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
 	//{
 	//	mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
@@ -259,6 +259,15 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		info->pipeline.PSStage.samplers[0] = defaultSampler;
 		info->pipeline.PSStage.samplerCount = 1;
 		
+		if (materialInfo.bloom[find->second] == 1u)
+		{
+			info->pipeline.OMStage.renderTargets[0] = "backbuffer";
+			info->pipeline.OMStage.renderTargets[1] = "bloomTarget";
+			info->pipeline.OMStage.renderTargetCount = 2;
+			info->pipeline.OMStage.depthStencilView = "backbuffer";
+		}
+
+
 		auto& attrib = mdata.attrib;
 		info->mappingFunc.push_back([this,attrib](auto a, auto b)
 		{
