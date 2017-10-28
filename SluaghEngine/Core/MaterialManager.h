@@ -71,13 +71,14 @@ namespace SE
 
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				Utilz::GUID* shader;
 				Utilz::GUID* material;
+				uint8_t* bloom;
 			};
 			
 			InitializationInfo initInfo;
