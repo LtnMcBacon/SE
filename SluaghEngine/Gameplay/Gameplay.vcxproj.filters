@@ -1,0 +1,483 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Rooms">
+      <UniqueIdentifier>{11adbc1f-ca43-4423-880a-0adc1c68d583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rooms">
+      <UniqueIdentifier>{9463c6f6-c72b-4e5d-9f2a-a8fab62007c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameUnits">
+      <UniqueIdentifier>{112f889f-0169-44fb-ba99-17e2c0f4a562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameUnits">
+      <UniqueIdentifier>{6d0cb078-a175-4662-8d05-feb82974d0a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Flowfield">
+      <UniqueIdentifier>{7f6677ad-200d-46ad-9889-76ab7e012dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Flowfield">
+      <UniqueIdentifier>{a21a1b1f-eb9c-4706-8ee7-b1bb09fa6bc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState">
+      <UniqueIdentifier>{7a2f735a-34e8-4169-9f0b-e9394125a1d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState">
+      <UniqueIdentifier>{e8534a88-2b56-4d41-9195-b89980bc36e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\MainMenuState">
+      <UniqueIdentifier>{67833fcf-b42a-4d6d-8998-a800673d59c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\MainMenuState">
+      <UniqueIdentifier>{245505c7-948c-4731-bba5-8b5642e50562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\CharacterCreationState">
+      <UniqueIdentifier>{b4538386-366e-4e10-b9a1-d136b1e3d3c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\CharacterCreationState">
+      <UniqueIdentifier>{132dfeb3-ef6c-445d-b122-124cd007f9dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\PlayState">
+      <UniqueIdentifier>{3a00d426-1173-4ece-bdad-d94916083099}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\PlayState">
+      <UniqueIdentifier>{87a9284c-68c7-4291-9dd5-1c71cc290f3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\PausState">
+      <UniqueIdentifier>{89d9001b-fe0f-4a31-9884-071b8ca408fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\GameOverState">
+      <UniqueIdentifier>{d4bbf0a5-f9bb-4c18-8196-7be17fa4eb09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IGameState\GameOverState">
+      <UniqueIdentifier>{3690d693-1bb5-4589-839e-d7a5681a9d8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{06a9c891-0b67-4e25-b6c8-defa974d05d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\PauseState">
+      <UniqueIdentifier>{34916210-2c8d-4a86-b68a-c471d87e0da4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{cf0b92a6-330a-41c0-b217-27b43ba33913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree">
+      <UniqueIdentifier>{81f05e5b-cd1e-4dba-a3a5-f6f867cb9b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Blackboard">
+      <UniqueIdentifier>{f4b69519-30ac-447e-bcb5-8e64244eebbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI">
+      <UniqueIdentifier>{69c9e446-c132-42b9-a706-10daf8dc6785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree">
+      <UniqueIdentifier>{7640b8a1-f990-4f15-8cb6-2979ae1290ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours">
+      <UniqueIdentifier>{0191e339-ca67-476c-8397-2b13b845a623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Decorators">
+      <UniqueIdentifier>{4854a74f-8380-46a5-b386-ba6cb2bf3183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Composites">
+      <UniqueIdentifier>{64341f40-3ae0-43f6-bcb4-5bc78f5f6d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours">
+      <UniqueIdentifier>{dd23f0ca-fa36-499b-aa11-17769e97ab2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Composites">
+      <UniqueIdentifier>{147281d2-6e3f-421c-b9fe-aaf40e27155a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Decorators">
+      <UniqueIdentifier>{47018d89-e601-4479-b8bb-255be5b0ea5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Projectiles">
+      <UniqueIdentifier>{20d45af1-624a-4bbe-8bb0-30df9d94d30f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Projectiles">
+      <UniqueIdentifier>{a3501314-46aa-4280-a9f9-774854fd0a8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTreeFactory">
+      <UniqueIdentifier>{ed772730-0169-47e6-81fd-1ae5f62fcb19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Leaves">
+      <UniqueIdentifier>{ee7351ae-2a0b-4620-866a-39bedbe8e444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves">
+      <UniqueIdentifier>{5f0829e5-22ff-4147-ab4b-cea835a40ea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{a38a7654-0ea8-4291-9311-3704ce9d25af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions">
+      <UniqueIdentifier>{998bc404-ca4b-4f07-8682-76369c7ddee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions">
+      <UniqueIdentifier>{5ccee9dd-5d6a-4b97-8427-04c4ade1b510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Sluagh">
+      <UniqueIdentifier>{081777a4-bda3-40ba-86f8-8537773b4caa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Sluagh\RandomForest">
+      <UniqueIdentifier>{475c989b-f0f0-4e8f-8429-f5e5fe9dd348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI\Sluagh\RandomForest\DecisionTree">
+      <UniqueIdentifier>{42ab7291-5b8b-4bdc-8063-105e61e032a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI\Slaugh">
+      <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Source Files\Rooms</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="Flowfield.cpp">
+      <Filter>Source Files\Flowfield</Filter>
+    </ClCompile>
+    <ClCompile Include="IGameState.cpp">
+      <Filter>Source Files\IGameState</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuState.cpp">
+      <Filter>Source Files\IGameState\MainMenuState</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterCreationState.cpp">
+      <Filter>Source Files\IGameState\CharacterCreationState</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
+      <Filter>Source Files\IGameState\PlayState</Filter>
+    </ClCompile>
+    <ClCompile Include="PausState.cpp">
+      <Filter>Source Files\IGameState\PausState</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverState.cpp">
+      <Filter>Source Files\IGameState\GameOverState</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerUnit.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviouralTree.cpp">
+      <Filter>Source Files\AI\BehaviouralTree</Filter>
+    </ClCompile>
+    <ClCompile Include="IBehaviour.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="IDecorator.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="IComposite.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSelector.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="Selector.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="Sequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="Succeeder.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="Repeater.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="RepeatUntilFail.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="Inverter.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviouralTreeFactory.cpp">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileManger.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileFactory.cpp">
+      <Filter>Source Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyFactory.cpp">
+      <Filter>Source Files\GameUnits</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowFieldMovementLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveTowardsPlayerLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="RangeToPlayerCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="ObstacleOnPositionCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="MakeInvulnerableLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="MakeVulnerableLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="GlaistigAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="LineOfSightCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackCooldownZeroCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="ResetAttackCooldownLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="TickDownAttackCooldownLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreInit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="StunnedCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="FaceThePlayerLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="WhileChannelingLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\Gameplay\ChannelingCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="FailUntilSuccess.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClCompile>
+    <ClCompile Include="RestartingSequence.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClCompile>
+    <ClCompile Include="ForestTrainer.cpp">
+      <Filter>Source Files\AI\Slaugh</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\includes\Gameplay\EventStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Room.h">
+      <Filter>Header Files\Rooms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\EnemyUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Flowfield.h">
+      <Filter>Header Files\Flowfield</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MainMenuState.h">
+      <Filter>Header Files\IGameState\MainMenuState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h">
+      <Filter>Header Files\IGameState\CharacterCreationState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameOverState.h">
+      <Filter>Header Files\IGameState\GameOverState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayState.h">
+      <Filter>Header Files\IGameState\PlayState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IGameState.h">
+      <Filter>Header Files\IGameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PauseState.h">
+      <Filter>Header Files\IGameState\PauseState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h">
+      <Filter>Header Files\AI\BehaviouralTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Behaviours.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GameBlackboard.h">
+      <Filter>Header Files\AI\Blackboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IBehaviour.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IComposite.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\IDecorator.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Succeeder.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Inverter.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Repeater.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomSequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Selector.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Sequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomSelector.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileData.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Projectile.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileManager.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h">
+      <Filter>Header Files\AI\BehaviouralTreeFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\EnemyFactory.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\KeyBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\TimerCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RangeToPlayerCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\DecisionTree.h">
+      <Filter>Header Files\AI\Sluagh\RandomForest\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RandomForest.h">
+      <Filter>Header Files\AI\Sluagh\RandomForest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\GlaistigAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\LineOfSightCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreInit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Game.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\StunnedCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FaceThePlayerLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\FailUntilSuccess.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RestartingSequence.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
