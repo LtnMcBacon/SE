@@ -163,11 +163,13 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.shader = (Utilz::GUID*)(newData.entity + newData.allocated);
 	newData.material = (Utilz::GUID*)(newData.shader + newData.allocated);
+	newData.bloom = (uint8_t*)(newData.material + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));
 	memcpy(newData.shader, materialInfo.shader, materialInfo.used * sizeof(Utilz::GUID));
 	memcpy(newData.material, materialInfo.material, materialInfo.used * sizeof(Utilz::GUID));
+	memcpy(newData.bloom, materialInfo.bloom, materialInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(materialInfo.data);
@@ -204,6 +206,7 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 
 	materialInfo.shader[index] = materialInfo.shader[last];
 	materialInfo.material[index] = materialInfo.material[last];
+	materialInfo.bloom[index] = materialInfo.bloom[last];
 
 
 	// Replace the index for the last_entity 
