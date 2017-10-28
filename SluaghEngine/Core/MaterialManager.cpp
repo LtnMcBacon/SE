@@ -36,6 +36,16 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	if (res < 0)
 		throw std::exception("Could not load default texture.");
 
+	Graphics::RenderTarget rt;
+	rt.bindAsShaderResource = true;
+	rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
+	rt.width = 800;
+	rt.height = 640;
+	res = initInfo.renderer->GetPipelineHandler()->CreateRenderTarget("bloomTarget", rt);
+	if(res < 0)
+		throw std::exception("Could not Create bloom render target.");
+
+
 	Graphics::SamplerState info;
 	info.filter = Graphics::Filter::ANISOTROPIC;
 	info.maxAnisotropy = 4;

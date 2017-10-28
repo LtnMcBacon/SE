@@ -69,7 +69,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	if (FAILED(hr))
 		throw std::exception("Could not compile fullscreenQuadVS");
 
-	CreateVertexShader("fullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 
 	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
@@ -1314,8 +1314,9 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 		currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
 	}
 	SetRasterizerStage(pipeline.RStage);
+	ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetPixelShaderStage(pipeline.PSStage);
-	SetOutputMergerStage(pipeline.OMStage);
+	//SetOutputMergerStage(pipeline.OMStage);
 	StopProfile;
 }
 
@@ -1615,7 +1616,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 	bool changed = false;
 	for (int i = 0; i < oms.renderTargetCount; ++i)
 	{
-		if (oms.renderTargets[i] != c.renderTargets[i])
+		//if (oms.renderTargets[i] != c.renderTargets[i])
 		{
 			changed = true;
 			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);

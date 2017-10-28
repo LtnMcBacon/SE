@@ -128,7 +128,30 @@ namespace SE
 
 			bool running = true;
 
+			Graphics::Viewport vp;
+			vp.height = 200;
+			vp.width = 200;
+			vp.topLeftX = 0;
+			vp.topLeftY = 0;
+			vp.maxDepth = 100;
+			vp.minDepth = 0.001;
+		
+			Graphics::RenderJob drawBloomTexture;
+			drawBloomTexture.pipeline.VSStage.shader = "FullscreenQuad";
+			drawBloomTexture.pipeline.PSStage.shader = "MultiPS";
+			drawBloomTexture.pipeline.PSStage.textureCount = 1;
+			drawBloomTexture.pipeline.PSStage.textures[0] = "bloomTarget";
+			drawBloomTexture.pipeline.PSStage.textureBindings[0] = "gTexture";
+			drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
+			drawBloomTexture.pipeline.OMStage.renderTargets[1] = Utilz::GUID();
+			drawBloomTexture.pipeline.OMStage.renderTargetCount = 2;
+			drawBloomTexture.pipeline.OMStage.depthStencilView = "backbuffer";
+			drawBloomTexture.pipeline.RStage.viewport = "topleft";
+			drawBloomTexture.vertexCount = 3;
+			drawBloomTexture.indexCount = 0;
+			drawBloomTexture.maxInstances = 0;
 
+			subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS);
 
 			Utilz::Timer timer;
 			subSystem.devConsole->Toggle();
