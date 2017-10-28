@@ -11,6 +11,34 @@ enum RETURN_CODES
 	DEVICE_FAIL = -2
 };
 
+static const char* fullscreenQuadVS = 
+"void VS_main( uint VertexID : SV_VertexID, out float4 oPosH : SV_POSITION, out float2 oTexC : TEXCOORD ) \
+{ \
+	oPosH.x = (VertexID == 2) ? 3.0f : -1.0f; \
+	oPosH.y = (VertexID == 0) ? -3.0f : 1.0f; \
+	oPosH.zw = 1.0f; \
+ \
+	oTexC = oPosH.xy * float2(0.5f, -0.5f) + 0.5f; \
+}";
+
+static const char* MultiPS =
+"Texture2D gTexture : register(t0); \
+SamplerState gTriLinearSam : register(s0); \
+float4 PS_main(float4 posH : SV_POSITION, float2 texC : TEXCOORD) : SV_TARGET \
+{ \
+	return gTexture.Sample(gTriLinearSam, texC).rgba; \
+}";
+
+static const char* SinglePS = 
+"Texture2D gTexture : register(t0); \
+SamplerState gTriLinearSam : register(s0); \
+float4 PS_main(float4 posH : SV_POSITION, float2 texC : TEXCOORD) : SV_TARGET \
+{ \
+	return gTexture.Sample(gTriLinearSam, texC).rrrr; \
+}";
+
+
+
 SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv)
 {
 	this->device = device;
@@ -34,6 +62,31 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	blendStates[Utilz::GUID()] = nullptr;
 	rasterizerStates[Utilz::GUID()] = nullptr;
 	depthStencilStates[Utilz::GUID()] = nullptr;
+
+	ID3DBlob* blob;
+
+	auto hr = D3DCompile(fullscreenQuadVS, strlen(fullscreenQuadVS), NULL, NULL, NULL, "VS_main", "vs_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile fullscreenQuadVS");
+
+	CreateVertexShader("fullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release();
+
+	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile MultiPS");
+
+	CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release(); 
+	
+	hr = D3DCompile(SinglePS, strlen(SinglePS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile SinglePS");
+
+	CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release();
+	
+
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()

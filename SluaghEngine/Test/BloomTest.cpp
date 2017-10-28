@@ -39,7 +39,13 @@ namespace SE
 		bool BloomTest::Run(DevConsole::IConsole* console)
 		{
 			auto engine = Core::CreateEngine();
-			engine->Init();
+			auto res = engine->Init();
+			if (res < 0)
+			{
+				delete engine;
+				return false;
+			}
+				
 			auto managers = engine->GetManagers();
 			auto subSystem = engine->GetSubsystems();
 
@@ -104,7 +110,7 @@ namespace SE
 			auto shader = Utilz::GUID("SimpleLightBloomPS.hlsl");
 			info.shader = shader;
 			info.materialFile = material;
-
+			info.bloom = true;
 			managers.materialManager->Create(mainC, info, true);
 
 			managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
