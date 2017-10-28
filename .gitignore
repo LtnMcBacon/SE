@@ -10,7 +10,6 @@
 *.sln.docstates
 *.mtl
 *.objtest
-*.hlsl
 *.exe
 *.jpg
 *.bbf
