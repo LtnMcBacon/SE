@@ -32,6 +32,16 @@ External*
 *.raw
 *.bmp
 
+Build\
+*.fbx
+*.wav
+*.spritefont
+*.gui
+*.tx
+*.swatch
+*.SEFBT
+*.SEC
+*.SEP
 rawLoaderEntries.txt
 *Recording.bin
 
