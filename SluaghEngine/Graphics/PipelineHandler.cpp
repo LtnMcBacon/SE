@@ -117,6 +117,8 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 			r.second->Release();
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
+	for (auto& r : unorderedAccessViews)
+		if (r.second)r.second->Release();
 	for (auto& r : blendStates)
 		if (r.second)r.second->Release();
 	for (auto& r : rasterizerStates)
