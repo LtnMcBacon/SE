@@ -123,6 +123,11 @@ namespace SE
 				ID3D11RenderTargetView* rtv;
 				float clearColor[4];
 			};
+			struct UnorderedAccessViewInfo
+			{
+				ID3D11UnorderedAccessView* uav;
+				float clearColor[4];
+			};
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
@@ -139,7 +144,7 @@ namespace SE
 			std::unordered_map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
 			std::unordered_map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
 			std::unordered_map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
-			std::unordered_map<Utilz::GUID, ID3D11UnorderedAccessView*, Utilz::GUID::Hasher> unorderedAccessViews;
+			std::unordered_map<Utilz::GUID, UnorderedAccessViewInfo, Utilz::GUID::Hasher> unorderedAccessViews;
 
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;

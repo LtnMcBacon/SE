@@ -62,7 +62,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	blendStates[Utilz::GUID()] = nullptr;
 	rasterizerStates[Utilz::GUID()] = nullptr;
 	depthStencilStates[Utilz::GUID()] = nullptr;
-
+	unorderedAccessViews[Utilz::GUID()] = { nullptr };
 	ID3DBlob* blob;
 
 	auto hr = D3DCompile(fullscreenQuadVS, strlen(fullscreenQuadVS), NULL, NULL, NULL, "VS_main", "vs_5_0", 0, 0, &blob, NULL);
@@ -118,7 +118,7 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
 	for (auto& r : unorderedAccessViews)
-		if (r.second)r.second->Release();
+		if (r.second.uav)r.second.uav->Release();
 	for (auto& r : blendStates)
 		if (r.second)r.second->Release();
 	for (auto& r : rasterizerStates)
@@ -1380,7 +1380,12 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	unorderedAccessViews[id] = unorderedAccessView;
+	unorderedAccessViews[id] = { unorderedAccessView };
+	unorderedAccessViews[id].clearColor[0] = view.clearColor[0];
+	unorderedAccessViews[id].clearColor[1] = view.clearColor[1];
+	unorderedAccessViews[id].clearColor[2] = view.clearColor[2];
+	unorderedAccessViews[id].clearColor[3] = view.clearColor[3];
+
 	if (view.bindAsShaderResource)
 	{
 		ID3D11ShaderResourceView* srv;
@@ -1405,7 +1410,7 @@ int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID 
 	auto find = unorderedAccessViews.find(id);
 	if (find == unorderedAccessViews.end())
 		return NOT_FOUND;
-	find->second->Release();
+	find->second.uav->Release();
 	unorderedAccessViews.erase(find);
 
 	auto srv = shaderResourceViews.find(id);
@@ -1456,8 +1461,6 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 
 void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
 {
-	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
 	for(auto& rtv : renderTargetViews)
 	{
 		if(rtv.second.rtv)
@@ -1465,7 +1468,13 @@ void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
 			deviceContext->ClearRenderTargetView(rtv.second.rtv, rtv.second.clearColor);
 		}
 	}
-
+	for (auto& uav : unorderedAccessViews)
+	{
+		if (uav.second.uav)
+		{
+			deviceContext->ClearUnorderedAccessViewFloat(uav.second.uav, uav.second.clearColor);
+		}
+	}
 	for (auto& dsv : depthStencilViews) {
 
 		if (dsv.second)
