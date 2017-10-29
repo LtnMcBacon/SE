@@ -16,6 +16,7 @@ static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
 static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
+static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
 
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
@@ -24,22 +25,82 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
 	Init();
 
+	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+
 	Allocate(128);
 
 }
 
-SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
-	size_t allocsize, RenderableManagerInstancing* rmI) : initInfo(initInfo), rmInstancing(rmI)
-{
-	
-	Init();
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
+	if (res)
+		throw std::exception("Could not load default shader");
 
-	Allocate(allocsize);
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+	Graphics::RasterizerState info;
+	info.cullMode = Graphics::CullMode::CULL_BACK;
+	info.fillMode = Graphics::FillMode::FILL_SOLID;
+	info.windingOrder = Graphics::WindingOrder::CLOCKWISE;
+
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solid, info);
+	if (result < 0)
+		throw std::exception("Could not create Solid Rasterizer.");
+
+	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
+	info.cullMode = Graphics::CullMode::CULL_BACK;
+	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
+	if (result < 0)
+		throw std::exception("Could not create wireframe Rasterizer.");
+
+	Graphics::BlendState bs;
+	bs.enable = true;
+	bs.blendOperation = Graphics::BlendOperation::ADD;
+	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.srcBlendAlpha = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlendAlpha = Graphics::Blend::ONE;
+
+	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
+	if (result < 0)
+		throw std::exception("Could not create Transparency Blendstate.");
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	Graphics::Viewport vp;
+
+	vp.width = 512;
+	vp.height = 512;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
 }
 
 SE::Core::RenderableManager::~RenderableManager()
 {
 	delete rmInstancing;
+	delete shadowInstancing;
 
 	operator delete(renderableObjectInfo.data);
 }
@@ -67,6 +128,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.visible[newEntry] = 0u;
 		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
 		renderableObjectInfo.transparency[newEntry] = info.transparent ? 1u : 0u;
+		renderableObjectInfo.shadow[newEntry] = info.shadow ? 1u : 0u;
 
 		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &RenderableManager::Destroy });
 
@@ -171,7 +233,47 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
 
+
+//	info->pipeline.
+
+/*
+	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
+	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
+	info->topology = renderableObjectInfo.topology[index];
+	info->vertexShader = defaultShader;
+	info->fillSolid = renderableObjectInfo.wireframe[index] ? 0u : 1u;
+	info->transparency = renderableObjectInfo.transparency[index];*/
+
+	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
+
+	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
+
+	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
+
+	info->pipeline.PSStage.samplers[info->pipeline.PSStage.samplerCount++] = "shadowPointSampler";
+	
+}
+
+void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
+{
+	info->pipeline.OMStage.renderTargets[0] = Utilz::GUID();
+	info->pipeline.OMStage.renderTargetCount = 1;
+	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
+
+	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+
+	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
+	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
+	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+
+	info->pipeline.RStage.rasterizerState = solid;
+	info->pipeline.RStage.viewport = "shadowVP";
+
+	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->maxInstances = 256;
+	info->specialHaxxor = "OncePerObject";
+
 }
 
 void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
@@ -268,6 +370,24 @@ bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 	return false;
 }
 
+void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
+
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end()) 
+	{
+
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow){
+
+			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
+			Graphics::RenderJob info;
+			CreateShadowRenderObjectInfo(find->second, &info);
+			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS);
+			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+
+		}
+	}
+}
+
 void SE::Core::RenderableManager::Allocate(size_t size)
 {
 	StartProfile;
@@ -285,13 +405,16 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	newData.visible = (uint8_t*)(newData.mesh + newData.allocated);
 	newData.wireframe = (uint8_t*)(newData.visible + newData.allocated);
 	newData.transparency = (uint8_t*)(newData.wireframe + newData.allocated);
+	newData.shadow = (uint8_t*)(newData.transparency + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.mesh, renderableObjectInfo.mesh, renderableObjectInfo.used * sizeof(Utilz::GUID));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
-	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(uint8_t));
-	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
+	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(bool));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -313,14 +436,13 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 	guidToBufferInfo[renderableObjectInfo.mesh[index]].entities.remove(entity); // Decrease the refcount
 
-
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
 	renderableObjectInfo.mesh[index] = renderableObjectInfo.mesh[last];
 	renderableObjectInfo.visible[index] = renderableObjectInfo.visible[last];
 	renderableObjectInfo.wireframe[index] = renderableObjectInfo.wireframe[last];
 	renderableObjectInfo.transparency[index] = renderableObjectInfo.transparency[last];
-
+	renderableObjectInfo.shadow[index] = renderableObjectInfo.shadow[last];
 
 	// Replace the index for the last_entity 
 	entityToRenderableObjectInfoIndex[last_entity] = index;

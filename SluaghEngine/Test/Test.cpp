@@ -40,6 +40,7 @@
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
+#include "ShadowTest.h"
 
 
 #ifdef _DEBUG
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
 	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
-
+	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);

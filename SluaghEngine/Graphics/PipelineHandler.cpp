@@ -1251,6 +1251,7 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
+	dsvd.Flags = 0;
 
 	ID3D11Texture2D* texture;
 
@@ -1267,10 +1268,10 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	if (bindAsTexture)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
-		srvd.Format = desc.Format;
+		srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvd.Texture2D.MostDetailedMip = 0;
-		srvd.Texture2D.MipLevels = -1;
+		srvd.Texture2D.MipLevels = 1;
 		ID3D11ShaderResourceView* srv;
 		hr = device->CreateShaderResourceView(texture, &srvd, &srv);
 		if (FAILED(hr))
@@ -1317,6 +1318,7 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	//ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
+
 	StopProfile;
 }
 
@@ -1333,6 +1335,27 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 	ForcedSetPixelShaderStage(pipeline.PSStage);
 	ForcedSetOutputMergerStage(pipeline.OMStage);
 	StopProfile;
+}
+
+void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
+{
+	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	for(auto& rtv : renderTargetViews)
+	{
+		if(rtv.second)
+		{
+			deviceContext->ClearRenderTargetView(rtv.second, clearColor);
+		}
+	}
+
+	for (auto& dsv : depthStencilViews) {
+
+		if (dsv.second)
+		{
+			deviceContext->ClearDepthStencilView(dsv.second, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		}
+	}
 }
 
 void SE::Graphics::PipelineHandler::SetInputAssemblerStage(const InputAssemblerStage& pIA)

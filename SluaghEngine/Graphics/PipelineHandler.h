@@ -66,6 +66,9 @@ namespace SE
 
 			void SetPipeline(const Pipeline& pipeline) override;
 			void SetPipelineForced(const Pipeline& pipeline) override;
+
+			void ClearAllRenderTargets() override;
+
 		private:
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void SetVertexShaderStage(const ShaderStage& vss);
