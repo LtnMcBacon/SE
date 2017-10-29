@@ -165,9 +165,9 @@ namespace SE
 				if (res < 0)
 					goto error;
 
-				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
+				/*res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
 				if (res < 0)
-					goto error;
+					goto error;*/
 
 				Graphics::RenderJob horizontalPass;
 				horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl"; // TODO: Should unset all other shaders automaticly when creating a CS job.

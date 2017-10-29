@@ -1268,8 +1268,6 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 		return EXISTS;
 	}
 
-	auto result = DEVICE_FAIL;
-
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
@@ -1294,7 +1292,7 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 
 	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
 	if (FAILED(hr))
-		goto error;
+		return DEVICE_FAIL;
 
 	ID3D11DepthStencilView* dsv;
 	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
@@ -1312,13 +1310,12 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 		ID3D11ShaderResourceView* srv;
 		hr = device->CreateShaderResourceView(texture, &srvd, &srv);
 		if (FAILED(hr))
-			goto error;
+			return DEVICE_FAIL;
 		shaderResourceViews[id] = srv;
 	}
-	result = SUCCESS;
-	error:
+
 	texture->Release();
-	return result;
+	return SUCCESS;
 }
 
 int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
@@ -1345,7 +1342,6 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	{
 		return EXISTS;
 	}
-	auto result = DEVICE_FAIL;
 
 	D3D11_TEXTURE2D_DESC td;
 	ZeroMemory(&td, sizeof(td));
@@ -1372,7 +1368,7 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	ID3D11Texture2D* texture;
 	auto hr = device->CreateTexture2D(&td, nullptr, &texture);
 	if (FAILED(hr))
-		goto error;
+		return DEVICE_FAIL;
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
 	description.Format = td.Format;
@@ -1382,8 +1378,9 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	ID3D11UnorderedAccessView* unorderedAccessView;
 	hr = device->CreateUnorderedAccessView(texture, &description, &unorderedAccessView);
 	if (FAILED(hr))
-		goto error;
+		return DEVICE_FAIL;
 
+	unorderedAccessViews[id] = unorderedAccessView;
 	if (view.bindAsShaderResource)
 	{
 		ID3D11ShaderResourceView* srv;
@@ -1394,15 +1391,13 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 		srvDesc.Texture2D.MipLevels = 1;
 		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
 		if (FAILED(hr))
-			goto error;
+			return DEVICE_FAIL;
 		shaderResourceViews[id] = srv;
 	}
 
-	result = SUCCESS;
-error:
 	texture->Release();
 
-	return result;
+	return SUCCESS;
 }
 
 int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID & id)
