@@ -327,7 +327,7 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateShadowRenderObjectInfo(find->second, &info);
-			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS);
+			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
 			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 
 		}

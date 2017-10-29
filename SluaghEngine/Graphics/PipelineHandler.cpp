@@ -1265,6 +1265,9 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 		}
 		return EXISTS;
 	}
+
+	auto result = DEVICE_FAIL;
+
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
@@ -1289,15 +1292,14 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 
 	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &texture);
 	if (FAILED(hr))
-		return DEVICE_FAIL;
+		goto error;
 
 	ID3D11DepthStencilView* dsv;
 	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 	depthStencilViews[id] = dsv;
-	depthStencilViews[id]->Release();
-	depthStencilViews[id] = nullptr;
+
 	if (bindAsTexture)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
@@ -1308,12 +1310,13 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 		ID3D11ShaderResourceView* srv;
 		hr = device->CreateShaderResourceView(texture, &srvd, &srv);
 		if (FAILED(hr))
-			return DEVICE_FAIL;
+			goto error;
 		shaderResourceViews[id] = srv;
 	}
-
+	result = SUCCESS;
+	error:
 	texture->Release();
-	return SUCCESS;
+	return result;
 }
 
 int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
@@ -1323,6 +1326,90 @@ int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id
 		return NOT_FOUND;
 	dsv->second->Release();
 	depthStencilViews.erase(dsv);
+
+	auto srv = shaderResourceViews.find(id);
+	if (srv != shaderResourceViews.end())
+	{
+		srv->second->Release();
+		shaderResourceViews.erase(srv);
+	}
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID & id, const UnorderedAccessView & view)
+{
+	const auto findUAV = unorderedAccessViews.find(id);
+	if (findUAV != unorderedAccessViews.end())
+	{
+		return EXISTS;
+	}
+	auto result = DEVICE_FAIL;
+
+	D3D11_TEXTURE2D_DESC td;
+	ZeroMemory(&td, sizeof(td));
+
+	td.Width = view.width;
+	td.Height = view.height;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+
+	switch (view.format)
+	{
+	case TextureFormat::R32G32B32A32_FLOAT: td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+	case TextureFormat::R8G8B8A8_UNORM:		td.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+	}
+
+
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	td.CPUAccessFlags = 0;
+	td.MiscFlags = 0;
+
+	ID3D11Texture2D* texture;
+	auto hr = device->CreateTexture2D(&td, nullptr, &texture);
+	if (FAILED(hr))
+		goto error;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
+	description.Format = td.Format;
+	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	description.Texture2D.MipSlice = 0;
+
+	ID3D11UnorderedAccessView* unorderedAccessView;
+	hr = device->CreateUnorderedAccessView(texture, &description, &unorderedAccessView);
+	if (FAILED(hr))
+		goto error;
+
+	if (view.bindAsShaderResource)
+	{
+		ID3D11ShaderResourceView* srv;
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = td.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
+		if (FAILED(hr))
+			goto error;
+		shaderResourceViews[id] = srv;
+	}
+
+	result = SUCCESS;
+error:
+	texture->Release();
+
+	return result;
+}
+
+int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID & id)
+{
+	auto find = unorderedAccessViews.find(id);
+	if (find == unorderedAccessViews.end())
+		return NOT_FOUND;
+	find->second->Release();
+	unorderedAccessViews.erase(find);
 
 	auto srv = shaderResourceViews.find(id);
 	if (srv != shaderResourceViews.end())

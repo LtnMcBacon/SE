@@ -115,6 +115,15 @@ namespace SE
 			TextureFormat format;
 
 		};
+		struct UnorderedAccessView
+		{
+			bool bindAsShaderResource;
+			int width;
+			int height;
+			float clearColor[4];
+			TextureFormat format;
+
+		};
 		enum class PrimitiveTopology : uint8_t
 		{
 			POINT_LIST,

@@ -9,10 +9,18 @@ namespace SE
 	{
 		enum class RenderGroup : uint8_t
 		{
-			PRE_PASS = 0,
-			SECOND_PASS = 1,
-			THIRD_PASS = 2,
-			POST_PASS = 3
+			PRE_PASS_0,
+			PRE_PASS_1,
+			PRE_PASS_2,
+			PRE_PASS_3,
+			RENDER_PASS_0,
+			RENDER_PASS_1,
+			RENDER_PASS_2,
+			RENDER_PASS_3,
+			POST_PASS_0,
+			POST_PASS_1,
+			POST_PASS_2,
+			POST_PASS_3
 		};
 
 

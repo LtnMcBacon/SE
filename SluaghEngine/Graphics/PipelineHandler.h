@@ -64,6 +64,9 @@ namespace SE
 			int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
 			int DestroyDepthStencilView(const Utilz::GUID& id) override;
 
+			int CreateUnorderedAccessView(const Utilz::GUID& id, const UnorderedAccessView& view)override;
+			int DestroyUnorderedAccessView(const Utilz::GUID& id)override;
+
 			void SetPipeline(const Pipeline& pipeline) override;
 			void SetPipelineForced(const Pipeline& pipeline) override;
 
@@ -136,6 +139,8 @@ namespace SE
 			std::unordered_map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
 			std::unordered_map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
 			std::unordered_map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
+			std::unordered_map<Utilz::GUID, ID3D11UnorderedAccessView*, Utilz::GUID::Hasher> unorderedAccessViews;
+
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
 
