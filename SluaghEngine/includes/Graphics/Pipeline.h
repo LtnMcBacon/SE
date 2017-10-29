@@ -111,6 +111,7 @@ namespace SE
 			bool bindAsShaderResource;
 			int width;
 			int height;
+			float clearColor[4];
 			TextureFormat format;
 
 		};

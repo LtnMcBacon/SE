@@ -43,7 +43,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
-	renderTargetViews["backbuffer"] = backbuffer;
+	renderTargetViews["backbuffer"] = { backbuffer, {0.0f, 0.0f,1.0f,0.0f} };
 	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
 	vertexBuffers[Utilz::GUID()].buffer = nullptr;
@@ -57,7 +57,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	computeShaders[Utilz::GUID()] =  nullptr ;
 	constantBuffers[Utilz::GUID()] = nullptr;
 	shaderResourceViews[Utilz::GUID()] = nullptr;
-	renderTargetViews[Utilz::GUID()] = nullptr;
+	renderTargetViews[Utilz::GUID()] = { nullptr };
 	samplerStates[Utilz::GUID()] = nullptr;
 	blendStates[Utilz::GUID()] = nullptr;
 	rasterizerStates[Utilz::GUID()] = nullptr;
@@ -111,9 +111,10 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : shaderResourceViews)
 		if (r.second)r.second->Release();
 	for (auto& r : renderTargetViews)
-		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+		if (r.second.rtv && r.first != Utilz::GUID("backbuffer"))r.second.rtv->Release();
 	for (auto& r : depthStencilViews)
-		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+		if (r.second && r.first != Utilz::GUID("backbuffer"))
+			r.second->Release();
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
 	for (auto& r : blendStates)
@@ -1209,7 +1210,11 @@ int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, con
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	renderTargetViews[id] = rtv;
+	renderTargetViews[id] = { rtv };
+	renderTargetViews[id].clearColor[0] = target.clearColor[0];
+	renderTargetViews[id].clearColor[1] = target.clearColor[1];
+	renderTargetViews[id].clearColor[2] = target.clearColor[2];
+	renderTargetViews[id].clearColor[3] = target.clearColor[3];
 
 	texture->Release();
 	return SUCCESS;
@@ -1220,7 +1225,7 @@ int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 	auto rtv = renderTargetViews.find(id);
 	if (rtv == renderTargetViews.end())
 		return NOT_FOUND;
-	rtv->second->Release();
+	rtv->second.rtv->Release();
 	renderTargetViews.erase(rtv);
 
 	auto srv = shaderResourceViews.find(id);
@@ -1233,6 +1238,33 @@ int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 
 int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
 {
+	const auto find = depthStencilViews.find(id);
+	if (find != depthStencilViews.end())
+	{
+		if (bindAsTexture)
+		{
+			auto const findSRV = shaderResourceViews.find(id);
+			if (findSRV == shaderResourceViews.end())
+			{
+				ID3D11Texture2D* texture;
+
+				find->second->GetResource((ID3D11Resource**)&texture);
+
+				D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+				srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				srvd.Texture2D.MostDetailedMip = 0;
+				srvd.Texture2D.MipLevels = 1;
+				ID3D11ShaderResourceView* srv;
+				auto hr = device->CreateShaderResourceView(texture, &srvd, &srv);
+				if (FAILED(hr))
+					return DEVICE_FAIL;
+				shaderResourceViews[id] = srv;
+				texture->Release();
+			}
+		}
+		return EXISTS;
+	}
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
@@ -1264,7 +1296,8 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 	depthStencilViews[id] = dsv;
-
+	depthStencilViews[id]->Release();
+	depthStencilViews[id] = nullptr;
 	if (bindAsTexture)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
@@ -1343,9 +1376,9 @@ void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
 
 	for(auto& rtv : renderTargetViews)
 	{
-		if(rtv.second)
+		if(rtv.second.rtv)
 		{
-			deviceContext->ClearRenderTargetView(rtv.second, clearColor);
+			deviceContext->ClearRenderTargetView(rtv.second.rtv, rtv.second.clearColor);
 		}
 	}
 
@@ -1644,7 +1677,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 			changed = true;
 			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
 			if (rtv != renderTargetViews.end())
-				renderTargets[i] = rtv->second;
+				renderTargets[i] = rtv->second.rtv;
 			else
 				renderTargets[i] = nullptr;
 			c.renderTargets[i] = oms.renderTargets[i];
@@ -1841,7 +1874,7 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 	{
 		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
 		if (rtv != renderTargetViews.end())
-			renderTargets[i] = rtv->second;
+			renderTargets[i] = rtv->second.rtv;
 		else
 			renderTargets[i] = nullptr;
 		c.renderTargets[i] = oms.renderTargets[i];

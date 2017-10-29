@@ -39,7 +39,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
-	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+//	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
 
 	Graphics::Viewport vp;
 	vp.width = device->GetTexDesc().Width;
@@ -68,8 +68,8 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 void SE::Graphics::Renderer::Shutdown()
 {
-
-	delete secPipelineHandler;
+	
+//	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -263,7 +263,9 @@ int SE::Graphics::Renderer::Render()
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
 	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
-
+	
+	ID3D11RenderTargetView* rtvs[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, rtvs, device->GetDepthStencil());
 
 	//********* Render sprite overlays ********/
 	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));

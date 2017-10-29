@@ -133,19 +133,22 @@ namespace SE
 			vp.width = 200;
 			vp.topLeftX = 0;
 			vp.topLeftY = 0;
-			vp.maxDepth = 100;
-			vp.minDepth = 0.001;
+			vp.maxDepth = 1;
+			vp.minDepth = 0.01;
 		
+			subSystem.renderer->GetPipelineHandler()->CreateViewport("topleft", vp);
+
 			Graphics::RenderJob drawBloomTexture;
 			drawBloomTexture.pipeline.VSStage.shader = "FullscreenQuad";
 			drawBloomTexture.pipeline.PSStage.shader = "MultiPS";
 			drawBloomTexture.pipeline.PSStage.textureCount = 1;
-			drawBloomTexture.pipeline.PSStage.textures[0] = "texture8.sei";
+			drawBloomTexture.pipeline.PSStage.textures[0] = "bloomTarget";
 			drawBloomTexture.pipeline.PSStage.textureBindings[0] = "gTexture";
 			drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
-			drawBloomTexture.pipeline.OMStage.renderTargets[1] = Utilz::GUID();
 			drawBloomTexture.pipeline.OMStage.renderTargetCount = 1;
-			drawBloomTexture.pipeline.OMStage.depthStencilView = "backbuffer";
+			drawBloomTexture.pipeline.OMStage.depthStencilView = Utilz::GUID();
+			drawBloomTexture.pipeline.PSStage.samplers[0] = "AnisotropicSampler";
+			drawBloomTexture.pipeline.PSStage.samplerCount = 1;
 			drawBloomTexture.pipeline.RStage.viewport = "topleft";
 			drawBloomTexture.vertexCount = 3;
 			drawBloomTexture.indexCount = 0;

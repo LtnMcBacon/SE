@@ -41,6 +41,10 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
 	rt.width = 800;
 	rt.height = 640;
+	rt.clearColor[0] = 0.0f;
+	rt.clearColor[1] = 0.0f;
+	rt.clearColor[2] = 0.0f;
+	rt.clearColor[3] = 0.0f;
 	res = initInfo.renderer->GetPipelineHandler()->CreateRenderTarget("bloomTarget", rt);
 	if(res < 0)
 		throw std::exception("Could not Create bloom render target.");

@@ -23,79 +23,25 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	: initInfo(initInfo)
 {
 	rmInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+
 	Init();
 
-	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
 
 	Allocate(128);
 
 }
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
-	if (res)
-		throw std::exception("Could not load default shader");
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, size_t allocsize, RenderableManagerInstancing * rmI) : initInfo(initInfo),
+rmInstancing(rmI)
+{
+	Init();
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
 
-		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-
-		if (status < 0) {
-
-			return ResourceHandler::InvokeReturn::Fail;
-		}
-
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
-
-	Graphics::RasterizerState info;
-	info.cullMode = Graphics::CullMode::CULL_BACK;
-	info.fillMode = Graphics::FillMode::FILL_SOLID;
-	info.windingOrder = Graphics::WindingOrder::CLOCKWISE;
-
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(solid, info);
-	if (result < 0)
-		throw std::exception("Could not create Solid Rasterizer.");
-
-	info.fillMode = Graphics::FillMode::FILL_WIREFRAME;
-	info.cullMode = Graphics::CullMode::CULL_BACK;
-	result = initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(wireframe, info);
-	if (result < 0)
-		throw std::exception("Could not create wireframe Rasterizer.");
-
-	Graphics::BlendState bs;
-	bs.enable = true;
-	bs.blendOperation = Graphics::BlendOperation::ADD;
-	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
-	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
-	bs.srcBlendAlpha = Graphics::Blend::ONE;
-	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
-	bs.dstBlendAlpha = Graphics::Blend::ONE;
-
-	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
-	if (result < 0)
-		throw std::exception("Could not create Transparency Blendstate.");
-
-	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
-	Graphics::Viewport vp;
-
-	vp.width = 512;
-	vp.height = 512;
-	vp.maxDepth = 1.0f;
-	vp.minDepth = 0.0f;
-	vp.topLeftX = 0.0f;
-	vp.topLeftY = 0.0f;
-
-	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
-
-	Graphics::SamplerState pointSampler;
-	pointSampler.filter = Graphics::Filter::POINT;
-	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
-	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
-	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
-	pointSampler.maxAnisotropy = 0;
-
-	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
+	Allocate(allocsize);
 }
+
 
 SE::Core::RenderableManager::~RenderableManager()
 {
@@ -411,10 +357,9 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.mesh, renderableObjectInfo.mesh, renderableObjectInfo.used * sizeof(Utilz::GUID));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
-	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
-	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(bool));
-	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
-	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -493,6 +438,20 @@ void SE::Core::RenderableManager::Init()
 	if (res)
 		throw std::exception("Could not load default shader");
 
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if(res < 0)
+		throw std::exception("Could not load defaultVertexShadowShader");
+
 
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
@@ -522,6 +481,43 @@ void SE::Core::RenderableManager::Init()
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
+
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
+	if (res)
+		throw std::exception("Could not load default shader");
+
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	Graphics::Viewport vp;
+
+	vp.width = 512;
+	vp.height = 512;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
 }
 
 void SE::Core::RenderableManager::Destroy(const Entity & entity)
