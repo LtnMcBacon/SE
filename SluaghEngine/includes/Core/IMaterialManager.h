@@ -16,6 +16,7 @@
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
 #include "IEventManager.h"
+#include "IOptionsHandler.h"
 
 namespace SE
 {
@@ -28,15 +29,17 @@ namespace SE
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
+				IOptionsHandler* optionsHandler;
 				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
-				IEventManager* eventManager;
+				IEventManager* eventManager;			
 			};
 
 			struct CreateInfo
 			{
 				Utilz::GUID shader;
 				Utilz::GUID materialFile;
+				bool bloom = true;
 			};
 
 			virtual ~IMaterialManager() {};

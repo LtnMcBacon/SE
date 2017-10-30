@@ -349,6 +349,7 @@ void SE::Core::Engine::InitMaterialManager()
 	{
 		IMaterialManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
+		info.optionsHandler = subSystems.optionsHandler;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;
@@ -430,7 +431,7 @@ void SE::Core::Engine::InitDecalManager()
 
 void SE::Core::Engine::SetupDebugConsole()
 {
-	/*subSystems.devConsole->AddFrameCallback([this]()
+	subSystems.devConsole->AddFrameCallback([this]()
 	{
 		static bool plot_memory_usage;
 		static bool show_gpu_timings;
@@ -509,7 +510,7 @@ void SE::Core::Engine::SetupDebugConsole()
 
 
 		}
-	});*/
+	});
 	
 }
 
@@ -517,9 +518,9 @@ void SE::Core::Engine::InitStartupOption()
 {
 	StartProfile;
 	//Set Sound Vol
-	/*managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
-	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));*/
+	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);

@@ -24,6 +24,8 @@ namespace SE
 			virtual int DestroyIndexBuffer(const Utilz::GUID& id) = 0;
 			virtual int DestroyVertexBuffer(const Utilz::GUID& id) = 0;
 
+			virtual int CreateViewport(const Utilz::GUID& id, const Viewport& viewport) = 0;
+
 			virtual int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual int CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) = 0;
@@ -60,12 +62,17 @@ namespace SE
 			virtual int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) = 0;
 			virtual int DestroyDepthStencilView(const Utilz::GUID& id) = 0;
 
+			virtual int CreateUnorderedAccessView(const Utilz::GUID& id, const UnorderedAccessView& view) = 0;
+			virtual int DestroyUnorderedAccessView(const Utilz::GUID& id) = 0;
+
 			virtual void SetPipeline(const Pipeline& pipeline) = 0;
 			/*
 			 * @brief Does not compare the current pipeline with pipeline. Sets all states even if those states might already be set. Only use this for the first pipeline to set.
 			 * @param[in] pipeline The pipeline to set.
 			 */
 			virtual void SetPipelineForced(const Pipeline& pipeline) = 0;
+
+			virtual void ClearAllRenderTargets() = 0;
 			
 		};
 	}
