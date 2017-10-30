@@ -145,24 +145,30 @@ namespace SE {
 			float *out = (float*)outputBuffer;
 			float *volBasedOfDist = new float[data->sample->info.channels];
 
-			DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3(data->panData.headPos.y * data->panData.soundPos.z - data->panData.headPos.z * data->panData.soundPos.y, data->panData.headPos.z * data->panData.soundPos.x - data->panData.headPos.x * data->panData.soundPos.z, data->panData.headPos.x * data->panData.soundPos.y - data->panData.headPos.y * data->panData.soundPos.x);
+			float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
 			if (data->sample->info.channels == 2)
 			{
-				float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
-				//vector magnitude
-				float vecSound = sqrt(soundVec.x * soundVec.x + soundVec.y * soundVec.y + soundVec.z * soundVec.z);
-				float vecHead = sqrt(data->panData.hearingVec.x * data->panData.hearingVec.x + data->panData.hearingVec.y * data->panData.hearingVec.y + data->panData.hearingVec.z * data->panData.hearingVec.z);
+				DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3((data->panData.soundPos.x - data->panData.headPos.x) / dist, (data->panData.soundPos.y - data->panData.headPos.y) / dist, (data->panData.soundPos.z - data->panData.headPos.z) / dist);
 				//dot product of Sound and head left and right
-				float dotSHLeft = (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
-				float dotSHRight = ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
-				float hej = (dotSHLeft / (vecSound * vecHead));
-				volBasedOfDist[0] = ((1 / dist) * (0.5 + (dotSHLeft / (vecSound * vecHead)))) * *data->audioPrivateData.volume;
-				volBasedOfDist[1] = ((1 / dist) * (0.5 + (dotSHRight / (vecSound * vecHead)))) * *data->audioPrivateData.volume;
+				float dotSHLeft = 1.0f + (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
+				float dotSHRight = 1.0f + ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
+				if (dist >= 1)
+				{
+					volBasedOfDist[0] = (1.0f / dist) * (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+					volBasedOfDist[1] = (1.0f / dist) * (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
+				}
+				else
+				{
+					volBasedOfDist[0] = (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+					volBasedOfDist[1] = (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
+				}
 			}
 			else
 			{
-				float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
-				volBasedOfDist[0] = (1 / dist) * *data->audioPrivateData.volume;
+				if (dist >= 1)
+					volBasedOfDist[0] = (1 / dist) * *data->audioPrivateData.volume;
+				else
+					volBasedOfDist[0] = *data->audioPrivateData.volume;
 			}
 
 
@@ -179,6 +185,7 @@ namespace SE {
 					}
 				}
 				data->audioPrivateData.currentPos++;
+				delete[] volBasedOfDist;
 				return paContinue;
 			}
 			else
@@ -191,8 +198,10 @@ namespace SE {
 						*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[AmountOfChannels];
 					}
 				}
+				delete[] volBasedOfDist;
 				return paComplete;
 			}
+			delete[] volBasedOfDist;
 			return paComplete;
 		};
 
@@ -208,24 +217,30 @@ namespace SE {
 			float *out = (float*)outputBuffer;
 			float *volBasedOfDist = new float[data->sample->info.channels];
 
-			DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3(data->panData.headPos.y * data->panData.soundPos.z - data->panData.headPos.z * data->panData.soundPos.y, data->panData.headPos.z * data->panData.soundPos.x - data->panData.headPos.x * data->panData.soundPos.z, data->panData.headPos.x * data->panData.soundPos.y - data->panData.headPos.y * data->panData.soundPos.x);
+			float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
 			if (data->sample->info.channels == 2)
 			{
-				float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
-				//vector magnitude
-				float vecSound = sqrt(soundVec.x * soundVec.x + soundVec.y * soundVec.y + soundVec.z * soundVec.z);
-				float vecHead = sqrt(data->panData.hearingVec.x * data->panData.hearingVec.x + data->panData.hearingVec.y * data->panData.hearingVec.y + data->panData.hearingVec.z * data->panData.hearingVec.z);
+				DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3((data->panData.soundPos.x - data->panData.headPos.x) / dist, (data->panData.soundPos.y - data->panData.headPos.y) / dist, (data->panData.soundPos.z - data->panData.headPos.z) / dist);
 				//dot product of Sound and head left and right
-				float dotSHLeft = (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
-				float dotSHRight = ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
-				float hej = (dotSHLeft / (vecSound * vecHead));
-				volBasedOfDist[0] = ((1 / dist) * (0.5 + (dotSHLeft / (vecSound * vecHead)))) * *data->audioPrivateData.volume;
-				volBasedOfDist[1] = ((1 / dist) * (0.5 + (dotSHRight / (vecSound * vecHead)))) * *data->audioPrivateData.volume;
+				float dotSHLeft =  1.0f + (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
+				float dotSHRight = 1.0f + ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
+				if (dist >= 1)
+				{
+					volBasedOfDist[0] = (1.0f / dist) * (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+					volBasedOfDist[1] = (1.0f / dist) * (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
+				}
+				else
+				{
+					volBasedOfDist[0] = (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+					volBasedOfDist[1] = (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
+				}
 			}
 			else
 			{
-				float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
-				volBasedOfDist[0] = (1 / dist) * *data->audioPrivateData.volume;
+				if (dist >= 1)
+					volBasedOfDist[0] = (1 / dist) * *data->audioPrivateData.volume;
+				else 
+					volBasedOfDist[0] = *data->audioPrivateData.volume;
 			}
 
 
@@ -242,6 +257,7 @@ namespace SE {
 					}
 				}
 				data->audioPrivateData.currentPos++;
+				delete[] volBasedOfDist;
 				return paContinue;
 			}
 			else
@@ -255,8 +271,10 @@ namespace SE {
 					}
 				}
 				data->audioPrivateData.currentPos = 0;
+				delete[] volBasedOfDist;
 				return paContinue;
 			}
+			delete[] volBasedOfDist;
 			return paComplete;
 		};
 
