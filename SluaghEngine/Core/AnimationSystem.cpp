@@ -115,8 +115,7 @@ void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID,
 
 	auto& skeleton = skeletons[skeletonGUID];
 	auto& animation = animations[animationGUID];
-	if (timePos > (float)animation.Length)
-		timePos -= (float)animation.Length;
+	
 
 	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
 	std::vector<XMMATRIX> interpolatedJointTransforms;
@@ -142,6 +141,10 @@ void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID,
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));// *XMMatrixScaling(-1, 1, 1)));
 	}
+
+	if (timePos > (float)animation.Length)
+		timePos = 0.0f;
+
 	StopProfile;
 }
 
