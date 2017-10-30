@@ -122,8 +122,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-
-
 #pragma region AudioData
 		managers.audioManager->SetCameraEnt(managers.cameraManager->GetActive());
 		auto soundEnt = managers.entityManager->Create();
@@ -139,10 +137,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
-
-
-
-
 
 
 #pragma region LightDataSet
@@ -676,7 +670,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 	};
 
 
-	//lam(Window::WindowState::Record);
+	lam(Window::WindowState::Record);
 	lam(Window::WindowState::Playback);
 
 	ProfileReturnConst(true)
