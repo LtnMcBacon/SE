@@ -8,9 +8,8 @@ namespace SE
 {
 	namespace Utilz
 	{
-		class GUID
+		struct GUID
 		{
-		public:
 			struct Compare
 			{
 				inline bool operator() (const GUID& lhs, const GUID& rhs) const
@@ -43,7 +42,6 @@ namespace SE
 				g.id = id ^ other.id;
 				return g;
 			}
-		private:
 			uint32_t id;			
 		};
 
