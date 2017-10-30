@@ -257,12 +257,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
 		SE::Core::Entity camera = managers.cameraManager->GetActive();
-		//SE::Core::Entity camera = managers.entityManager->Create();
 		Core::ICameraManager::CreateInfo cInfo;
 		cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
-
-		//managers.cameraManager->Create(camera, cInfo);
-		//managers.cameraManager->SetActive(camera);
 
 		float cameraRotationX = DirectX::XM_PI / 3;
 		float cameraRotationY = DirectX::XM_PI / 3;
@@ -281,8 +277,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		temp.player = player;
 
 		SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
-
-		managers.audioManager->SetCameraEnt(player->GetEntity());
 
 		for (int x = 0; x < 25; x++)
 		{
@@ -669,6 +663,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		delete projectileManager;
 		delete testRoom;
 		delete player;
+		delete[] RoomArr;
 
 
 
