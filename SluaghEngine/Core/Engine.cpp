@@ -62,14 +62,14 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 	SetupDebugConsole();
 
 	//default camera
-	/*auto defEntCam = managers.entityManager->Create();
+	auto defEntCam = managers.entityManager->Create();
 	managers.cameraManager->Create(defEntCam);
 	managers.cameraManager->SetActive(defEntCam);
 
 	InitStartupOption();
 
 	subSystems.devConsole->BeginFrame();
-	subSystems.devConsole->EndFrame();*/
+	subSystems.devConsole->EndFrame();
 	ProfileReturnConst(0);
 }
 
@@ -349,6 +349,7 @@ void SE::Core::Engine::InitMaterialManager()
 	{
 		IMaterialManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
+		info.optionsHandler = subSystems.optionsHandler;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;

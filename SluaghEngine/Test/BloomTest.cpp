@@ -118,8 +118,8 @@ namespace SE
 				bool running = true;
 
 				Graphics::Viewport vp;
-				vp.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 3.0f;
-				vp.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 640) / 3.0f;
+				vp.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / 3.0f;
+				vp.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / 3.0f;
 				vp.topLeftX = 0;
 				vp.topLeftY = 0;
 				vp.maxDepth = 1;
