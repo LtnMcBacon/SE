@@ -334,6 +334,7 @@ void SE::Core::Engine::InitAnimationManager()
 		IAnimationManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
+		info.window = subSystems.window;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
