@@ -596,6 +596,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		enemyDistances.clear();
+		newProjectiles.clear();
 		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
 		if (enemyDistances.size())
 		{

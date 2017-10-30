@@ -11,6 +11,10 @@ namespace SE
 		public:
 			virtual ~IPipelineHandler() = 0 {};
 
+			virtual int AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv) = 0;
+			virtual int AddExistingDepthStencilView(const Utilz::GUID& id, void *dsv) = 0;
+			virtual int AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv) = 0;
+
 			virtual int MergeHandlers(IPipelineHandler* other) = 0;
 
 			virtual int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) = 0;

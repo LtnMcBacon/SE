@@ -40,6 +40,7 @@
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
+#include "DecalTest.h"
 #include "ShadowTest.h"
 
 
@@ -105,7 +106,8 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-	AddTest(BloomTest);
+	AddTest(DecalTest);
+//	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
