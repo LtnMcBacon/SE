@@ -85,6 +85,8 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
 	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
+	materialInfo.shader[newEntry] = defaultPixelShader;
+	materialInfo.material[newEntry] = defaultMaterial;
 	//if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
 	//{
 	//	mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything

@@ -9,6 +9,8 @@
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Utilz\CircularFiFo.h>
+#include <DevConsole\IConsole.h>
+
 #include <mutex>
 namespace SE
 {
@@ -40,11 +42,12 @@ namespace SE
 		{
 		public:
 			MaterialLoading(Graphics::IRenderer* renderer,
-			ResourceHandler::IResourceHandler* resourceHandler);
+			ResourceHandler::IResourceHandler* resourceHandler,
+				DevConsole::IConsole* console);
 			~MaterialLoading();
 
 
-
+			void LoadStuff(const Utilz::GUID& shader, const Utilz::GUID& material);
 
 
 			int LoadShader(const Utilz::GUID& guid);
@@ -71,6 +74,7 @@ namespace SE
 
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
+			DevConsole::IConsole* console;
 
 			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
 			std::mutex shaderLock;

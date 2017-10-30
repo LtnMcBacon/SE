@@ -183,7 +183,8 @@ bool SE::Core::MaterialLoading::IsShaderLoaded(const Utilz::GUID & guid) const
 	return findShader != guidToShader.end();
 }
 
-SE::Core::MaterialLoading::MaterialLoading(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler) : renderer(renderer), resourceHandler(resourceHandler)
+SE::Core::MaterialLoading::MaterialLoading(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler, DevConsole::IConsole* console)
+	: renderer(renderer), resourceHandler(resourceHandler), console(console)
 {
 }
 
