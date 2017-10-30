@@ -51,5 +51,5 @@ void SE::Gameplay::Game::Run()
 
 void SE::Gameplay::Game::Shutdown()
 {
-	//delete state;
+	delete state;
 }

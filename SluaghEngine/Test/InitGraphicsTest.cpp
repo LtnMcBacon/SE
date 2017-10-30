@@ -38,7 +38,7 @@ bool SE::Test::InitGraphicsTest::Run(DevConsole::IConsole * console)
 		ProfileReturnConst(false);
   }
 
-	for (UINT i = 0; i < 200; i++) {
+	for (uint32_t i = 0; i < 200; i++) {
 		r->Render();
 	}
 

@@ -170,12 +170,12 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureRect(const Entity& entity, RECT* rect)override {
+			inline void SetTextureRect(const Entity& entity, Graphics::RECT& rect)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].rect = rect;
+					*textureInfo[fileLoaded->second.ID].rect = rect;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
