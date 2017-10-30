@@ -124,7 +124,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 10.0f, 10.0f, -10.0f };
+	d.pos = { 0.0f, 3.0f, -3.0f };
 	d.color = { 1, 1, 1 };
 	d.dir = { 0.0f, 0.0f, 1.0f };
 	d.castShadow = true;

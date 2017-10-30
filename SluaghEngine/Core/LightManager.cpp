@@ -46,7 +46,7 @@ namespace SE {
 				if (data.castShadow == true) {
 
 					//DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH (35, 35, 0.1, info.radius);
-					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3f, 1, 0.1, info.radius);
+					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3, 1, 0.1, info.radius);
 
 					shadowCasters.push_back({ entity, proj, info.dir});
 
@@ -126,8 +126,8 @@ namespace SE {
 				auto& k = shadowCasters[0];
 				auto pos = initInfo.transformManager->GetPosition(k.entity);
 
-				/*XMVECTOR newDir = { 0.0f, 0.0f, -1.0f, 1.0f };
-				initInfo.transformManager->SetForward(k.entity, newDir);*/
+				XMVECTOR newDir = { 0.0f, -1.0f, 1.0f, 1.0f };
+				initInfo.transformManager->SetForward(k.entity, newDir);
 
 				auto dir = initInfo.transformManager->GetForward(k.entity);
 				auto right = initInfo.transformManager->GetRight(k.entity);

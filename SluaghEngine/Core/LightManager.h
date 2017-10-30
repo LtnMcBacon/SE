@@ -45,6 +45,7 @@ namespace SE
 				DirectX::XMFLOAT4 dir;
 				bool visible;
 				bool castShadow;
+				bool isOrtographic;
 			};
 
 			
