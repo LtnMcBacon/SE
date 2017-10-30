@@ -9,6 +9,7 @@
 #include <chrono>
 #include <Graphics/IRenderer.h> //In order to plot VRAM usage.
 #include <Window/IWindow.h>
+#include <mutex>
 
 namespace SE
 {
@@ -128,6 +129,7 @@ namespace SE
 			int commandHistoryIndex;
 
 			std::vector<Message> messages;
+			std::mutex msgLock;
 			std::vector<char> inputBuffer;
 			std::vector<std::function<void()>> frameCallbacks;
 
