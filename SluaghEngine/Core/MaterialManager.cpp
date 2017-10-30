@@ -7,7 +7,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.entityManager);
-	_ASSERT(initInfo.renderableManager);
+	_ASSERT(initInfo.eventManager);
 	_ASSERT(initInfo.console);
 	Allocate(128);
 	defaultTexture = "BlackPink.sei";
@@ -16,7 +16,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	defaultSampler = "AnisotropicSampler";
 	defaultMaterial = "Cube.mat";
 
-	initInfo.renderableManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
+	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
 	auto res = mLoading.LoadShader(defaultPixelShader);
 	if (res < 0)
@@ -91,7 +91,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	auto result = mLoading.LoadShader(info.shader);
 	if (result < 0)
 	{
-		initInfo.console->PrintChannel("Could not load shader. Using default instead. GUID: %u, Error: %d\n", "Resources", info.shader, result);
+		initInfo.console->PrintChannel("Resources", "Could not load shader. Using default instead. GUID: %u, Error: %d\n",  info.shader, result);
 		materialInfo.shader[newEntry] = defaultPixelShader;
 	}
 	else
@@ -99,7 +99,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	result = mLoading.LoadMaterialFile(info.materialFile);
 	if (result < 0)
 	{
-		initInfo.console->PrintChannel("Could not load material. Using default instead. GUID: %u, Error: %d\n", "Resources", info.materialFile, result);
+		initInfo.console->PrintChannel("Resources", "Could not load material. Using default instead. GUID: %u, Error: %d\n",  info.materialFile, result);
 		materialInfo.material[newEntry] = defaultMaterial;
 	}
 	else
@@ -115,7 +115,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		result = mLoading.LoadTexture(mdata.textureInfo.textures[i]);
 		if (result  < 0)
 		{
-			initInfo.console->PrintChannel("Could not load texture. Using default instead. GUID: %u, Error: %d\n", "Resources", mdata.textureInfo.textures[i], result);
+			initInfo.console->PrintChannel("Resources", "Could not load texture. Using default instead. GUID: %u, Error: %d\n",  mdata.textureInfo.textures[i], result);
 			mdata.textureInfo.textures[i] = defaultTexture;
 		}
 	}
@@ -138,7 +138,7 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 			if (find != entityToMaterialInfo.end())
 			{
 				materialInfo.material[entityToMaterialInfo[e]] = job.material;
-				initInfo.renderableManager->UpdateRenderableObject(e);
+				initInfo.eventManager->TriggerUpdateRenderableObject(e);
 			}
 			
 		}

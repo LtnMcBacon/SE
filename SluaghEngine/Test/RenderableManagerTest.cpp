@@ -89,7 +89,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC, info, true);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();

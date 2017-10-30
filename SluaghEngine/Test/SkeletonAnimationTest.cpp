@@ -94,41 +94,45 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleTexPS.hlsl");
-	auto material = Utilz::GUID("bakedTest.mat");
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;	
 	info.materialFile = material;
 
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "bakedTest.mesh";
 	sai.skeleton = "bakedTest.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "IdleAnimation_bakedTest.anim" };
+	Utilz::GUID anims[] = { "BaseLayer_bakedTest.anim" };
 	sai.animations = anims;
-	managers.animationManager->CreateAnimation(mainC, sai);
-	managers.animationManager->Start(mainC, "IdleAnimation_bakedTest.anim", 1.0f);
+	managers.animationManager->CreateAnimatedObject(mainC, sai);
 
-
-	managers.renderableManager->CreateRenderableObject(mainC, { "bakedTest.mesh" });
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");
+	managers.animationManager->ToggleVisible(mainC, true);
 
-	managers.renderableManager->ToggleRenderableObject(mainC, true);
-
+	managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
 
 	auto& c2 = managers.entityManager->Create();
-	managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
-	managers.materialManager->Create(c2, info);
-	managers.animationManager->CreateAnimation(c2, sai);
-	managers.animationManager->Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
-	managers.renderableManager->CreateRenderableObject(c2, { "bakedTest.mesh" });
+	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
+	//managers.materialManager->Create(c2, info);
+	//managers.animationManager->CreateAnimation(c2, sai);
+	//managers.animationManager->Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
+	//managers.renderableManager->CreateRenderableObject(c2, { "bakedTest.mesh" });
 
-	managers.collisionManager->CreateBoundingHierarchy(c2, "bakedTest.mesh");
+	//managers.collisionManager->CreateBoundingHierarchy(c2, "bakedTest.mesh");
 
-	managers.renderableManager->ToggleRenderableObject(c2, true);
+	//managers.renderableManager->ToggleRenderableObject(c2, true);
 
-
+	auto& l = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo d;
+	d.radius = 100.0f;
+	d.pos = { 0.0f, 5.0f, -5.0f };
+	d.color = { 1, 1,1 };
+	managers.lightManager->Create(l, d);
+	managers.lightManager->ToggleLight(l, true);
 
 
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
@@ -160,7 +164,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		timer.Tick();
 		float dt = timer.GetDelta();
-
+	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
 		if (subSystem.window->ButtonDown(ActionButton::Down))
@@ -181,7 +185,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		engine->BeginFrame();
 	
-		//ImGui::Begin("Animation Stuff");
+		ImGui::Begin("Animation Stuff");
 
 		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
@@ -194,7 +198,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string( entityToChange.id)).c_str());
 		
-		//ImGui::End();
+		ImGui::End();
 		
 		engine->EndFrame();
 	}

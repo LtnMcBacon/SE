@@ -17,6 +17,7 @@
 #include "ITransformManager.h"
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -31,6 +32,7 @@ namespace SE
 				Graphics::IRenderer* renderer;
 				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
+				IEventManager* eventManager;
 				ITransformManager* transformManager;
 			};
 			struct CreateInfo
@@ -44,7 +46,7 @@ namespace SE
 
 			virtual ~IAnimationManager() {};
 
-			virtual void CreateAnimation(const Entity& entity, const CreateInfo& info) = 0;
+			virtual void CreateAnimatedObject(const Entity& entity, const CreateInfo& info) = 0;
 
 			virtual void Start(const Entity& entity, const Utilz::GUID& animation, float speed) = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;

@@ -2,14 +2,18 @@
 #include "AnimationSystem.h"
 
 using namespace DirectX;
+SE::Core::AnimationSystem::JointMatrices  SE::Core::AnimationSystem::mats;
 
-SE::Core::AnimationSystem::AnimationSystem() {
+SE::Core::AnimationSystem::AnimationSystem(Graphics::IRenderer* renderer) : RenderableManagerInstancing(renderer)
+{
+	DirectX::XMFLOAT4X4 id;
+	DirectX::XMStoreFloat4x4(&id, DirectX::XMMatrixIdentity());
+	for (auto i = 0; i < 30; i++)
+		mats.jointMatrix[i] = id;
 
-	skeletons.reserve(3);
 }
 
 SE::Core::AnimationSystem::~AnimationSystem() {
-
 
 }
 
@@ -98,13 +102,13 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
-void SE::Core::AnimationSystem::AddEntity(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation)
+void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation, float timePos)
 {
+	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
+	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+	UpdateAnimation(skeleton, animation, timePos, bucket->matrices[bucketAndID.index].jointMatrix);
 }
 
-void SE::Core::AnimationSystem::RemoveEntity(const Entity & entity)
-{
-}
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
@@ -134,7 +138,7 @@ void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID,
 		b.GlobalTx = interpolatedJointTransforms[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx * XMMatrixScaling(-1, 1, 1)));
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));// *XMMatrixScaling(-1, 1, 1)));
 	}
 	StopProfile;
 }
@@ -163,9 +167,22 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 	}
 	StopProfile;
 }
+static const SE::Utilz::GUID VS_SKINNED_DATA("VS_SKINNED_DATA");
 
-void SE::Core::AnimationSystem::MapBuffer(void * data, int done, int toDraw) const
+SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::AnimationSystem::CreateBucket(Graphics::RenderJob & job)
 {
+	StartProfile;
+	auto bucket = new AnimationBucket(job.pipeline);
+	bucket->pipeline = job.pipeline;
+	//	job.maxInstances = 256; Set from the outside
+	auto hax = job.specialHaxxor;
+	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+		renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
+	});
+	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+		renderer->GetPipelineHandler()->UpdateConstantBuffer(VS_SKINNED_DATA, &bucket->matrices[a], sizeof(JointMatrices) * b);
+	});
+	ProfileReturnConst( bucket);
 }
 
 void SE::Core::AnimationSystem::ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const {
@@ -229,3 +246,19 @@ void SE::Core::AnimationSystem::Interpolate(const JointKeyFrame& joint, float an
 	StopProfile;
 }
 
+void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity, const DirectX::XMFLOAT4X4 & transform, BucketAndID & bucketAndID)
+{
+	RenderBucket::AddEntity(entity, transform, bucketAndID);
+
+  matrices.push_back(mats);
+}
+
+void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
+{
+	const auto last = matrices.size() - 1;
+	matrices[index] = matrices[last];
+	matrices.pop_back();
+
+	RenderBucket::RemoveFromBucket(rm, index, transform);
+
+}

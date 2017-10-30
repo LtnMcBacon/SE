@@ -46,6 +46,12 @@ namespace SE
 		struct HealingEvent
 		{
 			/*What is needed?*/
+			float amount;
+			enum class SourceType
+			{
+				SOURCE_TYPE_ENEMY_DEATH,
+				SOURCE_TYPE_ENEMY_HIT
+			}type;
 		};
 
 		struct ConditionEvent
@@ -57,10 +63,11 @@ namespace SE
 				CONDITION_TYPE_ROOT,
 				CONDITION_TYPE_HEALTH_SET /*How the hell do we fix this?*/
 			} type;
-
-			ConditionEvent(ConditionTypes conditionType = ConditionTypes::CONDITION_TYPE_NONE)
+			float duration;
+			ConditionEvent(ConditionTypes conditionType = ConditionTypes::CONDITION_TYPE_NONE, float d = 0.f)
 			{
 				type = conditionType;
+				duration = d;
 			}
 		};
 

@@ -173,6 +173,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="EntityManagerTest.cpp" />
     <ClCompile Include="GameStateTest.cpp" />
     <ClCompile Include="GarbageTest.cpp" />
+    <ClCompile Include="GlaistigTest.cpp" />
     <ClCompile Include="ImageLoadTest.cpp" />
     <ClCompile Include="INITest.cpp" />
     <ClCompile Include="FlowFieldTest.cpp" />
@@ -185,12 +186,14 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="PlayerMovementTest.cpp" />
     <ClCompile Include="ProjectileTest.cpp" />
     <ClCompile Include="RecordingProjectileTest.cpp" />
+    <ClCompile Include="RandRoomTest.cpp" />
     <ClCompile Include="RecordingTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResourceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
     <ClCompile Include="ShadowTest.cpp" />
     <ClCompile Include="SkeletonAnimationTest.cpp" />
+    <ClCompile Include="SluaghTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
     <ClCompile Include="TransformTest.cpp" />
@@ -211,6 +214,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="FlowFieldTest.h" />
     <ClInclude Include="GameStateTest.h" />
     <ClInclude Include="GarbageTest.h" />
+    <ClInclude Include="GlaistigTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="INITest.h" />
     <ClInclude Include="InitGraphicsTest.h" />
@@ -221,6 +225,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="PickingTest.h" />
     <ClInclude Include="PlayerMovementTest.h" />
     <ClInclude Include="ProjectileTest.h" />
+    <ClInclude Include="RandRoomTest.h" />
     <ClInclude Include="RecordingProjectileTest.h" />
     <ClInclude Include="RecordingTest.h" />
     <ClInclude Include="RenderableManagerTest.h" />
@@ -228,6 +233,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="RoomCreationTest.h" />
     <ClInclude Include="ShadowTest.h" />
     <ClInclude Include="SkeletonAnimationTest.h" />
+    <ClInclude Include="SlaughTest.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TransformManagerTest.h" />
     <ClInclude Include="TransformTest.h" />

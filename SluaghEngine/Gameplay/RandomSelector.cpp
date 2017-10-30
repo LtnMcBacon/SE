@@ -4,8 +4,10 @@
 
 void SE::Gameplay::RandomSelector::OnInitialization()
 {
+	StartProfile;
 	std::shuffle(myChildren.begin(), myChildren.end(), generator);
 	currentChild = myChildren.begin();
+	StopProfile;
 }
 
 SE::Gameplay::Status SE::Gameplay::RandomSelector::Update()
