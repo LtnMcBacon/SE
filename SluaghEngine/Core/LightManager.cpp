@@ -1,6 +1,7 @@
 #include"LightManager.h"
 #include <Profiler.h>
 
+using namespace DirectX;
 
 namespace SE {
 	namespace Core {
@@ -38,6 +39,19 @@ namespace SE {
 				data.visible = false;
 				data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
 				data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
+				data.dir = { info.dir.x, info.dir.y, info.dir.z, 1.0f };
+				data.castShadow = info.castShadow;
+
+				// If entity is shadow caster, push back to shadow casters
+				if (data.castShadow == true) {
+
+					//DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH (35, 35, 0.1, info.radius);
+					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3f, 1, 0.1, info.radius);
+
+					shadowCasters.push_back({ entity, proj, info.dir});
+
+
+				}
 
 				initInfo.transformManager->Create(entity, info.pos);
 
@@ -62,31 +76,8 @@ namespace SE {
 				if (show && !fileLoaded->second.visible)
 				{
 					anyTogglesThisFrame = true;
-					//DirectX::XMFLOAT3 tempPos = initInfo.transformManager->GetPosition(entity);
-					//lights[lights.size() - 1].pos = DirectX::XMFLOAT4(tempPos.x, tempPos.y, tempPos.z, lights[lights.size() - 1].pos.w);
-					//fileLoaded->second.jobID = initInfo.renderer->EnableLightRendering(lights[fileLoaded->second.ID]);
-					//jobToEnt[fileLoaded->second.jobID] = entity;
-					
-					/*initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
-						auto cb = *(LightDataBuffer*)data;
-						uint32_t count = 0;
-						for (auto& l : entityToLightData)
-						{
-							if (l.second.visible)
-							{
-								cb.data[count].colour = l.second.colour;
-								cb.data[count].pos = l.second.pos;
-								count++;
-							}
-							if (count == 20)
-								break;
-						}
-						cb.size[0] = count;
 
-					});*/
-
-					
-
+				
 				}
 				else if (!show && fileLoaded->second.visible)
 				{
@@ -106,19 +97,6 @@ namespace SE {
 			timer->Start(CREATE_ID_HASH("LightManger"));
 			GarbageCollection();
 
-		/*	struct LightDataBuffer
-			{
-				DirectX::XMFLOAT4 size;
-				Graphics::LightData data[20];
-			};
-			LightDataBuffer data;
-			data.size = DirectX::XMFLOAT4(1.0f, 0.0f,0.0f,0.0);
-			data.data[0].pos = DirectX::XMFLOAT4(0.25f, 1.0f, -1.0f, 100.0f);
-			data.data[0].colour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightDataBuffer", &data, sizeof(LightDataBuffer));*/
-			//initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &data.data[0].pos, sizeof(DirectX::XMFLOAT4));
-
-
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
@@ -130,6 +108,7 @@ namespace SE {
 						{
 							cb.data[count].colour = l.second.colour;
 							cb.data[count].pos = l.second.pos;
+							cb.data[count].castShadow.x = l.second.castShadow;
 							count++;
 						}
 						if (count == 20)
@@ -138,9 +117,36 @@ namespace SE {
 					cb.size[0] = count;
 
 				});
+
 				anyTogglesThisFrame = false;
 			}
 
+			if (shadowCasters.size() > 0) {
+
+				auto& k = shadowCasters[0];
+				auto pos = initInfo.transformManager->GetPosition(k.entity);
+
+				//initInfo.transformManager->SetForward(k.entity, k.dir);
+
+				auto dir = initInfo.transformManager->GetForward(k.entity);
+				auto right = initInfo.transformManager->GetRight(k.entity);
+
+				auto vDir = XMLoadFloat3(&dir);
+				auto vRight = XMLoadFloat3(&right);
+
+				auto vUp = XMVector3Cross(vDir, vRight);
+
+				XMMATRIX view = XMMatrixLookToLH(XMLoadFloat3(&pos), vDir, vUp);
+
+				view = view * k.lProj;
+
+				view = XMMatrixTranspose(view);
+
+				XMFLOAT4X4 viewProj;
+				XMStoreFloat4x4(&viewProj, view);
+
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
+			}
 
 			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;

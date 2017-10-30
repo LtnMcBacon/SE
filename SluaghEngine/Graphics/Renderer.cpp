@@ -39,7 +39,17 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
-	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+//	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+
+	Graphics::Viewport vp;
+	vp.width = device->GetTexDesc().Width;
+	vp.height = device->GetTexDesc().Height;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	pipelineHandler->CreateViewport(Utilz::GUID(), vp);
 
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
 
@@ -58,8 +68,8 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 void SE::Graphics::Renderer::Shutdown()
 {
-
-	delete secPipelineHandler;
+	
+//	delete secPipelineHandler;
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
 	device->Shutdown();
@@ -181,9 +191,12 @@ int SE::Graphics::Renderer::Render()
 	/******************General Jobs*********************/
 	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
 	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
+	
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
+		first = true;
+
 		for (auto& j : group.second)
 		{
 			int32_t drawn = 0;
@@ -238,12 +251,21 @@ int SE::Graphics::Renderer::Render()
 				devContext->DrawAuto();
 			}
 		}
+
+		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
+		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
+
+		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
+
+		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 	}
 	
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
 	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
-
+	
+	ID3D11RenderTargetView* rtvs[] = { device->GetRTV() };
+	device->GetDeviceContext()->OMSetRenderTargets(1, rtvs, device->GetDepthStencil());
 
 	//********* Render sprite overlays ********/
 	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
@@ -321,6 +343,9 @@ int SE::Graphics::Renderer::Render()
 
 int SE::Graphics::Renderer::BeginFrame()
 {
+
+	pipelineHandler->ClearAllRenderTargets();
+
 	// clear the back buffer
 	float clearColor[] = { 0, 0, 1, 1 };
 	

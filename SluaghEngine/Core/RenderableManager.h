@@ -78,6 +78,8 @@ namespace SE
 
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
 
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
 		private:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 
@@ -86,13 +88,14 @@ namespace SE
 			*/
 			void Allocate(size_t size);
 
-			RenderableManagerInstancing* rmInstancing;
-
-			
 
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);
+			
+
+
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -123,7 +126,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -132,6 +135,7 @@ namespace SE
 				uint8_t* visible;
 				uint8_t* wireframe;
 				uint8_t* transparency;
+				uint8_t* shadow;
 			};
 			InitializationInfo initInfo;
 			std::default_random_engine generator;	
@@ -143,7 +147,9 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
+
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 

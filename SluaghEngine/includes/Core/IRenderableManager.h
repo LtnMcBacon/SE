@@ -48,6 +48,7 @@ namespace SE
 				Utilz::GUID meshGUID;
 				bool transparent = false;
 				bool wireframe = false;
+				bool shadow = false;
 			};
 
 
@@ -76,6 +77,8 @@ namespace SE
 			virtual void ToggleWireframe(const Entity& entity, bool wireFrame) = 0;
 
 			virtual void ToggleTransparency(const Entity& entity, bool transparency) = 0;
+
+			virtual void ToggleShadow(const Entity& entity, bool shadow) = 0;
 
 		protected:
 			IRenderableManager() {};

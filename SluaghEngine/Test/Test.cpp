@@ -40,6 +40,7 @@
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
+#include "ShadowTest.h"
 
 
 #ifdef _DEBUG
@@ -76,7 +77,7 @@ int main(int argc, char** argv)
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
-	//AddTest(InitGraphicsTest);
+	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
@@ -98,13 +99,13 @@ int main(int argc, char** argv)
 	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
-
+	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-//	AddTest(BloomTest);
+	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
   
 	volatile bool running = true;

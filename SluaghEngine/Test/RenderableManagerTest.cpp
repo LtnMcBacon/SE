@@ -55,8 +55,6 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
-
-
 	auto& mainC = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
 
@@ -212,10 +210,6 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	engine->GetProfilingInformation(times);
 	for(auto& t: times)
 		console->Print("%s: %f\n", t.first.str, t.second);
-
-
-
-
 
 	engine->Release(); delete engine;
 	ProfileReturnConst(true);

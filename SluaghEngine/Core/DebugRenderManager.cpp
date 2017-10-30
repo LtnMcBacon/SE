@@ -85,7 +85,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 			if (f == entityToJobID.end())
 			{
 				
-				entityToJobID[m.first] = initInfo.renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+				entityToJobID[m.first] = initInfo.renderer->AddRenderJob(job, Graphics::RenderGroup::RENDER_PASS_3);
 			}
 			else
 			{

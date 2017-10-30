@@ -10,7 +10,6 @@
 *.sln.docstates
 *.mtl
 *.objtest
-*.hlsl
 *.exe
 *.jpg
 *.bbf
@@ -24,11 +23,28 @@ External*
 *.bat
 *.bin
 *.ini
+*.mesh
+*.anim
+*.mat
+*.skel
+*.png
+*.jpg
+*.raw
+*.bmp
+*.SEBT
+!*.hlsl
 
-Korv/
+Build\
+*.fbx
+*.wav
+*.spritefont
+*.gui
+*.tx
+*.swatch
+*.SEFBT
+*.SEC
+*.SEP
 rawLoaderEntries.txt
-FBXTemp/
-Korv/
 *Recording.bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
