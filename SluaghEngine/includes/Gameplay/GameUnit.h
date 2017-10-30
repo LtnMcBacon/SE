@@ -3,6 +3,8 @@
 #include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
+#include <memory>
+
 namespace SE
 {
 	namespace Gameplay
@@ -19,7 +21,7 @@ namespace SE
 		* @sa Enemy, Player.
 		*
 		**/
-		class GameUnit
+		class GameUnit : public std::enable_shared_from_this<GameUnit>
 		{
 		public:
 			GameUnit();
@@ -27,13 +29,50 @@ namespace SE
 			virtual ~GameUnit();
 
 			/**
+			* @brief	Move the unit along a 2-Dimensional vector
+			*
+			* @details	This function is used to move the Unit along a 2-Dimensional
+			* vector specified by the unit itself. That is, this function is used when
+			* the Update() function in one way or another causes movement. NOTE: The
+			* unit will move as if the world was a 2D world, but this function will translate
+			* that movement into a 3D space.
+			*
+			*
+			* @param[in] xMovement The movement in x-axis (absolute movement)
+			* @param[in] yMovement The movement in y-axis (absolute movement)
+
+			* @retval void No return value
+			*
+			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
+			*
+			*/
+			void MoveEntity(float xMovement, float yMovement);
+			/**
+			* @brief	Put the unit at a certain position on the map.
+			*
+			* @details	Instantly move the unit to the defined coordinates
+			* specified by the unit itself. That is, this function is used when
+			* the Update() function in one way or another causes movement. NOTE: The
+			* unit will move as if the world was a 2D world, but this function will translate
+			* that movement into a 3D space.
+			*
+			*
+			* @param[in] xPos New x-position for the entity
+			* @param[in] yPos New y-position for the entity
+			*
+			* @retval void No return value
+			*
+			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
+			*
+			*/
+			void PositionEntity(float xPos, float yPos);
+
+			/**
 			* @brief	Returns if entity is alive or not
 			*
 			* @details	if health is 0 returns false, else returns true
-
-			* @Warning health must be put to 0 else if it is negative entity will be considered alive.
 			*/
-			inline bool IsAlive() const { return !!this->health; };
+			inline bool IsAlive() const { return this->health > 0; };
 
 			/**
 			* @brief	Qeueu up damage events in vectors
@@ -119,9 +158,13 @@ namespace SE
 			inline float GetHealth() const { return health; };
 			inline float GetXPosition() { return xPos; };
 			inline float GetYPosition() { return yPos; };
+			inline float GetZPosition() { return zPos; };
 
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
+			inline void SetZPosition(float value) { zPos = value; };
+
+			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:
@@ -131,46 +174,15 @@ namespace SE
 			float health;
 			float xPos;
 			float yPos;
+			float zPos;
+			float extents;
+
+			float stunDuration;
+
 
 			/*Functions to move the GameUnit*/
-			/**
-			* @brief	Move the unit along a 2-Dimensional vector
-			*
-			* @details	This function is used to move the Unit along a 2-Dimensional
-			* vector specified by the unit itself. That is, this function is used when
-			* the Update() function in one way or another causes movement. NOTE: The
-			* unit will move as if the world was a 2D world, but this function will translate
-			* that movement into a 3D space.
-			*
-			*
-			* @param[in] xMovement The movement in x-axis (absolute movement)
-			* @param[in] yMovement The movement in y-axis (absolute movement)
+			std::shared_ptr<GameUnit*> mySelf;
 			
-			* @retval void No return value
-			*
-			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
-			*
-			*/
-			void MoveEntity(float xMovement, float yMovement);
-			/**
-			* @brief	Put the unit at a certain position on the map.
-			*
-			* @details	Instantly move the unit to the defined coordinates
-			* specified by the unit itself. That is, this function is used when
-			* the Update() function in one way or another causes movement. NOTE: The
-			* unit will move as if the world was a 2D world, but this function will translate
-			* that movement into a 3D space.
-			*
-			*
-			* @param[in] xPos New x-position for the entity
-			* @param[in] yPos New y-position for the entity
-			*
-			* @retval void No return value
-			* 
-			* @warning Note that this function treats the movement in 2D-space. The "y-movement" is thus the z-movement.
-			*
-			*/
-			void PositionEntity(float xPos, float yPos);
 			
 			std::vector<DamageEvent> DamageEventVector;
 			std::vector<HealingEvent> HealingEventVector;
@@ -187,6 +199,14 @@ namespace SE
 			{
 				return unitEntity;
 			}
+
+			inline float GetExtent()
+			{
+				return extents;
+			}
+
+			void DestroyEntity();
+			
 			
 		};
 	}

@@ -11,7 +11,7 @@ void Repeater::OnInitialization()
 
 Status Repeater::Update()
 {
-	StartProfile
+	StartProfile;
 	while(true)
 	{
 		myStatus = myChild->Tick();

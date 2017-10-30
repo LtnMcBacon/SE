@@ -15,7 +15,7 @@ namespace SE
 			INITest();
 			~INITest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

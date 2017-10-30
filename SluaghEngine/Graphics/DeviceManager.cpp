@@ -1,5 +1,4 @@
 #include "DeviceManager.h"
-#include <Utilz\Console.h>
 #include <Profiler.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -13,7 +12,6 @@
 using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
-using namespace SE::Utilz;
 
 DeviceManager::DeviceManager() {
 	gDevice = nullptr;
@@ -24,8 +22,10 @@ DeviceManager::DeviceManager() {
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
 	pDSState = nullptr;
-	blendState = nullptr;
-	rasterState = nullptr;
+	blendSolidState = nullptr;
+	blendTransState = nullptr;
+	rasterSolidState = nullptr;
+	rasterWireState = nullptr;
 }
 
 DeviceManager::~DeviceManager() {
@@ -81,11 +81,18 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 	rasterizerState.MultisampleEnable = false;
 	rasterizerState.AntialiasedLineEnable = false;
 
-	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterState);
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterSolidState);
 	if (FAILED(hr))
 		throw "Fuck";
-	gDeviceContext->RSSetState(rasterState);
+	gDeviceContext->RSSetState(rasterSolidState);
 
+	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterWireState);
+	if (FAILED(hr))
+		throw "Fuck";
+
+	
 	ProfileReturnConst(hr);
 
 }
@@ -94,7 +101,6 @@ void DeviceManager::Shutdown() {
 
 	StartProfile;
 
-	gSwapChain->Release();
 
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
@@ -103,15 +109,22 @@ void DeviceManager::Shutdown() {
 	gDepthStencil->Release();
 	gDepthStencilView->Release();
 
-	gDeviceContext->Release();
-	blendState->Release();
-	rasterState->Release();
+	
+	blendSolidState->Release();
+	blendTransState->Release();
+	rasterSolidState->Release();
+	rasterWireState->Release();
 
 #ifdef _DEBUG
 
 	/*reportLiveObjects(gDevice);*/
 
 #endif
+	gSwapChain->Release();
+
+
+	gSecDeviceContext->Release();
+	gDeviceContext->Release();
 	gDevice->Release();;
 
 	StopProfile;
@@ -150,13 +163,15 @@ HRESULT DeviceManager::CreateDeviceResources() {
 
 	);
 
-
 	if (FAILED(hr)) {
-
-		Console::Print("Device Creation Error: Device, DeviceContext and Swap Chain could not be created");
 		ProfileReturnConst(hr);
 	}
 
+	hr = gDevice->CreateDeferredContext(0, &gSecDeviceContext);
+
+	if (FAILED(hr)) {
+		ProfileReturnConst(hr);
+	}
 	ProfileReturnConst(hr);
 }
 
@@ -168,8 +183,8 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 	ZeroMemory(&swChDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 	swChDesc.Windowed = TRUE;
 	swChDesc.BufferCount = 2;
-	swChDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	swChDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swChDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swChDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	swChDesc.SampleDesc.Count = 1;
 	swChDesc.SampleDesc.Quality = 0;
 	swChDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
@@ -214,16 +229,12 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	setDebugName(gBackBuffer, "STANDARD_BACK_BUFFER_TEXTURE2D");
 
 	if (FAILED(hr)) {
-
-		Console::Print("Buffer Error: Back buffer could not be retrieved");
 		ProfileReturnConst(hr);
 	}
 
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Render Target View Error: Render target view could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -255,7 +266,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	if (FAILED(hr)) {
 
-		Console::Print("Depth Stencil Error: Depth stencil texture couldn't be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -291,9 +301,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 
-
-
-
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
 	gDevice->CreateDepthStencilView(
@@ -305,8 +312,6 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	);
 
 	if (FAILED(hr)) {
-
-		Console::Print("Depth Stencil RTV Error: Depth stencil RTV could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -351,6 +356,7 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 
 void DeviceManager::CreateBlendState()
 {
+	// Transparency off
 	D3D11_RENDER_TARGET_BLEND_DESC rendTarBlendState[8];
 	for (auto& rtbs : rendTarBlendState)
 	{
@@ -377,11 +383,45 @@ void DeviceManager::CreateBlendState()
 	blendStateDesc.RenderTarget[6] = rendTarBlendState[6];
 	blendStateDesc.RenderTarget[7] = rendTarBlendState[7];
 
-	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendState);
+	HRESULT hr = gDevice->CreateBlendState(&blendStateDesc, &blendSolidState);
 	if (FAILED(hr))
 		throw std::exception("Could not create blend state");
 
-	float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
 	UINT sampleM = 0xffffffff;
-	gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
+	gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
+
+	// Transparency on
+	D3D11_RENDER_TARGET_BLEND_DESC rendTransBlendState[8];
+	for (auto& rtbs : rendTransBlendState)
+	{
+		rtbs.BlendEnable = true;
+		rtbs.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbs.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbs.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		rtbs.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		rtbs.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		rtbs.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		rtbs.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	}
+
+	D3D11_BLEND_DESC blendTransStateDesc;
+	blendTransStateDesc.AlphaToCoverageEnable = true;
+	blendTransStateDesc.IndependentBlendEnable = false;
+	blendTransStateDesc.RenderTarget[0] = rendTransBlendState[0];
+	blendTransStateDesc.RenderTarget[1] = rendTransBlendState[1];
+	blendTransStateDesc.RenderTarget[2] = rendTransBlendState[2];
+	blendTransStateDesc.RenderTarget[3] = rendTransBlendState[3];
+	blendTransStateDesc.RenderTarget[4] = rendTransBlendState[4];
+	blendTransStateDesc.RenderTarget[5] = rendTransBlendState[5];
+	blendTransStateDesc.RenderTarget[6] = rendTransBlendState[6];
+	blendTransStateDesc.RenderTarget[7] = rendTransBlendState[7];
+
+	hr = gDevice->CreateBlendState(&blendTransStateDesc, &blendTransState);
+	if (FAILED(hr))
+		throw std::exception("Could not create blend state");
+}
+
+ID3D11Texture2D* DeviceManager::GetBackBufferTexture()
+{
+	return gBackBuffer;
 }

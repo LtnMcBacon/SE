@@ -1,191 +1,165 @@
 #ifndef SE_UTILZ_DELEGATE_H_
 #define SE_UTILZ_DELEGATE_H_
-#include "DelegateBase.h"
-
+#include <functional>
 namespace SE
 {
 	namespace Utilz
 	{
 		template <typename T> class Delegate;
-		template <typename T> class Event;
 
-		template<typename RET, typename ...PARAMS>
-		class Delegate<RET(PARAMS...)> final : private Delegate_Base<RET(PARAMS...)> {
-			friend class Event<RET(PARAMS...)>;
+		template<typename RET, typename... PARAMS>
+		class Delegate<RET(PARAMS...)>
+		{
+			std::function<RET(PARAMS...)> invoker;
+			//size_t uniqueIdentifier;
 		public:
 
-			Delegate() = default;
+			Delegate() {}
 
-			/**
-			*@brief Returns wether or not the delegate is nullptr.
-			*@retval true Delegate is not nullptr
-			*@retval false Delegate is nullptr
-			*/
-			bool isNull() const { return invocation.stub == nullptr; }
-
-			/**
-			*@brief Returns wether or not the delegate is nullptr.
-			*@retval true Delegate is not nullptr
-			*@retval false Delegate is nullptr
-			*/
-			bool operator ==(void* ptr) const {
-				return (ptr == nullptr) && this->isNull();
-			} 
-
-			/**
-			*@brief Returns wether or not the delegate is not nullptr.
-			*@retval true Delegate is nullptr
-			*@retval false Delegate is not nullptr
-			*/
-			bool operator !=(void* ptr) const {
-				return (ptr != nullptr) || (!this->isNull());
-			}
+			operator bool() { return invoker.operator bool(); }
 
 			/**
 			*@brief Copy constructor.
 			*/
-			Delegate(const Delegate& another) { another.invocation.Clone(invocation); }
-
+			Delegate(const Delegate& other)
+			{
+				this->invoker = other.invoker;
+				//this->uniqueIdentifier = other.uniqueIdentifier;
+			}
 			/**
-			*@brief Constructor for lambda.
+			*@brief Copy constructor with rvalue.
 			*/
-			template <typename LAMBDA>
-			Delegate(const LAMBDA& lambda) {
-				assign((void*)(&lambda), lambda_stub<LAMBDA>);
-			} 
-
-			/**
-			*@brief Assignment operator.
-			*/
-			Delegate& operator =(const Delegate& another) {
-				another.invocation.Clone(invocation);
-				return *this;
-			} //operator =
-
-			  /**
-			  *@brief Assignment operator from lambda.
-			  */
-			template <typename LAMBDA> // template instantiation is not needed, will be deduced (inferred):
-			Delegate& operator =(const LAMBDA& instance) {
-				assign((void*)(&instance), lambda_stub<LAMBDA>);
-				return *this;
-			} //operator =
-
-
-			  /**
-			  *@brief Equal operator.
-			  */
-			bool operator == (const Delegate& another) const { return invocation == another.invocation; }
-			/**
-			*@brief Inequality operator.
-			*/
-			bool operator != (const Delegate& another) const { return invocation != another.invocation; }
-
-			/**
-			*@brief Equal operator for Event.
-			*/
-			bool operator ==(const Event<RET(PARAMS...)>& another) const { return another == (*this); }
-
-			/**
-			*@brief Inequality operator for event.
-			*/
-			bool operator !=(const Event<RET(PARAMS...)>& another) const { return another != (*this); }
-
-		
-
-			/**
-			*@brief Creates a Delegate from a class method.
-			*@param [in] T The class type
-			*@param [in] TMethod The function pointer
-			*@param [in] instance The pointer to the object
-			* Example code:
-			* @code
-			*		class A
-			*{
-			*private:
-			*	int foo() { return 2; };
-			*public:
-			*	void Register(Delegate<int()>& del)
-			*	{
-			*		del = Delegate<int()>::Make<A, &A::foo>(this);
-			*	}
-			*};
-			*
-			*A a;
-			*Deletgate<int()> del;
-			*a.Register(del);
-			*
-			*cout << del(); // Prints 2;
-			* @endcode
-			*/
-			template <class T, RET(T::*TMethod)(PARAMS...)>
-			inline static Delegate Make(T* instance) {
-				return Delegate(instance, method_stub<T, TMethod>);
+			Delegate(const Delegate&& other)
+			{
+				this->invoker = std::move(other.invoker);
+				//this->uniqueIdentifier = other.uniqueIdentifier;
 			}
 
 			/**
-			*@brief Creates a Delegate from a const class method.
-			*@param [in] T The class type
-			*@param [in] TMethod The function pointer
-			*@param [in] instance The pointer to the object
+			*@brief Create delegate from function pointer.
+			*@param ptr The function pointer. (&foo)
 			* Example code:
 			* @code
-			*		class A
-			*{
-			*private:
-			*	int foo()const { return 2; };
-			*public:
-			*	void Register(Delegate<int()>& del)
-			*	{
-			*		del = Delegate<int()>::Make<A, &A::foo>(this);
-			*	}
-			*};
+			* void Call(const Delegate<void()>& del) { del();}
+			* void foo(){cout << "Hello World" << endl;}
 			*
-			*A a;
-			*Deletgate<int()> del;
-			*a.Register(del);
-			*
-			*cout << del(); // Prints 2;
+			* Delegate<void()> del(&foo);
+			* del(); // Prints "Hello World"
+			* Call(&foo); // Prints "Hello World"
 			* @endcode
 			*/
-			template <class T, RET(T::*TMethod)(PARAMS...) const>
-			static Delegate Make(T const* instance) {
-				return Delegate(const_cast<T*>(instance), const_method_stub<T, TMethod>);
-			} 
-
-			/**
-			*@brief Creates a Delegate from function.
-			*@param [in] TMethod The function pointer
-			* Example code:
-			* @code
-			* int foo(){return 2;}
-			*Deletgate<int()> del;
-			*del = Delegate<int()>::Make<&foo>();
-			*
-			*cout << del(); // Prints 2;
-			* @endcode
-			*/
-			template <RET(*TMethod)(PARAMS...)>
-			static Delegate Make() {
-				return Delegate(nullptr, function_stub<TMethod>);
+			Delegate(RET(ptr)(PARAMS...))
+			{
+				invoker = ptr;
+				//uniqueIdentifier = (size_t)ptr;
 			}
 
 			/**
-			*@brief Creates a Delegate from function.
-			*@param [in] instance The lambda reference
+			*@brief Create delegate from lambda.
 			* Example code:
 			* @code
-			*Deletgate<int()> del;
-			*del = [](){return 2;};
+			* void Call(const Delegate<void()>& del) { del();}
+			* void foo(){cout << "Hello World" << endl;}
 			*
-			*cout << del(); // Prints 2;
+			* Delegate<void()> del([](){ cout << "Hello World" << endl;});
+			* del(); // Prints "Hello World"
+			* Call([&del](){foo(); del();}); // Prints "Hello World" twice
 			* @endcode
 			*/
-			template <typename LAMBDA>
-			static Delegate Make(const LAMBDA & instance) {
-				return Delegate((void*)(&instance), lambda_stub<LAMBDA>);
-			} //create
+			template <typename T>
+			Delegate(const T& lambda)
+			{
+				invoker = lambda;
+			//	uniqueIdentifier = lambda.target_type().hash_code();
+			}
 
+
+			/**
+			*@brief Create delegate from class method.
+			*@param [in] instance The pointer to the class object. (Both this, and &myClass) works.
+			*@param [in] TMethod The class method pointer. (&Class::Method)
+			* Example code:
+			* @code
+			* void Call(const Delegate<void()>& del) { del();}
+			* class A
+			*{
+			* public:
+			* void foo(){cout << "Hello World" << endl;}
+			*}
+			*
+			* A a;
+			* Delegate<void()> del = {&a, &A::foo};
+			* del(); // Prints "Hello World"
+			* Call(del); // Prints "Hello World"
+			* Call({&a, &A::foo}); // Prints "Hello World"
+			* @endcode
+			*/
+			template <class T>
+			Delegate(T* instance, RET(T::*TMethod)(PARAMS...))
+			{
+				invoker = [instance, TMethod](PARAMS... params) -> RET {
+					T* p = static_cast<T*>(instance);
+					return (instance->*TMethod)(std::forward<PARAMS>(params)...);
+				};
+				//union test
+				//{
+				//	size_t conv[2] = { 0, 0 };
+				//	RET(T::*ptr)(PARAMS...);
+				//};
+				//test ptr;
+				//ptr.ptr = TMethod;
+				//if (ptr.conv[1])
+				//	int i = 0;
+
+
+
+				//uniqueIdentifier = (size_t)(instance) | ptr.conv[0];
+				//	std::intptr_t b = reinterpret_cast<std::intptr_t>(TMethod);
+				//	uniqueIdentifier = (size_t)instance | (size_t)TMethod;
+			}
+
+
+			/**
+			*@brief Create delegate from const class method.
+			*@param [in] instance The pointer to the class object. (Both this, and &myClass) works.
+			*@param [in] TMethod The class method pointer. (&Class::Method)
+			* Example code:
+			* @code
+			* void Call(const Delegate<void()>& del) { del();}
+			* class A
+			*{
+			* public:
+			* void foo()const{cout << "Hello World" << endl;}
+			*}
+			*
+			* A a;
+			* Delegate<void()> del = {&a, &A::foo};
+			* del(); // Prints "Hello World"
+			* Call(del); // Prints "Hello World"
+			* Call({&a, &A::foo}); // Prints "Hello World"
+			* @endcode
+			*/
+			template <class T>
+			Delegate(const T* instance, RET(T::*TMethod)(PARAMS...) const)
+			{
+				invoker = [instance, TMethod](PARAMS... params) -> RET {
+					T* const p = const_cast<T*>(instance);
+					return (instance->*TMethod)(std::forward<PARAMS>(params)...);
+				};
+			}
+
+			/**
+			*@brief No equal operator for now.
+			*/
+			bool operator==(const Delegate& other)const = delete;
+			bool operator+=(const Delegate& other)const = delete;
+			bool operator-=(const Delegate& other)const = delete;
+			bool operator+(const Delegate& other)const = delete;
+			bool operator-(const Delegate& other)const = delete;
+
+			//{
+			//	return this->uniqueIdentifier == other.uniqueIdentifier;
+			//};
 
 			  /**
 			  *@brief Invokes the delegate
@@ -231,7 +205,31 @@ namespace SE
 			} //lambda_stub
 
 			typename Delegate_Base<RET(PARAMS...)>::InvocationElement invocation;
+			/**
+			*@brief Assignment from Delegate to Delegate.
+			*/
+			Delegate& operator=(const Delegate& other)
+			{
+				this->invoker = other.invoker;
+				return *this;
+			}
 
+			/**
+			*@brief Assignment from Delegate to Delegate, with rvalue.
+			*/
+			Delegate& operator=(const Delegate&& other)
+			{
+				this->invoker = std::move(other.invoker);
+				return *this;
+			}
+
+			/**
+			*@brief Invoke the delegate.
+			*/
+			inline RET operator()(PARAMS... args)const
+			{
+				return invoker(std::forward<PARAMS>(args)...);
+			}
 		};
 	}
 }

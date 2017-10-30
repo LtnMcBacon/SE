@@ -160,23 +160,53 @@ namespace SE {
 
 			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
+			inline ID3D11DeviceContext*    GetSecondaryDeviceContext() { return gSecDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
-			inline ID3D11BlendState*	   GetBlendState() { return blendState; };
-			inline void SetBlendState() {
-				float blendF[4] = { 0.0f,0.0f,0.0f,0.0f };
-				UINT sampleM = 0xffffffff;
-				gDeviceContext->OMSetBlendState(blendState, blendF, sampleM);
-			}
+			inline ID3D11BlendState*	   GetBlendState() { return blendTransState; };
+			
 			inline void SetDepthStencilStateAndRS()
 			{
-				gDeviceContext->RSSetState(rasterState);
+				gDeviceContext->RSSetState(rasterSolidState);
 				gDeviceContext->OMSetDepthStencilState(pDSState, 1);
 			}
+
+			inline void SetRasterStateFill(uint8_t fillSolid)
+			{
+				if (fillSolid == 1)
+				{
+					gDeviceContext->RSSetState(rasterSolidState);
+				}
+				else
+				{
+					gDeviceContext->RSSetState(rasterWireState);
+				}
+			}
+
+			inline void SetBlendTransparencyState(uint8_t transparency)
+			{
+				if (transparency == 1)
+				{
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendTransState, NULL, sampleM);
+				}
+				else
+				{
+					UINT sampleM = 0xFF;
+					gDeviceContext->OMSetBlendState(blendSolidState, NULL, sampleM);
+				}
+			}
+
+			inline D3D11_TEXTURE2D_DESC GetTexDesc() {
+				return gBB_Desc;
+			}
+
+			ID3D11Texture2D* GetBackBufferTexture();
 		private:
 
 			ID3D11Device*			gDevice;
 			ID3D11DeviceContext*	gDeviceContext;
+			ID3D11DeviceContext*	gSecDeviceContext;
 			IDXGISwapChain*			gSwapChain;
 			
 			ID3D11Texture2D*		gBackBuffer;
@@ -186,8 +216,10 @@ namespace SE {
 			ID3D11DepthStencilView*	gDepthStencilView;
 			ID3D11DepthStencilState * pDSState;
 
-			ID3D11BlendState*		blendState;
-			ID3D11RasterizerState * rasterState;
+			ID3D11BlendState*		blendSolidState;
+			ID3D11BlendState*		blendTransState;
+			ID3D11RasterizerState * rasterSolidState;
+			ID3D11RasterizerState * rasterWireState;
 
 			D3D11_TEXTURE2D_DESC	gBB_Desc;
 			D3D_FEATURE_LEVEL		gFeatureLevel;

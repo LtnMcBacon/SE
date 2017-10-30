@@ -30,8 +30,12 @@ namespace SE
 			Status Update() override = 0;
 		public:
 			IComposite(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
+
 			void AddChild(IBehaviour* childToAdd);
+
 			~IComposite() override;
+			
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override = 0;
 		};
 	}
 }

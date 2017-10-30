@@ -22,6 +22,8 @@ public:
 	{
 		this->myStatus = myStatus;
 	};
+
+
 protected:
 	inline Gameplay::Status Update() override
 	{
@@ -34,13 +36,19 @@ protected:
 		return myStatus;
 	}
 
+public:
+	IBehaviour* CopyBehaviour(Gameplay::GameBlackboard* gameBlackboard, Gameplay::EnemyBlackboard* enemyBlackboard) const
+	override
+	{
+		return nullptr;
+	};
 private:
 	int ticksBeforeSuccess;
 };
 
 std::string BehaviourToString(SE::Gameplay::Status status)
 {
-	StartProfile
+	StartProfile;
 	switch(status)
 	{
 	case SE::Gameplay::Status::BEHAVIOUR_SUCCESS:
@@ -59,7 +67,7 @@ std::string BehaviourToString(SE::Gameplay::Status status)
 	ProfileReturnConst("Something went wrong");
 }
 
-bool RunTest(std::string test, std::vector<SE::Gameplay::Status> &expectedValues, Gameplay::IBehaviour* toTest, SE::Utilz::IConsoleBackend* console)
+bool RunTest(const std::string& test, std::vector<SE::Gameplay::Status> &expectedValues, Gameplay::IBehaviour* toTest, SE::DevConsole::IConsole* console)
 {
 	for (auto expected : expectedValues)
 	{
@@ -78,7 +86,7 @@ bool RunTest(std::string test, std::vector<SE::Gameplay::Status> &expectedValues
 	return true;
 }
 
-bool BehavioursTest::Run(SE::Utilz::IConsoleBackend* console)
+bool BehavioursTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	bool passed = true;

@@ -1,6 +1,5 @@
 #include "PickingTest.h"
-#include <Core\Engine.h>
-#include <Core\CollisionManager.h>
+#include <Core\IEngine.h>
 #include <Utilz\Tools.h>
 #include <Windows.h>
 
@@ -16,36 +15,28 @@ enum
 	Exit,
 	Click
 };
-bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
+
+using namespace DirectX;
+
+bool SE::Test::PickingTest::Run(DevConsole::IConsole * console)
 {
-	auto& e = Core::Engine::GetInstance();
-	auto& info = Core::Engine::InitializationInfo();
-	auto re = e.Init(info);
-	if (re)
-	{
-		console->Print("Could not init Core, Error: %d.", re);
-		return false;
-	}
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
+	
 
-	auto& em = e.GetEntityManager();
-	auto& rm = e.GetRenderableManager();
-	auto& cm = e.GetCollisionManager();
-	auto& tm = e.GetTransformManager();
-	auto& vm = e.GetCameraManager();
-	auto& om = e.GetOptionHandler();
-	Tools::Tools t;
+	float width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+	float height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
-	float width = om.GetOption("Window", "width", 800);
-	float height = om.GetOption("Window", "height", 600);
+	auto floor = managers.entityManager->Create();
+	auto object = managers.entityManager->Create();
 
-	auto floor = em.Create();
-	auto object = em.Create();
-
-	auto camera = em.Create();
-	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOption("Window", "width", 800)/(float)om.GetOption("Window", "height", 640);
-	vm.Bind(camera, cInfo);
-	vm.SetActive(camera);
+	auto camera = managers.entityManager->Create();
+	Core::ICameraManager::CreateInfo cInfo;
+	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800)/(float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	managers.cameraManager->Create(camera, cInfo);
+	managers.cameraManager->SetActive(camera);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -54,43 +45,45 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
+	managers.transformManager->Create(floor);
+	managers.transformManager->BindChild(floor, camera);
+	managers.transformManager->Move(camera, -5 * cameraTranslation);
+	managers.transformManager->SetRotation(camera, cameraRotationX, cameraRotationY, 0);
 
-	SE::Core::Engine::GetInstance().GetTransformManager().BindChild(floor, camera);
-	SE::Core::Engine::GetInstance().GetTransformManager().Move(camera, -5 * cameraTranslation);
-	SE::Core::Engine::GetInstance().GetTransformManager().SetRotation(camera, cameraRotationX, cameraRotationY, 0);
-
-	tm.Create(floor);
-	tm.SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-
-	rm.CreateRenderableObject(floor, Utilz::GUID("Placeholder_Block.mesh"));
-	rm.ToggleRenderableObject(floor, true);
-
-	cm.CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Block.mesh"));
 	
-	DirectX::XMFLOAT3 pos = tm.GetPosition(floor);
-	DirectX::XMFLOAT3 rot = tm.GetRotation(floor);
-	DirectX::XMFLOAT3 scale = tm.GetScale(floor);
+	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Block.mesh"});
+	managers.renderableManager->ToggleRenderableObject(floor, true);
+
+	managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Block.mesh"));
+	
+	DirectX::XMFLOAT3 pos = managers.transformManager->GetPosition(floor);
+	DirectX::XMFLOAT3 rot = managers.transformManager->GetRotation(floor);
+	DirectX::XMFLOAT3 scale = managers.transformManager->GetScale(floor);
 
 	DirectX::XMMATRIX worldM = { scale.x, 0, 0, 0,
 								0, scale.y, 0, 0,
 								0, 0, scale.z, 0,
 								pos.x, pos.y, pos.z, 1.0f };
-	auto w = e.GetWindow();
-	w->MapActionButton(Exit, Window::KeyEscape);
-	w->MapActionButton(Click, Window::MouseLeft);
+	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(Click, Window::MouseLeft);
+	float aspect = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+
 	bool running = true;
 	while (running)
 	{
-		if (w->ButtonPressed(Exit))
+		if (subSystem.window->ButtonPressed(Exit))
 			running = false;
-		if (w->ButtonPressed(Click))
+		if (subSystem.window->ButtonPressed(Click))
 		{
 			int x, y;
-			w->GetMousePos(x, y);
+			subSystem.window->GetMousePos(x, y);
 			{
 				DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-				DirectX::XMVECTOR rayD = t.rayToView(x, y, width, height);
-				DirectX::XMFLOAT4X4 tempView = vm.GetViewInv(camera);
+				DirectX::XMVECTOR rayD;
+				Utilz::Tools::RayToView({ x, y, width, height }, aspect, rayD);
+				DirectX::XMFLOAT4X4 tempView = managers.cameraManager->GetViewInv(camera);
 				DirectX::XMMATRIX viewM = DirectX::XMLoadFloat4x4(&tempView);
 
 				rayO = DirectX::XMVector4Transform(rayO, viewM);
@@ -98,19 +91,21 @@ bool SE::Test::PickingTest::Run(Utilz::IConsoleBackend * console)
 				rayD = XMVector3Normalize(rayD);
 
 				float distance = 0.0f;
-				bool test = cm.PickEntity(floor, rayO, rayD, &distance);
+				Core::Entity ent;
+				bool test = managers.collisionManager->Pick(rayO, rayD,ent, distance);
 
 				if (test)
 				{
-					rm.ToggleRenderableObject(floor, false);
+					managers.renderableManager->ToggleRenderableObject(floor, false);
 					running = false;
 				}
 				
 			}
 		}
-		e.Frame(0.01f);
+		engine->BeginFrame();
+		engine->EndFrame();
 	}
 
-	e.Release();
+	engine->Release(); delete engine;
 	return true;
 }

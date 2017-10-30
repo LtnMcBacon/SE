@@ -2,6 +2,7 @@
 #define SE_GAMEPLAY_RANDOM_SEQUENCE_H
 
 #include "IComposite.h"
+#include <random>
 
 namespace SE
 {
@@ -22,6 +23,9 @@ namespace SE
 		{
 		private:
 			RandomSequence() = delete;
+
+			std::default_random_engine generator;
+
 		protected:
 			Behaviours::iterator currentChild;
 
@@ -57,6 +61,13 @@ namespace SE
 			RandomSequence(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 			~RandomSequence();
 
+			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+			{
+				RandomSequence* toPass = new RandomSequence(enemyBlackboard, gameBlackboard);
+				for (auto child : myChildren)
+					toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
+				return toPass;
+			}
 		};
 	}
 }

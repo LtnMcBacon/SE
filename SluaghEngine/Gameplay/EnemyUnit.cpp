@@ -1,15 +1,36 @@
 #include "EnemyUnit.h"
 #include <Profiler.h>
 #include "Flowfield.h"
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
+#include <Gameplay/EnemyBlackboard.h>
+#include <Gameplay/BehaviouralTree.h>
 
 void SE::Gameplay::EnemyUnit::ResolveEvents()
 {
 	StartProfile;
-	/*
-	 * Code body
-	 */
+	
+	// only basic at the moment
+	if (!myBlackboard->invurnerable)
+	{
+		for (int i = 0; i < DamageEventVector.size(); i++)
+		{
+			this->health -= DamageEventVector[i].amount;
+		}
+
+		for (int i = 0; i < ConditionEventVector.size(); i++)
+		{
+			if(ConditionEventVector[i].type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+			{
+				myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+				this->stunDuration += ConditionEventVector[i].duration;
+			}
+		}
+	}
+	DamageEventVector.clear();
+	ConditionEventVector.clear();
+
+
+
 	ProfileReturnVoid;
 
 }
@@ -21,6 +42,15 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	* Code body
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
+	
+	if (myBehaviouralTree)
+	{
+		myBlackboard->extents = 0.25;
+		myBlackboard->ownerPointer = this;
+		myBlackboard->checkedThisFrame = false;
+		myBehaviouralTree->Tick();
+	}
+
 	ProfileReturnVoid;
 }
 
@@ -30,231 +60,7 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 	/*
 	* Code body
 	*/
-
-	switch (entityAction)
-	{
-	case EnemyActions::ENEMY_ACTION_NOTHING:
-
-		break;
-
-	case EnemyActions::ENEMY_ACTION_MOVE:
-		float xMovement;
-		float yMovement;
-		float xMovementTot = previousMovement[0];
-		float yMovementTot = previousMovement[1];
-		float distanceX = 0.f;
-		float distanceY = 0.f;
-
-		/*Sample from the 9 cells around us, starting with the center point
-		 * Add the movements from the cell to total movements (one for x, one for y)
-		 * If applicable, divide by the distance (0.5-1.5)
-		 * Walls pushes away the unit with half force
-		 */
-		pos myPos;
-		myPos.x = xPos;
-		myPos.y = yPos;
-
-		flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-		xMovementTot += xMovement;
-		yMovementTot += yMovement;
-
-		if (!sample)
-		{
-			/*Right*/
-			myPos.x = xPos + 1.f;
-			myPos.y = yPos;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			xMovementTot += xMovement / distanceX;
-			yMovementTot += yMovement / distanceX;
-
-			/*Up-Left*/
-			myPos.x = xPos + 1.f;
-			myPos.y = yPos - 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-			xMovementTot += xMovement / distanceX ;
-			yMovementTot += yMovement / distanceY ;
-
-			/*Up-Right*/
-			myPos.x = xPos + 1.f;
-			myPos.y = yPos + 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-
-			xMovementTot += xMovement / distanceX ;
-			yMovementTot += yMovement / distanceY ;
-
-			/*Left*/
-			myPos.x = xPos - 1.f;
-			myPos.y = yPos;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-
-			xMovementTot += xMovement / distanceX ;
-			yMovementTot += yMovement / distanceX ;
-
-			/*Down-Left*/
-			myPos.x = xPos - 1.f;
-			myPos.y = yPos - 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-
-			xMovementTot += xMovement / distanceX ;
-			yMovementTot += yMovement / distanceY ;
-
-			/*Down-Right*/
-			myPos.x = xPos - 1.f;
-			myPos.y = yPos + 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-
-			xMovementTot += xMovement / distanceX ;
-			yMovementTot += yMovement / distanceY ;
-
-			/*Up*/
-			myPos.x = xPos;
-			myPos.y = yPos + 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-
-			xMovementTot += xMovement / distanceY ;
-			yMovementTot += yMovement / distanceY ;
-
-			/*Down*/
-			myPos.x = xPos;
-			myPos.y = yPos - 1.f;
-			flowFieldForRoom->SampleFromMap(myPos, xMovement, yMovement);
-			distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
-
-			xMovementTot += xMovement / distanceY ;
-			yMovementTot += yMovement / distanceY ;
-		}
-		sample = (sample + 1) % 60;
-		/*Check if we would collide in a wall
-		 * See CorrectCollision for information
-		 */
-		CorrectCollision(dt, xMovementTot, yMovementTot);
-
-		/*Normalize the movement vector*/
-		float moveTot = abs(xMovementTot) + abs(yMovementTot);
-		if (moveTot != 0.0f)
-		{
-			xMovementTot /= moveTot;
-			yMovementTot /= moveTot;
-		}
-		/*Move the entity in the normalized direction*/
-		
-		MoveEntity(xMovementTot*dt, yMovementTot*dt);
-
-
-		/*Save the direction for next movement*/
-		previousMovement[0] = xMovementTot;
-		previousMovement[1] = yMovementTot;
-
-
-		break;
-	}
-
 	ProfileReturnVoid;
-}
-
-bool SE::Gameplay::EnemyUnit::CorrectCollision(float dt, float &xMov, float &yMov)
-{
-	StartProfile;
-	float moveTot = abs(xMov) + abs(yMov);
-	float xMovementTot = xMov;
-	float yMovementTot = yMov;
-	if (moveTot != 0.0f)
-	{
-		xMovementTot /= moveTot;
-		yMovementTot /= moveTot;
-	}
-	xMovementTot *= dt;
-	yMovementTot *= dt;
-
-
-	float sampleX = 0.f;
-	float sampleY = 0.f;
-
-	float localExtent = extends + 0.15;
-
-	pos myPos;
-	/*Checking collision in left x-axis*/
-	myPos.x = xPos + xMovementTot - localExtent;
-	myPos.y = yPos - localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		xMov = 0;
-		ProfileReturnConst(true);
-	}
-	myPos.y = yPos + localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		xMov = 0;
-		ProfileReturnConst(true);
-	}
-
-	/*Checking collision in right x-axis*/
-	myPos.x = xPos + xMovementTot + localExtent;
-	myPos.y = yPos - localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		xMov = 0;
-		ProfileReturnConst(true);
-	}
-	myPos.y = yPos + localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		xMov = 0;
-		ProfileReturnConst(true);
-	}
-
-	/*Checking collision in down y-axis*/
-	myPos.x = xPos - localExtent;
-	myPos.y = yPos + yMovementTot - localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		yMov = 0;
-		ProfileReturnConst(true);
-	}
-	myPos.x = xPos + localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		yMov = 0;
-		ProfileReturnConst(true);
-	}
-
-	/*Checking collision in up y-axis*/
-	myPos.x = xPos - localExtent;
-	myPos.y = yPos + yMovementTot + localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		yMov = 0;
-		ProfileReturnConst(true);
-	}
-	myPos.x = xPos + localExtent;
-
-	if (flowFieldForRoom->IsBlocked(myPos.x, myPos.y))
-	{
-		yMov = 0;
-		ProfileReturnConst(true);
-	}
-
-	ProfileReturnConst(false);
 }
 
 void SE::Gameplay::EnemyUnit::Update(float dt)
@@ -265,6 +71,15 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	*/
 	ResolveEvents();
 	DecideAction();
+	if (stunDuration > 0.f)
+	{
+		stunDuration -= dt;
+		if(stunDuration <= 0.f)
+		{
+			myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			stunDuration = 0.f;
+		}
+	}
 	PerformAction(dt);
 	ProfileReturnVoid;
 }
@@ -282,14 +97,17 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	previousMovement{0,0},
 	sample(0)
 {
-	extends = 0.25f; /*Should not be hardcoded! Obviously*/
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+	radius = sqrt(extents*extents + extents*extents);
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
-	
+	CoreInit::managers.entityManager->Destroy(this->unitEntity);
 	/*
 	* Code body
 	*/
+	delete myBehaviouralTree;
+	delete myBlackboard;
 }
 

@@ -31,18 +31,7 @@ namespace SE
 		};
 
 
-		struct Skeleton_Header {
-
-			uint32_t nrOfJoints;
-		};
-
-		struct JointAttributes {
-
-			uint32_t ParentIndex;
-			DirectX::XMFLOAT4X4 bindposeMatrix;
-		};
-
-
+	
 		struct Material_Header {
 
 			uint32_t nrOfTextures;
@@ -60,12 +49,6 @@ namespace SE
 			float specularFactor;
 		};
 
-
-		struct Animation_Header {
-
-			uint32_t nrOfJoints;
-			uint32_t animationLength;
-		};
 
 
 		struct Light_Header {

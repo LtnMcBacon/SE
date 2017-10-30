@@ -78,7 +78,7 @@ void Write(const char* outfilename, ID3DBlob* data)
 	data->Release();
 }
 
-int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)const
+int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilename)
 {
 
 	ID3DBlob* psBlob;
@@ -110,10 +110,17 @@ int SE::Parsers::HLSLParser::Parse(const wchar_t* filename, const char* outFilen
 		return 0;
 	}
 
-
+	ID3DBlob* csBlob;
+	ID3DBlob* csBlobErr;
+	HRESULT cs = Parse_Spec(filename, "CS_main", "cs_5_0", &csBlob, &csBlobErr);
+	if (SUCCEEDED(cs))
+	{
+		Write(outFilename, csBlob);
+		return 0;
+	}
 	printf("%s\n", psBlobErr->GetBufferPointer());
 	printf("%s\n", gsBlobErr->GetBufferPointer());
 	printf("%s\n", vsBlobErr->GetBufferPointer());
-	
+	printf("%s\n", csBlobErr->GetBufferPointer());
 	return -1;
 }

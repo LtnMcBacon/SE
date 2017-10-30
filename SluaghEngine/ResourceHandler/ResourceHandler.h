@@ -7,6 +7,7 @@
 #include <mutex>
 #include <stack>
 #include <Utilz\Event.h>
+#include <Utilz\CircularFiFo.h>
 
 namespace SE
 {
@@ -26,13 +27,22 @@ namespace SE
 			ResourceHandler();
 			~ResourceHandler();
 
-			int Initialize();
-			void Shutdown();
+			int Initialize(const InitializationInfo& initInfo)override;
+			void Shutdown()override;
+			void UpdateInfo(const InitializationInfo& initInfo)override;
 
-			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK);
-			void UnloadResource(const Utilz::GUID& guid);
+			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
+			void UnloadResource(const Utilz::GUID& guid)override;
 		
 		private:
+			InitializationInfo initInfo;
+
+			void LinearUnload(size_t addedSize);
+
+			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
+
+			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;
+
 			/**
 			* @brief	Allocate more memory
 			*/
@@ -48,7 +58,6 @@ namespace SE
 				Loading,
 				Dead
 			};
-			void Run();
 
 			struct Data
 			{
@@ -61,22 +70,12 @@ namespace SE
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
-				Data* resourceData;
-				uint16_t* refCount;
-				State* state;
+				Data* resourceData = nullptr;
+				uint16_t* refCount = nullptr;
+				State* state = nullptr;
 			};
-			struct ToLoadInfo
-			{
-				Utilz::GUID guid;
-				size_t resourceInfoIndex;
-				Utilz::Event<int(const Utilz::GUID&, void*data, size_t)> callbacks;
-				Behavior behavior;
-			};
+		
 
-			void LoadAsync();
-			void CreateLoadJob(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback, Behavior behavior);
-			void UpdateLoadJob(ToLoadInfo& loadInfo, const LoadResourceDelegate& callback, Behavior behavior);
-			void RemoveLoadJob(const Utilz::GUID& guid);
 			int LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
 			int InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
 
@@ -85,11 +84,40 @@ namespace SE
 			ResourceInfo resourceInfo;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToResourceInfoIndex;
 
-			std::map<Utilz::GUID, ToLoadInfo, Utilz::GUID::Compare> toLoad;
-			std::mutex toLoadLock;
+
+			bool running = false;
+
+			struct ToLoadInfo
+			{
+				Utilz::GUID guid;
+				size_t resourceInfoIndex;
+				LoadResourceDelegate callback;
+				Behavior behavior;
+			};
+
+			/****************	To Load info	*****************/
+			
+
+			Utilz::CircularFiFo<ToLoadInfo> toLoad;
+			std::thread toLoadThread;
+
+			void ToLoadThreadEntry();
+
+
+			/****************	END To Load info	*****************/
+
+
+			/****************	To Invoke info	*****************/
+
+			Utilz::CircularFiFo<ToLoadInfo> toInvoke;
+			std::thread toInvokeThread;
+
+			void ToInvokeThreadEntry();
+
+
+			/****************	END To Callback info	*****************/
 			std::mutex infoLock;
-			std::thread myThread;
-			bool running;
+			std::recursive_mutex loadResourceLock;
 		};
 	}
 }

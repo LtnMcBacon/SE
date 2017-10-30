@@ -102,9 +102,6 @@
     <ClCompile Include="PickingTest.cpp">
       <Filter>Source Files\Gameplay Tests</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyMovementTest.cpp">
-      <Filter>Source Files\Gameplay Tests</Filter>
-    </ClCompile>
     <ClCompile Include="LightTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +109,48 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BehavioursTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonAnimationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GarbageTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyFacotryTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="GlaistigTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingProjectileTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandRoomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SluaghTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
     <ClCompile Include="SkillTest.cpp">
@@ -201,6 +240,45 @@
       <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
     <ClInclude Include="LightTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviouralTreeFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonAnimationTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GarbageTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyFactoryTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandRoomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingProjectileTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlaistigTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaughTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SkillTest.h">

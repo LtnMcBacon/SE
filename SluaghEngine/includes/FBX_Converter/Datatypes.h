@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "VertexType.h"
+#include <Graphics\VertexStructs.h>
 
 using namespace std;
 using namespace DirectX;
@@ -25,6 +25,7 @@ namespace SE
 		struct Keyframe { // Stores the attributes of a keyframe in an animation
 
 			FbxAMatrix GlobalTransform;
+			FbxAMatrix LocalTransform;
 			float TimePos;
 			XMFLOAT4 Translation;
 			XMFLOAT4 Scale;
@@ -45,8 +46,8 @@ namespace SE
 			int ParentIndex;
 
 			FbxAMatrix GlobalBindposeInverse;
-			FbxAMatrix LocalTransform;
 			FbxAMatrix GlobalTransform;
+			FbxAMatrix LocalTransform;
 			vector<Animation> Animations;
 
 			FbxNode* Node;
@@ -78,6 +79,7 @@ namespace SE
 
 			string textureName;
 			string texturePath;
+			string textureChannel;
 
 			Texture() {
 
@@ -108,18 +110,6 @@ namespace SE
 
 				textures.reserve(5);
 			}
-		};
-
-		struct MaterialAttributes {
-
-			XMFLOAT3 diffuseColor;
-			float diffuseFactor;
-
-			XMFLOAT3 ambientColor;
-			float ambientFactor;
-
-			XMFLOAT3 specularColor;
-			float specularFactor;
 		};
 
 		struct TransformAttributes {

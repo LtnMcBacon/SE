@@ -11,9 +11,11 @@
 #include <fbxsdk.h>
 
 #include "Datatypes.h"
-#include "VertexType.h"
-
+#include <Graphics\FileHeaders.h>
+#include <Graphics\VertexStructs.h>
 #include <filesystem>
+#include <Utilz\PathParsing.h>
+#include <vector>
 
 namespace SE
 {
@@ -34,7 +36,7 @@ namespace SE
 			// FBXCONVERTER LOAD FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			bool Load(std::string fileName, std::string exportFolder);
+			bool Load(const std::string& fileName, const std::string& exportFolder);
 			bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
 			bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
 			bool InitializeFbxManager();
@@ -69,7 +71,9 @@ namespace SE
 
 			void GetSkeletonHierarchy(Mesh &pMesh);
 			void RecursiveDepthFirstSearch(FbxNode* node, Mesh &pMesh, int depth, int index, int parentIndex);
-			void CreateBindPose(Mesh &pMesh);
+			void CreateBindPoseManual(Mesh &pMesh);
+			void CreateBindPoseAutomatic(Mesh &pMesh);
+			void CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh);
 			void GatherWeights(Mesh &pMesh);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -77,15 +81,16 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void GatherAnimationData(Mesh &pMesh);
-			void CreateKeyframe(Animation CurrentAnimation, int timeIndex, FbxAMatrix globalTransform);
+			void BuildGlobalKeyframes(Mesh &pMesh);
+			void CreateKeyframe(Animation &CurrentAnimation, int timeIndex, FbxAMatrix &globalTransform);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// MATERIAL/TEXTURE FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void LoadMaterial(Mesh& pMesh);
-			void GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial);
-			void GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial);
+			void GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial);
+			void GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial);
 			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
 			bool ExportTexture(Texture &texture, string textureFolder);
 
@@ -111,16 +116,10 @@ namespace SE
 			DirectX::XMFLOAT4X4		 Load4X4Transformations(FbxAMatrix fbxMatrix);
 			void					 Print4x4Matrix(FbxAMatrix fbxMatrix);
 			void					 PrintMeshData(Mesh& mesh);
-
-			//----------------------------------------------------------------------------------------------------------------------------------//
-			// STRING HELPER FUNCTIONS
-			//----------------------------------------------------------------------------------------------------------------------------------//
-
-			string getFilename(string const& path);
-			string removeExtension(const string& path);
-
 		private:
-
+			
+			string workingDirectory;
+			std::vector<Utilz::File> filesInWorkingDirectory;
 			string fileName;
 			string folderName;
 			string logFolder;

@@ -1,5 +1,6 @@
 #include "ResourceHandlerTest.h"
 #include <ResourceHandler\IResourceHandler.h>
+#include <Utilz\Memory.h>
 
 #include <string>
 #ifdef _DEBUG
@@ -11,6 +12,8 @@
 #include <Profiler.h>
 
 using namespace SE::Test;
+using namespace SE::Utilz::Memory;
+
 ResourceHandlerTest::ResourceHandlerTest()
 {
 }
@@ -21,7 +24,7 @@ ResourceHandlerTest::~ResourceHandlerTest()
 }
 static bool result = false;
 static bool result2 = false;
-int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
+SE::ResourceHandler::InvokeReturn Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
 	std::string r = (char*)data;
 	if (r.substr(0, size) == "1337")
@@ -29,9 +32,9 @@ int Load(const SE::Utilz::GUID& guid, void* data, size_t size)
 		result = true;
 	}
 
-	return 0;
+	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
-int Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
+SE::ResourceHandler::InvokeReturn Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
 	std::string r = (char*)data;
 	if (r.substr(0, size) == "1337")
@@ -39,19 +42,28 @@ int Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 		result2 = true;
 	}
 
-	return 0;
+	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
 }
-bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
+bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 {
 	StartProfile;
 	using namespace std::chrono_literals;
 
 	ResourceHandler::IResourceHandler* r = ResourceHandler::CreateResourceHandler();
 
-	r->Initialize();
+	r->Initialize({10_mb});
+
+	r->LoadResource("texture8.sei", [](auto guid, auto data, auto size) {
+		std::this_thread::sleep_for(100ms);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+	if (Utilz::Memory::IsUnderLimit(10_mb))
+		return false;
+
 	Utilz::GUID guid = Utilz::GUID("test.txt");
 	result = false;
-	auto res = r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
+	auto res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded.\n");
@@ -68,7 +80,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"),&Load, true);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded.\n");
@@ -86,7 +98,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>());
+	res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded again.\n");
@@ -101,7 +113,7 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"), &Load, true);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded again.\n");
@@ -119,13 +131,13 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 	//*******************************
 	result = false;
 	result2 = false;
-	res = r->LoadResource(Utilz::GUID("test3.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load>(), true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load, true);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded.\n");
 		return false;
 	}
-	res = r->LoadResource(Utilz::GUID("test3.txt"), ResourceHandler::LoadResourceDelegate::Make<&Load2>(), true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load2, true);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded again.\n");
@@ -138,6 +150,53 @@ bool SE::Test::ResourceHandlerTest::Run(Utilz::IConsoleBackend * backend)
 		backend->Print("Load timed out for test3.txt\n");
 		return false;
 	}
+
+
+	//*******************************
+
+	bool tt = false;
+	bool tt2 = false;
+	res = r->LoadResource("test4.txt", [r, &tt, &tt2](auto guid, auto data, auto size)
+	{
+		auto re = r->LoadResource("test.txt", [&tt](auto guid, auto data, auto size) {
+			tt = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		});
+
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+
+		re = r->LoadResource("test5.txt", [&tt2](auto guid, auto data, auto size) {
+			tt2 = true;
+			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		}, true);
+		if (re)
+			return ResourceHandler::InvokeReturn::Fail;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	}, true);
+
+
+	timeOut = 0;
+	while (!tt2 && timeOut < 3) { timeOut++;  std::this_thread::sleep_for(200ms); }
+	if (!result)
+	{
+		backend->Print("Load timed out for test5.txt\n");
+		return false;
+	}
+
+
+
+	if(res || !tt || !tt2)
+	{
+		backend->Print("Recursive load failed.\n");
+		return false;
+	}
+
+
+
+	if (!Utilz::Memory::IsUnderLimit(10_mb))
+		return false;
+
 	r->Shutdown();
 	delete r;
 

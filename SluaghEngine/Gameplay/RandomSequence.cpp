@@ -7,13 +7,15 @@ using namespace Gameplay;
 
 void RandomSequence::OnInitialization()
 {
-	std::random_shuffle(myChildren.begin(), myChildren.end());
+	StartProfile;
+	std::shuffle(myChildren.begin(), myChildren.end(), generator);
 	currentChild = myChildren.begin();
+	StopProfile;
 }
 
 Status RandomSequence::Update()
 {
-	StartProfile
+	StartProfile;
 	while (true)
 	{
 		Status childStatus = (*currentChild)->Tick();
@@ -35,7 +37,7 @@ Status RandomSequence::Update()
 }
 
 RandomSequence::RandomSequence(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
-	IComposite(enemyBlackboard, gameBlackboard)
+	IComposite(enemyBlackboard, gameBlackboard), generator(0)
 {
 
 }

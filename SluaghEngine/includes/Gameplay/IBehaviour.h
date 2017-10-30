@@ -5,8 +5,8 @@ namespace SE
 {
 	namespace Gameplay
 	{
-		class EnemyBlackboard;
-		class GameBlackboard;
+		struct EnemyBlackboard;
+		struct GameBlackboard;
 
 		/**
 		*
@@ -115,6 +115,18 @@ namespace SE
 			*
 			*/
 			Status Tick();
+
+			/**
+			 * @brief Copy the node for use in a BehaviouralTree.
+			 * 
+			 * @param[in] gameBlackboard The blackboard for the game. MUST NOT BE NULLPTR!
+			 * @param[in] enemyBlackboard The blackboard for the enemy. MUST NOT BE NULLPTR!
+			 * 
+			 * @retval IBehaviour* A Node corresponding to the node that was copied.
+			 * 
+			 * @warning Both in parameters MUST NOT be nullptr!
+			 */
+			virtual IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const = 0;
 
 
 		};

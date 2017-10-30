@@ -10,7 +10,6 @@
 *.sln.docstates
 *.mtl
 *.objtest
-*.hlsl
 *.exe
 *.jpg
 *.bbf
@@ -22,6 +21,31 @@ External*
 *.pdf
 *.ps
 *.bat
+*.bin
+*.ini
+*.mesh
+*.anim
+*.mat
+*.skel
+*.png
+*.jpg
+*.raw
+*.bmp
+*.SEBT
+!*.hlsl
+
+Build\
+*.fbx
+*.wav
+*.spritefont
+*.gui
+*.tx
+*.swatch
+*.SEFBT
+*.SEC
+*.SEP
+rawLoaderEntries.txt
+*Recording.bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -98,6 +122,7 @@ External*
 Asset\
 Assets\
 Format\
+FbxTemp\
 
 # Chutzpah Test files
 _Chutzpah*
@@ -315,3 +340,5 @@ __pycache__/
 
 # Test output
 transformGarbageHist.txt
+/SluaghEngine/Test/FBXTemp
+*.ini

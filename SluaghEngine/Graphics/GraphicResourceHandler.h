@@ -14,6 +14,7 @@
 #include "LiveObjectReporter.h"
 #include "TextureDesc.h"
 #include "ShaderSettings.h"
+#include <functional>
 
 namespace SE {
 
@@ -65,6 +66,12 @@ namespace SE {
 			ID3D11PixelShader*		pixelShader;
 		};
 
+		struct ComputeShaderData {
+
+			ID3D11ComputeShader*		shader;
+		};
+
+
 		/**
 		*
 		* @brief
@@ -97,9 +104,8 @@ namespace SE {
 			* @param[in] gDevice The ID3D11Device pointer
 			* @param[in] data Pointer to the blob
 			* @param[in] size Size of the blob
-			* @param[in] int The vertex shader ID
+			* @param[in] vertexShaderID The vertex shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader and input layout were successfully created or not
-			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
 			HRESULT CreateVertexShader(ID3D11Device* gDevice, void* data, size_t size, int *vertexShaderID);
 
@@ -109,11 +115,23 @@ namespace SE {
 			* @param[in] gDevice The ID3D11Device pointer
 			* @param[in] data Pointer to the blob
 			* @param[in] size Size of the blob
-			* @param[in] int The pixel shader ID
+			* @param[in] pixelShaderID The pixel shader ID
 			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
-			* @warning If shaders are moved to another folder, make sure to change the path in the D3DCompileFromFile function
 			*/
 			HRESULT CreatePixelShader(ID3D11Device* gDevice, void* data, size_t size, int *pixelShaderID, ShaderSettings* reflectionOut = nullptr);
+
+			/**
+			* @brief Initializes a compute shader
+			* @details It requires the graphic device to create the shader and and index to the
+			* @param[in] gDevice The ID3D11Device pointer
+			* @param[in] data Pointer to the blob
+			* @param[in] size Size of the blob
+			* @param[in] computeShaderID The pixel shader ID
+			* @retval return_value_n Returns a HRESULT indicating if the shader was successfully created or not
+			*/
+			HRESULT CreateComputeShader(ID3D11Device* gDevice, void* data, size_t size, int *computeShaderID);
+
+
 
 			/**
 			* @brief UnbindShaders clears the previously used shaders and input layout
@@ -217,9 +235,27 @@ namespace SE {
 			* @param[in] id The ID of the constant buffer received from CreateConstantBuffer.
 			* @retval S_OK on success.
 			*/
-			HRESULT UpdateConstantBuffer(void* data, size_t size, int id);
+			HRESULT UpdateConstantBuffer(const void* data, size_t size, int id);
 
+			/**
+			* @brief	Updates the contents of a constant buffer.
+			*
+			* @param[in] id The ID of the constant buffer received from CreateConstantBuffer.
+			* @param[in] id The callback for copying.
+			* @retval S_OK on success.
+			*/
 
+			template<typename T>
+			HRESULT UpdateConstantBuffer(int id, const std::function<void(T*data)>& callback)
+			{
+				D3D11_MAPPED_SUBRESOURCE mappedData;
+				HRESULT hr = gDeviceContext->Map(cBuffers[id].constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+				if (FAILED(hr))
+					return hr;
+				callback((T*)mappedData.pData);
+				gDeviceContext->Unmap(cBuffers[id].constBuffer, 0);
+				return hr;
+			}
 			/**
 			* @brief	Removes a constant buffer
 			* @param[in] constBufferID Tells which constant buffer to remove
@@ -282,6 +318,23 @@ namespace SE {
 			*
 			*/
 			HRESULT CreateSamplerState();
+
+			int CreateRenderTargetView(int textureHandle, int* renderTargetViewHandle = nullptr);
+
+			int CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle, bool isBloomBuffer = false);
+
+			int CreateCustomShaderResourceView(const D3D11_SHADER_RESOURCE_VIEW_DESC& description, int textureHandle, int& shaderResourceViewHandle, ID3D11Texture2D* texture = nullptr);
+
+			int CreateUnorderedAccessView(int textureHandle, int& unorderedAccessViewHandle);
+
+			void SetCompute(int computeID);
+
+			ID3D11UnorderedAccessView* GetUnorderedAccessView(int uavID);
+
+			ID3D11RenderTargetView* GetRenderTargetView(int rtvID);
+
+			ID3D11Texture2D* GetBloomBufferTexture();
+
 		private:
 
 			static const uint8_t MAX_CONSTANTBUFFER_PER_SHADER = 8;
@@ -301,6 +354,10 @@ namespace SE {
 			std::vector<PixelShaderData>pShaders;
 			std::stack<int>freePixelShaderLocations;
 
+			// Compute shader specific data
+			std::vector<ComputeShaderData>cShaders;
+			std::stack<int>freeComputeShaderLocations;
+
 			// Vertex buffer specific data
 			std::vector<VertexCount> vBuffers;
 			std::stack<int> freeVertexBufferLocations;
@@ -313,6 +370,10 @@ namespace SE {
 			std::vector<ID3D11ShaderResourceView*> shaderResourceViews;
 			std::stack<int> freeSRVIndices;
 
+			std::vector<ID3D11RenderTargetView*> renderTargetViews;
+			std::vector<ID3D11Texture2D*> texture2Ds;
+			std::vector<ID3D11UnorderedAccessView*> unorderedAccessViews;
+			int bloomBufferTextureHandle = -1;
 		};
 	}
 }

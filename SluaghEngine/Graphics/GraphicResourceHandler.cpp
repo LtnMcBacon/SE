@@ -1,6 +1,5 @@
 
 #include "GraphicResourceHandler.h"
-#include <Utilz\Console.h>
 #include <Profiler.h>
 
 
@@ -63,6 +62,13 @@ void GraphicResourceHandler::Shutdown() {
 			ps.pixelShader->Release();
 		}
 	}
+	for (auto &cs : cShaders) {
+
+		if (cs.shader) {
+
+			cs.shader->Release();
+		}
+	}
 
 	// Release Samplerstate
 	if (sampleState != nullptr)
@@ -70,10 +76,25 @@ void GraphicResourceHandler::Shutdown() {
 		sampleState->Release();
 		sampleState = nullptr;
 	}
-	for(auto& srv : shaderResourceViews)
+	for (auto& srv : shaderResourceViews)
 	{
 		if (srv)
 			srv->Release();
+	}
+	for (auto& rtv : renderTargetViews)
+	{
+		if (rtv)
+			rtv->Release();
+	}
+	for (auto& texture : texture2Ds)
+	{
+		if (texture)
+			texture->Release();
+	}
+	for (auto& uav : unorderedAccessViews)
+	{
+		if (uav)
+			uav->Release();
 	}
 }
 
@@ -84,12 +105,9 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	ID3D11InputLayout* tempInputLayout = nullptr;
 	ID3D11VertexShader*	tempVertexShader = nullptr;
 
-	HRESULT hr = S_OK;
-
-	hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
+	HRESULT hr = gDevice->CreateVertexShader(data, size, nullptr, &tempVertexShader);
 
 	if (FAILED(hr)) {
-		Utilz::Console::Print("Vertex Shader Error: Vertex Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -98,7 +116,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 	if (FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to reflect vertex shader.\n");
 		ProfileReturnConst(hr);
 	}
 	D3D11_SHADER_DESC shaderDesc;
@@ -121,6 +138,8 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		{
 			const std::string semName(inputElementDesc.SemanticName);
 			if (semName == "SV_InstanceID")
+				continue;
+			if (semName == "SV_VertexID")
 				continue;
 			if (signatureParamaterDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
 				inputElementDesc.Format = DXGI_FORMAT_R32_FLOAT;
@@ -167,7 +186,6 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 	hr = gDevice->CreateInputLayout(inputElementDescs.data(), inputElementDescs.size(), data, size, &inputLayout);
 	if(FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create input layout.\n");
 		ProfileReturnConst(hr);
 	}
 
@@ -218,12 +236,10 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 	ID3D11PixelShader* tempPixelShader = nullptr;
 
-	HRESULT hr = S_OK;
-
 	if (reflectionOut)
 	{
 		ID3D11ShaderReflection* reflection = nullptr;
-		hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+		HRESULT hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
 		if (FAILED(hr))
 		{
 		//	Utilz::Console::Print("Failed to reflect pixel shader.\n");
@@ -263,10 +279,9 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 
 		*reflectionOut = settings;
 	}
-	hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
+	HRESULT hr = gDevice->CreatePixelShader(data, size, nullptr, &tempPixelShader);
 
 	if (FAILED(hr)) {
-		Utilz::Console::Print("Pixel Shader Error: Pixel Shader could not be created");
 		ProfileReturnConst(hr);
 	}
 
@@ -287,6 +302,38 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 		freePixelShaderLocations.pop();
 	}
 	
+	ProfileReturnConst(hr);
+}
+
+HRESULT SE::Graphics::GraphicResourceHandler::CreateComputeShader(ID3D11Device * gDevice, void * data, size_t size, int * computeShaderID)
+{
+	StartProfile;
+
+	ID3D11ComputeShader* temp = nullptr;
+
+	HRESULT hr = gDevice->CreateComputeShader(data, size, nullptr, &temp);
+
+	if (FAILED(hr)) {
+		ProfileReturnConst(hr);
+	}
+
+	if (FAILED(hr))
+	{
+		ProfileReturnConst(hr);
+	}
+	if (freeComputeShaderLocations.size() == 0)
+	{
+		cShaders.push_back({ temp });
+		*computeShaderID = cShaders.size() - 1;
+	}
+	else
+	{
+		auto top = freeComputeShaderLocations.top();
+		cShaders[top].shader = temp;
+		*computeShaderID = top;
+		freeComputeShaderLocations.pop();
+	}
+
 	ProfileReturnConst(hr);
 }
 
@@ -465,7 +512,7 @@ void GraphicResourceHandler::BindConstantBuffer(ShaderStage shaderStage, int con
 }
 
 
-HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, int id)
+HRESULT GraphicResourceHandler::UpdateConstantBuffer(const void* data, size_t size, int id)
 {
 	StartProfile;
 	D3D11_MAPPED_SUBRESOURCE mappedData;
@@ -476,6 +523,8 @@ HRESULT GraphicResourceHandler::UpdateConstantBuffer(void* data, size_t size, in
 	gDeviceContext->Unmap(cBuffers[id].constBuffer, 0);
 	ProfileReturnConst(hr);
 }
+
+
 
 void GraphicResourceHandler::RemoveConstantBuffer(int constBufferID)
 {
@@ -505,11 +554,9 @@ int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const Te
 	d.pSysMem = textureData;
 	d.SysMemPitch = description.width * 4;
 	d.SysMemSlicePitch = 0;
-	HRESULT hr = S_OK;
-	hr = gDevice->CreateTexture2D(&desc, &d, &texture);
+	HRESULT hr = gDevice->CreateTexture2D(&desc, &d, &texture);
 	if (FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create texture from data.\n");
 		return -1;
 	}
 
@@ -522,7 +569,6 @@ int GraphicResourceHandler::CreateShaderResourceView(void* textureData, const Te
 	hr = gDevice->CreateShaderResourceView(texture, &srvDesc, &srv);
 	if(FAILED(hr))
 	{
-		Utilz::Console::Print("Failed to create shader resource view from texture.\n");
 		return -1;
 	}
 	texture->Release();
@@ -621,4 +667,105 @@ int GraphicResourceHandler::UpdateDynamicVertexBuffer(int handle, void* data, si
 	vBuffers[handle].vertexCount = vertexCount;
 	vBuffers[handle].stride = sizePerElement;
 	return 0;
+}
+
+int GraphicResourceHandler::CreateRenderTargetView(int textureHandle, int* renderTargetViewHandle)
+{
+	int status = -1;
+
+	ID3D11RenderTargetView* renderTargetView;
+	HRESULT hr = gDevice->CreateRenderTargetView(texture2Ds[textureHandle], NULL, &renderTargetView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		renderTargetViews.push_back(renderTargetView);
+		if (renderTargetViewHandle != nullptr)
+			*renderTargetViewHandle = renderTargetViews.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle, bool isBloomBuffer)
+{
+	int status = -1;
+
+	ID3D11Texture2D* texture2D;
+	HRESULT hr = gDevice->CreateTexture2D(&description, NULL, &texture2D);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		texture2Ds.push_back(texture2D);
+		textureHandle = texture2Ds.size() - 1;
+
+		if (isBloomBuffer)
+			bloomBufferTextureHandle = textureHandle;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateCustomShaderResourceView(const D3D11_SHADER_RESOURCE_VIEW_DESC& description, int textureHandle, int& shaderResourceViewHandle, ID3D11Texture2D* texture)
+{
+	int status = -1;
+
+	ID3D11ShaderResourceView* shaderResourceView;
+	HRESULT hr = gDevice->CreateShaderResourceView((texture == nullptr) ? texture2Ds[textureHandle] : texture, &description, &shaderResourceView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		shaderResourceViews.push_back(shaderResourceView);
+		shaderResourceViewHandle = shaderResourceViews.size() - 1;
+	}
+
+	return status;
+}
+
+int GraphicResourceHandler::CreateUnorderedAccessView(int textureHandle, int& unorderedAccessViewHandle)
+{
+	int status = -1;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
+	description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	description.Texture2D.MipSlice = 0;
+
+	ID3D11UnorderedAccessView* unorderedAccessView;
+	HRESULT hr = gDevice->CreateUnorderedAccessView(texture2Ds[textureHandle], &description, &unorderedAccessView);
+
+	if (!FAILED(hr))
+	{
+		status = 0;
+
+		unorderedAccessViews.push_back(unorderedAccessView);
+		unorderedAccessViewHandle = unorderedAccessViews.size() - 1;
+	}
+
+	return status;
+}
+
+void GraphicResourceHandler::SetCompute(int computeID)
+{
+	gDeviceContext->CSSetShader(cShaders[computeID].shader, nullptr, 0);
+}
+
+ID3D11UnorderedAccessView* GraphicResourceHandler::GetUnorderedAccessView(int uavID)
+{
+	return unorderedAccessViews[uavID];
+}
+
+ID3D11RenderTargetView* GraphicResourceHandler::GetRenderTargetView(int rtvID)
+{
+	return renderTargetViews[rtvID];
+}
+
+ID3D11Texture2D* GraphicResourceHandler::GetBloomBufferTexture()
+{
+	return texture2Ds[bloomBufferTextureHandle];
 }

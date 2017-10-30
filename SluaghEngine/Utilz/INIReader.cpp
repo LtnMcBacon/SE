@@ -21,10 +21,10 @@ namespace SE
 
 		}
 
-		int INIReader::LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps)
+		int INIReader::LoadINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps)
 		{
 			StartProfile;
-			std::map<std::string, int> values;
+			std::map<std::string, std::string> values;
 			std::ifstream myfile;
 			std::streampos size;
 			char *memblock;
@@ -39,7 +39,17 @@ namespace SE
 			}
 			else
 			{
-				ProfileReturnConst(-1);
+				std::ofstream create(filename, std::ios::out | std::ios::binary);
+				create.close();
+				myfile.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
+				if (myfile.is_open())
+				{
+					ProfileReturnConst(0);
+				}
+				else
+				{
+					ProfileReturnConst(-1);
+				}
 			}
 
 			std::string section;
@@ -95,9 +105,9 @@ namespace SE
 					}
 					currentPos++;
 					value.clear();
-					while (memblock[currentPos] != '\n')
+					while (memblock[currentPos] != '\n' )
 					{
-						if (memblock[currentPos] != ' ')
+						if (memblock[currentPos] != ' ' &&  memblock[currentPos] != '\r')
 						{
 							value.push_back(memblock[currentPos]);
 							currentPos++;
@@ -107,7 +117,7 @@ namespace SE
 							currentPos++;
 						}
 					}
-					values[name] = std::stoi(value);
+					values[name] = value;
 				}	
 			}
 			maps[section] = values;
@@ -115,24 +125,22 @@ namespace SE
 			ProfileReturnConst(0);
 		}
 
-		int INIReader::WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, int>>& maps)
+		int INIReader::WriteToINI(const std::string& filename, std::map<std::string, std::map<std::string, std::string>>& maps)
 		{
 			StartProfile;
 			std::string memblock;
 
 			for (auto& mapsPair : maps)
 			{
-				std::map<std::string, int> values = maps[mapsPair.first];
+				std::map<std::string, std::string> values = maps[mapsPair.first];
 				memblock.push_back('[');
 				memblock.append(mapsPair.first);
 				memblock.push_back(']');
 				memblock.push_back('\n');
 				for (auto& valuesPair : values)
 				{
-					int outVal = values[valuesPair.first];
-					std::string name = valuesPair.first + " = ";
+					std::string name = valuesPair.first + " = " + values[valuesPair.first];
 					memblock.append(name);
-					memblock.append(std::to_string(outVal));
 					memblock.push_back('\n');
 				}
 				memblock.push_back('\n');

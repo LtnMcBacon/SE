@@ -59,26 +59,26 @@ namespace SE
 
 			struct MovementInput
 			{
-				bool downW;
-				bool downA;
-				bool downS;
-				bool downD;
+				bool upButton;
+				bool leftButton;
+				bool downButton;
+				bool rightButton;
 				
 				bool mouseRightDown;
-				int mousePosX;
-				int mousePosY;
+				float mousePosX;
+				float mousePosY;
 
 				MovementInput()
 				{
 					
 				}
 
-				MovementInput(bool w, bool a, bool s, bool d, bool mouseRD, float mouseX, float mouseY)
+				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
 				{
-					downW = w;
-					downA = a;
-					downS = s;
-					downD = d;
+					upButton = up;
+					leftButton = left;
+					downButton = down;
+					rightButton = right;
 
 					mouseRightDown = mouseRD;
 					mousePosX = mouseX;
@@ -102,21 +102,23 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool downSpace;
+				bool skill1Button;
+				bool skill2Button;
 
 				ActionInput()
 				{
 
 				}
 
-				ActionInput(bool space)
+				ActionInput(bool skill1, bool skill2)
 				{
-					downSpace = space;
+					skill1Button = skill1;
+					skill2Button = skill2;
 				}
 			};
 
 			/**
-			* @brief	Update the players movement
+			* @brief	Update the players actions
 			*
 			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
 			* and perks then check new events that are created before they are deployed
@@ -144,6 +146,11 @@ namespace SE
 			*/
 			void UpdateMap(const char** mapForRoom);
 
+			/**
+			* @brief Updates the players rotation with given rotation
+			* @param [in] The new x angle in radians
+			* @param [in] The new y angle in radians
+			**/
 			void UpdatePlayerRotation(float camAngleX, float camAngleY);
 
 		private:
@@ -191,6 +198,8 @@ namespace SE
 				ArmourType armour		= ArmourType::ARMOUR_TYPE_NONE;
 				DamageSources weapon	= DamageSources::DAMAGE_SOURCE_MELEE;
 				DamageTypes element		= DamageTypes::DAMAGE_TYPE_PHYSICAL;
+
+				
 
 			};
 			Stats baseStat;
@@ -259,6 +268,10 @@ namespace SE
 
 			SkillFactory SF;
 
+			void changeElementType(stats::equippedElementalType element);
+			
+			float attackSpeed = 1.0f;
+			float attackCooldown = 0.f;
 		public:
 			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();

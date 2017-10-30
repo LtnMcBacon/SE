@@ -2,6 +2,7 @@
 #define SE_GAMEPLAY_RANDOM_SELECTOR_H
 
 #include "IComposite.h"
+#include <random>
 
 namespace SE
 {
@@ -22,6 +23,9 @@ namespace SE
 			
 			private:
 				RandomSelector() = delete;
+
+				std::default_random_engine generator;
+
 			protected:
 				Behaviours::iterator currentChild;
 
@@ -57,6 +61,13 @@ namespace SE
 				RandomSelector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
 				~RandomSelector();
 
+				IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
+				{
+					RandomSelector* toPass = new RandomSelector(enemyBlackboard, gameBlackboard);
+					for (auto child : myChildren)
+						toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
+					return toPass;
+				}
 		};
 	}
 }

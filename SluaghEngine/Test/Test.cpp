@@ -1,5 +1,4 @@
-#include <Utilz\Console.h>
-#include <Utilz\CMDConsole.h>
+#include <DevConsole\CMDConsole.h>
 #include <Utilz\GUID.h>
 #include "Test.h"
 #include "EntityManagerTest.h"
@@ -29,13 +28,26 @@
 #include "PickingTest.h"
 #include "LightTest.h"
 #include "BehavioursTest.h"
+#include "RecordingTest.h"
+#include "BehaviouralTreeFactoryTest.h"
+#include "SkeletonAnimationTest.h"
+#include "GarbageTest.h"
+#include "ConsoleTest.h"
+#include "EnemyFactoryTest.h"
+#include "TransformTest.h"
+#include "RecordingProjectileTest.h"
+#include "BloomTest.h"
+#include "RandRoomTest.h"
+#include "GlaistigTest.h"
+#include "SlaughTest.h"
+#include "ShadowTest.h"
 #include "SkillTest.h"
 
 
 #ifdef _DEBUG
-#pragma comment(lib, "UtilzD.lib")
+#pragma comment(lib, "DevConsoleD.lib")
 #else
-#pragma comment(lib, "Utilz.lib")
+#pragma comment(lib, "DevConsole.lib")
 #endif
 
 using namespace SE::Utilz;
@@ -52,24 +64,27 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 991;
+	//_crtBreakAlloc = 4453;
+
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
-	//AddTest(ObjLoaderTest);
+	////AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
+	AddTest(SkeletonAnimationTest);
 	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
+	AddTest(RecordingProjectileTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
 	AddTest(AllocatorTest);
 	AddTest(LightTest);
-
+	//AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
 	AddTest(InstancingTest);
 
@@ -79,16 +94,27 @@ int main(int argc, char** argv)
 	AddTest(PlayerMovementTest);
 	AddTest(GameStateTest);
 	AddTest(BehavioursTest);
+	AddTest(BehaviouralTreeFactoryTest);
+	AddTest(EnemyFactoryTest);
+	AddTest(GlaistigTest);
+	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
 	AddTest(SkillTest);
 
+	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
+	AddTest(GarbageTest);
+	AddTest(ConsoleTest);
+	AddTest(TransformTest);
+	AddTest(BloomTest);
+	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
-	Console::Initialize(new CMDConsole);
-	Console::AddCommand([&running](IConsoleBackend* backend, int argc, char** argv)
+	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();
+	console->Initialize();
+	console->AddCommand([&running](SE::DevConsole::IConsole* backend, int argc, char** argv)
 	{
 		running = false;
 	},
@@ -96,7 +122,7 @@ int main(int argc, char** argv)
 	
 		"exit the application");
 
-	Console::AddCommand([](IConsoleBackend* backend, int argc, char** argv)
+	console->AddCommand([](SE::DevConsole::IConsole* backend, int argc, char** argv)
 	{
 		if (argc == 1 || std::string(argv[1]) == "-h")
 		{
@@ -110,10 +136,10 @@ int main(int argc, char** argv)
 				backend->Print("\t\t %s\n", std::get<0>(t.second));
 		}
 		else if (std::string(argv[1]) == "-a")
-		{
-			bool allTest = true;
+		{		
 			try
 			{
+				bool allTest = true;
 				for (auto& t : tests)
 				{
 					backend->Print("Running test: %s...\n", std::get<0>(t.second));
@@ -163,7 +189,7 @@ int main(int argc, char** argv)
 
 
 
-	Console::Show();
+	console->Show();
 
 	
 
@@ -172,9 +198,9 @@ int main(int argc, char** argv)
 
 	for (auto& test : tests)
 		delete std::get<1>(test.second);
-	Console::Hide();
-	Console::Shutdown();
-
+	console->Hide();
+	console->Shutdown();
+	delete console;
 	return 0;
 
 }

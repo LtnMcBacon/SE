@@ -19,25 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
+    <ClInclude Include="..\includes\Graphics\RenderJob.h" />
+    <ClInclude Include="..\includes\Graphics\IPipelineHandler.h" />
     <ClInclude Include="..\includes\Graphics\IRenderer.h" />
     <ClInclude Include="..\includes\Graphics\LightInfo.h" />
     <ClInclude Include="..\includes\Graphics\LineRenderJob.h" />
+    <ClInclude Include="..\includes\Graphics\Pipeline.h" />
     <ClInclude Include="..\includes\Graphics\RenderObjectInfo.h" />
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
-    <ClInclude Include="AnimationSystem.h" />
+    <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
     <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="GPUTimeCluster.h" />
     <ClInclude Include="GraphicResourceHandler.h" />
     <ClInclude Include="LiveObjectReporter.h" />
+    <ClInclude Include="MemoryMeasuring.h" />
+    <ClInclude Include="PipelineHandler.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
+    <ClCompile Include="GPUTimeCluster.cpp" />
     <ClCompile Include="GraphicResourceHandler.cpp" />
     <ClCompile Include="IRenderer.cpp" />
     <ClCompile Include="LiveObjectReporter.cpp" />
+    <ClCompile Include="MemoryMeasuring.cpp" />
+    <ClCompile Include="PipelineHandler.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -93,7 +102,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
     <TargetExt>.dll</TargetExt>
@@ -101,14 +110,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
     <TargetExt>.dll</TargetExt>
@@ -116,7 +125,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(SolutionDir)includes\;$(SolutionDir)includes\$(ProjectName)\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External Dependencies\lib\$(Platform)\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
     <TargetExt>.dll</TargetExt>
@@ -128,6 +137,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -136,6 +148,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_RENDERER</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -150,6 +165,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -164,6 +182,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)Test"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

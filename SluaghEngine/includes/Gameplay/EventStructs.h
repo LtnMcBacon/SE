@@ -78,16 +78,49 @@ namespace SE
 			/*Should these enum classes be put in a seperate header?*/
 
 			/*Int/Float for amount?*/
+			int amount;
+
+			DamageEvent()
+			{
+				source = DamageSources::DAMAGE_SOURCE_MELEE;
+				type = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+				amount = 1;
+			}
+
+			DamageEvent(DamageSources damageSource, DamageTypes damageType, int damageAmount)
+			{
+				source = damageSource;
+				type = damageType;
+				amount = damageAmount;
+			}
 		};
 
 		struct HealingEvent
 		{
 			/*What is needed?*/
+			float amount;
+			enum class SourceType
+			{
+				SOURCE_TYPE_ENEMY_DEATH,
+				SOURCE_TYPE_ENEMY_HIT
+			}type;
 		};
 
 		struct ConditionEvent
 		{
-
+			enum class ConditionTypes
+			{
+				CONDITION_TYPE_NONE,
+				CONDITION_TYPE_STUN,
+				CONDITION_TYPE_ROOT,
+				CONDITION_TYPE_HEALTH_SET /*How the hell do we fix this?*/
+			} type;
+			float duration;
+			ConditionEvent(ConditionTypes conditionType = ConditionTypes::CONDITION_TYPE_NONE, float d = 0.f)
+			{
+				type = conditionType;
+				duration = d;
+			}
 		};
 
 	}

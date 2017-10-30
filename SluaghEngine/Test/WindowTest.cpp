@@ -1,7 +1,7 @@
 #include "WindowTest.h"
 #include <window/IWindow.h>
 #include <Graphics/IRenderer.h>
-#include "Utilz/Console.h"
+//#include "Utilz/Console.h"
 #include <Profiler.h>
 
 #ifdef _DEBUG
@@ -28,20 +28,20 @@ WindowTest::~WindowTest()
 
 static void KeyCall()
 {
-	SE::Utilz::Console::Print("Callback called.\n");
+//	SE::Utilz::Console::Print("Callback called.\n");
 }
 
 static void MouseCall(int x, int y)
 {
-	SE::Utilz::Console::Print("Clicked at %d, %d.\n", x, y);
+	//SE::Utilz::Console::Print("Clicked at %d, %d.\n", x, y);
 }
 
 static void MouseMotionCall(int rx, int ry, int x, int y)
 {
-	SE::Utilz::Console::Print("Moved mouse %d, %d pixels.\n", rx, ry);
+//	SE::Utilz::Console::Print("Moved mouse %d, %d pixels.\n", rx, ry);
 }
 
-bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
+bool WindowTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
 	//create a window pointer
@@ -59,9 +59,9 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 	window->MapActionButton(7, Window::KeyCode::KeyU);
 	window->MapActionButton(5, Window::KeyCode::MouseLeft);
 	window->MapActionButton(6, Window::KeyCode::MouseRight);
-	window->BindKeyPressCallback(2, Window::KeyCallback::Make<&KeyCall>());
-	window->BindMouseClickCallback(5, Window::MouseClickCallback::Make<&MouseCall>());
-	window->BindMouseMotionCallback(Window::MouseMotionCallback::Make<&MouseMotionCall>());
+	window->BindKeyPressCallback(2, &KeyCall);
+	window->BindMouseClickCallback(5, &MouseCall);
+	window->BindMouseMotionCallback(&MouseMotionCall);
 	window->MapActionButton(8, SE::Window::KeyO);
 
 	
@@ -92,7 +92,7 @@ bool WindowTest::Run(SE::Utilz::IConsoleBackend* console)
 
 	
 	Graphics::IRenderer* renderer = Graphics::CreateRenderer();
-	renderer->Initialize(window->GetHWND());
+	renderer->Initialize({ window->GetHWND() });
 
 	uint8_t* fakeTexture = new uint8_t[256 * 256 * 4];
 

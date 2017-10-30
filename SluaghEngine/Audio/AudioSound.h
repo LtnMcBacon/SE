@@ -11,6 +11,8 @@
 #pragma comment(lib, "utilz.lib")
 #endif
 
+static bool readType = false;
+
 namespace SE {
 	namespace Audio {
 		
@@ -36,7 +38,7 @@ namespace SE {
 			* @retval 0+ Sound sample ID
 			*
 			*/
-			int LoadSound(AudioFile* sound);
+			size_t LoadSound(AudioFile* sound);
 			/**
 			* @brief	Returns the requested sample
 			*
@@ -47,11 +49,11 @@ namespace SE {
 			*
 			*/
 			void* GetSample(int soundID, SoundIndexName soundType);
-			void SetSoundVol(SE::Audio::SoundVolType volType, int newVol);
+			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol);
 			void Shutdown();
 
 		private:
-			std::vector<AudioSample> soundSample;
+			std::vector<AudioSample*> soundSample;
 			Utilz::StackAllocator sampleStack;
 			
 			float masterVol;

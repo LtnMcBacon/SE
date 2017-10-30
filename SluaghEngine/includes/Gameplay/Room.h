@@ -3,7 +3,8 @@
 #include <vector>
 #include "EnemyUnit.h"
 #include "FlowField.h"
-
+#include "Projectile.h"
+#include <Utilz\GUID.h>
 namespace SE
 {
 	namespace Gameplay
@@ -28,15 +29,35 @@ namespace SE
 		private:
 			Room* adjacentRooms[4] = {};
 			char map[25][25];
-			std::vector<EnemyUnit*> enemyEntities;
+			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
+			
+
+
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
 			 * FlowField map and calculations
 			 * Function(s) to build the room
 			 */
+
+			struct LinePoint
+			{
+				float x, y;
+
+				LinePoint(float xPos, float yPos)
+				{
+					x = xPos;
+					y = yPos;
+				}
+			};
+
 		public:
+
+			/*@brief store values from raw file*/
+			/*@warning may replace "char map" ????*/
+			char tileValues[25][25];
+
 			/**
 			*
 			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
@@ -182,11 +203,53 @@ namespace SE
 			*/
 			void UpdateAdjacentRooms(float dt);
 
+			/**
+			* @brief	Helper function for line intersection
+			*/
+			//bool OnSegment(float pX, float pY, float qX, float qY, float rX, float rY);
+			bool OnSegment(LinePoint p, LinePoint q, LinePoint r);
+
+			/**
+			* @brief	Helper function for line intersection
+			*/
+			//int Orientation(float pX, float pY, float qX, float qY, float rX, float rY);
+			int Orientation(LinePoint p, LinePoint q, LinePoint r);
+
+			/**
+			* @brief	Function for checking if a line p1, p2 intersects another line q1,q2
+			*/
+			//bool LineCollision(float p1X, float p1Y, float p2X, float p2Y, float q1X, float q1Y, float q2X, float q2Y);
+			bool LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any wall
+			*/
+			void ProjectileAgainstWalls(Projectile& projectile);
+
+			int PointCollisionWithEnemy(float x, float y);
+
+			/**
+			* @brief	Function for checking if a projectile has hit any enemy
+			*/
+			bool ProjectileAgainstEnemies(Projectile& projectile);
+
+			/**
+			* @brief	Function for loding in a raw file to the rooms
+			*/
+			void loadfromFile(Utilz::GUID fileName); 
+
+			/**
+			 * @brief Check if a point is inside a wall
+			 */
+			inline bool PointInsideWall(float x, float y);
 
 
 		public:
-			Room(char map[25][25]);
+			Room(Utilz::GUID fileName);
 			~Room();
+
+			float FloorCheck(int x, int y); 
+			
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -309,6 +372,44 @@ namespace SE
 			*/
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
+			/**
+			* @brief	Checks collision for the projectiles against both the walls and the enemies
+			*/
+			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
+
+			/**
+			* @brief	finds the closest enemy to xPos and yPos nad sets xReturn and yReturn to that enemies position, if no enemies exist then false is returned
+			*/
+			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
+			bool GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit);
+
+			/**
+			 * @brief Check if line of sight is blocked between two points
+			 */
+			bool CheckLineOfSightBetweenPoints(float startX, float startY, float endX, float endY) const;
+
+			/**
+			 * @brief Get distance to closest wall (VERY GREEDY AS OF NOW!)
+			 */
+			float DistanceToClosestWall(float startX, float startY, float &distX, float &distY);
+
+			/**
+			 * @brief Get distance to all enemies
+			 */
+			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
+
+			inline void GetMap(char toReturn[25][25])
+			{
+				for (int i = 0; i < 25; i++)
+				{
+					for (int j = 0; j < 25; j++)
+					{
+						toReturn[i][j] = map[i][j];
+					}
+				}
+			}
+
+			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 
 	}
