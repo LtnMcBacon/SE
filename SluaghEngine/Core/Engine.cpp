@@ -68,6 +68,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	InitStartupOption();
 
+	subSystems.devConsole->BeginFrame();
+	subSystems.devConsole->EndFrame();
 	ProfileReturnConst(0);
 }
 
@@ -80,16 +82,16 @@ int SE::Core::Engine::BeginFrame()
 	frameBegun = true;
 	timeClus.Start(CREATE_ID_HASH("Frame"));
 	subSystems.window->Frame();
-	subSystems.devConsole->BeginFrame();
+	
 	subSystems.renderer->BeginFrame();
+	subSystems.devConsole->BeginFrame();
 
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
+
 	subSystems.renderer->Render();
-
 	subSystems.devConsole->Frame();
-
 
 	ProfileReturnConst(0);
 }
@@ -102,8 +104,8 @@ int SE::Core::Engine::EndFrame()
 		ProfileReturnConst(-1);
 
 	subSystems.devConsole->EndFrame();
-
 	subSystems.renderer->EndFrame();
+	
 
 
 	timeClus.Stop(CREATE_ID_HASH("Frame"));
@@ -122,21 +124,30 @@ int SE::Core::Engine::Release()
 	delete managers.entityManager;
 	delete managers.eventManager;
 
-	subSystems.devConsole->Shutdown();
+	if(subSystems.devConsole)
+		subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
-	
-	subSystems.renderer->Shutdown();
+	subSystems.devConsole = nullptr;
+
+	if (subSystems.renderer)
+		subSystems.renderer->Shutdown();
 	delete subSystems.renderer;
+	subSystems.renderer = nullptr;
 
-	subSystems.window->Shutdown();
+	if (subSystems.window)
+		subSystems.window->Shutdown();
 	delete subSystems.window;
+	subSystems.window = nullptr;
 
-	subSystems.resourceHandler->Shutdown();
+	if (subSystems.resourceHandler)
+		subSystems.resourceHandler->Shutdown();
 	delete subSystems.resourceHandler;
+	subSystems.resourceHandler = nullptr;
 
-	subSystems.optionsHandler->UnloadOption("Config.ini");
+	if (subSystems.optionsHandler)
+		subSystems.optionsHandler->UnloadOption("Config.ini");
 	delete subSystems.optionsHandler;
-
+	subSystems.optionsHandler = nullptr;
 
 	delete perFrameStackAllocator;
 	ProfileReturnConst(0);
@@ -340,6 +351,7 @@ void SE::Core::Engine::InitMaterialManager()
 	{
 		IMaterialManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
+		info.optionsHandler = subSystems.optionsHandler;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;

@@ -29,7 +29,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 {
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
-	engine->Init();
+	auto result= engine->Init();
+	if (result < 0)
+		return -1;
 	game.Initiate(engine);
 	game.Run();
 

@@ -46,7 +46,7 @@ namespace SE
 
 			virtual ~IAnimationManager() {};
 
-			virtual void CreateAnimation(const Entity& entity, const CreateInfo& info) = 0;
+			virtual void CreateAnimatedObject(const Entity& entity, const CreateInfo& info) = 0;
 
 			virtual void Start(const Entity& entity, const Utilz::GUID& animation, float speed) = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;

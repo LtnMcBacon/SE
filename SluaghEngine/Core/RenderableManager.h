@@ -35,7 +35,7 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
-			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmInstancing);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmI);
 			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -63,7 +63,7 @@ namespace SE
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame(Utilz::TimeCluster* timer)override;
+			virtual void Frame(Utilz::TimeCluster* timer)override;
 
 			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
@@ -71,26 +71,31 @@ namespace SE
 
 			bool IsVisible(const Entity& entity)const;
 
-		protected:
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(size_t index)override;
+
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
+		private:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 
 			/**
 			* @brief	Allocate more memory
 			*/
 			void Allocate(size_t size);
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(size_t index)override;
 
-			RenderableManagerInstancing* rmInstancing;
 
-			virtual void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-
-		private:
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);
+			
+
+
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -121,7 +126,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -130,6 +135,7 @@ namespace SE
 				uint8_t* visible;
 				uint8_t* wireframe;
 				uint8_t* transparency;
+				uint8_t* shadow;
 			};
 			InitializationInfo initInfo;
 			std::default_random_engine generator;	
@@ -141,7 +147,9 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
+
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 

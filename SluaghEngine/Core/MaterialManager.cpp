@@ -36,6 +36,20 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	if (res < 0)
 		throw std::exception("Could not load default texture.");
 
+	Graphics::RenderTarget rt;
+	rt.bindAsShaderResource = true;
+	rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
+	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	rt.clearColor[0] = 0.0f;
+	rt.clearColor[1] = 0.0f;
+	rt.clearColor[2] = 0.0f;
+	rt.clearColor[3] = 0.0f;
+	res = initInfo.renderer->GetPipelineHandler()->CreateRenderTarget("bloomTarget", rt);
+	if(res < 0)
+		throw std::exception("Could not Create bloom render target.");
+
+
 	Graphics::SamplerState info;
 	info.filter = Graphics::Filter::ANISOTROPIC;
 	info.maxAnisotropy = 4;
@@ -70,7 +84,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	entityToMaterialInfo[entity] = newEntry;
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
-
+	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
 	//if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
 	//{
 	//	mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
@@ -163,11 +177,13 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.shader = (Utilz::GUID*)(newData.entity + newData.allocated);
 	newData.material = (Utilz::GUID*)(newData.shader + newData.allocated);
+	newData.bloom = (uint8_t*)(newData.material + newData.allocated);
 
 	// Copy data
 	memcpy(newData.entity, materialInfo.entity, materialInfo.used * sizeof(Entity));
 	memcpy(newData.shader, materialInfo.shader, materialInfo.used * sizeof(Utilz::GUID));
 	memcpy(newData.material, materialInfo.material, materialInfo.used * sizeof(Utilz::GUID));
+	memcpy(newData.bloom, materialInfo.bloom, materialInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(materialInfo.data);
@@ -204,6 +220,7 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 
 	materialInfo.shader[index] = materialInfo.shader[last];
 	materialInfo.material[index] = materialInfo.material[last];
+	materialInfo.bloom[index] = materialInfo.bloom[last];
 
 
 	// Replace the index for the last_entity 
@@ -256,6 +273,15 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		info->pipeline.PSStage.samplers[0] = defaultSampler;
 		info->pipeline.PSStage.samplerCount = 1;
 		
+		if (materialInfo.bloom[find->second] == 1u)
+		{
+			info->pipeline.OMStage.renderTargets[0] = "backbuffer";
+			info->pipeline.OMStage.renderTargets[1] = "bloomTarget";
+			info->pipeline.OMStage.renderTargetCount = 2;
+			info->pipeline.OMStage.depthStencilView = "backbuffer";
+		}
+
+
 		auto& attrib = mdata.attrib;
 		info->mappingFunc.push_back([this,attrib](auto a, auto b)
 		{
