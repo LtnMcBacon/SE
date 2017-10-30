@@ -251,7 +251,11 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 	}
-	
+	{
+		ID3D11RenderTargetView* backbuf = device->GetRTV();
+		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();
+		device->GetDeviceContext()->OMSetRenderTargets(1, &backbuf, depthsv);
+	}
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
 	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
