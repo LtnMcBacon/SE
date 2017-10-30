@@ -222,7 +222,7 @@ void SE::Core::Engine::InitManagers()
 	InitCameraManager();
 	InitCollisionManager();
 	InitRenderableManager();
-	//InitAnimationManager();
+	InitAnimationManager();
 	InitMaterialManager();
 	InitLightManager();
 	InitDebugRenderManager();
