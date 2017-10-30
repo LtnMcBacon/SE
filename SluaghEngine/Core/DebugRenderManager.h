@@ -86,11 +86,8 @@ namespace SE
 
 			static const size_t maximumLinesToRender = 16384;
 			static const size_t dynamicVertexBufferSize = sizeof(LineSegment) * maximumLinesToRender;
-			int dynamicVertexBufferHandle;
-			int lineRenderVertexShaderHandle;
-			int lineRenderPixelShaderHandle;
-			bool dirty;
-			size_t lineCount;
+			bool dirty = false;
+			size_t lineCount = 0;
 			std::unordered_map<Entity, std::vector<LineSegment>, EntityHasher> entityToLineList;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToJobID;
 			std::unordered_map<Entity, DirectX::XMFLOAT4X4, EntityHasher> cachedTransforms;

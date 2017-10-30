@@ -78,6 +78,7 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 		{
 			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
 			functionsToRun.pop_back();
+			i--;
 		}
 	}
 
@@ -86,6 +87,16 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	lifeTime -= dt;
 
 	StopProfile;
+
+}
+
+void SE::Gameplay::Projectile::RecreateEntity(Utilz::GUID meshGuid)
+{
+	//this->DestroyEntity();
+
+	this->unitEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(this->unitEntity);
+	CoreInit::managers.renderableManager->CreateRenderableObject(this->unitEntity, { meshGuid });
 
 }
 
@@ -157,11 +168,11 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	UpdateBounding();
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
+SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
 	GameUnit(data.startPosX, data.startPosY, 100)
 {
-	extentX = 0.1f; /*Should not be hardcoded! Obviously*/
-	extentY = 0.1f;
+	extentX = width;
+	extentY =height;
 	rotation = data.startRotation;
 	rotData = rot;
 

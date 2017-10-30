@@ -11,7 +11,7 @@ SE::Graphics::Renderer::Renderer()
 	oncePerFrameBufferID = -1;
 	device = nullptr;
 	graphicResourceHandler = nullptr;
-	animationSystem = nullptr;
+	//animationSystem = nullptr;
 	memMeasure.Init();
 }
 
@@ -39,7 +39,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 	spriteBatch = new DirectX::SpriteBatch(device->GetDeviceContext());
 
-	animationSystem = new AnimationSystem();
+	//animationSystem = new AnimationSystem();
 
 	oncePerFrameBufferID = graphicResourceHandler->CreateConstantBuffer(sizeof(OncePerFrameConstantBuffer));
 	if (oncePerFrameBufferID < 0)
@@ -98,8 +98,7 @@ void SE::Graphics::Renderer::Shutdown()
 
 	delete gpuTimer;
 	delete graphicResourceHandler;
-	delete animationSystem;
-	device->Shutdown();
+//	delete animationSystem;
 	delete device;
 }
 
@@ -1129,72 +1128,72 @@ void SE::Graphics::Renderer::RenderABucket(const RenderBucket& bucket, const Ren
 	}
 
 	else if (job.type == RenderObjectInfo::JobType::SKINNED) {
-		int boneBindslot;
-		const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
-		graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
+	//	int boneBindslot;
+	//	const int cBoneBufferIndex = graphicResourceHandler->GetVSConstantBufferByName(bucket.stateInfo.vertexShader, "VS_SKINNED_DATA", &boneBindslot);
+	//	graphicResourceHandler->BindVSConstantBuffer(cBoneBufferIndex, boneBindslot);
 
-		
-
-
+	//	
 
 
 
 
 
-		std::vector<DirectX::XMFLOAT4X4> inversVec;
-		for (int i = 0; i < bucket.transforms.size(); i++)
-		{
-			DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
-			invers = DirectX::XMMatrixInverse(nullptr, invers);
-			DirectX::XMFLOAT4X4 fInvers;
-			DirectX::XMStoreFloat4x4(&fInvers, invers);
-			inversVec.push_back(fInvers);
-		}
-
-	/*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-		graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
-
-	
 
 
-		// TODO: Change the hlsl code to fit.
-		// TODO: Should be updated with the instanceCount and maxDrawInstances
-		struct XMS
-		{
-			DirectX::XMFLOAT4X4 s[30];
-		};
+	//	std::vector<DirectX::XMFLOAT4X4> inversVec;
+	//	for (int i = 0; i < bucket.transforms.size(); i++)
+	//	{
+	//		DirectX::XMMATRIX invers = DirectX::XMLoadFloat4x4(&bucket.transforms[i]);
+	//		invers = DirectX::XMMatrixInverse(nullptr, invers);
+	//		DirectX::XMFLOAT4X4 fInvers;
+	//		DirectX::XMStoreFloat4x4(&fInvers, invers);
+	//		inversVec.push_back(fInvers);
+	//	}
 
-		graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
-			for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
-			{
-				auto animationJobIndex = bucket.animationJob[i];
-				if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
-				{
-					auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
-					if (ajob.animating) // If the animation is playing
-						ajob.timePos += ajob.speed; // TODO: Delta time.
+	///*	bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);*/
 
-					animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
-				}
-				else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
-				{
-					// TODO:
-				}
-			}
-		});
+	//
 
 
-		//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
-	//	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+	//	// TODO: Change the hlsl code to fit.
+	//	// TODO: Should be updated with the instanceCount and maxDrawInstances
+	//	struct XMS
+	//	{
+	//		DirectX::XMFLOAT4X4 s[30];
+	//	};
 
-		const size_t instanceCount = bucket.transforms.size();
-		for (int i = 0; i < instanceCount; i += 8)
-		{
-			const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
-			const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
-			graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
-			device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
-		}
+	//	//graphicResourceHandler->UpdateConstantBuffer<XMS>(cBoneBufferIndex, [this, &bucket, &job](auto data) {
+	//	//	for (uint32_t i = 0; i < bucket.animationJob.size(); i++) // We need to update each animation
+	//	//	{
+	//	//		auto animationJobIndex = bucket.animationJob[i];
+	//	//		if (animationJobIndex != -1) // If the renderjob has an animation job bound to it.
+	//	//		{
+	//	//			auto& ajob = jobIDToAnimationJob[animationJobIndex]; // Get the animation job from the renderjob in the bucket
+	//	//			if (ajob.animating) // If the animation is playing
+	//	//				ajob.timePos += ajob.speed; // TODO: Delta time.
+
+	//	//			animationSystem->UpdateAnimation(ajob.animationHandle, job.skeletonIndex, ajob.timePos, &(data + i)->s[0]); // TODO: Make it so we don't have to recalculate the matricies if the animation hasn't changed.
+	//	//		}
+	//	//		else // This is a skinned mesh, however it does not have any animation. So just pass identity matricies.
+	//	//		{
+	//	//			// TODO:
+	//	//		}
+	//	//	}
+	//	//});
+
+
+	//	//bucket.gBoneTransforms = animationSystem->GetSkeleton(0).jointArray;
+	////	graphicResourceHandler->UpdateConstantBuffer(&bucket.gBoneTransforms[0], sizeof(DirectX::XMFLOAT4X4) * 4, cBoneBufferIndex);
+
+	//	const size_t instanceCount = bucket.transforms.size();
+	//	for (int i = 0; i < instanceCount; i += 8)
+	//	{
+	//		const size_t instancesToDraw = std::min(bucket.transforms.size() - i, (size_t)8);
+	//		const size_t mapSize = sizeof(DirectX::XMFLOAT4X4) * instancesToDraw;
+	//		graphicResourceHandler->UpdateConstantBuffer(&bucket.transforms[i], mapSize, oncePerObject);
+	//		device->GetDeviceContext()->DrawInstanced(graphicResourceHandler->GetVertexCount(bucket.stateInfo.bufferHandle), instancesToDraw, 0, 0);
+	//	}
 	}
 }
 
@@ -1228,85 +1227,83 @@ void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 	device->ResizeSwapChain((HWND)windowHandle);
 }
 
+//
+//int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
+//
+//	int handle;
+//	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
+//	if (hr)
+//		return hr;
+//	return handle;
+//}
+//
+//int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+//{
+//	int job = -1;
+//	if (freeAnimationJobIndicies.size())
+//	{
+//		job = freeAnimationJobIndicies.top();
+//		freeAnimationJobIndicies.pop();
+//	}
+//	else
+//	{
+//		job = static_cast<int>(jobIDToAnimationJob.size());
+//		jobIDToAnimationJob.push_back(info);
+//	}
+//	
+//	return job;
+//}
+//
+//void SE::Graphics::Renderer::StopAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	freeAnimationJobIndicies.push(job);
+//}
+//
+//void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
+//}
+//
+//void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
+//}
+//
+//void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
+//
+//void SE::Graphics::Renderer::StartAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
+//}
+//
+//void SE::Graphics::Renderer::PauseAnimation(int job)
+//{
+//	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
+//	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
+//}
 
-int SE::Graphics::Renderer::CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddSkeleton(jointData, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) {
-
-	int handle;
-	auto hr = animationSystem->AddAnimation(matrices, nrOfKeyframes, nrOfJoints, &handle);
-	if (hr)
-		return hr;
-	return handle;
-}
-
-int SE::Graphics::Renderer::StartAnimation(const AnimationJobInfo & info)
+int SE::Graphics::Renderer::EnableBloom(int handleHorizontal, int handleVertical)
 {
-	int job = -1;
-	if (freeAnimationJobIndicies.size())
-	{
-		job = freeAnimationJobIndicies.top();
-		freeAnimationJobIndicies.pop();
-	}
-	else
-	{
-		job = static_cast<int>(jobIDToAnimationJob.size());
-		jobIDToAnimationJob.push_back(info);
-	}
-	
-	return job;
-}
-
-void SE::Graphics::Renderer::StopAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	freeAnimationJobIndicies.push(job);
-}
-
-void SE::Graphics::Renderer::UpdateAnimation(int job, const AnimationJobInfo & info)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)] = info;
-}
-
-void SE::Graphics::Renderer::SetAnimationSpeed(int job, float speed)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].speed = speed;
-}
-
-void SE::Graphics::Renderer::SetKeyFrame(int job, float keyframe)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].timePos = keyframe;
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
-
-void SE::Graphics::Renderer::StartAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = true;
-}
-
-void SE::Graphics::Renderer::PauseAnimation(int job)
-{
-	_ASSERT_EXPR(job < static_cast<int>(jobIDToAnimationJob.size()), "AnimationJob out of range");
-	jobIDToAnimationJob[static_cast<size_t>(job)].animating = false;
-}
-
-int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle)
-{
-	int status = -1;
-
-	bloomHorizontalHandle = bloomHorizontalHandle;
-	bloomVerticalHandle = verticalHandle;
+	bloomHorizontalHandle = handleHorizontal;
+	bloomVerticalHandle = handleVertical;
 
 	int texture2DHandles[3];
 
@@ -1362,9 +1359,7 @@ int SE::Graphics::Renderer::EnableBloom(int horizontalHandle, int verticalHandle
 
 
 	bloom = true;
-	status = 0;
-
-	return status;
+	return 0;
 }
 
 int SE::Graphics::Renderer::DisableBloom()

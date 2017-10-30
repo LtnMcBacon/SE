@@ -19,9 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\Graphics\AnimationJobInfo.h" />
     <ClInclude Include="..\includes\Graphics\FileHeaders.h" />
-    <ClInclude Include="..\includes\Graphics\AnimationStructs.h" />
     <ClInclude Include="..\includes\Graphics\GUIInfo.h" />
     <ClInclude Include="..\includes\Graphics\RenderJob.h" />
     <ClInclude Include="..\includes\Graphics\IPipelineHandler.h" />
@@ -33,7 +31,6 @@
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h" />
     <ClInclude Include="..\includes\Graphics\TextureDesc.h" />
     <ClInclude Include="..\includes\Graphics\VertexStructs.h" />
-    <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GPUTimeCluster.h" />
     <ClInclude Include="GraphicResourceHandler.h" />
@@ -43,7 +40,6 @@
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="GPUTimeCluster.cpp" />
     <ClCompile Include="GraphicResourceHandler.cpp" />

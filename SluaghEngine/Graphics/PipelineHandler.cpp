@@ -1779,6 +1779,7 @@ void SE::Graphics::PipelineHandler::ForcedSetPixelShaderStage(const ShaderStage&
 	}
 	c.textureCount = pss.textureCount;
 	ID3D11SamplerState* samplers[ShaderStage::maxSamplers] = { nullptr };
+	
 	for (int i = 0; i < pss.samplerCount; ++i)
 	{
 		const auto samp = samplerStates.find(pss.samplers[i]);
@@ -1797,7 +1798,6 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 	StartProfile;
 	auto& c = currentPipeline.OMStage;
 	ID3D11RenderTargetView* renderTargets[OutputMergerStage::maxRenderTargets] = { nullptr };
-	bool changed = false;
 	for (int i = 0; i < oms.renderTargetCount; ++i)
 	{
 		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);

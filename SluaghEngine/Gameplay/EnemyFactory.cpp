@@ -131,8 +131,8 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	// temp material
 
 	Core::IMaterialManager::CreateInfo enemyInfo;
-	Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
-	Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+	Utilz::GUID material = Utilz::GUID("Cube.mat");
+	Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	enemyInfo.shader = shader;
 	enemyInfo.materialFile = material;
 	CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);

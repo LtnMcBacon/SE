@@ -27,6 +27,7 @@
 #include "IDecalManager.h"
 #include <DevConsole\IConsole.h>
 #include "ITextManager.h"
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -55,6 +56,7 @@ namespace SE
 				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
 				IDecalManager* decalManager = nullptr;
+				IEventManager* eventManager = nullptr;
 			};
 			struct Subsystems
 			{

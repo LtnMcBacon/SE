@@ -35,7 +35,8 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
-			~RenderableManager();
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmI);
+			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
 			RenderableManager& operator=(const RenderableManager& other) = delete;
@@ -48,7 +49,7 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const CreateInfo& meshGUID, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -57,28 +58,41 @@ namespace SE
 			* @param[in] show True to show, false to hide.
 			*
 			*/
-			void ToggleRenderableObject(const Entity& entity, bool show)override;
+			void ToggleRenderableObject(const Entity& entity, bool visible)override;
 
-			inline void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback)override
-			{
-				SetRenderObjectInfoEvent += callback;
-			}
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame(Utilz::TimeCluster* timer)override;
-
-			void UpdateRenderableObject(const Entity& entity)override;
+			virtual void Frame(Utilz::TimeCluster* timer)override;
 
 			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
-		private:
-		
-			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-			Utilz::Event<void(const Entity& entity, Graphics::RenderJob* info)> SetRenderObjectInfoEvent;
+			bool IsVisible(const Entity& entity)const;
 
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(size_t index)override;
+
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+
+		private:
+			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
+
+			/**
+			* @brief	Allocate more memory
+			*/
+			void Allocate(size_t size);
+
+			RenderableManagerInstancing* rmInstancing;
+
+			
+
+			void Init();
+
+			void UpdateRenderableObject(const Entity& entity);
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -89,14 +103,7 @@ namespace SE
 
 			void SetDirty(const Entity& entity, size_t index);
 
-			/**
-			* @brief	Allocate more memory
-			*/
-			void Allocate(size_t size);
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(size_t index)override;
+			
 			/**
 			* @brief	Remove an enitity
 			*/
@@ -112,19 +119,17 @@ namespace SE
 
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
 			
-			void LoadResource(const Utilz::GUID& meshGUID, size_t index, bool async, ResourceHandler::Behavior behavior);
+
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				Utilz::GUID* mesh;
-				Graphics::RenderObjectInfo::PrimitiveTopology* topology;
 				uint8_t* visible;
-				uint32_t* jobID;
 				uint8_t* wireframe;
 				uint8_t* transparency;
 			};
@@ -138,8 +143,7 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			RenderableManagerInstancing* rmInstancing;
-
+			
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 

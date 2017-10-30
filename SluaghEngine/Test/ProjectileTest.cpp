@@ -80,47 +80,60 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-	auto Block = Utilz::GUID("Placeholder_Block.mesh");
+	auto Block = Utilz::GUID("HighWall.mesh");
 	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
 
 
 
 
-	/*Place out the level*/
-	char mapRepresentation[25][25] =
-	{
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-	};
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
-	Gameplay::Room* testRoom = new Gameplay::Room(mapRepresentation);
+	uint32_t nrOfRooms;
+	Utilz::GUID* RoomArr;
 
-	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, mapRepresentation);
-	managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
+	{
+		nrOfRooms = *(uint32_t *)data;
+		RoomArr = new Utilz::GUID[nrOfRooms];
+		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+
+	int random = rand() % nrOfRooms;
+
+	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
+
+	Gameplay::PlayerUnit* player = nullptr;
+	for (int x = 0; x < 25; x++)
+	{
+		for (int y = 0; y < 25; y++)
+		{
+			if (testRoom->tileValues[x][y] == 1)
+			{
+				float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+				int xOffset = 0, yOffset = 0;
+				if (rotation == 0)
+				{
+					yOffset = 1;
+				}
+				else if (rotation == 90)
+				{
+					xOffset = 1;
+				}
+				else if (rotation == 180)
+				{
+					yOffset = -1;
+				}
+				else if (rotation == 270)
+				{
+					xOffset = -1;
+				}
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+				player->SetZPosition(0.0f);
+				break;
+			}
+		}
+	}
 
 	managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
@@ -128,21 +141,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 	managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
-	Core::Entity rotatingBox1 = managers.entityManager->Create();
-	Core::Entity rotatingBox2 = managers.entityManager->Create();
-	Core::Entity rotatingBox3 = managers.entityManager->Create();
-	managers.transformManager->Create(rotatingBox1, { 0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
-	managers.transformManager->Create(rotatingBox2, { -0.5f, 3.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.2f,0.2f,0.2f });
-	managers.transformManager->Create(rotatingBox3, { 0.25f, 0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 0.1f,0.1f,0.1f });
-	managers.renderableManager->CreateRenderableObject(rotatingBox1, { Block });
-	managers.renderableManager->CreateRenderableObject(rotatingBox2, { Block });
-	managers.renderableManager->CreateRenderableObject(rotatingBox3, { Block });
-	managers.transformManager->BindChild(player->GetEntity(), rotatingBox1,true,true);
-	managers.transformManager->BindChild(player->GetEntity(), rotatingBox2, true,true);
-	managers.transformManager->BindChild(rotatingBox2, rotatingBox3, true, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox1, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox2, true);
-	managers.renderableManager->ToggleRenderableObject(rotatingBox3, true);
 
 	SE::Core::Entity camera = managers.entityManager->Create();
 
@@ -174,7 +172,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (mapRepresentation[x][y])
+			if (testRoom->tileValues[x][y])
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
@@ -249,7 +247,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		{
 			enemyPos.x = rand() % 25;
 			enemyPos.y = rand() % 25;
-		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
 		enemy->SetXPosition(enemyPos.x + .5f);
@@ -372,8 +370,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 			actionInput.skill1Button = true;
 		}
 
-		managers.transformManager->Rotate(rotatingBox2, 0.0f, dt * 6.28, 0.0f);
-		managers.transformManager->Rotate(rotatingBox3, 0.0f, dt*3.14, 0.0f);
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
@@ -382,7 +378,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (mapRepresentation[x][y])
+				if (testRoom->tileValues[x][y])
 				{
 
 				}
@@ -489,6 +485,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	delete testRoom;
 	delete player;
 
+	delete RoomArr;
 
 	
 

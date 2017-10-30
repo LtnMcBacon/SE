@@ -55,10 +55,10 @@ namespace SE
 			*/
 			int AddCommand(const DevConsole::DevConsole_Command& commandFunction, char* name, char* description) override;
 			
-			void PrintChannel(const char* line, const char* channel = "Global", ...) override;
+			void PrintChannel(const char* channel, const char* line, ...) override;
 			void Print(const char* line, ...) override;
 			void VPrint(const char* line, va_list args) override;
-			void VPrint(const char* line, va_list args, const char* channel) override;
+			void VPrint(const char* channel, const char* line, va_list args) override;
 
 			void Getline(std::string& string) override;
 			size_t Getline(const char* buffer, size_t size) override;
@@ -102,6 +102,9 @@ namespace SE
 			void AddFrameCallback(const std::function<void()>& frameCallback) override;
 
 		private:
+			ImGuiTextFilter filter;
+			bool scrollToBottom = false;
+
 			struct Message
 			{
 				std::chrono::system_clock::time_point timestamp;

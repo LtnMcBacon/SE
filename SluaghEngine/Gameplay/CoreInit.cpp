@@ -10,9 +10,9 @@ SE::Core::IEngine::Subsystems SE::Gameplay::CoreInit::subSystems = {};
 SE::Core::IEngine::ManagerWrapper SE::Gameplay::CoreInit::managers = {};
 SE::Core::IEngine* SE::Gameplay::CoreInit::engine = nullptr;
 
-void SE::Gameplay::CoreInit::Init(Core::IEngine* enginei)
+void SE::Gameplay::CoreInit::Init(Core::IEngine* engineIn)
 {
-	engine = enginei;
+	engine = engineIn;
 	subSystems = engine->GetSubsystems();
 	managers = engine->GetManagers();
 }

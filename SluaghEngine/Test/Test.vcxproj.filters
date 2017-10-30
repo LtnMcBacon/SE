@@ -132,6 +132,9 @@
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
+    <ClCompile Include="GlaistigTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
     <ClCompile Include="TransformTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -140,6 +143,12 @@
     </ClCompile>
     <ClCompile Include="BloomTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandRoomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SluaghTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
     <ClCompile Include="DecalTest.cpp">
       <Filter>Source Files</Filter>
@@ -248,11 +257,20 @@
     <ClInclude Include="ConsoleTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RandRoomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TransformTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RecordingProjectileTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlaistigTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaughTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
     </ClInclude>
     <ClInclude Include="BloomTest.h">
       <Filter>Header Files</Filter>

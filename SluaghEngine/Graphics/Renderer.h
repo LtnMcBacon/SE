@@ -4,15 +4,15 @@
 #include "DeviceManager.h"
 #include "GraphicResourceHandler.h"
 
-#include "AnimationSystem.h"
+//#include "AnimationSystem.h"
 #include <mutex>
 #include "MemoryMeasuring.h"
 #include <Utilz\CircularFiFo.h>
 #include <thread>
-#include <ToolKit\SpriteFont.h>
-#include <ToolKit\SpriteBatch.h>
 #include "GPUTimeCluster.h"
 #include <Utilz\CPUTimeCluster.h>
+#include <ToolKit\SpriteFont.h>
+#include <ToolKit\SpriteBatch.h>
 
 
 namespace SE
@@ -341,81 +341,81 @@ namespace SE
 			*/
 			void ResizeSwapChain(void* windowHandle) override;
 
-			/**
-			* @brief Create a skeleton
-			* @param[in] jointData The joint data.
-			* @param[in] nrOfJoints The number of joints.
-			* @endcode
-			*/
-			int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints)override;
+			///**
+			//* @brief Create a skeleton
+			//* @param[in] jointData The joint data.
+			//* @param[in] nrOfJoints The number of joints.
+			//* @endcode
+			//*/
+			//int CreateSkeleton(JointAttributes* jointData, size_t nrOfJoints)override;
 
-			/**
-			* @brief Create an animation
-			* @param[in] matrices The animation keyframes
-			* @param[in] nrOfKeyframes The number of keyframes.
-			* @param[in] nrOfJoints The number of joints.
-			* @endcode
-			*/
-			int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) override;
+			///**
+			//* @brief Create an animation
+			//* @param[in] matrices The animation keyframes
+			//* @param[in] nrOfKeyframes The number of keyframes.
+			//* @param[in] nrOfJoints The number of joints.
+			//* @endcode
+			//*/
+			//int CreateAnimation(DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints) override;
 
-			/**
-			* @brief Start a new animation job
-			* @param[in] info Animation info
-			* @sa AnimationJobInfo
-			* @retval -1 On fail.
-			* @retval handle The job id.
-			* @endcode
-			*/
-			int StartAnimation(const AnimationJobInfo& info) override;
+			///**
+			//* @brief Start a new animation job
+			//* @param[in] info Animation info
+			//* @sa AnimationJobInfo
+			//* @retval -1 On fail.
+			//* @retval handle The job id.
+			//* @endcode
+			//*/
+			//int StartAnimation(const AnimationJobInfo& info) override;
 
-			/**
-			* @brief Stop an animation (This removes the job)
-			* @param[in] job The job top stop
-			* @endcode
-			*/
-			void StopAnimation(int job)override;
+			///**
+			//* @brief Stop an animation (This removes the job)
+			//* @param[in] job The job top stop
+			//* @endcode
+			//*/
+			//void StopAnimation(int job)override;
 
-			/**
-			* @brief Update an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] info Animation info
-			* @sa AnimationJobInfo
-			* @endcode
-			*/
-			void UpdateAnimation(int job, const AnimationJobInfo& info)override;
+			///**
+			//* @brief Update an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] info Animation info
+			//* @sa AnimationJobInfo
+			//* @endcode
+			//*/
+			//void UpdateAnimation(int job, const AnimationJobInfo& info)override;
 
-			/**
-			* @brief Set the speed of an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] speed The speed
-			* @sa AnimationJobInfo
-			* @endcode
-			*/
-			void SetAnimationSpeed(int job, float speed) override;
+			///**
+			//* @brief Set the speed of an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] speed The speed
+			//* @sa AnimationJobInfo
+			//* @endcode
+			//*/
+			//void SetAnimationSpeed(int job, float speed) override;
 
-			/**
-			* @brief Set the speed of an animation job
-			* @param[in] job Which animation job to update
-			* @param[in] keyframe The keyframe
-			* @endcode
-			*/
-			void SetKeyFrame(int job, float keyframe);
+			///**
+			//* @brief Set the speed of an animation job
+			//* @param[in] job Which animation job to update
+			//* @param[in] keyframe The keyframe
+			//* @endcode
+			//*/
+			//void SetKeyFrame(int job, float keyframe);
 
-			/**
-			* @brief Start an animation job
-			* @param[in] job Which animation job to Start
-			* @sa AnimationJobInfo
-			* @endcode
-			*/
-			void StartAnimation(int job) override;
+			///**
+			//* @brief Start an animation job
+			//* @param[in] job Which animation job to Start
+			//* @sa AnimationJobInfo
+			//* @endcode
+			//*/
+			//void StartAnimation(int job) override;
 
-			/**
-			* @brief Pause an animation job
-			* @param[in] job Which animation job to pause
-			* @sa AnimationJobInfo
-			* @endcode
-			*/
-			void PauseAnimation(int job) override;
+			///**
+			//* @brief Pause an animation job
+			//* @param[in] job Which animation job to pause
+			//* @sa AnimationJobInfo
+			//* @endcode
+			//*/
+			//void PauseAnimation(int job) override;
 
 			/**
 			* @brief	The amount of VRam currently used.
@@ -607,10 +607,10 @@ namespace SE
 
 			/*********** Animation System **************/
 
-			AnimationSystem* animationSystem;
+			/*AnimationSystem* animationSystem;
 			std::stack<int> freeAnimationJobIndicies;
 			std::vector<AnimationJobInfo> jobIDToAnimationJob;
-
+*/
 
 			/*********** End Animation System **************/
 
@@ -625,9 +625,10 @@ namespace SE
 
 			bool bloom = false;
 
-			int bloomHorizontalHandle, bloomVerticalHandle;
-			int bloomShaderResourceViewHandles[3];
-			int bloomUnorderedAccessViewHandles[2];
+			int bloomHorizontalHandle = -1;
+			int bloomVerticalHandle = -1;
+			int bloomShaderResourceViewHandles[3] = { -1, -1, -1 };
+			int bloomUnorderedAccessViewHandles[2] = { -1, -1 };
 
 			/********* END Bloom ************/
 

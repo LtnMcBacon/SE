@@ -15,6 +15,7 @@
 #include "IManager.h"
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -29,7 +30,7 @@ namespace SE
 				Graphics::IRenderer* renderer;
 				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
-				IRenderableManager* renderableManager;
+				IEventManager* eventManager;
 			};
 
 			struct CreateInfo

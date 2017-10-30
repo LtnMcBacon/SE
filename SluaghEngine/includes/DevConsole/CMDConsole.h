@@ -48,10 +48,10 @@ namespace SE
 			void Clear() override;
 
 
-			void PrintChannel(const char* line, const char* channel = "Global", ...)override;
+			void PrintChannel(const char* channel, const char* line,  ...)override;
 			void Print(const char* line, ...)override;
 			void VPrint(const char* line, va_list args)override;
-			void VPrint(const char* line, va_list args, const char* channel)override;
+			void VPrint(const char* channel, const char* line, va_list args)override;
 
 			void Getline(std::string& string)override;
 			size_t Getline(const char* buffer, size_t size)override;

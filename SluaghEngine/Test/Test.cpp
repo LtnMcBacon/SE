@@ -37,6 +37,9 @@
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
 #include "BloomTest.h"
+#include "RandRoomTest.h"
+#include "GlaistigTest.h"
+#include "SlaughTest.h"
 #include "DecalTest.h"
 
 
@@ -60,7 +63,8 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	_crtBreakAlloc = 148;
+	//_crtBreakAlloc = 2710;
+
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
 	AddTest(EntityManagerTest);
@@ -91,6 +95,8 @@ int main(int argc, char** argv)
 	AddTest(BehavioursTest);
 	AddTest(BehaviouralTreeFactoryTest);
 	AddTest(EnemyFactoryTest);
+	AddTest(GlaistigTest);
+	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
 
@@ -101,6 +107,7 @@ int main(int argc, char** argv)
 	AddTest(TransformTest);
 	AddTest(DecalTest);
 //	AddTest(BloomTest);
+	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

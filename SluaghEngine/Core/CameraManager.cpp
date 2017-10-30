@@ -266,7 +266,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.dirty = (size_t*)(newData.entity + newData.allocated);
-	newData.fov = (float*)(newData.dirty + newData.allocated);
+	newData.fov = reinterpret_cast<float*>(newData.dirty + newData.allocated);
 	newData.aspectRatio = (float*)(newData.fov + newData.allocated);
 	newData.nearPlane = (float*)(newData.aspectRatio + newData.allocated);
 	newData.farPlane = (float*)(newData.nearPlane + newData.allocated);
