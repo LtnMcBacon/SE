@@ -58,11 +58,11 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 
 	Core::Entity decal = em->Create();
 	tm->Create(decal, { 1.0f,0.0f, 4.5f },{0,0,0}, {1,1,10});
-	dm->Create(decal, "BlackPink.sei");
+	dm->Create(decal, "ft_stone01_c.sei");
 
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
-	dm->Create(decal2, "BlackPink.sei");
+	dm->Create(decal2, "ft_stone01_c.sei");
 	tm->BindChild(box, decal);
 	tm->BindChild(box, decal2);
 	auto l = em->Create();

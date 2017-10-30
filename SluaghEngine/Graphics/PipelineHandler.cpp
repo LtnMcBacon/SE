@@ -1600,27 +1600,28 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 	bool changed = false;
 	for (int i = 0; i < oms.renderTargetCount; ++i)
 	{
-		//if (oms.renderTargets[i] != c.renderTargets[i])
+		if (oms.renderTargets[i] != c.renderTargets[i])
 		{
 			changed = true;
-			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
-			if (rtv != renderTargetViews.end())
-				renderTargets[i] = rtv->second;
-			else
-				renderTargets[i] = nullptr;
-			c.renderTargets[i] = oms.renderTargets[i];
 		}
+		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
+		if (rtv != renderTargetViews.end())
+			renderTargets[i] = rtv->second;
+		else
+			renderTargets[i] = nullptr;
+		c.renderTargets[i] = oms.renderTargets[i];
 	}
 	c.renderTargetCount = oms.renderTargetCount;
 	ID3D11DepthStencilView* depthview = nullptr;
 	if (oms.depthStencilView != c.depthStencilView)
 	{
 		changed = true;
-		const auto dsv = depthStencilViews.find(oms.depthStencilView);
-		if (dsv != depthStencilViews.end())
-			depthview = dsv->second;
-		c.depthStencilView = oms.depthStencilView;
 	}
+	const auto dsv = depthStencilViews.find(oms.depthStencilView);
+	if (dsv != depthStencilViews.end())
+		depthview = dsv->second;
+	c.depthStencilView = oms.depthStencilView;
+	
 
 	if (changed)
 		deviceContext->OMSetRenderTargets(oms.renderTargetCount, renderTargets, depthview);

@@ -99,6 +99,7 @@ void SE::Graphics::Renderer::Shutdown()
 	delete gpuTimer;
 	delete graphicResourceHandler;
 //	delete animationSystem;
+	device->Shutdown();
 	delete device;
 }
 
