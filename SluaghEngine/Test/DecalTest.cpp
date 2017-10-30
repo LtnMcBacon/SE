@@ -81,6 +81,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	window->MapActionButton(Window::KeyD, Window::KeyD);
 	window->MapActionButton(Window::KeyLeft, Window::KeyLeft);
 	window->MapActionButton(Window::KeyRight, Window::KeyRight);
+	window->MapActionButton(Window::KeyO, Window::KeyO);
 
 	bool running = true;
 	float dt = 1/60.0f * 5.0f;
@@ -104,7 +105,20 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		if (window->ButtonDown(Window::KeyRight))
 			tm->Rotate(camera, 0.0f, 3.14 / 10.0f* dt, 0.0f);
 
-		tm->Rotate(box, 0.0f, 3.14f * dt * 0.2f, 0.0f);
+		if(window->ButtonPressed(Window::KeyO))
+		{
+			em->Destroy(decal);
+			DirectX::XMFLOAT3 newPos = { (float)(rand() % 5), (float)(rand() % 5), 0.0f };
+			DirectX::XMFLOAT3 newRot = { 0,0,0 };// tm->GetRotation(box);
+			DirectX::XMFLOAT3 newScale = { 1.0f, 1.0f, 10.0f };
+			decal = em->Create();
+			tm->Create(decal, newPos, newRot, newScale);
+			dm->Create(decal, "BlackPink.sei");
+			tm->BindChild(box, decal, true, true);
+
+		}
+
+		//tm->Rotate(box, 0.0f, 3.14f * dt * 0.2f, 0.0f);
 		engine->EndFrame();
 	}
 	engine->Release();

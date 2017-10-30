@@ -1,4 +1,6 @@
 #include "DecalManager.h"
+#include <Profiler.h>
+#include <random>
 
 using namespace SE::Graphics;
 
@@ -77,6 +79,8 @@ SE::Core::DecalManager::~DecalManager()
 
 void SE::Core::DecalManager::Frame(Utilz::TimeCluster* timer)
 {
+	StartProfile;
+	GarbageCollection();
 	DirectX::XMFLOAT4X4 vp = initInfo.cameraManager->GetViewProjection(initInfo.cameraManager->GetActive());
 	const DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&vp);
 	DirectX::XMFLOAT4X4 invVP;
@@ -84,14 +88,15 @@ void SE::Core::DecalManager::Frame(Utilz::TimeCluster* timer)
 	DirectX::XMStoreFloat4x4(&vp, DirectX::XMMatrixTranspose(viewProj));
 
 	initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseViewProj, &invVP, sizeof(DirectX::XMFLOAT4X4));
-
+	ProfileReturnVoid;
 }
 
 int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& textureName)
 {
+	StartProfile;
 	const auto exists = entityToTextureGuid.find(entity);
 	if (exists != entityToTextureGuid.end())
-		return -1;
+		ProfileReturnConst(-1);
 
 	const auto textureExists = decalToTransforms.find(textureName);
 	if (textureExists == decalToTransforms.end())
@@ -107,7 +112,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 			return ResourceHandler::InvokeReturn::DecreaseRefcount;
 		}, false);
 		if (result)
-			return -1;
+			ProfileReturnConst(-1);
 	}
 
 	initInfo.transformManager->Create(entity);
@@ -120,6 +125,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	entityToTransformIndex[entity] = decalToTransforms[textureName].world.size();
 	decalToTransforms[textureName].world.push_back(world);
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
+	decalToTransforms[textureName].owners.push_back(entity);
 	
 	const auto renderJob = decalToJobID.find(textureName);
 	if(renderJob == decalToJobID.end())
@@ -147,9 +153,9 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 			++job.instanceCount;
 		});
 	}
+	entities.push_back(entity);
 
-
-	return 0;
+	ProfileReturnConst(0);
 }
 
 int SE::Core::DecalManager::Remove(const Entity& entity)
@@ -159,6 +165,7 @@ int SE::Core::DecalManager::Remove(const Entity& entity)
 
 void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
 {
+	StartProfile;
 	auto texture = entityToTextureGuid.find(entity);
 	if(texture != entityToTextureGuid.end())
 	{
@@ -170,12 +177,32 @@ void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
 		DirectX::XMStoreFloat4x4(&invWorld, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, mWorld)));
 		decalToTransforms[texture->second].world[transformIndex] = world;
 		decalToTransforms[texture->second].inverseWorld[transformIndex] = invWorld;
-		dirty = true;
 	}
+	ProfileReturnVoid;
 }
 
 void SE::Core::DecalManager::Destroy(size_t index)
 {
+	StartProfile;
+	const Entity entity = entities[index];
+	entities[index] = entities.back();
+	entities.pop_back();
+
+	const auto texture = entityToTextureGuid[entity];
+	const size_t transformIndex = entityToTransformIndex[entity];
+	auto bucket = decalToTransforms.find(texture); //Guaranteed to find it, no need to check
+	bucket->second.inverseWorld[transformIndex] = bucket->second.inverseWorld.back();
+	bucket->second.world[transformIndex] = bucket->second.world.back();
+	bucket->second.owners[transformIndex] = bucket->second.owners.back();
+
+	entityToTransformIndex[bucket->second.owners[transformIndex]] = transformIndex;
+
+	bucket->second.inverseWorld.pop_back();
+	bucket->second.world.pop_back();
+	bucket->second.owners.pop_back();
+	
+	entityToTransformIndex.erase(entity);
+	ProfileReturnVoid;
 }
 
 void SE::Core::DecalManager::Destroy(const Entity& entity)
@@ -184,4 +211,19 @@ void SE::Core::DecalManager::Destroy(const Entity& entity)
 
 void SE::Core::DecalManager::GarbageCollection()
 {
+	StartProfile;
+	uint32_t aliveInRow = 0;
+	while (entities.size() > 0 && aliveInRow < 40U)
+	{
+		std::uniform_int_distribution<size_t> distribution(0U, entities.size() - 1U);
+		size_t i = distribution(generator);
+		if (initInfo.entityManager->Alive(entities[i]))
+		{
+			++aliveInRow;
+			continue;
+		}
+		aliveInRow = 0;
+		Destroy(i);
+	}
+	ProfileReturnVoid;
 }

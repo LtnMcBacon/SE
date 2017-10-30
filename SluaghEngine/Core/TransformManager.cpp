@@ -84,6 +84,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	const int32_t parentIndex = lookUpTable[parent.Index()];
 	const int32_t childIndex = lookUpTable[child.Index()];
 
+	_ASSERT(parentIndex >= 0);
+	_ASSERT(childIndex >= 0);
+
 	data.parentIndex[childIndex] = parentIndex;
 	//There might already be children under the parent.
 	if(data.childIndex[parentIndex] >= 0)
@@ -102,7 +105,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	}
 
 	if (rotation)
+	{
 		data.flags[childIndex] |= TransformFlags::INHERIT_ROTATION;
+	}
 	if(translateToParent)
 	{
 		Move(child, data.positions[parentIndex]);

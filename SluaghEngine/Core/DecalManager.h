@@ -3,6 +3,7 @@
 
 #include "IDecalManager.h"
 #include <unordered_map>
+#include <random>
 
 namespace SE
 {
@@ -42,13 +43,15 @@ namespace SE
 			{
 				std::vector<DirectX::XMFLOAT4X4> world;
 				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
+				std::vector<Entity> owners;
 			};
 			DirectX::XMMATRIX cachedViewProj;
 			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;
 			std::unordered_map<Entity, uint32_t, EntityHasher> entityToTransformIndex;
 			std::unordered_map<Utilz::GUID, DecalTransforms, Utilz::GUID::Hasher> decalToTransforms;
 			std::unordered_map<Utilz::GUID, uint32_t, Utilz::GUID::Hasher> decalToJobID;
-			bool dirty;
+			std::vector<Entity> entities;
+			std::default_random_engine generator;
 
 			void SetDirty(const Entity& entity, size_t index);
 		protected:
