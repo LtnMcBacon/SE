@@ -514,6 +514,7 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 			if (renderableObjectInfo.visible[find->second])
 			{
 				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+				shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
 			}				
 		}
 	}

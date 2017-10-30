@@ -91,7 +91,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	managers.transformManager->Create(floor);
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
+	//managers.transformManager->SetRotation(mainC, 0.0f, 3.14f / 2, 0.0f);
 
 	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, -1.0f, 5.0));
 	managers.transformManager->SetRotation(floor, -DirectX::XM_PI / 2, 0.0f, 0.0f);

@@ -80,10 +80,14 @@ void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
 
 void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entity, const DirectX::XMFLOAT4X4 & transform)
 {
-	auto& bai = entityToBucketAndIndexInBucket[entity];
-	DirectX::XMFLOAT4X4 transposed;
-	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
-	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
+	auto find = entityToBucketAndIndexInBucket.find(entity);
+
+	if (find != entityToBucketAndIndexInBucket.end()) {
+
+		DirectX::XMFLOAT4X4 transposed;
+		DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
+		pipelineToRenderBucket[find->second.bucket]->transforms[find->second.index] = transposed;
+	}
 }
 
 void SE::Core::RenderableManagerInstancing::RemoveFromBucket(const BucketAndID& bucketAndID, DirectX::XMFLOAT4X4* transform)
