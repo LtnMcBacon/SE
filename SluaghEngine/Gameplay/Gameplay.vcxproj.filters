@@ -112,6 +112,12 @@
     <Filter Include="Source Files\Projectiles">
       <UniqueIdentifier>{a3501314-46aa-4280-a9f9-774854fd0a8f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Skills">
+      <UniqueIdentifier>{8c7d0cff-ebf2-481e-b455-7459d945c8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Skills">
+      <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -190,7 +196,7 @@
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClCompile>
     <ClCompile Include="SkillFactory.cpp">
-      <Filter>Source Files\GameUnits</Filter>
+      <Filter>Source Files\Skills</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -281,8 +287,8 @@
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
-    <ClInclude Include="SkillFactory.h">
-      <Filter>Header Files\GameUnits</Filter>
+    <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
+      <Filter>Header Files\Skills</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -268,15 +268,15 @@ void SE::Gameplay::PlayerUnit::calcWhiChanges()
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::changeArmorType(Stats::equippedArmorType armor)
+void SE::Gameplay::PlayerUnit::changeArmorType(ArmourType armour)
 {
-	newStat.armor = armor;
+	newStat.armour = armour;
 }
-void SE::Gameplay::PlayerUnit::changeWeaponType(Stats::equippedWeaponType weapon)
+void SE::Gameplay::PlayerUnit::changeWeaponType(DamageSources weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(Stats::equippedElementalType element)
+void SE::Gameplay::PlayerUnit::changeElementType(DamageTypes element)
 {
 	newStat.element = element;
 }

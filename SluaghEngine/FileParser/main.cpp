@@ -72,12 +72,16 @@ std::vector<Accepted> acceptedExt =
 		if (ImageParse(filename, outFilename))
 			printf("Could not parse: %s\n", filename);
 		} },
-		{"wav", "wav", "Sounds", [](const char* filename, const char* outFilename) {
-			std::ifstream  src(filename, std::ios::binary);
-			std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-			dst << src.rdbuf();
-			dst.close();
-			src.close(); }}
+	{"wav", "wav", "Sounds", [](const char* filename, const char* outFilename) {
+		std::ifstream  src(filename, std::ios::binary);
+		std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
+		dst << src.rdbuf();
+		dst.close();
+		src.close(); } },
+	{ "si", "si", "Gameplay", [](const char* filename, const char* outFilename) {
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+	{ "sa", "sa", "Gameplay", [](const char* filename, const char* outFilename) {
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
 };
 
 std::vector<Accepted> fbxAccepted =

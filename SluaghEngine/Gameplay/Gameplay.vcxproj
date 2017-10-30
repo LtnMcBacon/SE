@@ -74,9 +74,9 @@
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="SkillFactory.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -2,7 +2,7 @@
 #define _SE_GAMEPLAY_PLAYER_UNIT_H_
 
 #include "GameUnit.h"
-#include "SkillFactory.h"
+#include <Gameplay\SkillFactory.h>
 
 namespace SE
 {
@@ -187,31 +187,10 @@ namespace SE
 				float waterResistance	= 1.f;
 				
 				int armorCap			= 3;
-				/**
-				* @breif	A class used to make scripting easier when changing the players armor type.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* inventory.
-				**/
-				enum class equippedArmorType		  { LIGHT, MEDIUM, HEAVY, NONE };
-				/**
-				* @breif	A class used to make scripting easier when changing the players equipment.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* weapons.
-				**/
-				enum class equippedWeaponType		  { CLOSE, RANGED, MAGIC, NONE };
-				/**
-				* @breif	A class used to make scripting easier when changing the players equipment.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* skills.
-				**/
-				enum class equippedElementalType	  { FIRE, WATER, NATURE, NONE};
 
-				equippedArmorType armor		  = equippedArmorType::NONE;
-				equippedWeaponType weapon	  = equippedWeaponType::NONE;
-				equippedElementalType element = equippedElementalType::NONE;
+				ArmourType armour		= ArmourType::ARMOUR_TYPE_NONE;
+				DamageSources weapon	= DamageSources::DAMAGE_SOURCE_MELEE;
+				DamageTypes element		= DamageTypes::DAMAGE_TYPE_PHYSICAL;
 
 			};
 			Stats baseStat;
@@ -239,41 +218,39 @@ namespace SE
 			* @brief	  Changes the equipped armor type.
 			* @param [in] The new given armor type.
 			**/
-			void changeArmorType(Stats::equippedArmorType armor);
+			void changeArmorType(ArmourType armoUr);
 			/**
 			* @brief	  Changes the equipped weapon type.
 			* @param [in] The new given weapon type.
 			**/
-			void changeWeaponType(Stats::equippedWeaponType weapon);
+			void changeWeaponType(DamageSources weapon);
 			/**
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(Stats::equippedElementalType element);
+			void changeElementType(DamageTypes element);
 		
-		private:
+		public:
 			struct Skill
 			{
 				std::string skillName = "";
-				enum class AtkType { SELFCAST, MELEE, RANGED, AREA };
-				enum class Element { NEUTRAL, MAGIC, FIRE, WATER, NATURE };
-				enum class Boon { NONE, DAMAGE, KNOCKBACK, STUN, LIFESTEAL, HEAL, PROTECTION, RESISTANCE, CASTSPEED, SWIFTNESS, SLOW, INVULNERABILITY };
-				enum class Bane { NONE, DAMAGE, STUN, BLOODLETTING, UNCOVER, WEAKNESS, SLOW };
-				enum class Animation { NONE, SWIPE, SHOOT }; // CAST
-				enum class Particle { NONE, FIRE, SMOKE, SPARKLE };
-
-				AtkType atkType = AtkType::MELEE;
-				Element element = Element::NEUTRAL;
-				Boon boon = Boon::NONE;
-				Bane bane = Bane::NONE;
-				Animation animation = Animation::SWIPE;
-				Particle particle = Particle::NONE;
+				DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
+				DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+				Boons boon = Boons::CONDITIONAL_BOONS_NONE;
+				Banes bane = Banes::CONDITIONAL_BANES_NONE;
+				unsigned short int animation = 0;
+				unsigned short int particle = 0;
 
 				float skillDamage = 0.f;
-				float effectValue = 0.f;
-				float range = 0.f;
-				float duration = 0.f;
+				float boonEffectValue = 0.f;
+				float boonRange = 0.f;
+				float boonDuration = 0.f;
+				float baneEffectValue = 0.f;
+				float baneRange = 0.f;
+				float baneDuration = 0.f;
 			};
+
+		private:		
 			std::vector<Skill> skills;
 			std::vector<Skill> aiSkills;
 			void addPlayerSkills();
@@ -283,7 +260,6 @@ namespace SE
 			SkillFactory SF;
 
 		public:
-			
 			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
 		};
