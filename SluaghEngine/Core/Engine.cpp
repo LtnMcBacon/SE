@@ -89,8 +89,6 @@ int SE::Core::Engine::BeginFrame()
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
-	managers.animationManager->Frame(&timeClus);
-
 
 	subSystems.renderer->Render();
 	subSystems.devConsole->Frame();
@@ -119,30 +117,37 @@ int SE::Core::Engine::EndFrame()
 int SE::Core::Engine::Release()
 {
 	StartProfile;
-	subSystems.devConsole->EndFrame();
 
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
 	delete managers.entityManager;
 	delete managers.eventManager;
-	delete managers.animationManager;
 
-	subSystems.devConsole->Shutdown();
+	if(subSystems.devConsole)
+		subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
-	
-	subSystems.renderer->Shutdown();
+	subSystems.devConsole = nullptr;
+
+	if (subSystems.renderer)
+		subSystems.renderer->Shutdown();
 	delete subSystems.renderer;
+	subSystems.renderer = nullptr;
 
-	subSystems.window->Shutdown();
+	if (subSystems.window)
+		subSystems.window->Shutdown();
 	delete subSystems.window;
+	subSystems.window = nullptr;
 
-	subSystems.resourceHandler->Shutdown();
+	if (subSystems.resourceHandler)
+		subSystems.resourceHandler->Shutdown();
 	delete subSystems.resourceHandler;
+	subSystems.resourceHandler = nullptr;
 
-	subSystems.optionsHandler->UnloadOption("Config.ini");
+	if (subSystems.optionsHandler)
+		subSystems.optionsHandler->UnloadOption("Config.ini");
 	delete subSystems.optionsHandler;
-
+	subSystems.optionsHandler = nullptr;
 
 	delete perFrameStackAllocator;
 	ProfileReturnConst(0);
@@ -335,7 +340,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
-//	managersVec.push_back(managers.animationManager);
+	managersVec.push_back(managers.animationManager);
 }
 
 void SE::Core::Engine::InitMaterialManager()
