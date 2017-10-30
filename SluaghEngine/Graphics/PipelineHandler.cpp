@@ -1159,6 +1159,7 @@ int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, con
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 	if (target.bindAsShaderResource) desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	if (target.bindAsUnorderedAccess) desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	desc.SampleDesc.Count = 1;
