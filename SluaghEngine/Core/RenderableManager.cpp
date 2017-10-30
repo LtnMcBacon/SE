@@ -194,6 +194,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
 
 	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+	info->pipeline.PSStage.shader = Utilz::GUID();
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
 	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
