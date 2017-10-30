@@ -51,6 +51,8 @@ namespace SE
 			*/
 			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
+
 			/**
 			* @brief	Hide/Show the renderable object
 			*
@@ -68,6 +70,8 @@ namespace SE
 			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
+
+			void ToggleShadow(const Entity& entity, bool shadow) override;
 
 			bool IsVisible(const Entity& entity)const;
 
@@ -87,8 +91,7 @@ namespace SE
 			void Allocate(size_t size);
 
 			RenderableManagerInstancing* rmInstancing;
-
-			
+			RenderableManagerInstancing* shadowInstancing;
 
 			void Init();
 

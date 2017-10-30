@@ -177,6 +177,33 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->specialHaxxor = "OncePerObject";
 
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
+
+	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
+
+	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
+
+	info->pipeline.PSStage.samplers[info->pipeline.PSStage.samplerCount++] = "shadowPointSampler";
+}
+
+void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
+{
+	info->pipeline.OMStage.renderTargets[0] = Utilz::GUID();
+	info->pipeline.OMStage.renderTargetCount = 1;
+	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
+
+	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+
+	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
+	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
+	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+
+	info->pipeline.RStage.rasterizerState = solid;
+	info->pipeline.RStage.viewport = "shadowVP";
+
+	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->maxInstances = 256;
+	info->specialHaxxor = "OncePerObject";
+
 }
 
 void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
@@ -263,6 +290,24 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	}
 }
 
+void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
+
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
+
+			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
+			Graphics::RenderJob info;
+			CreateShadowRenderObjectInfo(find->second, &info);
+			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS);
+			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+
+		}
+	}
+}
+
 bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 {
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
@@ -296,10 +341,9 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
 	memcpy(newData.mesh, renderableObjectInfo.mesh, renderableObjectInfo.used * sizeof(Utilz::GUID));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
-	memcpy(newData.jobID, renderableObjectInfo.jobID, renderableObjectInfo.used * sizeof(uint32_t));
-	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(bool));
-	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(bool));
-	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(bool));
+	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(uint8_t));
+	memcpy(newData.shadow, renderableObjectInfo.shadow, renderableObjectInfo.used * sizeof(uint8_t));
 
 	// Delete old data;
 	operator delete(renderableObjectInfo.data);
@@ -378,6 +422,17 @@ void SE::Core::RenderableManager::Init()
 	if (res)
 		throw std::exception("Could not load default shader");
 
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
 
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
@@ -407,6 +462,27 @@ void SE::Core::RenderableManager::Init()
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
+	Graphics::Viewport vp;
+
+	vp.width = 1024;
+	vp.height = 1024;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
 }
 
 void SE::Core::RenderableManager::Destroy(const Entity & entity)
