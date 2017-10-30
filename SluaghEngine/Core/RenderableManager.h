@@ -43,7 +43,7 @@ namespace SE
 			RenderableManager& operator=(const RenderableManager&& other) = delete;
 
 			/**
-			* @brief	Bind a renderable object to and entity
+			* @brief	Bind a renderable object to an entity
 			*
 			* @param[in] entity The entity to bind the renderable object to.
 			* @param[in] meshGUID The guid of the mesh to be used.
