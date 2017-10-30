@@ -3,21 +3,26 @@
 #include <Graphics\VertexStructs.h>
 
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
-static const SE::Utilz::GUID VS_SKINNED_DATA("VS_SKINNED_DATA");
+static const SE::Utilz::GUID SkinnedOncePerObject("SkinnedOncePerObject");
 
-SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo), 
-RenderableManager({initInfo.resourceHandler, initInfo.renderer, 
-	initInfo.console, initInfo.entityManager,
-	initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear}, 
-	10, new AnimationSystem(initInfo.renderer))
+
+SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo)
 {
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.console);
 	_ASSERT(initInfo.entityManager);
+	_ASSERT(initInfo.eventManager);
 	_ASSERT(initInfo.transformManager);
 
-	animationSystem = (AnimationSystem*)rmInstancing;
+	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::CreateRenderObjectInfo });
+
+	animationSystem = new AnimationSystem(initInfo.renderer);
+
+	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
+		initInfo.console, initInfo.entityManager,
+		initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear },
+		10, animationSystem);
 
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
@@ -34,10 +39,11 @@ RenderableManager({initInfo.resourceHandler, initInfo.renderer,
 
 SE::Core::AnimationManager::~AnimationManager()
 {
+	delete renderableManager;
 	operator delete(animationData.data);
 }
 
-void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IAnimationManager::CreateInfo & info)
+void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, const IAnimationManager::CreateInfo & info)
 {
 	StartProfile;
 	auto& find = entityToIndex.find(entity);
@@ -57,13 +63,10 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
+	animationData.animInfo[index].timePos = 0.0f;
 	
+	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
-	CreateRenderableObject(entity, { info.mesh });
-	
-		
-		//LoadResource(info.mesh, index, false, ResourceHandler::Behavior::QUICK);
-
 
 	// Load skeleton
 	if (!animationSystem->IsSkeletonLoaded(info.skeleton))
@@ -83,7 +86,7 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 		}
 	}
 
-	animationData.skeleton[index] = info.skeleton;
+	animationData.animInfo[index].skeleton = info.skeleton;
 
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
@@ -111,6 +114,18 @@ void SE::Core::AnimationManager::CreateAnimation(const Entity & entity, const IA
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
+	
+
+	for (size_t i = 0; i < animationData.used; i++)
+	{
+		if (animationData.playing[i] == 1u)
+		{
+			auto& ai = animationData.animInfo[i];
+			ai.timePos += ai.animationSpeed;
+			animationSystem->CalculateMatrices(animationData.entity[i], ai.skeleton, ai.animation, ai.timePos);
+		}
+			
+	}
 	GarbageCollection();
 	timer->Stop(CREATE_ID_HASH("AnimationManager"));
 }
@@ -122,22 +137,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (animationSystem->IsAnimationLoaded(animation))
+		if (renderableManager->IsVisible(entity))
 		{
-			//Graphics::AnimationJobInfo info;
-			//info.animating = true;
-			//info.speed = speed;
-			//info.timePos = 0.0f;
-			//info.animationHandle = findSkelAnim->second;
-			//if (animationData.job[entityIndex->second] >= 0) // If the the entity already had an animation playing.
-			//	initInfo.renderer->UpdateAnimation(animationData.job[entityIndex->second], info); // Update the animation job
-			//else
-			//{
-			//	animationData.job[entityIndex->second] = initInfo.renderer->StartAnimation(info); // Create a new animation job
-			//	initInfo.renderableManager->UpdateRenderableObject(entity); // And update the renderable manager.
-			//}
-		}
-
+			if (animationSystem->IsAnimationLoaded(animation))
+			{
+				auto& ai = animationData.animInfo[entityIndex->second];
+				ai.animation = animation;
+				ai.animationSpeed = speed;
+				animationData.playing[entityIndex->second] = 1u;
+			}
+			else
+				initInfo.console->PrintChannel("Resources", "Tried to start an unloaded animation. GUID: %u.", animation);
+		}		
 	}
 	StopProfile;
 }
@@ -149,9 +160,7 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->SetAnimationSpeed(animationData.job[entityIndex->second], speed);*/
-
+		animationData.animInfo[entityIndex->second].animationSpeed= speed;
 	}
 	StopProfile;
 }
@@ -163,9 +172,10 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->SetKeyFrame(animationData.job[entityIndex->second], keyFrame);*/
-
+		auto& ai = animationData.animInfo[entityIndex->second];
+		ai.timePos = keyFrame;
+		animationData.playing[entityIndex->second] = 0u;
+		animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai.skeleton, ai.animation, ai.timePos);
 	}
 	StopProfile;
 }
@@ -177,9 +187,13 @@ void SE::Core::AnimationManager::Start(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->StartAnimation(animationData.job[entityIndex->second]);*/
-
+		if (renderableManager->IsVisible(entity))
+		{
+			if (animationSystem->IsAnimationLoaded(animationData.animInfo[entityIndex->second].animation))
+			{
+				animationData.playing[entityIndex->second] = 1u;
+			}
+		}
 	}
 	StopProfile;
 }
@@ -191,8 +205,7 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		/*if (animationData.job[entityIndex->second] >= 0)
-			initInfo.renderer->PauseAnimation(animationData.job[entityIndex->second]);*/
+		animationData.playing[entityIndex->second] = 0u;
 	}
 	StopProfile;
 }
@@ -200,15 +213,9 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
-	auto find = entityToIndex.find(entity);
-	if (find != entityToIndex.end())
-	{
-			RenderableManager::ToggleRenderableObject(entity, visible);
-			/*if(visible)
-				animationSystem.AddEntity(entity, animationData.skeleton[find->second], animationData.animation[find->second]);
-			else
-				animationSystem.RemoveEntity(entity);*/
-	}
+
+	renderableManager->ToggleRenderableObject(entity, visible);
+	
 	StopProfile;
 }
 
@@ -225,12 +232,15 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.skeleton = (Utilz::GUID*)(newData.entity + newData.size);
-
+	newData.animInfo = (AnimationInfo*)(newData.entity + newData.size);
+	newData.playing = (uint8_t*)(newData.animInfo + newData.size);
+	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
-	memcpy(newData.skeleton, animationData.skeleton, animationData.used * sizeof(Utilz::GUID));
-	
+	memcpy(newData.animInfo, animationData.animInfo, animationData.used * sizeof(AnimationInfo));
+	memcpy(newData.playing, animationData.playing, animationData.used * sizeof(uint8_t));
+
+
 	// Delete old data;
 	operator delete(animationData.data);
 	animationData = newData;
@@ -242,7 +252,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 {
 	StartProfile;
 
-	RenderableManager::Destroy(index);
+	renderableManager->Destroy(index);
 
 	// Temp variables
 	size_t last = animationData.used - 1;
@@ -251,7 +261,8 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 	// Copy the data
 	animationData.entity[index] = last_entity;
-	animationData.skeleton[index] = animationData.skeleton[last];
+	animationData.animInfo[index] = animationData.animInfo[last];
+	animationData.playing[index] = animationData.playing[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
@@ -301,27 +312,22 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 	// After the animation header, there will only be matrices of type XMFLOAT4X4
 	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
 
-	return animationSystem->AddAnimation(guid,matrices, animH->animationLength, animH->nrOfJoints);
+	return animationSystem->AddAnimation(guid, matrices, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }
 
-void SE::Core::AnimationManager::CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)
+void SE::Core::AnimationManager::CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info)
 {
 
 	StartProfile;
-	RenderableManager::CreateRenderObjectInfo(index, info);
-	info->pipeline.VSStage.shader = SkinnedVertexShader;
-	info->maxInstances = 8;
-	info->specialHaxxor = "SkinnedOncePerObject";
-
-	//info->mappingFunc.push_back([this](auto a, auto b) {
-	//	initInfo.renderer->GetPipelineHandler()->MapConstantBuffer(VS_SKINNED_DATA, [](void* data) {
-	//		animationSystem.MapBuffer(data, a, b);
-	//	});
-	//});
-
-
-
+	const auto fe = entityToIndex.find(entity);
+	if (fe != entityToIndex.end())
+	{
+		info->pipeline.IAStage.inputLayout = SkinnedVertexShader;
+		info->pipeline.VSStage.shader = SkinnedVertexShader;
+		info->maxInstances = 8;
+		info->specialHaxxor = SkinnedOncePerObject;
+	}
 	StopProfile;
 }

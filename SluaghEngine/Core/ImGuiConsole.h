@@ -102,6 +102,9 @@ namespace SE
 			void AddFrameCallback(const std::function<void()>& frameCallback) override;
 
 		private:
+			ImGuiTextFilter filter;
+			bool scrollToBottom = false;
+
 			struct Message
 			{
 				std::chrono::system_clock::time_point timestamp;

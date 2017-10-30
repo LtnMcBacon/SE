@@ -35,7 +35,7 @@ namespace SE
 		{
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
-			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmInstancing);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmI);
 			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -63,7 +63,7 @@ namespace SE
 			/**
 			* @brief	Called each frame, to update the state.
 			*/
-			void Frame(Utilz::TimeCluster* timer)override;
+			virtual void Frame(Utilz::TimeCluster* timer)override;
 
 			void ToggleWireframe(const Entity& entity, bool wireFrame) override;
 
@@ -71,23 +71,25 @@ namespace SE
 
 			bool IsVisible(const Entity& entity)const;
 
-		protected:
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(size_t index)override;
+
+			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+
+		private:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
 
 			/**
 			* @brief	Allocate more memory
 			*/
 			void Allocate(size_t size);
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(size_t index)override;
 
 			RenderableManagerInstancing* rmInstancing;
 
-			virtual void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
+			
 
-		private:
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);

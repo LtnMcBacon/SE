@@ -20,13 +20,13 @@ namespace SE
 		};
 
 
-		class AnimationManager : public IAnimationManager, public RenderableManager
+		class AnimationManager : public IAnimationManager
 		{
 		public:
 			AnimationManager(const IAnimationManager::InitializationInfo& initInfo);
 			~AnimationManager();
 
-			void CreateAnimation(const Entity& entity, const IAnimationManager::CreateInfo& info)override;
+			void CreateAnimatedObject(const Entity& entity, const IAnimationManager::CreateInfo& info)override;
 
 			/**
 			* @brief	Called each frame, to update the state.
@@ -62,20 +62,32 @@ namespace SE
 			int LoadSkeleton(const Utilz::GUID& guid, void*data, size_t size);
 			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
 			
-			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
+			void CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info);
 
 
 			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
 
+			RenderableManager* renderableManager;
+
+
+			struct AnimationInfo
+			{
+				Utilz::GUID skeleton;
+				Utilz::GUID animation;
+				float timePos;
+				float animationSpeed;
+			};
+
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID);
+				static const size_t size = sizeof(Entity) + sizeof(AnimationInfo) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				Utilz::GUID* skeleton;
+				AnimationInfo* animInfo;	
+				uint8_t* playing;
 			};
 			
 			AnimationData animationData;
