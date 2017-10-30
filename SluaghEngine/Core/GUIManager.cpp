@@ -13,7 +13,8 @@ namespace SE {
 
 		GUIManager::~GUIManager()
 		{
-
+			for (auto& t : textureInfo)
+				delete t.rect;
 		}
 
 		int GUIManager::Create(CreateInfo info)
@@ -126,6 +127,7 @@ namespace SE {
 
 			// Copy the data
 			textureEnt[index] = last_entity;
+			delete textureInfo[index].rect;
 			textureInfo[index] = textureInfo[last];
 			textureGUID[entTextureID[entity].GUID].refCount--;
 			entTextureID[last_entity].ID = entTextureID[entity].ID;

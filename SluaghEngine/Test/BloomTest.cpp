@@ -45,7 +45,7 @@ namespace SE
 
 			int horizontalHandle, verticalHandle;
 
-			subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem, &horizontalHandle](auto guid, auto data, auto size) {
+		/*	subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem, &horizontalHandle](auto guid, auto data, auto size) {
 				horizontalHandle = subSystem.renderer->CreateComputeShader(data, size);
 
 				if (horizontalHandle > -1)
@@ -64,7 +64,7 @@ namespace SE
 			});
 
 
-			subSystem.renderer->EnableBloom(horizontalHandle, verticalHandle);
+			subSystem.renderer->EnableBloom(horizontalHandle, verticalHandle);*/
 
 
 
