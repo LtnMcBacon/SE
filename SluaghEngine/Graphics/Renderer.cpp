@@ -571,6 +571,7 @@ int SE::Graphics::Renderer::Render() {
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
+		first = true;
 		for (auto& j : group.second)
 		{
 			int32_t drawn = 0;
@@ -625,6 +626,11 @@ int SE::Graphics::Renderer::Render() {
 				device->GetDeviceContext()->DrawAuto();
 			}
 		}
+		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
+		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
+
+		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
+		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 	}
 	
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));

@@ -32,6 +32,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	auto mm = managers.materialManager;
 	auto lm = managers.lightManager;
 
+
 	Core::Entity camera = em->Create();
 	Core::ICameraManager::CreateInfo cmci;
 	cmci.aspectRatio = 1280.0f / 720.0f;
@@ -45,7 +46,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	mInfo.shader = shader;
 	mInfo.materialFile = material;
 	Core::Entity box = em->Create();
-	tm->Create(box, { 0,0,0 }, { 0,0,0 }, { 5,5,3 });
+	tm->Create(box, { 0,0,5 }, { 0,0,0 }, { 8,8,1 });
 	mm->Create(box, mInfo, false);
 
 	Core::IRenderableManager::CreateInfo rmci;
@@ -56,9 +57,14 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	rm->ToggleRenderableObject(box, true);
 
 	Core::Entity decal = em->Create();
-	tm->Create(decal, { 0,0, -0.25f });
+	tm->Create(decal, { 1.0f,0.0f, 4.5f },{0,0,0}, {1,1,10});
 	dm->Create(decal, "BlackPink.sei");
-	
+
+	Core::Entity decal2 = em->Create();
+	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
+	dm->Create(decal2, "BlackPink.sei");
+	tm->BindChild(box, decal);
+	tm->BindChild(box, decal2);
 	auto l = em->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
@@ -69,12 +75,36 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 
 	window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
 
+	window->MapActionButton(Window::KeyW, Window::KeyW);
+	window->MapActionButton(Window::KeyA, Window::KeyA);
+	window->MapActionButton(Window::KeyS, Window::KeyS);
+	window->MapActionButton(Window::KeyD, Window::KeyD);
+	window->MapActionButton(Window::KeyLeft, Window::KeyLeft);
+	window->MapActionButton(Window::KeyRight, Window::KeyRight);
+
 	bool running = true;
+	float dt = 1/60.0f * 5.0f;
 	while(running)
 	{
 		engine->BeginFrame();
 		if (window->ButtonPressed(Window::KeyEscape))
 			running = false;
+		auto forward = tm->GetForward(camera);
+		auto right = tm->GetRight(camera);
+		if (window->ButtonDown(Window::KeyW))
+			tm->Move(camera, { forward.x * dt, forward.y * dt, forward.z * dt, 0.0f });
+		if (window->ButtonDown(Window::KeyS))
+			tm->Move(camera, { -forward.x * dt, -forward.y * dt, -forward.z * dt, 0.0f });
+		if (window->ButtonDown(Window::KeyD))
+			tm->Move(camera, { right.x * dt, right.y * dt, right.z * dt, 0.0f });
+		if (window->ButtonDown(Window::KeyA))
+			tm->Move(camera, { -right.x * dt, -right.y * dt, -right.z * dt, 0.0f });
+		if (window->ButtonDown(Window::KeyLeft))
+			tm->Rotate(camera, 0.0f, -3.14 / 10.0f* dt, 0.0f);
+		if (window->ButtonDown(Window::KeyRight))
+			tm->Rotate(camera, 0.0f, 3.14 / 10.0f* dt, 0.0f);
+
+		tm->Rotate(box, 0.0f, 3.14f * dt * 0.2f, 0.0f);
 		engine->EndFrame();
 	}
 	engine->Release();

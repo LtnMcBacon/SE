@@ -13,6 +13,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	inverseWorld = "DecalsInverseWorld";
 	blendState = "DecalBlend";
 	textureBindName = "DecalDiffuse";
+	rasterizerState = "DecalRS";
 
 	this->initInfo.resourceHandler->LoadResource(vertexShader, [this](auto guid, void* data, size_t size)
 	{
@@ -40,18 +41,25 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	
 	this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(blendState, bs);
 
+	RasterizerState rsState;
+	rsState.cullMode = CullMode::CULL_NONE;
+	rsState.fillMode = FillMode::FILL_SOLID;
+	rsState.windingOrder = WindingOrder::CLOCKWISE;
+	this->initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(rasterizerState, rsState);
+
 	
 	defaultPipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
 	defaultPipeline.VSStage.shader = vertexShader;
-	defaultPipeline.PSStage.textureBindings[0] = "DepthSRV";
+	defaultPipeline.PSStage.textureBindings[0] = "DepthBuffer";
 	defaultPipeline.PSStage.textureBindings[1] = textureBindName;
-	defaultPipeline.PSStage.textures[0] = "DepthSRV";
+	defaultPipeline.PSStage.textures[0] = "backbufferdepth";
 	//The texture name will be set for each decal that uses a different texture
 	defaultPipeline.PSStage.textureCount = 2;
 	defaultPipeline.PSStage.shader = pixelShader;
 	defaultPipeline.OMStage.renderTargets[0] = "backbuffer";
 	defaultPipeline.OMStage.renderTargetCount = 1;
 	defaultPipeline.OMStage.depthStencilView = "";
+	defaultPipeline.RStage.rasterizerState = rasterizerState;
 	//defaultPipeline.OMStage.blendState = blendState;
 	
 	DirectX::XMFLOAT4X4 vp = initInfo.cameraManager->GetViewProjection(initInfo.cameraManager->GetActive());
@@ -127,7 +135,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 			auto& worlds = decalToTransforms[textureName].world;
 			auto& invWorlds = decalToTransforms[textureName].inverseWorld;
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(worldConstantBuffer, &worlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
-			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(worldConstantBuffer, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
+			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseWorld, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
 
 		});
 		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::THIRD_PASS);

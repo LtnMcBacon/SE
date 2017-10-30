@@ -35,6 +35,7 @@ namespace SE
 			Utilz::GUID inverseWorld;
 			Utilz::GUID blendState;
 			Utilz::GUID textureBindName;
+			Utilz::GUID rasterizerState;
 			/**<The base pipeline, entities will have different textures but the rest is the same*/
 			Graphics::Pipeline defaultPipeline;
 			struct DecalTransforms
