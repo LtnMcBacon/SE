@@ -126,8 +126,6 @@ namespace SE {
 				auto& k = shadowCasters[0];
 				auto pos = initInfo.transformManager->GetPosition(k.entity);
 
-				//initInfo.transformManager->SetForward(k.entity, k.dir);
-
 				auto dir = initInfo.transformManager->GetForward(k.entity);
 				auto right = initInfo.transformManager->GetRight(k.entity);
 

@@ -94,7 +94,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	//managers.transformManager->SetRotation(mainC, 0.0f, 3.14f / 2, 0.0f);
 
 	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, -1.0f, 5.0));
-	managers.transformManager->SetRotation(floor, -DirectX::XM_PI / 2, 0.0f, 0.0f);
+	managers.transformManager->SetRotation(floor, 0.0f, 0.0f, 0.0f);
 	managers.transformManager->SetScale(floor, DirectX::XMFLOAT3(30.0f, 1.0f, 30.0));
 
 	// Create material for character
@@ -125,7 +125,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 0.0f, 0.0f, -5.0f };
+	d.pos = { 0.0f, 5.0f, -5.0f };
 	d.color = { 1, 1, 1 };
 	d.dir = { 0.0f, 0.0f, 1.0f };
 	d.castShadow = true;
