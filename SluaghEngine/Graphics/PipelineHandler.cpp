@@ -1180,6 +1180,13 @@ int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 
 int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
 {
+	const auto find = depthStencilViews.find(id);
+
+	if (find != depthStencilViews.end()) {
+	
+		return EXISTS;
+	}
+
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;

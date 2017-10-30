@@ -89,9 +89,6 @@ int SE::Core::Engine::BeginFrame()
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
-	managers.animationManager->Frame(&timeClus);
-
-
 	subSystems.renderer->Render();
 	subSystems.devConsole->Frame();
 
@@ -225,7 +222,7 @@ void SE::Core::Engine::InitManagers()
 	InitCameraManager();
 	InitCollisionManager();
 	InitRenderableManager();
-	InitAnimationManager();
+	//InitAnimationManager();
 	InitMaterialManager();
 	InitLightManager();
 	InitDebugRenderManager();
