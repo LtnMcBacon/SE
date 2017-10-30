@@ -98,11 +98,11 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
 
-	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
 	Graphics::Viewport vp;
 
-	vp.width = 512;
-	vp.height = 512;
+	vp.width = 1024;
+	vp.height = 1024;
 	vp.maxDepth = 1.0f;
 	vp.minDepth = 0.0f;
 	vp.topLeftX = 0.0f;
