@@ -10,6 +10,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include <Utilz\CircularFiFo.h>
 #include <DevConsole\IConsole.h>
+#include <Entity.h>
 
 #include <mutex>
 namespace SE
@@ -46,9 +47,12 @@ namespace SE
 				DevConsole::IConsole* console);
 			~MaterialLoading();
 
-
-			void LoadStuff(const Utilz::GUID& shader, const Utilz::GUID& material);
-
+			struct LoadInfo
+			{
+				Entity& entity; Utilz::GUID shader; Utilz::GUID material;
+			};
+			void LoadStuff(const LoadInfo& info, bool async,ResourceHandler::Behavior b);
+			bool DoUpdate(std::vector<Entity>& entitiesToUpdate);
 
 			int LoadShader(const Utilz::GUID& guid);
 			bool IsShaderLoaded(const Utilz::GUID& guid)const;
@@ -66,7 +70,9 @@ namespace SE
 
 			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior, const std::function<void(const Utilz::GUID&, int)>& errorCallback);
 			int LoadTexture(const Utilz::GUID& guid);
+			void LoadTextures(const Entity& entity, const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 			bool IsTextureLoaded(const Utilz::GUID& guid)const;
+
 
 		private:
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size)const;
@@ -88,8 +94,11 @@ namespace SE
 			struct MaterialUpdateStruct
 			{
 				Utilz::GUID material;
+				size_t index;
+				Utilz::GUID texture;
+				Entity entity;
 			};
-			Utilz::CircularFiFo<MaterialUpdateStruct, 10> toUpdateFull;
+			Utilz::CircularFiFo<MaterialUpdateStruct, 100> toUpdate;
 		};
 	}
 }
