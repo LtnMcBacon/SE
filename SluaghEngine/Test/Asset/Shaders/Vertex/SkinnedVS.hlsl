@@ -34,6 +34,8 @@ struct VS_OUT
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
+	float4 BinormalInW : BINORMALINW;
+	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 
@@ -58,6 +60,8 @@ VS_OUT VS_main(VS_IN input)
 	output.PosInW = mul(float4(normal, 1), World[input.InstanceId]);
 	
 	output.NormalInW = normalize(mul(float4(normal, 1), World[input.InstanceId]));
+		output.BinormalInW = normalize(mul(float4(input.Binormal, 0), World[input.InstanceId]));
+	output.TangentInW = normalize(mul(float4(input.Tangent, 0), World[input.InstanceId]));
 	output.Tex = input.Tex;
 	
 	return output;
