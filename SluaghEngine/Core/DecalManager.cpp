@@ -144,7 +144,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseWorld, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
 
 		});
-		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::THIRD_PASS);
+		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::POST_PASS_0);
 	}
 	else
 	{

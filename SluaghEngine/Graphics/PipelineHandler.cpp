@@ -140,7 +140,7 @@ int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID
 	if (exists != renderTargetViews.end())
 		return EXISTS;
 	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
-	renderTargetViews[id] = renderTargetView;
+	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
 }
@@ -1809,7 +1809,7 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		}
 		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
 		if (rtv != renderTargetViews.end())
-			renderTargets[i] = rtv->second;
+			renderTargets[i] = rtv->second.rtv;
 		else
 			renderTargets[i] = nullptr;
 		c.renderTargets[i] = oms.renderTargets[i];

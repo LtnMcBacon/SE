@@ -108,6 +108,8 @@ namespace SE
 
 		struct RenderTarget
 		{
+			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
 			float clearColor[4];
@@ -117,12 +119,11 @@ namespace SE
 		struct UnorderedAccessView
 		{
 			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
 			float clearColor[4];
 			TextureFormat format;
-			bool bindAsShaderResource;
-			bool bindAsUnorderedAccess;
 		};
 		enum class PrimitiveTopology : uint8_t
 		{
