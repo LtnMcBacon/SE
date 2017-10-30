@@ -38,7 +38,7 @@ namespace SE
 			auto subSystems = e->GetSubsystems();
 
 			auto soundEnt = managers.entityManager->Create();
-			managers.audioManager->Create(soundEnt, { "BLoop.wav", Audio::SoundIndexName::BakgroundSound });
+			managers.audioManager->Create(soundEnt, { "BLoop.wav", Audio::SoundIndexName::BakgroundLoopSound });
 
 			{	
 #pragma region GUI
@@ -165,7 +165,7 @@ namespace SE
 					if (subSystems.window->ButtonPressed(1) == true)
 					{
 
-						managers.audioManager->Create(soundEnt, { "Canary.wav", Audio::SoundIndexName::EffectSound });
+						managers.audioManager->Create(soundEnt, { "Canary.wav", Audio::SoundIndexName::BakgroundSound });
 
 						managers.audioManager->PlaySound(soundEnt, "Canary.wav");
 						

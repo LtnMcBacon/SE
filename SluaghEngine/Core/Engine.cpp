@@ -213,8 +213,9 @@ void SE::Core::Engine::InitManagers()
 		managers.eventManager = CreateEventManager();
 
 
-	InitAudioManager();
+	
 	InitTransformManager();
+	InitAudioManager();
 	InitParticleSystemManager();
 	InitCameraManager();
 	InitCollisionManager();
@@ -235,6 +236,7 @@ void SE::Core::Engine::InitAudioManager()
 	{
 		IAudioManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.console = subSystems.devConsole;
 		managers.audioManager = CreateAudioManager(info);
