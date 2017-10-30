@@ -10,6 +10,7 @@
 #include "IManager.h"
 #include "IEntityManager.h"
 #include <ResourceHandler\IResourceHandler.h>
+#include "ITransformManager.h"
 #include <Audio\IAudioHandler.h>
 #include <DevConsole\IConsole.h>
 #undef PlaySound
@@ -23,6 +24,7 @@ namespace SE
 			struct InitializationInfo
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
+				ITransformManager* transformManager;
 				DevConsole::IConsole* console;
 				IEntityManager* entityManager;
 			};
@@ -64,6 +66,7 @@ namespace SE
 
 			virtual void SetSoundVol(const SE::Audio::SoundVolType& volType, size_t newVol) = 0;
 
+			virtual void SetCameraEnt(const Entity& entity) = 0;
 		protected:
 			IAudioManager() {};
 	
