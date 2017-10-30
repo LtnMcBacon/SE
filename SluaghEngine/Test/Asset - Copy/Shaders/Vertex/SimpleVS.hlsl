@@ -1,22 +1,19 @@
-cbuffer OncePerRenderer : register(b0)
-{
-	float4x4 Proj;
-};
 
-cbuffer OncePerFrame : register(b1)
+cbuffer OncePerFrame : register(b0)
 {
 	float4x4 ViewProj;
 };
 
-cbuffer OncePerObject : register(b2)
+cbuffer OncePerObject : register(b1)
 {
 	float4x4 World[256];
 };
 
-cbuffer InversWorld : register(b3)
+cbuffer InversWorld : register(b2)
 {
 	float4x4 invers[256];
 };
+
 
 struct VS_IN
 {

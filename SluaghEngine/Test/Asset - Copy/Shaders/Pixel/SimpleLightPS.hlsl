@@ -6,7 +6,6 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
-	float4 cast;
 };
 
 cbuffer LightDataBuffer : register(b2)

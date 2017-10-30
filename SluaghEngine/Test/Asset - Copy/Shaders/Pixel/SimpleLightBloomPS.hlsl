@@ -1,12 +1,13 @@
 Texture2D DiffuseColor : register(t0);
 
+Texture2D NormalMap : register(t1);
+
 SamplerState sampAni : register(s0);
 
 struct Light
 {
 	float4 colour;
 	float4 pos;
-	float4 cast;
 };
 
 cbuffer LightDataBuffer : register(b2)
@@ -14,7 +15,6 @@ cbuffer LightDataBuffer : register(b2)
 	uint4 nrOfLights;
 	Light pointLights[20];
 };
-
 cbuffer CameraPos : register(b3)
 {
 	float4 cameraPos;
@@ -37,7 +37,13 @@ struct PS_IN
 	float2 Tex : TEXCOORD;
 };
 
-float4 PS_main(PS_IN input) : SV_TARGET
+struct PS_OUT
+{
+	float4 backBuffer: SV_TARGET0;
+	float4 bloomBuffer: SV_TARGET1;
+};
+
+PS_OUT PS_main(PS_IN input) 
 {
 	float attenuation = 1.0f;
 	float3 totLight = ambient.xyz;
@@ -67,5 +73,13 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
 	}
 	
-	return float4(totLight, 1.0f);
+	
+	PS_OUT output;
+	output.backBuffer = float4(totLight, 1.0f);
+	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (output.backBuffer.r > .8) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
+	if (output.backBuffer.g > .8) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
+	if (output.backBuffer.b > .8) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
+
+	return output;
 }

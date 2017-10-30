@@ -1,0 +1,99 @@
+Root,857,-336
+Data:
+Children:
+	Selector,856,-214
+	Data:
+	Children:
+		StunnedCondition,380,24
+		Data:
+		Children:
+
+		Inverter,516,23
+		Data:
+		Children:
+			FaceThePlayerLeaf,515,140
+			Data:
+			Children:
+
+
+		ChannelingCondition,648,25
+		Data:
+		Children:
+
+		RestartingSequence,687,138
+		Data:
+		Children:
+			Inverter,130,376
+			Data:
+			Children:
+				StunnedCondition,130,474
+				Data:
+				Children:
+
+
+			FaceThePlayerLeaf,258,377
+			Data:
+			Children:
+
+			Selector,390,378
+			Data:
+			Children:
+				ChannelingCondition,335,461
+				Data:
+				Children:
+
+				RangeToPlayerCondition,452,462
+				Data:
+					Description:Min Range
+						Type:float
+						Value:0.0
+					Description:Max Range
+						Type:float
+						Value:5.0
+				Children:
+
+
+			LineOfSightCondition,513,378
+			Data:
+			Children:
+
+			TimerCondition,635,379
+			Data:
+				Description:Countdown Time
+					Type:float
+					Value:1.0
+			Children:
+
+			GlaistigAttackLeaf,765,379
+			Data:
+			Children:
+
+
+		Sequence,1107,-120
+		Data:
+		Children:
+			Selector,1032,14
+			Data:
+			Children:
+				Sequence,975,100
+				Data:
+				Children:
+					ObstacleOnPositionCondition,911,239
+					Data:
+					Children:
+
+					MakeInvulnerableLeaf,1041,241
+					Data:
+					Children:
+
+
+				MakeVulnerableLeaf,1112,101
+				Data:
+				Children:
+
+
+			MoveTowardsPlayerLeaf,1247,18
+			Data:
+
+
+

@@ -1,5 +1,7 @@
 Texture2D DiffuseColor : register(t0);
 
+Texture2D NormalMap : register(t1);
+
 SamplerState sampAni : register(s0);
 
 struct PS_IN
