@@ -157,54 +157,6 @@ namespace SE
 			bool operator+(const Delegate& other)const = delete;
 			bool operator-(const Delegate& other)const = delete;
 
-			//{
-			//	return this->uniqueIdentifier == other.uniqueIdentifier;
-			//};
-
-			  /**
-			  *@brief Invokes the delegate
-			  *@param [in] arg The parameter list
-			  */
-			RET operator()(PARAMS... arg) const {
-				return (*invocation.stub)(invocation.object, arg...);
-			} //operator()
-
-		private:
-
-			Delegate(void* anObject, typename Delegate_Base<RET(PARAMS...)>::stub_type aStub) {
-				invocation.object = anObject;
-				invocation.stub = aStub;
-			} //Delegate
-
-			void assign(void* anObject, typename Delegate_Base<RET(PARAMS...)>::stub_type aStub) {
-				this->invocation.object = anObject;
-				this->invocation.stub = aStub;
-			} //assign
-
-			template <class T, RET(T::*TMethod)(PARAMS...)>
-			static RET method_stub(void* this_ptr, PARAMS... params) {
-				T* p = static_cast<T*>(this_ptr);
-				return (p->*TMethod)(params...);
-			} //method_stub
-
-			template <class T, RET(T::*TMethod)(PARAMS...) const>
-			static RET const_method_stub(void* this_ptr, PARAMS... params) {
-				T* const p = static_cast<T*>(this_ptr);
-				return (p->*TMethod)(params...);
-			} //const_method_stub
-
-			template <RET(*TMethod)(PARAMS...)>
-			static RET function_stub(void* this_ptr, PARAMS... params) {
-				return (TMethod)(params...);
-			} //function_stub
-
-			template <typename LAMBDA>
-			static RET lambda_stub(void* this_ptr, PARAMS... arg) {
-				LAMBDA* p = static_cast<LAMBDA*>(this_ptr);
-				return (p->operator())(arg...);
-			} //lambda_stub
-
-			typename Delegate_Base<RET(PARAMS...)>::InvocationElement invocation;
 			/**
 			*@brief Assignment from Delegate to Delegate.
 			*/
