@@ -102,18 +102,18 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "bakedTest.mesh";
-	sai.skeleton = "bakedTest.skel";
+	sai.mesh = "Run.mesh";
+	sai.skeleton = "Run.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "BaseLayer_bakedTest.anim" };
+	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "bakedTest.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "Run.mesh");
 	managers.animationManager->ToggleVisible(mainC, true);
 
-	managers.animationManager->Start(mainC, "BaseLayer_bakedTest.anim", 1.0f);
+	managers.animationManager->Start(mainC, "RunAnimation_Run.anim", 1.0f);
 
 	auto& c2 = managers.entityManager->Create();
 	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
@@ -189,7 +189,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
-		if (ImGui::SliderFloat("C2 Speed ", &speed, -1.0f, 1.0f))
+		if (ImGui::SliderFloat("C2 Speed ", &speed, -10.0f, 10.0f))
 			managers.animationManager->SetSpeed(entityToChange, speed);
 		if (ImGui::Button("Start"))
 			managers.animationManager->Start(entityToChange);
