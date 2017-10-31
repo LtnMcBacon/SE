@@ -108,7 +108,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		if(window->ButtonPressed(Window::KeyO))
 		{
 			em->Destroy(decal);
-			DirectX::XMFLOAT3 newPos = { (float)(rand() % 5), (float)(rand() % 5), 0.0f };
+			DirectX::XMFLOAT3 newPos = { (float)(subSystem.window->GetRand() % 5), (float)(subSystem.window->GetRand() % 5), 0.0f };
 			DirectX::XMFLOAT3 newRot = { 0,0,0 };// tm->GetRotation(box);
 			DirectX::XMFLOAT3 newScale = { 1.0f, 1.0f, 10.0f };
 			decal = em->Create();

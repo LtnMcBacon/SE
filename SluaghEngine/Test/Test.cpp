@@ -36,6 +36,7 @@
 #include "EnemyFactoryTest.h"
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
+#include "PlaybackProjectileTest.h"
 #include "BloomTest.h"
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
@@ -61,7 +62,7 @@ void TypesafeTestAdding(const char* nameOfTest) { tests[SE::Utilz::GUID(nameOfTe
 
 int main(int argc, char** argv)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	//_crtBreakAlloc = 11830;
@@ -78,6 +79,7 @@ int main(int argc, char** argv)
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
+	AddTest(PlaybackProjectileTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);

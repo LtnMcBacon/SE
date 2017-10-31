@@ -37,7 +37,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
-			Core::IMaterialManager::CreateInfo projectileInfo;
+  			Core::IMaterialManager::CreateInfo projectileInfo;
 			Utilz::GUID material = Utilz::GUID("Cube.mat");
 			Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 			projectileInfo.shader = shader;
@@ -153,7 +153,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 
 		Core::IMaterialManager::CreateInfo projectileInfo;
 		Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
-		Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		projectileInfo.shader = shader;
 		projectileInfo.materialFile = material;
 		CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);

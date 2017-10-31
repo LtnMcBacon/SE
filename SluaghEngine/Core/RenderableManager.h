@@ -51,6 +51,8 @@ namespace SE
 			*/
 			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
 
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
+
 			/**
 			* @brief	Hide/Show the renderable object
 			*
@@ -69,6 +71,8 @@ namespace SE
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
 			bool IsVisible(const Entity& entity)const;
 
 			/**
@@ -77,8 +81,6 @@ namespace SE
 			void Destroy(size_t index)override;
 
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-
-			void ToggleShadow(const Entity& entity, bool shadow) override;
 
 		private:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
@@ -93,9 +95,8 @@ namespace SE
 
 			void UpdateRenderableObject(const Entity& entity);
 			
-
-
-			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -126,7 +127,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -147,9 +148,7 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			RenderableManagerInstancing* rmInstancing;
-			RenderableManagerInstancing* shadowInstancing;
-
+			
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
