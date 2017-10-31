@@ -65,7 +65,15 @@ namespace SE
 				IN_RAM = 1 << 0,
 				IN_VRAM = 1 << 1,
 				LOADING = 1 << 2,
-				DEAD = 1 << 3
+				DEAD = 1 << 3,
+				FAIL = 1 << 4
+			};
+
+			struct Callbacks
+			{
+				Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
+				Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
+				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 			};
 
 			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
@@ -127,7 +135,7 @@ namespace SE
 
 			IAssetLoader* diskLoader;
 
-			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> guidToResourceInfoIndex;
+			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> guidToResourceInfo;
 
 
 			bool running = false;

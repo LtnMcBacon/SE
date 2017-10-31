@@ -54,7 +54,7 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 		toInvokeThread.join();
 
 
-	for (auto& r : guidToResourceInfoIndex)
+	for (auto& r : guidToResourceInfo)
 		operator delete(r.second.resourceData.data);
 
 	delete diskLoader;
@@ -68,15 +68,15 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 {
 	StartProfile;
 	//loadResourceLock.lock();
-	//auto find = guidToResourceInfoIndex.find(guid);
-	//auto& index = guidToResourceInfoIndex[guid];
+	//auto find = guidToResourceInfo.find(guid);
+	//auto& index = guidToResourceInfo[guid];
 
-	//if (find == guidToResourceInfoIndex.end()) //If resource is not registered.
+	//if (find == guidToResourceInfo.end()) //If resource is not registered.
 	//{
 
 	//	if (!diskLoader->Exist(guid, nullptr)) // Make sure we can load the resource.
 	//	{
-	//		guidToResourceInfoIndex.erase(guid);
+	//		guidToResourceInfo.erase(guid);
 	//		loadResourceLock.unlock();
 	//		ProfileReturnConst(-1);
 	//	}
@@ -165,7 +165,11 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 	if (loadFlags & LoadFlags::ASYNC)
 	{
-		loadJobs.push({ guid, loadCallback, invokeCallback, loadFlags });
+		auto& ri = guidToResourceInfo[guid];
+		if (ri.state & (State::DEAD | State::LOADING))
+			loadJobs.push({ guid, loadCallback, invokeCallback, loadFlags });
+		else
+			invokeJobs.push({ guid, invokeCallback, loadFlags });
 	}
 	else
 	{
@@ -179,8 +183,8 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 {
 	StartProfile;
 
-	//auto& find = guidToResourceInfoIndex.find(guid);
-	//if (find == guidToResourceInfoIndex.end())
+	//auto& find = guidToResourceInfo.find(guid);
+	//if (find == guidToResourceInfo.end())
 	//{
 	//	infoLock.lock();
 	//	resourceInfo.refCount[find->second]--;
@@ -282,16 +286,18 @@ void SE::ResourceHandler::ResourceHandler::ToLoadThreadEntry()
 		{
 			const auto& job = loadJobs.top();
 
-
-			auto& ri = guidToResourceInfoIndex[job.guid];
+			infoLock.lock();
+			auto& ri = guidToResourceInfo[job.guid];
 			if (ri.state & State::DEAD)
 			{
 				loadJobs.pop();
+				infoLock.unlock();
 				continue;
 			}
 
 			if (ri.state & State::LOADING)
 			{
+				infoLock.unlock();
 				Data rawData;
 				if (!diskLoader->Exist(job.guid, &rawData.size))
 				{
@@ -314,7 +320,7 @@ void SE::ResourceHandler::ResourceHandler::ToLoadThreadEntry()
 				{
 					ri.refVRAM--; 
 					ri.refRAM--;
-					ri.state = State::DEAD;
+					ri.state = State::FAIL;
 					errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
 					loadJobs.pop();
 					continue;
@@ -348,7 +354,7 @@ void SE::ResourceHandler::ResourceHandler::ToInvokeThreadEntry()
 		{
 			const auto& job = invokeJobs.top();
 
-			auto& ri = guidToResourceInfoIndex[job.guid];
+			auto& ri = guidToResourceInfo[job.guid];
 			if (ri.state != State::DEAD)
 			{
 				auto iresult = job.invokeCallback(job.guid, ri.resourceData.data, ri.resourceData.size);
