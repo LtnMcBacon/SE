@@ -146,9 +146,11 @@ void SE::Core::MaterialLoading::LoadTextures(const Entity& entity, const Utilz::
 	auto& mat = guidToMaterial[materialFile];
 	for (uint8_t i = 0; i < mat.textureInfo.numTextures; i++)
 	{
+		textureLock.lock();
 		auto& t = guidToTexture.find(mat.textureInfo.textures[i]);
 		if (t == guidToTexture.end())
 		{
+			textureLock.unlock();
 			auto temp = mat.textureInfo.textures[i];
 			mat.textureInfo.textures[i] = defaultTexture;
 			auto result = resourceHandler->LoadResource(temp, [this, materialFile, &mat, i, async, entity](auto guid, auto data, auto size)
@@ -160,7 +162,9 @@ void SE::Core::MaterialLoading::LoadTextures(const Entity& entity, const Utilz::
 					console->PrintChannel("Resources", "Could not load texture. Using default instead. GUID: %u, Error: %d\n", guid, result);
 					texture = defaultTexture;
 				}
-
+				textureLock.lock();
+				guidToTexture[guid].refCount++;
+				
 				if (async)
 				{
 					toUpdate.push({ materialFile , i , texture , entity});
@@ -169,9 +173,12 @@ void SE::Core::MaterialLoading::LoadTextures(const Entity& entity, const Utilz::
 				{
 					mat.textureInfo.textures[i] = texture;
 				}
+				textureLock.unlock();
 				return ResourceHandler::InvokeReturn::DecreaseRefcount;
-			}, true, behavior);
+			}, async, behavior);
 		}
+		else
+			textureLock.unlock();
 	}
 }
 

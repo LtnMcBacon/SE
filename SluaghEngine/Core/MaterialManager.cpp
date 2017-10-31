@@ -132,7 +132,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 	mdata.entities.push_back(entity);
 
-	mLoading.LoadTextures(entity, info.materialFile, true, behavior);
+	mLoading.LoadTextures(entity, info.materialFile, async, behavior);
 
 
 	/*for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)

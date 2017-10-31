@@ -86,7 +86,7 @@ namespace SE
 			std::mutex shaderLock;
 
 			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
-			std::mutex textureLock;
+			std::recursive_mutex textureLock;
 
 			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
 			std::mutex materialLock;
