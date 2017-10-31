@@ -10,12 +10,15 @@
 #include <Utilz\CircularFiFo.h>
 
 #define ENUM_FLAG_OPERATOR(T,X) inline T operator X (T lhs, T rhs) { return (T) (static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
+#define ENUM_FLAG_OPERATOR2(T,X) inline void operator X= (T& lhs, T rhs) { lhs = (T)(static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
 #define ENUM_FLAGS(T) \
 enum class T; \
 inline T operator ~ (T t) { return (T) (~static_cast<std::underlying_type_t <T>>(t)); } \
-inline bool operator & (T lhs, T rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs)); } \
+inline bool operator & (T lhs, T rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs));  } \
+ENUM_FLAG_OPERATOR2(T,|) \
+ENUM_FLAG_OPERATOR2(T,&) \
 ENUM_FLAG_OPERATOR(T,|) \
-ENUM_FLAG_OPERATOR(T,^) 
+ENUM_FLAG_OPERATOR(T,^)
 //enum class T
 //ENUM_FLAG_OPERATOR(T,&)
 
@@ -52,7 +55,8 @@ namespace SE
 			enum class InvokeReturn1 {
 				VRAM = 1 << 0,
 				RAM = 1 << 1,
-				FAIL = 1 << 2
+				FAIL = 1 << 2,
+				SUCCESS = 1 << 3
 			};
 
 			enum class LoadFlags {
@@ -66,7 +70,8 @@ namespace SE
 				IN_VRAM = 1 << 1,
 				LOADING = 1 << 2,
 				DEAD = 1 << 3,
-				FAIL = 1 << 4
+				FAIL = 1 << 4,
+				LOADED = 1 << 5
 			};
 
 			struct Callbacks
@@ -122,7 +127,8 @@ namespace SE
 
 			struct ResourceInfo
 			{
-				Data resourceData;
+				Data RAMData;
+				Data VRAMData;
 				uint32_t refRAM = 0;
 				uint32_t refVRAM = 0;
 				State state = State::DEAD;
@@ -140,32 +146,11 @@ namespace SE
 
 			bool running = false;
 
-			struct ToLoadInfo
-			{
-				Utilz::GUID guid;
-				size_t resourceInfoIndex;
-				LoadResourceDelegate callback;
-				Behavior behavior;
-			};
+			std::thread loadThread;
+			void LoadThreadEntry();
 
-			/****************	To Load info	*****************/
-			
-
-			Utilz::CircularFiFo<ToLoadInfo> toLoad;
-			std::thread toLoadThread;
-
-			void ToLoadThreadEntry();
-
-
-			/****************	END To Load info	*****************/
-
-
-			/****************	To Invoke info	*****************/
-
-			Utilz::CircularFiFo<ToLoadInfo> toInvoke;
-			std::thread toInvokeThread;
-
-			void ToInvokeThreadEntry();
+			std::thread invokeThread;
+			void InvokeThreadEntry();
 
 
 			/****************	END To Callback info	*****************/
