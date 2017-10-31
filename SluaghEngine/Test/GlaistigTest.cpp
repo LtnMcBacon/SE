@@ -429,6 +429,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 
 		}
 
+		projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
 

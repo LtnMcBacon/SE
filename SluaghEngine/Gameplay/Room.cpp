@@ -541,12 +541,12 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 		enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
 		enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
 		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+		cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
 	}
 
 	if (cData.type != CollisionType::NONE)
 	{
 		projectile.SetCollisionData(cData);
-
 		ProfileReturnConst(true);
 	}
 

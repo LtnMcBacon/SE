@@ -124,6 +124,14 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateBodachMeleeAttackLeaf(dataArray, nodeID);
 	}
+	else if (dataArray[nodeID].Type == "PechMeleeAttackLeaf")
+	{
+		finishedBehaviour = CreatePechMeleeAttackLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PechRangedAttackLeaf")
+	{
+		finishedBehaviour = CreatePechRangedAttackLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -292,6 +300,18 @@ IBehaviour* BehaviouralTreeFactory::CreateBodachMeleeAttackLeaf(NodeData* dataAr
 {
 	StartProfile;
 	ProfileReturn(new BodachMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechMeleeAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechRangedAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechRangedAttackLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)

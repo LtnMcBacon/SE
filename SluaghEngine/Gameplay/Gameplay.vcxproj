@@ -52,6 +52,8 @@
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PechMeleeAttackLeaf.cpp" />
+    <ClCompile Include="PechRangedAttackLeaf.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="RandomSelector.cpp" />
@@ -108,6 +110,8 @@
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
