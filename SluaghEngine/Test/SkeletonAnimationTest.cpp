@@ -129,7 +129,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 0.0f, 5.0f, -5.0f };
+	d.pos = { 0.0f, 0.0f, -5.0f };
 	d.color = { 1, 1,1 };
 	d.castShadow = false;
 	d.isOrtographic = false;
