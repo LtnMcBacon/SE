@@ -97,9 +97,6 @@ namespace SE
 			
 			RenderableManagerInstancing* rmInstancing;
 			RenderableManagerInstancing* shadowInstancing;
-
-
-			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -130,7 +127,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Graphics::RenderObjectInfo::PrimitiveTopology) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
