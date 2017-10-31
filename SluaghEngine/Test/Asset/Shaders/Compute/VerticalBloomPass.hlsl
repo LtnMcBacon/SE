@@ -7,6 +7,7 @@ static const int3 groupSize = { 32, 23, 1 };
 
 static const int kernelRadius = 32;
 
+
 static const float bloomBaseMultiplier = 1;
 static const float bloomFadeExponent = 2;
 static const float bloomAdditiveColorStrengthMultiplier = .8f;
