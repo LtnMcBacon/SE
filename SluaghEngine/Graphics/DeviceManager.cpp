@@ -13,9 +13,11 @@ using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-DeviceManager::DeviceManager() {
+DeviceManager::DeviceManager(): gFeatureLevel()
+{
 	gDevice = nullptr;
 	gDeviceContext = nullptr;
+	gSecDeviceContext = nullptr;
 	gSwapChain = nullptr;
 	gBackBuffer = nullptr;
 	gBackbufferRTV = nullptr;
@@ -368,7 +370,7 @@ void DeviceManager::SetViewport() {
 
 void DeviceManager::Present() {
 
-	auto hr = gSwapChain->Present(1, 0);
+	gSwapChain->Present(1, 0);
 }
 
 void DeviceManager::ResizeSwapChain(HWND windowHandle)
