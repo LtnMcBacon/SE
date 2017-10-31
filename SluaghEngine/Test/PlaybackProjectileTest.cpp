@@ -1,4 +1,4 @@
-#include "RecordingProjectileTest.h"
+#include "PlaybackProjectileTest.h"
 #include <Core\IEngine.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Gameplay/Room.h>
@@ -11,6 +11,8 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
 #include <Gameplay\Game.h>
+#include <Imgui\imgui.h>
+#include <Utilz\PathParsing.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -23,23 +25,23 @@
 #pragma comment(lib, "gameplay.lib")
 #endif
 
+#undef PlaySound
 
-
-SE::Test::RecordingProjectileTest::RecordingProjectileTest()
+SE::Test::PlaybackProjectileTest::PlaybackProjectileTest()
 {
 
 }
 
-SE::Test::RecordingProjectileTest::~RecordingProjectileTest()
+SE::Test::PlaybackProjectileTest::~PlaybackProjectileTest()
 {
 
 }
 
-bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
+bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
-	
-	auto lam = [](Window::WindowState state)
+
+	auto lam = [](std::string file, Window::WindowState state)
 	{
 
 
@@ -56,10 +58,11 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
 		Window::InitializationInfo winInfo;
+		winInfo.file = file;
 		winInfo.winState = state;
 		winInfo.height = height;
 		winInfo.width = width;
-		winInfo.windowTitle = "Recording";
+		winInfo.windowTitle = "Playback";
 		winInfo.fullScreen = false;
 
 		info.subSystems.window = Window::CreateNewWindow();
@@ -69,12 +72,6 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		game.Initiate(engine);
 		auto managers = engine->GetManagers();
 		auto subSystem = engine->GetSubsystems();
-
-
-
-
-
-
 
 		Core::IMaterialManager::CreateInfo floorInfo;
 		Utilz::GUID material = Utilz::GUID("Cube.mat");
@@ -379,34 +376,34 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		subSystem.window->MapActionButton(1, Window::Key1);
 		subSystem.window->MapActionButton(2, Window::Key2);
 
-	enum MoveDir
-	{
-		UP = 3,
-		RIGHT = 4,
-		DOWN = 5,
-		LEFT = 6,
-		RIGHT_MOUSE = 7,
-		SPACE = 8,
-		CONSOLE = 9,
-		FULLSCREEN = 10,
-		SIZE19 = 11,
-		SIZE12 = 12,
-		LEFT_MOUSE = 13
-	};
+		enum MoveDir
+		{
+			UP = 3,
+			RIGHT = 4,
+			DOWN = 5,
+			LEFT = 6,
+			RIGHT_MOUSE = 7,
+			SPACE = 8,
+			CONSOLE = 9,
+			FULLSCREEN = 10,
+			SIZE19 = 11,
+			SIZE12 = 12,
+			LEFT_MOUSE = 13
+		};
 
 
-	subSystem.window->MapActionButton(UP, Window::KeyW);
-	subSystem.window->MapActionButton(RIGHT, Window::KeyD);
-	subSystem.window->MapActionButton(DOWN, Window::KeyS);
-	subSystem.window->MapActionButton(LEFT, Window::KeyA);
-	subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
-	subSystem.window->MapActionButton(LEFT_MOUSE, Window::MouseLeft);
-	subSystem.window->MapActionButton(SPACE, Window::KeySpace);
-	subSystem.window->MapActionButton(CONSOLE, Window::Key1);
-	subSystem.window->MapActionButton(FULLSCREEN, Window::KeyT);
-	subSystem.window->MapActionButton(SIZE19, Window::KeyY);
-	subSystem.window->MapActionButton(SIZE12, Window::KeyU);
-	
+		subSystem.window->MapActionButton(UP, Window::KeyW);
+		subSystem.window->MapActionButton(RIGHT, Window::KeyD);
+		subSystem.window->MapActionButton(DOWN, Window::KeyS);
+		subSystem.window->MapActionButton(LEFT, Window::KeyA);
+		subSystem.window->MapActionButton(RIGHT_MOUSE, Window::MouseRight);
+		subSystem.window->MapActionButton(LEFT_MOUSE, Window::MouseLeft);
+		subSystem.window->MapActionButton(SPACE, Window::KeySpace);
+		subSystem.window->MapActionButton(CONSOLE, Window::Key1);
+		subSystem.window->MapActionButton(FULLSCREEN, Window::KeyT);
+		subSystem.window->MapActionButton(SIZE19, Window::KeyY);
+		subSystem.window->MapActionButton(SIZE12, Window::KeyU);
+
 		pos playerPos;
 		playerPos.x = 1.5f;
 		playerPos.y = 1.5f;
@@ -421,68 +418,68 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			0, 0, tScale.z, 0,
 			tPos.x, tPos.y, tPos.z, 1.0f };
 
-	bool stepping = false;
-	bool running = true;
-	subSystem.window->UpdateTime();
-	subSystem.window->UpdateTime();
-	float audioTime = 0.0;
-	int audio = 0;
-	bool change = false;
-	while (running)
-	{
-		float dt = subSystem.window->GetDelta();
-		audioTime += dt;
-		if (audioTime > 20.0)
+		bool stepping = false;
+		bool running = true;
+		subSystem.window->UpdateTime();
+		subSystem.window->UpdateTime();
+		float audioTime = 0.0;
+		int audio = 0;
+		bool change = false;
+		while (running)
 		{
-			audio = (audio + 1) % 2;
-			if (audio == 0)
+			float dt = subSystem.window->GetDelta();
+			audioTime += dt;
+			if (audioTime > 20.0)
 			{
-				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop2.wav"));
-				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
+				audio = (audio + 1) % 2;
+				if (audio == 0)
+				{
+					managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop2.wav"));
+					managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
+				}
+				else
+				{
+					managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
+					managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
+				}
+				audioTime = 0.0;
 			}
-			else
+			if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
 			{
-				managers.audioManager->StopSound(soundEnt, Utilz::GUID("BLoop.wav"));
-				managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop2.wav"));
-			}
-			audioTime = 0.0;
-		}
-		if (subSystem.window->ButtonPressed(MoveDir::FULLSCREEN))
-		{
-			change = true;
-			bool fs = subSystem.optionsHandler->GetOptionBool("Window", "fullScreen", true);
-			if (fs == true)
-				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", false);
-			else
-				subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", true);
-		}
-		if (subSystem.window->ButtonPressed(MoveDir::SIZE19))
-		{
-			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
-			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
-			if (height != 1080 || width != 1920)
-			{
-				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
-				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
 				change = true;
+				bool fs = subSystem.optionsHandler->GetOptionBool("Window", "fullScreen", true);
+				if (fs == true)
+					subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", false);
+				else
+					subSystem.optionsHandler->SetOptionBool("Window", "fullScreen", true);
 			}
-		}
-		if (subSystem.window->ButtonPressed(MoveDir::SIZE12))
-		{
-			size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
-			size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
-			if (height != 720 || width != 1280)
+			if (subSystem.window->ButtonPressed(MoveDir::SIZE19))
 			{
-				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 720);
-				subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1280);
-				change = true;
+				size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+				size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
+				if (height != 1080 || width != 1920)
+				{
+					subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
+					subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
+					change = true;
+				}
 			}
-		}
-		if (change == true)
-		{
-			subSystem.optionsHandler->Trigger();
-		}
-		newProjectiles.clear();
+			if (subSystem.window->ButtonPressed(MoveDir::SIZE12))
+			{
+				size_t height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 1080);
+				size_t width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1920);
+				if (height != 720 || width != 1280)
+				{
+					subSystem.optionsHandler->SetOptionUnsignedInt("Window", "height", 720);
+					subSystem.optionsHandler->SetOptionUnsignedInt("Window", "width", 1280);
+					change = true;
+				}
+			}
+			if (change == true)
+			{
+				subSystem.optionsHandler->Trigger();
+			}
+			newProjectiles.clear();
 
 			Gameplay::PlayerUnit::MovementInput input(false, false, false, false, false, 0.0f, 0.0f);
 			float movX = 0.0f;
@@ -669,9 +666,102 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	};
 
+	ThereBePizza:
+	using namespace DirectX;
+	auto engine = Core::CreateEngine();
+	Core::IEngine::InitializationInfo info;
 
-	lam(Window::WindowState::Record);
-	//lam(Window::WindowState::Playback);
+	info.subSystems.optionsHandler = Core::CreateOptionsHandler();
+	info.subSystems.optionsHandler->Initialize("Config.ini");
+
+	float width = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
+
+	Window::InitializationInfo winInfo;
+	winInfo.winState = Window::WindowState::Regular;
+	winInfo.height = height;
+	winInfo.width = width;
+	winInfo.windowTitle = "Playback";
+	winInfo.fullScreen = false;
+
+	info.subSystems.window = Window::CreateNewWindow();
+	info.subSystems.window->Initialize(winInfo);
+	engine->Init(info);
+	auto managers = engine->GetManagers();
+	auto subSystem = engine->GetSubsystems();
+
+
+	ImGui::SetCurrentContext(static_cast<ImGuiContext*>(subSystem.devConsole->GetContext()));
+
+	enum MoveDir
+	{
+		ESCAPE,
+	};
+
+	subSystem.window->MapActionButton(ESCAPE, Window::KeyEscape);
+
+	std::vector<Utilz::File> files;
+	Utilz::get_all_files_names_within_folder("Recordings", files);
+	std::vector<const char*> fileNames;
+
+	for (auto& fi : files)
+	{
+		fileNames.push_back(fi.name.c_str());
+	}
+	bool play = false;
+	bool record = false;
+	bool running = true;
+	int current = 0;
+	while (running)
+	{
+		if (subSystem.window->ButtonPressed(ESCAPE))
+			running = false;
+		engine->BeginFrame();
+		if (ImGui::Button("Delete"))
+		{
+			std::remove(files[current].fullPath.c_str());
+			for (int ite = current; ite < files.size() - 1; ite++)
+			{
+				files[ite] = files[ite + 1];
+			}
+			files.pop_back();
+			fileNames.clear();
+			for (auto& fi : files)
+			{
+				fileNames.push_back(fi.name.c_str());
+			}
+			if (current = files.size() && current != 0)
+			{
+				current--;
+			}
+		}
+		ImGui::ListBox("PlaybackFiles", &current, fileNames.data(), fileNames.size());
+		ImGui::LabelText("NrOfFiles", "%d",fileNames.size());
+		if (ImGui::Button("Play"))
+		{
+			play = true;
+			running = false;
+		}
+		if (ImGui::Button("Record"))
+		{
+			record = true;
+			running = false;
+		}		
+		engine->EndFrame();
+	}
+	engine->Release();
+	delete engine;
+	if (play == true)
+	{
+		lam(files[current].fullPath, Window::WindowState::Playback);
+		goto ThereBePizza;
+	}
+	if (record == true)
+	{
+		lam(files[current].fullPath, Window::WindowState::Record);
+		goto ThereBePizza;
+	}
+	
 
 	ProfileReturnConst(true)
 }

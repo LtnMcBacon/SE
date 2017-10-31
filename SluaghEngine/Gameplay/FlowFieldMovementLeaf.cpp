@@ -1,5 +1,5 @@
 #include "FlowFieldMovementLeaf.h"
-
+#include "CoreInit.h"
 #include "Gameplay/Flowfield.h"
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyBlackboard.h"
@@ -12,7 +12,7 @@ using namespace Gameplay;
 FlowFieldMovementLeaf::FlowFieldMovementLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
 {
-	sampleRate = rand() % 40 + 40;
+	sampleRate = CoreInit::subSystems.window->GetRand() % 40 + 40;
 }
 
 FlowFieldMovementLeaf::~FlowFieldMovementLeaf()

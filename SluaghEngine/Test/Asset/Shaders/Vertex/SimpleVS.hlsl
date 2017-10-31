@@ -1,8 +1,3 @@
-cbuffer OncePerRenderer : register(b0)
-{
-	float4x4 Proj;
-};
-
 cbuffer OncePerFrame : register(b1)
 {
 	float4x4 ViewProj;
