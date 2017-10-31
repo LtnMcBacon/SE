@@ -195,6 +195,7 @@ int SE::Graphics::Renderer::Render()
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
+		
 		first = true;
 
 		for (auto& j : group.second)
@@ -244,12 +245,17 @@ int SE::Graphics::Renderer::Render()
 					drawn += toDraw;
 				}
 			}
+			else if (j.job.ThreadGroupCountX != 0 || j.job.ThreadGroupCountY != 0 || j.job.ThreadGroupCountZ != 0)
+			{
+				devContext->Dispatch(j.job.ThreadGroupCountX, j.job.ThreadGroupCountY, j.job.ThreadGroupCountZ);
+			}
 			else if (j.job.vertexCount == 0)
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 0);
 				devContext->DrawAuto();
 			}
+			
 		}
 
 		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
@@ -258,6 +264,8 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
 
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
+		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
+
 	}
 	
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));

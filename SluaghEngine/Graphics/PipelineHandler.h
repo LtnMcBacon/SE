@@ -79,6 +79,7 @@ namespace SE
 			void SetRasterizerStage(const RasterizerStage& rs);
 			void SetPixelShaderStage(const ShaderStage& pss);
 			void SetOutputMergerStage(const OutputMergerStage& oms);
+			void SetComputeShaderStage(const ShaderStage& css);
 
 			void ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void ForcedSetVertexShaderStage(const ShaderStage& vss);
@@ -86,6 +87,7 @@ namespace SE
 			void ForcedSetRasterizerStage(const RasterizerStage& rs);
 			void ForcedSetPixelShaderStage(const ShaderStage& pss);
 			void ForcedSetOutputMergerStage(const OutputMergerStage& oms);
+			void ForcedSetComputeShaderStage(const ShaderStage& css);
 
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;
