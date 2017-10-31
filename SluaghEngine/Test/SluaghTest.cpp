@@ -682,6 +682,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		engine->BeginFrame();
 
 		engine->EndFrame();
+		newProjectiles.clear();
 	}
 
 	delete projectileManager;

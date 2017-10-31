@@ -48,21 +48,12 @@ namespace SE
 			struct LoadedProjectile
 			{
 				float projectileWidth, projectileHeight, rotationAroundUnit, distanceFromUnit, projectileRotation, rotationPerSec, projectileSpeed, timeToLive;
+				bool boundToOwner;
 				Utilz::GUID meshName;
 				float meshScale;
 				std::string particleEffect;
 				int nrOfBehaviours;
 				std::vector<std::string> behaviours;
-			};
-
-			/**
-			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
-			*/
-			enum class TypeOfFunction
-			{
-				CONTINUOUS,
-				ON_COLLISION,
-				ON_DEATH
 			};
 
 			BehaviourPointers ptrs;

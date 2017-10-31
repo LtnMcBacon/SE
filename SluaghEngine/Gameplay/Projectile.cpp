@@ -11,7 +11,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float yMovement = 0.0f;
 
 	//rotation += rotData.force;
-	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force;
+	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force * dt;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
@@ -156,21 +156,21 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	UpdateBounding();
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
-	GameUnit(data.startPosX, data.startPosY, 100)
+SE::Gameplay::Projectile::Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData) :
+	GameUnit(pData.startPosX, pData.startPosY, 100)
 {
-	extentX = width;
-	extentY =height;
-	rotation = data.startRotation;
-	rotData = rot;
+	extentX = cData.width;
+	extentY = cData.height;
+	rotation = pData.startRotation;
+	rotData = cData.rot;
 
-	speed = projectileSpeed;
-	lifeTime = projectileLifeTime;
-	target = projectileTarget;
+	speed = cData.projectileSpeed;
+	lifeTime = cData.projectileLifeTime;
+	target = cData.projectileTarget;
 
-	eventDamage = eventD;
-	eventHealing = eventH;
-	eventCondition = eventC;
+	eventDamage = pData.eventDamage;
+	eventHealing = pData.eventHealing;
+	eventCondition = pData.eventCondition;
 
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
 

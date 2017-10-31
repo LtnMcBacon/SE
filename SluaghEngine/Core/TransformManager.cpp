@@ -476,7 +476,7 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 
 	//The entity we replaced the destroyed entity with might have had parent/siblings/children.
 	//Fix those relations.
-	if(data.parentIndex[index] >= 0)
+	if(data.parentIndex[index] >= 0 && index != last)
 	{
 		if (data.childIndex[data.parentIndex[index]] == last)
 			data.childIndex[data.parentIndex[index]] = index;
@@ -489,7 +489,7 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 		}
 	}
 	//Fix children
-	if(data.childIndex[index] >= 0)
+	if(data.childIndex[index] >= 0 && index != last)
 	{
 		int32_t child = data.childIndex[index];
 		while (child != -1)

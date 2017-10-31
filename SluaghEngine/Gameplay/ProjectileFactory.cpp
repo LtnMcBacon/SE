@@ -31,11 +31,26 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			Rotation rotData;
 			rotData.force = loaded.rotationPerSec;
 
-			Projectile temp(projData, rotData, loaded.projectileSpeed, loaded.timeToLive, loaded.projectileWidth, loaded.projectileHeight, data.target, data.eventDamage, data.eventHealing, data.eventCondition);
+			ProjectileCreationData inputData;
+			inputData.rot = rotData;
+			inputData.projectileSpeed = loaded.projectileSpeed;
+			inputData.projectileLifeTime = loaded.timeToLive;
+			inputData.height = loaded.projectileHeight;
+			inputData.width = loaded.projectileWidth;
+			inputData.projectileTarget = projData.target;
+
+			Projectile temp(inputData, projData);
 
 			CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
+
+			auto owner = data.ownerUnit.lock();
+			if (!loaded.boundToOwner && owner)
+			{
+				auto unit = *owner.get();
+				CoreInit::managers.transformManager->BindChild(unit->GetEntity(), temp.GetEntity());
+			}
 
 			Core::IMaterialManager::CreateInfo projectileInfo;
 			Utilz::GUID material = Utilz::GUID("Cube.mat");
@@ -126,6 +141,16 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		GetLine(fileData, line, position);
 		loaded.timeToLive = (float)atof(line.c_str());
 
+		if (fileVersion < 1.1)
+		{
+			loaded.boundToOwner = false;
+		}
+		else
+		{
+			GetLine(fileData, line, position);
+			loaded.boundToOwner = line[0] - 48;
+		}
+
 		GetLine(fileData, line, position);
 		loaded.meshName = line;
 		GetLine(fileData, line, position);
@@ -145,11 +170,26 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		Rotation rotData;
 		rotData.force = loaded.rotationPerSec;
 
-		Projectile temp(projData, rotData, loaded.projectileSpeed, loaded.timeToLive, loaded.projectileWidth, loaded.projectileHeight, data.target, data.eventDamage, data.eventHealing, data.eventCondition);
+		ProjectileCreationData inputData;
+		inputData.rot = rotData;
+		inputData.projectileSpeed = loaded.projectileSpeed;
+		inputData.projectileLifeTime = loaded.timeToLive;
+		inputData.height = loaded.projectileHeight;
+		inputData.width = loaded.projectileWidth;
+		inputData.projectileTarget = projData.target;
+
+		Projectile temp(inputData, projData);
 
 		CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 		CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
+
+		auto owner = data.ownerUnit.lock();
+		if (!loaded.boundToOwner && owner)
+		{
+			auto unit = *owner.get();
+			CoreInit::managers.transformManager->BindChild(unit->GetEntity(), temp.GetEntity());
+		}
 
 		Core::IMaterialManager::CreateInfo projectileInfo;
 		Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
@@ -560,27 +600,15 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::RotationInvertionBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	StartProfile;
-	BehaviourData data;
-	float intervall = std::get<float>(parameters[0].data);
-	data.f = intervall;
 
-	int dataIndex = std::get<Projectile*>(parameters[1].data)->AddBehaviourData(data);
 
-	auto inverter = [dataIndex, intervall](Projectile* p, float dt) -> bool
+	auto inverter = [](Projectile* p, float dt) -> bool
 	{
-		float& timer = p->GetBehaviourData(dataIndex).f;
+		Rotation temp = p->GetRotationStyle();
+		temp.force *= -1;
+		p->SetRotationStyle(temp);
 
-		timer -= dt;
-
-		if (timer <= 0.0f)
-		{
-			Rotation temp = p->GetRotationStyle();
-			temp.force *= -1;
-			p->SetRotationStyle(temp);
-			timer = intervall;
-		}
-
-		return true;
+		return false;
 	};
 
 	ProfileReturnConst(inverter);
@@ -640,7 +668,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 			}
 
 			Rotation test;
-			test.force = totalRot*dt;
+			test.force = totalRot;
 			test.style = RotationStyle::SELF;
 			p->SetRotationStyle(test);
 
@@ -942,27 +970,27 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
 {
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::BounceBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SpeedAddDynamicBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RotationModifierBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RotationInvertionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeTimeAddStaticBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetClosestEnemyBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IFCaseBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LineOfSightConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LockToPlayerBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillSelfBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ANDConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ORConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IsAliveConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToEnemyConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToPlayerConditionBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateProjectilesBehaviour, this, std::placeholders::_1));
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::InverterBehaviour, this, std::placeholders::_1));
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::BounceBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SpeedAddDynamicBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RotationModifierBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RotationInvertionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeTimeAddStaticBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetClosestEnemyBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionBehaviour, this, std::placeholders::_1)); // f, b, p
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1)); // o, f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1)); // o, f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IFCaseBehaviour, this, std::placeholders::_1)); // v, v, v
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LineOfSightConditionBehaviour, this, std::placeholders::_1)); // o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LockToPlayerBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillSelfBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ANDConditionBehaviour, this, std::placeholders::_1)); // v
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ORConditionBehaviour, this, std::placeholders::_1)); // v
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IsAliveConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToEnemyConditionBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToPlayerConditionBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateProjectilesBehaviour, this, std::placeholders::_1)); // s
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::InverterBehaviour, this, std::placeholders::_1)); // B
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()
