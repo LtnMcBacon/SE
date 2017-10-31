@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
 	AddTest(DecalTest);
-//	AddTest(BloomTest);
+	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
