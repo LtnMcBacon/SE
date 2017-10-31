@@ -18,7 +18,7 @@ namespace SE
 		class MaterialManager : public IMaterialManager
 		{
 		public:
-			MaterialManager(const InitializationInfo& initInfo);
+			MaterialManager(const IMaterialManager::InitializationInfo& initInfo);
 			~MaterialManager();
 			MaterialManager(const MaterialManager& other) = delete;
 			MaterialManager(const MaterialManager&& other) = delete;

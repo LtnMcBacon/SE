@@ -18,7 +18,7 @@ namespace SE
 		class LightManager : public ILightManager
 		{
 		public:
-			LightManager(const InitializationInfo& initInfo);
+			LightManager(const ILightManager::InitializationInfo& initInfo);
 			~LightManager();		
 
 			void Create(const Entity& entity, const CreateInfo& info)override;
