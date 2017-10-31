@@ -19,6 +19,10 @@ SE::Graphics::Renderer::Renderer()
 {
 	device = nullptr;
 	graphicResourceHandler = nullptr;
+	pipelineHandler = nullptr;
+	secPipelineHandler = nullptr;
+	spriteBatch = nullptr;
+	gpuTimer = nullptr;
 	memMeasure.Init();
 }
 
@@ -145,7 +149,6 @@ size_t SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
 		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
 	}
 	ProfileReturn(job);
-	return 0;
 }
 
 size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
@@ -198,10 +201,10 @@ int SE::Graphics::Renderer::Render()
 	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
 	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
 	
-	bool first = true;
+	
 	for (auto& group : jobGroups)
 	{
-		first = true;
+		bool first = true;
 		for (auto& j : group.second)
 		{
 			int32_t drawn = 0;
