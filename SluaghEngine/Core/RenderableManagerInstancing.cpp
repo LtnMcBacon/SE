@@ -13,7 +13,7 @@ SE::Core::RenderableManagerInstancing::~RenderableManagerInstancing()
 		delete b.second;
 }
 
-void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Graphics::RenderJob & job)
+void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Graphics::RenderJob & job, Graphics::RenderGroup group)
 {
 	StartProfile;
 	job.pipeline.SetID();
@@ -46,9 +46,8 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	
 	job.instanceCount = bucket->transforms.size();
 	
-
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
-		bucket->jobID = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+		bucket->jobID = renderer->AddRenderJob(job, group);
 	else
 		renderer->ChangeRenderJob(bucket->jobID, [&job](Graphics::RenderJob& ejob) {
 		ejob.instanceCount = job.instanceCount;

@@ -89,8 +89,6 @@ int SE::Core::Engine::BeginFrame()
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
-	managers.animationManager->Frame(&timeClus);
-
 
 	subSystems.renderer->Render();
 	subSystems.devConsole->Frame();
@@ -119,30 +117,37 @@ int SE::Core::Engine::EndFrame()
 int SE::Core::Engine::Release()
 {
 	StartProfile;
-	subSystems.devConsole->EndFrame();
 
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
 	delete managers.entityManager;
 	delete managers.eventManager;
-	delete managers.animationManager;
 
-	subSystems.devConsole->Shutdown();
+	if(subSystems.devConsole)
+		subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
-	
-	subSystems.renderer->Shutdown();
+	subSystems.devConsole = nullptr;
+
+	if (subSystems.renderer)
+		subSystems.renderer->Shutdown();
 	delete subSystems.renderer;
+	subSystems.renderer = nullptr;
 
-	subSystems.window->Shutdown();
+	if (subSystems.window)
+		subSystems.window->Shutdown();
 	delete subSystems.window;
+	subSystems.window = nullptr;
 
-	subSystems.resourceHandler->Shutdown();
+	if (subSystems.resourceHandler)
+		subSystems.resourceHandler->Shutdown();
 	delete subSystems.resourceHandler;
+	subSystems.resourceHandler = nullptr;
 
-	subSystems.optionsHandler->UnloadOption("Config.ini");
+	if (subSystems.optionsHandler)
+		subSystems.optionsHandler->UnloadOption("Config.ini");
 	delete subSystems.optionsHandler;
-
+	subSystems.optionsHandler = nullptr;
 
 	delete perFrameStackAllocator;
 	ProfileReturnConst(0);
@@ -219,8 +224,9 @@ void SE::Core::Engine::InitManagers()
 		managers.eventManager = CreateEventManager();
 
 
-	InitAudioManager();
+	
 	InitTransformManager();
+	InitAudioManager();
 	InitParticleSystemManager();
 	InitCameraManager();
 	InitCollisionManager();
@@ -231,7 +237,7 @@ void SE::Core::Engine::InitManagers()
 	InitDebugRenderManager();
 	InitTextManager();
 	InitGUIManager();
-	
+	InitDecalManager();
 	StopProfile;
 }
 
@@ -241,6 +247,7 @@ void SE::Core::Engine::InitAudioManager()
 	{
 		IAudioManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.console = subSystems.devConsole;
 		managers.audioManager = CreateAudioManager(info);
@@ -329,13 +336,14 @@ void SE::Core::Engine::InitAnimationManager()
 		IAnimationManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
+		info.window = subSystems.window;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
-//	managersVec.push_back(managers.animationManager);
+	managersVec.push_back(managers.animationManager);
 }
 
 void SE::Core::Engine::InitMaterialManager()
@@ -344,6 +352,7 @@ void SE::Core::Engine::InitMaterialManager()
 	{
 		IMaterialManager::InitializationInfo info;
 		info.renderer = subSystems.renderer;
+		info.optionsHandler = subSystems.optionsHandler;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
 		info.eventManager = managers.eventManager;
@@ -408,10 +417,24 @@ void SE::Core::Engine::InitGUIManager()
 	managersVec.push_back(managers.guiManager);
 }
 
+void SE::Core::Engine::InitDecalManager()
+{
+	if(!managers.decalManager)
+	{
+		IDecalManager::InitializationInfo info;
+		info.transformManager = managers.transformManager;
+		info.entityManager = managers.entityManager;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.cameraManager = managers.cameraManager;
+		managers.decalManager = CreateDecalManager(info);
+	}
+	managersVec.push_back(managers.decalManager);
+}
 
 void SE::Core::Engine::SetupDebugConsole()
 {
-	/*subSystems.devConsole->AddFrameCallback([this]()
+	subSystems.devConsole->AddFrameCallback([this]()
 	{
 		static bool plot_memory_usage;
 		static bool show_gpu_timings;
@@ -490,7 +513,7 @@ void SE::Core::Engine::SetupDebugConsole()
 
 
 		}
-	});*/
+	});
 	
 }
 
@@ -498,9 +521,9 @@ void SE::Core::Engine::InitStartupOption()
 {
 	StartProfile;
 	//Set Sound Vol
-	/*managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
-	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));*/
+	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);

@@ -168,6 +168,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="BoundingTest.cpp" />
     <ClCompile Include="ConsoleTest.cpp" />
     <ClCompile Include="DebugRenderTest.cpp" />
+    <ClCompile Include="DecalTest.cpp" />
     <ClCompile Include="EnemyFacotryTest.cpp" />
     <ClCompile Include="EnemyMovementTest.cpp" />
     <ClCompile Include="EntityManagerTest.cpp" />
@@ -191,6 +192,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResourceHandlerTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
+    <ClCompile Include="ShadowTest.cpp" />
     <ClCompile Include="SkeletonAnimationTest.cpp" />
     <ClCompile Include="SluaghTest.cpp" />
     <ClCompile Include="Test.cpp" />
@@ -205,6 +207,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="BehavioursTest.h" />
     <ClInclude Include="BloomTest.h" />
     <ClInclude Include="BoundingTest.h" />
+    <ClInclude Include="DecalTest.h" />
     <ClInclude Include="EnemyFactoryTest.h" />
     <ClInclude Include="ConsoleTest.h" />
     <ClInclude Include="EnemyMovementTest.h" />
@@ -230,6 +233,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="RenderableManagerTest.h" />
     <ClInclude Include="ResourceHandlerTest.h" />
     <ClInclude Include="RoomCreationTest.h" />
+    <ClInclude Include="ShadowTest.h" />
     <ClInclude Include="SkeletonAnimationTest.h" />
     <ClInclude Include="SlaughTest.h" />
     <ClInclude Include="Test.h" />

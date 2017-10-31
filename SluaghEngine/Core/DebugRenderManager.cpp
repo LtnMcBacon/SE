@@ -72,7 +72,6 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 		for (auto& m : entityToLineList)
 		{
 			const size_t verticesToDraw = m.second.size() * 2;
-			Graphics::LineRenderJob lineRenderJob;
 			Graphics::RenderJob job;
 			job.pipeline = pipeline;
 			Entity ent = m.first;
@@ -86,7 +85,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 			if (f == entityToJobID.end())
 			{
 				
-				entityToJobID[m.first] = initInfo.renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+				entityToJobID[m.first] = initInfo.renderer->AddRenderJob(job, Graphics::RenderGroup::RENDER_PASS_3);
 			}
 			else
 			{

@@ -4,13 +4,8 @@
 #define SE_GRAPHICS_GUI_INFO_H_
 #include <DirectXMath.h>
 #include <Utilz\GUID.h>
+#include <stdint.h>
 
-
-#ifdef _DEBUG
-#pragma comment(lib, "DirectXTKD.lib")
-#else
-#pragma comment(lib, "DirectXTK.lib")
-#endif
 
 namespace SE
 {
@@ -38,7 +33,18 @@ namespace SE
 			float layerDepth;
 			bool anchor = false;
 		};
-
+		struct RECT
+		{
+			int32_t    left;
+			int32_t    top;
+			int32_t    right;
+			int32_t    bottom;
+			RECT& operator=(const RECT& other)
+			{
+				memcpy(this, &other, sizeof(RECT));
+				return *this;
+			};
+		};
 		struct GUITextureInfo
 		{
 			int textureID = 0;

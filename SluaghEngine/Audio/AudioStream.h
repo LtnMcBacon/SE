@@ -64,6 +64,17 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID);
+			/**
+			* @brief Updates Pos of head and sound
+			*
+			* @param[in] streamID The stream ID
+			* @param[in] panData Data for stereo paning
+			*
+			* @retval 0 Tells that UpdateStreamPos was sucessful
+			* @retval -1 Tells that UpdateStreamPos was unsucessful
+			*
+			*/
+			int UpdateStreamPos(int streamID, PanData panData);
 			void Shutdown();
 		private:
 			std::vector<PaStream*> stream;
