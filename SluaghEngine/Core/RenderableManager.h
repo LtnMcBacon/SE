@@ -43,13 +43,15 @@ namespace SE
 			RenderableManager& operator=(const RenderableManager&& other) = delete;
 
 			/**
-			* @brief	Bind a renderable object to and entity
+			* @brief	Bind a renderable object to an entity
 			*
 			* @param[in] entity The entity to bind the renderable object to.
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
 			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -69,6 +71,8 @@ namespace SE
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
 			bool IsVisible(const Entity& entity)const;
 
 			/**
@@ -86,13 +90,13 @@ namespace SE
 			*/
 			void Allocate(size_t size);
 
-			RenderableManagerInstancing* rmInstancing;
-
-			
 
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);
+			
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
 			
 			void LinearUnload(size_t sizeToAdd);
 
@@ -123,7 +127,7 @@ namespace SE
 		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -132,6 +136,7 @@ namespace SE
 				uint8_t* visible;
 				uint8_t* wireframe;
 				uint8_t* transparency;
+				uint8_t* shadow;
 			};
 			InitializationInfo initInfo;
 			std::default_random_engine generator;	

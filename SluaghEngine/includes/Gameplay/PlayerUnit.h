@@ -162,7 +162,6 @@ namespace SE
 
 			char map[25][25] = { {} };
 			float forcesToApply[2] = {};
-			float extends = 0.25f; /*HARDCODED RIGHT NOW!*/
 			float rotMov[2] = {};
 
 		private:

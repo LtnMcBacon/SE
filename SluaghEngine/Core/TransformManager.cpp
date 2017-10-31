@@ -84,6 +84,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	const int32_t parentIndex = lookUpTable[parent.Index()];
 	const int32_t childIndex = lookUpTable[child.Index()];
 
+	_ASSERT(parentIndex >= 0);
+	_ASSERT(childIndex >= 0);
+
 	data.parentIndex[childIndex] = parentIndex;
 	//There might already be children under the parent.
 	if(data.childIndex[parentIndex] >= 0)
@@ -102,7 +105,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	}
 
 	if (rotation)
+	{
 		data.flags[childIndex] |= TransformFlags::INHERIT_ROTATION;
+	}
 	if(translateToParent)
 	{
 		Move(child, data.positions[parentIndex]);
@@ -298,7 +303,7 @@ DirectX::XMFLOAT3 SE::Core::TransformManager::GetRight(const Entity& e) const
 
 const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMFLOAT3 & forward)
 {
-	XMVECTOR ndir = XMVector3Normalize(XMLoadFloat3(&forward));
+	XMVECTOR ndir = XMLoadFloat3(&forward);
 	SetForward(e, ndir);
 }
 
@@ -306,16 +311,17 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 {
 	XMVECTOR defaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR newForward = XMVector3Normalize(forward);
 
-	XMVECTOR projToXZ = XMVector3Normalize(forward - (defaultUp * XMVector3Dot(defaultUp, forward)));
+	XMVECTOR projToXZ = XMVector3Normalize(newForward - (defaultUp * XMVector3Dot(defaultUp, newForward)));
 	float angleY = acosf(XMVectorGetX(XMVector3Dot(projToXZ, defaultForward)));
 	if (XMVectorGetX(projToXZ) < 0)
 		angleY = -angleY;
 
-	XMVECTOR projToZY = XMVector3Normalize(forward - (defaultForward * XMVector3Dot(defaultForward, forward)));
+	XMVECTOR projToZY = XMVector3Normalize(newForward - (defaultForward * XMVector3Dot(defaultForward, newForward)));
 	float angleX = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultForward)));
 	float angleZ = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultUp)));
-	if (XMVectorGetY(projToZY) < 0)
+	if (XMVectorGetY(projToZY) > 0)
 		angleX = -angleX;
 	if (XMVectorGetZ(projToZY) < 0)
 		angleZ = -angleZ;

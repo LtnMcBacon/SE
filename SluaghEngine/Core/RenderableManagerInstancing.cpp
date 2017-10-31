@@ -13,7 +13,7 @@ SE::Core::RenderableManagerInstancing::~RenderableManagerInstancing()
 		delete b.second;
 }
 
-void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Graphics::RenderJob & job)
+void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Graphics::RenderJob & job, Graphics::RenderGroup group)
 {
 	StartProfile;
 	job.pipeline.SetID();
@@ -46,9 +46,8 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	
 	job.instanceCount = bucket->transforms.size();
 	
-
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
-		bucket->jobID = renderer->AddRenderJob(job, Graphics::RenderGroup::SECOND_PASS);
+		bucket->jobID = renderer->AddRenderJob(job, group);
 	else
 		renderer->ChangeRenderJob(bucket->jobID, [&job](Graphics::RenderJob& ejob) {
 		ejob.instanceCount = job.instanceCount;
@@ -74,10 +73,17 @@ void SE::Core::RenderableManagerInstancing::RemoveEntity(const Entity & entity)
 void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entity, const DirectX::XMFLOAT4X4 & transform)
 {
 	StartProfile;
-	auto& bai = entityToBucketAndIndexInBucket[entity];
-	DirectX::XMFLOAT4X4 transposed;
-	DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
-	pipelineToRenderBucket[bai.bucket]->transforms[bai.index] = transposed;
+
+	auto find = entityToBucketAndIndexInBucket.find(entity);
+
+	if(find != entityToBucketAndIndexInBucket.end()){
+
+		DirectX::XMFLOAT4X4 transposed;
+		DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
+		pipelineToRenderBucket[find->second.bucket]->transforms[find->second.index] = transposed;
+
+	}
+
 	StopProfile;
 }
 

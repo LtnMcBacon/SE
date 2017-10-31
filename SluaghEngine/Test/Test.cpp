@@ -36,10 +36,13 @@
 #include "EnemyFactoryTest.h"
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
+#include "PlaybackProjectileTest.h"
 #include "BloomTest.h"
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
+#include "DecalTest.h"
+#include "ShadowTest.h"
 
 
 #ifdef _DEBUG
@@ -59,10 +62,10 @@ void TypesafeTestAdding(const char* nameOfTest) { tests[SE::Utilz::GUID(nameOfTe
 
 int main(int argc, char** argv)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 2710;
+	//_crtBreakAlloc = 11830;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
@@ -76,7 +79,8 @@ int main(int argc, char** argv)
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
-	//AddTest(InitGraphicsTest);
+	AddTest(PlaybackProjectileTest);
+	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
 	AddTest(BoundingTest);
@@ -98,12 +102,13 @@ int main(int argc, char** argv)
 	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
-
+	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
+	AddTest(DecalTest);
 //	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
   

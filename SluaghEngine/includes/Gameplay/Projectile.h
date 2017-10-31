@@ -73,6 +73,7 @@ namespace SE
 			float xVec = 0.0f;
 			float yVec = 0.0f;
 			CollisionType type = CollisionType::NONE;
+			std::weak_ptr<GameUnit*> hitUnit = std::weak_ptr<GameUnit*>();
 		};
 
 		struct BehaviourData

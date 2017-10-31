@@ -11,6 +11,7 @@
 #include <Utilz\GUID.h>
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
+#include <Window\IWindow.h>
 
 #include "IManager.h"
 #include "IEntityManager.h"
@@ -31,9 +32,10 @@ namespace SE
 				ResourceHandler::IResourceHandler* resourceHandler;
 				Graphics::IRenderer* renderer;
 				DevConsole::IConsole* console;
+				Window::IWindow* window;
 				IEntityManager* entityManager;
 				IEventManager* eventManager;
-				ITransformManager* transformManager;
+				ITransformManager* transformManager;				
 			};
 			struct CreateInfo
 			{

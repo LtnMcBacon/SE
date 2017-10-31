@@ -48,6 +48,7 @@ namespace SE
 				Utilz::GUID meshGUID;
 				bool transparent = false;
 				bool wireframe = false;
+				bool shadow = false;
 			};
 
 
@@ -64,6 +65,8 @@ namespace SE
 			*/
 			virtual void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
 
+			virtual void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info) = 0;
+
 			/**
 			* @brief	Hide/Show the renderable object
 			*
@@ -76,6 +79,8 @@ namespace SE
 			virtual void ToggleWireframe(const Entity& entity, bool wireFrame) = 0;
 
 			virtual void ToggleTransparency(const Entity& entity, bool transparency) = 0;
+
+			virtual void ToggleShadow(const Entity& entity, bool shadow) = 0;
 
 		protected:
 			IRenderableManager() {};

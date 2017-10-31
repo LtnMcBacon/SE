@@ -49,7 +49,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
 	Window::InitializationInfo winInfo;
-	winInfo.winState = Window::WindowState::Record;
+	winInfo.winState = Window::WindowState::Playback;
 	winInfo.height = height;
 	winInfo.width = width;
 	winInfo.windowTitle = "Recording";
@@ -109,7 +109,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = rand() % nrOfRooms;
+	int random = subSystem.window->GetRand() % nrOfRooms;
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
@@ -256,8 +256,8 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		pos enemyPos;
 		do
 		{
-			enemyPos.x = rand() % 25;
-			enemyPos.y = rand() % 25;
+			enemyPos.x = subSystem.window->GetRand() % 25;
+			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
@@ -311,20 +311,19 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	std::vector<float> enemyDistances;
 
 
-	auto SpawnEnemy = [&testRoom, &eFactory, enemyGUID, &blackBoard]() mutable -> void
+	auto SpawnEnemy = [&testRoom, &eFactory, enemyGUID, &blackBoard, &subSystem]() mutable -> void
 	{
 		if(testRoom->NumberOfEnemiesInRoom() < 2)
 		{
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = rand() % 25;
-				enemyPos.y = rand() % 25;
+				enemyPos.x = subSystem.window->GetRand() % 25;
+				enemyPos.y = subSystem.window->GetRand() % 25;
 			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-			enemy->SetXPosition(enemyPos.x + .5f);
-			enemy->SetYPosition(enemyPos.y + .5f);
+			enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
 
 			testRoom->AddEnemyToRoom(enemy);
 		}
@@ -333,9 +332,9 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	SE::Gameplay::ForestTrainer::ForestStruct frameData;
 	frameData.thePlayer = player;
 	blackBoard.currentRoom = testRoom;
+	float dt = 1 / 60.0f;//subSystem.window->GetDelta();
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		newProjectiles.clear();
 
@@ -593,9 +592,10 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	running = true;
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
+	//	float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		enemyDistances.clear();
+		newProjectiles.clear();
 		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
 		if (enemyDistances.size())
 		{

@@ -72,7 +72,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 {
 	StartProfile;
 	loadResourceLock.lock();
-	auto& find = guidToResourceInfoIndex.find(guid);
+	auto find = guidToResourceInfoIndex.find(guid);
 	auto& index = guidToResourceInfoIndex[guid];
 
 	if (find == guidToResourceInfoIndex.end()) //If resource is not registered.
@@ -80,6 +80,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (!diskLoader->Exist(guid, nullptr)) // Make sure we can load the resource.
 		{
+			guidToResourceInfoIndex.erase(guid);
 			loadResourceLock.unlock();
 			ProfileReturnConst(-1);
 		}

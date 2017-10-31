@@ -115,13 +115,13 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	
-
+	auto dt = initInfo.window->GetDelta();
 	for (size_t i = 0; i < animationData.used; i++)
 	{
 		if (animationData.playing[i] == 1u)
 		{
 			auto& ai = animationData.animInfo[i];
-			ai.timePos += ai.animationSpeed;
+			ai.timePos += ai.animationSpeed*dt;
 			animationSystem->CalculateMatrices(animationData.entity[i], ai.skeleton, ai.animation, ai.timePos);
 		}
 			

@@ -24,6 +24,7 @@
 #include "ILightManager.h"
 #include "IDebugRenderManager.h"
 #include "IGUIManager.h"
+#include "IDecalManager.h"
 #include <DevConsole\IConsole.h>
 #include "ITextManager.h"
 #include "IEventManager.h"
@@ -54,6 +55,7 @@ namespace SE
 				IDebugRenderManager* debugRenderManager = nullptr;
 				ITextManager* textManager = nullptr;
 				IGUIManager* guiManager = nullptr;
+				IDecalManager* decalManager = nullptr;
 				IEventManager* eventManager = nullptr;
 			};
 			struct Subsystems

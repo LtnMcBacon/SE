@@ -19,7 +19,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 	{
 		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
 		{
-			stunDuration += 0.4f;
+			stunDuration += condition.duration;
 		}
 	}
 
@@ -53,7 +53,7 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	/*float sampleX = 0.f;
 	float sampleY = 0.f;*/
 
-	float localExtent = extends + 0.15;
+	float localExtent = extents + 0.15;
 
 	pos myPos;
 	/*Checking collision in left x-axis*/
@@ -223,7 +223,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		attackCooldown = 0.2f * attackSpeed;
 	}
 	if (attackCooldown > 0.f)
+	{
 		attackCooldown -= dt;
+	}
+	if (attackCooldown < 0.f)
+		attackCooldown = 0.f;
 	ResolveEvents();
 	ClearConditionEvents();
 	ClearDamageEvents();
@@ -346,7 +350,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 	GameUnit(xPos, yPos, 100)
 {
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
-	extends = 0.25f; /*Should not be hardcoded! Obviously*/
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

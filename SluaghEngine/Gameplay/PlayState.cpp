@@ -113,11 +113,11 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = rand() % nrOfRooms;
+	int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 	currentRoom = testRoom;
-
+	delete[] RoomArr;
 }
 void PlayState::InitializePlayer()
 {
