@@ -32,7 +32,7 @@ namespace SE
 			void CalculateMatrices(const Entity& entity, const Utilz::GUID& skeleton, const Utilz::GUID& animation, float& timePos);
 			
 		private:
-			void UpdateAnimation(const Utilz::GUID& skeleton, const Utilz::GUID& animation, float& timePos, DirectX::XMFLOAT4X4* at);
+			void UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animation, float& timePos, DirectX::XMFLOAT4X4* at);
 			void CalculateJointMatrix(int jointIndex, const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const;
 
 			struct JointMatrices

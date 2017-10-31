@@ -21,7 +21,7 @@ namespace SE
 			LightManager(const InitializationInfo& initInfo);
 			~LightManager();		
 
-			void Create(const Entity& entity, const CreateInfo& data)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 			void ToggleLight(const Entity& entity, bool show)override;
 

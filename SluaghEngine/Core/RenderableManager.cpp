@@ -548,7 +548,7 @@ SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader
 {
 	StartProfile;
 	int result = 0;
-	/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+	result = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 	if (result < 0)
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);

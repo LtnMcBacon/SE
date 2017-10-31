@@ -136,7 +136,7 @@ namespace SE
 			*
 			* @endcode
 			*/
-			virtual void SetOptionString(const std::string& section, const std::string& optionName, std::string newValue) = 0;
+			virtual void SetOptionString(const std::string& section, const std::string& optionName, const std::string & newValue) = 0;
 			/**
 			* @brief Sets the value of requested option
 			*

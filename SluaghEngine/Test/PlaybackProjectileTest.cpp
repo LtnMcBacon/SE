@@ -232,6 +232,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 				}
 			}
 		}
+		if (player == nullptr)
+		{
+			delete testRoom;
+			delete player;
+			delete[] RoomArr;
+			game.Shutdown();
+			engine->Release();
+			delete engine;
+			ProfileReturnConst(false);
+		}
 
 
 		Core::IMaterialManager::CreateInfo playerInfo;
@@ -758,7 +768,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 	}
 	if (record == true)
 	{
-		lam(files[current].fullPath, Window::WindowState::Record);
+		lam("", Window::WindowState::Record);
 		goto ThereBePizza;
 	}
 	

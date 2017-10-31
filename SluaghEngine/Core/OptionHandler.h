@@ -131,7 +131,7 @@ namespace SE {
 			*
 			* @endcode
 			*/
-			void SetOptionString(const std::string& section, const std::string& optionName, std::string newValue)override;
+			void SetOptionString(const std::string& section, const std::string& optionName, const std::string & newValue)override;
 			/**
 			* @brief Sets the value of requested option
 			*
