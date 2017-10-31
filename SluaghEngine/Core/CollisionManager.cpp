@@ -97,7 +97,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 
 				if (res)
-					initInfo.console->PrintChannel("Could not load mesh for boundingdata. GUID: %u, Error: %d. Using default instead.","Resources", mesh , res);
+					initInfo.console->PrintChannel("Resources", "Could not load mesh for boundingdata. GUID: %u, Error: %d. Using default instead.", mesh , res);
 			
 			}
 

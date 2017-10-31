@@ -77,8 +77,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 
 		Core::IMaterialManager::CreateInfo floorInfo;
-		Utilz::GUID material = Utilz::GUID("Placeholder_Floor.mat");
-		Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+		Utilz::GUID material = Utilz::GUID("Cube.mat");
+		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		floorInfo.shader = shader;
 		floorInfo.materialFile = material;
 		auto floor = managers.entityManager->Create();
@@ -88,14 +88,14 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		SE::Core::Entity arrows[numberOfBlocks];
 
 		Core::IMaterialManager::CreateInfo cubeInfo;
-		material = Utilz::GUID("Placeholder_Block.mat");
-		shader = Utilz::GUID("SimpleLightPS.hlsl");
+		material = Utilz::GUID("Cube.mat");
+		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		cubeInfo.shader = shader;
 		cubeInfo.materialFile = material;
 
 		Core::IMaterialManager::CreateInfo arrowInfo;
-		material = Utilz::GUID("Placeholder_Arrow.mat");
-		shader = Utilz::GUID("SimpleLightPS.hlsl");
+		material = Utilz::GUID("Cube.mat");
+		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		arrowInfo.shader = shader;
 		arrowInfo.materialFile = material;
 

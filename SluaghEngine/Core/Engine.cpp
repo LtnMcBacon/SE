@@ -51,7 +51,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		int msgboxID = MessageBox(
 			NULL,
 			e.what(),
-			"Engine Error",
+			"Engine Init Error",
 			MB_ICONERROR | MB_OK
 		);
 #endif
@@ -68,6 +68,8 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	InitStartupOption();
 
+	subSystems.devConsole->BeginFrame();
+	subSystems.devConsole->EndFrame();
 	ProfileReturnConst(0);
 }
 
@@ -80,16 +82,18 @@ int SE::Core::Engine::BeginFrame()
 	frameBegun = true;
 	timeClus.Start(CREATE_ID_HASH("Frame"));
 	subSystems.window->Frame();
-	subSystems.devConsole->BeginFrame();
+	
 	subSystems.renderer->BeginFrame();
+	subSystems.devConsole->BeginFrame();
 
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
+	managers.animationManager->Frame(&timeClus);
+
+
 	subSystems.renderer->Render();
-
 	subSystems.devConsole->Frame();
-
 
 	ProfileReturnConst(0);
 }
@@ -102,8 +106,8 @@ int SE::Core::Engine::EndFrame()
 		ProfileReturnConst(-1);
 
 	subSystems.devConsole->EndFrame();
-
 	subSystems.renderer->EndFrame();
+	
 
 
 	timeClus.Stop(CREATE_ID_HASH("Frame"));
@@ -115,12 +119,14 @@ int SE::Core::Engine::EndFrame()
 int SE::Core::Engine::Release()
 {
 	StartProfile;
+	subSystems.devConsole->EndFrame();
 
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
 	delete managers.entityManager;
 	delete managers.eventManager;
+	delete managers.animationManager;
 
 	subSystems.devConsole->Shutdown();
 	delete subSystems.devConsole;
@@ -304,6 +310,7 @@ void SE::Core::Engine::InitRenderableManager()
 	{
 		IRenderableManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
@@ -323,11 +330,12 @@ void SE::Core::Engine::InitAnimationManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
+		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
 		managers.animationManager = CreateAnimationManager(info);
 	}
-	managersVec.push_back(managers.animationManager);
+//	managersVec.push_back(managers.animationManager);
 }
 
 void SE::Core::Engine::InitMaterialManager()
@@ -338,7 +346,7 @@ void SE::Core::Engine::InitMaterialManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.entityManager = managers.entityManager;
-		info.renderableManager = managers.renderableManager;
+		info.eventManager = managers.eventManager;
 		info.console = subSystems.devConsole;
 		managers.materialManager = CreateMaterialManager(info);
 	}
@@ -403,7 +411,7 @@ void SE::Core::Engine::InitGUIManager()
 
 void SE::Core::Engine::SetupDebugConsole()
 {
-	subSystems.devConsole->AddFrameCallback([this]()
+	/*subSystems.devConsole->AddFrameCallback([this]()
 	{
 		static bool plot_memory_usage;
 		static bool show_gpu_timings;
@@ -482,7 +490,7 @@ void SE::Core::Engine::SetupDebugConsole()
 
 
 		}
-	});
+	});*/
 	
 }
 
@@ -490,9 +498,9 @@ void SE::Core::Engine::InitStartupOption()
 {
 	StartProfile;
 	//Set Sound Vol
-	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
+	/*managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
-	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
+	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));*/
 
 	//Set Camera
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);

@@ -86,6 +86,7 @@ void SE::DevConsole::CMDConsole::PrintChannel(const char * line, const char * ch
 	va_start(args, line);
 	printf("%s: ", channel);
 	vprintf(line, args);
+	printf("\n");
 	fflush(stdout);
 	va_end(args);
 }
@@ -95,18 +96,21 @@ void SE::DevConsole::CMDConsole::Print(const char * line, ...)
 	va_list args;
 	va_start(args, line);
 	vprintf(line, args);
+	printf("\n");
 	fflush(stdout);
 	va_end(args);
 }
 void SE::DevConsole::CMDConsole::VPrint(const char * line, va_list args)
 {
 	vprintf(line, args);
+	printf("\n");
 	fflush(stdout);
 }
-void SE::DevConsole::CMDConsole::VPrint(const char * line, va_list args, const char* channel)
+void SE::DevConsole::CMDConsole::VPrint(const char* channel, const char * line, va_list args)
 {
 	printf("%s: ", channel);
 	vprintf(line, args);
+	printf("\n");
 	fflush(stdout);
 }
 

@@ -38,8 +38,8 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
 			Core::IMaterialManager::CreateInfo projectileInfo;
-			Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
-			Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+			Utilz::GUID material = Utilz::GUID("Cube.mat");
+			Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 			projectileInfo.shader = shader;
 			projectileInfo.materialFile = material;
 			CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
