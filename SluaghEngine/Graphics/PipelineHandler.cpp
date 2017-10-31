@@ -69,21 +69,21 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	if (FAILED(hr))
 		throw std::exception("Could not compile fullscreenQuadVS");
 
-	CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 
 	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile MultiPS");
 
-	CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release(); 
 	
 	hr = D3DCompile(SinglePS, strlen(SinglePS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile SinglePS");
 
-	CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 	
 
@@ -186,7 +186,7 @@ int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, voi
 	bd.MiscFlags = 0;
 	bd.Usage = dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
 	bd.StructureByteStride = stride;
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (data)
 	{
@@ -806,7 +806,7 @@ int SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, s
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 
 
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (initialData)
 	{
@@ -1463,9 +1463,7 @@ int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	StartProfile;
-	ID3D11Buffer *nullBuffer = nullptr;
 	uint32_t offset = 0;
-	//deviceContext->SOSetTargets(1, &nullBuffer, &offset);
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
