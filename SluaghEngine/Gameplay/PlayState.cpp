@@ -117,7 +117,7 @@ void PlayState::InitializeRooms()
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 	currentRoom = testRoom;
-
+	delete[] RoomArr;
 }
 void PlayState::InitializePlayer()
 {
