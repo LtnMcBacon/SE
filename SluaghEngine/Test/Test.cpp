@@ -41,7 +41,7 @@
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
 #include "ShadowTest.h"
-
+#include "ComputeTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -67,6 +67,7 @@ int main(int argc, char** argv)
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
+	AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);

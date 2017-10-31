@@ -48,7 +48,7 @@ namespace SE
 				auto subSystem = engine->GetSubsystems();
 
 
-				res = subSystem.resourceHandler->LoadResource("ClearTexture.hlsl", [subSystem](auto guid, auto data, auto size) {
+				res = subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
 					auto res = subSystem.renderer->GetPipelineHandler()->CreateComputeShader(guid, data, size);
 					if (res < 0)
 						return ResourceHandler::InvokeReturn::Fail;
@@ -161,7 +161,7 @@ namespace SE
 			
 				Graphics::RenderTarget rt;
 				rt.bindAsShaderResource = true;
-				rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
+				rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
 				rt.width = 1280;
 				rt.height = 720;
 				res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
@@ -189,26 +189,27 @@ namespace SE
 				uav.clearColor[2] = 0.0f;
 				uav.clearColor[3] = 0.0f;
 				uav.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				uav.width = 128;
-				uav.height = 128;
+				uav.width = 1280;
+				uav.height = 720;
 
 				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV1", uav);
 				if (res < 0)
 					goto error;
 
-				/*res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
+				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
 				if (res < 0)
-					goto error;*/
+					goto error;
 
 				Graphics::RenderJob horizontalPass;
-				horizontalPass.pipeline.CSStage.shader = "ClearTexture.hlsl"; 
-				//horizontalPass.pipeline.CSStage.textures[0] = "bloomTarget";
-			//	horizontalPass.pipeline.CSStage.textureCount = 1;
+				horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl"; 
+				horizontalPass.pipeline.CSStage.textures[0] = "bloomTarget";
+				horizontalPass.pipeline.CSStage.textureCount = 1;
 				horizontalPass.pipeline.CSStage.textureBindings[0] = "inTex";
 				horizontalPass.pipeline.CSStage.uavs[0] = "BloomUAV1";
 				horizontalPass.pipeline.CSStage.uavCount = 1;
-				horizontalPass.ThreadGroupCountX = 4;
-				horizontalPass.ThreadGroupCountY = 4;
+				horizontalPass.ThreadGroupCountX = 32;
+				horizontalPass.ThreadGroupCountY = 45;
+				horizontalPass.ThreadGroupCountZ = 1;
 
 				subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_1);
 
@@ -218,6 +219,22 @@ namespace SE
 				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
 
 				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+
+
+				Graphics::RenderJob verticalPass;
+				verticalPass.pipeline.CSStage.shader = "VerticalBloomPass.hlsl";
+				verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
+				verticalPass.pipeline.CSStage.textures[1] = "backbuffer";
+				verticalPass.pipeline.CSStage.textureCount = 2;
+				verticalPass.pipeline.CSStage.textureBindings[0] = "inTex_bloom";
+				verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
+				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
+				verticalPass.pipeline.CSStage.uavCount = 1;
+				verticalPass.ThreadGroupCountX = 32;
+				verticalPass.ThreadGroupCountY = 40;
+				verticalPass.ThreadGroupCountZ = 1;
+
+				//subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_2);
 
 
 

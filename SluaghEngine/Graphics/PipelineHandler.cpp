@@ -1372,20 +1372,15 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	td.Height = view.height;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
-
 	switch (view.format)
 	{
 	case TextureFormat::R32G32B32A32_FLOAT: td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
 	case TextureFormat::R8G8B8A8_UNORM:		td.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 	}
-
-
 	td.SampleDesc.Count = 1;
 	td.SampleDesc.Quality = 0;
 	td.Usage = D3D11_USAGE_DEFAULT;
-	td.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
-	if (view.bindAsShaderResource)
-		td.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	td.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 	td.CPUAccessFlags = 0;
 	td.MiscFlags = 0;
 
@@ -1393,6 +1388,23 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	auto hr = device->CreateTexture2D(&td, nullptr, &texture);
 	if (FAILED(hr))
 		return DEVICE_FAIL;
+
+	
+
+	if (view.bindAsShaderResource)
+	{
+		ID3D11ShaderResourceView* srv;
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = td.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
+		if (FAILED(hr))
+			return DEVICE_FAIL;
+		shaderResourceViews[id] = srv;
+	}
+
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
 	ZeroMemory(&description, sizeof(description));
@@ -1410,20 +1422,6 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	unorderedAccessViews[id].clearColor[1] = view.clearColor[1];
 	unorderedAccessViews[id].clearColor[2] = view.clearColor[2];
 	unorderedAccessViews[id].clearColor[3] = view.clearColor[3];
-
-	if (view.bindAsShaderResource)
-	{
-		ID3D11ShaderResourceView* srv;
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = td.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.MipLevels = 1;
-		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
-		if (FAILED(hr))
-			return DEVICE_FAIL;
-		shaderResourceViews[id] = srv;
-	}
 
 	texture->Release();
 
