@@ -196,6 +196,7 @@ size_t SE::Graphics::Renderer::DisableTextureRendering(const size_t & jobID)
 int SE::Graphics::Renderer::Render() 
 {
 	StartProfile;
+	// ReSharper disable once CppDeclaratorNeverUsed
 	auto devContext = device->GetDeviceContext();
 	/******************General Jobs*********************/
 	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));

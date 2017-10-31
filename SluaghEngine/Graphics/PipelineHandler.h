@@ -2,7 +2,6 @@
 #define SE_GRAPHICS_PIPELINEHANDLER_H
 #include "IPipelineHandler.h"
 #include <d3d11.h>
-#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
