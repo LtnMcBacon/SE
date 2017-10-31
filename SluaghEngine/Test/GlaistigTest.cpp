@@ -247,8 +247,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->SetXPosition(enemyPos.x + .5f);
-		enemy->SetYPosition(enemyPos.y + .5f);
+		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
 
 		testRoom->AddEnemyToRoom(enemy);
 	}

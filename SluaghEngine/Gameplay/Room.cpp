@@ -515,7 +515,8 @@ int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
 bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 {
 	StartProfile;
-
+	if (projectile.GetValidTarget() == ValidTarget::PLAYER)
+		ProfileReturnConst(false);
 	bool collidedRight = false;
 	bool collidedLeft = false;
 	float xPower = 0.0f;

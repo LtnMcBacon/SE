@@ -49,7 +49,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
 	Window::InitializationInfo winInfo;
-	winInfo.winState = Window::WindowState::Record;
+	winInfo.winState = Window::WindowState::Playback;
 	winInfo.height = height;
 	winInfo.width = width;
 	winInfo.windowTitle = "Recording";
@@ -333,9 +333,9 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	SE::Gameplay::ForestTrainer::ForestStruct frameData;
 	frameData.thePlayer = player;
 	blackBoard.currentRoom = testRoom;
+	float dt = 1 / 60.0f;//subSystem.window->GetDelta();
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		newProjectiles.clear();
 
@@ -593,9 +593,10 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	running = true;
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
+	//	float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		enemyDistances.clear();
+		newProjectiles.clear();
 		testRoom->DistanceToAllEnemies(player->GetXPosition(), player->GetYPosition(), enemyDistances);
 		if (enemyDistances.size())
 		{

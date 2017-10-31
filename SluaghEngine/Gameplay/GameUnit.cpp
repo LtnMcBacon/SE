@@ -71,7 +71,7 @@ void GameUnit::MoveEntity(float xMovement, float yMovement)
 	xPos += xMovement;
 	yPos += yMovement;
 	
-	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, zPos, yPos });
+	CoreInit::managers.transformManager->Move(this->unitEntity, DirectX::XMFLOAT3{ xMovement, 0.f, yMovement });
 	StopProfile;
 }
 

@@ -216,14 +216,18 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "testProjectile.SEP";
+		temp.fileNameGuid = "turretProjectile.SEP";
 
 		newProjectiles.push_back(temp);
 
 		attackCooldown = 1.f * attackSpeed;
 	}
 	if (attackCooldown > 0.f)
+	{
 		attackCooldown -= dt;
+	}
+	if (attackCooldown < 0.f)
+		attackCooldown = 0.f;
 	ResolveEvents();
 	ClearConditionEvents();
 	ClearDamageEvents();

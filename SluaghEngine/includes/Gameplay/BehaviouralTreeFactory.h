@@ -183,6 +183,22 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
+			IBehaviour* CreateLeapAtPlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateBodachMeleeAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
 			IBehaviour* CreateWhileChannelingLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
