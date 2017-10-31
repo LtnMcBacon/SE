@@ -102,18 +102,18 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.materialManager->Create(mainC, info);
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	Utilz::GUID anims[] = { "DeathAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "Run.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
 	managers.animationManager->ToggleVisible(mainC, true);
 
-	managers.animationManager->Start(mainC, "RunAnimation_Run.anim", 1.0f);
+	managers.animationManager->Start(mainC, "DeathAnim_MCModell.anim", 1.0f);
 
 	auto& c2 = managers.entityManager->Create();
 	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
