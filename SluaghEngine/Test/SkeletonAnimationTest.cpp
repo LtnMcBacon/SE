@@ -191,7 +191,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
 			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
-		if (ImGui::SliderFloat("C2 Speed ", &speed, -1.0f, 1.0f))
+		if (ImGui::SliderFloat("C2 Speed ", &speed, -10.0f, 10.0f))
 			managers.animationManager->SetSpeed(entityToChange, speed);
 		if (ImGui::Button("Start"))
 			managers.animationManager->Start(entityToChange);

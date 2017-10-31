@@ -109,10 +109,21 @@ namespace SE
 		struct RenderTarget
 		{
 			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
+			float clearColor[4];
 			TextureFormat format;
 
+		};
+		struct UnorderedAccessView
+		{
+			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
+			int width;
+			int height;
+			float clearColor[4];
+			TextureFormat format;
 		};
 		enum class PrimitiveTopology : uint8_t
 		{
@@ -177,6 +188,16 @@ namespace SE
 					+ textureBindings[0] + textureBindings[1] + textureBindings[2] + textureBindings[3]
 					+ samplers[0];
 			}
+		};
+
+		struct ComputeShaderStage
+		{
+			static const size_t maxTextures = 4;
+			static const size_t maxUnorderedAccessViews = 4;
+			Utilz::GUID shader;
+			Utilz::GUID textures[maxTextures];
+			Utilz::GUID uavs[maxUnorderedAccessViews];
+
 		};
 
 		struct OutputMergerStage

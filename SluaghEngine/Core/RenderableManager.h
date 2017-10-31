@@ -43,7 +43,7 @@ namespace SE
 			RenderableManager& operator=(const RenderableManager&& other) = delete;
 
 			/**
-			* @brief	Bind a renderable object to and entity
+			* @brief	Bind a renderable object to an entity
 			*
 			* @param[in] entity The entity to bind the renderable object to.
 			* @param[in] meshGUID The guid of the mesh to be used.
@@ -90,12 +90,16 @@ namespace SE
 			*/
 			void Allocate(size_t size);
 
-			RenderableManagerInstancing* rmInstancing;
-			RenderableManagerInstancing* shadowInstancing;
 
 			void Init();
 
 			void UpdateRenderableObject(const Entity& entity);
+			
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
+
+
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			
 			void LinearUnload(size_t sizeToAdd);
 

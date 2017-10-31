@@ -66,8 +66,8 @@ void SE::Core::ImGuiConsole::Frame()
 	}
 	
 
-	//for (auto& fc : frameCallbacks)
-	//	fc();
+	for (auto& fc : frameCallbacks)
+		fc();
 
 	
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);

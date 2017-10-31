@@ -122,25 +122,21 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
 
 
-
-
 #pragma region AudioData
-	auto soundEnt = managers.entityManager->Create();
-	Core::IAudioManager::CreateInfo ausioInfo1;
-	ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
-	ausioInfo1.soundType = Audio::SoundIndexName::BakgroundSound;
-	managers.audioManager->Create(soundEnt, ausioInfo1);
-	Core::IAudioManager::CreateInfo ausioInfo2;
-	ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
-	ausioInfo2.soundType = Audio::SoundIndexName::BakgroundSound;
-	managers.audioManager->Create(soundEnt, ausioInfo2);
+		managers.audioManager->SetCameraEnt(managers.cameraManager->GetActive());
+		auto soundEnt = managers.entityManager->Create();
+		managers.transformManager->Create(soundEnt, DirectX::XMFLOAT3(22.5, 1.0, 22.5));
+		Core::IAudioManager::CreateInfo ausioInfo1;
+		ausioInfo1.soundFile = Utilz::GUID("BLoop.wav");
+		ausioInfo1.soundType = Audio::SoundIndexName::StereoPanLoopSound;
+		managers.audioManager->Create(soundEnt, ausioInfo1);
+		Core::IAudioManager::CreateInfo ausioInfo2;
+		ausioInfo2.soundFile = Utilz::GUID("BLoop2.wav");
+		ausioInfo2.soundType = Audio::SoundIndexName::StereoPanLoopSound;
+		managers.audioManager->Create(soundEnt, ausioInfo2);
 
-	managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
+		managers.audioManager->PlaySound(soundEnt, Utilz::GUID("BLoop.wav"));
 #pragma endregion AudioData
-
-
-
-
 
 
 #pragma region LightDataSet
@@ -254,13 +250,9 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
-		//SE::Core::Entity camera = managers.cameraManager->GetActive();
-		SE::Core::Entity camera = managers.entityManager->Create();
+		SE::Core::Entity camera = managers.cameraManager->GetActive();
 		Core::ICameraManager::CreateInfo cInfo;
 		cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
-
-		managers.cameraManager->Create(camera, cInfo);
-		managers.cameraManager->SetActive(camera);
 
 		float cameraRotationX = DirectX::XM_PI / 3;
 		float cameraRotationY = DirectX::XM_PI / 3;
@@ -431,6 +423,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	bool stepping = false;
 	bool running = true;
+	subSystem.window->UpdateTime();
 	subSystem.window->UpdateTime();
 	float audioTime = 0.0;
 	int audio = 0;
@@ -664,6 +657,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		delete projectileManager;
 		delete testRoom;
 		delete player;
+		delete[] RoomArr;
 
 
 

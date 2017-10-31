@@ -27,6 +27,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 	Init();
 
+
 	Allocate(128);
 
 }
@@ -34,13 +35,13 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
 	size_t allocsize, RenderableManagerInstancing* rmI) : initInfo(initInfo), rmInstancing(rmI)
 {
-	
 	Init();
 
 	shadowInstancing = nullptr;
 
 	Allocate(allocsize);
 }
+
 
 SE::Core::RenderableManager::~RenderableManager()
 {
@@ -185,6 +186,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
 
 	info->pipeline.PSStage.samplers[info->pipeline.PSStage.samplerCount++] = "shadowPointSampler";
+	
 }
 
 void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
@@ -293,6 +295,16 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	}
 }
 
+bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
+{
+	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	if (find != entityToRenderableObjectInfoIndex.end())
+	{
+		return static_cast<bool>(renderableObjectInfo.visible[find->second]);
+	}
+	return false;
+}
+
 void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
 
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
@@ -304,21 +316,11 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateShadowRenderObjectInfo(find->second, &info);
-			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS);
+			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
 			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 
 		}
 	}
-}
-
-bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
-{
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end())
-	{
-		return static_cast<bool>(renderableObjectInfo.visible[find->second]);
-	}
-	return false;
 }
 
 void SE::Core::RenderableManager::Allocate(size_t size)
@@ -437,6 +439,12 @@ void SE::Core::RenderableManager::Init()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if(res < 0)
+		throw std::exception("Could not load defaultVertexShadowShader");
+
+
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
 	info.fillMode = Graphics::FillMode::FILL_SOLID;
@@ -465,6 +473,43 @@ void SE::Core::RenderableManager::Init()
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
+
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
+	if (res)
+		throw std::exception("Could not load default shader");
+
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
+
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+
+		if (status < 0) {
+
+			return ResourceHandler::InvokeReturn::Fail;
+		}
+
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	Graphics::Viewport vp;
+
+	vp.width = 512;
+	vp.height = 512;
+	vp.maxDepth = 1.0f;
+	vp.minDepth = 0.0f;
+	vp.topLeftX = 0.0f;
+	vp.topLeftY = 0.0f;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
 
 	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
 	Graphics::Viewport vp;

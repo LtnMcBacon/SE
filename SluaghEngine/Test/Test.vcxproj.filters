@@ -144,13 +144,16 @@
     <ClCompile Include="BloomTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="RandRoomTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SluaghTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowTest.cpp">
+    <ClCompile Include="DecalTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -276,6 +279,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShadowTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

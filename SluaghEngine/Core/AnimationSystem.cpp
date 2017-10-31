@@ -102,7 +102,7 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
-void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation, float timePos)
+void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation, float& timePos)
 {
 	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
 	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
@@ -110,11 +110,12 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const U
 }
 
 
-void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float timePos, DirectX::XMFLOAT4X4* at) {
+void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float& timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
 	auto& skeleton = skeletons[skeletonGUID];
 	auto& animation = animations[animationGUID];
+	
 
 	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
 	std::vector<XMMATRIX> interpolatedJointTransforms;
@@ -140,6 +141,10 @@ void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID,
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));// *XMMatrixScaling(-1, 1, 1)));
 	}
+
+	if (timePos > (float)animation.Length)
+		timePos = 0.0f;
+
 	StopProfile;
 }
 

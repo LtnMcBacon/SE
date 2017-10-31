@@ -11,11 +11,39 @@ enum RETURN_CODES
 	DEVICE_FAIL = -2
 };
 
+static const char* fullscreenQuadVS = 
+"void VS_main( uint VertexID : SV_VertexID, out float4 oPosH : SV_POSITION, out float2 oTexC : TEXCOORD ) \
+{ \
+	oPosH.x = (VertexID == 2) ? 3.0f : -1.0f; \
+	oPosH.y = (VertexID == 0) ? -3.0f : 1.0f; \
+	oPosH.zw = 1.0f; \
+ \
+	oTexC = oPosH.xy * float2(0.5f, -0.5f) + 0.5f; \
+}";
+
+static const char* MultiPS =
+"Texture2D gTexture : register(t0); \
+SamplerState gTriLinearSam : register(s0); \
+float4 PS_main(float4 posH : SV_POSITION, float2 texC : TEXCOORD) : SV_TARGET \
+{ \
+	return gTexture.Sample(gTriLinearSam, texC).rgba; \
+}";
+
+static const char* SinglePS = 
+"Texture2D gTexture : register(t0); \
+SamplerState gTriLinearSam : register(s0); \
+float4 PS_main(float4 posH : SV_POSITION, float2 texC : TEXCOORD) : SV_TARGET \
+{ \
+	return gTexture.Sample(gTriLinearSam, texC).rrrr; \
+}";
+
+
+
 SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11RenderTargetView* backbuffer, ID3D11DepthStencilView* dsv)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
-	renderTargetViews["backbuffer"] = backbuffer;
+	renderTargetViews["backbuffer"] = { backbuffer, {0.0f, 0.0f,1.0f,0.0f} };
 	depthStencilViews["backbuffer"] = dsv;
 	//Create nullptrs for IDs that are ""
 	vertexBuffers[Utilz::GUID()].buffer = nullptr;
@@ -29,15 +57,47 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	computeShaders[Utilz::GUID()] =  nullptr ;
 	constantBuffers[Utilz::GUID()] = nullptr;
 	shaderResourceViews[Utilz::GUID()] = nullptr;
-	renderTargetViews[Utilz::GUID()] = nullptr;
+	renderTargetViews[Utilz::GUID()] = { nullptr };
 	samplerStates[Utilz::GUID()] = nullptr;
 	blendStates[Utilz::GUID()] = nullptr;
 	rasterizerStates[Utilz::GUID()] = nullptr;
 	depthStencilStates[Utilz::GUID()] = nullptr;
+	unorderedAccessViews[Utilz::GUID()] = { nullptr };
+	ID3DBlob* blob;
+
+	auto hr = D3DCompile(fullscreenQuadVS, strlen(fullscreenQuadVS), NULL, NULL, NULL, "VS_main", "vs_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile fullscreenQuadVS");
+
+	CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release();
+
+	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile MultiPS");
+
+	CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release(); 
+	
+	hr = D3DCompile(SinglePS, strlen(SinglePS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
+	if (FAILED(hr))
+		throw std::exception("Could not compile SinglePS");
+
+	CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release();
+	
+
 }
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
 {
+	//Remove resources that are not owned by the pipelinehandler (added by AddExisting...)
+	for(auto b : manuallyAddedResources)
+	{
+		renderTargetViews.erase(b);
+		shaderResourceViews.erase(b);
+		depthStencilViews.erase(b);
+	}
 	//lots of loops...
 	for (auto& r : vertexBuffers)
 		if (r.second.buffer) r.second.buffer->Release();
@@ -58,17 +118,51 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : shaderResourceViews)
 		if (r.second)r.second->Release();
 	for (auto& r : renderTargetViews)
-		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+		if (r.second.rtv && r.first != Utilz::GUID("backbuffer"))r.second.rtv->Release();
 	for (auto& r : depthStencilViews)
-		if (r.second && r.first != Utilz::GUID("backbuffer"))r.second->Release();
+		if (r.second && r.first != Utilz::GUID("backbuffer"))
+			r.second->Release();
 	for (auto& r : samplerStates)
 		if (r.second)r.second->Release();
+	for (auto& r : unorderedAccessViews)
+		if (r.second.uav)r.second.uav->Release();
 	for (auto& r : blendStates)
 		if (r.second)r.second->Release();
 	for (auto& r : rasterizerStates)
 		if (r.second)r.second->Release();
 	for (auto& r : depthStencilStates)
 		if (r.second)r.second->Release();
+}
+
+int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
+{
+	const auto exists = renderTargetViews.find(id);
+	if (exists != renderTargetViews.end())
+		return EXISTS;
+	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
+	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
+{
+	const auto exists = depthStencilViews.find(id);
+	if (exists != depthStencilViews.end())
+		return EXISTS;
+	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
+{
+	const auto exists = shaderResourceViews.find(id);
+	if (exists != shaderResourceViews.end())
+		return EXISTS;
+	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
 }
 
 int SE::Graphics::PipelineHandler::MergeHandlers(IPipelineHandler * other)
@@ -392,7 +486,6 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						
 					}
 					vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
@@ -1122,6 +1215,7 @@ int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, con
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 	if (target.bindAsShaderResource) desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	if (target.bindAsUnorderedAccess) desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	desc.SampleDesc.Count = 1;
@@ -1156,7 +1250,11 @@ int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, con
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	renderTargetViews[id] = rtv;
+	renderTargetViews[id] = { rtv };
+	renderTargetViews[id].clearColor[0] = target.clearColor[0];
+	renderTargetViews[id].clearColor[1] = target.clearColor[1];
+	renderTargetViews[id].clearColor[2] = target.clearColor[2];
+	renderTargetViews[id].clearColor[3] = target.clearColor[3];
 
 	texture->Release();
 	return SUCCESS;
@@ -1167,7 +1265,7 @@ int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 	auto rtv = renderTargetViews.find(id);
 	if (rtv == renderTargetViews.end())
 		return NOT_FOUND;
-	rtv->second->Release();
+	rtv->second.rtv->Release();
 	renderTargetViews.erase(rtv);
 
 	auto srv = shaderResourceViews.find(id);
@@ -1181,9 +1279,30 @@ int SE::Graphics::PipelineHandler::DestroyRenderTarget(const Utilz::GUID& id)
 int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture)
 {
 	const auto find = depthStencilViews.find(id);
+	if (find != depthStencilViews.end())
+	{
+		if (bindAsTexture)
+		{
+			auto const findSRV = shaderResourceViews.find(id);
+			if (findSRV == shaderResourceViews.end())
+			{
+				ID3D11Texture2D* texture;
 
-	if (find != depthStencilViews.end()) {
-	
+				find->second->GetResource((ID3D11Resource**)&texture);
+
+				D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+				srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				srvd.Texture2D.MostDetailedMip = 0;
+				srvd.Texture2D.MipLevels = 1;
+				ID3D11ShaderResourceView* srv;
+				auto hr = device->CreateShaderResourceView(texture, &srvd, &srv);
+				if (FAILED(hr))
+					return DEVICE_FAIL;
+				shaderResourceViews[id] = srv;
+				texture->Release();
+			}
+		}
 		return EXISTS;
 	}
 
@@ -1254,6 +1373,93 @@ int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID & id, const UnorderedAccessView & view)
+{
+	const auto findUAV = unorderedAccessViews.find(id);
+	if (findUAV != unorderedAccessViews.end())
+	{
+		return EXISTS;
+	}
+
+	D3D11_TEXTURE2D_DESC td;
+	ZeroMemory(&td, sizeof(td));
+
+	td.Width = view.width;
+	td.Height = view.height;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+
+	switch (view.format)
+	{
+	case TextureFormat::R32G32B32A32_FLOAT: td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+	case TextureFormat::R8G8B8A8_UNORM:		td.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+	}
+
+
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	td.CPUAccessFlags = 0;
+	td.MiscFlags = 0;
+
+	ID3D11Texture2D* texture;
+	auto hr = device->CreateTexture2D(&td, nullptr, &texture);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
+	description.Format = td.Format;
+	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	description.Texture2D.MipSlice = 0;
+
+	ID3D11UnorderedAccessView* unorderedAccessView;
+	hr = device->CreateUnorderedAccessView(texture, &description, &unorderedAccessView);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	unorderedAccessViews[id] = { unorderedAccessView };
+	unorderedAccessViews[id].clearColor[0] = view.clearColor[0];
+	unorderedAccessViews[id].clearColor[1] = view.clearColor[1];
+	unorderedAccessViews[id].clearColor[2] = view.clearColor[2];
+	unorderedAccessViews[id].clearColor[3] = view.clearColor[3];
+
+	if (view.bindAsShaderResource)
+	{
+		ID3D11ShaderResourceView* srv;
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = td.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		hr = device->CreateShaderResourceView(texture, &srvDesc, &srv);
+		if (FAILED(hr))
+			return DEVICE_FAIL;
+		shaderResourceViews[id] = srv;
+	}
+
+	texture->Release();
+
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID & id)
+{
+	auto find = unorderedAccessViews.find(id);
+	if (find == unorderedAccessViews.end())
+		return NOT_FOUND;
+	find->second.uav->Release();
+	unorderedAccessViews.erase(find);
+
+	auto srv = shaderResourceViews.find(id);
+	if (srv != shaderResourceViews.end())
+	{
+		srv->second->Release();
+		shaderResourceViews.erase(srv);
+	}
+	return SUCCESS;
+}
+
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	StartProfile;
@@ -1269,6 +1475,7 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 		currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
 	}
 	SetRasterizerStage(pipeline.RStage);
+	//ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
 
@@ -1292,16 +1499,20 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 
 void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
 {
-	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
 	for(auto& rtv : renderTargetViews)
 	{
-		if(rtv.second)
+		if(rtv.second.rtv)
 		{
-			deviceContext->ClearRenderTargetView(rtv.second, clearColor);
+			deviceContext->ClearRenderTargetView(rtv.second.rtv, rtv.second.clearColor);
 		}
 	}
-
+	for (auto& uav : unorderedAccessViews)
+	{
+		if (uav.second.uav)
+		{
+			deviceContext->ClearUnorderedAccessViewFloat(uav.second.uav, uav.second.clearColor);
+		}
+	}
 	for (auto& dsv : depthStencilViews) {
 
 		if (dsv.second)
@@ -1595,24 +1806,25 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		if (oms.renderTargets[i] != c.renderTargets[i])
 		{
 			changed = true;
-			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
-			if (rtv != renderTargetViews.end())
-				renderTargets[i] = rtv->second;
-			else
-				renderTargets[i] = nullptr;
-			c.renderTargets[i] = oms.renderTargets[i];
 		}
+		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
+		if (rtv != renderTargetViews.end())
+			renderTargets[i] = rtv->second.rtv;
+		else
+			renderTargets[i] = nullptr;
+		c.renderTargets[i] = oms.renderTargets[i];
 	}
 	c.renderTargetCount = oms.renderTargetCount;
 	ID3D11DepthStencilView* depthview = nullptr;
 	if (oms.depthStencilView != c.depthStencilView)
 	{
 		changed = true;
-		const auto dsv = depthStencilViews.find(oms.depthStencilView);
-		if (dsv != depthStencilViews.end())
-			depthview = dsv->second;
-		c.depthStencilView = oms.depthStencilView;
 	}
+	const auto dsv = depthStencilViews.find(oms.depthStencilView);
+	if (dsv != depthStencilViews.end())
+		depthview = dsv->second;
+	c.depthStencilView = oms.depthStencilView;
+	
 
 	if (changed)
 		deviceContext->OMSetRenderTargets(oms.renderTargetCount, renderTargets, depthview);
@@ -1794,7 +2006,7 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 	{
 		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
 		if (rtv != renderTargetViews.end())
-			renderTargets[i] = rtv->second;
+			renderTargets[i] = rtv->second.rtv;
 		else
 			renderTargets[i] = nullptr;
 		c.renderTargets[i] = oms.renderTargets[i];

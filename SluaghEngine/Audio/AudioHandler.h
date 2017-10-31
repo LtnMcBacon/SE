@@ -5,6 +5,7 @@
 #include <Audio\IAudioHandler.h>
 #include "AudioSound.h"
 #include "AudioStream.h"
+#include "AudioStructType.h"
 #include <Utilz\GUID.h>
 #include <map>
 
@@ -45,6 +46,19 @@ namespace SE {
 			*
 			*/
 			int CreateStream(int soundID, Audio::SoundIndexName soundType) override;
+
+			/**
+			* @brief	Create a stream and return it's ID
+			*
+			* @param[in] soundFile The GUID of the requested soundfile
+			* @param[in] soundType The type of sound
+			* @param[in] panData Data for stereo paning
+			*
+			* @retval 0+ Stream ID
+			* @retval -1 Could not find sound/sound not loaded
+			*
+			*/
+			int CreatePanStream(int soundID, Audio::SoundIndexName soundType, PanData panData) override;
 			/**
 			* @brief Streams the given sound
 			*
@@ -75,6 +89,17 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID) override;
+			/**
+			* @brief Updates Pos of head and sound
+			*
+			* @param[in] streamID The stream ID
+			* @param[in] panData Data for stereo paning
+			*
+			* @retval 0 Tells that UpdateStreamPos was sucessful
+			* @retval -1 Tells that UpdateStreamPos was unsucessful
+			*
+			*/
+			int UpdateStreamPos(int streamID, PanData panData) override;
 			void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol) override;
 			void Shutdown() override;
 		private:
