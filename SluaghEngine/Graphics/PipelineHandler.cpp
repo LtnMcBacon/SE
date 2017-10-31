@@ -91,6 +91,13 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 
 SE::Graphics::PipelineHandler::~PipelineHandler()
 {
+	//Remove resources that are not owned by the pipelinehandler (added by AddExisting...)
+	for(auto b : manuallyAddedResources)
+	{
+		renderTargetViews.erase(b);
+		shaderResourceViews.erase(b);
+		depthStencilViews.erase(b);
+	}
 	//lots of loops...
 	for (auto& r : vertexBuffers)
 		if (r.second.buffer) r.second.buffer->Release();
@@ -125,6 +132,37 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 		if (r.second)r.second->Release();
 	for (auto& r : depthStencilStates)
 		if (r.second)r.second->Release();
+}
+
+int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
+{
+	const auto exists = renderTargetViews.find(id);
+	if (exists != renderTargetViews.end())
+		return EXISTS;
+	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
+	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
+{
+	const auto exists = depthStencilViews.find(id);
+	if (exists != depthStencilViews.end())
+		return EXISTS;
+	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
+}
+
+int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
+{
+	const auto exists = shaderResourceViews.find(id);
+	if (exists != shaderResourceViews.end())
+		return EXISTS;
+	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
+	manuallyAddedResources.insert(id);
+	return SUCCESS;
 }
 
 int SE::Graphics::PipelineHandler::MergeHandlers(IPipelineHandler * other)
@@ -448,7 +486,6 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						if (FAILED(hr))
 							return DEVICE_FAIL;
 						constantBuffers[sbd.Name] = buffer;
-						
 					}
 					vertexShaders[id].constantBuffers.push_back(sbd.Name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
@@ -1200,6 +1237,7 @@ int SE::Graphics::PipelineHandler::CreateRenderTarget(const Utilz::GUID& id, con
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 	if (target.bindAsShaderResource) desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	if (target.bindAsUnorderedAccess) desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	desc.SampleDesc.Count = 1;
@@ -1804,24 +1842,25 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 		if (oms.renderTargets[i] != c.renderTargets[i])
 		{
 			changed = true;
-			const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
-			if (rtv != renderTargetViews.end())
-				renderTargets[i] = rtv->second.rtv;
-			else
-				renderTargets[i] = nullptr;
-			c.renderTargets[i] = oms.renderTargets[i];
 		}
+		const auto rtv = renderTargetViews.find(oms.renderTargets[i]);
+		if (rtv != renderTargetViews.end())
+			renderTargets[i] = rtv->second.rtv;
+		else
+			renderTargets[i] = nullptr;
+		c.renderTargets[i] = oms.renderTargets[i];
 	}
 	c.renderTargetCount = oms.renderTargetCount;
 	ID3D11DepthStencilView* depthview = nullptr;
 	if (oms.depthStencilView != c.depthStencilView)
 	{
 		changed = true;
-		const auto dsv = depthStencilViews.find(oms.depthStencilView);
-		if (dsv != depthStencilViews.end())
-			depthview = dsv->second;
-		c.depthStencilView = oms.depthStencilView;
 	}
+	const auto dsv = depthStencilViews.find(oms.depthStencilView);
+	if (dsv != depthStencilViews.end())
+		depthview = dsv->second;
+	c.depthStencilView = oms.depthStencilView;
+	
 
 	if (changed)
 		deviceContext->OMSetRenderTargets(oms.renderTargetCount, renderTargets, depthview);

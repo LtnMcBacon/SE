@@ -74,7 +74,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 {
 	StartProfile;
 	loadResourceLock.lock();
-	auto& find = guidToResourceInfoIndex.find(guid);
+	auto find = guidToResourceInfoIndex.find(guid);
 	auto& index = guidToResourceInfoIndex[guid];
 
 	if (find == guidToResourceInfoIndex.end()) //If resource is not registered.

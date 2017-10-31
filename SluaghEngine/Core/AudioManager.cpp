@@ -7,8 +7,10 @@ namespace SE {
 		{
 
 			_ASSERT(initInfo.entityManager);
+			_ASSERT(initInfo.transformManager);
 			_ASSERT(initInfo.resourceHandler);
 			_ASSERT(initInfo.console);
+			Init();
 			audioHandler = Audio::CreateNewAudioHandler();
 			auto res = audioHandler->Initialize();
 			if (res)
@@ -18,6 +20,10 @@ namespace SE {
 		{
 			audioHandler->Shutdown();
 			delete audioHandler;
+		}
+		void AudioManager::Init()
+		{
+			initInfo.transformManager->RegisterSetDirty({ this, &AudioManager::SetDirty });
 		}
 		void AudioManager::Create(const Entity & entity, const CreateInfo & createInfo)
 		{
@@ -51,15 +57,28 @@ namespace SE {
 				}
 			}
 
-			int handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
+			int handle;
+			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound)
+				handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
+			else
+			{
+				Audio::PanData panData;
+				panData.headPos = initInfo.transformManager->GetPosition(cameraEnt);
+				panData.hearingVec = initInfo.transformManager->GetRight(cameraEnt);
+				panData.hearingVec.x = -panData.hearingVec.x;
+				panData.hearingVec.y = -panData.hearingVec.y;
+				panData.hearingVec.z = -panData.hearingVec.z;
+				panData.soundPos = initInfo.transformManager->GetPosition(entity);
+				handle = audioHandler->CreatePanStream(sound.handle, createInfo.soundType, panData);
+			}
 			if (handle < 0)
 			{
 				initInfo.console->PrintChannel("Warning", "Could not create stream. GUID: %u, Error: %d",  createInfo.soundFile, handle);
 				ProfileReturnVoid;
 			}
 			sound.refCount++;
-			entityEntry.guidToStream[createInfo.soundFile] = handle;
-
+			entityEntry.guidToStream[createInfo.soundFile].stream = handle;
+			entityEntry.guidToStream[createInfo.soundFile].soundType = createInfo.soundType;
 			ProfileReturnVoid;
 		}
 		void AudioManager::PlaySound(const Entity & entity, const Utilz::GUID & soundFile)
@@ -70,7 +89,8 @@ namespace SE {
 				auto findS = findE->second.guidToStream.find(soundFile);
 				if (findS != findE->second.guidToStream.end())
 				{
-					audioHandler->StreamSound(findS->second);
+					audioHandler->StreamSound(findS->second.stream);
+					findS->second.playState = true;
 				}
 			}
 		}
@@ -82,7 +102,8 @@ namespace SE {
 				auto findS = findE->second.guidToStream.find(soundFile);
 				if (findS != findE->second.guidToStream.end())
 				{
-					audioHandler->StopSound(findS->second);
+					audioHandler->StopSound(findS->second.stream);
+					findS->second.playState = true;
 				}
 			}
 		}
@@ -117,7 +138,15 @@ namespace SE {
 			_ASSERT(timer);
 			timer->Start(CREATE_ID_HASH("AudioManager"));
 			GarbageCollection();
+			if (PanExist)
+				UpdateDirtyTransforms();
 			timer->Stop(CREATE_ID_HASH("AudioManager"));
+		}
+
+		void AudioManager::SetCameraEnt(const Entity & entity)
+		{
+			cameraEnt = entity;
+			PanExist = true;
 		}
 
 		void AudioManager::GarbageCollection()
@@ -145,7 +174,7 @@ namespace SE {
 			StartProfile;
 			for (auto& s : entToSounds[soundEntity[index]].guidToStream)
 			{
-				audioHandler->RemoveSound(s.second);
+				audioHandler->RemoveSound(s.second.stream);
 			}
 			entToSounds.erase(soundEntity[index]);
 			soundEntity[index] = soundEntity[soundEntity.size() - 1];
@@ -158,5 +187,63 @@ namespace SE {
 
 		}
 
+		void SE::Core::AudioManager::SetDirty(const Entity & entity, size_t index)
+		{
+			if (entity == cameraEnt)
+			{
+				cameraMove = true;
+			}
+			dirtyEntites.push_back({ index, entity });
+		}
+
+		void SE::Core::AudioManager::UpdateDirtyTransforms()
+		{
+			StartProfile;
+			Audio::PanData panData;
+			panData.headPos = initInfo.transformManager->GetPosition(cameraEnt);
+			panData.hearingVec = initInfo.transformManager->GetRight(cameraEnt);
+			panData.hearingVec.x = -panData.hearingVec.x;
+			panData.hearingVec.y = -panData.hearingVec.y;
+			panData.hearingVec.z = -panData.hearingVec.z;
+			if (cameraMove)
+			{
+				for (auto& ent : soundEntity)
+				{
+					auto& findE = entToSounds.find(ent);
+					if (findE != entToSounds.end())
+					{
+						for (auto& sounds : findE->second.guidToStream)
+						{
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							{
+								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
+								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
+							}
+						}
+					}
+				}
+				cameraMove = false;
+			}
+			else
+			{
+				for (auto& dirty : dirtyEntites)
+				{
+					auto& findE = entToSounds.find(dirty.entity);
+					if (findE != entToSounds.end())
+					{
+						for (auto& sounds : findE->second.guidToStream)
+						{
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							{
+								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
+								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
+							}
+						}
+					}
+				}
+			}
+			dirtyEntites.clear();
+			StopProfile;
+		}
 	}	//namespace Core
 }	//namespace SE

@@ -32,12 +32,12 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 }
 
-SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, size_t allocsize, RenderableManagerInstancing * rmI) : initInfo(initInfo),
-rmInstancing(rmI)
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
+	size_t allocsize, RenderableManagerInstancing* rmI) : initInfo(initInfo), rmInstancing(rmI)
 {
 	Init();
 
-	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	shadowInstancing = nullptr;
 
 	Allocate(allocsize);
 }
@@ -179,18 +179,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
 
-
-//	info->pipeline.
-
-/*
-	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
-	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	info->topology = renderableObjectInfo.topology[index];
-	info->vertexShader = defaultShader;
-	info->fillSolid = renderableObjectInfo.wireframe[index] ? 0u : 1u;
-	info->transparency = renderableObjectInfo.transparency[index];*/
-
-	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
 
 	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
@@ -208,6 +196,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
 
 	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+	info->pipeline.PSStage.shader = Utilz::GUID();
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
 	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
@@ -319,10 +308,10 @@ bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
 
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end()) 
+	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 
-		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow){
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
 
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
 			Graphics::RenderJob info;
@@ -449,9 +438,9 @@ void SE::Core::RenderableManager::Init()
 
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
+
 	if(res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
-
 
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
@@ -481,28 +470,12 @@ void SE::Core::RenderableManager::Init()
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
-
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
-	if (res)
-		throw std::exception("Could not load default shader");
-
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
-
-		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-
-		if (status < 0) {
-
-			return ResourceHandler::InvokeReturn::Fail;
-		}
-
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
 	
-	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
 	Graphics::Viewport vp;
 
-	vp.width = 512;
-	vp.height = 512;
+	vp.width = 1024;
+	vp.height = 1024;
 	vp.maxDepth = 1.0f;
 	vp.minDepth = 0.0f;
 	vp.topLeftX = 0.0f;
@@ -561,6 +534,7 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 			if (renderableObjectInfo.visible[find->second])
 			{
 				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+				shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
 			}				
 		}
 	}
