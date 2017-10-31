@@ -32,7 +32,6 @@ External*
 *.raw
 *.bmp
 *.SEBT
-!*.hlsl
 
 Build\
 *.fbx
@@ -119,7 +118,6 @@ artifacts/
 *.lib
 *.dll
 External*
-Asset\
 Assets\
 Format\
 FbxTemp\
