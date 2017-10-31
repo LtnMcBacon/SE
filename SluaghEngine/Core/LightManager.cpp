@@ -108,7 +108,7 @@ namespace SE {
 						{
 							cb.data[count].colour = l.second.colour;
 							cb.data[count].pos = l.second.pos;
-							cb.data[count].castShadow.x = l.second.castShadow;
+							cb.data[count].castShadow[0] = l.second.castShadow;
 							count++;
 						}
 						if (count == 20)
