@@ -2,7 +2,7 @@
 #include <Profiler.h>
 //#include <Utilz\Console.h>
 
-SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo), mLoading(initInfo.renderer, initInfo.resourceHandler)
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn), mLoading(initInfoIn.renderer, initInfoIn.resourceHandler)
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);

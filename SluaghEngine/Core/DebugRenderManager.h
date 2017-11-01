@@ -24,7 +24,7 @@ namespace SE
 		class DebugRenderManager : public IDebugRenderManager
 		{
 		public:
-			DebugRenderManager( const InitializationInfo& initInfo);
+			DebugRenderManager( const IDebugRenderManager::InitializationInfo& initInfo);
 			~DebugRenderManager();
 			DebugRenderManager(const DebugRenderManager& other) = delete;
 			DebugRenderManager(const DebugRenderManager&& other) = delete;

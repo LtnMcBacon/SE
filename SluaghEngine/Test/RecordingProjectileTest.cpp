@@ -235,7 +235,16 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 				}
 			}
 		}
-
+		if (player == nullptr)
+		{
+			delete testRoom;
+			delete player;
+			delete[] RoomArr;
+			game.Shutdown();
+			engine->Release();
+			delete engine;
+			ProfileReturnConst(false);
+		}
 
 		Core::IMaterialManager::CreateInfo playerInfo;
 		material = Utilz::GUID("MCModell.mat");
