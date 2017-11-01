@@ -1,4 +1,5 @@
 #include "MaterialLoading.h"
+static const SE::Utilz::GUID defaultTexture("ft_stone01_c.sei");
 
 int SE::Core::MaterialLoading::LoadMaterialFile(const Utilz::GUID& material)
 {
@@ -102,7 +103,7 @@ int SE::Core::MaterialLoading::LoadTextures(const Utilz::GUID& materialFile, boo
 	for (uint8_t i = 0; i < material.textureInfo.numTextures; i++)
 	{
 		bool isLoaded = IsTextureLoaded(material.textureInfo.textures[i]);
-		auto& texture = guidToTexture[material.textureInfo.textures[i]];
+		guidToTexture[material.textureInfo.textures[i]];
 		if (!isLoaded)
 		{
 			resourceHandler->LoadResource(material.textureInfo.textures[i],
@@ -138,6 +139,47 @@ int SE::Core::MaterialLoading::LoadTexture(const Utilz::GUID & texture)
 		guidToTexture[texture].refCount ++;
 
 	return result;
+}
+
+void SE::Core::MaterialLoading::LoadTextures(const Entity& entity, const Utilz::GUID & materialFile, bool async, ResourceHandler::Behavior behavior)
+{
+	auto& mat = guidToMaterial[materialFile];
+	for (uint8_t i = 0; i < mat.textureInfo.numTextures; i++)
+	{
+		textureLock.lock();
+		auto& t = guidToTexture.find(mat.textureInfo.textures[i]);
+		if (t == guidToTexture.end())
+		{
+			textureLock.unlock();
+			auto temp = mat.textureInfo.textures[i];
+			mat.textureInfo.textures[i] = defaultTexture;
+			auto result = resourceHandler->LoadResource(temp, [this, materialFile, &mat, i, async, entity](auto guid, auto data, auto size)
+			{
+				auto texture = guid;
+				auto result = LoadTexture(guid, data, size);
+				if (result < 0)
+				{
+					console->PrintChannel("Resources", "Could not load texture. Using default instead. GUID: %u, Error: %d\n", guid, result);
+					texture = defaultTexture;
+				}
+				textureLock.lock();
+				guidToTexture[guid].refCount++;
+				
+				if (async)
+				{
+					toUpdate.push({ materialFile , i , texture , entity});
+				}
+				else
+				{
+					mat.textureInfo.textures[i] = texture;
+				}
+				textureLock.unlock();
+				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			}, async, behavior);
+		}
+		else
+			textureLock.unlock();
+	}
 }
 
 bool SE::Core::MaterialLoading::IsTextureLoaded(const Utilz::GUID & guid) const
@@ -183,10 +225,64 @@ bool SE::Core::MaterialLoading::IsShaderLoaded(const Utilz::GUID & guid) const
 	return findShader != guidToShader.end();
 }
 
-SE::Core::MaterialLoading::MaterialLoading(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler) : renderer(renderer), resourceHandler(resourceHandler)
+SE::Core::MaterialLoading::MaterialLoading(Graphics::IRenderer * renderer, ResourceHandler::IResourceHandler * resourceHandler, DevConsole::IConsole* console)
+	: renderer(renderer), resourceHandler(resourceHandler), console(console)
 {
 }
 
 SE::Core::MaterialLoading::~MaterialLoading()
 {
+}
+
+void SE::Core::MaterialLoading::LoadStuff(const LoadInfo& info, bool async, ResourceHandler::Behavior b)
+{
+	//shaderLock.lock();
+	//
+	//auto result = renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+	//if (result < 0)
+	//{
+	//	console->PrintChannel("Resources", "Could not load shader. Using default instead. GUID: %u, Error: %d\n", info.shader, result);
+	//	//materialInfo.shader[newEntry] = defaultPixelShader;
+	//}
+	//shaderLock.unlock();
+	//materialLock.lock();
+	//const auto findM = guidToMaterial.find(info.material);
+	//if (findM == guidToMaterial.end())
+	//{
+	//	result = resourceHandler->LoadResource(info.material, [](auto guid, auto data, auto size) {
+	//		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	//	}, false, b);
+	//	if (result < 0)
+	//	{
+	//		console->PrintChannel("Resources", "Could not load material. Using default instead. GUID: %u, Error: %d\n", info.material, result);
+	//		//materialInfo.material[newEntry] = defaultMaterial;
+	//	}
+	//}
+	//materialLock.unlock();
+	//auto& mat = guidToMaterial[info.material];
+	//for (uint8_t i = 0; i < mat.textureInfo.numTextures; i++)
+	//{
+
+	//}
+	//auto result = resourceHandler->LoadResource(info.shader, [](auto guid, auto data, auto size) {
+	//	return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	//}, async, b);
+
+}
+
+bool SE::Core::MaterialLoading::DoUpdate(std::vector<Entity>& entitiesToUpdate)
+{
+	bool s = false;
+	while (!toUpdate.wasEmpty())
+	{
+		s = true;
+		auto& top = toUpdate.top();
+
+		auto& mat = guidToMaterial[top.material];
+		mat.textureInfo.textures[top.index] = top.texture;
+		entitiesToUpdate.push_back(top.entity);
+		toUpdate.pop();
+	}
+
+	return s;
 }

@@ -144,6 +144,12 @@
     <ClCompile Include="EventManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IDecalManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DecalManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioManager.h">
@@ -244,6 +250,12 @@
     </ClInclude>
     <ClInclude Include="RenderableManager.h">
       <Filter>Header Files\RenderObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IDecalManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderableManagerInstancing.h">
       <Filter>Header Files\RenderObjects</Filter>

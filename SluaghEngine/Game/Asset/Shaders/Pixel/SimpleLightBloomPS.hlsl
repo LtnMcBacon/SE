@@ -12,10 +12,9 @@ struct Light
 
 cbuffer LightDataBuffer : register(b2)
 {
-	uint4 nrOfLights;
+	float4 nrOfLights;
 	Light pointLights[20];
 };
-
 cbuffer CameraPos : register(b3)
 {
 	float4 cameraPos;
@@ -33,20 +32,20 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
-	float4 BinormalInW : BINORMALINW;
-	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 
-float4 PS_main(PS_IN input) : SV_TARGET
+struct PS_OUT
+{
+	float4 backBuffer: SV_TARGET0;
+	float4 bloomBuffer: SV_TARGET1;
+};
+
+PS_OUT PS_main(PS_IN input) 
 {
 	float attenuation = 1.0f;
 	float3 totLight = ambient.xyz;
 	float3 light = float3(0.0, 0.0, 0.0);
-	float3 normalTs = NormalMap.Sample(sampAni, input.Tex).xyz;
-	normalTs = normalize(normalTs * 2.0f - 1.0f);
-	float3x3 Tbm = float3x3(normalize(input.TangentInW).xyz, normalize(input.BinormalInW).xyz, normalize(input.NormalInW).xyz);
-	float3 normalWorld = mul(normalTs, Tbm);
 	float distance;
 	float specPower = specular.w;
 
@@ -58,13 +57,13 @@ float4 PS_main(PS_IN input) : SV_TARGET
 
 		light /= distance;
 
-		float normalDotLight = saturate(dot(normalWorld, light));
+		float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
 		float3 calcDiffuse = normalDotLight * pointLights[i].colour.xyz * (DiffuseColor.Sample(sampAni, input.Tex).xyz * diffuse.xyz);
 		
 		//Calculate specular term
 		float3 V = cameraPos.xyz - input.PosInW.xyz;
 		float3 H = normalize(light + V);
-		float3 power = pow(saturate(dot(normalWorld, H)), specPower);
+		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;
 		float3 specularTot = power * colour * normalDotLight;
 
@@ -72,5 +71,13 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
 	}
 	
-	return float4(totLight, 1.0f);
+	
+	PS_OUT output;
+	output.backBuffer = float4(totLight, 1.0f);
+	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (output.backBuffer.r > .8) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
+	if (output.backBuffer.g > .8) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
+	if (output.backBuffer.b > .8) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
+
+	return output;
 }

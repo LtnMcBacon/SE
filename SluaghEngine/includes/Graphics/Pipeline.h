@@ -109,20 +109,21 @@ namespace SE
 		struct RenderTarget
 		{
 			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
-			float clearColor[4];
+			float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 			TextureFormat format;
 
 		};
 		struct UnorderedAccessView
 		{
 			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
 			float clearColor[4];
 			TextureFormat format;
-
 		};
 		enum class PrimitiveTopology : uint8_t
 		{
@@ -172,7 +173,8 @@ namespace SE
 		//	static const size_t maxConstantBuffers = 4;
 			static const size_t maxTextures = 4;
 			static const size_t maxSamplers = 2;
-			Utilz::GUID shader;
+			static const size_t maxUAVs = 4;
+			Utilz::GUID shader = Utilz::GUID();
 		//	Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
@@ -181,12 +183,25 @@ namespace SE
 			uint8_t textureCount = 0;
 			uint8_t samplerCount = 0;
 
+			Utilz::GUID uavs[maxUAVs];
+			uint8_t uavCount = 0;
+
 			Utilz::GUID GetID()const
 			{
 				return shader + textures[0] + textures[1] + textures[2] + textures[3]
 					+ textureBindings[0] + textureBindings[1] + textureBindings[2] + textureBindings[3]
 					+ samplers[0];
 			}
+		};
+
+		struct ComputeShaderStage
+		{
+			static const size_t maxTextures = 4;
+			static const size_t maxUnorderedAccessViews = 4;
+			Utilz::GUID shader;
+			Utilz::GUID textures[maxTextures];
+			Utilz::GUID uavs[maxUnorderedAccessViews];
+
 		};
 
 		struct OutputMergerStage

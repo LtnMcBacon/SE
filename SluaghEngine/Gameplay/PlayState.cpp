@@ -22,9 +22,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 	this->input = Input;
 	this->engine = engine;
 
-	InitializeRooms();
-	InitializePlayer();
-	InitializeOther();
+	//InitializeRooms();
+	//InitializePlayer();
+	//InitializeOther();
 
 	BehaviourPointers temp;
 	temp.currentRoom = &currentRoom;
@@ -36,6 +36,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 PlayState::~PlayState()
 {
 	delete projectileManager;
+	//delete player;
+	//delete currentRoom;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -111,7 +113,7 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = rand() % nrOfRooms;
+	int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 	currentRoom = testRoom;

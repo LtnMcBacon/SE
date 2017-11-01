@@ -113,20 +113,26 @@ namespace SE {
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
 			StartProfile;
-			if (soundType == BakgroundSound)
+			if (soundType == BakgroundLoopSound || soundType == BakgroundSound)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = soundSample[soundID];
-				outData->pData.currentPos = 0;
-				outData->pData.volume = (masterVol * bakgroundVol) / 10000;
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &bakgroundVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 				ProfileReturn((void*)outData);
 			}
-			else if (soundType == EffectSound)
+			else if (soundType == StereoPanSound || soundType == StereoPanLoopSound)
 			{
 				AudioOut *outData = new AudioOut();
 				outData->sample = soundSample[soundID];
-				outData->pData.currentPos = 0;
-				outData->pData.volume = (masterVol * effectVol) / 10000;
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &effectVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 				ProfileReturn((void*)outData);
 			}
 			ProfileReturnConst(nullptr);
@@ -142,11 +148,11 @@ namespace SE {
 				}
 				case BakgroundVol:
 				{
-					bakgroundVol = newVol;
+					bakgroundVol = (masterVol * newVol) / 10000;
 				}
 				case EffectVol:
 				{
-					effectVol = newVol;
+					effectVol = (masterVol * newVol) / 10000;;
 				}
 			}
 		}

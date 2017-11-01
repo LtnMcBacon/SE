@@ -111,17 +111,18 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	StopProfile;
 }
 
+
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	
-
+	auto dt = initInfo.window->GetDelta();
 	for (size_t i = 0; i < animationData.used; i++)
 	{
 		if (animationData.playing[i] == 1u)
 		{
 			auto& ai = animationData.animInfo[i];
-			ai.timePos += ai.animationSpeed;
+			ai.timePos += ai.animationSpeed*dt;
 			animationSystem->CalculateMatrices(animationData.entity[i], ai.skeleton, ai.animation, ai.timePos);
 		}
 			
@@ -232,7 +233,7 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.animInfo = (AnimationInfo*)(newData.entity + newData.size);
+	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + newData.size);
 	newData.playing = (uint8_t*)(newData.animInfo + newData.size);
 	
 	// Copy data

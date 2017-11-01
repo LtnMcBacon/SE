@@ -21,6 +21,7 @@ DeviceManager::DeviceManager() {
 	gBackbufferRTV = nullptr;
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
+	gDepthStencilSRV = nullptr;
 	pDSState = nullptr;
 	blendSolidState = nullptr;
 	blendTransState = nullptr;
@@ -101,31 +102,23 @@ void DeviceManager::Shutdown() {
 
 	StartProfile;
 
-
+	gBBSRV->Release();
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
 	pDSState->Release();
-
-	gDepthStencil->Release();
 	gDepthStencilView->Release();
-
-	
+	gDepthStencilSRV->Release();
 	blendSolidState->Release();
 	blendTransState->Release();
 	rasterSolidState->Release();
 	rasterWireState->Release();
-
-#ifdef _DEBUG
-
-	/*reportLiveObjects(gDevice);*/
-
-#endif
 	gSwapChain->Release();
-
-
 	gSecDeviceContext->Release();
 	gDeviceContext->Release();
-	gDevice->Release();;
+#ifdef _DEBUG
+//	reportLiveObjects(gDevice);
+#endif
+	gDevice->Release();
 
 	StopProfile;
 }
@@ -232,6 +225,16 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 		ProfileReturnConst(hr);
 	}
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.Texture2D.MostDetailedMip = 0;
+	srvd.Texture2D.MipLevels = 1;
+
+	gDevice->CreateShaderResourceView(gBackBuffer, &srvd, &gBBSRV);
+
+
+
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 
 	if (FAILED(hr)) {
@@ -249,16 +252,54 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	gBackBuffer->GetDesc(&gBB_Desc);
 
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(
-		DXGI_FORMAT_D24_UNORM_S8_UINT,
-		static_cast<UINT> (gBB_Desc.Width),
-		static_cast<UINT> (gBB_Desc.Height),
-		1, // This depth stencil view has only one texture
-		1, // Use a single mipmap level
-		D3D11_BIND_DEPTH_STENCIL
-	);
+	//CD3D11_TEXTURE2D_DESC depthStencilDesc(
+	//	DXGI_FORMAT_D24_UNORM_S8_UINT,
+	//	static_cast<UINT> (gBB_Desc.Width),
+	//	static_cast<UINT> (gBB_Desc.Height),
+	//	1, // This depth stencil view has only one texture
+	//	1, // Use a single mipmap level
+	//	D3D11_BIND_DEPTH_STENCIL
+	//);
 
-	HRESULT hr = gDevice->CreateTexture2D(
+	D3D11_TEXTURE2D_DESC td;
+	td.Width = static_cast<UINT>(gBB_Desc.Width);
+	td.Height = static_cast<UINT>(gBB_Desc.Height);
+	td.ArraySize = 1;
+	td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	td.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.MipLevels = 1;
+	td.MiscFlags = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.CPUAccessFlags = 0;
+
+	ID3D11Texture2D* depthTexture;
+	HRESULT hr = gDevice->CreateTexture2D(&td, nullptr, &depthTexture);
+	if (FAILED(hr))
+		ProfileReturnConst(hr);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvd.Texture2D.MipSlice = 0;
+	dsvd.Flags = 0;
+
+	hr = gDevice->CreateDepthStencilView(depthTexture, &dsvd, &gDepthStencilView);
+	if (FAILED(hr))
+		ProfileReturnConst(hr);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.Texture2D.MipLevels = td.MipLevels;
+	srvd.Texture2D.MostDetailedMip = 0;
+
+	hr = gDevice->CreateShaderResourceView(depthTexture, &srvd, &gDepthStencilSRV);
+	if (FAILED(hr))
+		ProfileReturnConst(hr);
+
+	/*HRESULT hr = gDevice->CreateTexture2D(
 		&depthStencilDesc,
 		nullptr,
 		&gDepthStencil
@@ -267,9 +308,9 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	if (FAILED(hr)) {
 
 		ProfileReturnConst(hr);
-	}
+	}*/
 
-	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
+//	setDebugName(gDepthStencil, "STANDARD_DEPTH_STENCIL_TEXTURE2D");
 
 
 	D3D11_DEPTH_STENCIL_DESC dsDesc;
@@ -300,10 +341,10 @@ HRESULT DeviceManager::CreateDepthStencil() {
 	gDevice->CreateDepthStencilState(&dsDesc, &pDSState);
 
 	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+	depthTexture->Release();
+	//CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 
-	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
-
-	gDevice->CreateDepthStencilView(
+	/*gDevice->CreateDepthStencilView(
 
 		gDepthStencil,
 		&depthStencilViewDesc,
@@ -313,9 +354,9 @@ HRESULT DeviceManager::CreateDepthStencil() {
 
 	if (FAILED(hr)) {
 		ProfileReturnConst(hr);
-	}
+	}*/
 
-	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
+//	setDebugName(gDepthStencilView, "STANDARD_DEPTH_STENCIL_RTV");
 
 	ProfileReturnConst(hr);
 }
@@ -346,8 +387,9 @@ void DeviceManager::ResizeSwapChain(HWND windowHandle)
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
 	pDSState->Release();
-	gDepthStencil->Release();
+	//gDepthStencil->Release();
 	gDepthStencilView->Release();
+	gDepthStencilSRV->Release();
 	CreateSwapChain(windowHandle);
 	CreateBackBufferRTV();
 	CreateDepthStencil();

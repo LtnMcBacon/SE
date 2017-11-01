@@ -111,7 +111,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_W</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
@@ -126,7 +126,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_W</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
@@ -143,7 +143,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_W</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_W</PreprocessorDefinitions>
     </ClCompile>
     <Link>

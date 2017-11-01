@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
+
 namespace SE
 {
 	namespace Graphics
@@ -16,6 +18,10 @@ namespace SE
 			PipelineHandler(const PipelineHandler& other) = delete;
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
+
+			int AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv) override;
+			int AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv) override;
+			int AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv) override;
 
 			int MergeHandlers(IPipelineHandler* other) override;
 
@@ -79,6 +85,7 @@ namespace SE
 			void SetRasterizerStage(const RasterizerStage& rs);
 			void SetPixelShaderStage(const ShaderStage& pss);
 			void SetOutputMergerStage(const OutputMergerStage& oms);
+			void SetComputeShaderStage(const ShaderStage& css);
 
 			void ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA);
 			void ForcedSetVertexShaderStage(const ShaderStage& vss);
@@ -86,6 +93,7 @@ namespace SE
 			void ForcedSetRasterizerStage(const RasterizerStage& rs);
 			void ForcedSetPixelShaderStage(const ShaderStage& pss);
 			void ForcedSetOutputMergerStage(const OutputMergerStage& oms);
+			void ForcedSetComputeShaderStage(const ShaderStage& css);
 
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;
@@ -128,13 +136,19 @@ namespace SE
 				ID3D11UnorderedAccessView* uav;
 				float clearColor[4];
 			};
+			struct ComputeShaderInfo
+			{
+				ID3D11ComputeShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+			std::unordered_set<Utilz::GUID, Utilz::GUID::Hasher> manuallyAddedResources;
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
 			std::unordered_map<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
 			std::unordered_map<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
 			std::unordered_map<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
-			std::unordered_map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Hasher> computeShaders;
+			std::unordered_map<Utilz::GUID, ComputeShaderInfo, Utilz::GUID::Hasher> computeShaders;
 			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
 			std::unordered_map<Utilz::GUID, RenderTargetInfo, Utilz::GUID::Hasher> renderTargetViews;

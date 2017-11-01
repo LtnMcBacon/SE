@@ -2,7 +2,10 @@
 #include <SDL2/SDL_syswm.h>
 #include <exception>
 #include <Profiler.h>
-
+#include <random>
+#include <string>
+#include <ctime>
+#include <iostream>
 
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
@@ -25,6 +28,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 	height = info.height;
 	fullScreen = info.fullScreen;
 	windowTitle = info.windowTitle;
+	PlaybackFile = info.file;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		throw std::exception("Failed to initialize SDL subsystem");
 	uint32_t createFlags = SDL_WINDOW_SHOWN | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
@@ -112,7 +116,11 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 	}
 	else if (info.winState == WindowState::Playback)
 	{
-		LoadRecording();
+		LoadRecording(PlaybackFile);
+	}
+	else
+	{
+		std::srand(std::time(nullptr));
 	}
 
 	frame = 0;
@@ -208,18 +216,38 @@ void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
-	record.recFile.open("Recording.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	std::time_t currentTime = std::time(nullptr);
+	char timeChar[100];
+	std::strftime(timeChar, sizeof(timeChar),"%A %c", std::localtime(&currentTime));
+	std::string currentStringTime = timeChar;
+	currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
+	record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
+	record.recFile.write((char*)&currentTime, sizeof(std::time_t));
 	record.recordState = true;
+	int posX;
+	int posY;
+	SDL_GetMouseState(&posX, &posY);
+	record.recFile.write((char*)&posX, sizeof(int));
+	record.recFile.write((char*)&posY, sizeof(int));
+	std::srand(currentTime);
 	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
 	StopProfile;
 }
 
-void SE::Window::WindowSDL::LoadRecording()
+void SE::Window::WindowSDL::LoadRecording(std::string file)
 {
 	StartProfile;
-	playRecord.playbackfile.open("Recording.bin", std::ios::in | std::ios::binary);
+	playRecord.playbackfile.open(file, std::ios::in | std::ios::binary);
 	if (playRecord.playbackfile.is_open())
 	{
+		std::time_t currentTime;
+		playRecord.playbackfile.read((char*)&currentTime, sizeof(std::time_t));
+		std::srand(currentTime);
+		int posX;
+		int posY;
+		playRecord.playbackfile.read((char*)&posX, sizeof(int));
+		playRecord.playbackfile.read((char*)&posY, sizeof(int));
+		SDL_WarpMouseInWindow(window, posX, posY);
 		SDL_Event ev;
 		while (!playRecord.playbackfile.eof())
 		{

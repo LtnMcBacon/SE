@@ -250,7 +250,7 @@ namespace SE
 			std::vector<GUITextureInfo> renderTextureJobs;
 	
 			// fonts
-			std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
+			DirectX::SpriteBatch* spriteBatch;
 			std::vector<DirectX::SpriteFont> fonts;
 
 			///*********** Bloom **************/

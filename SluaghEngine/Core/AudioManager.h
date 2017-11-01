@@ -21,9 +21,8 @@ namespace SE {
 		class AudioManager : public IAudioManager
 		{
 		public:
-			AudioManager(const InitializationInfo& initInfo);
+			AudioManager(const IAudioManager::InitializationInfo& initInfo);
 			~AudioManager();
-
 
 			/**
 			* @brief	Create a sound
@@ -58,16 +57,33 @@ namespace SE {
 		
 			void Frame(Utilz::TimeCluster* timer)override;
 
+			void SetCameraEnt(const Entity& entity)override;
+
 		private:
 			InitializationInfo initInfo;
 			
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
+			void Init();
+			void SetDirty(const Entity & entity, size_t index);
+			void UpdateDirtyTransforms();
+			struct DirtyEntityInfo
+			{
+				size_t transformIndex;
+				Entity entity;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
 
+			struct SoundState
+			{
+				int stream;
+				bool playState = false;
+				Audio::SoundIndexName soundType;
+			};
 			struct EntityToSound
 			{
-				std::map<Utilz::GUID, int, Utilz::GUID::Compare> guidToStream;
+				std::map<Utilz::GUID, SoundState, Utilz::GUID::Compare> guidToStream;
 			};
 			struct SoundInfo
 			{
@@ -80,6 +96,9 @@ namespace SE {
 			std::unordered_map<Entity, EntityToSound, EntityHasher> entToSounds;
 			std::vector<Entity> soundEntity;
 
+			Entity cameraEnt;
+			bool PanExist = false;
+			bool cameraMove = false;
 			std::default_random_engine generator;
 		};
 	}	//namespace Core

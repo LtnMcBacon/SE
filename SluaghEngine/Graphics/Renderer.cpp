@@ -39,7 +39,11 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	graphicResourceHandler = new GraphicResourceHandler(device->GetDevice(), device->GetDeviceContext());
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
-//	secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
+	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
+	pipelineHandler->AddExisitingShaderResourceView("backbuffer", device->GetSRV());
+	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
+	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
+	//secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
 
 	Graphics::Viewport vp;
 	vp.width = device->GetTexDesc().Width;
@@ -51,7 +55,8 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 	pipelineHandler->CreateViewport(Utilz::GUID(), vp);
 
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(device->GetDeviceContext());
+
+	spriteBatch = new DirectX::SpriteBatch(device->GetDeviceContext());
 
 	//animationSystem = new AnimationSystem();
 
@@ -68,14 +73,16 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 void SE::Graphics::Renderer::Shutdown()
 {
-	
-//	delete secPipelineHandler;
+
+	delete spriteBatch;
+	fonts.clear();
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
-	device->Shutdown();
+	
 
 	delete gpuTimer;
 	delete graphicResourceHandler;
+	device->Shutdown();
 	delete device;
 }
 
@@ -195,8 +202,8 @@ int SE::Graphics::Renderer::Render()
 	bool first = true;
 	for (auto& group : jobGroups)
 	{
+		
 		first = true;
-
 		for (auto& j : group.second)
 		{
 			int32_t drawn = 0;
@@ -213,13 +220,13 @@ int SE::Graphics::Renderer::Render()
 			{
 				for(auto& mf : j.job.mappingFunc)
 					mf(drawn, 1);
-				devContext->Draw(j.job.vertexCount, j.job.vertexOffset);
+				device->GetDeviceContext()->Draw(j.job.vertexCount, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount != 0 && j.job.instanceCount == 0)
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 1);
-				devContext->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
+				device->GetDeviceContext()->DrawIndexed(j.job.indexCount, j.job.indexOffset, j.job.vertexOffset);
 			}
 			else if (j.job.indexCount == 0 && j.job.instanceCount != 0)
 			{
@@ -229,7 +236,7 @@ int SE::Graphics::Renderer::Render()
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					for (auto& mf : j.job.mappingFunc)
 						mf(drawn, toDraw);
-					devContext->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
+					device->GetDeviceContext()->DrawInstanced(j.job.vertexCount, toDraw, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
 			}
@@ -240,32 +247,41 @@ int SE::Graphics::Renderer::Render()
 					const uint32_t toDraw = std::min(j.job.maxInstances, j.job.instanceCount - drawn);
 					for (auto& mf : j.job.mappingFunc)
 						mf(drawn, toDraw);
-					devContext->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
+					device->GetDeviceContext()->DrawIndexedInstanced(j.job.indexCount, toDraw, j.job.indexOffset, j.job.vertexOffset, j.job.instanceOffset);
 					drawn += toDraw;
 				}
+			}
+			else if (j.job.ThreadGroupCountX != 0 || j.job.ThreadGroupCountY != 0 || j.job.ThreadGroupCountZ != 0)
+			{
+				devContext->Dispatch(j.job.ThreadGroupCountX, j.job.ThreadGroupCountY, j.job.ThreadGroupCountZ);
 			}
 			else if (j.job.vertexCount == 0)
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 0);
-				devContext->DrawAuto();
+				device->GetDeviceContext()->DrawAuto();
 			}
+			
 		}
-
 		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
 		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
+		ID3D11UnorderedAccessView* nullUAVS[8] = { nullptr };
 
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
-
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
+		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
+
 	}
-	
+	{
+		ID3D11RenderTargetView* backbuf = device->GetRTV();
+		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();
+		device->GetDeviceContext()->OMSetRenderTargets(1, &backbuf, depthsv);
+	}
 	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
 	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
 	/*****************End General Jobs******************/
-	
-	ID3D11RenderTargetView* rtvs[] = { device->GetRTV() };
-	device->GetDeviceContext()->OMSetRenderTargets(1, rtvs, device->GetDepthStencil());
+
 
 	//********* Render sprite overlays ********/
 	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
@@ -280,7 +296,7 @@ int SE::Graphics::Renderer::Render()
 
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch.get(), job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			fonts[job.fontID].DrawString(spriteBatch, job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 		spriteBatch->End();
 	}

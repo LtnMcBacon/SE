@@ -288,9 +288,6 @@
     <ClCompile Include="WhileChannelingLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\Gameplay\ChannelingCondition.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClCompile>
     <ClCompile Include="FailUntilSuccess.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Decorators</Filter>
     </ClCompile>
@@ -299,6 +296,21 @@
     </ClCompile>
     <ClCompile Include="ForestTrainer.cpp">
       <Filter>Source Files\AI\Slaugh</Filter>
+    </ClCompile>
+    <ClCompile Include="ChannelingCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapAtPlayerLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="BodachMeleeAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="PechRangedAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="PechMeleeAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
     <ClCompile Include="SkillFactory.cpp">
       <Filter>Source Files\Skills</Filter>
@@ -484,6 +496,18 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\RestartingSequence.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\LeapAtPlayerLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>

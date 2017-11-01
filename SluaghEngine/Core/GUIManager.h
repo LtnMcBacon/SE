@@ -23,7 +23,7 @@ namespace SE
 		class GUIManager : public IGUIManager
 		{
 		public:
-			GUIManager(const InitializationInfo& initInfo);
+			GUIManager(const IGUIManager::InitializationInfo& initInfo);
 			~GUIManager();
 
 			/**

@@ -35,7 +35,7 @@ namespace SE
 			* @endcode
 			* @sa InitializationInfo, Release
 			*/
-			int Init(const InitializationInfo& info = InitializationInfo())override;
+			int Init(const IEngine::InitializationInfo& info = IEngine::InitializationInfo())override;
 
 
 			/**
@@ -126,6 +126,7 @@ namespace SE
 			void InitDebugRenderManager();
 			void InitTextManager();
 			void InitGUIManager();
+			void InitDecalManager();
 
 			void SetupDebugConsole();
 
