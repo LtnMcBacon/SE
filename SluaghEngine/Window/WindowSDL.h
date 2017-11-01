@@ -111,6 +111,11 @@ namespace SE
 			*
 			*/
 			void StopRecording() override;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			void LoadRecording(const std::string& file) override;
 		private:
 			/*
 			* @brief Checks which event ev is.
@@ -186,7 +191,6 @@ namespace SE
 				std::vector<inputRecData> playbackData;
 			};
 			playRecording playRecord;
-			void LoadRecording(std::string file);
 #pragma endregion Playback
 
 			typedef void(WindowSDL::*FrameStrategy)();

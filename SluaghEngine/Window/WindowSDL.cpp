@@ -251,7 +251,7 @@ void SE::Window::WindowSDL::StopRecording()
 	}
 }
 
-void SE::Window::WindowSDL::LoadRecording(std::string file)
+void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 {
 	StartProfile;
 	playRecord.playbackfile.open(file, std::ios::in | std::ios::binary);

@@ -418,6 +418,11 @@ namespace SE
 			*
 			*/
 			virtual void StopRecording() = 0;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			virtual void LoadRecording(const std::string& file) = 0;
 		};
 
 		DECLDIR IWindow* CreateNewWindow();
