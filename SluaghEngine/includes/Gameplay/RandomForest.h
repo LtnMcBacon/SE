@@ -27,7 +27,7 @@ namespace SE
 
 				static const int numberOfTreeTypes = sizeof...(Args);
 
-				int numberOfSamplesBeforeNewTree = 500;
+				int numberOfSamplesBeforeNewTree = 1500;
 
 				/*
 				 * Code to get out one vector from the tuple, as described here:
