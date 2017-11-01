@@ -85,6 +85,16 @@ namespace SE
 			};
 		};
 
+		struct ProjectileCreationData
+		{
+			Rotation rot;
+			float projectileSpeed;
+			float projectileLifeTime;
+			float width;
+			float height;
+			ValidTarget projectileTarget;
+		};
+
 		class Projectile : public GameUnit
 		{
 		public:
@@ -195,7 +205,7 @@ namespace SE
 
 		public:
 			Projectile();
-			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData);
 			Projectile(const Projectile& other);
 			Projectile& operator=(const Projectile& other);
 			Projectile(Projectile&& other);

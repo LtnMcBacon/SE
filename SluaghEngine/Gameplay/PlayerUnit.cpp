@@ -216,7 +216,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "turretProjectile.SEP";
+		temp.fileNameGuid = "dnaProjectiles.SEP";
 
 		newProjectiles.push_back(temp);
 
