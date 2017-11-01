@@ -9,6 +9,9 @@
 #include <Graphics\IRenderer.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include <Utilz\CircularFiFo.h>
+#include <DevConsole\IConsole.h>
+#include <Entity.h>
+
 #include <mutex>
 namespace SE
 {
@@ -40,14 +43,18 @@ namespace SE
 		{
 		public:
 			MaterialLoading(Graphics::IRenderer* renderer,
-			ResourceHandler::IResourceHandler* resourceHandler);
+			ResourceHandler::IResourceHandler* resourceHandler,
+				DevConsole::IConsole* console);
 			~MaterialLoading();
 
+			struct LoadInfo
+			{
+				Entity& entity; Utilz::GUID shader; Utilz::GUID material;
+			};
+			void LoadStuff(const LoadInfo& info, bool async,ResourceHandler::Behavior b);
+			bool DoUpdate(std::vector<Entity>& entitiesToUpdate);
 
-
-
-
-			int LoadShader(const Utilz::GUID& shader);
+			int LoadShader(const Utilz::GUID& guid);
 			bool IsShaderLoaded(const Utilz::GUID& guid)const;
 
 			int LoadMaterialFile(const Utilz::GUID& material);
@@ -62,8 +69,10 @@ namespace SE
 
 
 			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior, const std::function<void(const Utilz::GUID&, int)>& errorCallback);
-			int LoadTexture(const Utilz::GUID& texture);
+			int LoadTexture(const Utilz::GUID& guid);
+			void LoadTextures(const Entity& entity, const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior);
 			bool IsTextureLoaded(const Utilz::GUID& guid)const;
+
 
 		private:
 			int LoadTexture(const Utilz::GUID& guid, void*data, size_t size)const;
@@ -71,12 +80,13 @@ namespace SE
 
 			Graphics::IRenderer* renderer;
 			ResourceHandler::IResourceHandler* resourceHandler;
+			DevConsole::IConsole* console;
 
 			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
 			std::mutex shaderLock;
 
 			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
-			std::mutex textureLock;
+			std::recursive_mutex textureLock;
 
 			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
 			std::mutex materialLock;
@@ -84,8 +94,11 @@ namespace SE
 			struct MaterialUpdateStruct
 			{
 				Utilz::GUID material;
+				size_t index;
+				Utilz::GUID texture;
+				Entity entity;
 			};
-			Utilz::CircularFiFo<MaterialUpdateStruct, 10> toUpdateFull;
+			Utilz::CircularFiFo<MaterialUpdateStruct, 100> toUpdate;
 		};
 	}
 }
