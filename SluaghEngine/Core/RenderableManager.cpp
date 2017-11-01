@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
-static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
+static const SE::Utilz::GUID defaultMesh("default.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
 static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
