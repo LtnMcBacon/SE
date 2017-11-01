@@ -82,16 +82,16 @@ namespace SE
 
 			DamageEvent()
 			{
-				source = DamageSources::DAMAGE_SOURCE_MELEE;
+				/*source = DamageSources::DAMAGE_SOURCE_MELEE;
 				type = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-				amount = 1;
+				amount = 1;*/
 			}
 
 			DamageEvent(DamageSources damageSource, DamageTypes damageType, int damageAmount)
 			{
-				source = damageSource;
+				/*source = damageSource;
 				type = damageType;
-				amount = damageAmount;
+				amount = damageAmount;*/
 			}
 		};
 

@@ -1,10 +1,10 @@
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <Gameplay\SkillFactory.h>
 #include <Gameplay\PlayerUnit.h>
 #include "SkillTest.h"
 #include <iostream>
 #include <vector>
-
+#include <Gameplay\Game.h>
 SE::Test::SkillTest::SkillTest()
 {
 }
@@ -19,10 +19,15 @@ auto as_integer(Enumeration const value)
 	return static_cast<typename std::underlying_type<Enumeration>::type>(value);
 }
 
-bool SE::Test::SkillTest::Run(SE::Utilz::IConsoleBackend* console)
+bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 {
-	auto& engine = Core::Engine::GetInstance();
-	engine.Init(Core::Engine::InitializationInfo());
+	Gameplay::Game game;
+	auto engine = Core::CreateEngine();
+	engine->Init();
+	game.Initiate(engine);
+
+
+
 
 	SE::Gameplay::SkillFactory SF;
 
@@ -53,6 +58,8 @@ bool SE::Test::SkillTest::Run(SE::Utilz::IConsoleBackend* console)
 
 
 	getchar();
-
+	game.Shutdown();
+	engine->Release();
+	delete engine;
 	return true;
 }

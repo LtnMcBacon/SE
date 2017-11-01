@@ -13,7 +13,7 @@ namespace SE
 			SkillTest();
 			~SkillTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

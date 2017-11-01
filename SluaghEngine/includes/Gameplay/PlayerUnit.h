@@ -268,7 +268,7 @@ namespace SE
 
 			SkillFactory SF;
 
-			void changeElementType(stats::equippedElementalType element);
+			//void changeElementType(Gameplay::DamageTypes element);
 			
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;

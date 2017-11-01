@@ -214,7 +214,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;// +0.2 * sinf(temp.startRotation);
 		temp.startPosY = this->yPos;// +0.2 * cosf(temp.startRotation);
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "testProjectile.SEP";
 

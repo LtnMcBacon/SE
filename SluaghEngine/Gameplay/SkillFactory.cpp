@@ -1,11 +1,12 @@
 #include "SkillFactory.h"
-#include <Core\Engine.h>
+#include <Core\IEngine.h>
 #include <time.h>
 #include <Profiler.h>
-#include <Utilz\Console.h>
+#include "CoreInit.h"
+
 SE::Gameplay::SkillFactory::SkillFactory()
 {
-	auto rm = Core::Engine::GetInstance().GetResourceHandler();
+	auto rm = CoreInit::subSystems.resourceHandler;
 	rm->LoadResource("SkillInfo.skl", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		this->skillAmounts = *((char*)(filePointer));
@@ -15,14 +16,14 @@ SE::Gameplay::SkillFactory::SkillFactory()
 			this->skillAmounts = 0;
 		}
 
-		return 0;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;;
 	});
 }
 
 unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsigned short int* typeList)
 {
 	StartProfile;
-	auto rm = Core::Engine::GetInstance().GetResourceHandler();
+	auto rm = CoreInit::subSystems.resourceHandler;
 	srand(time(NULL));
 
 	SkillInfo* tempSkill;
@@ -31,7 +32,6 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 	unsigned int index;
 	rm->LoadResource("test.si", [this, &index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
-		this->skillAmounts = *(char*)(filePointer);
 		index = rand() % this->skillAmounts;
 		int offset = sizeof(int);
 		for (int i = 0; i < index; i++)
@@ -54,9 +54,6 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 			offset += usiSize;
 			tempSkill->Particle = *((char*)(filePointer)+offset);
 			offset += usiSize;
-
-			//offset++;
-			//offset += sizeof(unsigned int) + stringSize + 1 + (sizeof(unsigned short int) * 6); 
 		}
 		unsigned int stringSize;
 		memcpy(&stringSize, (char*)filePointer + offset, sizeof(unsigned int));
@@ -78,7 +75,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 		offset += usiSize;
 		tempSkill->Particle		= *((char*)(filePointer)+offset);
 
-		return 0;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
 	name = tempSkill->skillName;
@@ -97,7 +94,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, float* attributes)
 {
 	StartProfile;
-	auto rm = Core::Engine::GetInstance().GetResourceHandler();
+	auto rm = CoreInit::subSystems.resourceHandler;
 
 	SkillAttributes* tempSkill;
 	tempSkill = new SkillAttributes;
@@ -121,7 +118,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, floa
 		memcpy(&tempSkill->baneDuration, (char*)filePointer + offset, sizeof(float));
 		offset += sizeof(float);
 
-		return 0;
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
  	attributes[0] = tempSkill->skillDamage;
