@@ -47,9 +47,8 @@ namespace SE
 
 			enum class LoadReturn
 			{
-				VRAM = 1 << 0,
-					RAM = 1 << 1,
-					FAIL = 1 << 2
+				SUCCESS = 1 << 0,
+				FAIL = 1 << 1
 			};
 
 			enum class InvokeReturn1 {
@@ -74,6 +73,10 @@ namespace SE
 				LOADED = 1 << 5
 			};
 
+			enum class UnloadFlags {
+				VRAM = 1 << 0,
+				RAM = 1 << 1
+			};
 			struct Callbacks
 			{
 				Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
@@ -87,7 +90,9 @@ namespace SE
 				const Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)>& invokeCallback,
 				LoadFlags loadFlags);
 			void UnloadResource(const Utilz::GUID& guid)override;
-		
+			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags);
+
+
 		private:
 			struct LoadJob
 			{
@@ -131,6 +136,8 @@ namespace SE
 				Data VRAMData;
 				uint32_t refRAM = 0;
 				uint32_t refVRAM = 0;
+				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> RAMdestroyCallback;
+				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> VRAMdestroyCallback;
 				State state = State::DEAD;
 			};
 		
@@ -155,7 +162,7 @@ namespace SE
 
 			/****************	END To Callback info	*****************/
 			std::mutex infoLock;
-			std::recursive_mutex loadResourceLock;
+			std::mutex loadLock;
 		};
 	}
 }
@@ -163,5 +170,6 @@ ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::LoadReturn);
 ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::InvokeReturn1);
 ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::LoadFlags);
 ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::State);
+ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::UnloadFlags);
 
 #endif //SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_
