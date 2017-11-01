@@ -43,8 +43,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	auto lam = [](std::string file, Window::WindowState state)
 	{
-
-
 		using namespace DirectX;
 		auto engine = Core::CreateEngine();
 
