@@ -109,7 +109,6 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const U
 	UpdateAnimation(skeleton, animation, timePos, bucket->matrices[bucketAndID.index].jointMatrix);
 }
 
-
 void SE::Core::AnimationSystem::UpdateAnimation(const Utilz::GUID& skeletonGUID, const Utilz::GUID& animationGUID, float& timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 
