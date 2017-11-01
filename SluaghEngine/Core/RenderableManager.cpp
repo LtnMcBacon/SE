@@ -68,10 +68,9 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 			Allocate(renderableObjectInfo.allocated * 2);
 
 		// Register the entity
-		size_t newEntry = renderableObjectInfo.used;
-		entityToRenderableObjectInfoIndex[entity] = newEntry;
+		size_t newEntry = renderableObjectInfo.used++;
 		renderableObjectInfo.entity[newEntry] = entity;
-		renderableObjectInfo.used++;
+
 		renderableObjectInfo.mesh[newEntry] = { defaultMesh, defaultMeshVertexCount };
 		renderableObjectInfo.visible[newEntry] = 0u;
 		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
@@ -92,14 +91,14 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 				return ResourceHandler::InvokeReturn1::FAIL;
 			return ResourceHandler::InvokeReturn1::SUCCESS;
 		};
-		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+		auto res = initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+		if (res < 0)
+		{
+			renderableObjectInfo.used--;
+			ProfileReturnVoid;
+		}
 
-
-
-		//LoadResource(info.meshGUID, newEntry, async, behavior);
-
-
-
+		entityToRenderableObjectInfoIndex[entity] = newEntry;
 
 	}
 	StopProfile;
@@ -186,17 +185,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	info->vertexCount = renderableObjectInfo.mesh[index].vertexCount;
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
-
-
-//	info->pipeline.
-
-/*
-	auto vBufferIndex = renderableObjectInfo.bufferIndex[index];
-	info->bufferHandle = bufferInfo[vBufferIndex].bufferHandle;
-	info->topology = renderableObjectInfo.topology[index];
-	info->vertexShader = defaultShader;
-	info->fillSolid = renderableObjectInfo.wireframe[index] ? 0u : 1u;
-	info->transparency = renderableObjectInfo.transparency[index];*/
 
 	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
@@ -386,8 +374,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
 
-	if (renderableObjectInfo.mesh[index].mesh != defaultMesh)
-		initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
+	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
 
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
@@ -434,7 +421,7 @@ void SE::Core::RenderableManager::Init()
 		return ResourceHandler::InvokeReturn1::SUCCESS;
 	};
 	meshCallbacks.destroyCallback = destroyCallback = [this](auto guid, auto data, auto size) {
-		delete data;
+		delete (size_t*)data;
 		initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer(guid);
 	};
 	
@@ -454,12 +441,12 @@ void SE::Core::RenderableManager::Init()
 	shaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn1::SUCCESS;
 	};
-	shaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
-
+	shaderCallbacks.destroyCallback = [this](auto guid, auto data, auto size) {
+		initInfo.renderer->GetPipelineHandler()->DestroyVertexShader(guid);
 	};
 	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (res)
-		throw std::exception("Could not load default shader");
+		throw std::exception("Could not load default vertex shader");
 
 	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if(res < 0)
@@ -567,73 +554,6 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 	StopProfile;
 }
 
-
-SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	int result = 0;
-	/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-	if (result < 0)
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-}
-
-void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior)
-{
-	StartProfile;
-
-	// Load model
-	
-	//auto& findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
-	//auto& bufferInfo = guidToBufferInfo[meshGUID]; // Get a reference to the buffer index
-	//bufferLock.lock();
-	//renderableObjectInfo.mesh[newEntry] = defaultMesh;
-	//if (findBuffer == guidToBufferInfo.end() || bufferInfo.state == BufferState::Dead)	// If it wasn't loaded, load it.	
-	//{
-	//	bufferInfo.state = BufferState::Loading;
-	//
-	//	bufferLock.unlock();
-
-		//auto res = initInfo.resourceHandler->LoadResource(meshGUID, [this,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {	
-		//	int vertexCount = 0;
-		//	auto result = LoadModel(guid, data, size, vertexCount);
-		//	if (result < 0)
-		//		return ResourceHandler::InvokeReturn::Fail;
-
-		//	//(*this.*Unload)(size);
-		//
-		//	if (async) 
-		//	{
-		//		toUpdate.push({ guid, size, vertexCount });
-		//	}	
-		//	else
-		//	{
-		//		auto& binfo = guidToBufferInfo[guid];
-		//		binfo.size = size;
-		//		binfo.vertexCount = vertexCount;
-		//		binfo.state = BufferState::Loaded;
-		//	}
-		//		
-		//	return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		//}, async, behavior);
-		
-		
-	/*	if (res)
-			initInfo.console->PrintChannel("Resources", "Model %u could not be loaded, Error: %d. Using default instead.\n",  meshGUID, res);
-		else if(!async)
-			renderableObjectInfo.mesh[newEntry] = meshGUID;*/
-	/*}
-	else 
-	{
-		bufferLock.unlock();
-		renderableObjectInfo.mesh[newEntry] = meshGUID;
-	}*/
-	
-
-//	guidToBufferInfo[meshGUID].entities.push_back(renderableObjectInfo.entity[newEntry]);
-	
-	StopProfile;
-}
 
 int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount)
 {

@@ -24,6 +24,7 @@ ENUM_FLAG_OPERATOR(T,^)
 //enum class T
 //ENUM_FLAG_OPERATOR(T,&)
 
+#include <functional>
 
 namespace SE
 {
@@ -33,7 +34,8 @@ namespace SE
 		enum class LoadReturn
 		{
 			SUCCESS = 1 << 0,
-			FAIL = 1 << 1
+			FAIL = 1 << 1,
+			NO_DELETE = 1 << 2
 		};
 
 		enum class InvokeReturn1 {
@@ -46,7 +48,7 @@ namespace SE
 		enum class LoadFlags {
 			LOAD_FOR_VRAM = 1 << 0,
 			LOAD_FOR_RAM = 1 << 1,
-			ASYNC = 1 << 2
+			ASYNC = 1 << 2,
 		};
 
 		enum class State {

@@ -81,31 +81,19 @@ namespace SE
 			void ToggleShadow(const Entity& entity, bool shadow) override;
 
 		private:
-			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
 			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
 			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
+			
+
 
 			/**
 			* @brief	Allocate more memory
 			*/
 			void Allocate(size_t size);
-
-
 			void Init();
-
 			void UpdateRenderableObject(const Entity& entity);
-			
-
-
 			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
-			
-		//	void LinearUnload(size_t sizeToAdd);
-
-			//typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
-
-			//UnloadingStrategy Unload;
-
-
 			void SetDirty(const Entity& entity, size_t index);
 
 			
@@ -120,11 +108,7 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
-
-			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
 			
-
 			struct MeshData
 			{
 				Utilz::GUID mesh;
@@ -166,7 +150,7 @@ namespace SE
 				MeshData data;
 				Entity entity;
 			};
-			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
+			Utilz::CircularFiFo<toUpdateStruct> toUpdate;
 		};
 	}
 }

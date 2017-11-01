@@ -226,7 +226,8 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			if (!callbacks.loadCallback)
 				return -4;
 			auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
-			delete rawData.data;
+			if(!(lresult & LoadReturn::NO_DELETE))
+				operator delete (rawData.data);
 			if (lresult & LoadReturn::FAIL)
 			{
 				loadLock.unlock();
@@ -455,12 +456,13 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				}
 				loadLock.lock();
 				auto result = diskLoader->LoadResource(job.guid, &rawData.data);
+				
 				if (result < 0)
 				{
 					loadLock.unlock();
 					infoLock.lock();
 					auto& ri2 = guidToResourceInfo[job.guid];
-					delete rawData.data;
+					
 					ri2.state = State::FAIL;
 					errors.push_back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
 					infoLock.unlock();
@@ -470,7 +472,8 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 
 				Data data;
 				auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-
+				if (!(lresult & LoadReturn::NO_DELETE))
+					operator delete (rawData.data);
 				if (lresult & LoadReturn::FAIL)
 				{
 					loadLock.unlock();

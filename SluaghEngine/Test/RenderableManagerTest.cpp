@@ -86,10 +86,10 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	info.shader = shader;
 	info.materialFile = material;
 
-	//managers.materialManager->Create(mainC, info, true);
+//	managers.materialManager->Create(mainC, info, true);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "Cube.mesh" }, true);
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -144,7 +144,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
-	/*	engine->BeginFrame();
+		engine->BeginFrame();
 
 		if (ImGui::Button("CreateBakedTest"))
 		{
@@ -200,7 +200,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			managers.entityManager->Destroy(e3);
 		}
 
-		engine->EndFrame();*/
+		engine->EndFrame();
 	}
 
 	timers.Stop(CREATE_ID_HASH("Running"));
