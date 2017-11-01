@@ -43,8 +43,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	auto lam = [](std::string file, Window::WindowState state)
 	{
-
-
 		using namespace DirectX;
 		auto engine = Core::CreateEngine();
 
@@ -231,6 +229,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					break;
 				}
 			}
+		}
+		if (player == nullptr)
+		{
+			delete testRoom;
+			delete player;
+			delete[] RoomArr;
+			game.Shutdown();
+			engine->Release();
+			delete engine;
+			ProfileReturnConst(false);
 		}
 
 
@@ -758,7 +766,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 	}
 	if (record == true)
 	{
-		lam(files[current].fullPath, Window::WindowState::Record);
+		lam("", Window::WindowState::Record);
 		goto ThereBePizza;
 	}
 	

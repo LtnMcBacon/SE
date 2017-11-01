@@ -160,10 +160,10 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		if (ImGui::Button("DestroyBakedTest"))
 		{
 			managers.entityManager->Destroy(e1);
-		}
-		static bool e1w = false;
+		}	
 		if (ImGui::Button("WireframeBakedTest"))
 		{
+			static bool e1w = true;
 			e1w = !e1w;
 			managers.renderableManager->ToggleWireframe(e1, e1w);
 			

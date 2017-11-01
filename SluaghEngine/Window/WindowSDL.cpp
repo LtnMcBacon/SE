@@ -217,8 +217,9 @@ void SE::Window::WindowSDL::StartRecording()
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
 	std::time_t currentTime = std::time(nullptr);
-	std::string currentStringTime = std::asctime(std::localtime(&currentTime));
-	currentStringTime.erase(currentStringTime.size() - 1, 1);
+	char timeChar[100];
+	std::strftime(timeChar, sizeof(timeChar),"%A %c", std::localtime(&currentTime));
+	std::string currentStringTime = timeChar;
 	currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
 	record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
 	record.recFile.write((char*)&currentTime, sizeof(std::time_t));

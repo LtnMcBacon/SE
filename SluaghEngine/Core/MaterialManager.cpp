@@ -4,7 +4,8 @@
 
 static const SE::Utilz::GUID defaultTexture("ft_stone01_c.sei");
 
-SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo), mLoading(initInfo.renderer, initInfo.resourceHandler, initInfo.console)
+
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn), mLoading(initInfoIn.renderer, initInfoIn.resourceHandler, initInfoIn.console)
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);

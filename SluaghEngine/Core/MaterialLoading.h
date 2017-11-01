@@ -57,7 +57,7 @@ namespace SE
 			int LoadShader(const Utilz::GUID& guid);
 			bool IsShaderLoaded(const Utilz::GUID& guid)const;
 
-			int LoadMaterialFile(const Utilz::GUID& guid);
+			int LoadMaterialFile(const Utilz::GUID& material);
 			MaterialFileData& GetMaterialFile(const Utilz::GUID& guid);
 			bool IsMaterialFileLoaded(const Utilz::GUID& guid)const;
 			void UnloadMaterialFile(const Utilz::GUID& guid, const Entity& entity);
