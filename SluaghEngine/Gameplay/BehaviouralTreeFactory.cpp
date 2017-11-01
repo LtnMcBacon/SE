@@ -88,6 +88,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateGlaistigAttackLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "LeapAtPlayerLeaf")
+	{
+		finishedBehaviour = CreateLeapAtPlayerLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "LineOfSightCondition")
 	{
 		finishedBehaviour = CreateLineOfSightConditionLeaf(dataArray, nodeID);
@@ -115,6 +119,18 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if(dataArray[nodeID].Type == "WhileChannelingLeaf")
 	{
 		finishedBehaviour = CreateWhileChannelingLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "BodachMeleeAttackLeaf")
+	{
+		finishedBehaviour = CreateBodachMeleeAttackLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PechMeleeAttackLeaf")
+	{
+		finishedBehaviour = CreatePechMeleeAttackLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PechRangedAttackLeaf")
+	{
+		finishedBehaviour = CreatePechRangedAttackLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -271,6 +287,31 @@ IBehaviour* BehaviouralTreeFactory::CreateFaceThePlayerLeaf(NodeData* dataArray,
 {
 	StartProfile;
 	ProfileReturn( new FaceThePlayerLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateLeapAtPlayerLeaf(NodeData* dataArray, int nodeID)
+{
+
+	StartProfile;
+	ProfileReturn(new LeapAtPlayerLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateBodachMeleeAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new BodachMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechMeleeAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechRangedAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechRangedAttackLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
