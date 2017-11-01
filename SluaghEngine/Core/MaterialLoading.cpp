@@ -1,5 +1,5 @@
 #include "MaterialLoading.h"
-static const SE::Utilz::GUID defaultTexture("ft_stone01_c.sei");
+static const SE::Utilz::GUID defaultTexture("BlackPink.sei");
 
 int SE::Core::MaterialLoading::LoadMaterialFile(const Utilz::GUID& material)
 {
