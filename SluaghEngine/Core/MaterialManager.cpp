@@ -34,7 +34,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 	shaderCallbacks.destroyCallback = shaderDestroyCallback = [](auto guid, auto data, auto size) {
 
 	};
-	auto res = initInfo.resourceHandler->LoadResource(defaultPixelShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	auto res = initInfo.resourceHandler->LoadResource(defaultPixelShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default pixel shader");
 
@@ -69,7 +69,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 	materialCallback.destroyCallback = materialDestroyCallback = [](auto guid, auto data, auto size) {
 		delete (MaterialFileData*)data;
 	};
-	res = initInfo.resourceHandler->LoadResource(defaultMaterial, materialCallback, ResourceHandler::LoadFlags::LOAD_FOR_RAM);
+	res = initInfo.resourceHandler->LoadResource(defaultMaterial, materialCallback, ResourceHandler::LoadFlags::LOAD_FOR_RAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default material");
 
@@ -100,7 +100,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 		initInfo.renderer->GetPipelineHandler()->DestroyTexture(guid);
 	};
 
-	res = initInfo.resourceHandler->LoadResource(defaultMaterialInfo->textureInfo.textures[0], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	res = initInfo.resourceHandler->LoadResource(defaultMaterialInfo->textureInfo.textures[0], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default texture");
 

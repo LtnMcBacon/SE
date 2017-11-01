@@ -426,7 +426,7 @@ void SE::Core::RenderableManager::Init()
 	};
 	
 	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
-	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, meshCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, meshCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default mesh");
 
@@ -444,11 +444,11 @@ void SE::Core::RenderableManager::Init()
 	shaderCallbacks.destroyCallback = [this](auto guid, auto data, auto size) {
 		initInfo.renderer->GetPipelineHandler()->DestroyVertexShader(guid);
 	};
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default vertex shader");
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if(res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
 

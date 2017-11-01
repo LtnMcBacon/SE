@@ -195,6 +195,8 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		if (ri.state & State::IN_RAM)
 			temp |= State::IN_RAM;
 		ri.state = temp;
+		if (loadFlags & LoadFlags::IMMUTABLE)
+			ri.state |= State::IMMUTABLE;
 		infoLock.unlock();
 		if (loadFlags & LoadFlags::ASYNC)
 			loadJobs.push({ guid, callbacks, loadFlags });
