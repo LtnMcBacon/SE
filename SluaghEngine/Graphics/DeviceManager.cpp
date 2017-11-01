@@ -13,12 +13,15 @@ using namespace std;
 using namespace DirectX;
 using namespace SE::Graphics;
 
-DeviceManager::DeviceManager() {
+DeviceManager::DeviceManager(): gFeatureLevel()
+{
 	gDevice = nullptr;
 	gDeviceContext = nullptr;
+	gSecDeviceContext = nullptr;
 	gSwapChain = nullptr;
 	gBackBuffer = nullptr;
 	gBackbufferRTV = nullptr;
+	gBBSRV = nullptr;
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
 	gDepthStencilSRV = nullptr;
@@ -84,14 +87,14 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterSolidState);
 	if (FAILED(hr))
-		throw "Fuck";
+		throw std::exception("Failed to create rasterizer state");
 	gDeviceContext->RSSetState(rasterSolidState);
 
 	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
 
 	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterWireState);
 	if (FAILED(hr))
-		throw "Fuck";
+		throw std::exception("Failed to create rasterizer state");
 
 	
 	ProfileReturnConst(hr);
@@ -378,7 +381,7 @@ void DeviceManager::SetViewport() {
 
 void DeviceManager::Present() {
 
-	auto hr = gSwapChain->Present(1, 0);
+	gSwapChain->Present(1, 0);
 }
 
 void DeviceManager::ResizeSwapChain(HWND windowHandle)
