@@ -123,8 +123,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->Start(mainC, "TopRunAnim_MCModell.anim", 1.0f);
-	managers.animationManager->Start(mainC2, "BottomRunAnim_MCModell.anim", 1.0f);
+	managers.animationManager->Start(mainC, false, "TopRunAnim_MCModell.anim", 1.0f);
+	managers.animationManager->Start(mainC2, false, "BottomRunAnim_MCModell.anim", 1.0f);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -179,26 +179,25 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		if (subSystem.window->ButtonDown(ActionButton::Sink))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 
-		if (subSystem.window->ButtonDown(ActionButton::Stop))
-			managers.animationManager->Pause(main1);
-		if (subSystem.window->ButtonDown(ActionButton::Start))
-			managers.animationManager->Start(main1);
-
 		engine->BeginFrame();
 	
 		ImGui::Begin("Animation Stuff");
 
 		if(ImGui::SliderFloat("C1 Keyframe ", &keyframe, 0.0f, 60.0f))
-			managers.animationManager->SetKeyFrame(main1, keyframe);
+			managers.animationManager->SetKeyFrame(mainC, keyframe);
+			managers.animationManager->SetKeyFrame(mainC2, keyframe);
 
 		if (ImGui::SliderFloat("C1 Speed ", &speed, -10.0f, 10.0f))
-			managers.animationManager->SetSpeed(main1, speed);
+			managers.animationManager->SetSpeed(mainC, speed);
+			managers.animationManager->SetSpeed(mainC2, speed);
 
 		if (ImGui::Button("C1 Start"))
-			managers.animationManager->Start(main1);
+			managers.animationManager->Start(mainC, false);
+			managers.animationManager->Start(mainC2, false);
 
 		if (ImGui::Button("C1 Stop"))
-			managers.animationManager->Pause(main1);
+			managers.animationManager->Pause(mainC);
+			managers.animationManager->Pause(mainC2);
 
 		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string(main1.id)).c_str());
 		

@@ -7,7 +7,6 @@
 
 #include <AnimationFileHeaders.h>
 #include "AnimationStructs.h"
-#include <Utilz\GUID.h>
 #include <Entity.h>
 #include "RenderableManagerInstancing.h"
 
@@ -29,10 +28,13 @@ namespace SE
 			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints);
 			bool IsAnimationLoaded(const Utilz::GUID& guid)const;
 
-			void CalculateMatrices(const Entity& entity, const Utilz::GUID& skeleton, const Utilz::GUID& animation, float& timePos);
+			void CalculateMatrices(const Entity& entity, AnimationInfo& info);
+
+			void CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo1, AnimationInfo& animInfo2);
 			
 		private:
-			void UpdateAnimation(const Utilz::GUID& skeleton, const Utilz::GUID& animation, float& timePos, DirectX::XMFLOAT4X4* at);
+			void UpdateAnimation(AnimationInfo& info, DirectX::XMFLOAT4X4* at);
+
 			void CalculateJointMatrix(int jointIndex, const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const;
 
 			struct JointMatrices
@@ -51,13 +53,9 @@ namespace SE
 
 			virtual RenderBucket* CreateBucket(Graphics::RenderJob & job)override;
 
-
-
 			void ReturnFirstFrameMatrix(const JointKeyFrame& joint, DirectX::XMMATRIX& out) const;
 			void ReturnLastFrameMatrix(const JointKeyFrame& joint, const Animation& animation, DirectX::XMMATRIX& out) const;
 			void Interpolate(const JointKeyFrame& joint, float animTimePos, DirectX::XMMATRIX& out) const;
-
-
 		
 			std::unordered_map<Utilz::GUID, Skeleton, Utilz::GUID::Hasher> skeletons;
 			std::unordered_map<Utilz::GUID, Animation, Utilz::GUID::Hasher> animations;

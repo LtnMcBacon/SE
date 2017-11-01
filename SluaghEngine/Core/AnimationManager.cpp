@@ -64,7 +64,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
 	animationData.animInfo[index].timePos = 0.0f;
-	
+
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
 
@@ -116,21 +116,24 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
+
 	for (size_t i = 0; i < animationData.used; i++)
 	{
 		if (animationData.playing[i] == 1u)
 		{
 			auto& ai = animationData.animInfo[i];
 			ai.timePos += ai.animationSpeed*dt;
-			animationSystem->CalculateMatrices(animationData.entity[i], ai.skeleton, ai.animation, ai.timePos);
+
+			animationSystem->CalculateMatrices(animationData.entity[i], ai);
 		}
 			
 	}
+
 	GarbageCollection();
 	timer->Stop(CREATE_ID_HASH("AnimationManager"));
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID & animation, float speed)
+void SE::Core::AnimationManager::Start(const Entity & entity, bool looping, const Utilz::GUID & animation, float speed)
 {	
 	StartProfile;
 	// Get the entity register from the animationManager
@@ -144,6 +147,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 				auto& ai = animationData.animInfo[entityIndex->second];
 				ai.animation = animation;
 				ai.animationSpeed = speed;
+				ai.looping = looping;
+
 				animationData.playing[entityIndex->second] = 1u;
 			}
 			else
@@ -175,12 +180,12 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 		auto& ai = animationData.animInfo[entityIndex->second];
 		ai.timePos = keyFrame;
 		animationData.playing[entityIndex->second] = 0u;
-		animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai.skeleton, ai.animation, ai.timePos);
+		animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
 	}
 	StopProfile;
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity)const
+void SE::Core::AnimationManager::Start(const Entity & entity, bool looping)const
 {
 	StartProfile;
 	// Get the entity register from the animationManager
@@ -191,7 +196,11 @@ void SE::Core::AnimationManager::Start(const Entity & entity)const
 		{
 			if (animationSystem->IsAnimationLoaded(animationData.animInfo[entityIndex->second].animation))
 			{
+				auto& ai = animationData.animInfo[entityIndex->second];
+
+				ai.looping = looping;
 				animationData.playing[entityIndex->second] = 1u;
+				
 			}
 		}
 	}

@@ -50,10 +50,10 @@ namespace SE
 
 			virtual void CreateAnimatedObject(const Entity& entity, const CreateInfo& info) = 0;
 
-			virtual void Start(const Entity& entity, const Utilz::GUID& animation, float speed) = 0;
+			virtual void Start(const Entity& entity, bool looping, const Utilz::GUID& animation, float speed) = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
-			virtual void Start(const Entity& entity)const = 0;
+			virtual void Start(const Entity& entity, bool looping)const = 0;
 			virtual void Pause(const Entity& entity)const = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
