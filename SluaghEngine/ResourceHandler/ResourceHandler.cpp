@@ -502,6 +502,8 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				auto temp = ri2.state;
 				if(!(ri2.state & State::LOADED))
 					ri2.state = State::LOADED;
+				if (job.loadFlags & LoadFlags::IMMUTABLE)
+					ri.state |= State::IMMUTABLE;
 				if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
 				{
 					ri2.VRAMdestroyCallback = job.callbacks.destroyCallback;
