@@ -49,6 +49,7 @@ namespace SE
 			LOAD_FOR_VRAM = 1 << 0,
 			LOAD_FOR_RAM = 1 << 1,
 			ASYNC = 1 << 2,
+			IMMUTABLE = 1 << 3
 		};
 
 		enum class State {
@@ -57,7 +58,8 @@ namespace SE
 			LOADING = 1 << 2,
 			DEAD = 1 << 3,
 			FAIL = 1 << 4,
-			LOADED = 1 << 5
+			LOADED = 1 << 5,
+			IMMUTABLE = 1 << 6
 		};
 
 		enum class UnloadFlags {
