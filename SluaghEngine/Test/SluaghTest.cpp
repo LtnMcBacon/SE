@@ -49,7 +49,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
 	Window::InitializationInfo winInfo;
-	winInfo.winState = Window::WindowState::Record;
+	winInfo.winState = Window::WindowState::Playback;
 	winInfo.height = height;
 	winInfo.width = width;
 	winInfo.windowTitle = "Recording";
@@ -323,8 +323,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-			enemy->SetXPosition(enemyPos.x + .5f);
-			enemy->SetYPosition(enemyPos.y + .5f);
+			enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
 
 			testRoom->AddEnemyToRoom(enemy);
 		}
@@ -333,9 +332,9 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	SE::Gameplay::ForestTrainer::ForestStruct frameData;
 	frameData.thePlayer = player;
 	blackBoard.currentRoom = testRoom;
+	float dt = 1 / 60.0f;//subSystem.window->GetDelta();
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		newProjectiles.clear();
 
@@ -593,7 +592,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	running = true;
 	while (running)
 	{
-		float dt = subSystem.window->GetDelta();
+	//	float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		enemyDistances.clear();
 		newProjectiles.clear();
@@ -683,6 +682,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		engine->BeginFrame();
 
 		engine->EndFrame();
+		newProjectiles.clear();
 	}
 
 	delete projectileManager;

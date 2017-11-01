@@ -25,7 +25,7 @@ namespace SE
 		public:
 			IGameState();
 			IGameState(void* state);
-			~IGameState();
+			virtual ~IGameState();
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
