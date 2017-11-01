@@ -422,6 +422,17 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				player->GetYPosition(),
 				closestEnemy);
 
+			if (closestEnemy == nullptr)
+			{
+				delete testRoom;
+				delete player;
+				delete[] RoomArr;
+				game.Shutdown();
+				engine->Release();
+				delete engine;
+				ProfileReturnConst(false);
+			}
+
 			frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
 				player->GetXPosition(),
 				player->GetYPosition(),
@@ -605,6 +616,17 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 					player->GetXPosition(),
 					player->GetYPosition(),
 					closestEnemy);
+
+				if (closestEnemy == nullptr)
+				{
+					delete testRoom;
+					delete player;
+					delete[] RoomArr;
+					game.Shutdown();
+					engine->Release();
+					delete engine;
+					ProfileReturnConst(false);
+				}
 
 				frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
 					player->GetXPosition(),

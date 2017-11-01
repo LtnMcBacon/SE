@@ -21,7 +21,7 @@ namespace SE
 		class CollisionManager : public ICollisionManager
 		{
 		public:
-			CollisionManager(const InitializationInfo& initInfo);
+			CollisionManager(const ICollisionManager::InitializationInfo& initInfo);
 			~CollisionManager();
 			CollisionManager(const CollisionManager& other) = delete;
 			CollisionManager(const CollisionManager&& other) = delete;

@@ -2,7 +2,8 @@
 #include <Profiler.h>
 //#include <Utilz\Console.h>
 
-SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) : initInfo(initInfo), mLoading(initInfo.renderer, initInfo.resourceHandler)
+
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn), mLoading(initInfoIn.renderer, initInfoIn.resourceHandler, initInfoIn.console)
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
@@ -10,11 +11,10 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 	_ASSERT(initInfo.eventManager);
 	_ASSERT(initInfo.console);
 	Allocate(128);
-	defaultTexture = "BlackPink.sei";
 	defaultPixelShader = "SimplePS.hlsl";
 	defaultTextureBinding = "DiffuseColor";
 	defaultSampler = "AnisotropicSampler";
-	defaultMaterial = "Cube.mat";
+	defaultMaterial = "default.mat";
 
 	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
@@ -29,16 +29,18 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfo) 
 		throw std::exception("Could not load default material.");
 	auto& mdata = mLoading.GetMaterialFile(defaultMaterial);
 
-	defaultTexture = mdata.textureInfo.textures[0];
+	if(mdata.textureInfo.numTextures != 1)
+		throw std::exception("Default material does not have 1 channel");
+
 	defaultTextureBinding = mdata.textureInfo.bindings[0];
 
-	res = mLoading.LoadTexture(defaultTexture);
+	res = mLoading.LoadTexture(mdata.textureInfo.textures[0]);
 	if (res < 0)
 		throw std::exception("Could not load default texture.");
 
 	Graphics::RenderTarget rt;
 	rt.bindAsShaderResource = true;
-	rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
+	rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
 	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
 	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 	rt.clearColor[0] = 0.0f;
@@ -85,6 +87,8 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	materialInfo.entity[newEntry] = entity;
 	materialInfo.used++;
 	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
+	materialInfo.shader[newEntry] = defaultPixelShader;
+	materialInfo.material[newEntry] = defaultMaterial;
 	//if (!mLoading.IsShaderLoaded(info.shader) && !mLoading.IsMaterialFileLoaded(info.materialFile)) // If both shader and materialfile is not loaded.
 	//{
 	//	mLoading.LoadShaderAndMaterialFileAndTextures(info.shader, info.materialFile, async, behavior); // Load everything
@@ -124,7 +128,10 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 	mdata.entities.push_back(entity);
 
-	for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
+	mLoading.LoadTextures(entity, info.materialFile, async, behavior);
+
+
+	/*for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
 	{
 		result = mLoading.LoadTexture(mdata.textureInfo.textures[i]);
 		if (result  < 0)
@@ -132,7 +139,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 			initInfo.console->PrintChannel("Resources", "Could not load texture. Using default instead. GUID: %u, Error: %d\n",  mdata.textureInfo.textures[i], result);
 			mdata.textureInfo.textures[i] = defaultTexture;
 		}
-	}
+	}*/
 	StopProfile;
 }
 
@@ -141,24 +148,19 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 	StartProfile;
 	timer->Start(CREATE_ID_HASH("MaterialManager"));
 	GarbageCollection();
-
-	while (!toUpdate.wasEmpty())
+	std::vector<Entity> eTu;
+	if (mLoading.DoUpdate(eTu))
 	{
-		auto& job = toUpdate.top();
-		auto& material = guidToMaterial[job.material];
-		for (auto& e : material.entities)
+		for (auto& e : eTu)
 		{
-			auto find = entityToMaterialInfo.find(e);
-			if (find != entityToMaterialInfo.end())
+			const auto findE = entityToMaterialInfo.find(e);
+			if (findE != entityToMaterialInfo.end())
 			{
-				materialInfo.material[entityToMaterialInfo[e]] = job.material;
 				initInfo.eventManager->TriggerUpdateRenderableObject(e);
 			}
-			
 		}
-			
-		toUpdate.pop();
 	}
+
 	timer->Stop(CREATE_ID_HASH("MaterialManager"));
 	StopProfile;
 }

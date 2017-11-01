@@ -129,7 +129,16 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 			}
 		}
 	}
-	
+	if (player == nullptr)
+	{
+		delete testRoom;
+		delete player;
+		delete[] RoomArr;
+		game.Shutdown();
+		engine->Release();
+		delete engine;
+		ProfileReturnConst(false);
+	}
 
 	 managers.renderableManager->CreateRenderableObject(player->GetEntity(), {"MCModell.mesh"});
 

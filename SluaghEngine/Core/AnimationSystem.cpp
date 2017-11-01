@@ -105,7 +105,7 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 void SE::Core::AnimationSystem::CalculateMatrices(const Entity & entity, const Utilz::GUID & skeleton, const Utilz::GUID & animation, float& timePos)
 {
 	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+	auto bucket = reinterpret_cast<AnimationBucket*>(pipelineToRenderBucket[bucketAndID.bucket]);
 	UpdateAnimation(skeleton, animation, timePos, bucket->matrices[bucketAndID.index].jointMatrix);
 }
 

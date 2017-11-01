@@ -17,21 +17,26 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	textureBindName = "DecalDiffuse";
 	rasterizerState = "DecalRS";
 
-	this->initInfo.resourceHandler->LoadResource(vertexShader, [this](auto guid, void* data, size_t size)
+	auto res = this->initInfo.resourceHandler->LoadResource(vertexShader, [this](auto guid, void* data, size_t size)
 	{
 		auto res = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (res < 0)
 			return ResourceHandler::InvokeReturn::Fail;
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
-	this->initInfo.resourceHandler->LoadResource(pixelShader, [this](auto guid, void* data, size_t size)
+
+	if (res < 0)
+		throw std::exception("Could not load decal vertex shader");
+
+	res = this->initInfo.resourceHandler->LoadResource(pixelShader, [this](auto guid, void* data, size_t size)
 	{
 		auto res = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 		if (res < 0)
 			return ResourceHandler::InvokeReturn::Fail;
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
-
+	if (res < 0)
+		throw std::exception("Could not load decal pixel shader");
 	BlendState bs;
 	bs.enable = true;
 	bs.blendOperation = BlendOperation::ADD;
@@ -41,14 +46,17 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	bs.dstBlend = Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Blend::ONE;
 	
-	this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(blendState, bs);
+	res = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(blendState, bs);
+	if (res < 0)
+		throw std::exception("Could not Create decal blendstate");
 
 	RasterizerState rsState;
 	rsState.cullMode = CullMode::CULL_NONE;
 	rsState.fillMode = FillMode::FILL_SOLID;
 	rsState.windingOrder = WindingOrder::CLOCKWISE;
-	this->initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(rasterizerState, rsState);
-
+	res = this->initInfo.renderer->GetPipelineHandler()->CreateRasterizerState(rasterizerState, rsState);
+	if (res < 0)
+		throw std::exception("Could not load decal rasterizer state");
 	
 	defaultPipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
 	defaultPipeline.VSStage.shader = vertexShader;
