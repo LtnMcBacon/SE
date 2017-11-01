@@ -9,18 +9,6 @@
 #include <Utilz\Event.h>
 #include <Utilz\CircularFiFo.h>
 
-#define ENUM_FLAG_OPERATOR(T,X) inline T operator X (T lhs, T rhs) { return (T) (static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
-#define ENUM_FLAG_OPERATOR2(T,X) inline void operator X= (T& lhs, T rhs) { lhs = (T)(static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
-#define ENUM_FLAGS(T) \
-enum class T; \
-inline T operator ~ (T t) { return (T) (~static_cast<std::underlying_type_t <T>>(t)); } \
-inline bool operator & (T lhs, T rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs));  } \
-ENUM_FLAG_OPERATOR2(T,|) \
-ENUM_FLAG_OPERATOR2(T,&) \
-ENUM_FLAG_OPERATOR(T,|) \
-ENUM_FLAG_OPERATOR(T,^)
-//enum class T
-//ENUM_FLAG_OPERATOR(T,&)
 
 
 namespace SE
@@ -45,62 +33,24 @@ namespace SE
 			void Shutdown()override;
 			void UpdateInfo(const InitializationInfo& initInfo)override;
 
-			enum class LoadReturn
-			{
-				SUCCESS = 1 << 0,
-				FAIL = 1 << 1
-			};
-
-			enum class InvokeReturn1 {
-				VRAM = 1 << 0,
-				RAM = 1 << 1,
-				FAIL = 1 << 2,
-				SUCCESS = 1 << 3
-			};
-
-			enum class LoadFlags {
-				LOAD_FOR_VRAM = 1 << 0,
-				LOAD_FOR_RAM = 1 << 1,
-				ASYNC = 1 << 2
-			};
-
-			enum class State {
-				IN_RAM = 1 << 0,
-				IN_VRAM = 1 << 1,
-				LOADING = 1 << 2,
-				DEAD = 1 << 3,
-				FAIL = 1 << 4,
-				LOADED = 1 << 5
-			};
-
-			enum class UnloadFlags {
-				VRAM = 1 << 0,
-				RAM = 1 << 1
-			};
-			struct Callbacks
-			{
-				Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
-				Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
-				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
-			};
+			
+			
 
 			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
 			int LoadResource(const Utilz::GUID& guid,
-				const Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)>& loadCallback,
-				const Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)>& invokeCallback,
-				LoadFlags loadFlags);
+				const Callbacks& callbacks,
+				LoadFlags loadFlags)override;
 			void UnloadResource(const Utilz::GUID& guid)override;
-			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags);
+			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags)override;
 
 
 		private:
 			struct LoadJob
 			{
 				Utilz::GUID guid;
-				Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
-				Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
+				Callbacks callbacks;
 				LoadFlags loadFlags;
-				LoadJob& operator=(const LoadJob& other) { guid = other.guid; loadCallback = other.loadCallback; invokeCallback = other.invokeCallback; loadFlags = other.loadFlags; return*this; }
+				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
 			Utilz::CircularFiFo<LoadJob> loadJobs;
@@ -110,7 +60,7 @@ namespace SE
 				Utilz::GUID guid;
 				Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
 				LoadFlags loadFlags;
-				InvokeJob& operator=(const LoadJob& other) { guid = other.guid; invokeCallback = other.invokeCallback; loadFlags = other.loadFlags; return *this; }
+				InvokeJob& operator=(const InvokeJob& other) { guid = other.guid; invokeCallback = other.invokeCallback; loadFlags = other.loadFlags; return *this; }
 			};
 			Utilz::CircularFiFo<InvokeJob> invokeJobs;
 
@@ -166,10 +116,5 @@ namespace SE
 		};
 	}
 }
-ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::LoadReturn);
-ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::InvokeReturn1);
-ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::LoadFlags);
-ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::State);
-ENUM_FLAGS(SE::ResourceHandler::ResourceHandler::UnloadFlags);
 
 #endif //SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_

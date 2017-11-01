@@ -160,8 +160,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 }
 
 int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, 
-	const Utilz::Delegate<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)>& loadCallback,
-	const Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
+	const Callbacks& callbacks,
 	LoadFlags loadFlags)
 {
 	infoLock.lock();
@@ -195,7 +194,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		ri.state = temp;
 		infoLock.unlock();
 		if (loadFlags & LoadFlags::ASYNC)
-			loadJobs.push({ guid, loadCallback, invokeCallback, loadFlags });
+			loadJobs.push({ guid, callbacks, loadFlags });
 		else
 		{
 
@@ -210,9 +209,11 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				return -2;
 			}
 
+			loadLock.lock();
 			auto result = diskLoader->LoadResource(guid, &rawData.data);
 			if (result < 0)
 			{
+				loadLock.unlock();
 				infoLock.lock();
 				auto& ri2 = guidToResourceInfo[guid];
 				ri2.state = State::FAIL;
@@ -222,10 +223,11 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			}
 
 			Data data;
-			auto lresult = loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
+			auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
 			delete rawData.data;
 			if (lresult & LoadReturn::FAIL)
 			{
+				loadLock.unlock();
 				infoLock.lock();
 				auto& ri2 = guidToResourceInfo[guid];
 				
@@ -235,11 +237,9 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				return -4;
 			}
 
-
+			loadLock.unlock();
 			infoLock.lock();
 			auto& ri2 = guidToResourceInfo[guid];
-			ri2.RAMData = ri.RAMData;
-			ri2.VRAMData = ri.VRAMData;
 
 			ri2.state = State::LOADED;
 			if (loadFlags & LoadFlags::LOAD_FOR_VRAM)
@@ -255,7 +255,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 			infoLock.unlock();
 
-			auto iresult = invokeCallback(guid, data.data, data.size);
+			auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
 			if (iresult & InvokeReturn1::FAIL)
 			{
 				infoLock.lock();
@@ -276,7 +276,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			data = ri.VRAMData;
 		infoLock.unlock();
 
-		auto iresult = invokeCallback(guid, data.data, data.size);
+		auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
 		if (iresult & InvokeReturn1::FAIL)
 		{
 			infoLock.lock();
@@ -451,10 +451,11 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 					loadJobs.pop();
 					continue;
 				}
-
+				loadLock.lock();
 				auto result = diskLoader->LoadResource(job.guid, &rawData.data);
 				if (result < 0)
 				{
+					loadLock.unlock();
 					infoLock.lock();
 					auto& ri2 = guidToResourceInfo[job.guid];
 					delete rawData.data;
@@ -466,10 +467,11 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				}
 
 				Data data;
-				auto lresult = job.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
+				auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
 
 				if (lresult & LoadReturn::FAIL)
 				{
+					loadLock.unlock();
 					infoLock.lock();
 					auto& ri2 = guidToResourceInfo[job.guid];
 					delete rawData.data;
@@ -480,7 +482,7 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 					continue;
 				}
 				
-			
+				loadLock.unlock();
 				infoLock.lock();
 				auto& ri2 = guidToResourceInfo[job.guid];
 				ri2.RAMData = ri.RAMData;
@@ -502,7 +504,7 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 
 				infoLock.unlock();
 
-				invokeJobs.push({ job.guid, job.invokeCallback, job.loadFlags });
+				invokeJobs.push({ job.guid, job.callbacks.invokeCallback, job.loadFlags });
 			}
 
 			

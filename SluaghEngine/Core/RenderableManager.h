@@ -82,6 +82,8 @@ namespace SE
 
 		private:
 			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
+			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 
 			/**
 			* @brief	Allocate more memory
@@ -97,11 +99,11 @@ namespace SE
 
 			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			
-			void LinearUnload(size_t sizeToAdd);
+		//	void LinearUnload(size_t sizeToAdd);
 
-			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
+			//typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
 
-			UnloadingStrategy Unload;
+			//UnloadingStrategy Unload;
 
 
 			void SetDirty(const Entity& entity, size_t index);
@@ -120,18 +122,23 @@ namespace SE
 
 			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
 
-			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
 			
 
-		
+			struct MeshData
+			{
+				Utilz::GUID mesh;
+				int vertexCount;
+			};
+
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(MeshData) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				Utilz::GUID* mesh;
+				MeshData* mesh;
 				uint8_t* visible;
 				uint8_t* wireframe;
 				uint8_t* transparency;
@@ -153,29 +160,11 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-			enum class BufferState
-			{
-				Loaded,
-				Loading,
-				Dead
-			};
-
-			struct BufferInfo
-			{
-				BufferState state;
-				size_t size;
-				int vertexCount;
-				std::list<Entity> entities;
-			};
-
-			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
-			std::mutex bufferLock;
-
+		
 			struct toUpdateStruct
 			{
-				Utilz::GUID mesh;
-				size_t size;
-				int vertexCount;
+				MeshData data;
+				Entity entity;
 			};
 			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
 		};

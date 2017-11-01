@@ -18,6 +18,7 @@ static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
 static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
+static const size_t defaultMeshVertexCount = 36;
 
 SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInfo)
 	: initInfo(initInfo)
@@ -134,22 +135,14 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 	while (!toUpdate.wasEmpty())
 	{
 		auto& job = toUpdate.top();
-		auto& binfo = guidToBufferInfo[job.mesh];
-		binfo.state = BufferState::Loaded;
-		binfo.size = job.size;
-		for (auto& e : binfo.entities)
-		{
-			const auto findEntity = entityToRenderableObjectInfoIndex.find(e);
-			if (findEntity != entityToRenderableObjectInfoIndex.end())
-			{
-				renderableObjectInfo.mesh[findEntity->second] = job.mesh;
-				guidToBufferInfo[job.mesh].size = job.size;
-				guidToBufferInfo[job.mesh].vertexCount = job.vertexCount;
-				guidToBufferInfo[job.mesh].state = BufferState::Loaded;
 
-				UpdateRenderableObject(e);
-			}		
+		const auto findEntity = entityToRenderableObjectInfoIndex.find(job.entity);
+		if (findEntity != entityToRenderableObjectInfoIndex.end())
+		{
+			renderableObjectInfo.mesh[findEntity->second] = job.data;
+			UpdateRenderableObject(job.entity);
 		}
+
 
 		toUpdate.pop();
 	}
@@ -168,14 +161,14 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	info->pipeline.VSStage.shader = defaultVertexShader;
 
-	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
+	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index].mesh;
 	info->pipeline.IAStage.inputLayout = defaultVertexShader;
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
 	info->pipeline.RStage.rasterizerState = renderableObjectInfo.wireframe[index] ? wireframe : solid;
 	info->pipeline.OMStage.blendState = renderableObjectInfo.transparency[index] ? Transparency : Utilz::GUID();
 
-	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->vertexCount = renderableObjectInfo.mesh[index].vertexCount;
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
 
@@ -209,53 +202,53 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 
 	info->pipeline.VSStage.shader = defaultVertexShadowShader;
 
-	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
+	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index].mesh;
 	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
 	info->pipeline.RStage.rasterizerState = solid;
 	info->pipeline.RStage.viewport = "shadowVP";
 
-	info->vertexCount = guidToBufferInfo[renderableObjectInfo.mesh[index]].vertexCount;
+	info->vertexCount = renderableObjectInfo.mesh[index].vertexCount;
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
 
 }
-
-void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
-{
-	size_t freed = 0;
-	std::vector<Utilz::GUID> toFree;
-	if (!initInfo.renderer->IsUnderLimit(sizeToAdd))
-	{
-		for(auto& binfo : guidToBufferInfo)
-		{
-			if (binfo.second.state == BufferState::Loaded && binfo.second.entities.size() == 0)
-			{
-				freed += binfo.second.size;
-				toFree.push_back(binfo.first);
-
-				if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
-					break;
-			}
-		}
-	}
-	if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
-	{
-		bufferLock.lock();
-		for (auto& r : toFree)
-		{
-			auto& binfo = guidToBufferInfo[r];
-			if (binfo.state == BufferState::Loaded && binfo.entities.size() == 0)
-			{
-				initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer(r);
-				binfo.state = BufferState::Dead;
-			}
-		}
-		bufferLock.unlock();
-		std::this_thread::sleep_for(200ms);
-	}
-}
+//
+//void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
+//{
+//	size_t freed = 0;
+//	std::vector<Utilz::GUID> toFree;
+//	if (!initInfo.renderer->IsUnderLimit(sizeToAdd))
+//	{
+//		for(auto& binfo : guidToBufferInfo)
+//		{
+//			if (binfo.second.state == BufferState::Loaded && binfo.second.entities.size() == 0)
+//			{
+//				freed += binfo.second.size;
+//				toFree.push_back(binfo.first);
+//
+//				if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
+//					break;
+//			}
+//		}
+//	}
+//	if (initInfo.renderer->IsUnderLimit(freed, sizeToAdd))
+//	{
+//		bufferLock.lock();
+//		for (auto& r : toFree)
+//		{
+//			auto& binfo = guidToBufferInfo[r];
+//			if (binfo.state == BufferState::Loaded && binfo.entities.size() == 0)
+//			{
+//				initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer(r);
+//				binfo.state = BufferState::Dead;
+//			}
+//		}
+//		bufferLock.unlock();
+//		std::this_thread::sleep_for(200ms);
+//	}
+//}
 
 
 void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
@@ -347,7 +340,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.mesh = (Utilz::GUID*)(newData.entity + newData.allocated);
+	newData.mesh = (MeshData*)(newData.entity + newData.allocated);
 	newData.visible = (uint8_t*)(newData.mesh + newData.allocated);
 	newData.wireframe = (uint8_t*)(newData.visible + newData.allocated);
 	newData.transparency = (uint8_t*)(newData.wireframe + newData.allocated);
@@ -355,7 +348,7 @@ void SE::Core::RenderableManager::Allocate(size_t size)
 
 	// Copy data
 	memcpy(newData.entity, renderableObjectInfo.entity, renderableObjectInfo.used * sizeof(Entity));
-	memcpy(newData.mesh, renderableObjectInfo.mesh, renderableObjectInfo.used * sizeof(Utilz::GUID));
+	memcpy(newData.mesh, renderableObjectInfo.mesh, renderableObjectInfo.used * sizeof(MeshData));
 	memcpy(newData.visible, renderableObjectInfo.visible, renderableObjectInfo.used * sizeof(uint8_t));
 	memcpy(newData.wireframe, renderableObjectInfo.wireframe, renderableObjectInfo.used * sizeof(uint8_t));
 	memcpy(newData.transparency, renderableObjectInfo.transparency, renderableObjectInfo.used * sizeof(uint8_t));
@@ -378,8 +371,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
 
-
-	guidToBufferInfo[renderableObjectInfo.mesh[index]].entities.remove(entity); // Decrease the refcount
+	if (renderableObjectInfo.mesh[index].mesh != defaultMesh)
+		initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
 
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
@@ -409,46 +402,51 @@ void SE::Core::RenderableManager::Init()
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
 
-	
-	switch (initInfo.unloadingStrat)
-	{
-	case ResourceHandler::UnloadingStrategy::Linear:
-		Unload = &RenderableManager::LinearUnload;
-		break;
-	default:
-		break;
-	}
 
+	ResourceHandler::Callbacks meshCallbacks;
+	meshCallbacks.loadCallback = loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize) 
+	{
+		auto vertexCount = new size_t;
+		*udata =(void*) vertexCount;
+		*usize = sizeof(size_t);
+		auto res = LoadModel(guid, data, size, *vertexCount);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	meshCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		auto vc = *(size_t*)data;
+		return ResourceHandler::InvokeReturn1::SUCCESS;
+	};
+	meshCallbacks.destroyCallback = destroyCallback = [](auto guid, auto data, auto size) {
+		delete data;
+		initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer(guid);
+	};
 	
 	initInfo.transformManager->RegisterSetDirty({ this, &RenderableManager::SetDirty });
-
-	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, [this](auto guid, auto data, auto size) {
-		auto& binfo = guidToBufferInfo[guid];
-		auto res = LoadModel(guid, data, size, binfo.vertexCount);
-		if (res < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		binfo.state = BufferState::Loaded;
-		binfo.size = size;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, meshCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (res)
 		throw std::exception("Could not load default mesh");
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
+	ResourceHandler::Callbacks shaderCallbacks;
+	meshCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		auto res = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	meshCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn1::SUCCESS;
+	};
+	meshCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (res)
 		throw std::exception("Could not load default shader");
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
-
-		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-
-		if (status < 0) {
-
-			return ResourceHandler::InvokeReturn::Fail;
-		}
-
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if(res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
 
@@ -482,21 +480,6 @@ void SE::Core::RenderableManager::Init()
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
 
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, { this , &RenderableManager::LoadDefaultShader });
-	if (res)
-		throw std::exception("Could not load default shader");
-
-	res = initInfo.resourceHandler->LoadResource(defaultVertexShadowShader, [this](auto guid, void* data, size_t size) {
-
-		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-
-		if (status < 0) {
-
-			return ResourceHandler::InvokeReturn::Fail;
-		}
-
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
 	
 	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
 	Graphics::Viewport vp;
@@ -583,59 +566,62 @@ SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader
 void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior)
 {
 	StartProfile;
+
 	// Load model
-	auto& findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
-	auto& bufferInfo = guidToBufferInfo[meshGUID]; // Get a reference to the buffer index
-	bufferLock.lock();
-	renderableObjectInfo.mesh[newEntry] = defaultMesh;
-	if (findBuffer == guidToBufferInfo.end() || bufferInfo.state == BufferState::Dead)	// If it wasn't loaded, load it.	
-	{
-		bufferInfo.state = BufferState::Loading;
-	
-		bufferLock.unlock();
 
-		auto res = initInfo.resourceHandler->LoadResource(meshGUID, [this,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {	
-			int vertexCount = 0;
-			auto result = LoadModel(guid, data, size, vertexCount);
-			if (result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
 
-			//(*this.*Unload)(size);
+	//auto& findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
+	//auto& bufferInfo = guidToBufferInfo[meshGUID]; // Get a reference to the buffer index
+	//bufferLock.lock();
+	//renderableObjectInfo.mesh[newEntry] = defaultMesh;
+	//if (findBuffer == guidToBufferInfo.end() || bufferInfo.state == BufferState::Dead)	// If it wasn't loaded, load it.	
+	//{
+	//	bufferInfo.state = BufferState::Loading;
+	//
+	//	bufferLock.unlock();
+
+		//auto res = initInfo.resourceHandler->LoadResource(meshGUID, [this,async](auto guid, auto data, auto size)->ResourceHandler::InvokeReturn {	
+		//	int vertexCount = 0;
+		//	auto result = LoadModel(guid, data, size, vertexCount);
+		//	if (result < 0)
+		//		return ResourceHandler::InvokeReturn::Fail;
+
+		//	//(*this.*Unload)(size);
+		//
+		//	if (async) 
+		//	{
+		//		toUpdate.push({ guid, size, vertexCount });
+		//	}	
+		//	else
+		//	{
+		//		auto& binfo = guidToBufferInfo[guid];
+		//		binfo.size = size;
+		//		binfo.vertexCount = vertexCount;
+		//		binfo.state = BufferState::Loaded;
+		//	}
+		//		
+		//	return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		//}, async, behavior);
 		
-			if (async) 
-			{
-				toUpdate.push({ guid, size, vertexCount });
-			}	
-			else
-			{
-				auto& binfo = guidToBufferInfo[guid];
-				binfo.size = size;
-				binfo.vertexCount = vertexCount;
-				binfo.state = BufferState::Loaded;
-			}
-				
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		}, async, behavior);
 		
-		
-		if (res)
+	/*	if (res)
 			initInfo.console->PrintChannel("Resources", "Model %u could not be loaded, Error: %d. Using default instead.\n",  meshGUID, res);
 		else if(!async)
-			renderableObjectInfo.mesh[newEntry] = meshGUID;
-	}
+			renderableObjectInfo.mesh[newEntry] = meshGUID;*/
+	/*}
 	else 
 	{
 		bufferLock.unlock();
 		renderableObjectInfo.mesh[newEntry] = meshGUID;
-	}
+	}*/
 	
 
-	guidToBufferInfo[meshGUID].entities.push_back(renderableObjectInfo.entity[newEntry]);
+//	guidToBufferInfo[meshGUID].entities.push_back(renderableObjectInfo.entity[newEntry]);
 	
 	StopProfile;
 }
 
-int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount)
+int SE::Core::RenderableManager::LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount)
 {
 	int result = 0;
 	auto meshHeader = (Graphics::Mesh_Header*)data;

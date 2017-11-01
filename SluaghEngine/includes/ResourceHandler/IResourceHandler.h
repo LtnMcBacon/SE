@@ -11,11 +11,67 @@
 #endif
 
 
+#define ENUM_FLAG_OPERATOR(T,X) inline T operator X (T lhs, T rhs) { return (T) (static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
+#define ENUM_FLAG_OPERATOR2(T,X) inline void operator X= (T& lhs, T rhs) { lhs = (T)(static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
+#define ENUM_FLAGS(T) \
+enum class T; \
+inline T operator ~ (T t) { return (T) (~static_cast<std::underlying_type_t <T>>(t)); } \
+inline bool operator & (T lhs, T rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs));  } \
+ENUM_FLAG_OPERATOR2(T,|) \
+ENUM_FLAG_OPERATOR2(T,&) \
+ENUM_FLAG_OPERATOR(T,|) \
+ENUM_FLAG_OPERATOR(T,^)
+//enum class T
+//ENUM_FLAG_OPERATOR(T,&)
+
 
 namespace SE
 {
 	namespace ResourceHandler
 	{
+
+		enum class LoadReturn
+		{
+			SUCCESS = 1 << 0,
+			FAIL = 1 << 1
+		};
+
+		enum class InvokeReturn1 {
+			VRAM = 1 << 0,
+			RAM = 1 << 1,
+			FAIL = 1 << 2,
+			SUCCESS = 1 << 3
+		};
+
+		enum class LoadFlags {
+			LOAD_FOR_VRAM = 1 << 0,
+			LOAD_FOR_RAM = 1 << 1,
+			ASYNC = 1 << 2
+		};
+
+		enum class State {
+			IN_RAM = 1 << 0,
+			IN_VRAM = 1 << 1,
+			LOADING = 1 << 2,
+			DEAD = 1 << 3,
+			FAIL = 1 << 4,
+			LOADED = 1 << 5
+		};
+
+		enum class UnloadFlags {
+			VRAM = 1 << 0,
+			RAM = 1 << 1
+		};
+
+		struct Callbacks
+		{
+			std::function<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
+			std::function<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
+		};
+
+
+
 		enum class InvokeReturn : uint8_t
 		{
 			Success,
@@ -23,6 +79,9 @@ namespace SE
 			DecreaseRefcount,
 			Hold
 		};
+
+
+
 		typedef Utilz::Delegate<InvokeReturn(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
 
 		
@@ -78,6 +137,10 @@ namespace SE
 
 			virtual void UpdateInfo(const InitializationInfo& initInfo) = 0;
 
+			virtual int LoadResource(const Utilz::GUID& guid,
+				const Callbacks& callbacks,
+				LoadFlags loadFlags) = 0;
+			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
 
 			/**
 			* @brief	Load the given resource
@@ -140,6 +203,11 @@ namespace SE
 	}
 }
 
+ENUM_FLAGS(SE::ResourceHandler::LoadReturn);
+ENUM_FLAGS(SE::ResourceHandler::InvokeReturn1);
+ENUM_FLAGS(SE::ResourceHandler::LoadFlags);
+ENUM_FLAGS(SE::ResourceHandler::State);
+ENUM_FLAGS(SE::ResourceHandler::UnloadFlags);
 
 
 #endif //SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_
