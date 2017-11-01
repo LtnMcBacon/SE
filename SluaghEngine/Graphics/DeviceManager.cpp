@@ -21,6 +21,7 @@ DeviceManager::DeviceManager(): gFeatureLevel()
 	gSwapChain = nullptr;
 	gBackBuffer = nullptr;
 	gBackbufferRTV = nullptr;
+	gBBSRV = nullptr;
 	gDepthStencil = nullptr;
 	gDepthStencilView = nullptr;
 	gDepthStencilSRV = nullptr;
