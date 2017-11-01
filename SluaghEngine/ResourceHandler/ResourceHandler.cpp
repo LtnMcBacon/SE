@@ -56,7 +56,10 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 
 	for (auto& r : guidToResourceInfo)
 	{
-		
+		if (r.second.state & State::IN_RAM)
+			r.second.RAMdestroyCallback(r.first, r.second.RAMData.data, r.second.RAMData.size);
+		if (r.second.state & State::IN_VRAM)
+			r.second.VRAMdestroyCallback(r.first, r.second.VRAMData.data, r.second.VRAMData.size);
 	}
 		
 	delete diskLoader;
@@ -247,11 +250,13 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			ri2.state = State::LOADED;
 			if (loadFlags & LoadFlags::LOAD_FOR_VRAM)
 			{
+				ri2.VRAMdestroyCallback = callbacks.destroyCallback;
 				ri2.state |= State::IN_VRAM;
 				ri2.VRAMData = data;
 			}
 			else if (loadFlags & LoadFlags::LOAD_FOR_RAM)
 			{
+				ri2.RAMdestroyCallback = callbacks.destroyCallback;
 				ri2.RAMData = data;
 				ri2.state |= State::IN_RAM;
 			}
@@ -497,16 +502,17 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 					ri2.state = State::LOADED;
 				if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
 				{
+					ri2.VRAMdestroyCallback = job.callbacks.destroyCallback;
 					ri2.state |= State::IN_VRAM;
 					ri2.VRAMData = data;
 				}
 
 				if (job.loadFlags & LoadFlags::LOAD_FOR_RAM)
 				{
+					ri2.RAMdestroyCallback = job.callbacks.destroyCallback;
 					ri2.RAMData = data;
 					ri2.state |= State::IN_RAM;
 				}
-
 				infoLock.unlock();
 
 				invokeJobs.push({ job.guid, job.callbacks.invokeCallback, job.loadFlags });

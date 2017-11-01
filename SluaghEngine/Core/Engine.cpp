@@ -118,6 +118,11 @@ int SE::Core::Engine::Release()
 {
 	StartProfile;
 
+	if (subSystems.resourceHandler)
+		subSystems.resourceHandler->Shutdown();
+	delete subSystems.resourceHandler;
+	subSystems.resourceHandler = nullptr;
+
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
 
@@ -139,10 +144,7 @@ int SE::Core::Engine::Release()
 	delete subSystems.window;
 	subSystems.window = nullptr;
 
-	if (subSystems.resourceHandler)
-		subSystems.resourceHandler->Shutdown();
-	delete subSystems.resourceHandler;
-	subSystems.resourceHandler = nullptr;
+	
 
 	if (subSystems.optionsHandler)
 		subSystems.optionsHandler->UnloadOption("Config.ini");
