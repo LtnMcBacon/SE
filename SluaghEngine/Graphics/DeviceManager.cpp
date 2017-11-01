@@ -87,14 +87,14 @@ HRESULT DeviceManager::Init(HWND windowHandle) {
 
 	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterSolidState);
 	if (FAILED(hr))
-		throw "Fuck";
+		throw std::exception("Failed to create rasterizer state");
 	gDeviceContext->RSSetState(rasterSolidState);
 
 	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
 
 	hr = gDevice->CreateRasterizerState(&rasterizerState, &rasterWireState);
 	if (FAILED(hr))
-		throw "Fuck";
+		throw std::exception("Failed to create rasterizer state");
 
 	
 	ProfileReturnConst(hr);
