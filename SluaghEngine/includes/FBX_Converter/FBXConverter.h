@@ -36,7 +36,7 @@ namespace SE
 			// FBXCONVERTER LOAD FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			bool Load(const std::string& fileName, const std::string& exportFolder);
+			bool Load(const std::string& fileName, const std::string& exportFolder, const std::string& map);
 			bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
 			bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
 			bool InitializeFbxManager();

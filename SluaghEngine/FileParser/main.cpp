@@ -30,11 +30,12 @@ struct Accepted
 	std::string map;
 	std::function<void(const char* filename, const char* outFilename)> callback;
 };
+static std::string texMap = "";
 std::vector<Accepted> acceptedExt = 
 {
 	{ "fbx", "nil", "../FBXTemp", [](const char* filename, const char* outFilename) {
 	SE::FBX::FBXConverter File;
-	if (!File.Load(filename, "FBXTemp")) {
+	if (!File.Load(filename, "FBXTemp", texMap)) {
 
 		printf("Could not parse fbx file %s\n", filename);
 		return;
@@ -139,7 +140,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-
+		texMap = argv[1];
 
 
 		fs::remove_all(argv[2]);
