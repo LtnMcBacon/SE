@@ -61,7 +61,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	SetupDebugConsole();
 
-	//default camera
+	//default cameradamera
 	auto defEntCam = managers.entityManager->Create();
 	managers.cameraManager->Create(defEntCam);
 	managers.cameraManager->SetActive(defEntCam);
