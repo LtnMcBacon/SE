@@ -19,6 +19,18 @@ namespace SE
 		public:
 			ThreadPool(size_t);
 			template<class F, class... Args>
+			/*
+			 *@brief Adds a job to the queue. A thread will be assigned to the job as soon as a free thread is available.
+			 *@param[in] f The function the thread will call.
+			 *@param[in] args The arguments that will be passed to the function.
+			 *@retval Returns a future of the return type of f. The future is moveconstructable but not copyconstructable.
+			 *@warning The function f must have a finite running time. No while(true) or similar is allowed.
+			 *@code
+			 *ThreadPool tp(4);
+			 *auto result = tp.Enqueue([](int a){return a + 5;}, 10);
+			 *printf("%d", result.get()); //Prints 15 once a thread has finished the task.
+			 *@endcode
+			 */
 			auto Enqueue(F&& f, Args&&... args)
 				->std::future<typename std::result_of<F(Args...)>::type>;
 			~ThreadPool();
