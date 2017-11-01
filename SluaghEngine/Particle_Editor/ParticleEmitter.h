@@ -8,6 +8,8 @@ public:
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 velocity;
 		DirectX::XMFLOAT2 size;
+		DirectX::XMFLOAT3 color;
+	//	float opacity;
 		float age;
 		uint32_t type;
 	};
