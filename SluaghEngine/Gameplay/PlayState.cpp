@@ -22,9 +22,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 	this->input = Input;
 	this->engine = engine;
 
-	InitializeRooms();
+	/*InitializeRooms();
 	InitializePlayer();
-	InitializeOther();
+	InitializeOther();*/
 
 	BehaviourPointers temp;
 	temp.currentRoom = &currentRoom;
@@ -36,8 +36,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 PlayState::~PlayState()
 {
 	delete projectileManager;
-	delete player;
-	delete currentRoom;
+	/*delete player;
+	delete currentRoom;*/
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
