@@ -223,6 +223,8 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			}
 
 			Data data;
+			if (!callbacks.loadCallback)
+				return -4;
 			auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
 			delete rawData.data;
 			if (lresult & LoadReturn::FAIL)
@@ -234,7 +236,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				ri2.state = State::FAIL;
 				errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(guid.id));
 				infoLock.unlock();
-				return -4;
+				return -5;
 			}
 
 			loadLock.unlock();
@@ -263,7 +265,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				ri2.state = State::FAIL;
 				errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 				infoLock.unlock();
-				return -5;
+				return -6;
 			}
 		}
 	}
@@ -284,7 +286,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			ri2.state = State::FAIL;
 			errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 			infoLock.unlock();
-			return -5;
+			return -7;
 		}
 	}
 

@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
-static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
+static const SE::Utilz::GUID defaultMesh("Cube.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
 static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
@@ -72,6 +72,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		entityToRenderableObjectInfoIndex[entity] = newEntry;
 		renderableObjectInfo.entity[newEntry] = entity;
 		renderableObjectInfo.used++;
+		renderableObjectInfo.mesh[newEntry] = { defaultMesh, defaultMeshVertexCount };
 		renderableObjectInfo.visible[newEntry] = 0u;
 		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
 		renderableObjectInfo.transparency[newEntry] = info.transparent ? 1u : 0u;
@@ -81,7 +82,21 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 
 
 		// Load the model
-		LoadResource(info.meshGUID, newEntry, async, behavior);
+		ResourceHandler::Callbacks callbacks;
+		callbacks.loadCallback = loadCallback;
+		callbacks.destroyCallback = destroyCallback;
+		callbacks.invokeCallback = [this, entity](auto guid, auto data, auto size)
+		{
+			MeshData md = { guid, *(size_t*)data };
+			if(!toUpdate.push({ md, entity }))
+				return ResourceHandler::InvokeReturn1::FAIL;
+			return ResourceHandler::InvokeReturn1::SUCCESS;
+		};
+		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+
+
+
+		//LoadResource(info.meshGUID, newEntry, async, behavior);
 
 
 
@@ -408,7 +423,7 @@ void SE::Core::RenderableManager::Init()
 	{
 		auto vertexCount = new size_t;
 		*udata =(void*) vertexCount;
-		*usize = sizeof(size_t);
+		*usize = size;
 		auto res = LoadModel(guid, data, size, *vertexCount);
 		if (res < 0)
 			return ResourceHandler::LoadReturn::FAIL;
@@ -418,7 +433,7 @@ void SE::Core::RenderableManager::Init()
 		auto vc = *(size_t*)data;
 		return ResourceHandler::InvokeReturn1::SUCCESS;
 	};
-	meshCallbacks.destroyCallback = destroyCallback = [](auto guid, auto data, auto size) {
+	meshCallbacks.destroyCallback = destroyCallback = [this](auto guid, auto data, auto size) {
 		delete data;
 		initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer(guid);
 	};
@@ -429,17 +444,17 @@ void SE::Core::RenderableManager::Init()
 		throw std::exception("Could not load default mesh");
 
 	ResourceHandler::Callbacks shaderCallbacks;
-	meshCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	shaderCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		auto res = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (res < 0)
 			return ResourceHandler::LoadReturn::FAIL;
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
-	meshCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+	shaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn1::SUCCESS;
 	};
-	meshCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+	shaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
 
 	};
 	res = initInfo.resourceHandler->LoadResource(defaultVertexShader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
@@ -568,8 +583,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 	StartProfile;
 
 	// Load model
-
-
+	
 	//auto& findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
 	//auto& bufferInfo = guidToBufferInfo[meshGUID]; // Get a reference to the buffer index
 	//bufferLock.lock();

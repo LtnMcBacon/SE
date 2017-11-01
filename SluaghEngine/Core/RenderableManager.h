@@ -128,7 +128,7 @@ namespace SE
 			struct MeshData
 			{
 				Utilz::GUID mesh;
-				int vertexCount;
+				size_t vertexCount;
 			};
 
 			struct RenderableObjectData
