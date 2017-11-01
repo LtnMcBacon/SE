@@ -104,7 +104,7 @@ void DeviceManager::Shutdown() {
 
 	StartProfile;
 
-
+	gBBSRV->Release();
 	gBackBuffer->Release();
 	gBackbufferRTV->Release();
 	pDSState->Release();
@@ -226,6 +226,16 @@ HRESULT DeviceManager::CreateBackBufferRTV() {
 	if (FAILED(hr)) {
 		ProfileReturnConst(hr);
 	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.Texture2D.MostDetailedMip = 0;
+	srvd.Texture2D.MipLevels = 1;
+
+	gDevice->CreateShaderResourceView(gBackBuffer, &srvd, &gBBSRV);
+
+
 
 	hr = gDevice->CreateRenderTargetView(gBackBuffer, nullptr, &gBackbufferRTV);
 

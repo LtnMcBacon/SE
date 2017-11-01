@@ -88,7 +88,6 @@ namespace SE
 			std::unordered_map<Entity, size_t, EntityHasher> entityToMaterialInfo;
 
 			Utilz::GUID defaultPixelShader;
-			Utilz::GUID defaultTexture;
 			Utilz::GUID defaultTextureBinding;
 			Utilz::GUID defaultSampler;
 			Utilz::GUID defaultMaterial;

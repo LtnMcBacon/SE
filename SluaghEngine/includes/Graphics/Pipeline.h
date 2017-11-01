@@ -112,7 +112,7 @@ namespace SE
 			bool bindAsUnorderedAccess;
 			int width;
 			int height;
-			float clearColor[4];
+			float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 			TextureFormat format;
 
 		};
@@ -173,7 +173,8 @@ namespace SE
 		//	static const size_t maxConstantBuffers = 4;
 			static const size_t maxTextures = 4;
 			static const size_t maxSamplers = 2;
-			Utilz::GUID shader;
+			static const size_t maxUAVs = 4;
+			Utilz::GUID shader = Utilz::GUID();
 		//	Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
@@ -181,6 +182,9 @@ namespace SE
 		//	uint8_t constantBufferCount = 0;
 			uint8_t textureCount = 0;
 			uint8_t samplerCount = 0;
+
+			Utilz::GUID uavs[maxUAVs];
+			uint8_t uavCount = 0;
 
 			Utilz::GUID GetID()const
 			{
