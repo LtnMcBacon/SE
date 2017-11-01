@@ -3,7 +3,7 @@ cbuffer OncePerFrame : register(b0)
 	float4x4 ViewProj;
 };
 
-cbuffer SkinnedOncePerObject : register(b1)
+cbuffer OncePerObject : register(b1)
 {
 	float4x4 World[8];
 };
