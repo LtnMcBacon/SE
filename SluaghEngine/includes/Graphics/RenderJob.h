@@ -7,20 +7,26 @@ namespace SE
 {
 	namespace Graphics
 	{
-		enum class RenderGroup : uint8_t
+		enum class RenderGroup : uint32_t
 		{
 			PRE_PASS_0,
 			PRE_PASS_1,
 			PRE_PASS_2,
 			PRE_PASS_3,
+			PRE_PASS_4,
+			PRE_PASS_5,
 			RENDER_PASS_0,
 			RENDER_PASS_1,
 			RENDER_PASS_2,
 			RENDER_PASS_3,
+			RENDER_PASS_4,
+			RENDER_PASS_5,
 			POST_PASS_0,
 			POST_PASS_1,
 			POST_PASS_2,
-			POST_PASS_3
+			POST_PASS_3,
+			POST_PASS_4,
+			POST_PASS_5
 		};
 
 

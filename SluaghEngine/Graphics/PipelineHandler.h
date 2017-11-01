@@ -136,7 +136,11 @@ namespace SE
 				ID3D11UnorderedAccessView* uav;
 				float clearColor[4];
 			};
-
+			struct ComputeShaderInfo
+			{
+				ID3D11ComputeShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
 			std::unordered_set<Utilz::GUID, Utilz::GUID::Hasher> manuallyAddedResources;
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
@@ -144,7 +148,7 @@ namespace SE
 			std::unordered_map<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
 			std::unordered_map<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
 			std::unordered_map<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
-			std::unordered_map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Hasher> computeShaders;
+			std::unordered_map<Utilz::GUID, ComputeShaderInfo, Utilz::GUID::Hasher> computeShaders;
 			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
 			std::unordered_map<Utilz::GUID, RenderTargetInfo, Utilz::GUID::Hasher> renderTargetViews;

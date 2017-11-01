@@ -54,7 +54,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	vertexShaders[Utilz::GUID()] = { nullptr };
 	geometryShaders[Utilz::GUID()] = { nullptr };
 	pixelShaders[Utilz::GUID()] = { nullptr };
-	computeShaders[Utilz::GUID()] =  nullptr ;
+	computeShaders[Utilz::GUID()] = { nullptr };
 	constantBuffers[Utilz::GUID()] = nullptr;
 	shaderResourceViews[Utilz::GUID()] = nullptr;
 	renderTargetViews[Utilz::GUID()] = { nullptr };
@@ -112,7 +112,7 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : pixelShaders)
 		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : computeShaders)
-		if (r.second)r.second->Release();
+		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : constantBuffers)
 		if (r.second)r.second->Release();
 	for (auto& r : shaderResourceViews)
@@ -747,7 +747,7 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	computeShaders[id] = cs;
+	computeShaders[id] = { cs };
 
 
 	ID3D11ShaderReflection* reflection;
@@ -767,6 +767,42 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 			const Utilz::GUID bindGuid(sibd.Name);
 			const Utilz::GUID combinedGuid = id + bindGuid;
 			shaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
+		}
+		else if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							return DEVICE_FAIL;
+						constantBuffers[sbd.Name] = buffer;
+
+					}
+					computeShaders[id].constantBuffers.push_back(sbd.Name);
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
 		}
 	}
 
@@ -808,7 +844,7 @@ int SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
 	auto exists = computeShaders.find(id);
 	if (exists == computeShaders.end())
 		return NOT_FOUND;
-	exists->second->Release();
+	exists->second.shader->Release();
 	computeShaders.erase(exists);
 	return SUCCESS;
 }
@@ -1895,9 +1931,18 @@ void SE::Graphics::PipelineHandler::SetComputeShaderStage(const ShaderStage & cs
 	{
 		_ASSERT_EXPR(computeShaders.find(css.shader) != computeShaders.end(), "Create Compute shader has not been called for compute shader in pipeline.");
 		const auto& shader = computeShaders[css.shader];
-		deviceContext->CSSetShader(shader, nullptr, 0);
+		deviceContext->CSSetShader(shader.shader, nullptr, 0);
 		c.shader = css.shader;
+
+		for (auto& cbg : shader.constantBuffers) // Any constant buffers
+		{
+			auto& cb = constantBuffers[cbg];
+			auto& binding = shaderAndResourceNameToBindSlot[css.shader + cbg];
+			deviceContext->CSSetConstantBuffers(binding, 1, &cb);
+		}
 	}
+
+	
 
 	ID3D11UnorderedAccessView* uavs[css.maxUAVs] = { nullptr };
 	bool changed = false;
@@ -2136,9 +2181,15 @@ void SE::Graphics::PipelineHandler::ForcedSetComputeShaderStage(const ShaderStag
 
 	_ASSERT_EXPR(computeShaders.find(css.shader) != computeShaders.end(), "Create Compute shader has not been called for compute shader in pipeline.");
 	const auto& shader = computeShaders[css.shader];
-	deviceContext->CSSetShader(shader, nullptr, 0);
+	deviceContext->CSSetShader(shader.shader, nullptr, 0);
 	c.shader = css.shader;
-
+	
+	for (auto& cbg : shader.constantBuffers) // Any constant buffers
+	{
+		auto& cb = constantBuffers[cbg];
+		auto& binding = shaderAndResourceNameToBindSlot[css.shader + cbg];
+		deviceContext->CSSetConstantBuffers(binding, 1, &cb);
+	}
 	
 	ID3D11UnorderedAccessView* uavs[css.maxUAVs] = { nullptr };
 	for (uint8_t i = 0; i < css.uavCount; i++)

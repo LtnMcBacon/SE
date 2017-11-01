@@ -132,8 +132,11 @@ namespace SE
 				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 2;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown2left", vp);
 
-				vp.width = 1280;
-				vp.height = 720;
+				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 3;
+				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown3left", vp);
+
+				vp.width = 128;
+				vp.height = 128;
 				vp.topLeftX = 0;
 				vp.topLeftY = 0;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("bloomDownVP", vp);
@@ -154,7 +157,7 @@ namespace SE
 				drawBloomTexture.vertexCount = 3;
 				drawBloomTexture.indexCount = 0;
 				drawBloomTexture.maxInstances = 0;
-				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
 				
 				
 				// Create a job for downsampling the bloomTarget
@@ -162,8 +165,8 @@ namespace SE
 				Graphics::RenderTarget rt;
 				rt.bindAsShaderResource = true;
 				rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				rt.width = 1280;
-				rt.height = 720;
+				rt.width = 128;
+				rt.height = 128;
 				res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
 				if (res < 0)
 					goto error;
@@ -178,7 +181,7 @@ namespace SE
 				drawBloomTexture.pipeline.RStage.viewport = "topdown1left";
 				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer"; 
 
-				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
 
 
 				// Create a job for horizontal blur
@@ -218,9 +221,10 @@ namespace SE
 				drawBloomTexture.pipeline.RStage.viewport = "topdown2left";
 				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
 
-				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
 
 
+				// Create job for vertical pass
 				Graphics::RenderJob verticalPass;
 				verticalPass.pipeline.CSStage.shader = "VerticalBloomPass.hlsl";
 				verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
@@ -234,9 +238,14 @@ namespace SE
 				verticalPass.ThreadGroupCountY = 40;
 				verticalPass.ThreadGroupCountZ = 1;
 
-				//subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_2);
+				subSystem.renderer->AddRenderJob(verticalPass, Graphics::RenderGroup::POST_PASS_2);
 
+				// Create job for rendering the vertical blured.
+				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV2";
+				drawBloomTexture.pipeline.RStage.viewport = Utilz::GUID();
+				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
 
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
 
 				Utilz::Timer timer;
 				subSystem.devConsole->Toggle();

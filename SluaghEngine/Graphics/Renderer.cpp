@@ -40,6 +40,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
 	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
+	pipelineHandler->AddExisitingShaderResourceView("backbuffer", device->GetSRV());
 	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
 	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
 	//secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
@@ -264,8 +265,10 @@ int SE::Graphics::Renderer::Render()
 		}
 		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
 		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
+		ID3D11UnorderedAccessView* nullUAVS[8] = { nullptr };
 
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
 
