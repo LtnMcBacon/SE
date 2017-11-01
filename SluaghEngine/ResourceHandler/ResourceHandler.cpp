@@ -500,6 +500,7 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				ri2.RAMData = ri.RAMData;
 				ri2.VRAMData = ri.VRAMData;
 				auto temp = ri2.state;
+			//	ri2.state & ~State::LOADING; // TODO
 				if(!(ri2.state & State::LOADED))
 					ri2.state = State::LOADED;
 				if (job.loadFlags & LoadFlags::IMMUTABLE)
