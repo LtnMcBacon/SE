@@ -101,6 +101,16 @@ namespace SE
 			{
 				return std::rand();
 			}
+			/**
+			* @brief Starts a recording of frames
+			*
+			*/
+			void StartRecording() override;
+			/**
+			* @brief Stops a recording of frames
+			*
+			*/
+			void StopRecording() override;
 		private:
 			/*
 			* @brief Checks which event ev is.
@@ -166,7 +176,6 @@ namespace SE
 			};
 			recording record;
 			void RecordToFile();
-			void StartRecording();
 #pragma endregion Record
 
 #pragma region Playback
