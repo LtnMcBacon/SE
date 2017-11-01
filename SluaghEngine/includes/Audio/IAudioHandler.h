@@ -47,7 +47,19 @@ namespace SE {
 			* @retval -1 Could not find sound/sound not loaded
 			*
 			*/
-			virtual int CreateStream(int soundID, Audio::SoundIndexName soundType) = 0;
+			virtual int CreateStream(int soundID, SoundIndexName soundType) = 0;
+			/**
+			* @brief	Create a stream and return it's ID
+			*
+			* @param[in] soundFile The GUID of the requested soundfile
+			* @param[in] soundType The type of sound
+			* @param[in] panData Data for stereo paning
+			*
+			* @retval 0+ Stream ID
+			* @retval -1 Could not find sound/sound not loaded
+			*
+			*/
+			virtual int CreatePanStream(int soundID, SoundIndexName soundType, PanData panData) = 0;
 			/**
 			* @brief Streams the given sound
 			*
@@ -78,6 +90,18 @@ namespace SE {
 			*
 			*/
 			virtual int RemoveSound(int streamID) = 0;
+			/**
+			* @brief Updates Pos of head and sound
+			*
+			* @param[in] streamID The stream ID
+			* @param[in] panData Data for stereo paning
+			*
+			* @retval 0 Tells that UpdateStreamPos was sucessful
+			* @retval -1 Tells that UpdateStreamPos was unsucessful
+			*
+			*/
+			virtual int UpdateStreamPos(int streamID, PanData panData) = 0;
+			
 			virtual void SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol) = 0;
 			virtual void Shutdown() = 0;
 		private:

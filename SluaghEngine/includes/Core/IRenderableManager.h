@@ -65,6 +65,8 @@ namespace SE
 			*/
 			virtual void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
 
+			virtual void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info) = 0;
+
 			/**
 			* @brief	Hide/Show the renderable object
 			*

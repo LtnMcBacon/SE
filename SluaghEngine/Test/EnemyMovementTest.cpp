@@ -142,8 +142,8 @@ bool SE::Test::EnemyMovementTest::Run(SE::DevConsole::IConsole* console)
 		pos enemyPos;
 		do
 		{
-			enemyPos.x = rand() % 25;
-			enemyPos.y = rand() % 25;
+			enemyPos.x = subSystem.window->GetRand() % 25;
+			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (mapRepresentation[int(enemyPos.x)][int(enemyPos.y)]);
 
 		enemies[i]->SetXPosition(enemyPos.x + .5f);
@@ -175,8 +175,8 @@ bool SE::Test::EnemyMovementTest::Run(SE::DevConsole::IConsole* console)
 		{
 			do
 			{
-				playerPos.x = rand() % 25;
-				playerPos.y = rand() % 25;
+				playerPos.x = subSystem.window->GetRand() % 25;
+				playerPos.y = subSystem.window->GetRand() % 25;
 			} while (mapRepresentation[int(playerPos.x)][int(playerPos.y)]);
 			managers.transformManager->SetPosition(player, { playerPos.x + 0.5f, 1.5f, playerPos.y + 0.5f });
 			flowField.Update(playerPos);

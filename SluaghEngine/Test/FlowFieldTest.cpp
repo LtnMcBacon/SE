@@ -188,8 +188,8 @@ bool SE::Test::FlowFieldTest::Run(SE::DevConsole::IConsole* console)
 		{
 			do
 			{
-				playerPos.x = (rand() % 25) + 0.5f;
-				playerPos.y = (rand() % 25) + 0.5f;
+				playerPos.x = (subSystem.window->GetRand() % 25) + 0.5f;
+				playerPos.y = (subSystem.window->GetRand() % 25) + 0.5f;
 			} while (mapRepresentation[int(playerPos.x)][int(playerPos.y)]);
 			managers.transformManager->SetPosition(player, DirectX::XMFLOAT3(playerPos.x - 0.5f, 1.5f, playerPos.y - 0.5f));
 			flowField.Update(playerPos);

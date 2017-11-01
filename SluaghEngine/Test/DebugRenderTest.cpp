@@ -47,9 +47,9 @@ bool SE::Test::DebugRenderManagerTest::Run(DevConsole::IConsole * console)
 		//managers.transformManager->Create(ents[i]);
 		managers.renderableManager->CreateRenderableObject(ents[i], { "Placeholder_Block.mesh" });
 		managers.renderableManager->ToggleRenderableObject(ents[i], true);
-		
+		managers.collisionManager->CreateBoundingHierarchy(ents[i], "Placeholder_Block.mesh");
 		managers.debugRenderManager->ToggleDebugRendering(ents[i], true);
-		managers.debugRenderManager->DrawCross(ents[i], 1.0f);
+	//	managers.debugRenderManager->DrawCross(ents[i], 1.0f);
 
 	}
 

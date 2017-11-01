@@ -224,8 +224,9 @@ void SE::Core::Engine::InitManagers()
 		managers.eventManager = CreateEventManager();
 
 
-	InitAudioManager();
+	
 	InitTransformManager();
+	InitAudioManager();
 	InitParticleSystemManager();
 	InitCameraManager();
 	InitCollisionManager();
@@ -236,7 +237,7 @@ void SE::Core::Engine::InitManagers()
 	InitDebugRenderManager();
 	InitTextManager();
 	InitGUIManager();
-	
+	InitDecalManager();
 	StopProfile;
 }
 
@@ -246,6 +247,7 @@ void SE::Core::Engine::InitAudioManager()
 	{
 		IAudioManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.transformManager = managers.transformManager;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.console = subSystems.devConsole;
 		managers.audioManager = CreateAudioManager(info);
@@ -415,6 +417,20 @@ void SE::Core::Engine::InitGUIManager()
 	managersVec.push_back(managers.guiManager);
 }
 
+void SE::Core::Engine::InitDecalManager()
+{
+	if(!managers.decalManager)
+	{
+		IDecalManager::InitializationInfo info;
+		info.transformManager = managers.transformManager;
+		info.entityManager = managers.entityManager;
+		info.renderer = subSystems.renderer;
+		info.resourceHandler = subSystems.resourceHandler;
+		info.cameraManager = managers.cameraManager;
+		managers.decalManager = CreateDecalManager(info);
+	}
+	managersVec.push_back(managers.decalManager);
+}
 
 void SE::Core::Engine::SetupDebugConsole()
 {

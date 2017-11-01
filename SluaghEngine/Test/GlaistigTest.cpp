@@ -95,7 +95,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = rand() % nrOfRooms;
+	int random = subSystem.window->GetRand() % nrOfRooms;
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
@@ -242,8 +242,8 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		pos enemyPos;
 		do
 		{
-			enemyPos.x = rand() % 25;
-			enemyPos.y = rand() % 25;
+			enemyPos.x = subSystem.window->GetRand() % 25;
+			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);

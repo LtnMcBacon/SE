@@ -36,10 +36,12 @@
 #include "EnemyFactoryTest.h"
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
+#include "PlaybackProjectileTest.h"
 #include "BloomTest.h"
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
+#include "DecalTest.h"
 #include "ShadowTest.h"
 
 
@@ -60,10 +62,10 @@ void TypesafeTestAdding(const char* nameOfTest) { tests[SE::Utilz::GUID(nameOfTe
 
 int main(int argc, char** argv)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 4453;
+	//_crtBreakAlloc = 10833;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
@@ -77,6 +79,7 @@ int main(int argc, char** argv)
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
+	AddTest(PlaybackProjectileTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
@@ -105,7 +108,8 @@ int main(int argc, char** argv)
 	AddTest(GarbageTest);
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
-	AddTest(BloomTest);
+	AddTest(DecalTest);
+//	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
   
 	volatile bool running = true;
