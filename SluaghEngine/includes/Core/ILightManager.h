@@ -40,7 +40,7 @@ namespace SE
 
 			virtual ~ILightManager() {};
 
-			virtual void Create(const Entity& entity, const CreateInfo& data) = 0;
+			virtual void Create(const Entity& entity, const CreateInfo& info) = 0;
 
 			virtual void ToggleLight(const Entity& entity, bool show) = 0;
 

@@ -23,7 +23,7 @@ namespace SE
 		class TextManager : public ITextManager
 		{
 		public:
-			TextManager(const InitializationInfo& initInfo);
+			TextManager(const ITextManager::InitializationInfo& initInfo);
 			~TextManager();
 
 			/**

@@ -15,7 +15,7 @@ namespace SE
 		{
 		public:
 
-			ParticleSystemManager(const InitializationInfo& initInfo);
+			ParticleSystemManager(const IParticleSystemManager::InitializationInfo& initInfo);
 			~ParticleSystemManager();
 
 

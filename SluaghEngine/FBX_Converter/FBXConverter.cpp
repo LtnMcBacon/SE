@@ -612,7 +612,7 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
-	string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
+	//string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
 
 	//logFile.open(logFileName, ofstream::out);
 	//logFile.close();

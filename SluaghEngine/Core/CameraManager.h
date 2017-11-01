@@ -11,7 +11,7 @@ namespace SE
 		class CameraManager : public ICameraManager
 		{
 		public:
-			CameraManager(const InitializationInfo& initInfo);
+			CameraManager(const ICameraManager::InitializationInfo& initInfo);
 			~CameraManager();
 
 
