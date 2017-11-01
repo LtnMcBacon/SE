@@ -28,6 +28,7 @@
 #include <DevConsole\IConsole.h>
 #include "ITextManager.h"
 #include "IEventManager.h"
+#include "Utilz/ThreadPool.h"
 
 namespace SE
 {
@@ -65,6 +66,7 @@ namespace SE
 				Graphics::IRenderer* renderer = nullptr;
 				IOptionsHandler* optionsHandler = nullptr;
 				DevConsole::IConsole* devConsole = nullptr;
+				Utilz::ThreadPool* threadPool = nullptr;
 			};
 			struct InitializationInfo
 			{

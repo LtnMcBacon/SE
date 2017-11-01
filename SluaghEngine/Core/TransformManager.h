@@ -1,11 +1,7 @@
 #ifndef SE_CORE_TRANSFORMMANAGER_H_
 #define SE_CORE_TRANSFORMMANAGER_H_
 
-
 #include <ITransformManager.h>
-#include <unordered_map>
-
-
 #include <mutex>
 #include <random>
 
