@@ -12,6 +12,7 @@
 #include <variant>
 #include <unordered_map>
 #include <map>
+#include <string>
 
 namespace SE
 {
@@ -41,27 +42,18 @@ namespace SE
 			*/
 			struct BehaviourParameter
 			{
-				std::variant<float, int, bool, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::weak_ptr<GameUnit*>> data;
+				std::variant<float, int, bool, std::string, std::vector<std::function<bool(Projectile* projectile, float dt)>>, Projectile*, std::weak_ptr<GameUnit*>> data;
 			};
 
 			struct LoadedProjectile
 			{
 				float projectileWidth, projectileHeight, rotationAroundUnit, distanceFromUnit, projectileRotation, rotationPerSec, projectileSpeed, timeToLive;
+				bool boundToOwner;
 				Utilz::GUID meshName;
 				float meshScale;
 				std::string particleEffect;
 				int nrOfBehaviours;
 				std::vector<std::string> behaviours;
-			};
-
-			/**
-			* @brief	Enum over what a function should be added to (continuous, on collision, on death, etc)
-			*/
-			enum class TypeOfFunction
-			{
-				CONTINUOUS,
-				ON_COLLISION,
-				ON_DEATH
 			};
 
 			BehaviourPointers ptrs;
@@ -187,32 +179,35 @@ namespace SE
 			std::function<bool(Projectile* projectile, float dt)> KillSelfBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			* @brief	Adds collide condition behaviour to the projectile so that other behaviours are run once the projectile collides with something
 			*/
 			std::function<bool(Projectile* projectile, float dt)> CollidedConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			* @brief	Adds alive condition behaviour to the projectile so that other behaviours are run if the projectile is alive
 			*/
 			std::function<bool(Projectile* projectile, float dt)> IsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			* @brief	Adds distance to closest enemy condition behaviour to the projectile so that other behaviours are run once the projectile is close enough to an enemy
 			*/
 			std::function<bool(Projectile* projectile, float dt)> CloseToEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters/*float minDistance*/);
 
 			/**
-			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
+			* @brief	Adds distance to player condition behaviour to the projectile so that other behaviours are run once the projectile is close enough to the player
 			*/
 			std::function<bool(Projectile* projectile, float dt)> CloseToPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters/*float minDistance*/);
 
-
-
+			/**
+			* @brief	Adds projectile creation behaviour to the projectile so that the projectile creates new projectiles
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CreateProjectilesBehaviour(std::vector<BehaviourParameter> parameters/*string fileName*/);
 
 			/**
-			* @brief	Helper function for adding the behaviour to the correct function vector of the projectile
+			* @brief	Adds invert condition behaviour to the projectile that inverts the given behaviour
 			*/
-			void AddBehaviourToProjectile(Projectile& p, TypeOfFunction type, const std::function<bool(Projectile* projectile, float dt)>& func);
+			std::function<bool(Projectile* projectile, float dt)> InverterBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
 
 
 		public:

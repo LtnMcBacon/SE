@@ -217,12 +217,18 @@ void SE::Window::WindowSDL::StartRecording()
 	StartProfile;
 	currentFrameStrategy = &WindowSDL::RecordFrame;
 	std::time_t currentTime = std::time(nullptr);
-	std::string currentStringTime = std::asctime(std::localtime(&currentTime));
-	currentStringTime.erase(currentStringTime.size() - 1, 1);
+	char timeChar[100];
+	std::strftime(timeChar, sizeof(timeChar),"%A %c", std::localtime(&currentTime));
+	std::string currentStringTime = timeChar;
 	currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
 	record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
 	record.recFile.write((char*)&currentTime, sizeof(std::time_t));
 	record.recordState = true;
+	int posX;
+	int posY;
+	SDL_GetMouseState(&posX, &posY);
+	record.recFile.write((char*)&posX, sizeof(int));
+	record.recFile.write((char*)&posY, sizeof(int));
 	std::srand(currentTime);
 	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
 	StopProfile;
@@ -237,6 +243,11 @@ void SE::Window::WindowSDL::LoadRecording(std::string file)
 		std::time_t currentTime;
 		playRecord.playbackfile.read((char*)&currentTime, sizeof(std::time_t));
 		std::srand(currentTime);
+		int posX;
+		int posY;
+		playRecord.playbackfile.read((char*)&posX, sizeof(int));
+		playRecord.playbackfile.read((char*)&posY, sizeof(int));
+		SDL_WarpMouseInWindow(window, posX, posY);
 		SDL_Event ev;
 		while (!playRecord.playbackfile.eof())
 		{

@@ -73,6 +73,7 @@ namespace SE
 			float xVec = 0.0f;
 			float yVec = 0.0f;
 			CollisionType type = CollisionType::NONE;
+			std::weak_ptr<GameUnit*> hitUnit = std::weak_ptr<GameUnit*>();
 		};
 
 		struct BehaviourData
@@ -82,6 +83,16 @@ namespace SE
 				float f;
 				int i;
 			};
+		};
+
+		struct ProjectileCreationData
+		{
+			Rotation rot;
+			float projectileSpeed;
+			float projectileLifeTime;
+			float width;
+			float height;
+			ValidTarget projectileTarget;
 		};
 
 		class Projectile : public GameUnit
@@ -194,15 +205,13 @@ namespace SE
 
 		public:
 			Projectile();
-			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData);
 			Projectile(const Projectile& other);
 			Projectile& operator=(const Projectile& other);
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddCollisionFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddDeathFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddBehaviourFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
 
 			int AddBehaviourData(BehaviourData data);
 			BehaviourData& GetBehaviourData(int index);

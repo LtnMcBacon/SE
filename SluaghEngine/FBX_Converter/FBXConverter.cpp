@@ -41,10 +41,10 @@ void SE::FBX::FBXConverter::Deallocate() {
 
 }
 
-bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder) {
+bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder, const std::string& map) {
 
 	// Check if the FBX file was loaded properly
-	workingDirectory = Utilz::getPath(fileName);
+	workingDirectory = map;
 	Utilz::get_all_files_names_within_folder(workingDirectory, filesInWorkingDirectory);
 	if (!LoadFBXFormat(fileName, exportFolder)) {
 
@@ -612,7 +612,7 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
-	string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
+	//string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
 
 	//logFile.open(logFileName, ofstream::out);
 	//logFile.close();

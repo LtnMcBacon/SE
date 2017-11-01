@@ -18,7 +18,7 @@ namespace SE
 		class MaterialManager : public IMaterialManager
 		{
 		public:
-			MaterialManager(const InitializationInfo& initInfo);
+			MaterialManager(const IMaterialManager::InitializationInfo& initInfo);
 			~MaterialManager();
 			MaterialManager(const MaterialManager& other) = delete;
 			MaterialManager(const MaterialManager&& other) = delete;
@@ -88,7 +88,6 @@ namespace SE
 			std::unordered_map<Entity, size_t, EntityHasher> entityToMaterialInfo;
 
 			Utilz::GUID defaultPixelShader;
-			Utilz::GUID defaultTexture;
 			Utilz::GUID defaultTextureBinding;
 			Utilz::GUID defaultSampler;
 			Utilz::GUID defaultMaterial;

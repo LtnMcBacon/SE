@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
-static const SE::Utilz::GUID defaultMesh("Placeholder_Block.mesh");
+static const SE::Utilz::GUID defaultMesh("default.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
 static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
@@ -548,7 +548,7 @@ SE::ResourceHandler::InvokeReturn SE::Core::RenderableManager::LoadDefaultShader
 {
 	StartProfile;
 	int result = 0;
-	/*result = */initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+	result = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 	if (result < 0)
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);

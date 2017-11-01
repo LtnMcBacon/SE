@@ -26,7 +26,7 @@ namespace SE
 		class TransformManager : public ITransformManager
 		{
 		public:
-			TransformManager(const InitializationInfo& initInfo);
+			TransformManager(const ITransformManager::InitializationInfo& initInfo);
 			~TransformManager();
 			TransformManager(const TransformManager& other) = delete;
 			TransformManager(const TransformManager&& other) = delete;

@@ -111,6 +111,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	StopProfile;
 }
 
+
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
@@ -241,7 +242,7 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.animInfo = (AnimationInfo*)(newData.entity + newData.size);
+	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + newData.size);
 	newData.playing = (uint8_t*)(newData.animInfo + newData.size);
 	
 	// Copy data

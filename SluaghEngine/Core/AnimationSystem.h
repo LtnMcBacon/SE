@@ -45,9 +45,9 @@ namespace SE
 
 			struct AnimationBucket : public RenderBucket
 			{
-				AnimationBucket(const Graphics::Pipeline& p) : RenderBucket(p) {};
+				AnimationBucket(const Graphics::Pipeline& p) : RenderableManagerInstancing::RenderBucket(p) {};
 				std::vector<JointMatrices> matrices;
-				virtual void AddEntity(const Entity& entity, const DirectX::XMFLOAT4X4& transform, BucketAndID& bucketAndID)override;
+				virtual void AddEntity(const Entity& entity, const DirectX::XMFLOAT4X4& transform, RenderableManagerInstancing::BucketAndID& bucketAndID)override;
 				virtual void RemoveFromBucket(RenderableManagerInstancing* rm, size_t index, DirectX::XMFLOAT4X4* transform)override;
 			};
 
