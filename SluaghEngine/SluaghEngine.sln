@@ -66,7 +66,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Game\Game.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DevConsole", "DevConsole\DevConsole.vcxproj", "{1B076269-3491-4BB6-BAB3-35A278EBCA78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillCreator", "..\..\..\..\source\repos\SkillFileCreator\SkillCreator\SkillCreator.csproj", "{7575C198-7048-4547-B208-F13C32E16FB6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillCreator", "SkillCreator\SkillCreator.csproj", "{7575C198-7048-4547-B208-F13C32E16FB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

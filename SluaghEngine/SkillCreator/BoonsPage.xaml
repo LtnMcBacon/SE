@@ -1,0 +1,102 @@
+﻿<Page x:Class="SkillCreator.BoonsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SkillCreator"
+      mc:Ignorable="d" 
+      d:DesignHeight="300"
+      d:DesignWidth="218"
+      Title="BoonsPage" Width="218" Height="476">
+
+    <Grid>
+        <Canvas>
+            <TextBlock Canvas.Left="10" Canvas.Top="10">
+                Boons:
+            </TextBlock>
+            <TextBlock Canvas.Right="30" Canvas.Top="31">
+                None
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_NONE_CHECKBOX" Canvas.Right="10" Canvas.Top="31" IsChecked = "True" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="51">
+                Damage multiplier
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_DAMAGE_CHECKBOX" Canvas.Right="10" Canvas.Top="51" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="71">
+                Knockback
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_KNOCKBACK_CHECKBOX" Canvas.Right="10" Canvas.Top="71" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="91">
+                Stun
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_STUN_CHECKBOX" Canvas.Right="10" Canvas.Top="91" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="111">
+                Root
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_ROOT_CHECKBOX" Canvas.Right="10" Canvas.Top="111" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="131">
+                Protection
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_PROTECTION_CHECKBOX" Canvas.Right="10" Canvas.Top="131" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="151">
+                Physical resistance
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_PHYSICAL_RESISTANCE_CHECKBOX" Canvas.Right="10" Canvas.Top="151" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="171">
+                Magical resistance
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_MAGICAL_RESISTANCE_CHECKBOX" Canvas.Right="10" Canvas.Top="171" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="191">
+                Fire resistance
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_FIRE_RESISTANCE_CHECKBOX" Canvas.Right="10" Canvas.Top="191" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="211">
+                Water resistance
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_WATER_RESISTANCE_CHECKBOX" Canvas.Right="10" Canvas.Top="211" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="231">
+                Nature resistance
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_NATURE_RESISTANCE_CHECKBOX" Canvas.Right="10" Canvas.Top="231" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="251">
+                Cast speed
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_CASTSPEED_CHECKBOX" Canvas.Right="10" Canvas.Top="251" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="271">
+                Swiftness
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_SWIFTNESS_CHECKBOX" Canvas.Right="10" Canvas.Top="271" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="291">
+                Slow
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_SLOW_CHECKBOX" Canvas.Right="10" Canvas.Top="291" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="311">
+                Invulnerability
+            </TextBlock>
+            <RadioButton GroupName ="Boon" Name = "BOON_INVULNERABILITY_CHECKBOX" Canvas.Right="10" Canvas.Top="311" Checked="element_Checked"/>
+
+            <TextBlock Canvas.Left="10" Canvas.Top="341">
+                Attributes:
+            </TextBlock>
+            <TextBlock Canvas.Right="110" Canvas.Top="361">
+                Effect value:
+            </TextBlock>
+            <TextBox Name = "Dmg" Canvas.Right="60" Canvas.Top= "361" Width="44" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BoonEffectSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BoonEffectSlider" Canvas.Left="160" Canvas.Top="361" Width="53" Value="100" Maximum="200" Minimum="0" ValueChanged="EffectSlider_ValueChanged">
+            </Slider>
+            <TextBlock Canvas.Right="110" Canvas.Top="391">
+                Range:
+            </TextBlock>
+            <TextBox Name="BOON_RANGE_VALUE" Canvas.Right="60" Canvas.Top="391" Width="44" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BoonRangeSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BoonRangeSlider" Canvas.Left="160" Canvas.Top="391" Width="53" Value="0" Maximum="500" Minimum="0" ValueChanged="RangeSlider_ValueChanged">
+            </Slider>
+            <TextBlock Canvas.Right="110" Canvas.Top="421">
+                Duration:
+            </TextBlock>
+            <TextBox Name="BOON_DURATION_VALUE" Canvas.Right="60" Canvas.Top="421" Width="44" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BoonDurationSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BoonDurationSlider" Canvas.Left="160" Canvas.Top="421" Width="53" Value="0" Maximum="20" Minimum="0" ValueChanged="DurationSlider_ValueChanged">
+            </Slider>
+
+        </Canvas>
+    </Grid>
+</Page>

@@ -7,7 +7,7 @@
 SE::Gameplay::SkillFactory::SkillFactory()
 {
 	auto rm = CoreInit::subSystems.resourceHandler;
-	rm->LoadResource("SkillInfo.skl", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("test.si", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		this->skillAmounts = *((char*)(filePointer));
 

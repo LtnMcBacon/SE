@@ -1,0 +1,16 @@
+﻿<Window x:Class="SkillCreator.AboutPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SkillCreator"
+        Title="AboutPage" Width="400" Height="250" ResizeMode="NoResize">
+
+    <Grid>
+        <Canvas>
+            <TextBlock Margin="10,10,226,10" Text="This editor is brought to you&#x0a; by none other than the &#x0a; almighty Jinx. &#x0a; &#x0a; Yeaaah that's all i really &#x0a; wanted to say... &#x0a; &#x0a; Why are you even here? &#x0a; Get back to work! &#x0a; SHOO! ">
+            </TextBlock>
+            <Image Source="pack://application:,,,/images/work.jpg" Height="201" Canvas.Left="168" Canvas.Top="10" Width="216"/>
+        </Canvas>
+    </Grid>
+</Window>

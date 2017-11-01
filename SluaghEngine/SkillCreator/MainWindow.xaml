@@ -1,0 +1,80 @@
+﻿<Window x:Class="SkillCreator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SkillCreator"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        Title="MainWindow" Height="600" Width="800" ResizeMode="NoResize">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="local:CustomCommands.New" CanExecute="NewCommand_CanExecute" Executed="NewCommand_Executed"/>
+        <CommandBinding Command="local:CustomCommands.Load" CanExecute="LoadCommand_CanExecute" Executed="LoadCommand_Executed"/>
+        <CommandBinding Command="local:CustomCommands.Save" CanExecute="SaveCommand_CanExecute" Executed="SaveCommand_Executed"/>
+        <CommandBinding Command="local:CustomCommands.SaveAs" CanExecute="SaveAsCommand_CanExecute" Executed="SaveAsCommand_Executed"/>
+        <CommandBinding Command="local:CustomCommands.Exit" CanExecute="ExitCommand_CanExecute" Executed="ExitCommand_Executed"/>
+        <CommandBinding Command="local:CustomCommands.Delete" CanExecute="MenuDeleteCommand_CanExecute" Executed="MenuDeleteCommand_Executed"/>
+        <!--<CommandBinding Command="ApplicationCommands.Open" Executed="Open_Executed"/>-->
+    </Window.CommandBindings>
+
+    <Grid>
+        <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="New" Command="local:CustomCommands.New" MouseUp="NewDocument"/>
+                    <MenuItem Header="Load" Command="local:CustomCommands.Load" MouseUp="getFile"/>
+                    <MenuItem Header="Save" Command="local:CustomCommands.Save" MouseUp="SaveFile"/>
+                    <MenuItem Header="Save as" Command="local:CustomCommands.SaveAs" MouseUp="SaveAsFile"/>
+                    <MenuItem Header="Exit" Command="local:CustomCommands.Exit"/>
+                </MenuItem>
+                <MenuItem Header="Help">
+                    <MenuItem Header="About" Click="MenuItem_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <GroupBox Header="Menu" HorizontalAlignment="Left" Height="486" Margin="10,24,0,0" VerticalAlignment="Top" Width="248">
+            <ListBox Name="Menu_List" Margin="10" SelectedItem="{Binding Path=SelectedObject}" MouseDoubleClick="Menu_List_MouseDoubleClick">
+                <ListBox.InputBindings>
+                    <KeyBinding Command="local:CustomCommands.Delete"/>
+                </ListBox.InputBindings>
+                
+            </ListBox>
+        </GroupBox>
+
+        <TextBlock Margin="276,26,233,513">
+            File name:
+        </TextBlock>
+        <TextBox Name ="Doc_File" Margin="277,50,327,489" KeyUp="TextBox_KeyUp">
+            
+        </TextBox>
+
+        <Button Name = "RemoveButton" HorizontalAlignment="Left" Margin="277,460,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="Remove_Skill_Click">
+            Remove Item
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+        
+        <Separator HorizontalAlignment="Left" Height="14" Margin="0,506,0,0" VerticalAlignment="Top" Width="792"/>
+        <Button Name="CreateSkillButton" HorizontalAlignment="Left" Margin="25,521,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="CreateSkill">
+            Create skill
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+        <Button Name = "EditSkillButton" HorizontalAlignment="Left" Margin="150,521,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="EditSkill">
+            Edit skill
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+        <Button Name="SaveButton" HorizontalAlignment="Left" Margin="277,521,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="SaveFile">
+            Save file
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+        <Button Name = "LoadButton" HorizontalAlignment="Left" Margin="404,521,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="getFile">
+            Load file
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+        <Button Name="ExitButton" HorizontalAlignment="Left" Margin="668,521,0,0" VerticalAlignment="Top" Width="100" Height="34" Click="ExitButton_Click">
+            Exit
+            <!--<Image Source="pack://application:,,,/images/Particle_Icon.png"></Image>-->
+        </Button>
+    </Grid>
+</Window>

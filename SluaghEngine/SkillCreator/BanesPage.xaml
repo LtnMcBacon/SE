@@ -1,0 +1,86 @@
+﻿<Page x:Class="SkillCreator.BanesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SkillCreator"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="218"
+      Title="BanesPage" Width="218" Height="476">
+
+    <Grid>
+        <Canvas>
+            <TextBlock Canvas.Left="10" Canvas.Top="10">
+                Banes:
+            </TextBlock>
+            <TextBlock Canvas.Right="30" Canvas.Top="31">
+                None
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_NONE_CHECKBOX" Canvas.Right="10" Canvas.Top="31" IsChecked="True" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="51">
+                Damage multiplier
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_DAMAGE_CHECKBOX" Canvas.Right="10" Canvas.Top="51" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="71">
+                Stun
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_STUN_CHECKBOX" Canvas.Right="10" Canvas.Top="71" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="91">
+                Root
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_ROOT_CHECKBOX" Canvas.Right="10" Canvas.Top="91" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="111">
+                Bloodletting
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_BLOODLETTING_CHECKBOX" Canvas.Right="10" Canvas.Top="111" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="131">
+                Uncover
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_UNCOVER_CHECKBOX" Canvas.Right="10" Canvas.Top="131" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="151">
+                Physical weakness
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_PHYSICAL_WEAKNESS_CHECKBOX" Canvas.Right="10"  Canvas.Top="151" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="171">
+                Magical weakness
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_MAGICAL_WEAKNESS_CHECKBOX" Canvas.Right="10" Canvas.Top="171" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="191">
+                Fire weakness
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_FIRE_WEAKNESS_CHECKBOX" Canvas.Right="10" Canvas.Top="191" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="211">
+                Water weakness
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_WATER_WEAKNESS_CHECKBOX" Canvas.Right="10" Canvas.Top="211" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="231">
+                Nature weakness
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_NATURE_WEAKNESS_CHECKBOX" Canvas.Right="10" Canvas.Top="231" Checked="element_Checked"/>
+            <TextBlock Canvas.Right="30" Canvas.Top="251">
+                Slow
+            </TextBlock>
+            <RadioButton GroupName ="Bane" Name = "BANE_SLOW_CHECKBOX" Canvas.Right="10" Canvas.Top="251" Checked="element_Checked"/>
+
+            <TextBlock Canvas.Left="10" Canvas.Top="271">
+                Attributes:
+            </TextBlock>
+            <TextBlock Canvas.Right="110" Canvas.Top="291">
+                Effect value:
+            </TextBlock>
+            <TextBox Name ="BANE_EFFECT_VALUE" Canvas.Right="60" Canvas.Top="291" Width="35" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BaneEffectSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BaneEffectSlider" Canvas.Left="160" Canvas.Top= "291" Width="53" Value="100" Maximum="200" Minimum="0" ValueChanged="EffectSlider_ValueChanged"/>
+            <TextBlock Canvas.Right="110" Canvas.Top="321">
+                Range:
+            </TextBlock>
+            <TextBox Name="BANE_RANGE_VALUE" Canvas.Right="60" Canvas.Top="321" Width="35" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BaneRangeSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BaneRangeSlider" Canvas.Left="160" Canvas.Top="321" Width="53" Value="0" Maximum="500" Minimum="0" ValueChanged="RangeSlider_ValueChanged"/>
+            <TextBlock Canvas.Right="110" Canvas.Top="351">
+                Duration:
+            </TextBlock>
+            <TextBox Name="BANE_DURATION_VALUE" Canvas.Right="60" Canvas.Top="351" Width="35" KeyUp="TextChanged" LostFocus="Text_lostFocus" Text ="{Binding ElementName=BaneDurationSlider, Path=Value, StringFormat=N2}"/>
+            <Slider Name="BaneDurationSlider" Canvas.Left="160" Canvas.Top="351" Width="53" Value="0" Maximum="20" Minimum="0" ValueChanged="DurationSlider_ValueChanged"/>
+
+        </Canvas>
+    </Grid>
+</Page>
