@@ -9,6 +9,11 @@ SE::Test::ThreadPoolTest::~ThreadPoolTest()
 {
 }
 
+static int Chungus(int a, int b)
+{
+	return a + b;
+}
+
 bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
 {
 	Utilz::ThreadPool tp(4);
@@ -39,6 +44,13 @@ bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
 		auto someLambda = []() {return 5; };
 		auto future = tp.Enqueue(someLambda);
 		if (future.get() != 5)
+			return false;
+	}
+
+	//Testing a regular function.
+	{
+		auto future = tp.Enqueue(Chungus, 10, 15);
+		if (future.get() != Chungus(10, 15))
 			return false;
 	}
 	
