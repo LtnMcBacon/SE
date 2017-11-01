@@ -11,7 +11,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float yMovement = 0.0f;
 
 	//rotation += rotData.force;
-	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force;
+	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force * dt;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
@@ -48,22 +48,11 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	if (collisionData.type != CollisionType::NONE)
 	{
 		active = false;
-
-		for (int i = 0; i < onCollision.size(); i++)
-		{
-			functionsToRun.push_back(onCollision[i]);
-		}
-
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
 	{
 		active = false;
-
-		for (int i = 0; i < onDeath.size(); i++)
-		{
-			functionsToRun.push_back(onDeath[i]);
-		}
 	}
 
 	while (tempStorage.size())
@@ -74,12 +63,13 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
-		if (!functionsToRun[i](this, dt))
-		{
-			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
-			functionsToRun.pop_back();
-			i--;
-		}
+		functionsToRun[i](this, dt);
+		//if (!functionsToRun[i](this, dt))
+		//{
+		//	std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
+		//	functionsToRun.pop_back();
+		//	i--;
+		//}
 	}
 
 	collisionData = CollisionData();
@@ -92,8 +82,6 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 
 void SE::Gameplay::Projectile::RecreateEntity(Utilz::GUID meshGuid)
 {
-	//this->DestroyEntity();
-
 	this->unitEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(this->unitEntity);
 	CoreInit::managers.renderableManager->CreateRenderableObject(this->unitEntity, { meshGuid });
@@ -168,21 +156,21 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	UpdateBounding();
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, float width, float height, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
-	GameUnit(data.startPosX, data.startPosY, 100)
+SE::Gameplay::Projectile::Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData) :
+	GameUnit(pData.startPosX, pData.startPosY, 100)
 {
-	extentX = width;
-	extentY =height;
-	rotation = data.startRotation;
-	rotData = rot;
+	extentX = cData.width;
+	extentY = cData.height;
+	rotation = pData.startRotation;
+	rotData = cData.rot;
 
-	speed = projectileSpeed;
-	lifeTime = projectileLifeTime;
-	target = projectileTarget;
+	speed = cData.projectileSpeed;
+	lifeTime = cData.projectileLifeTime;
+	target = cData.projectileTarget;
 
-	eventDamage = eventD;
-	eventHealing = eventH;
-	eventCondition = eventC;
+	eventDamage = pData.eventDamage;
+	eventHealing = pData.eventHealing;
+	eventCondition = pData.eventCondition;
 
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
 
@@ -265,19 +253,9 @@ SE::Gameplay::Projectile::~Projectile()
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::Projectile::AddContinuousFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddBehaviourFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
 	tempStorage.push_back(func);
-}
-
-void SE::Gameplay::Projectile::AddCollisionFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
-{
-	onCollision.push_back(func);
-}
-
-void SE::Gameplay::Projectile::AddDeathFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
-{
-	onDeath.push_back(func);
 }
 
 int SE::Gameplay::Projectile::AddBehaviourData(BehaviourData data)

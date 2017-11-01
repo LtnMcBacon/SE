@@ -21,6 +21,10 @@
 #include "TickDownAttackCooldownLeaf.h"
 #include "FaceThePlayerLeaf.h"
 #include "WhileChannelingLeaf.h"
+#include "LeapAtPlayerLeaf.h"
+#include "BodachMeleeAttackLeaf.h"
+#include "PechMeleeAttackLeaf.h"
+#include "PechRangedAttackLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"
