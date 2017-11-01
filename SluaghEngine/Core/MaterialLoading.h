@@ -47,10 +47,10 @@ namespace SE
 
 
 
-			int LoadShader(const Utilz::GUID& guid);
+			int LoadShader(const Utilz::GUID& shader);
 			bool IsShaderLoaded(const Utilz::GUID& guid)const;
 
-			int LoadMaterialFile(const Utilz::GUID& guid);
+			int LoadMaterialFile(const Utilz::GUID& material);
 			MaterialFileData& GetMaterialFile(const Utilz::GUID& guid);
 			bool IsMaterialFileLoaded(const Utilz::GUID& guid)const;
 			void UnloadMaterialFile(const Utilz::GUID& guid, const Entity& entity);
@@ -62,7 +62,7 @@ namespace SE
 
 
 			int LoadTextures(const Utilz::GUID& materialFile, bool async, ResourceHandler::Behavior behavior, const std::function<void(const Utilz::GUID&, int)>& errorCallback);
-			int LoadTexture(const Utilz::GUID& guid);
+			int LoadTexture(const Utilz::GUID& texture);
 			bool IsTextureLoaded(const Utilz::GUID& guid)const;
 
 		private:

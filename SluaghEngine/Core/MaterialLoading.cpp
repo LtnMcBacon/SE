@@ -102,7 +102,7 @@ int SE::Core::MaterialLoading::LoadTextures(const Utilz::GUID& materialFile, boo
 	for (uint8_t i = 0; i < material.textureInfo.numTextures; i++)
 	{
 		bool isLoaded = IsTextureLoaded(material.textureInfo.textures[i]);
-		auto& texture = guidToTexture[material.textureInfo.textures[i]];
+		guidToTexture[material.textureInfo.textures[i]];
 		if (!isLoaded)
 		{
 			resourceHandler->LoadResource(material.textureInfo.textures[i],
