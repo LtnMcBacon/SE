@@ -462,9 +462,9 @@ void SE::Core::RenderableManager::Init()
 	bs.enable = true;
 	bs.blendOperation = Graphics::BlendOperation::ADD;
 	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
-	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.srcBlend = Graphics::Blend::SRC_COLOR;
 	bs.srcBlendAlpha = Graphics::Blend::ONE;
-	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlend = Graphics::Blend::ONE;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
 
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
