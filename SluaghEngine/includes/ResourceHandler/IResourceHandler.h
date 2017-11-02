@@ -39,17 +39,17 @@ namespace SE
 		};
 
 		enum class InvokeReturn1 {
-			VRAM = 1 << 0,
-			RAM = 1 << 1,
-			FAIL = 1 << 2,
-			SUCCESS = 1 << 3
+			FAIL = 1 << 1,
+			SUCCESS = 1 << 2
 		};
 
 		enum class LoadFlags {
 			LOAD_FOR_VRAM = 1 << 0,
 			LOAD_FOR_RAM = 1 << 1,
 			ASYNC = 1 << 2,
-			IMMUTABLE = 1 << 3
+			IMMUTABLE = 1 << 3,
+			NO_INVOKE = 1 << 4,
+			NO_LOAD = 1 << 5
 		};
 
 		enum class State {
@@ -145,43 +145,6 @@ namespace SE
 				const Callbacks& callbacks,
 				LoadFlags loadFlags) = 0;
 			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
-
-			/**
-			* @brief	Load the given resource
-			*
-			* @param[in] guid The GUID of the resource to be loaded.
-			* @param[in] callback A delegate that is called when the data has been loaded.
-			* @param[in] async If the resource should be loaded with async.
-			* @param[in] behavior QUICK will prioritize the resource, ignoring the memory limit. LAZY will try to load the resource at regular intervals and try to not go over the memory limit.
-			*
-			* @retval 0 On success.
-			* Example code:
-			* @code
-			* //Static function
-			* int Load(const Utilz::GUID& guid, void* data, size_t size)
-			* {
-			*	//...
-			* }
-			* resourceHandler->LoadResource("test.objtest", &Load); // Where load is a function
-			*
-			* //Class method
-			* class A
-			* {
-			* int Load(const Utilz::GUID& guid, void* data, size_t size)
-			*  {
-			*	/...
-			*  }
-			* void Run()
-			* {
-			*	resourceHandler->LoadResource("test.objtest", {this, &A::Load});
-			*	resourceHandler->LoadResource("test.objtest", [](auto guid, auto data, auto size)->int{ //Do stuff//});
-			* }
-			* }
-			*
-			* @endcode
-			* @sa InvokeReturn
-			* @sa LoadResourceDelegate
-			*/
 			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
 
 			/**
