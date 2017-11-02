@@ -27,7 +27,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void CreateSystem(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateSystem(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief	Hide/Show a particle system.

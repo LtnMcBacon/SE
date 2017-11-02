@@ -88,7 +88,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 	auto lambda = [&fileData](const SE::Utilz::GUID & GUID, void * data, size_t size)
 	{
 		fileData = std::string((char*)data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	};
 
 	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(data.fileNameGuid, lambda);

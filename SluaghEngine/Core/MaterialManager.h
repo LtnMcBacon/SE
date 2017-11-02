@@ -9,7 +9,6 @@
 #include <random>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
-#include "MaterialLoading.h"
 #include <Graphics\FileHeaders.h>
 
 namespace SE
@@ -33,7 +32,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 
 			/**

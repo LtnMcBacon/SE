@@ -27,8 +27,8 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
@@ -75,8 +75,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 		auto result = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
 			auto result = LoadSkeleton(guid, data, size);
 			if (result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 		if (result < 0)
 		{
@@ -96,8 +96,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 			auto result = initInfo.resourceHandler->LoadResource(info.animations[i], [this](auto guid, auto data, auto size) {
 				auto result = LoadAnimation(guid, data, size);
 				if (result < 0)
-					return ResourceHandler::InvokeReturn::Fail;
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+					return ResourceHandler::InvokeReturn::FAIL;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			if (result < 0)
 			{

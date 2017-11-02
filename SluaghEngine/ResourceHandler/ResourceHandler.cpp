@@ -57,122 +57,47 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	for (auto& r : guidToResourceInfo)
 	{
 		if (r.second.state & State::IN_RAM)
-			r.second.RAMdestroyCallback(r.first, r.second.RAMData.data, r.second.RAMData.size);
+			if(r.second.RAMdestroyCallback)
+				r.second.RAMdestroyCallback(r.first, r.second.RAMData.data, r.second.RAMData.size);
 		if (r.second.state & State::IN_VRAM)
-			r.second.VRAMdestroyCallback(r.first, r.second.VRAMData.data, r.second.VRAMData.size);
+			if (r.second.VRAMdestroyCallback)
+				r.second.VRAMdestroyCallback(r.first, r.second.VRAMData.data, r.second.VRAMData.size);
 	}
 		
 	delete diskLoader;
 }
 
+const SE::ResourceHandler::InitializationInfo & SE::ResourceHandler::ResourceHandler::GetInfo() const
+{
+	return initInfo;
+}
+
 void SE::ResourceHandler::ResourceHandler::UpdateInfo(const InitializationInfo & initInfo)
 {
+	this->initInfo = initInfo;
 }
 
-int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, const LoadResourceDelegate& callback, bool async, Behavior behavior)
+int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
+	const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
+	LoadFlags loadFlags)
 {
-	StartProfile;
-	//loadResourceLock.lock();
-	//auto find = guidToResourceInfo.find(guid);
-	//auto& index = guidToResourceInfo[guid];
-
-	//if (find == guidToResourceInfo.end()) //If resource is not registered.
-	//{
-
-	//	if (!diskLoader->Exist(guid, nullptr)) // Make sure we can load the resource.
-	//	{
-	//		guidToResourceInfo.erase(guid);
-	//		loadResourceLock.unlock();
-	//		ProfileReturnConst(-1);
-	//	}
-
-
-	//	// Make sure we have enough memory.
-	//	if (resourceInfo.used + 1 > resourceInfo.allocated)
-	//		Allocate(resourceInfo.allocated * 2);
-
-	//	index = resourceInfo.used++;
-	//	resourceInfo.state[index] = State::Loading;
-	//	resourceInfo.refCount[index] = 1;
-	//	resourceInfo.resourceData[index].data = nullptr;
-
-	//	if (async) { // We create a load job
-	//		toLoad.push({ guid, index, callback, behavior });
-	//		loadResourceLock.unlock();
-	//		ProfileReturnConst(0);
-	//	}
-	//	else {
-	//		auto ret = LoadSync(guid, index, callback);
-	//		loadResourceLock.unlock();
-	//		ProfileReturnConst(ret);
-	//	}
-	//}
-	//else // Resource is registered
-	//{
-	//	resourceInfo.refCount[index]++; // First increase the refcount
-	//	if (resourceInfo.state[index] == State::Loaded) // The resource already loaded.
-	//	{
-
-	//		if (async) { // Since the load is async we make a load job that will call the callback.			
-	//			toInvoke.push({ guid, index, callback, behavior });
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(0);
-	//		}
-	//		else { // Invoke the callback
-	//			auto ret = InvokeCallback(guid, index, callback);
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(ret);
-	//		}
-	//	}
-	//	else if (resourceInfo.state[index] == State::Loading) // Someone has already started loading the resource.
-	//	{
-	//		// Update the toLoad struct
-
-	//		if (async) { // Update the load job
-	//			toInvoke.push({ guid, index, callback, behavior });
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(0);
-	//		}
-	//		else // Since the load is sync we need to wait until the resource has been loaded.
-	//		{
-	//			while (resourceInfo.state[index] != State::Loaded) std::this_thread::sleep_for(10ms); // TODO: Maybe change to a condition variable
-
-	//			auto ret = InvokeCallback(guid, index, callback);
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(ret);
-	//		}
-	//	}
-	//	else // The resource is dead, the refCount reached 0 before the load was completed.
-	//	{
-	//		resourceInfo.state[index] = State::Loading;
-	//		resourceInfo.refCount[index] = 1;
-	//		if (async) { // We create a load job
-	//			toLoad.push({ guid, index, callback, behavior });
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(0);
-	//		}
-	//		else {
-	//			auto ret = LoadSync(guid, index, callback);
-	//			loadResourceLock.unlock();
-	//			ProfileReturnConst(ret);
-	//		}
-	//	}
-	//}
-	//loadResourceLock.unlock();
-	return 0;
+	Callbacks callbacks;
+	callbacks.invokeCallback = invokeCallback;
+	return LoadResource(guid, callbacks, loadFlags);
 }
 
-int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid, 
+int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	const Callbacks& callbacks,
 	LoadFlags loadFlags)
 {
+	StartProfile;
 	infoLock.lock();
 	auto& ri = guidToResourceInfo[guid];
 
 	if (ri.state & State::FAIL)
 	{
 		infoLock.unlock();
-		return -1;
+		ProfileReturnConst( -1);
 	}
 		
 	if(loadFlags & LoadFlags::LOAD_FOR_VRAM)
@@ -211,7 +136,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				ri2.state = State::FAIL;
 				errors.push_back("Resource does not exist, GUID: " + std::to_string(guid.id));
 				infoLock.unlock();
-				return -2;
+				ProfileReturnConst(-2);
 			}
 
 			loadLock.lock();
@@ -224,27 +149,31 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 				ri2.state = State::FAIL;
 				errors.push_back("Could not load resource, GUID: " + std::to_string(guid.id) + ", Error: " + std::to_string(result));
 				infoLock.unlock();
-				return -3;
+				ProfileReturnConst(-3);
 			}
 
 			Data data;
-			if (!callbacks.loadCallback)
-				return -4;
-			auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
-			if(!(lresult & LoadReturn::NO_DELETE))
-				operator delete (rawData.data);
-			if (lresult & LoadReturn::FAIL)
+			if (callbacks.loadCallback)
 			{
-				loadLock.unlock();
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[guid];
-				
-				ri2.state = State::FAIL;
-				errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(guid.id));
-				infoLock.unlock();
-				return -5;
-			}
+				auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
+				if (!(lresult & LoadReturn::NO_DELETE))
+					operator delete (rawData.data);
+				if (lresult & LoadReturn::FAIL)
+				{
+					loadLock.unlock();
+					infoLock.lock();
+					auto& ri2 = guidToResourceInfo[guid];
 
+					ri2.state = State::FAIL;
+					errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(guid.id));
+					infoLock.unlock();
+					ProfileReturnConst(-4);
+				}
+			}
+			else
+			{
+				data = rawData;
+			}
 			loadLock.unlock();
 			infoLock.lock();
 			auto& ri2 = guidToResourceInfo[guid];
@@ -266,14 +195,14 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			infoLock.unlock();
 
 			auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
-			if (iresult & InvokeReturn1::FAIL)
+			if (iresult & InvokeReturn::FAIL)
 			{
 				infoLock.lock();
 				auto& ri2 = guidToResourceInfo[guid];
 				ri2.state = State::FAIL;
 				errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 				infoLock.unlock();
-				return -6;
+				ProfileReturnConst(-5);
 			}
 		}
 	}
@@ -287,38 +216,18 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		infoLock.unlock();
 
 		auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
-		if (iresult & InvokeReturn1::FAIL)
+		if (iresult & InvokeReturn::FAIL)
 		{
 			infoLock.lock();
 			auto& ri2 = guidToResourceInfo[guid];
 			ri2.state = State::FAIL;
 			errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 			infoLock.unlock();
-			return -7;
+			ProfileReturnConst(-6);
 		}
 	}
 
-	return 0;
-}
-
-void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid)
-{
-	StartProfile;
-	infoLock.lock();
-	auto& ri = guidToResourceInfo[guid];
-
-	infoLock.unlock();
-	//auto& find = guidToResourceInfo.find(guid);
-	//if (find == guidToResourceInfo.end())
-	//{
-	//	infoLock.lock();
-	//	resourceInfo.refCount[find->second]--;
-	//	if (resourceInfo.refCount[find->second] == 0 && resourceInfo.state[find->second] == State::Loading) // If no one want the resource any more and isn't loaded yet.
-	//		resourceInfo.state[find->second] = State::Dead;
-	//	infoLock.unlock();
-	//}
-	//
-	StopProfile;
+	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid, UnloadFlags unloadFlags)
@@ -378,47 +287,6 @@ void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
 	ProfileReturnVoid;
 }
 
-int SE::ResourceHandler::ResourceHandler::LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
-{
-
-	//StartProfile;
-	//Data data;
-
-	//diskLoader->Exist(guid, &data.size);
-
-	//(*this.*Unload)(data.size);
-
-	//auto result = diskLoader->LoadResource(guid, &data.data);
-	//if (result)
-	//	ProfileReturnConst(result);
-	//	
-	//infoLock.lock();
-	//resourceInfo.resourceData[index] = data;
-	////resourceInfo.state[index] = State::Loaded;
-	//infoLock.unlock();
-	//ProfileReturn(InvokeCallback(guid, index, callback));
-	return 0;
-}
-
-int SE::ResourceHandler::ResourceHandler::InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback)
-{
-	StartProfile;
-
-	/*auto result = callback(guid, resourceInfo.resourceData[index].data, resourceInfo.resourceData[index].size);
-
-	switch (result)
-	{
-	case SE::ResourceHandler::InvokeReturn::Fail:
-		ProfileReturnConst(-1);
-		break;
-	case SE::ResourceHandler::InvokeReturn::DecreaseRefcount:
-		infoLock.lock();
-		resourceInfo.refCount[index]--;
-		infoLock.unlock();
-		break;
-	}*/
-	ProfileReturnConst(0);
-}
 using namespace std::chrono_literals;
 
 void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
@@ -548,7 +416,7 @@ void SE::ResourceHandler::ResourceHandler::InvokeThreadEntry()
 				else if (ri.state & State::IN_VRAM)
 					data = ri.VRAMData;
 				auto iresult = job.invokeCallback(job.guid, data.data, data.size);
-				if (iresult & InvokeReturn1::FAIL)
+				if (iresult & InvokeReturn::FAIL)
 				{
 					infoLock.lock();
 					auto& ri2 = guidToResourceInfo[job.guid];

@@ -624,7 +624,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		}
 
 	
-		return ResourceHandler::InvokeReturn::Success;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	
 	StopProfile; 

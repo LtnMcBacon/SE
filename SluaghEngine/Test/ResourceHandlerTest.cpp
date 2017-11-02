@@ -32,7 +32,7 @@ SE::ResourceHandler::InvokeReturn Load(const SE::Utilz::GUID& guid, void* data, 
 		result = true;
 	}
 
-	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
+	return SE::ResourceHandler::InvokeReturn::SUCCESS | SE::ResourceHandler::InvokeReturn::DEC_RAM;
 }
 SE::ResourceHandler::InvokeReturn Load2(const SE::Utilz::GUID& guid, void* data, size_t size)
 {
@@ -42,7 +42,7 @@ SE::ResourceHandler::InvokeReturn Load2(const SE::Utilz::GUID& guid, void* data,
 		result2 = true;
 	}
 
-	return SE::ResourceHandler::InvokeReturn::DecreaseRefcount;
+	return SE::ResourceHandler::InvokeReturn::SUCCESS | SE::ResourceHandler::InvokeReturn::DEC_RAM;
 }
 bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 {
@@ -55,7 +55,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 
 	r->LoadResource("texture8.sei", [](auto guid, auto data, auto size) {
 		std::this_thread::sleep_for(100ms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	if (Utilz::Memory::IsUnderLimit(10_mb))
@@ -80,7 +80,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"),&Load, true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"),&Load);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded.\n");
@@ -113,7 +113,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 
 	//*******************************
 	result = false;
-	res = r->LoadResource(Utilz::GUID("test2.txt"), &Load, true);
+	res = r->LoadResource(Utilz::GUID("test2.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded again.\n");
@@ -131,13 +131,13 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	//*******************************
 	result = false;
 	result2 = false;
-	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load, true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded.\n");
 		return false;
 	}
-	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load2, true);
+	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load2);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded again.\n");
@@ -160,20 +160,20 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	{
 		auto re = r->LoadResource("test.txt", [&tt](auto guid, auto data, auto size) {
 			tt = true;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 
 		if (re)
-			return ResourceHandler::InvokeReturn::Fail;
+			return ResourceHandler::InvokeReturn::FAIL;
 
 		re = r->LoadResource("test5.txt", [&tt2](auto guid, auto data, auto size) {
 			tt2 = true;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		}, true);
+			return ResourceHandler::InvokeReturn::SUCCESS| ResourceHandler::InvokeReturn::DEC_RAM;
+		});
 		if (re)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	}, true);
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
 
 
 	timeOut = 0;

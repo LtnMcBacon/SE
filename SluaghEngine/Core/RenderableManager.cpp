@@ -52,7 +52,7 @@ SE::Core::RenderableManager::~RenderableManager()
 	operator delete(renderableObjectInfo.data);
 }
 
-void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info)
 {
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
@@ -88,8 +88,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		{
 			MeshData md = { guid, *(size_t*)data };
 			if(!toUpdate.push({ md, entity }))
-				return ResourceHandler::InvokeReturn1::FAIL;
-			return ResourceHandler::InvokeReturn1::SUCCESS;
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 		auto res = initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 		if (res < 0)
@@ -418,7 +418,7 @@ void SE::Core::RenderableManager::Init()
 	};
 	meshCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		auto vc = *(size_t*)data;
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 	meshCallbacks.destroyCallback = destroyCallback = [this](auto guid, auto data, auto size) {
 		delete (size_t*)data;
@@ -439,7 +439,7 @@ void SE::Core::RenderableManager::Init()
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
 	shaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 	shaderCallbacks.destroyCallback = [this](auto guid, auto data, auto size) {
 		initInfo.renderer->GetPipelineHandler()->DestroyVertexShader(guid);

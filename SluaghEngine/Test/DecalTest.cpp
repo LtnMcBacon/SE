@@ -47,13 +47,13 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	mInfo.materialFile = material;
 	Core::Entity box = em->Create();
 	tm->Create(box, { 0,0,5 }, { 0,0,0 }, { 8,8,1 });
-	mm->Create(box, mInfo, false);
+	mm->Create(box, mInfo);
 
 	Core::IRenderableManager::CreateInfo rmci;
 	rmci.meshGUID = "Placeholder_Block.mesh";
 	rmci.transparent = false;
 	rmci.wireframe = false;
-	rm->CreateRenderableObject(box, rmci, false);
+	rm->CreateRenderableObject(box, rmci);
 	rm->ToggleRenderableObject(box, true);
 
 	Core::Entity decal = em->Create();

@@ -63,7 +63,7 @@ namespace SE
 			* @param[in] behavior The streaming behavior.
 			*
 			*/
-			virtual void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
+			virtual void CreateRenderableObject(const Entity& entity, const CreateInfo& info) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable object

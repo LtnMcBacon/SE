@@ -43,60 +43,6 @@ namespace
 		return std::stoi(GetLineData(line));
 	}
 }
-ResourceHandler::InvokeReturn EnemyFactory::LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
-{
-	StartProfile;
-	if (!size)
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	std::string const EnemyFileData((char*)data, size);
-	auto lineByLineData = split(EnemyFileData, '\n');
-
-	auto line = lineByLineData.begin();
-	line->pop_back();
-	EnemyDescriptionStruct loadedEnemy;
-	auto temp = Utilz::GUID("Placeholder_Block.mesh");
-	loadedEnemy.meshGUID = Utilz::GUID(GetLineData(line));
-	++line;
-	line->pop_back();
-	loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
-	++line;
-	line->pop_back();
-	loadedEnemy.baseDamage = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseDamageVariation = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseHealth = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseHealthVariation = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.physicalResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.magicalResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.natureResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.fireResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.waterResistance = GetLineDataAsInt(line);
-
-	if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-
-	/*Load mesh here?*/
-
-	enemyData[GUID] = loadedEnemy;
-
-	/*Return 0 for success, -1 for fail, 1 for refcount*/
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-}
 
 EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlackboard, bool useVariation)
 {
@@ -181,7 +127,57 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 	}
 
 	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(GUID,
-	{ this,&EnemyFactory::LoadEnemyFromResourceHandler});
+		[this](auto guid, auto data, auto size) {
+		if (!size)
+			return ResourceHandler::InvokeReturn::FAIL;
+		std::string const EnemyFileData((char*)data, size);
+		auto lineByLineData = split(EnemyFileData, '\n');
+
+		auto line = lineByLineData.begin();
+		line->pop_back();
+		EnemyDescriptionStruct loadedEnemy;
+		auto temp = Utilz::GUID("Placeholder_Block.mesh");
+		loadedEnemy.meshGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.baseDamage = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseDamageVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseHealth = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseHealthVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.physicalResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.magicalResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.natureResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.fireResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+
+		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
+			return ResourceHandler::InvokeReturn::FAIL;
+
+		/*Load mesh here?*/
+
+		enemyData[guid] = loadedEnemy;
+
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
 
 	if (done != -1)
 		ProfileReturnConst(true);

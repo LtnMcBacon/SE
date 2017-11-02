@@ -49,7 +49,7 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief	Hide/Show the renderable object

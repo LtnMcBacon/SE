@@ -110,15 +110,15 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	floorInfo.shader = shader;
 	floorInfo.materialFile = floorMaterial;
 
-	managers.materialManager->Create(mainC, info, true);
-	managers.materialManager->Create(floor, floorInfo, true);
+	managers.materialManager->Create(mainC, info);
+	managers.materialManager->Create(floor, floorInfo);
 
 	// Create renderable objects from the entities
-	managers.renderableManager->CreateRenderableObject(mainC, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(mainC, { "Placeholder_Block.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 	managers.renderableManager->ToggleShadow(mainC, true);
 
-	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" });
 	managers.renderableManager->ToggleRenderableObject(floor, true);
 
 	// Create light

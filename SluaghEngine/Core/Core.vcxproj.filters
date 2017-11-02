@@ -126,9 +126,6 @@
     <ClCompile Include="AnimationSystem.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialLoading.cpp">
-      <Filter>Source Files\RenderObjects</Filter>
-    </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
       <Filter>Source Files\RenderObjects</Filter>
     </ClCompile>
@@ -261,9 +258,6 @@
       <Filter>Header Files\RenderObjects</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
-      <Filter>Header Files\RenderObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialLoading.h">
       <Filter>Header Files\RenderObjects</Filter>
     </ClInclude>
     <ClInclude Include="AnimationStructs.h">

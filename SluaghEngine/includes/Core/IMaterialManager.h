@@ -52,7 +52,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			virtual void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
+			virtual void Create(const Entity& entity, const CreateInfo& info) = 0;
 
 		protected:
 			IMaterialManager() {};

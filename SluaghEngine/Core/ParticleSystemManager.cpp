@@ -17,7 +17,7 @@ SE::Core::ParticleSystemManager::~ParticleSystemManager()
 {
 }
 
-void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const CreateInfo & info, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const CreateInfo & info)
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
@@ -35,21 +35,21 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 		// Load the particle system file
 		{
-			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this, async](auto guid, auto data, auto size) {
+			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this](auto guid, auto data, auto size) {
 			
-				if (async)
-				{
-					toUpdateStruct tu = { entity };
-					memcpy(&tu.info, data, sizeof(tu.info));
-					toUpdate.push(tu);
-				}
-				else
-				{
-					memcpy(&particleSystemData[newEntry].particleFileInfo, data, sizeof(particleSystemData[newEntry].particleFileInfo));
-				}
+				//if (async)
+				//{
+				//	toUpdateStruct tu = { entity };
+				//	memcpy(&tu.info, data, sizeof(tu.info));
+				//	toUpdate.push(tu);
+				//}
+				//else
+				//{
+				//	memcpy(&particleSystemData[newEntry].particleFileInfo, data, sizeof(particleSystemData[newEntry].particleFileInfo));
+				//}
 
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
-			}, async, behavior);
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+			});
 
 			if (res)
 				initInfo.console->PrintChannel("Resources", "Could not load particle system file. GUID: %u, Error: %d",  info.systemFile, res);

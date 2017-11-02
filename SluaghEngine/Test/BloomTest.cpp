@@ -51,16 +51,16 @@ namespace SE
 				res = subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
 					auto res = subSystem.renderer->GetPipelineHandler()->CreateComputeShader(guid, data, size);
 					if (res < 0)
-						return ResourceHandler::InvokeReturn::Fail;
-					return ResourceHandler::InvokeReturn::DecreaseRefcount;
+						return ResourceHandler::InvokeReturn::FAIL;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				if (res < 0)
 					goto error;
 				res = subSystem.resourceHandler->LoadResource("VerticalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
 					auto res = subSystem.renderer->GetPipelineHandler()->CreateComputeShader(guid, data, size);
 					if (res < 0)
-						return ResourceHandler::InvokeReturn::Fail;
-					return ResourceHandler::InvokeReturn::DecreaseRefcount;
+						return ResourceHandler::InvokeReturn::FAIL;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				if (res < 0)
 					goto error;
@@ -100,9 +100,9 @@ namespace SE
 				info.shader = shader;
 				info.materialFile = material;
 				info.bloom = true;
-				managers.materialManager->Create(mainC, info, true);
+				managers.materialManager->Create(mainC, info);
 
-				managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
+				managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" });
 				managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 				auto& l = managers.entityManager->Create();

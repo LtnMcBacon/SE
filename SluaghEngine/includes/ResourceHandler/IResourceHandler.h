@@ -38,9 +38,11 @@ namespace SE
 			NO_DELETE = 1 << 2
 		};
 
-		enum class InvokeReturn1 {
+		enum class InvokeReturn {
 			FAIL = 1 << 1,
-			SUCCESS = 1 << 2
+			SUCCESS = 1 << 2,
+			DEC_RAM  = 1 << 3,
+			DEC_VRAM = 1 << 4
 		};
 
 		enum class LoadFlags {
@@ -57,7 +59,8 @@ namespace SE
 			DEAD = 1 << 3,
 			FAIL = 1 << 4,
 			LOADED = 1 << 5,
-			IMMUTABLE = 1 << 6
+			IMMUTABLE = 1 << 6,
+			RAW  = 1 << 7
 		};
 
 		enum class UnloadFlags {
@@ -68,34 +71,11 @@ namespace SE
 		struct Callbacks
 		{
 			std::function<LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
-			std::function<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
+			std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)> invokeCallback;
 			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 		};
 
-
-
-		enum class InvokeReturn : uint8_t
-		{
-			Success,
-			Fail,
-			DecreaseRefcount,
-			Hold
-		};
-
-
-
-		typedef Utilz::Delegate<InvokeReturn(const Utilz::GUID& guid, void* data, size_t size)> LoadResourceDelegate;
-
-		
-
-
-		enum class Behavior : uint8_t
-		{
-			QUICK,
-			LAZY
-		};
-
-		enum class UnloadingStrategy : uint8_t
+		enum class UnloadingStrategy
 		{
 			Linear,
 			FIFO
@@ -125,25 +105,21 @@ namespace SE
 			*
 			* @retval 0 On success.
 			* @retval -1 Asset loader failed to load
-			*
-			* @warning This is a warning
-			*
-			* Example code:
-			* @code
-			*	example usage of the function. Note that links will be automatically generated to documented entities
-			* @endcode
 			*/
 			virtual int Initialize(const InitializationInfo& initInfo) = 0;
 
 			virtual void Shutdown() = 0;
 
+			virtual const InitializationInfo& GetInfo()const = 0;
 			virtual void UpdateInfo(const InitializationInfo& initInfo) = 0;
 
 			virtual int LoadResource(const Utilz::GUID& guid,
 				const Callbacks& callbacks,
 				LoadFlags loadFlags) = 0;
-			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
-			virtual int LoadResource(const Utilz::GUID& guid, const std::function<InvokeReturn1(const Utilz::GUID&, void*, size_t)>& invokeCallback, LoadFlags loadFlags) = 0;
+			
+			virtual int LoadResource(const Utilz::GUID& guid, 
+				const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
+				LoadFlags loadFlags = LoadFlags::LOAD_FOR_RAM) = 0;
 
 			/**
 			* @brief	Unload the given resource
@@ -155,7 +131,7 @@ namespace SE
 			* @param[in] guid The GUID of the resource to be unloaded.
 			* @warning This does not force the resource to unload!
 			**/
-			virtual void UnloadResource(const Utilz::GUID& guid) = 0;
+			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
 
 		protected:
 			IResourceHandler() {};
@@ -169,7 +145,7 @@ namespace SE
 }
 
 ENUM_FLAGS(SE::ResourceHandler::LoadReturn);
-ENUM_FLAGS(SE::ResourceHandler::InvokeReturn1);
+ENUM_FLAGS(SE::ResourceHandler::InvokeReturn);
 ENUM_FLAGS(SE::ResourceHandler::LoadFlags);
 ENUM_FLAGS(SE::ResourceHandler::State);
 ENUM_FLAGS(SE::ResourceHandler::UnloadFlags);

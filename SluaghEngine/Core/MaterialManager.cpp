@@ -32,7 +32,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
 	shaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 	shaderCallbacks.destroyCallback = shaderDestroyCallback = [](auto guid, auto data, auto size) {
 
@@ -67,7 +67,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 
 	materialCallback.invokeCallback  = [this](auto guid, auto data, auto size) {
 		defaultMaterialInfo = (MaterialFileData*)data;
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 	materialCallback.destroyCallback = materialDestroyCallback = [](auto guid, auto data, auto size) {
 		delete (MaterialFileData*)data;
@@ -97,7 +97,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 	};
 
 	textureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 	textureCallbacks.destroyCallback = textureDestroyCallback = [this](auto guid, auto data, auto size) {
 		initInfo.renderer->GetPipelineHandler()->DestroyTexture(guid);
@@ -135,7 +135,7 @@ SE::Core::MaterialManager::~MaterialManager()
 	delete materialInfo.data;
 }
 
-void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
 {
 	StartProfile;
 	auto find = entityToMaterialInfo.find(entity);
@@ -171,12 +171,12 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		materialCallbacks.invokeCallback = [&mdata](auto guid, auto data, auto size)
 		{
 			mdata = (MaterialFileData*)data;
-			return ResourceHandler::InvokeReturn1::SUCCESS;
+			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 
 		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, materialCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_RAM);
 		if (res < 0)
-			return ResourceHandler::InvokeReturn1::FAIL;
+			return ResourceHandler::InvokeReturn::FAIL;
 
 
 		ResourceHandler::Callbacks textureCallbacks;
@@ -184,7 +184,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		textureCallbacks.destroyCallback = textureDestroyCallback;
 		textureCallbacks.invokeCallback = [](auto guid, auto data, auto size)
 		{
-			return ResourceHandler::InvokeReturn1::SUCCESS;
+			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 
 
@@ -196,9 +196,9 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		}
 
 		if (!toUpdate.push({ info.shader, mdata, entity }))
-			return ResourceHandler::InvokeReturn1::FAIL;
+			return ResourceHandler::InvokeReturn::FAIL;
 
-		return ResourceHandler::InvokeReturn1::SUCCESS;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 
 	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);

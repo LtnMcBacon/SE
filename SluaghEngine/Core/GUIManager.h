@@ -205,7 +205,6 @@ namespace SE
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			struct EntBindIDGUID
 			{

@@ -48,7 +48,7 @@ namespace SE {
 			{
 				auto res = initInfo.resourceHandler->LoadResource(createInfo.soundFile, [this](auto guid, auto data, auto size) {
 					guidToSound[guid].handle = audioHandler->LoadSound(data, size);
-					return ResourceHandler::InvokeReturn::Success;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				if (res)
 				{

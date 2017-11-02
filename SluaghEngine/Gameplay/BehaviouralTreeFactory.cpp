@@ -395,49 +395,6 @@ bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, Nod
 	ProfileReturnConst(false);
 }
 
-ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandler(
-	const Utilz::GUID& GUID, void* data, size_t size)
-{
-	StartProfile;
-
-	std::string stringData((char*)data, size);
-	stringData.erase(std::remove(stringData.begin(), stringData.end(), '\r'), stringData.end());
-
-	auto lineSplit = split(stringData, '\n');
-	auto lineSplitIt = lineSplit.begin();
-	int numberOfNodes = std::stoi(*lineSplitIt);
-	++lineSplitIt;
-	NodeData* dataArray = new NodeData[numberOfNodes];
-	do
-	{
-		int id = std::stoi(*lineSplitIt);
-		++lineSplitIt;
-		dataArray[id].Type = *lineSplitIt;
-		++lineSplitIt;
-		dataArray[id].nodeData = split(*lineSplitIt, ',');
-
-		++lineSplitIt;
-		auto childs = split(*lineSplitIt, ',');
-		for (auto const& info : childs)
-		{
-			dataArray[id].childID.push_back(std::stoi(info));
-		}
-
-		++lineSplitIt;
-	}
-	while (lineSplitIt != lineSplit.end());
-
-	/*Build the tree from the dataArray*/
-	if (!CreateTreeFromNodeData(GUID, dataArray, numberOfNodes))
-	{
-		delete[] dataArray;
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	}
-	/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
-	delete[] dataArray;
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-}
-
 bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 {
 	StartProfile;
@@ -449,7 +406,43 @@ bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 	}
 
 	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(guid,
-	{ this, &BehaviouralTreeFactory::LoadTreeFromResourceHandler });
+		[this](auto guid, auto data, auto size) {
+		std::string stringData((char*)data, size);
+		stringData.erase(std::remove(stringData.begin(), stringData.end(), '\r'), stringData.end());
+
+		auto lineSplit = split(stringData, '\n');
+		auto lineSplitIt = lineSplit.begin();
+		int numberOfNodes = std::stoi(*lineSplitIt);
+		++lineSplitIt;
+		NodeData* dataArray = new NodeData[numberOfNodes];
+		do
+		{
+			int id = std::stoi(*lineSplitIt);
+			++lineSplitIt;
+			dataArray[id].Type = *lineSplitIt;
+			++lineSplitIt;
+			dataArray[id].nodeData = split(*lineSplitIt, ',');
+
+			++lineSplitIt;
+			auto childs = split(*lineSplitIt, ',');
+			for (auto const& info : childs)
+			{
+				dataArray[id].childID.push_back(std::stoi(info));
+			}
+
+			++lineSplitIt;
+		} while (lineSplitIt != lineSplit.end());
+
+		/*Build the tree from the dataArray*/
+		if (!CreateTreeFromNodeData(guid, dataArray, numberOfNodes))
+		{
+			delete[] dataArray;
+			return ResourceHandler::InvokeReturn::FAIL;
+		}
+		/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
+		delete[] dataArray;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
 
 	if (done != -1)
 	ProfileReturnConst(true);

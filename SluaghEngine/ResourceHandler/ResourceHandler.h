@@ -31,16 +31,18 @@ namespace SE
 
 			int Initialize(const InitializationInfo& initInfo)override;
 			void Shutdown()override;
+
+			const InitializationInfo& GetInfo()const override;
 			void UpdateInfo(const InitializationInfo& initInfo)override;
 
-			
-			
+			int LoadResource(const Utilz::GUID& guid, 
+				const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
+				LoadFlags loadFlags = LoadFlags::LOAD_FOR_RAM)override;
 
-			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
 			int LoadResource(const Utilz::GUID& guid,
 				const Callbacks& callbacks,
 				LoadFlags loadFlags)override;
-			void UnloadResource(const Utilz::GUID& guid)override;
+
 			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags)override;
 
 
@@ -58,7 +60,7 @@ namespace SE
 			struct InvokeJob
 			{
 				Utilz::GUID guid;
-				Utilz::Delegate<InvokeReturn1(const Utilz::GUID&, void*, size_t)> invokeCallback;
+				Utilz::Delegate<InvokeReturn(const Utilz::GUID&, void*, size_t)> invokeCallback;
 				LoadFlags loadFlags;
 				InvokeJob& operator=(const InvokeJob& other) { guid = other.guid; invokeCallback = other.invokeCallback; loadFlags = other.loadFlags; return *this; }
 			};
@@ -92,9 +94,6 @@ namespace SE
 			};
 		
 			std::vector<std::string> errors;
-
-			int LoadSync(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
-			int InvokeCallback(const Utilz::GUID& guid, size_t index, const LoadResourceDelegate& callback);
 
 			IAssetLoader* diskLoader;
 
