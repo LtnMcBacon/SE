@@ -101,6 +101,21 @@ namespace SE
 			{
 				return std::rand();
 			}
+			/**
+			* @brief Starts a recording of frames
+			*
+			*/
+			void StartRecording() override;
+			/**
+			* @brief Stops a recording of frames
+			*
+			*/
+			void StopRecording() override;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			void LoadRecording(const std::string& file) override;
 		private:
 			/*
 			* @brief Checks which event ev is.
@@ -166,7 +181,6 @@ namespace SE
 			};
 			recording record;
 			void RecordToFile();
-			void StartRecording();
 #pragma endregion Record
 
 #pragma region Playback
@@ -177,7 +191,6 @@ namespace SE
 				std::vector<inputRecData> playbackData;
 			};
 			playRecording playRecord;
-			void LoadRecording(std::string file);
 #pragma endregion Playback
 
 			typedef void(WindowSDL::*FrameStrategy)();

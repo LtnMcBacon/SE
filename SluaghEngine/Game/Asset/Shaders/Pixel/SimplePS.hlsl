@@ -3,6 +3,8 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
+	float4 BinormalInW : BINORMALINW;
+	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 

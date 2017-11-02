@@ -1,7 +1,5 @@
 Texture2D DiffuseColor : register(t0);
 
-Texture2D NormalMap : register(t1);
-
 SamplerState sampAni : register(s0);
 
 struct PS_IN
@@ -9,6 +7,8 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
+	float4 BinormalInW : BINORMALINW;
+	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 
