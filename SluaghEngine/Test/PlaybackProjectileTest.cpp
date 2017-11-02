@@ -294,7 +294,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);					
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
-					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 3.0, 1.0));
+					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 6.0, 1.0));
 					numberOfEntitesPlaced++;
 				}
 				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)

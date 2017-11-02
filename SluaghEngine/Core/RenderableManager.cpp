@@ -465,7 +465,7 @@ void SE::Core::RenderableManager::Init()
 	bs.enable = true;
 	bs.blendOperation = Graphics::BlendOperation::ADD;
 	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
-	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
 	bs.srcBlendAlpha = Graphics::Blend::ONE;
 	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
