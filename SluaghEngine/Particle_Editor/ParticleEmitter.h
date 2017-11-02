@@ -9,7 +9,7 @@ public:
 		DirectX::XMFLOAT3 velocity;
 		DirectX::XMFLOAT2 size;
 		DirectX::XMFLOAT3 color;
-	//	float opacity;
+//		float opacity;
 		float age;
 		uint32_t type;
 	};
@@ -22,7 +22,7 @@ public:
 	* @param[in] x Variable for the x velocity
 	* @param[in] y Variable for the y velocity
 	*/
-	void setVelocity(float x, float y);
+
 
 	ParticleEmitter();
 	~ParticleEmitter();

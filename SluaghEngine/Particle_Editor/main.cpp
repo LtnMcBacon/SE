@@ -45,24 +45,25 @@ int main()
 	});
 
 	ParticleEmitter::Particle p[2];
-	p[0].pos = { 5.0f, 0.0f, 10.0f };
+	p[0].pos = { 0.0f, 0.0f, 10.0f };
 	p[0].age = 0;
 	p[0].size = { 0.5f, 0.5f };
 	p[0].color = { 0.2f, 0.35f, 0.5f };
-	//p[0].opacity = 1.0f;
 	p[0].type = 0;
 	p[0].velocity = { 0, 0, 0 };
+	//p[0].opacity = 1.0f;
 
-	p[1].pos = { 4.0f, 0.0f, 10.0f };
+	p[1].pos = { 0.0f, 0.0f, 10.0f };
 	p[1].age = 0;
 	p[1].size = { 0.5f, 0.5f };
 	p[1].color = { 0.2f, 0.35f, 0.5f };
-	//p[1].opacity = 1.0f;
+	//p[0].opacity = 1.0f;
 	p[1].type = 0;
 	p[1].velocity = { 0, 0, 0 };
 
-	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 5000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 5000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	//Pipeline for the update geometry shader
+	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -77,12 +78,19 @@ int main()
 	
 	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON});
 
+	XMFLOAT3 lookAt = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 eyePos = { 0.0f, 0.0f, -5.0f };
+	XMFLOAT3 upVec = { 0.0f, 1.0f, 0.0f };
+	XMMATRIX viewMatrix = XMMatrixLookAtLH(XMLoadFloat3(&eyePos), XMLoadFloat3(&lookAt), XMLoadFloat3(&upVec));
+
 	XMFLOAT4X4 cameraMatrix;
 	XMMATRIX camera = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
+	XMMATRIX viewProj = viewMatrix * camera;
 	DirectX::XMStoreFloat4x4(&cameraMatrix, camera);
 
 	XMFLOAT2 velocity = { 0.0f, 1.0f };
-	XMFLOAT3 emitPosition = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 emitPosition = { 0.0f, 0.0f, 5.0f };
+	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
 	struct moveMentStruct {
 		XMFLOAT2 vel;
 		XMFLOAT2 pad;
@@ -103,7 +111,6 @@ int main()
 	movBuffer.color[0] = 0.35f;
 	movBuffer.color[1] = 0.2f;
 	movBuffer.color[2] = 0.45f;
-	movBuffer.pad2 = 0;
 
 
 	RenderJob updateParticleJob;
@@ -134,24 +141,23 @@ int main()
 	RenderJob renderParticleJob;
 	renderParticleJob.pipeline = RPP;
 
-	XMVECTOR eyePosVec;
-	XMVECTOR lookAtVec;
-	XMVECTOR upDirVec;
-	XMFLOAT3 eyePos = { 0.0f, 0.0f, -5.0f };
-	XMFLOAT3 lookAt = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT3 upVec = { 0.0f, 1.0f, 0.0f };
-	XMMATRIX camView = XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat3(&eyePos), XMLoadFloat3(&lookAt), XMLoadFloat3(&upVec)));
+	//Particle constant buffer to get the right and up vector
+	struct PCB {
+		XMFLOAT3 upVector;
+		float pad;
+		XMFLOAT3 eyePosition;
+		float pad2;
+	};
 
-	renderParticleJob.mappingFunc = [&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &camView](int a, int b) {
-	/*	XMFLOAT4X4 identity;
-		XMStoreFloat4x4(&identity, XMMatrixIdentity());*/
+	PCB constantBuffer;
+	constantBuffer.eyePosition = eyePos;
+	constantBuffer.upVector = upVec;
+
+	renderParticleJob.mappingFunc = [&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &constantBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrix, sizeof(XMFLOAT4X4));
-		pipelineHandler->UpdateConstantBuffer("ParticleConstantBuffer", &camView, sizeof(XMFLOAT4X4));
+		pipelineHandler->UpdateConstantBuffer("ParticleConstantBuffer", &constantBuffer, sizeof(PCB));
 	};
 	int RPPID = Renderer->AddRenderJob(renderParticleJob);
-
-	DirectX::XMFLOAT4X4 identityMatrix;
-	DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
 	 
 	window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
 	float value = 0;
@@ -164,9 +170,8 @@ int main()
 		ImGui::SliderFloat("Velocity X", &movBuffer.vel.x, -1.0f, 1.0f);
 		ImGui::SliderFloat("Velocity Y", &movBuffer.vel.y, -1.0f, 1.0f);
 		ImGui::SliderFloat("Emit position X", &movBuffer.emitPos.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.001, 0.09);
-		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00500, 0.10000, "%.5f");
-		//ImGui::SliderFloat("Lifetime", &movBuffer.lifeTime, 0.5, 10.0f);
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.001, 0.09, "%.5f");
+		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 1.0000, "%.5f");
 		ImGui::ColorEdit3("StartColor", &movBuffer.color[0]);
 		ImGui::InputFloat("LifeTime", &movBuffer.lifeTime);
 		float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
