@@ -7,6 +7,9 @@ static const SE::Utilz::GUID defaultTexture("BlackPink.sei");
 static const SE::Utilz::GUID defaultPixelShader("SimplePS.hlsl");
 static const SE::Utilz::GUID defaultTextureBinding("DiffuseColor");
 static const SE::Utilz::GUID defaultSampler("AnisotropicSampler");
+static const SE::Utilz::GUID backBuffer("backbuffer");
+static const SE::Utilz::GUID bloomTarget("bloomTarget");
+
 
 SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo) : initInfo(initInfoo)//, mLoading(initInfo.renderer, initInfo.resourceHandler)
 {
@@ -113,7 +116,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 	rt.clearColor[1] = 0.0f;
 	rt.clearColor[2] = 0.0f;
 	rt.clearColor[3] = 0.0f;
-	res = initInfo.renderer->GetPipelineHandler()->CreateRenderTarget("bloomTarget", rt);
+	res = initInfo.renderer->GetPipelineHandler()->CreateRenderTarget(bloomTarget, rt);
 	if(res < 0)
 		throw std::exception("Could not Create bloom render target.");
 
@@ -322,7 +325,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	auto& find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
-		/*auto& mdata = mLoading.GetMaterialFile(materialInfo.material[find->second]);
+		auto& mdata = *materialInfo.material[find->second];
 		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
 		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
 
@@ -337,10 +340,10 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		
 		if (materialInfo.bloom[find->second] == 1u)
 		{
-			info->pipeline.OMStage.renderTargets[0] = "backbuffer";
-			info->pipeline.OMStage.renderTargets[1] = "bloomTarget";
+			info->pipeline.OMStage.renderTargets[0] = backBuffer;
+			info->pipeline.OMStage.renderTargets[1] = bloomTarget;
 			info->pipeline.OMStage.renderTargetCount = 2;
-			info->pipeline.OMStage.depthStencilView = "backbuffer";
+			info->pipeline.OMStage.depthStencilView = backBuffer;
 		}
 
 
@@ -348,36 +351,14 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		info->mappingFunc.push_back([this,attrib](auto a, auto b)
 		{
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("MaterialAttributes", (void*)&attrib, sizeof(attrib));
-		});*/
+		});
 
-		//info->pipeline.PSStage.constantBufferCount = 3;
 
-		//info->pipeline.PSStage.shader = shaders[materialInfo.shaderIndex[find->second]].shaderHandle;
-		//auto& reflection = shaders[materialInfo.shaderIndex[find->second]].shaderReflection;
-		//const int textureCount = reflection.textureNameToBindSlot.size();
-		//info->textureCount = textureCount;
-		//for (int i = 0; i < textureCount; ++i)
-		//{
-		//	info->textureBindings[i] = materialInfo.textureBindings[find->second].bindings[i];
-		//	info->textureHandles[i] = textures[materialInfo.textureIndices[find->second].indices[i]].textureHandle;
-		//}
 	}
 	else
 	{
 		info->pipeline.PSStage.shader = defaultPixelShader;
 		info->pipeline.PSStage.textureCount = 0;
 		info->pipeline.PSStage.samplerCount = 0;
-
-	/*	info->pixelShader = defaultShaderHandle;
-		auto& reflection = defaultShaderReflection;
-		const int textureCount = reflection.textureNameToBindSlot.size();
-		info->textureCount = textureCount;
-		int i = 0;
-		for (auto& b : reflection.textureNameToBindSlot)
-		{
-			info->textureBindings[i] = b.second;
-			info->textureHandles[i] = defaultTextureHandle;
-			++i;
-		}*/
 	}
 }
