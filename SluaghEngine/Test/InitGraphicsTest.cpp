@@ -20,7 +20,7 @@ SE::Test::InitGraphicsTest::InitGraphicsTest::~InitGraphicsTest()
 {
 }
 
-bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::InitGraphicsTest::Run(DevConsole::IConsole * console)
 {
 	StartProfile;
 	Graphics::IRenderer* r = Graphics::CreateRenderer();
@@ -31,14 +31,14 @@ bool SE::Test::InitGraphicsTest::Run(Utilz::IConsoleBackend * console)
 		console->Print("Could not initialize window. Error: %d\n", result);
 		ProfileReturnConst( false);
 	}
-	result = r->Initialize(w->GetHWND());
+	result = r->Initialize({ w->GetHWND() });
 	if (result)
 	{
 		console->Print("Could not initialize renderer. Error: %d\n", result);
 		ProfileReturnConst(false);
   }
 
-	for (UINT i = 0; i < 200; i++) {
+	for (uint32_t i = 0; i < 200; i++) {
 		r->Render();
 	}
 

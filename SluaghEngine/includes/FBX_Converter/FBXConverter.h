@@ -11,6 +11,7 @@
 #include <fbxsdk.h>
 
 #include "Datatypes.h"
+#include <Graphics\FileHeaders.h>
 #include <Graphics\VertexStructs.h>
 #include <filesystem>
 #include <Utilz\PathParsing.h>
@@ -35,7 +36,7 @@ namespace SE
 			// FBXCONVERTER LOAD FUNCTIONS
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			bool Load(const std::string& fileName, const std::string& exportFolder);
+			bool Load(const std::string& fileName, const std::string& exportFolder, const std::string& map);
 			bool LoadFBXFormat(std::string mainFileName, std::string exportFolder);
 			bool LoadSceneFile(std::string fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
 			bool InitializeFbxManager();
@@ -88,8 +89,8 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			void LoadMaterial(Mesh& pMesh);
-			void GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial);
-			void GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial);
+			void GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial);
+			void GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial);
 			void GetChannelTexture(Mesh& pMesh, FbxProperty materialProperty);
 			bool ExportTexture(Texture &texture, string textureFolder);
 

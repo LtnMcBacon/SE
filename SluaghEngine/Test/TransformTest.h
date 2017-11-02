@@ -11,7 +11,7 @@ namespace SE
 			TransformTest();
 			~TransformTest();
 
-			bool Run(Utilz::IConsoleBackend* console) override;
+			bool Run(DevConsole::IConsole* console) override;
 		};
 
 

@@ -14,7 +14,7 @@ SE::Test::ImageLoadTest::~ImageLoadTest()
 {
 }
 
-bool SE::Test::ImageLoadTest::Run(Utilz::IConsoleBackend* console)
+bool SE::Test::ImageLoadTest::Run(DevConsole::IConsole* console)
 {
 	
 	Timer timer;
@@ -22,7 +22,7 @@ bool SE::Test::ImageLoadTest::Run(Utilz::IConsoleBackend* console)
 	int x = 0, y = 0, n = 0;
 	stbi_uc* pixelData = stbi_load("Asset/purewhite.png", &x, &y, &n, 0);
 	timer.Tick();
-	console->Print("Loaded %d x %d resolution png in %f seconds.\n", x, y, timer.GetDelta<std::chrono::seconds>());
+	console->Print("Loaded %d x %d resolution png in %f seconds.\n", x, y, timer.GetDelta<std::ratio<1,1>>());
 	
 
 	/*std::ofstream fout;
@@ -39,7 +39,7 @@ bool SE::Test::ImageLoadTest::Run(Utilz::IConsoleBackend* console)
 		char* rawData = new char[fsize];
 		fin.read(rawData, fsize);
 		timer.Tick();
-		console->Print("Loaded %d x %d in %f seconds.\n", x, y, timer.GetDelta<std::chrono::seconds>());
+		console->Print("Loaded %d x %d in %f seconds.\n", x, y, timer.GetDelta<std::ratio<1, 1>>());
 		stbi_image_free(pixelData);
 		delete[] rawData;
 

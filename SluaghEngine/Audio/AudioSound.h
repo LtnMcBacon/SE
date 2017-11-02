@@ -39,7 +39,6 @@ namespace SE {
 			*
 			*/
 			size_t LoadSound(AudioFile* sound);
-			size_t LoadSound2();
 			/**
 			* @brief	Returns the requested sample
 			*
@@ -54,7 +53,7 @@ namespace SE {
 			void Shutdown();
 
 		private:
-			std::vector<AudioSample> soundSample;
+			std::vector<AudioSample*> soundSample;
 			Utilz::StackAllocator sampleStack;
 			
 			float masterVol;

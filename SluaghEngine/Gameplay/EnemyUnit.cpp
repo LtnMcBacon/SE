@@ -1,8 +1,7 @@
 #include "EnemyUnit.h"
 #include <Profiler.h>
 #include "Flowfield.h"
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <Gameplay/EnemyBlackboard.h>
 #include <Gameplay/BehaviouralTree.h>
 
@@ -11,12 +10,26 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 	StartProfile;
 	
 	// only basic at the moment
-	for (int i = 0; i < DamageEventVector.size(); i++)
+	if (!myBlackboard->invurnerable)
 	{
-		this->health -= DamageEventVector[i].amount;
-	}
+		for (int i = 0; i < DamageEventVector.size(); i++)
+		{
+			this->health -= DamageEventVector[i].amount;
+		}
 
+		for (int i = 0; i < ConditionEventVector.size(); i++)
+		{
+			if(ConditionEventVector[i].type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+			{
+				myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
+				this->stunDuration += ConditionEventVector[i].duration;
+			}
+		}
+	}
 	DamageEventVector.clear();
+	ConditionEventVector.clear();
+
+
 
 	ProfileReturnVoid;
 
@@ -29,12 +42,15 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	* Code body
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
+	
 	if (myBehaviouralTree)
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
+		myBlackboard->checkedThisFrame = false;
 		myBehaviouralTree->Tick();
 	}
+
 	ProfileReturnVoid;
 }
 
@@ -55,6 +71,15 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	*/
 	ResolveEvents();
 	DecideAction();
+	if (stunDuration > 0.f)
+	{
+		stunDuration -= dt;
+		if(stunDuration <= 0.f)
+		{
+			myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			stunDuration = 0.f;
+		}
+	}
 	PerformAction(dt);
 	ProfileReturnVoid;
 }
@@ -72,13 +97,13 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	previousMovement{0,0},
 	sample(0)
 {
-	extends = 0.25f; /*Should not be hardcoded! Obviously*/
-	radius = sqrt(extends*extends + extends*extends);
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+	radius = sqrt(extents*extents + extents*extents);
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
-	Core::Engine::GetInstance().GetEntityManager().Destroy(this->unitEntity);
+	CoreInit::managers.entityManager->Destroy(this->unitEntity);
 	/*
 	* Code body
 	*/

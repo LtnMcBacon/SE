@@ -160,7 +160,9 @@ namespace SE {
 
 			inline ID3D11Device*           GetDevice() { return gDevice; };
 			inline ID3D11DeviceContext*    GetDeviceContext() { return gDeviceContext; };
+			inline ID3D11DeviceContext*    GetSecondaryDeviceContext() { return gSecDeviceContext; };
 			inline ID3D11RenderTargetView* GetRTV() const { return gBackbufferRTV; };
+			inline ID3D11ShaderResourceView* GetSRV() const { return gBBSRV; };
 			inline ID3D11DepthStencilView* GetDepthStencil() { return gDepthStencilView; };
 			inline ID3D11BlendState*	   GetBlendState() { return blendTransState; };
 			
@@ -199,17 +201,27 @@ namespace SE {
 			inline D3D11_TEXTURE2D_DESC GetTexDesc() {
 				return gBB_Desc;
 			}
+
+			inline ID3D11ShaderResourceView* GetDepthStencilSRV()
+			{
+				return gDepthStencilSRV;
+			}
+
+			ID3D11Texture2D* GetBackBufferTexture();
 		private:
 
 			ID3D11Device*			gDevice;
 			ID3D11DeviceContext*	gDeviceContext;
+			ID3D11DeviceContext*	gSecDeviceContext;
 			IDXGISwapChain*			gSwapChain;
 			
 			ID3D11Texture2D*		gBackBuffer;
 			ID3D11RenderTargetView*	gBackbufferRTV;
-			
+			ID3D11ShaderResourceView* gBBSRV;
+
 			ID3D11Texture2D*		gDepthStencil;
 			ID3D11DepthStencilView*	gDepthStencilView;
+			ID3D11ShaderResourceView* gDepthStencilSRV;
 			ID3D11DepthStencilState * pDSState;
 
 			ID3D11BlendState*		blendSolidState;

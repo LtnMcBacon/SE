@@ -517,6 +517,7 @@ static void KeyDownCallback(uint32_t actionButton, uint32_t sdlscancode)
 
 bool    ImGuiDX11SDL_Init(SE::Graphics::IRenderer* renderer, SE::Window::IWindow* window)
 {
+
 	struct DeviceInfo
 	{
 		ID3D11Device* device;

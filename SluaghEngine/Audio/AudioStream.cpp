@@ -34,7 +34,26 @@ namespace SE {
 			
 			if (Pa_GetDeviceCount() > 0)
 			{
-				if (soundType == BakgroundSound)
+				if (soundType == BakgroundLoopSound)
+				{
+					/* Open an audio I/O stream. */
+					err = Pa_OpenDefaultStream(&tempStream,
+						0,          /* no input channels */
+						inSample->sample->info.channels,          /* stereo output */
+						paFloat32,  /* 32 bit floating point output */
+						inSample->sample->info.samplerate,
+						256,        /* frames per buffer, i.e. the number
+									of sample frames that PortAudio will
+									request from the callback. Many apps
+									may want to use
+									paFramesPerBufferUnspecified, which
+									tells PortAudio to pick the best,
+									possibly changing, buffer size.*/
+						bakgroundLoopCallback, /* this is your callback function */
+						inSample); /*This is a pointer that will be passed to
+													 your callback*/
+				}
+				else if (soundType == BakgroundSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
@@ -53,7 +72,7 @@ namespace SE {
 						inSample); /*This is a pointer that will be passed to
 													 your callback*/
 				}
-				else if (soundType == EffectSound)
+				else if (soundType == StereoPanSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
@@ -68,9 +87,28 @@ namespace SE {
 									paFramesPerBufferUnspecified, which
 									tells PortAudio to pick the best,
 									possibly changing, buffer size.*/
-						effectCallback, /* this is your callback function */
+						SteroePanCallback, /* this is your callback function */
 						inSample); /*This is a pointer that will be passed to
-													 your callback*/
+								   your callback*/
+				}
+				else if (soundType == StereoPanLoopSound)
+				{
+					/* Open an audio I/O stream. */
+					err = Pa_OpenDefaultStream(&tempStream,
+						0,          /* no input channels */
+						inSample->sample->info.channels,          /* stereo output */
+						paFloat32,  /* 32 bit floating point output */
+						inSample->sample->info.samplerate,
+						256,        /* frames per buffer, i.e. the number
+									of sample frames that PortAudio will
+									request from the callback. Many apps
+									may want to use
+									paFramesPerBufferUnspecified, which
+									tells PortAudio to pick the best,
+									possibly changing, buffer size.*/
+						SteroePanLoopCallback, /* this is your callback function */
+						inSample); /*This is a pointer that will be passed to
+								   your callback*/
 				}
 				if (err != paNoError)
 				{
@@ -115,10 +153,11 @@ namespace SE {
 		{
 			StartProfile;
 			PaError err;
-			err = Pa_StopStream(stream[streamID]);
+			err = Pa_AbortStream(stream[streamID]);
+			//err = Pa_StopStream(stream[streamID]);
 			if (err != paNoError)
 				ProfileReturnConst(-1);
-			sampleOut[streamID]->pData.currentPos = 0;
+			sampleOut[streamID]->audioPrivateData.currentPos = 0;
 			ProfileReturnConst(0);
 		}
 
@@ -133,6 +172,14 @@ namespace SE {
 			delete sampleOut[streamID];
 			sampleOut[streamID] = nullptr;
 			freeStreamID.push(streamID);
+			ProfileReturnConst(0);
+		}
+
+		int AudioStream::UpdateStreamPos(int streamID, PanData panData)
+		{
+			StartProfile;
+			PaError err;
+			sampleOut[streamID]->panData = panData;
 			ProfileReturnConst(0);
 		}
 

@@ -2,8 +2,37 @@
 #include <Profiler.h>
 #include "Flowfield.h"
 #include "ProjectileData.h"
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
+
+void SE::Gameplay::PlayerUnit::ResolveEvents()
+{
+	StartProfile;
+
+	// only basic at the moment
+	
+	for (int i = 0; i < DamageEventVector.size(); i++)
+	{
+		this->health -= DamageEventVector[i].amount;
+	}
+	
+	for(auto condition : ConditionEventVector)
+	{
+		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+		{
+			stunDuration += condition.duration;
+		}
+	}
+
+	for(auto healing : HealingEventVector)
+	{
+		health += healing.amount;
+	}
+	
+	this->health = 100.f;
+	ProfileReturnVoid;
+
+}
+
 
 bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yMov)
 {
@@ -24,7 +53,7 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	/*float sampleX = 0.f;
 	float sampleY = 0.f;*/
 
-	float localExtent = extends + 0.15;
+	float localExtent = extents + 0.15;
 
 	pos myPos;
 	/*Checking collision in left x-axis*/
@@ -107,6 +136,13 @@ void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAn
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
+	if(stunDuration > 0)
+	{
+		stunDuration -= dt;
+		if (stunDuration < 0)
+			stunDuration = 0.f;
+		ProfileReturnVoid;
+	}
 	float xMovement = 0.f;
 	float yMovement = 0.f;
 
@@ -144,7 +180,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	//------------------------
 
-	DirectX::XMFLOAT3 tempRot = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity);
+	DirectX::XMFLOAT3 tempRot = CoreInit::managers.transformManager->GetRotation(this->unitEntity);
 
 	DirectX::XMVECTOR defaultVector = { 0.0f, 0.0f, 1.0f, 0.0f };
 	DirectX::XMVECTOR mouseVector = {inputs.mousePosX - xPos, 0.0f, inputs.mousePosY - yPos, 0.0f};
@@ -158,7 +194,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	tempRot.y = side * DirectX::XMVectorGetY(DirectX::XMVector3AngleBetweenVectors(defaultVector, mouseVector));
 
-	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
+	CoreInit::managers.transformManager->SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
 
 	//-----------------------
 
@@ -170,19 +206,32 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-
-	if (input.skill1Button)
+	if (input.skill1Button && attackCooldown <= 0.f) 
 	{
 		ProjectileData temp;
 
-		temp.startRotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos + 0.2 * sinf(temp.startRotation);
-		temp.startPosY = this->yPos + 0.2 * cosf(temp.startRotation);
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = "dnaProjectiles.SEP";
 
 		newProjectiles.push_back(temp);
-	}
 
+		attackCooldown = 0.2f * attackSpeed;
+	}
+	if (attackCooldown > 0.f)
+	{
+		attackCooldown -= dt;
+	}
+	if (attackCooldown < 0.f)
+		attackCooldown = 0.f;
+	ResolveEvents();
+	ClearConditionEvents();
+	ClearDamageEvents();
+	ClearHealingEvents();
 	StopProfile;
 
 }
@@ -301,7 +350,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 	GameUnit(xPos, yPos, 100)
 {
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
-	extends = 0.25f; /*Should not be hardcoded! Obviously*/
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

@@ -14,7 +14,7 @@ namespace SE
 			BehavioursTest();
 			~BehavioursTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 
 		

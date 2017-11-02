@@ -28,7 +28,6 @@ namespace SE
 
 			};
 			/*Create from type*/
-
 			/**
 			* @brief	Read the type of the node and call the correct "Create" function.
 			* 
@@ -55,7 +54,168 @@ namespace SE
 			*
 			*
 			* @sa CreateTreeFromNodeData
-			*/IBehaviour* CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID);
+			*/
+			IBehaviour* CreateFlowFieldMovementLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a MoveTowardsPlayer Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMoveTowardsPlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateGlaistigAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateResetAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAddTimeToAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTimerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateLineOfSightConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a RangeToPlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a AttackCooldownZeroCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a StunnedCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateStunnedConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateChannelingConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateFaceThePlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateLeapAtPlayerLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateBodachMeleeAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreatePechMeleeAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreatePechRangedAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateWhileChannelingLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
 
@@ -87,6 +247,13 @@ namespace SE
 			*/
 			IBehaviour* CreateRandomSelector(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create a Sequence Node with the data given on position nodeID in dataArray.
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateRestartingSequence(NodeData* dataArray, int nodeID);
+
 			/*Create Decorators*/
 
 			/**
@@ -117,6 +284,12 @@ namespace SE
 			*/
 			IBehaviour* CreateSucceeder(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create a FailUntilSuccess Node with the data given on position nodeID in dataArray.
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateFailUntilSuccess(NodeData* dataArray, int nodeID);
 			/**
 			* @brief	Create a BehaviouralTree from the NodeData created in 
 			* LoadTreeFromResourceHandler

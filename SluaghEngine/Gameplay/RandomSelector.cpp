@@ -4,8 +4,10 @@
 
 void SE::Gameplay::RandomSelector::OnInitialization()
 {
-	std::random_shuffle(myChildren.begin(), myChildren.end());
+	StartProfile;
+	std::shuffle(myChildren.begin(), myChildren.end(), generator);
 	currentChild = myChildren.begin();
+	StopProfile;
 }
 
 SE::Gameplay::Status SE::Gameplay::RandomSelector::Update()
@@ -29,7 +31,7 @@ SE::Gameplay::Status SE::Gameplay::RandomSelector::Update()
 }
 
 SE::Gameplay::RandomSelector::RandomSelector(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
-	IComposite(enemyBlackboard, gameBlackboard)
+	IComposite(enemyBlackboard, gameBlackboard), generator(0)
 {
 
 }

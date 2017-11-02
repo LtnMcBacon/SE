@@ -1,11 +1,14 @@
 #include "BehaviouralTreeFactory.h"
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <functional>
 #include <Profiler.h>
 #include <sstream>
 #include <iterator>
 #include "Behaviours.h"
 #include "BehaviouralTree.h"
+
+#undef min
+#undef max
 
 namespace
 {
@@ -32,6 +35,7 @@ namespace
 		ProfileReturn(elems);
 	}
 }
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -44,9 +48,89 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateLeaf(dataArray, nodeID);
 	}
-	else if(dataArray[nodeID].Type == "FlowFieldMovementLeaf")
+	else if (dataArray[nodeID].Type == "FlowFieldMovementLeaf")
 	{
 		finishedBehaviour = CreateFlowFieldMovementLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "MoveTowardsPlayerLeaf")
+	{
+		finishedBehaviour = CreateMoveTowardsPlayerLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "TimerCondition")
+	{
+		finishedBehaviour = CreateTimerConditionLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "RangeToPlayerCondition")
+	{
+		finishedBehaviour = CreateRangeToPlayerConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "ObstacleOnPositionCondition")
+	{
+		finishedBehaviour = CreateObstacleOnPositionConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "AttackCooldownZeroCondition")
+	{
+		finishedBehaviour = CreateAttackCooldownZeroConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "ChannelingCondition")
+	{
+		finishedBehaviour = CreateChannelingConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
+	{
+		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "MakeVulnerableLeaf")
+	{
+		finishedBehaviour = CreateMakeVulnerableLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "GlaistigAttackLeaf")
+	{
+		finishedBehaviour = CreateGlaistigAttackLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "LeapAtPlayerLeaf")
+	{
+		finishedBehaviour = CreateLeapAtPlayerLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "LineOfSightCondition")
+	{
+		finishedBehaviour = CreateLineOfSightConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "ResetAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateResetAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "AddTimeToAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateAddTimeToAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "TickDownAttackCooldownLeaf")
+	{
+		finishedBehaviour = CreateTickDownAttackCooldownLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "StunnedCondition")
+	{
+		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "FaceThePlayerLeaf")
+	{
+		finishedBehaviour = CreateFaceThePlayerLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "WhileChannelingLeaf")
+	{
+		finishedBehaviour = CreateWhileChannelingLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "BodachMeleeAttackLeaf")
+	{
+		finishedBehaviour = CreateBodachMeleeAttackLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PechMeleeAttackLeaf")
+	{
+		finishedBehaviour = CreatePechMeleeAttackLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PechRangedAttackLeaf")
+	{
+		finishedBehaviour = CreatePechRangedAttackLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -65,22 +149,30 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateRandomSelector(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "RestartingSequence")
+	{
+		finishedBehaviour = CreateRestartingSequence(dataArray, nodeID);
+	}
 		/*Check for Decorators*/
 	else if (dataArray[nodeID].Type == "Inverter")
 	{
 		finishedBehaviour = CreateInverter(dataArray, nodeID);
 	}
-	else if(dataArray[nodeID].Type == "Repeater")
+	else if (dataArray[nodeID].Type == "Repeater")
 	{
 		finishedBehaviour = CreateRepeater(dataArray, nodeID);
 	}
-	else if(dataArray[nodeID].Type == "RepeatUntilFail")
+	else if (dataArray[nodeID].Type == "RepeatUntilFail")
 	{
 		finishedBehaviour = CreateRepeatUntilFail(dataArray, nodeID);
 	}
-	else if(dataArray[nodeID].Type == "Succeeder")
+	else if (dataArray[nodeID].Type == "Succeeder")
 	{
 		finishedBehaviour = CreateSucceeder(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "FailUntilSuccess")
+	{
+		finishedBehaviour = CreateFailUntilSuccess(dataArray, nodeID);
 	}
 
 	ProfileReturn(finishedBehaviour);
@@ -100,11 +192,139 @@ IBehaviour* BehaviouralTreeFactory::CreateFlowFieldMovementLeaf(NodeData* dataAr
 	ProfileReturn(new FlowFieldMovementLeaf(nullptr, nullptr));
 }
 
+IBehaviour* BehaviouralTreeFactory::CreateMoveTowardsPlayerLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+
+	ProfileReturn(new MoveTowardsPlayerLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateGlaistigAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	
+	ProfileReturn(new GlaistigAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateResetAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new ResetAttackCooldownLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateAddTimeToAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	float time = std::stof(dataArray[nodeID].nodeData[0]);
+	ProfileReturn(new AddTimeToAttackCooldownLeaf(nullptr, nullptr, time));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new TickDownAttackCooldownLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateTimerConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	float timer = std::stof(dataArray[nodeID].nodeData[0]);
+	ProfileReturn(new TimerCondition(nullptr, nullptr, timer));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateLineOfSightConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+
+	ProfileReturnConst(new LineOfSightCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateRangeToPlayerConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	float min = std::stof(dataArray[nodeID].nodeData[0]);
+	float max = std::stof(dataArray[nodeID].nodeData[1]);
+	ProfileReturn(new RangeToPlayerCondition(nullptr, nullptr, min, max));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new AttackCooldownZeroCondition(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStunnedConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new StunnedCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new ObstacleOnPositionCondition(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateChannelingConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new ChannelingCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new MakeInvulnerableLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateMakeVulnerableLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new MakeVulnerableLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateFaceThePlayerLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new FaceThePlayerLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateLeapAtPlayerLeaf(NodeData* dataArray, int nodeID)
+{
+
+	StartProfile;
+	ProfileReturn(new LeapAtPlayerLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateBodachMeleeAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new BodachMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechMeleeAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechMeleeAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreatePechRangedAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PechRangedAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn( new WhileChannelingLeaf(nullptr, nullptr));
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
 	Sequence* returnBehaviour = new Sequence(nullptr, nullptr);
-	for(auto &childID : dataArray[nodeID].childID)
+	for (auto& childID : dataArray[nodeID].childID)
 	{
 		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
 	}
@@ -117,7 +337,7 @@ IBehaviour* BehaviouralTreeFactory::CreateSelector(NodeData* dataArray, int node
 {
 	StartProfile;
 	Selector* returnBehaviour = new Selector(nullptr, nullptr);
-	for (auto &childID : dataArray[nodeID].childID)
+	for (auto& childID : dataArray[nodeID].childID)
 	{
 		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
 	}
@@ -129,7 +349,7 @@ IBehaviour* BehaviouralTreeFactory::CreateRandomSequence(NodeData* dataArray, in
 {
 	StartProfile;
 	RandomSequence* returnBehaviour = new RandomSequence(nullptr, nullptr);
-	for (auto &childID : dataArray[nodeID].childID)
+	for (auto& childID : dataArray[nodeID].childID)
 	{
 		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
 	}
@@ -141,7 +361,19 @@ IBehaviour* BehaviouralTreeFactory::CreateRandomSelector(NodeData* dataArray, in
 {
 	StartProfile;
 	RandomSelector* returnBehaviour = new RandomSelector(nullptr, nullptr);
-	for (auto &childID : dataArray[nodeID].childID)
+	for (auto& childID : dataArray[nodeID].childID)
+	{
+		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
+	}
+
+	ProfileReturn(returnBehaviour);
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateRestartingSequence(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	RestartingSequence* returnBehaviour = new RestartingSequence(nullptr, nullptr);
+	for (auto& childID : dataArray[nodeID].childID)
 	{
 		returnBehaviour->AddChild(CreateFromType(dataArray, childID));
 	}
@@ -153,7 +385,7 @@ IBehaviour* BehaviouralTreeFactory::CreateInverter(NodeData* dataArray, int node
 {
 	StartProfile;
 	IBehaviour* childNode = CreateFromType(dataArray, dataArray[nodeID].childID[0]);
-	
+
 	ProfileReturn(new Inverter(nullptr, nullptr, childNode));
 }
 
@@ -182,6 +414,14 @@ IBehaviour* BehaviouralTreeFactory::CreateSucceeder(NodeData* dataArray, int nod
 	ProfileReturn(new Succeeder(nullptr, nullptr, childNode));
 }
 
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateFailUntilSuccess(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	IBehaviour* childNode = CreateFromType(dataArray, dataArray[nodeID].childID[0]);
+
+	ProfileReturn(new FailUntilSuccess(nullptr, nullptr, childNode));
+}
+
 bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, NodeData* dataArray, size_t size)
 {
 	StartProfile;
@@ -194,10 +434,10 @@ bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, Nod
 	}
 
 	ProfileReturnConst(false);
-	
 }
 
-ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
+ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandler(
+	const Utilz::GUID& GUID, void* data, size_t size)
 {
 	StartProfile;
 
@@ -225,15 +465,16 @@ ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandle
 		}
 
 		++lineSplitIt;
-	}while (lineSplitIt != lineSplit.end());
+	}
+	while (lineSplitIt != lineSplit.end());
 
 	/*Build the tree from the dataArray*/
-	if(!CreateTreeFromNodeData(GUID, dataArray, numberOfNodes))
+	if (!CreateTreeFromNodeData(GUID, dataArray, numberOfNodes))
 	{
 		delete[] dataArray;
 		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
 	}
-	/*Return 0 for success, -1 for fail, 1 for refcount*/
+	/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
 	delete[] dataArray;
 	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
 }
@@ -243,24 +484,24 @@ bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 	StartProfile;
 
 	auto& loadedTree = behaviouralTrees.find(guid);
-	if(loadedTree != behaviouralTrees.end())
+	if (loadedTree != behaviouralTrees.end())
 	{
 		ProfileReturnConst(true);
 	}
 
-	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(guid,
+	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(guid,
 	{ this, &BehaviouralTreeFactory::LoadTreeFromResourceHandler });
 
 	if (done != -1)
-		ProfileReturnConst(true);
+	ProfileReturnConst(true);
 	ProfileReturnConst(false);
 }
 
 BehaviouralTree* BehaviouralTreeFactory::BuildBehaviouralTree(const Utilz::GUID& GUID, GameBlackboard* gameBlackboard,
-	EnemyBlackboard* enemyBlackboard)
+															  EnemyBlackboard* enemyBlackboard)
 {
 	StartProfile;
-	
+
 	_ASSERT(gameBlackboard);
 	_ASSERT(enemyBlackboard);
 
@@ -269,17 +510,15 @@ BehaviouralTree* BehaviouralTreeFactory::BuildBehaviouralTree(const Utilz::GUID&
 	{
 		ProfileReturnConst(nullptr);
 	}
-	
+
 
 	BehaviouralTree* toPass = loadedTree->second->CopyTree(gameBlackboard, enemyBlackboard);
 
 	ProfileReturn(toPass);
-
 }
 
 BehaviouralTreeFactory::BehaviouralTreeFactory()
 {
-
 }
 
 BehaviouralTreeFactory::~BehaviouralTreeFactory()

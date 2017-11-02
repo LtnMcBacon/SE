@@ -7,6 +7,7 @@
 #include "TextureDesc.h"
 #include <FBX_Converter\FBXConverter.h>
 #include <functional>
+#include <Utilz\GUID.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "FBX_ConverterD.lib")
@@ -18,6 +19,8 @@ namespace fs = std::experimental::filesystem;
 using namespace SE;
 using namespace std;
 
+std::vector<SE::Utilz::GUID> RoomMaps; 
+
 int ImageParse(const char* filename, const char* outputFilename);
 
 struct Accepted
@@ -27,11 +30,12 @@ struct Accepted
 	std::string map;
 	std::function<void(const char* filename, const char* outFilename)> callback;
 };
+static std::string texMap = "";
 std::vector<Accepted> acceptedExt = 
 {
 	{ "fbx", "nil", "../FBXTemp", [](const char* filename, const char* outFilename) {
 	SE::FBX::FBXConverter File;
-	if (!File.Load(filename, "FBXTemp")) {
+	if (!File.Load(filename, "FBXTemp", texMap)) {
 
 		printf("Could not parse fbx file %s\n", filename);
 		return;
@@ -60,11 +64,7 @@ std::vector<Accepted> acceptedExt =
 	src.close();
 	dst.close(); } },
 	{ "spritefont", "spritefont", "Font", [](const char* filename, const char* outFilename) {
-		std::ifstream  src(filename, std::ios::binary);
-		std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-		dst << src.rdbuf();
-		dst.close();
-		src.close();
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
 	} },
 	{ "gui", "sei", "GUI", [](const char* filename, const char* outFilename) {
 		printf("Parsing file: %s...\n", filename);
@@ -73,25 +73,21 @@ std::vector<Accepted> acceptedExt =
 			printf("Could not parse: %s\n", filename);
 		} },
 		{"wav", "wav", "Sounds", [](const char* filename, const char* outFilename) {
-			std::ifstream  src(filename, std::ios::binary);
-			std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-			dst << src.rdbuf();
-			dst.close();
-			src.close(); }},
+			fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
 
 			{"SEFBT", "SEFBT", "BehaviouralTrees", [](const char* filename, const char* outFilename) {
-				std::ifstream  src(filename, std::ios::binary);
-				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-				dst << src.rdbuf();
-				dst.close();
-				src.close(); } },
+				fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 
 				{ "SEC", "SEC", "Enemies", [](const char* filename, const char* outFilename) {
-					std::ifstream  src(filename, std::ios::binary);
-					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-					dst << src.rdbuf();
-					dst.close();
-					src.close(); } }
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
+					{ "raw", "raw", "RoomMaps", [](const char* filename, const char* outFilename)
+					{
+						RoomMaps.push_back(Utilz::getFilename(filename));
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
+					}},
+
+					{ "SEP", "SEP", "Projectiles", [](const char* filename, const char* outFilename) {
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
 
 };
 
@@ -109,29 +105,15 @@ std::vector<Accepted> fbxAccepted =
 
 
 	{ "mesh", "mesh", "Meshes", [](const char* filename, const char* outFilename) {
-				std::ifstream  src(filename, std::ios::binary);
-				std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-				dst << src.rdbuf();
-				dst.close();
-				src.close(); } },
+				fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "anim", "anim", "Animations", [](const char* filename, const char* outFilename) {
-					std::ifstream  src(filename, std::ios::binary);
-					std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-					dst << src.rdbuf();
-					dst.close();
-					src.close(); } },
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "light", "light", "Lights", [](const char* filename, const char* outFilename) {
-						std::ifstream  src(filename, std::ios::binary);
-						std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-						dst << src.rdbuf();
-						dst.close();
-						src.close(); } },
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+	{ "mat", "mat", "Materials", [](const char* filename, const char* outFilename) {
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },					
 	{ "skel", "skel", "Skeletons", [](const char* filename, const char* outFilename) {
-							std::ifstream  src(filename, std::ios::binary);
-							std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-							dst << src.rdbuf();
-							dst.close();
-							src.close(); } },
+							fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 };
 
 
@@ -158,7 +140,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-
+		texMap = argv[1];
 
 
 		fs::remove_all(argv[2]);
@@ -208,13 +190,17 @@ int main(int argc, char* argv[])
 		{
 			for (auto& f : acceptedFiles)
 				gE << f << std::endl;
-			/*for (auto& f : files)
-					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;
-			for (auto& f : fbxConvFiles)
-				if (Utilz::getExtension(f.name) != "log")
-					gE << (std::string(argv[2]) + "/" + Utilz::removeRoot(f.fullPath)) << std::endl;*/
+			gE << std::string(argv[2]) + "/RoomGeneration.txt" << std::endl; 
 		}
 
+		std::ofstream RM; 
+		RM.open(std::string(argv[2]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary); 
+		if (RM.is_open())
+		{
+			uint32_t nrOfRooms = RoomMaps.size(); 
+			RM.write((char*)&nrOfRooms, sizeof(uint32_t)); 
+			RM.write((char*)RoomMaps.data(), sizeof(SE::Utilz::GUID) * nrOfRooms); 
+		}
 		//fs::remove_all("FBXTemp");
 	}
 	

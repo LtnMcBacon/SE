@@ -1,6 +1,6 @@
 #include <Gameplay\Projectile.h>
 #include <Profiler.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <Gameplay\ProjectileData.h>
 
 void SE::Gameplay::Projectile::UpdateMovement(float dt)
@@ -11,7 +11,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float yMovement = 0.0f;
 
 	//rotation += rotData.force;
-	rotation = Core::Engine::GetInstance().GetTransformManager().GetRotation(this->unitEntity).y + rotData.force;
+	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force * dt;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
 	{
@@ -34,7 +34,7 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 
 	/*Move the entity in the normalized direction*/
 	MoveEntity(xMovement * dt * speed, yMovement * dt * speed);
-	Core::Engine::GetInstance().GetTransformManager().SetRotation(this->unitEntity, 0.0f, rotation, 0.0f);
+	CoreInit::managers.transformManager->SetRotation(this->unitEntity, 0.0f, rotation, 0.0f);
 
 	UpdateBounding();
 
@@ -48,31 +48,28 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	if (collisionData.type != CollisionType::NONE)
 	{
 		active = false;
-
-		for (int i = 0; i < onCollision.size(); i++)
-		{
-			functionsToRun.push_back(onCollision[i]);
-		}
-
 	}
 
 	if (lifeTime <= 0.0f || this->health <= 0.0f)
 	{
 		active = false;
+	}
 
-		for (int i = 0; i < onDeath.size(); i++)
-		{
-			functionsToRun.push_back(onDeath[i]);
-		}
+	while (tempStorage.size())
+	{
+		functionsToRun.push_back(tempStorage.back());
+		tempStorage.pop_back();
 	}
 
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
-		if (!functionsToRun[i](this, dt))
-		{
-			std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
-			functionsToRun.pop_back();
-		}
+		functionsToRun[i](this, dt);
+		//if (!functionsToRun[i](this, dt))
+		//{
+		//	std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
+		//	functionsToRun.pop_back();
+		//	i--;
+		//}
 	}
 
 	collisionData = CollisionData();
@@ -80,6 +77,14 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	lifeTime -= dt;
 
 	StopProfile;
+
+}
+
+void SE::Gameplay::Projectile::RecreateEntity(Utilz::GUID meshGuid)
+{
+	this->unitEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(this->unitEntity);
+	CoreInit::managers.renderableManager->CreateRenderableObject(this->unitEntity, { meshGuid });
 
 }
 
@@ -121,8 +126,8 @@ void SE::Gameplay::Projectile::UpdateBounding()
 void SE::Gameplay::Projectile::RotatePoint(float & xCoord, float & yCoord)
 {
 	StartProfile;
-	float s = sinf(-rotation);
-	float c = cosf(-rotation);
+	float s = sinf(-CoreInit::managers.transformManager->GetRotation(this->unitEntity).y);
+	float c = cosf(-CoreInit::managers.transformManager->GetRotation(this->unitEntity).y);
 
 	// rotate point
 	float xnew = xCoord * c - yCoord * s;
@@ -151,26 +156,25 @@ SE::Gameplay::Projectile::Projectile() : GameUnit(-10000.0f, -10000.0f, 100)
 	UpdateBounding();
 }
 
-SE::Gameplay::Projectile::Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC) :
-	GameUnit(data.startPosX, data.startPosY, 100)
+SE::Gameplay::Projectile::Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData) :
+	GameUnit(pData.startPosX, pData.startPosY, 100)
 {
-	extentX = 0.1f; /*Should not be hardcoded! Obviously*/
-	extentY = 0.1f;
-	rotation = data.startRotation;
-	rotData = rot;
+	extentX = cData.width;
+	extentY = cData.height;
+	rotation = pData.startRotation;
+	rotData = cData.rot;
 
-	speed = projectileSpeed;
-	lifeTime = projectileLifeTime;
-	target = projectileTarget;
+	speed = cData.projectileSpeed;
+	lifeTime = cData.projectileLifeTime;
+	target = cData.projectileTarget;
 
-	eventDamage = eventD;
-	eventHealing = eventH;
-	eventCondition = eventC;
+	eventDamage = pData.eventDamage;
+	eventHealing = pData.eventHealing;
+	eventCondition = pData.eventCondition;
 
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
 
 	UpdateBounding();
-
 }
 
 SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
@@ -183,6 +187,8 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -204,6 +210,8 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -226,6 +234,8 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->extentX = other.extentX;
 	this->extentY = other.extentY;
 	this->functionsToRun = other.functionsToRun;
+	this->tempStorage = other.tempStorage;
+	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
 	this->onCollision = other.onCollision;
 	this->onDeath = other.onDeath;
@@ -239,24 +249,22 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 SE::Gameplay::Projectile::~Projectile()
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
+	
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::Projectile::AddContinuousFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+void SE::Gameplay::Projectile::AddBehaviourFunction(const std::function<bool(Projectile*projectile, float dt)>& func)
 {
-	functionsToRun.push_back(func);
+	tempStorage.push_back(func);
 }
 
-void SE::Gameplay::Projectile::AddCollisionFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+int SE::Gameplay::Projectile::AddBehaviourData(BehaviourData data)
 {
-	onCollision.push_back(func);
+	behaviourData.push_back(data);
+	return behaviourData.size() - 1;
 }
 
-void SE::Gameplay::Projectile::AddDeathFunction(std::function<bool(Projectile*projectile, float dt)>& func)
+SE::Gameplay::BehaviourData& SE::Gameplay::Projectile::GetBehaviourData(int index)
 {
-	onDeath.push_back(func);
+	return behaviourData[index];
 }
-

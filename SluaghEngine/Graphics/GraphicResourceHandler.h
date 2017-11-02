@@ -341,6 +341,23 @@ namespace SE {
 			*
 			*/
 			HRESULT CreateSamplerState();
+
+			int CreateRenderTargetView(int textureHandle, int* renderTargetViewHandle = nullptr);
+
+			int CreateTexture2D(const D3D11_TEXTURE2D_DESC& description, int& textureHandle, bool isBloomBuffer = false);
+
+			int CreateCustomShaderResourceView(const D3D11_SHADER_RESOURCE_VIEW_DESC& description, int textureHandle, int& shaderResourceViewHandle, ID3D11Texture2D* texture = nullptr);
+
+			int CreateUnorderedAccessView(int textureHandle, int& unorderedAccessViewHandle);
+
+			void SetCompute(int computeID);
+
+			ID3D11UnorderedAccessView* GetUnorderedAccessView(int uavID);
+
+			ID3D11RenderTargetView* GetRenderTargetView(int rtvID);
+
+			ID3D11Texture2D* GetBloomBufferTexture();
+
 		private:
 
 			static const uint8_t MAX_CONSTANTBUFFER_PER_SHADER = 8;
@@ -380,6 +397,10 @@ namespace SE {
 			std::vector<ID3D11ShaderResourceView*> shaderResourceViews;
 			std::stack<int> freeSRVIndices;
 
+			std::vector<ID3D11RenderTargetView*> renderTargetViews;
+			std::vector<ID3D11Texture2D*> texture2Ds;
+			std::vector<ID3D11UnorderedAccessView*> unorderedAccessViews;
+			int bloomBufferTextureHandle = -1;
 		};
 	}
 }

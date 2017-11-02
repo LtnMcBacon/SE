@@ -1,8 +1,6 @@
 #ifndef _SE_GAMEPLAY_GAME_H
 #define _SE_GAMEPLAY_GAME_H
 
-#include <Core\Engine.h>
-
 #include <window/IWindow.h>
 
 #include <Gameplay\IGameState.h>
@@ -10,7 +8,7 @@
 
 #include <Gameplay\KeyBindings.h>
 
-
+#include <Core\IEngine.h>
 namespace SE
 {
 	namespace Gameplay
@@ -22,10 +20,12 @@ namespace SE
 		private:
 			IGameState* state;
 			Window::IWindow* input;
+			SE::Core::IEngine* engine;
 
 		public:
-			void Initiate();
+			void Initiate(Core::IEngine* engine);
 			void Run();
+			void Shutdown();
 
 		};
 	}

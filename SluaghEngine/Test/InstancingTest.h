@@ -13,7 +13,7 @@ namespace SE
 			InstancingTest();
 			~InstancingTest();
 
-			bool Run(Utilz::IConsoleBackend* console) override;
+			bool Run(DevConsole::IConsole* console) override;
 		};
 
 	}

@@ -14,7 +14,7 @@ namespace SE
 				PROCESS_MEMORY_COUNTERS_EX pmc;		
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if( res != 0)
-					return static_cast<size_t>(pmc.PrivateUsage); // WorkingSetSize (for physical memory)
+					return static_cast<size_t>(pmc.PrivateUsage); 
 				return ~size_t(0u);
 			}
 			inline size_t GetPhysicalProcessMemory()
@@ -30,7 +30,7 @@ namespace SE
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if ( res != 0)
-					return (static_cast<size_t>(pmc.PrivateUsage) + extra) <= max; // WorkingSetSize (for physical memory)
+					return (static_cast<size_t>(pmc.WorkingSetSize) + extra) <= max;
 				return false;
 			}
 
@@ -39,7 +39,7 @@ namespace SE
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				BOOL res = GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 				if (res != 0)
-					return (static_cast<size_t>(pmc.PrivateUsage)) <= max; // WorkingSetSize (for physical memory)
+					return (static_cast<size_t>(pmc.WorkingSetSize)) <= max;
 				return false;
 			}
 			constexpr size_t toKB(size_t bytes)

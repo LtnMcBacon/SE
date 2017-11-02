@@ -1,30 +1,35 @@
-#include <CameraManager.h>
+#include "CameraManager.h"
 #include <Profiler.h>
-#include <DirectXMath.h>
+
 using namespace DirectX;
 
 
-SE::Core::CameraManager::CameraManager(Graphics::IRenderer* renderer, const EntityManager& entityManager, TransformManager* transformManager) 
-	: entityManager(entityManager), 
-	transformManager(transformManager),
-	renderer(renderer)
+SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : initInfo(initInfo)
 {
-	_ASSERT(renderer);
-	_ASSERT(transformManager);
+	_ASSERT(initInfo.renderer);
+	_ASSERT(initInfo.transformManager);
 
-	transformManager->SetDirty += {this, &CameraManager::SetDirty};
+	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
+
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+	if (result < 0)
+		throw std::exception("Could not create OncePerFrame buffer");
+
+	result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("CameraPos", sizeof(XMFLOAT4), nullptr);
+	if (result < 0)
+		throw std::exception("Could not create CameraPos buffer");
+
 	currentActive.activeCamera = ~0u;
 
 	Allocate(2);
 }
-
 
 SE::Core::CameraManager::~CameraManager()
 {
 	operator delete(cameraData.data);
 }
 
-void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct & info)
+void SE::Core::CameraManager::Create(const Entity & entity, CreateInfo & info)
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
@@ -32,7 +37,7 @@ void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct &
 		ProfileReturnVoid;
 
 	// Check if the entity is alive
-	if (!entityManager.Alive(entity))
+	if (!initInfo.entityManager->Alive(entity))
 		ProfileReturnVoid;
 
 	// Make sure we have enough memory.
@@ -51,13 +56,12 @@ void SE::Core::CameraManager::Bind(const Entity & entity, CameraBindInfoStruct &
 	cameraData.farPlane[index] = info.farPlance;
 	XMStoreFloat4x4(&cameraData.view[index], XMMatrixIdentity());
 
-	transformManager->Create(entity, info.posistion, info.rotation);
+	initInfo.transformManager->Create(entity, info.posistion, info.rotation);
 
 	StopProfile;
 }
 
-
-void SE::Core::CameraManager::UpdateCamera(const Entity & entity, const CameraBindInfoStruct & info)
+void SE::Core::CameraManager::UpdateCamera(const Entity & entity, const CreateInfo & info)
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
@@ -69,12 +73,11 @@ void SE::Core::CameraManager::UpdateCamera(const Entity & entity, const CameraBi
 	cameraData.nearPlane[find->second] = info.nearPlane;
 	cameraData.farPlane[find->second] = info.farPlance;
 
-	transformManager->SetAsDirty(entity);
+	initInfo.transformManager->SetAsDirty(entity);
 	StopProfile;
 }
 
-
-void SE::Core::CameraManager::UpdateCamera(CameraBindInfoStruct & info)
+void SE::Core::CameraManager::UpdateCamera(const CreateInfo & info)
 {
 	StartProfile;
 	if (currentActive.activeCamera != ~0)
@@ -84,12 +87,11 @@ void SE::Core::CameraManager::UpdateCamera(CameraBindInfoStruct & info)
 		cameraData.nearPlane[currentActive.activeCamera] = info.nearPlane;
 		cameraData.farPlane[currentActive.activeCamera] = info.farPlance;
 
-		transformManager->SetPosition(currentActive.entity, info.posistion);
-		transformManager->SetRotation(currentActive.entity, info.rotation.x, info.rotation.y, info.rotation.z);
-		transformManager->SetAsDirty(currentActive.entity);
+		initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
 	}
 	StopProfile;
 }
+
 
 DirectX::XMFLOAT4X4 SE::Core::CameraManager::GetView(const Entity & entity)
 {
@@ -176,7 +178,7 @@ void SE::Core::CameraManager::WorldSpaceRayFromScreenPos(int x, int y, int scree
 	float xView = xNDC / projF._11;
 	float yView = yNDC / projF._22;
 	direction = XMVector3Normalize(XMVector4Transform(XMVectorSet(xView, yView, 1.0f, 0.0f), invView));
-	XMFLOAT3 pos = transformManager->GetPosition(currentActive.entity);
+	XMFLOAT3 pos = initInfo.transformManager->GetPosition(currentActive.entity);
 	origin = XMVectorSet(pos.x, pos.y, pos.z, 1.0f);
 	
 
@@ -195,17 +197,19 @@ void SE::Core::CameraManager::SetActive(const Entity & entity)
 	StopProfile;
 }
 
-void SE::Core::CameraManager::Frame()
+void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 {
+	_ASSERT(timer);
 	StartProfile;
+	timer->Start(CREATE_ID_HASH("CameraManager"));
 	GarbageCollection();
 	if (currentActive.activeCamera != ~0u)
 	{
-		if(cameraData.dirty[currentActive.activeCamera] != ~0u)// Update the transform
+		if (cameraData.dirty[currentActive.activeCamera] != ~0u)// Update the transform
 		{
-			XMMATRIX transform = XMLoadFloat4x4(&transformManager->dirtyTransforms[cameraData.dirty[currentActive.activeCamera]]);
+			XMMATRIX transform = XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[cameraData.dirty[currentActive.activeCamera]]);
 			XMVECTOR pos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);// XMLoadFloat3(&transformManager->positions[tindex]);
-		//	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&transformManager->rotations[tindex]));
+															   //	auto rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&transformManager->rotations[tindex]));
 			XMVECTOR forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 			XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 			pos = XMVector3TransformCoord(pos, transform);
@@ -217,18 +221,22 @@ void SE::Core::CameraManager::Frame()
 			XMStoreFloat4x4(&cameraData.view[currentActive.activeCamera], view);
 			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[currentActive.activeCamera], cameraData.aspectRatio[currentActive.activeCamera], cameraData.nearPlane[currentActive.activeCamera], cameraData.farPlane[currentActive.activeCamera]);
 
-			XMFLOAT4X4 viewFloat;
-			XMStoreFloat4x4(&viewFloat, view);
 			XMFLOAT4X4 viewProjMatrix;
-			XMStoreFloat4x4(&viewProjMatrix, viewproj);
-			renderer->UpdateView((float*)&viewProjMatrix);
-			renderer->UpdateViewMatrix((float*)&viewFloat);
-			cameraData.dirty[currentActive.activeCamera] = ~0u;
-		} 
+			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
 
-		
+			XMFLOAT3 fpos;
+			XMStoreFloat3(&fpos, pos);
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &fpos, sizeof(XMFLOAT3));
+
+
+			cameraData.dirty[currentActive.activeCamera] = ~0u;
+		}
+
+
 
 	}
+	timer->Stop(CREATE_ID_HASH("CameraManager"));
 	StopProfile;
 }
 
@@ -258,7 +266,7 @@ void SE::Core::CameraManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.dirty = (size_t*)(newData.entity + newData.allocated);
-	newData.fov = (float*)(newData.dirty + newData.allocated);
+	newData.fov = reinterpret_cast<float*>(newData.dirty + newData.allocated);
 	newData.aspectRatio = (float*)(newData.fov + newData.allocated);
 	newData.nearPlane = (float*)(newData.aspectRatio + newData.allocated);
 	newData.farPlane = (float*)(newData.nearPlane + newData.allocated);
@@ -309,6 +317,10 @@ void SE::Core::CameraManager::Destroy(size_t index)
 	StopProfile;
 }
 
+void SE::Core::CameraManager::Destroy(const Entity & entity)
+{
+}
+
 void SE::Core::CameraManager::GarbageCollection()
 {
 	StartProfile;
@@ -317,7 +329,7 @@ void SE::Core::CameraManager::GarbageCollection()
 	{
 		std::uniform_int_distribution<uint32_t> distribution(0U, cameraData.used - 1U);
 		uint32_t i = distribution(generator);
-		if (entityManager.Alive(cameraData.entity[i]))
+		if (initInfo.entityManager->Alive(cameraData.entity[i]))
 		{
 			alive_in_row++;
 			continue;

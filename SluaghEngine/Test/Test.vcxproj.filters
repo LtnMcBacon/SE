@@ -132,7 +132,37 @@
     <ClCompile Include="EnemyMovementTest.cpp">
       <Filter>Source Files\Gameplay Tests\AITests</Filter>
     </ClCompile>
+    <ClCompile Include="GlaistigTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
     <ClCompile Include="TransformTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingProjectileTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandRoomTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SluaghTest.cpp">
+      <Filter>Source Files\Gameplay Tests\AITests</Filter>
+    </ClCompile>
+    <ClCompile Include="DecalTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaybackProjectileTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPoolTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,7 +269,37 @@
     <ClInclude Include="ConsoleTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RandRoomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TransformTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingProjectileTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlaistigTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaughTest.h">
+      <Filter>Header Files\GameplayTests\AITests</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackProjectileTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPoolTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

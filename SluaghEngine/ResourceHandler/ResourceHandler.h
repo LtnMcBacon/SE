@@ -32,7 +32,6 @@ namespace SE
 			void UpdateInfo(const InitializationInfo& initInfo)override;
 
 			int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK)override;
-			int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK)override;
 			void UnloadResource(const Utilz::GUID& guid)override;
 		
 		private:
@@ -42,7 +41,7 @@ namespace SE
 
 			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
 
-			UnloadingStrategy Unload;
+			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;
 
 			/**
 			* @brief	Allocate more memory
@@ -71,9 +70,9 @@ namespace SE
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
-				Data* resourceData;
-				uint16_t* refCount;
-				State* state;
+				Data* resourceData = nullptr;
+				uint16_t* refCount = nullptr;
+				State* state = nullptr;
 			};
 		
 
@@ -118,7 +117,7 @@ namespace SE
 
 			/****************	END To Callback info	*****************/
 			std::mutex infoLock;
-
+			std::recursive_mutex loadResourceLock;
 		};
 	}
 }

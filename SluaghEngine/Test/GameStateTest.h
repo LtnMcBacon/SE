@@ -13,7 +13,7 @@ namespace SE
 			GameStateTest();
 			~GameStateTest();
 
-			bool Run(SE::Utilz::IConsoleBackend* console);
+			bool Run(SE::DevConsole::IConsole* console);
 		};
 	}
 }

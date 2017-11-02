@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -72,24 +72,35 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
@@ -104,6 +115,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
@@ -120,6 +132,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -138,6 +151,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

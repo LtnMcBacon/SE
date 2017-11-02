@@ -37,10 +37,10 @@ namespace SE
 				}
 			};
 
-			template<typename TimeType = std::chrono::milliseconds>
+			template<typename Ratio = std::milli>
 			inline float GetDelta() const
 			{
-				return (float)std::chrono::duration_cast<TimeType>(curTime - prevTime).count();
+				return std::chrono::duration<float, Ratio>(curTime - prevTime).count();
 			};
 
 			inline int StartStopWatch()

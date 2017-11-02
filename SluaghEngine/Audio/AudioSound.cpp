@@ -2,11 +2,7 @@
 #include <Profiler.h>
 #include <fstream>
 #include <Utilz\Memory.h>
-
-namespace SE {
-	namespace Audio {
-		namespace sfvirt {
-
+namespace sfvirt {
 			sf_count_t sf_vio_get_filelen1(void *user_data)
 			{
 				SE::Audio::AudioFile *data = static_cast<SE::Audio::AudioFile*>(user_data);
@@ -64,6 +60,8 @@ namespace SE {
 			};
 		}
 
+namespace SE {
+	namespace Audio {
 		AudioSound::AudioSound()
 		{
 			masterVol = 0;
@@ -78,31 +76,7 @@ namespace SE {
 
 		int AudioSound::Initialize()
 		{
-			StartProfile;
-			using namespace Utilz::Memory;
-			sampleStack.InitStackAlloc(20_mb);
-			ProfileReturnConst(0);
-		}
-
-		AudioFile* ReadRaw()
-		{
-			AudioFile *sound = new AudioFile;
-			std::streampos size;
-			char * memblock;
-			std::ifstream myfile;
-			myfile.open("Assets/Sound/Canary.wav", std::ios::in | std::ios::binary | std::ios::ate);
-			if (myfile.is_open())
-			{
-				size = myfile.tellg();
-				memblock = new char[size];
-				myfile.seekg(0, std::ios::beg);
-				myfile.read(memblock, size);
-				myfile.close();
-				sound->size = size;
-				sound->soundData = memblock;
-				sound->currentPos = 0;
-			}
-			return sound;
+			return 0;
 		}
 
 		size_t AudioSound::LoadSound(AudioFile* sound)
@@ -115,15 +89,10 @@ namespace SE {
 			sfvirtual.write = sfvirt::sf_vio_write1;
 			sfvirtual.tell = sfvirt::sf_vio_tell1;
 			SF_INFO info;
-			//info.format = SF_FORMAT_WAV;
+			info.format = SF_FORMAT_WAV;
 			SNDFILE* music = sf_open_virtual(&sfvirtual, SFM_READ, &info, sound);
-			//SNDFILE* music2 = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
-			/*if (sizeof(music) != sizeof(music2))
-			{
-				int hej = 0;
-			}*/
 			int samples = (info.channels * info.frames);
-			float* sampleData = (float*)sampleStack.GetMemoryAligned(samples * sizeof(float), sizeof(float));
+			float* sampleData = new float[samples];
 			if (sampleData == nullptr)
 			{
 				sf_close(music);
@@ -132,51 +101,38 @@ namespace SE {
 			sf_read_float(music, sampleData, samples);
 			sf_close(music);
 
-			AudioSample tempAS;
-			tempAS.info = info;
-			tempAS.samples = sampleData;
+			AudioSample *tempAS = new AudioSample;
+			tempAS->info = info;
+			tempAS->samples = sampleData;
 
 			soundSample.push_back(tempAS);
 			delete sound;
 			ProfileReturn(soundSample.size() - 1);
 		}
 
-		size_t AudioSound::LoadSound2()
-		{
-			StartProfile;
-			SF_INFO info;
-			SNDFILE* music = sf_open("Assets/Sounds/Canary.wav", SFM_READ, &info);
-			int samples = (info.channels * info.frames);
-			float* sampleData = new float[samples];
-			sf_read_float(music, sampleData, samples);
-			sf_close(music);
-
-			AudioSample tempAS;
-			tempAS.info = info;
-			tempAS.samples = sampleData;
-
-			soundSample.push_back(tempAS);
-			ProfileReturn(soundSample.size() - 1);
-		}
-
-
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
 		{
 			StartProfile;
-			if (soundType == BakgroundSound)
+			if (soundType == BakgroundLoopSound || soundType == BakgroundSound)
 			{
 				AudioOut *outData = new AudioOut();
-				outData->sample = &soundSample[soundID];
-				outData->pData.currentPos = 0;
-				outData->pData.volume = (masterVol * bakgroundVol) / 10000;
+				outData->sample = soundSample[soundID];
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &bakgroundVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 				ProfileReturn((void*)outData);
 			}
-			else if (soundType == EffectSound)
+			else if (soundType == StereoPanSound || soundType == StereoPanLoopSound)
 			{
 				AudioOut *outData = new AudioOut();
-				outData->sample = &soundSample[soundID];
-				outData->pData.currentPos = 0;
-				outData->pData.volume = (masterVol * effectVol) / 10000;
+				outData->sample = soundSample[soundID];
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &effectVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 				ProfileReturn((void*)outData);
 			}
 			ProfileReturnConst(nullptr);
@@ -192,11 +148,11 @@ namespace SE {
 				}
 				case BakgroundVol:
 				{
-					bakgroundVol = newVol;
+					bakgroundVol = (masterVol * newVol) / 10000;
 				}
 				case EffectVol:
 				{
-					effectVol = newVol;
+					effectVol = (masterVol * newVol) / 10000;;
 				}
 			}
 		}
@@ -204,7 +160,11 @@ namespace SE {
 		void AudioSound::Shutdown()
 		{
 			StartProfile;
-			sampleStack.ClearStackAlloc();
+			for (auto& sound : soundSample)
+			{
+				delete sound->samples;
+				delete sound;
+			}
 			soundSample.clear();
 			StopProfile;
 		}

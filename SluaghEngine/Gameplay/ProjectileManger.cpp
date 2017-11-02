@@ -1,8 +1,5 @@
 #include <Gameplay\ProjectileManager.h>
 #include <Profiler.h>
-#include <Core\CollisionManager.h>
-#include "Core/Engine.h"
-
 void SE::Gameplay::ProjectileManager::UpdateProjectilePositions(float dt)
 {
 	StartProfile;
@@ -33,11 +30,9 @@ void SE::Gameplay::ProjectileManager::UpdateProjectileActions(float dt)
 			//projectiles[projectiles.size() - 1].DestroyEntity();
 			projectiles.pop_back();
 		}
-
 	}
 
 	StopProfile;
-
 }
 
 void SE::Gameplay::ProjectileManager::AddProjectiles(std::vector<ProjectileData>& newProjectiles)
@@ -46,15 +41,66 @@ void SE::Gameplay::ProjectileManager::AddProjectiles(std::vector<ProjectileData>
 
 	for (int i = 0; i < newProjectiles.size(); i++)
 	{
-		projectiles.push_back(factory.CreateNewProjectile(newProjectiles[i]));
+		factory.CreateNewProjectile(newProjectiles[i]);
+	}
+
+	factory.GetNewProjectiles(projectiles);
+
+	StopProfile;
+}
+
+void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(GameUnit* unit, ValidTarget unitTarget)
+{
+	StartProfile;
+
+	for (auto projectile : projectiles)
+	{
+		if (projectile.GetValidTarget() == ValidTarget::EVERYONE ||
+			projectile.GetValidTarget() == unitTarget)
+		{
+			if (CheckCollisionHelperFunction(unit, projectile.GetBoundingRect()))
+			{
+				CollisionData cData;
+				switch (unitTarget)
+				{
+				case ValidTarget::ENEMIES: cData.type = CollisionType::ENEMY; break;
+				case ValidTarget::PLAYER: cData.type = CollisionType::PLAYER; break;
+				default: ;
+				}
+				
+				unit->AddDamageEvent(projectile.GetProjectileDamageEvent());
+				unit->AddHealingEvent(projectile.GetProjectileHealingEvent());
+				unit->AddConditionEvent(projectile.GetProjectileConditionEvent());
+			}
+		}
 	}
 
 	StopProfile;
 }
 
-SE::Gameplay::ProjectileManager::ProjectileManager()
+bool SE::Gameplay::ProjectileManager::CheckCollisionHelperFunction(GameUnit* unit, BoundingRect projectileRect)
 {
+	StartProfile;
 
+	bool collided = false;
+	if (abs(unit->GetXPosition() - projectileRect.upperLeftX) < unit->GetExtent() &&
+		abs(unit->GetYPosition() - projectileRect.upperLeftY) < unit->GetExtent())
+	{
+		collided = true;
+	}
+	else if (abs(unit->GetXPosition() - projectileRect.upperRightX) < unit->GetExtent() &&
+		abs(unit->GetYPosition() - projectileRect.upperRightY) < unit->GetExtent())
+	{
+		collided = true;
+	}
+
+
+	ProfileReturnConst(collided);
+}
+
+SE::Gameplay::ProjectileManager::ProjectileManager(BehaviourPointers bPtrs)
+{
+	factory.SetBehaviourPtrs(bPtrs);
 }
 
 SE::Gameplay::ProjectileManager::~ProjectileManager()
@@ -68,4 +114,3 @@ SE::Gameplay::ProjectileManager::~ProjectileManager()
 
 	ProfileReturnVoid;
 }
-

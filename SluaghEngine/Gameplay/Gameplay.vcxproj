@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,57 +19,100 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
+    <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
+    <ClCompile Include="BodachMeleeAttackLeaf.cpp" />
+    <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
+    <ClCompile Include="CoreInit.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
+    <ClCompile Include="FaceThePlayerLeaf.cpp" />
+    <ClCompile Include="FailUntilSuccess.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="FlowFieldMovementLeaf.cpp" />
+    <ClCompile Include="ForestTrainer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
+    <ClCompile Include="GlaistigAttackLeaf.cpp" />
     <ClCompile Include="IBehaviour.cpp" />
     <ClCompile Include="IComposite.cpp" />
     <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
     <ClCompile Include="Inverter.cpp" />
+    <ClCompile Include="LeapAtPlayerLeaf.cpp" />
+    <ClCompile Include="LineOfSightCondition.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
+    <ClCompile Include="MakeInvulnerableLeaf.cpp" />
+    <ClCompile Include="MakeVulnerableLeaf.cpp" />
+    <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
+    <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PechMeleeAttackLeaf.cpp" />
+    <ClCompile Include="PechRangedAttackLeaf.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="RandomSelector.cpp" />
     <ClCompile Include="RandomSequence.cpp" />
+    <ClCompile Include="RangeToPlayerCondition.cpp" />
     <ClCompile Include="Repeater.cpp" />
     <ClCompile Include="RepeatUntilFail.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileFactory.cpp" />
     <ClCompile Include="ProjectileManger.cpp" />
+    <ClCompile Include="ResetAttackCooldownLeaf.cpp" />
+    <ClCompile Include="RestartingSequence.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="StunnedCondition.cpp" />
     <ClCompile Include="Succeeder.cpp" />
+    <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
+    <ClCompile Include="TimerCondition.cpp" />
+    <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
+    <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\DecisionTree.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
     <ClInclude Include="..\includes\Gameplay\EventStructs.h" />
+    <ClInclude Include="..\includes\Gameplay\FaceThePlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\FailUntilSuccess.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\Game.h" />
+    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h" />
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
+    <ClInclude Include="..\includes\Gameplay\GlaistigAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
     <ClInclude Include="..\includes\Gameplay\IComposite.h" />
     <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
     <ClInclude Include="..\includes\Gameplay\Inverter.h" />
     <ClInclude Include="..\includes\Gameplay\KeyBindings.h" />
+    <ClInclude Include="..\includes\Gameplay\LeapAtPlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\LineOfSightCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
@@ -77,18 +120,27 @@
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
+    <ClInclude Include="..\includes\Gameplay\RandomForest.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
+    <ClInclude Include="..\includes\Gameplay\RangeToPlayerCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Repeater.h" />
     <ClInclude Include="..\includes\Gameplay\RepeatUntilFail.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\RestartingSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="CoreInit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -143,7 +195,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes</IncludePath>
@@ -151,14 +203,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes</IncludePath>
@@ -166,7 +218,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)includes\$(ProjectName)\;;$(SolutionDir)includes\;$(SolutionDir)External Dependencies\includes</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform)\</LibraryPath>
@@ -177,6 +229,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -185,6 +238,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -195,6 +249,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -209,6 +264,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

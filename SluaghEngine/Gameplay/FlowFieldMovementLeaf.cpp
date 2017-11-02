@@ -1,5 +1,5 @@
 #include "FlowFieldMovementLeaf.h"
-
+#include "CoreInit.h"
 #include "Gameplay/Flowfield.h"
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyBlackboard.h"
@@ -12,7 +12,7 @@ using namespace Gameplay;
 FlowFieldMovementLeaf::FlowFieldMovementLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
 {
-	sampleRate = rand() % 40 + 40;
+	sampleRate = CoreInit::subSystems.window->GetRand() % 40 + 40;
 }
 
 FlowFieldMovementLeaf::~FlowFieldMovementLeaf()
@@ -26,8 +26,6 @@ void FlowFieldMovementLeaf::SampleFromMap(float &xMovementTot, float &yMovementT
 	const FlowField* flowField = gameBlackboard->roomFlowField;
 	float yMovement = 0;
 	float xMovement = 0;
-	float distanceX = 0.f;
-	float distanceY = 0.f;
 
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();
@@ -38,7 +36,7 @@ void FlowFieldMovementLeaf::SampleFromMap(float &xMovementTot, float &yMovementT
 	myPos.y = yPos;
 	flowField->SampleFromMap(myPos, xMovement, yMovement);
 
-	distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
+	float distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
 	xMovementTot += xMovement / distanceX;
 	yMovementTot += yMovement / distanceX;
 
@@ -48,7 +46,7 @@ void FlowFieldMovementLeaf::SampleFromMap(float &xMovementTot, float &yMovementT
 	flowField->SampleFromMap(myPos, xMovement, yMovement);
 
 	distanceX = abs(xPos - (floor(myPos.x) + 0.5f));
-	distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
+	float distanceY = abs(yPos - (floor(myPos.y) + 0.5f));
 	xMovementTot += xMovement / distanceX;
 	yMovementTot += yMovement / distanceY;
 
@@ -180,10 +178,6 @@ bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)
 	}
 	xMovementTot *= gameBlackboard->deltaTime;
 	yMovementTot *= gameBlackboard->deltaTime;
-
-
-	float sampleX = 0.f;
-	float sampleY = 0.f;
 
 	float localExtent = enemyBlackboard->extents + 0.15;
 

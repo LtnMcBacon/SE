@@ -5,37 +5,46 @@
 #include <vector>
 #include "crc_table.h"
 // This doesn't take into account the nul char
-#define COMPILE_TIME_CRC32_STR(x) (SE::Utilz::crc32<sizeof(x)/sizeof(x[0]) - 2>(x) ^ 0xFFFFFFFF)
 
+// This don't take into account the nul char
+#define COMPILE_TIME_CRC32_STR(x) (SE::Utilz::MM<sizeof(x)-1>::crc32(x))
+#define CREATE_ID_HASH(x) ( SE::Utilz::IDHash(x, SE::Utilz::MM<sizeof(x)-1>::crc32(x)))
 namespace SE
 {
 	namespace Utilz
 	{
 
-		template<size_t idx>
-		constexpr uint32_t crc32(const char * str)
-		{
-			return (crc32<idx - 1>(str) >> 8) ^ crc_table[(crc32<idx - 1>(str) ^ str[idx]) & 0x000000FF];
-		}
+		template<int size, int idx = 0, class dummy = void>
+		struct MM {
+			static constexpr unsigned int crc32(const char * str, unsigned int prev_crc = 0xFFFFFFFF)
+			{
+				return MM<size, idx + 1>::crc32(str, (prev_crc >> 8) ^ crc_table[(prev_crc ^ str[idx]) & 0xFF]);
+			}
+		};
 
 		// This is the stop-recursion function
-		template<>
-		constexpr uint32_t crc32<size_t(-1)>(const char * str)
-		{
-			return 0xFFFFFFFF;
-		}
+		template<int size, class dummy>
+		struct MM<size, size, dummy> {
+			static constexpr unsigned int crc32(const char * str, unsigned int prev_crc = 0xFFFFFFFF)
+			{
+				return prev_crc ^ 0xFFFFFFFF;
+			}
+		};
 
 		struct IDHash
 		{
-			struct Compare
+			struct Hasher
 			{
-				inline bool operator() (const IDHash& lhs, const IDHash& rhs) const
+				inline uint32_t operator()(const IDHash& g) const
 				{
-					return lhs.hash < rhs.hash;
+					return g.hash;
 				}
 			};
 
-			constexpr IDHash(const char* str) : hash(COMPILE_TIME_CRC32_STR(str)), str(str) {};
+
+
+			bool operator==(const IDHash& other)const { return this->hash == other.hash; };
+			constexpr IDHash(const char* str, uint32_t hash) : hash(hash), str(str) {};
 
 			uint32_t hash;
 			const char* str;

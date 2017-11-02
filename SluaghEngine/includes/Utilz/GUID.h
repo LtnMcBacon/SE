@@ -29,7 +29,7 @@ namespace SE
 
 			GUID() : id(0) {};
 		//	constexpr GUID(const char* str) : id(std::hash<std::string>{}(str)) {};
-			GUID(const char* str) : id(std::hash<std::string>{}(str)) {};
+			GUID(const char* str) : id(static_cast<uint32_t>(std::hash<std::string>{}(str))) {};
 			GUID(const std::string& str) : id(std::hash<std::string>{}(str)) {};
 			//GUID(uint32_t id) :id(id) {};
 			GUID(const GUID& other) : id(other.id) {}
@@ -40,7 +40,7 @@ namespace SE
 			GUID operator+(const GUID &other) const
 			{
 				GUID g;
-				g.id = (id + other.id);
+				g.id = id ^ other.id;
 				return g;
 			}
 		private:

@@ -11,10 +11,10 @@ namespace SE
 		public:
 			GarbageTest();
 			~GarbageTest();
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 
-			bool MassiveTest(Utilz::IConsoleBackend* console);
-			bool ProjectilesIshTest(Utilz::IConsoleBackend* console);
+			bool MassiveTest(DevConsole::IConsole* console);
+			bool ProjectilesIshTest(DevConsole::IConsole* console) const;
 		};
 	}
 }

@@ -16,7 +16,7 @@ namespace SE
 
 		}
 
-		bool INITest::Run(Utilz::IConsoleBackend* console)
+		bool INITest::Run(DevConsole::IConsole* console)
 		{
 			Utilz::INIReader reader;
 			std::map<std::string, std::map<std::string, std::string>> maps;

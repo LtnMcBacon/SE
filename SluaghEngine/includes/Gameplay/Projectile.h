@@ -2,7 +2,8 @@
 #define _SE_GAMEPLAY_PROJECTILE_H_
 
 #include "GameUnit.h"
-
+#include <functional>
+#include <Utilz\GUID.h>
 
 namespace SE
 {
@@ -32,7 +33,8 @@ namespace SE
 		{
 			NONE,
 			OBJECT,
-			ENEMY
+			ENEMY,
+			PLAYER
 		};
 
 		enum class RotationStyle
@@ -71,6 +73,26 @@ namespace SE
 			float xVec = 0.0f;
 			float yVec = 0.0f;
 			CollisionType type = CollisionType::NONE;
+			std::weak_ptr<GameUnit*> hitUnit = std::weak_ptr<GameUnit*>();
+		};
+
+		struct BehaviourData
+		{
+			union
+			{
+				float f;
+				int i;
+			};
+		};
+
+		struct ProjectileCreationData
+		{
+			Rotation rot;
+			float projectileSpeed;
+			float projectileLifeTime;
+			float width;
+			float height;
+			ValidTarget projectileTarget;
 		};
 
 		class Projectile : public GameUnit
@@ -139,12 +161,17 @@ namespace SE
 				return eventCondition;
 			}
 
+			void RecreateEntity(Utilz::GUID meshGuid);
+
 		private:
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
+			std::vector<std::function<bool(Projectile* projectile, float dt)>> tempStorage;
 
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
+
+			std::vector<BehaviourData> behaviourData;
 
 			float extentX;
 			float extentY;
@@ -178,15 +205,16 @@ namespace SE
 
 		public:
 			Projectile();
-			Projectile(ProjectileData data, Rotation rot, float projectileSpeed, float projectileLifeTime, ValidTarget projectileTarget, DamageEvent eventD, HealingEvent eventH, ConditionEvent eventC);
+			Projectile(SE::Gameplay::ProjectileCreationData& cData, ProjectileData& pData);
 			Projectile(const Projectile& other);
 			Projectile& operator=(const Projectile& other);
 			Projectile(Projectile&& other);
 			~Projectile();
 
-			void AddContinuousFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddCollisionFunction(std::function<bool(Projectile* projectile, float dt)>& func);
-			void AddDeathFunction(std::function<bool(Projectile* projectile, float dt)>& func);
+			void AddBehaviourFunction(const std::function<bool(Projectile* projectile, float dt)>& func);
+
+			int AddBehaviourData(BehaviourData data);
+			BehaviourData& GetBehaviourData(int index);
 
 			inline void SetRotation(float projectileRotation)
 			{
@@ -228,6 +256,12 @@ namespace SE
 				active = value;
 			}
 
+			inline void SetLifeTime(float value)
+			{
+				lifeTime = value;
+			}
+
+
 
 			inline bool GetActive()
 			{
@@ -252,6 +286,21 @@ namespace SE
 			inline Rotation GetRotationStyle()
 			{
 				return rotData;
+			}
+
+			inline float GetLifeTime()
+			{
+				return lifeTime;
+			}
+
+			inline float GetSpeed()
+			{
+				return speed;
+			}
+
+			inline ValidTarget GetValidTarget()
+			{
+				return target;
 			}
 
 		};

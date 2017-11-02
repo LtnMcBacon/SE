@@ -3,6 +3,13 @@
 #include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
+
+#include <ResourceHandler\IResourceHandler.h>
+#include <Gameplay\Projectile.h>
+#include "Utilz/GUID.h"
+
+#include <memory>
+
 namespace SE
 {
 	namespace Gameplay
@@ -19,11 +26,15 @@ namespace SE
 			//Rotation rotation;
 			float startRotation; // the starting rotation, most of the time it will be the same as the players rotation
 
-			//ValidTarget target; // what type of unit the enemy can hit
+			ValidTarget target; // what type of unit the projectile can hit
 
 			DamageEvent eventDamage; // event to be transfered on hit
 			HealingEvent eventHealing; // event to be transfered on hit
 			ConditionEvent eventCondition; // event to be transfered on hit
+			
+			std::weak_ptr<GameUnit*> ownerUnit;
+
+			Utilz::GUID fileNameGuid;
 		};
 		
 	}

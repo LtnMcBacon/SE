@@ -3,6 +3,7 @@
 #include <window/IWindow.h>
 
 #include <Gameplay\KeyBindings.h>
+#include <Core\IEngine.h>
 
 namespace SE
 {
@@ -24,7 +25,7 @@ namespace SE
 		public:
 			IGameState();
 			IGameState(void* state);
-			~IGameState();
+			virtual ~IGameState();
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
@@ -51,6 +52,7 @@ namespace SE
 
 		protected:
 			Window::IWindow* input;
+			SE::Core::IEngine* engine;
 
 		};
 

@@ -1,6 +1,6 @@
 #include "BoundingTest.h"
-#include <Core\Engine.h>
-//#include <Core\TransformManager.h>
+#include <Core\IEngine.h>
+//#include <Core\managers.transformManager->h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -20,6 +20,7 @@ SE::Test::BoundingTest::~BoundingTest()
 
 static bool test = false;
 static bool test2 = false;
+static SE::Core::IEngine* e;
 void Collide2(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
 {
 	test2 = true;
@@ -30,28 +31,18 @@ void Collide1(const SE::Core::Entity& hit, const SE::Core::Entity& hitter)
 	if (!test)
 	{
 		test = true;
-		auto& e = SE::Core::Engine::GetInstance();
-		auto& em = e.GetEntityManager();
-		auto& col = e.GetCollisionManager();
-		auto& tm = e.GetTransformManager();
-		auto& cm = e.GetCameraManager();
-		auto& drm = e.GetDebugRenderManager();
-		auto& om = e.GetOptionHandler();
-		auto& camera = em.Create();
-		auto w = e.GetWindow();
-		auto& rm = e.GetRenderableManager();
+		auto managers = e->GetManagers();
+		managers.collisionManager->SetCollideWithAnyCallback(&Collide2);
 
-		col.RegisterCollideWithAnyCallback(&Collide2);
+		auto& block2 = managers.entityManager->Create();
+		managers.collisionManager->CreateBoundingHierarchy(block2,  {"MCModell.mesh"} );
+		managers.renderableManager->CreateRenderableObject(block2, { {"MCModell.mesh"} });
+		managers.renderableManager->ToggleRenderableObject(block2, true);
+		managers.transformManager->SetPosition(block2, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
 
-		auto& block2 = em.Create();
-		col.CreateBoundingHierarchy(block2, "MCModell.mesh");
-		rm.CreateRenderableObject(block2, "MCModell.mesh");
-		rm.ToggleRenderableObject(block2, true);
-		tm.SetPosition(block2, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
+		managers.transformManager->SetPosition(hit, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-		tm.SetPosition(hit, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-
-		em.Destroy(hitter);
+		managers.entityManager->Destroy(hitter);
 	}
 		
 }
@@ -71,67 +62,64 @@ enum ActionButton
 };
 
 
-bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
+bool SE::Test::BoundingTest::Run(DevConsole::IConsole * console)
 {
-	auto& e = Core::Engine::GetInstance();
-	e.Init(Core::Engine::InitializationInfo());
-	auto& em = e.GetEntityManager();
-	auto& col = e.GetCollisionManager();
-	auto& tm = e.GetTransformManager();
-	auto& cm = e.GetCameraManager();
-	auto& drm = e.GetDebugRenderManager();
-	auto& om = e.GetOptionHandler();
-	auto camera = em.Create();
-	auto w = e.GetWindow();
-	auto& rm = e.GetRenderableManager();
+	e = Core::CreateEngine();
+	e->Init();
+	auto managers = e->GetManagers();
+	auto subSystem = e->GetSubsystems();
 
-	col.RegisterCollideWithAnyCallback(&Collide1);
+	managers.collisionManager->SetCollideWithAnyCallback(&Collide1);
 
-	Core::CameraBindInfoStruct cInfo;
-	cInfo.aspectRatio = (float)om.GetOptionUnsignedInt("Window", "width", 800) / (float)om.GetOptionUnsignedInt("Window", "height", 640);
+	Core::ICameraManager::CreateInfo cInfo;
+	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 	cInfo.posistion = { 0.0f, 0.0f, -2.0f };
-	cm.Bind(camera, cInfo);
-	cm.SetActive(camera);
+	auto camera = managers.entityManager->Create();
+	managers.cameraManager->Create(camera, cInfo);
+	managers.cameraManager->SetActive(camera);
 
-	auto block1 = em.Create();
-	col.CreateBoundingHierarchy(block1, "MCModell.mesh");
-	rm.CreateRenderableObject(block1, "MCModell.mesh");
-	rm.ToggleRenderableObject(block1, true);
-	tm.SetPosition(block1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
+	auto block1 = managers.entityManager->Create();
+	managers.collisionManager->CreateBoundingHierarchy(block1, {"MCModell.mesh"});
+	managers.renderableManager->CreateRenderableObject(block1, {"MCModell.mesh"});
+	managers.renderableManager->ToggleRenderableObject(block1, true);
+	managers.transformManager->Create(block1);
+	managers.transformManager->SetPosition(block1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
 
-	auto block2 = em.Create();
-	col.CreateBoundingHierarchy(block2, "MCModell.mesh");	
-	rm.CreateRenderableObject(block2, "MCModell.mesh");
-	rm.ToggleRenderableObject(block2, true);
-	tm.SetPosition(block2, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
+	auto block2 = managers.entityManager->Create();
+	managers.collisionManager->CreateBoundingHierarchy(block2, {"MCModell.mesh"});	
+	managers.renderableManager->CreateRenderableObject(block2, {"MCModell.mesh"});
+	managers.renderableManager->ToggleRenderableObject(block2, true);
+	managers.transformManager->Create(block2);
+	managers.transformManager->SetPosition(block2, DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
 
-	col.BindOnCollideWithAny(block1);
+	managers.collisionManager->BindOnCollideWithAny(block1);
 	
-	drm.ToggleDebugRendering(block1, true);
-	drm.ToggleDebugRendering(block2, true);
+	managers.debugRenderManager->ToggleDebugRendering(block1, true);
+	managers.debugRenderManager->ToggleDebugRendering(block2, true);
 
-	e.GetWindow()->MapActionButton(ActionButton::Exit, Window::KeyEscape);
-	e.GetWindow()->MapActionButton(ActionButton::Left, Window::KeyD);
+	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(ActionButton::Left, Window::KeyD);
 	test = false;
 	test2 = false;
 	bool su = false;
 	for(int i = 0; i < 500; i++)
 	{
-		if (w->ButtonPressed(ActionButton::Exit))
+		if (subSystem.window->ButtonPressed(ActionButton::Exit))
 			break;
 
 		if(!test)
-			tm.Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
+			managers.transformManager->Move(block1, DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
 		else if(test)
 		{
 			if(!test2)
-				tm.Move(block1, DirectX::XMFLOAT3(-0.01f, 0.0f, 0.0f));
+				managers.transformManager->Move(block1, DirectX::XMFLOAT3(-0.01f, 0.0f, 0.0f));
 		}
 		
-		e.Frame(0.01f);
+		e->BeginFrame();
+		e->EndFrame();
 		
-		drm.ToggleDebugRendering(block1, true);
-		drm.ToggleDebugRendering(block2, true);
+		//managers.debugRenderManager->ToggleDebugRendering(block1, true);
+		//managers.debugRenderManager->ToggleDebugRendering(block2, true);
 		if (test && test2)
 		{
 			su = true;
@@ -139,6 +127,7 @@ bool SE::Test::BoundingTest::Run(Utilz::IConsoleBackend * console)
 			
 	}
 
-	e.Release();
+	e->Release();
+	delete e;
 	return su;
 }

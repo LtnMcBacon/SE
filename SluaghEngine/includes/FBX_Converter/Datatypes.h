@@ -79,6 +79,7 @@ namespace SE
 
 			string textureName;
 			string texturePath;
+			string textureChannel;
 
 			Texture() {
 
@@ -109,18 +110,6 @@ namespace SE
 
 				textures.reserve(5);
 			}
-		};
-
-		struct MaterialAttributes {
-
-			XMFLOAT3 diffuseColor;
-			float diffuseFactor;
-
-			XMFLOAT3 ambientColor;
-			float ambientFactor;
-
-			XMFLOAT3 specularColor;
-			float specularFactor;
 		};
 
 		struct TransformAttributes {

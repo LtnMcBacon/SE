@@ -31,8 +31,6 @@ namespace SE {
 			sound->size = size;
 			sound->soundData = (char*)data;
 			sound->currentPos = 0;
-			/*delete sound;
-		ProfileReturn(audioSound.LoadSound2());*/
 		ProfileReturn(audioSound.LoadSound(sound));
 		}
 		
@@ -40,6 +38,14 @@ namespace SE {
 		{
 			StartProfile;
 			ProfileReturn(audioStream.CreateStream(soundType, (Audio::AudioOut*)audioSound.GetSample(soundID, soundType)));
+		}
+
+		int AudioHandler::CreatePanStream(int soundID, Audio::SoundIndexName soundType, PanData panData)
+		{
+			StartProfile;
+			Audio::AudioOut* audio = (Audio::AudioOut*)audioSound.GetSample(soundID, soundType);
+			audio->panData = panData;
+			ProfileReturn(audioStream.CreateStream(soundType, audio));
 		}
 
 		int AudioHandler::StreamSound(int streamID)
@@ -58,6 +64,12 @@ namespace SE {
 		{
 			StartProfile;
 			ProfileReturn(audioStream.RemoveSound(streamID));
+		}
+
+		int AudioHandler::UpdateStreamPos(int streamID, Audio::PanData panData)
+		{
+			StartProfile;
+			ProfileReturn(audioStream.UpdateStreamPos(streamID, panData));
 		}
 
 		void AudioHandler::SetSoundVol(SE::Audio::SoundVolType volType, size_t newVol)

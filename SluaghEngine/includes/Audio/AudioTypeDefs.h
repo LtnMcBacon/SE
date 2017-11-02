@@ -1,13 +1,20 @@
-#pragma once
+
 #ifndef SE_AUDIO_AUDIO_TYPEDEF_H
 #define SE_AUDIO_AUDIO_TYPEDEF_H
+#include <DirectXMath.h>
 
 namespace SE {
 	namespace Audio {
 
-		enum SoundIndexName { BakgroundSound, EffectSound };
+		enum SoundIndexName { BakgroundSound, BakgroundLoopSound, StereoPanSound, StereoPanLoopSound};
 		enum SoundVolType { MasterVol, BakgroundVol, EffectVol };
 
+		struct PanData
+		{
+			DirectX::XMFLOAT3 soundPos;
+			DirectX::XMFLOAT3 headPos;
+			DirectX::XMFLOAT3 hearingVec;
+		};
 	}	//namespace Audio
 }	//namespace SE
 

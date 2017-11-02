@@ -93,11 +93,11 @@ namespace SE
 		};
 		struct SamplerState
 		{
-			AddressingMode addressU;
-			AddressingMode addressV;
-			AddressingMode addressW;
-			Filter filter;
-			int maxAnisotropy;
+			AddressingMode addressU = AddressingMode::WRAP;
+			AddressingMode addressV = AddressingMode::WRAP;
+			AddressingMode addressW = AddressingMode::WRAP;
+			Filter filter = Filter::ANISOTROPIC;
+			int maxAnisotropy = 1;
 		};
 
 		enum class TextureFormat
@@ -109,14 +109,24 @@ namespace SE
 		struct RenderTarget
 		{
 			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
 			int width;
 			int height;
+			float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 			TextureFormat format;
 
 		};
+		struct UnorderedAccessView
+		{
+			bool bindAsShaderResource;
+			bool bindAsUnorderedAccess;
+			int width;
+			int height;
+			float clearColor[4];
+			TextureFormat format;
+		};
 		enum class PrimitiveTopology : uint8_t
 		{
-			NONE,
 			POINT_LIST,
 			LINE_LIST,
 			LINE_STRIP,
@@ -130,7 +140,10 @@ namespace SE
 			BIND_CONSTANT = 1 << 2,
 			BIND_STREAMOUT = 1 << 3,
 			CPU_READ = 1 << 5,
-			CPU_WRITE = 1 << 6
+			CPU_WRITE = 1 << 6,
+			DEFAULT = 1 << 7,
+			DYNAMIC = 1 << 8,
+			IMMUTABLE = 1 << 9
 		};
 		struct InputAssemblerStage
 		{
@@ -138,53 +151,72 @@ namespace SE
 			Utilz::GUID indexBuffer;
 			PrimitiveTopology topology;
 			Utilz::GUID inputLayout;
-		};
 
-		struct VertexShaderStage
-		{
-			static const size_t maxConstantBuffers = 8;
-			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount = 0;
-		};
-
-		struct GeometryShaderStage
-		{
-			static const size_t maxConstantBuffers = 8;
-			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
-			uint8_t constantBufferCount = 0;
+			Utilz::GUID GetID()const
+			{
+				return vertexBuffer + indexBuffer + inputLayout;
+			}
 		};
 
 		struct StreamOutStage
 		{
 			Utilz::GUID streamOutTarget;
+			Utilz::GUID GetID()const
+			{
+				return streamOutTarget;
+			}
 		};
 
-		struct PixelShaderStage
+
+		struct ShaderStage
 		{
-			static const size_t maxConstantBuffers = 8;
-			static const size_t maxTextures = 8;
-			static const size_t maxSamplers = 8;
-			Utilz::GUID shader;
-			Utilz::GUID constantBuffers[maxConstantBuffers];
+		//	static const size_t maxConstantBuffers = 4;
+			static const size_t maxTextures = 4;
+			static const size_t maxSamplers = 2;
+			static const size_t maxUAVs = 4;
+			Utilz::GUID shader = Utilz::GUID();
+		//	Utilz::GUID constantBuffers[maxConstantBuffers];
 			Utilz::GUID textures[maxTextures];
 			Utilz::GUID textureBindings[maxTextures];
-			Utilz::GUID samplers[maxSamplers];			
-			uint8_t constantBufferCount = 0;
+			Utilz::GUID samplers[maxSamplers];
+		//	uint8_t constantBufferCount = 0;
 			uint8_t textureCount = 0;
 			uint8_t samplerCount = 0;
-			
+
+			Utilz::GUID uavs[maxUAVs];
+			uint8_t uavCount = 0;
+
+			Utilz::GUID GetID()const
+			{
+				return shader + textures[0] + textures[1] + textures[2] + textures[3]
+					+ textureBindings[0] + textureBindings[1] + textureBindings[2] + textureBindings[3]
+					+ samplers[0];
+			}
+		};
+
+		struct ComputeShaderStage
+		{
+			static const size_t maxTextures = 4;
+			static const size_t maxUnorderedAccessViews = 4;
+			Utilz::GUID shader;
+			Utilz::GUID textures[maxTextures];
+			Utilz::GUID uavs[maxUnorderedAccessViews];
+
 		};
 
 		struct OutputMergerStage
 		{
-			static const size_t maxRenderTargets = 8;
+			static const size_t maxRenderTargets = 4;
 			Utilz::GUID blendState;
 			Utilz::GUID depthStencilState;
 			Utilz::GUID renderTargets[maxRenderTargets];
 			Utilz::GUID depthStencilView;
 			uint8_t renderTargetCount = 0;
+
+			Utilz::GUID GetID()const
+			{
+				return blendState + depthStencilState + depthStencilView + renderTargets[0] + renderTargets[1] + renderTargets[2] + renderTargets[3];
+			}
 		};
 		struct Viewport
 		{
@@ -200,17 +232,39 @@ namespace SE
 		{
 			Utilz::GUID rasterizerState;
 			Utilz::GUID viewport;
+
+			Utilz::GUID GetID()const
+			{
+				return rasterizerState + viewport;
+			}
 		};
 
 		struct Pipeline
 		{
 			InputAssemblerStage IAStage;
-			VertexShaderStage	VSStage;
-			GeometryShaderStage	GSStage;
+			ShaderStage	VSStage;
+			ShaderStage	GSStage;
 			StreamOutStage		SOStage;
 			RasterizerStage		RStage;
-			PixelShaderStage	PSStage;
+			ShaderStage	PSStage;
 			OutputMergerStage	OMStage;
+
+			ShaderStage CSStage;
+
+			Utilz::GUID id;
+			void SetID()
+			{
+				id = IAStage.GetID() + VSStage.GetID() + 
+					GSStage.GetID() + SOStage.GetID() + 
+					RStage.GetID() + PSStage.GetID() + 
+					OMStage.GetID() + CSStage.GetID();
+			}
+			bool operator==(const Pipeline& other)const
+			{
+				return this->id == other.id;
+			}
+
+
 		};
 	}
 }

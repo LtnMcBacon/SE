@@ -1,6 +1,6 @@
 #include "EnemyFactory.h"
 #include <Profiler.h>
-#include "Core/Engine.h"
+#include "CoreInit.h"
 #include <Gameplay/BehaviouralTreeFactory.h>
 #include "EnemyUnit.h"
 #include "EnemyBlackboard.h"
@@ -110,7 +110,7 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	if (useVariation)
 	{
 		int healthVariation = enemyCreationData->second.baseHealthVariation;
-		enemyHealth += rand() % (healthVariation * 2 + 1) - healthVariation;
+		enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
 	}
 
 	createdEnemy = new EnemyUnit(nullptr, 0.0f, 0.0f, enemyHealth);
@@ -126,10 +126,18 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	createdEnemy->SetEnemyBlackboard(enemyBlackboard);
 
 	/*Fix with managers*/
-	auto& rm = Core::Engine::GetInstance().GetRenderableManager();
-	rm.CreateRenderableObject(createdEnemy->GetEntity(),
-		enemyCreationData->second.meshGUID);
-	rm.ToggleRenderableObject(createdEnemy->GetEntity(), true);
+	CoreInit::managers.renderableManager->CreateRenderableObject(createdEnemy->GetEntity(),
+	{ enemyCreationData->second.meshGUID });
+	// temp material
+
+	Core::IMaterialManager::CreateInfo enemyInfo;
+	Utilz::GUID material = Utilz::GUID("Cube.mat");
+	Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+	enemyInfo.shader = shader;
+	enemyInfo.materialFile = material;
+	CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
+	// end temp material
+	CoreInit::managers.renderableManager->ToggleRenderableObject(createdEnemy->GetEntity(), true);
 
 	ProfileReturn(createdEnemy);
 }
@@ -172,7 +180,7 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		ProfileReturnConst(true);
 	}
 
-	const auto done = Core::Engine::GetInstance().GetResourceHandler()->LoadResource(GUID, 
+	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(GUID,
 	{ this,&EnemyFactory::LoadEnemyFromResourceHandler});
 
 	if (done != -1)

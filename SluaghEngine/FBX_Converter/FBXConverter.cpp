@@ -1,6 +1,7 @@
 
 #include <FBXConverter.h>
 #include <Utilz\PathParsing.h>
+#include <Utilz\GUID.h>
 
 #pragma comment(lib, "libfbxsdk.lib")
 
@@ -40,10 +41,10 @@ void SE::FBX::FBXConverter::Deallocate() {
 
 }
 
-bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder) {
+bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder, const std::string& map) {
 
 	// Check if the FBX file was loaded properly
-	workingDirectory = Utilz::getPath(fileName);
+	workingDirectory = map;
 	Utilz::get_all_files_names_within_folder(workingDirectory, filesInWorkingDirectory);
 	if (!LoadFBXFormat(fileName, exportFolder)) {
 
@@ -311,8 +312,6 @@ void SE::FBX::FBXConverter::GetMeshes() {
 		// bbox values
 		FbxDouble3 bboxMax = currentMesh.meshNode->BBoxMax; 
 		FbxDouble3 bboxMin = currentMesh.meshNode->BBoxMin;
-		
-		double test = (float)bboxMax[0];
 
 		currentMesh.bboxValues.max.x = (float)bboxMax[0];
 		currentMesh.bboxValues.max.y = (float)bboxMax[1];
@@ -348,7 +347,7 @@ void SE::FBX::FBXConverter::GetMeshes() {
 			"\n-------------------------------------------------------\n";
 
 		// Print the mesh data to the console
-		PrintMeshData(meshes[i]);
+		//PrintMeshData(meshes[i]);
 		
 	}
 
@@ -578,10 +577,6 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
-
-		int k = pMesh.meshNode->GetPolygonCount();
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
 			// Retreive the size of every polygon which should be represented as a triangle
@@ -607,8 +602,6 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 				// Push back vertices to the current mesh
 				pMesh.standardVertices.push_back(vertex);
 
-				vertexCounter++;
-
 			}
 
 		}
@@ -619,16 +612,14 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
-	string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
+	//string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
 
-	logFile.open(logFileName, ofstream::out);
-	logFile.close();
+	//logFile.open(logFileName, ofstream::out);
+	//logFile.close();
 
-	logFile.open(logFileName, ofstream::app);
+	//logFile.open(logFileName, ofstream::app);
 
 	if (pFbxRootNode) {
-
-		int vertexCounter = 0;
 
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
@@ -666,26 +657,22 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 
 				}
 
-				logFile << "Vertex " << iControlPointIndex << endl;
-				logFile << "Weights: " << vertex.weights[0] << " " << vertex.weights[1] << " " << vertex.weights[2] << " " << vertex.weights[3] << endl;
-				logFile << "BoneIndices: " << vertex.boneIndices[0] + 1 << " " << vertex.boneIndices[1] + 1  << " " << vertex.boneIndices[2] + 1 << " " << vertex.boneIndices[3] + 1 << endl;
-				logFile << endl;
+				//logFile << "Vertex " << iControlPointIndex << endl;
+				//logFile << "Weights: " << vertex.weights[0] << " " << vertex.weights[1] << " " << vertex.weights[2] << " " << vertex.weights[3] << endl;
+				//logFile << "BoneIndices: " << vertex.boneIndices[0] + 1 << " " << vertex.boneIndices[1] + 1  << " " << vertex.boneIndices[2] + 1 << " " << vertex.boneIndices[3] + 1 << endl;
+				//logFile << endl;
 
 				vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
 				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
 
 				pMesh.boneVertices.push_back(vertex);	// Store all vertices in a separate vector
-
-				vertexCounter++;
-
-
 			}
 
 		}
 
 	}
 
-	logFile.close();
+//	logFile.close();
 }
 
 XMFLOAT3 SE::FBX::FBXConverter::CreateBinormals(FbxMesh* meshNode, int j, int k) {
@@ -916,7 +903,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 	pMesh.skeleton.hierarchy[0].GlobalTransform = pMesh.skeleton.hierarchy[0].LocalTransform;
 	pMesh.skeleton.hierarchy[0].GlobalBindposeInverse = pMesh.skeleton.hierarchy[0].GlobalTransform.Inverse();
 	
-	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
+//	Print4x4Matrix(pMesh.skeleton.hierarchy[0].GlobalBindposeInverse);
 
 	// Loop through all the joints in the hierarchy
 	for (int i = 1; i < NUM_BONES; i++) {
@@ -940,7 +927,7 @@ void SE::FBX::FBXConverter::CreateBindPoseManual(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = b.GlobalTransform.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -983,7 +970,7 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1023,7 +1010,7 @@ void SE::FBX::FBXConverter::CreateBindPoseEvaluateGlobalTransform(Mesh &pMesh) {
 		// Inverse the bind pose
 		b.GlobalBindposeInverse = bindpose.Inverse() * geometryTransform;
 
-		Print4x4Matrix(b.GlobalBindposeInverse);
+	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
 
@@ -1076,14 +1063,13 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 		for (int i = 0; i < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); i++) // for every stack
 		{
 			// Get the current animation stack
-			int stackCount = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
 			FbxAnimStack* AnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
 			FbxString animStackName = AnimStack->GetName();
 
 			int numLayers = AnimStack->GetMemberCount<FbxAnimLayer>();
 
 			// For every layer / every animation
-			for (int j = 0; j < numLayers; j++) 
+			for (int j = 0; j < numLayers; j++)
 			{
 
 				FbxAnimLayer* currentAnimLayer;
@@ -1092,99 +1078,105 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				currentAnimLayer = AnimStack->GetMember<FbxAnimLayer>(j);
 				CurrentAnimation.Name = currentAnimLayer->GetName();
 
-				// From the current joint, get the animation curves
+				// Skip the base animation layer
+				if(CurrentAnimation.Name != "BaseLayer")
+				{
 
-				// Translation curves
-				FbxAnimCurve* translationCurveX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* translationCurveY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* translationCurveZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+					// From the current joint, get the animation curves
 
-				// Rotation curves
-				FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-				
-				// Scaling curves (Should always be 1)
-				FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-				
-				// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
-				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
-				CurrentAnimation.Keyframes.resize(numKeys);
-				CurrentAnimation.Length = numKeys;
-				logFile << "-------------------------------------------------------\n"
-					<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nIndex: " << j << "\nLength: " << numKeys <<
-					"\n-------------------------------------------------------\n";
+					// Translation curves
+					FbxAnimCurve* translationCurveX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* translationCurveY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* translationCurveZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-				// Access the current value on each individual channel on the different curves at a given keyframe
-				for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
+					// Rotation curves
+					FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-					/*FbxTime currentTime;
-					currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
+					// Scaling curves (Should always be 1)
+					FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-					logFile << "Time: " << timeIndex + 1 << endl;
+					// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
+					const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
+					CurrentAnimation.Keyframes.resize(numKeys);
+					CurrentAnimation.Length = numKeys;
+					logFile << "-------------------------------------------------------\n"
+						<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nIndex: " << j << "\nLength: " << numKeys <<
+						"\n-------------------------------------------------------\n";
 
-					// Get the values on each channel
-					//translationCurveX->Evaluate(currentTime, 0);
-					//translationCurveX->KeyGetValue(timeIndex);
-					
-					float translationX = translationCurveX->KeyGetValue(timeIndex);
-					float translationY = translationCurveY->KeyGetValue(timeIndex);
-					float translationZ = translationCurveZ->KeyGetValue(timeIndex);
+					// Access the current value on each individual channel on the different curves at a given keyframe
+					for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
 
-					float rotationX = rotationCurveX->KeyGetValue(timeIndex);
-					float rotationY = rotationCurveY->KeyGetValue(timeIndex);
-					float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
+						/*FbxTime currentTime;
+						currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
 
-					float scalingX = scalingCurveX->KeyGetValue(timeIndex);
-					float scalingY = scalingCurveY->KeyGetValue(timeIndex);
-					float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
+						logFile << "Time: " << timeIndex + 1 << endl;
 
-					// Build the vectors for the global transform matrix
-					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
-					FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
-					FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
+						// Get the values on each channel
+						//translationCurveX->Evaluate(currentTime, 0);
+						//translationCurveX->KeyGetValue(timeIndex);
 
-					// Compose the quaternion from euler angles
-					FbxQuaternion quaternion;
-					quaternion.ComposeSphericalXYZ(rotationVector);
+						float translationX = translationCurveX->KeyGetValue(timeIndex);
+						float translationY = translationCurveY->KeyGetValue(timeIndex);
+						float translationZ = translationCurveZ->KeyGetValue(timeIndex);
 
-					// Set the vectors for the global transform matrix (Build the keyframe)
-					FbxAMatrix localTransform;
-					localTransform.SetTQS(translationVector, quaternion, scalingVector);
+						float rotationX = rotationCurveX->KeyGetValue(timeIndex);
+						float rotationY = rotationCurveY->KeyGetValue(timeIndex);
+						float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
 
-					// The root joint uses its local transform as global. It has no parents. 
-					if (currentJointIndex == 0) {
+						float scalingX = scalingCurveX->KeyGetValue(timeIndex);
+						float scalingY = scalingCurveY->KeyGetValue(timeIndex);
+						float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
 
-						// Get the root joint local and global transform
-						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
-						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
+						// Build the vectors for the global transform matrix
+						FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
+						FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
+						FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+						// Compose the quaternion from euler angles
+						FbxQuaternion quaternion;
+						quaternion.ComposeSphericalXYZ(rotationVector);
+
+						// Set the vectors for the global transform matrix (Build the keyframe)
+						FbxAMatrix localTransform;
+						localTransform.SetTQS(translationVector, quaternion, scalingVector);
+
+						// The root joint uses its local transform as global. It has no parents. 
+						if (currentJointIndex == 0) {
+
+							// Get the root joint local and global transform
+							CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
+							CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
+
+							//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+						}
+
+						// For all the other joints, this would be their local transforms
+						else {
+
+							// We must build their global transformation before export
+							CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
+
+							//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						}
+
 					}
 
-					// For all the other joints, this would be their local transforms
+					// If the animation length wasn't greater than 0, don't push back the animation. Usually this is the base layer, or an empty animation layer
+					if (CurrentAnimation.Length > 0) {
+
+						pMesh.skeleton.hierarchy[currentJointIndex].Animations.push_back(CurrentAnimation);
+
+					}
+
 					else {
 
-						// We must build their global transformation before export
-						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
-
-						Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						logFile << "This animation layer had no keyframes" << "\n\n";
 					}
 
-				}
-
-				// If the animation length wasn't greater than 0, don't push back the animation. Usually this is the base layer, or an empty animation layer
-				if (CurrentAnimation.Length > 0){
-
-					pMesh.skeleton.hierarchy[currentJointIndex].Animations.push_back(CurrentAnimation);
-
-				}
-
-				else {
-
-					logFile << "This animation layer had no keyframes" << "\n\n";
 				}
 			}
 
@@ -1246,7 +1238,7 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 					childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
 
 					logFile << "Time: " << timeIndex + 1 << endl;
-					Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
+				//	Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
 				}
 			}
 		}
@@ -1310,7 +1302,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 		else if (surfaceMaterial->GetClassId() == FbxSurfacePhong::ClassId) {
 
 			FbxSurfacePhong* phongMaterial = (FbxSurfacePhong*)surfaceMaterial;
-			GetLambert(pMesh.objectMaterial, phongMaterial);
+			GetPhong(pMesh.objectMaterial, phongMaterial);
 		}
 
 		// Get the texture on the diffuse material property
@@ -1324,7 +1316,7 @@ void SE::FBX::FBXConverter::LoadMaterial(Mesh& pMesh) {
 	}
 }
 
-void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLambert* lambertMaterial) {
+void SE::FBX::FBXConverter::GetLambert(Material& objectMaterial, FbxSurfaceLambert* lambertMaterial) {
 
 	objectMaterial.materialType = "Lambert";
 
@@ -1355,7 +1347,7 @@ void SE::FBX::FBXConverter::GetLambert(Material objectMaterial, FbxSurfaceLamber
 	objectMaterial.specularFactor = 0.0f;
 }
 
-void SE::FBX::FBXConverter::GetPhong(Material objectMaterial, FbxSurfacePhong* phongMaterial) {
+void SE::FBX::FBXConverter::GetPhong(Material& objectMaterial, FbxSurfacePhong* phongMaterial) {
 
 	objectMaterial.materialType = "Phong";
 
@@ -1403,6 +1395,7 @@ void SE::FBX::FBXConverter::GetChannelTexture(Mesh& pMesh, FbxProperty materialP
 
 			texture.texturePath = Utilz::getFilename(textureFile->GetFileName());
 			texture.textureName = Utilz::removeExtension(Utilz::getFilename(textureFile->GetFileName()));
+			texture.textureChannel = materialProperty.GetName();
 
 			pMesh.objectMaterial.textures.push_back(texture);
 		}
@@ -1480,7 +1473,7 @@ void SE::FBX::FBXConverter::Write() {
 void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolder, Material& meshMaterial) {
 
 	// Define the file name
-	string binaryFile = folderName + "/" + meshMaterial.materialName + "_" + fileName + ".mat";
+	string binaryFile = folderName + "/" + fileName + ".mat";
 
 	// Define the ofstream 
 	ofstream outBinary(binaryFile, std::ios::binary);
@@ -1491,7 +1484,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 	outBinary.write(reinterpret_cast<char*>(&nrOfTextures), sizeof(uint32_t));
 
 	// Define the material attributes
-	MaterialAttributes material;
+	Graphics::MaterialAttributes material;
 
 	material.ambientColor.x = meshMaterial.ambientColor.x;
 	material.ambientColor.y = meshMaterial.ambientColor.y;
@@ -1509,7 +1502,7 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 	material.specularFactor = meshMaterial.specularFactor;
 
 	// Write the material attributes
-	outBinary.write(reinterpret_cast<char*>(&material), sizeof(MaterialAttributes));
+	outBinary.write(reinterpret_cast<char*>(&material), sizeof(Graphics::MaterialAttributes));
 
 	cout << "[OK] Exported " << meshMaterial.materialName << " to " << folderName << endl;
 
@@ -1517,22 +1510,22 @@ void SE::FBX::FBXConverter::WriteMaterial(string folderName, string textureFolde
 
 		if(ExportTexture(meshMaterial.textures[textureIndex], textureFolder)) {
 
-			uint32_t size = (uint32_t)meshMaterial.textures[textureIndex].textureName.size();
-			string textureName = meshMaterial.textures[textureIndex].textureName;
+			// Write the texture name
+			string textureName = meshMaterial.textures[textureIndex].textureName + ".sei";
 
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureName), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureName)), sizeof(Utilz::GUID));
+
+			// Write the texture channel
+			string textureChannel = meshMaterial.textures[textureIndex].textureChannel;
+
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID(textureChannel)), sizeof(Utilz::GUID));
 
 			cout << "[OK] Exported " << meshMaterial.textures[textureIndex].textureName << " to " << textureFolder << endl;
 		}
 
 		else {
-
-			string textureName = "NULL";
-			uint32_t size = (uint32_t)textureName.size();
-
-			outBinary.write(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&textureName), size);
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("BlackPink.sei")), sizeof(Utilz::GUID));
+			outBinary.write(reinterpret_cast<char*>(&Utilz::GUID("DiffuseColor")), sizeof(Utilz::GUID));
 
 			cout << "[ERROR] Failed to Export " << meshMaterial.textures[textureIndex].textureName << " to " + textureFolder << endl;
 

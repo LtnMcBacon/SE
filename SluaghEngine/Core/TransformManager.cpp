@@ -1,4 +1,4 @@
-#include <TransformManager.h>
+#include "TransformManager.h"
 #include <algorithm>
 #include <Profiler.h>
 #include "Engine.h"
@@ -7,14 +7,15 @@
 #undef max
 using namespace DirectX;
 
-SE::Core::TransformManager::TransformManager(EntityManager* em)
+SE::Core::TransformManager::TransformManager(const ITransformManager::InitializationInfo& initInfo) : initInfo(initInfo)
 {
-	entityManager = em;
+
+	this->initInfo = initInfo;
+	_ASSERT(initInfo.entityManager);
 	Allocate(512);
 	lookUpTableSize = 512;
 	lookUpTable = new int32_t[lookUpTableSize];
 	memset(lookUpTable, -1, sizeof(int32_t) * lookUpTableSize);
-	
 	
 }
 
@@ -24,10 +25,13 @@ SE::Core::TransformManager::~TransformManager()
 	delete[] lookUpTable;
 }
 
+
 void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3& pos,
 	const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
 	StartProfile;
+	if (!initInfo.entityManager->Alive(e))
+		ProfileReturnVoid;
 	const uint32_t lookUpTableIndex = e.Index();
 	if(lookUpTableIndex >= lookUpTableSize)
 	{
@@ -80,6 +84,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	const int32_t parentIndex = lookUpTable[parent.Index()];
 	const int32_t childIndex = lookUpTable[child.Index()];
 
+	_ASSERT(parentIndex >= 0);
+	_ASSERT(childIndex >= 0);
+
 	data.parentIndex[childIndex] = parentIndex;
 	//There might already be children under the parent.
 	if(data.childIndex[parentIndex] >= 0)
@@ -98,7 +105,9 @@ void SE::Core::TransformManager::BindChild(const Entity & parent, const Entity &
 	}
 
 	if (rotation)
+	{
 		data.flags[childIndex] |= TransformFlags::INHERIT_ROTATION;
+	}
 	if(translateToParent)
 	{
 		Move(child, data.positions[parentIndex]);
@@ -294,7 +303,7 @@ DirectX::XMFLOAT3 SE::Core::TransformManager::GetRight(const Entity& e) const
 
 const void SE::Core::TransformManager::SetForward(const Entity & e, const DirectX::XMFLOAT3 & forward)
 {
-	XMVECTOR ndir = XMVector3Normalize(XMLoadFloat3(&forward));
+	XMVECTOR ndir = XMLoadFloat3(&forward);
 	SetForward(e, ndir);
 }
 
@@ -302,16 +311,17 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 {
 	XMVECTOR defaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR newForward = XMVector3Normalize(forward);
 
-	XMVECTOR projToXZ = XMVector3Normalize(forward - (defaultUp * XMVector3Dot(defaultUp, forward)));
+	XMVECTOR projToXZ = XMVector3Normalize(newForward - (defaultUp * XMVector3Dot(defaultUp, newForward)));
 	float angleY = acosf(XMVectorGetX(XMVector3Dot(projToXZ, defaultForward)));
 	if (XMVectorGetX(projToXZ) < 0)
 		angleY = -angleY;
 
-	XMVECTOR projToZY = XMVector3Normalize(forward - (defaultForward * XMVector3Dot(defaultForward, forward)));
+	XMVECTOR projToZY = XMVector3Normalize(newForward - (defaultForward * XMVector3Dot(defaultForward, newForward)));
 	float angleX = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultForward)));
 	float angleZ = acosf(XMVectorGetX(XMVector3Dot(projToZY, defaultUp)));
-	if (XMVectorGetY(projToZY) < 0)
+	if (XMVectorGetY(projToZY) > 0)
 		angleX = -angleX;
 	if (XMVectorGetZ(projToZY) < 0)
 		angleZ = -angleZ;
@@ -319,25 +329,23 @@ const void SE::Core::TransformManager::SetForward(const Entity & e, const Direct
 	SetRotation(e, angleX, angleY, angleZ);
 }
 
-int SE::Core::TransformManager::GarbageCollection()
+void SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t aliveInRow = 0;
-	size_t destroyCount = 0;
 	while(data.used > 0 && aliveInRow < 40U)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
 		size_t i = distribution(generator);
-		if(entityManager->Alive(data.entities[i]))
+		if(initInfo.entityManager->Alive(data.entities[i]))
 		{
 			++aliveInRow;
 			continue;
 		}
 		aliveInRow = 0;
 		Destroy(i);
-		++destroyCount;
 	}
-	ProfileReturnConst(destroyCount);
+	ProfileReturnVoid;
 }
 
 uint32_t SE::Core::TransformManager::ActiveTransforms() const
@@ -345,12 +353,13 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 	return data.used;
 }
 
-void SE::Core::TransformManager::Frame()
+void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
+	_ASSERT(timer);
 	StartProfile;
+	timer->Start(CREATE_ID_HASH("TransformManager"));
 	dirtyTransforms.clear();
 	dirtyTransforms.reserve(data.used);
-	size_t dirtCount = 0;
 	for(int i = 0; i < data.used; ++i)
 	{
 		if (data.flags[i] & TransformFlags::DIRTY)
@@ -358,6 +367,7 @@ void SE::Core::TransformManager::Frame()
 	}
 
 	GarbageCollection();
+	timer->Stop(CREATE_ID_HASH("TransformManager"));
 	StopProfile;
 }
 
@@ -415,7 +425,6 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 {
 	_ASSERT(index < data.used);
 	_ASSERT(index == lookUpTable[data.entities[index].Index()]);
-	const int32_t lookUpIndexOfRemoved = data.entities[index].Index();
 	const int32_t last = data.used - 1;
 
 	if(data.parentIndex[index] >= 0)
@@ -473,7 +482,7 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 
 	//The entity we replaced the destroyed entity with might have had parent/siblings/children.
 	//Fix those relations.
-	if(data.parentIndex[index] >= 0)
+	if(data.parentIndex[index] >= 0 && index != last)
 	{
 		if (data.childIndex[data.parentIndex[index]] == last)
 			data.childIndex[data.parentIndex[index]] = index;
@@ -486,7 +495,7 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 		}
 	}
 	//Fix children
-	if(data.childIndex[index] >= 0)
+	if(data.childIndex[index] >= 0 && index != last)
 	{
 		int32_t child = data.childIndex[index];
 		while (child != -1)
@@ -497,6 +506,10 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 	}
 
 
+}
+
+void SE::Core::TransformManager::Destroy(const Entity & e)
+{
 }
 
 

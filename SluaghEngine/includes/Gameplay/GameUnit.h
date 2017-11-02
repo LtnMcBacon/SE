@@ -3,6 +3,8 @@
 #include <Core\Entity.h>
 #include <vector>
 #include "EventStructs.h"
+#include <memory>
+
 namespace SE
 {
 	namespace Gameplay
@@ -19,7 +21,7 @@ namespace SE
 		* @sa Enemy, Player.
 		*
 		**/
-		class GameUnit
+		class GameUnit : public std::enable_shared_from_this<GameUnit>
 		{
 		public:
 			GameUnit();
@@ -156,9 +158,13 @@ namespace SE
 			inline float GetHealth() const { return health; };
 			inline float GetXPosition() { return xPos; };
 			inline float GetYPosition() { return yPos; };
+			inline float GetZPosition() { return zPos; };
 
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
+			inline void SetZPosition(float value) { zPos = value; };
+
+			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:
@@ -168,8 +174,14 @@ namespace SE
 			float health;
 			float xPos;
 			float yPos;
+			float zPos;
+			float extents;
+
+			float stunDuration;
+
 
 			/*Functions to move the GameUnit*/
+			std::shared_ptr<GameUnit*> mySelf;
 			
 			
 			std::vector<DamageEvent> DamageEventVector;
@@ -186,6 +198,11 @@ namespace SE
 			inline const Core::Entity &GetEntity() const
 			{
 				return unitEntity;
+			}
+
+			inline float GetExtent()
+			{
+				return extents;
 			}
 
 			void DestroyEntity();

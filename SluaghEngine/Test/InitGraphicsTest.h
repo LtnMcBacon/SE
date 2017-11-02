@@ -12,7 +12,7 @@ namespace SE
 			InitGraphicsTest();
 			~InitGraphicsTest();
 
-			bool Run(Utilz::IConsoleBackend* console);
+			bool Run(DevConsole::IConsole* console);
 		};
 	}
 }

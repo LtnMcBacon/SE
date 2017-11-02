@@ -16,14 +16,6 @@ namespace SE
 {
 	namespace ResourceHandler
 	{
-
-
-		struct LoadStruct
-		{
-			size_t guidCount;
-			Utilz::GUID* resourceToLoad;
-		};
-
 		enum class InvokeReturn : uint8_t
 		{
 			Success,
@@ -124,9 +116,6 @@ namespace SE
 			* @sa LoadResourceDelegate
 			*/
 			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
-
-			virtual int LoadResources(const LoadStruct& toLoad, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
-
 
 			/**
 			* @brief	Unload the given resource

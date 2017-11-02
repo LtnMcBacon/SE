@@ -2,8 +2,9 @@
 #define SE_GRAPHICS_PIPELINEHANDLER_H
 #include "IPipelineHandler.h"
 #include <d3d11.h>
-#include <map>
 #include <unordered_map>
+#include <unordered_set>
+
 namespace SE
 {
 	namespace Graphics
@@ -17,58 +18,81 @@ namespace SE
 			PipelineHandler(PipelineHandler&& other) = delete;
 			PipelineHandler& operator=(const PipelineHandler& other) = delete;
 
-			void CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
-			void CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
-			void CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
-			void DestroyIndexBuffer(const Utilz::GUID& id) override;
-			void DestroyVertexBuffer(const Utilz::GUID& id) override;
+			int AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv) override;
+			int AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv) override;
+			int AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv) override;
 
-			void CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+			int MergeHandlers(IPipelineHandler* other) override;
 
-			void CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
-			void DestroyVertexShader(const Utilz::GUID& id) override;
-			void DestroyGeometryShader(const Utilz::GUID& id) override;
-			void DestroyPixelShader(const Utilz::GUID& id) override;
-			void DestroyComputeShader(const Utilz::GUID& id) override;
+			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
+			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
+			int CreateBuffer(const Utilz::GUID& id, void* data, size_t elementCount, size_t elementStride, size_t maxElements, uint32_t flags) override;
+			int DestroyIndexBuffer(const Utilz::GUID& id) override;
+			int DestroyVertexBuffer(const Utilz::GUID& id) override;
 
-			void CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
-			void UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
-			void DestroyConstantBuffer(const Utilz::GUID& id) override;
+			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
 
-			void CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
-			void DestroyTexture(const Utilz::GUID& id) override;
+			int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreatePixelShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int CreateComputeShader(const Utilz::GUID& id, void* data, size_t size) override;
+			int DestroyVertexShader(const Utilz::GUID& id) override;
+			int DestroyGeometryShader(const Utilz::GUID& id) override;
+			int DestroyPixelShader(const Utilz::GUID& id) override;
+			int DestroyComputeShader(const Utilz::GUID& id) override;
 
-			void CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state) override;
-			void DestroyRasterizerState(const Utilz::GUID& id) override;
+			int CreateConstantBuffer(const Utilz::GUID& id, size_t size, void* initialData = nullptr) override;
+			int UpdateConstantBuffer(const Utilz::GUID& id, void* data, size_t size) override;
+			int MapConstantBuffer(const Utilz::GUID& id, const std::function<void(void* mappedResource)>& mapCallback) override;
+			int DestroyConstantBuffer(const Utilz::GUID& id) override;
 
-			void CreateBlendState(const Utilz::GUID& id, const BlendState& state) override;
-			void DestroyBlendState(const Utilz::GUID& id) override;
+			int CreateTexture(const Utilz::GUID& id, void* data, size_t width, size_t height) override;
+			int DestroyTexture(const Utilz::GUID& id) override;
 
-			void CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state) override;
-			void DestroyDepthStencilState(const Utilz::GUID& id) override;
+			int CreateRasterizerState(const Utilz::GUID& id, const RasterizerState& state) override;
+			int DestroyRasterizerState(const Utilz::GUID& id) override;
 
-			void CreateSamplerState(const Utilz::GUID& id, const SamplerState& state) override;
-			void DestroySamplerState(const Utilz::GUID& id) override;
+			int CreateBlendState(const Utilz::GUID& id, const BlendState& state) override;
+			int DestroyBlendState(const Utilz::GUID& id) override;
 
-			void CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) override;
-			void DestroyRenderTarget(const Utilz::GUID& id) override;
+			int CreateDepthStencilState(const Utilz::GUID& id, const DepthStencilState& state) override;
+			int DestroyDepthStencilState(const Utilz::GUID& id) override;
 
-			void CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
-			void DestroyDepthStencilView(const Utilz::GUID& id) override;
+			int CreateSamplerState(const Utilz::GUID& id, const SamplerState& state) override;
+			int DestroySamplerState(const Utilz::GUID& id) override;
+
+			int CreateRenderTarget(const Utilz::GUID& id, const RenderTarget& target) override;
+			int DestroyRenderTarget(const Utilz::GUID& id) override;
+
+			int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
+			int DestroyDepthStencilView(const Utilz::GUID& id) override;
+
+			int CreateUnorderedAccessView(const Utilz::GUID& id, const UnorderedAccessView& view)override;
+			int DestroyUnorderedAccessView(const Utilz::GUID& id)override;
 
 			void SetPipeline(const Pipeline& pipeline) override;
-		private:
+			void SetPipelineForced(const Pipeline& pipeline) override;
 
+			void ClearAllRenderTargets() override;
+
+		private:
 			void SetInputAssemblerStage(const InputAssemblerStage& pIA);
-			void SetVertexShaderStage(const VertexShaderStage& vss);
-			void SetGeometryShaderStage(const GeometryShaderStage& gss);
+			void SetVertexShaderStage(const ShaderStage& vss);
+			void SetGeometryShaderStage(const ShaderStage& gss);
 			void SetRasterizerStage(const RasterizerStage& rs);
-			void SetPixelShaderStage(const PixelShaderStage& pss);
+			void SetPixelShaderStage(const ShaderStage& pss);
 			void SetOutputMergerStage(const OutputMergerStage& oms);
+			void SetComputeShaderStage(const ShaderStage& css);
+
+			void ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA);
+			void ForcedSetVertexShaderStage(const ShaderStage& vss);
+			void ForcedSetGeometryShaderStage(const ShaderStage& gss);
+			void ForcedSetRasterizerStage(const RasterizerStage& rs);
+			void ForcedSetPixelShaderStage(const ShaderStage& pss);
+			void ForcedSetOutputMergerStage(const OutputMergerStage& oms);
+			void ForcedSetComputeShaderStage(const ShaderStage& css);
 
 			ID3D11Device* device;
 			ID3D11DeviceContext* deviceContext;
@@ -85,25 +109,60 @@ namespace SE
 			};
 			Pipeline currentPipeline;
 
+
+			struct VertexShaderInfo
+			{
+				ID3D11VertexShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;		
+			};
+			struct GeomtryShaderInfo
+			{
+				ID3D11GeometryShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+			struct PixelShaderInfo
+			{
+				ID3D11PixelShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+			struct RenderTargetInfo
+			{
+				ID3D11RenderTargetView* rtv;
+				float clearColor[4];
+			};
+			struct UnorderedAccessViewInfo
+			{
+				ID3D11UnorderedAccessView* uav;
+				float clearColor[4];
+			};
+			struct ComputeShaderInfo
+			{
+				ID3D11ComputeShader* shader;
+				std::vector<Utilz::GUID> constantBuffers;
+			};
+			std::unordered_set<Utilz::GUID, Utilz::GUID::Hasher> manuallyAddedResources;
 			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
 			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
-			std::unordered_map<Utilz::GUID, ID3D11VertexShader*, Utilz::GUID::Hasher> vertexShaders;
-			std::unordered_map<Utilz::GUID, ID3D11GeometryShader*, Utilz::GUID::Hasher> geometryShaders;
-			std::unordered_map<Utilz::GUID, ID3D11PixelShader*, Utilz::GUID::Hasher> pixelShaders;
-			std::unordered_map<Utilz::GUID, ID3D11ComputeShader*, Utilz::GUID::Hasher> computeShaders;
+			std::unordered_map<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
+			std::unordered_map<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
+			std::unordered_map<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
+			std::unordered_map<Utilz::GUID, ComputeShaderInfo, Utilz::GUID::Hasher> computeShaders;
 			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
 			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
-			std::unordered_map<Utilz::GUID, ID3D11RenderTargetView*, Utilz::GUID::Hasher> renderTargetViews;
+			std::unordered_map<Utilz::GUID, RenderTargetInfo, Utilz::GUID::Hasher> renderTargetViews;
 			std::unordered_map<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Hasher> depthStencilViews;
 			std::unordered_map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Hasher> samplerStates;
 			std::unordered_map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Hasher> blendStates;
 			std::unordered_map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
 			std::unordered_map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
 			std::unordered_map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
+			std::unordered_map<Utilz::GUID, UnorderedAccessViewInfo, Utilz::GUID::Hasher> unorderedAccessViews;
+
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
 			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
 
+			//std::mutex mapLock;
 		};
 	}
 }
