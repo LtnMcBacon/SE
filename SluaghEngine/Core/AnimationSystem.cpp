@@ -107,65 +107,80 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
 	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
 
-	UpdateAnimation(info, bucket->matrices[bucketAndID.index].jointMatrix);
+	auto& skeleton = skeletons[info.skeleton];
+
+	for (size_t i = 0; i < info.nrOfLayers; i++) {
+
+		auto& animation = animations[info.animation[i]];
+
+		UpdateAnimation(animation, skeleton, info.timePos[i], bucket->matrices[bucketAndID.index].jointMatrix);
+
+		if (info.looping[i] == true) {
+
+			if (info.timePos[i] > (float)animation.Length)
+				info.timePos[i] = 0.0f;
+
+		}
+
+	}
 }
 
-void SE::Core::AnimationSystem::CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo1, AnimationInfo& animInfo2) {
+void SE::Core::AnimationSystem::CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo) {
 
-	float blendFactor = 0.5f;
+	//float blendFactor = 0.5f;
 
-	// Declare the matrices arrays for both animations
-	DirectX::XMFLOAT4X4 anim1_Joints[30];
-	DirectX::XMFLOAT4X4 anim2_Joints[30];
+	//// Declare the matrices arrays for both animations
+	//DirectX::XMFLOAT4X4 anim1_Joints[30];
+	//DirectX::XMFLOAT4X4 anim2_Joints[30];
 
-	auto& animation1 = animations[animInfo1.animation];
-	auto& animation2 = animations[animInfo2.animation];
-	auto& skel = skeletons[animInfo1.skeleton];
+	//auto& animation1 = animations[animInfo.animation[0]];
+	//auto& animation2 = animations[animInfo.animation[1]];
+	//auto& skel = skeletons[animInfo.skeleton];
 
-	// Get animation bucket
-	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+	//// Get animation bucket
+	//const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
+	//auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
 
-	// Update and interpolate the first animation
-	UpdateAnimation(animInfo1, anim1_Joints);
+	//// Update and interpolate the first animation
+	//UpdateAnimation(animInfo, anim1_Joints);
 
-	// Update and interpolate the second animation
-	UpdateAnimation(animInfo2, anim2_Joints);
+	//// Update and interpolate the second animation
+	//UpdateAnimation(animInfo, anim2_Joints);
 
-	// Perform the third linear interpolation between the calculated matrices of each animation
+	//// Perform the third linear interpolation between the calculated matrices of each animation
 
-	// LAYERING EXAMPLE
-	for (int i = 0; i < skel.Hierarchy.size(); i++) {
+	//// LAYERING EXAMPLE
+	//for (int i = 0; i < skel.Hierarchy.size(); i++) {
 
-		if(i < 12){
+	//	if(i < 12){
 
-		XMMATRIX transform;
-		CalculateJointMatrix(i, animation1, animInfo1.timePos, transform);
+	//	XMMATRIX transform;
+	//	CalculateJointMatrix(i, animation1, animInfo.timePos[0], transform);
 
-		Joint &b = skel.Hierarchy[i];
+	//	Joint &b = skel.Hierarchy[i];
 
-		// Get the current joint GLOBAL transformation at the current animation time pose
-		b.GlobalTx = transform;
+	//	// Get the current joint GLOBAL transformation at the current animation time pose
+	//	b.GlobalTx = transform;
 
-		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+	//	// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+	//	XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
 
-		}
+	//	}
 
-		else {
+	//	else {
 
-			XMMATRIX transform;
-			CalculateJointMatrix(i, animation2, animInfo2.timePos, transform);
+	//		XMMATRIX transform;
+	//		CalculateJointMatrix(i, animation2, animInfo.timePos[1], transform);
 
-			Joint &b = skel.Hierarchy[i];
+	//		Joint &b = skel.Hierarchy[i];
 
-			// Get the current joint GLOBAL transformation at the current animation time pose
-			b.GlobalTx = transform;
+	//		// Get the current joint GLOBAL transformation at the current animation time pose
+	//		b.GlobalTx = transform;
 
-			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-		}
-	}
+	//		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+	//		XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+	//	}
+	//}
 
 	/*for (int i = 0; i < skeletons[skeleton].Hierarchy.size(); i++){
 
@@ -199,11 +214,54 @@ void SE::Core::AnimationSystem::CalculateBlendMatrices(const Entity& entity, Ani
 
 }
 
-void SE::Core::AnimationSystem::UpdateAnimation(AnimationInfo& info, DirectX::XMFLOAT4X4* at) {
-	StartProfile;
+void SE::Core::AnimationSystem::CalculateLayering(const Entity& entity, AnimationInfo& animInfo1) {
 
-	auto& skeleton = skeletons[info.skeleton];
-	auto& animation = animations[info.animation];
+	auto& animation1 = animations[animInfo1.animation[0]];
+
+	animation1.Joints.size();
+	auto& animation2 = animations[animInfo1.animation[1]];
+	auto& skel = skeletons[animInfo1.skeleton];
+
+	// Get animation bucket
+	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
+	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+
+	// LAYERING EXAMPLE
+	for (int i = 0; i < skel.Hierarchy.size(); i++) {
+
+		if (i < 12) {
+
+			XMMATRIX transform;
+			CalculateJointMatrix(i, animation1, animInfo1.timePos[0], transform);
+
+			Joint &b = skel.Hierarchy[i];
+
+			// Get the current joint GLOBAL transformation at the current animation time pose
+			b.GlobalTx = transform;
+
+			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+
+		}
+
+		else {
+
+			XMMATRIX transform;
+			CalculateJointMatrix(i, animation2, animInfo1.timePos[1], transform);
+
+			Joint &b = skel.Hierarchy[i];
+
+			// Get the current joint GLOBAL transformation at the current animation time pose
+			b.GlobalTx = transform;
+
+			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
+		}
+	}
+}
+
+void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
+	StartProfile;
 	
 	// Open up a new XMFLOAT4x4 array to temporarily store the calculated joint transformations. Make on for the updated hierarchy as well
 	std::vector<XMMATRIX> interpolatedJointTransforms;
@@ -214,27 +272,17 @@ void SE::Core::AnimationSystem::UpdateAnimation(AnimationInfo& info, DirectX::XM
 	// Interpolate will sort out the interpolation for every joint's animation, thus returns a matrix for every iteration
 	for (int i = 0; i < skeleton.Hierarchy.size(); i++) {
 
-		CalculateJointMatrix(i, animation, info.timePos, interpolatedJointTransforms[i]); // check interpolations
+		CalculateJointMatrix(i, animation, timePos, interpolatedJointTransforms[i]); // check interpolations
 	}
 	
 	//With all the calculated matrices at our disposal, let's update the transformations in the secondary joint array
 	for (size_t i = 0; i < skeleton.Hierarchy.size(); i++) {
 
 		// Create a reference to the currenct joint to be processed
-		Joint &b = skeleton.Hierarchy[i];
-		
-		// Get the current joint GLOBAL transformation at the current animation time pose
-		b.GlobalTx = interpolatedJointTransforms[i];
+		const Joint &b = skeleton.Hierarchy[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));// *XMMatrixScaling(-1, 1, 1)));
-	}
-
-	if(info.looping == true){
-
-		if (info.timePos > (float)animation.Length)
-			info.timePos = 0.0f;
-
+		XMStoreFloat4x4(at + i, XMMatrixTranspose(b.inverseBindPoseMatrix * interpolatedJointTransforms[i]));// *XMMatrixScaling(-1, 1, 1)));
 	}
 
 	StopProfile;

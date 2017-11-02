@@ -74,11 +74,13 @@ namespace SE
 
 		struct AnimationInfo
 		{
+			static const size_t maxLayers = 4;
+			size_t nrOfLayers = 0;
 			Utilz::GUID skeleton;
-			Utilz::GUID animation;
-			float timePos;
-			float animationSpeed;
-			bool looping;
+			Utilz::GUID animation[maxLayers];
+			float timePos[maxLayers];
+			float animationSpeed[maxLayers];
+			bool looping[maxLayers];
 		};
 
 	}

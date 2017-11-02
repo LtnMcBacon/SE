@@ -123,8 +123,22 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->Start(mainC, false, "TopRunAnim_MCModell.anim", 1.0f);
-	managers.animationManager->Start(mainC2, false, "BottomRunAnim_MCModell.anim", 1.0f);
+	Core::IAnimationManager::AnimationPlayInfo playInfo;
+	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
+	playInfo.animationSpeed[0] = 1.0f;
+	playInfo.timePos[0] = 0.0f;
+	playInfo.looping[0] = true;
+
+	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
+	playInfo.animationSpeed[1] = 1.0f;
+	playInfo.timePos[1] = 0.0f;
+	playInfo.looping[1] = true;
+
+	playInfo.nrOfLayers = 2;
+
+	managers.animationManager->Start(mainC, playInfo);
+
+	managers.animationManager->Start(mainC2, playInfo);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -183,21 +197,32 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	
 		ImGui::Begin("Animation Stuff");
 
-		if(ImGui::SliderFloat("C1 Keyframe ", &keyframe, 0.0f, 60.0f))
+		if(ImGui::SliderFloat("C1 Keyframe ", &keyframe, 0.0f, 60.0f)){
 			managers.animationManager->SetKeyFrame(mainC, keyframe);
 			managers.animationManager->SetKeyFrame(mainC2, keyframe);
 
-		if (ImGui::SliderFloat("C1 Speed ", &speed, -10.0f, 10.0f))
+		}
+
+		if (ImGui::SliderFloat("C1 Speed ", &speed, -10.0f, 10.0f)){
+			
 			managers.animationManager->SetSpeed(mainC, speed);
 			managers.animationManager->SetSpeed(mainC2, speed);
 
-		if (ImGui::Button("C1 Start"))
+		}
+
+		if (ImGui::Button("C1 Start")){
+
 			managers.animationManager->Start(mainC, false);
 			managers.animationManager->Start(mainC2, false);
 
-		if (ImGui::Button("C1 Stop"))
+		}
+
+		if (ImGui::Button("C1 Stop")){
+
 			managers.animationManager->Pause(mainC);
 			managers.animationManager->Pause(mainC2);
+
+		}
 
 		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string(main1.id)).c_str());
 		
