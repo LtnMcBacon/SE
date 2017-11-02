@@ -82,12 +82,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		SE::Core::Entity entities[numberOfBlocks];
 		SE::Core::Entity arrows[numberOfBlocks];
 
-		Core::IMaterialManager::CreateInfo cubeInfo;
-		material = Utilz::GUID("Cube.mat");
-		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
-		cubeInfo.shader = shader;
-		cubeInfo.materialFile = material;
-
 		Core::IMaterialManager::CreateInfo arrowInfo;
 		material = Utilz::GUID("Cube.mat");
 		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
@@ -97,7 +91,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
 			entities[i] = managers.entityManager->Create();
-			managers.materialManager->Create(entities[i], cubeInfo);
 			arrows[i] = managers.entityManager->Create();
 			managers.materialManager->Create(arrows[i], arrowInfo);
 		}
@@ -277,6 +270,12 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
+		Core::IMaterialManager::CreateInfo cubeInfo;
+		material = Utilz::GUID("Cube.mat");
+		cubeInfo.materialFile = material;
+
+		
+
 		for (int x = 0; x < 25; x++)
 		{
 			for (int y = 0; y < 25; y++)
@@ -284,13 +283,32 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 				if (testRoom->tileValues[x][y] == 10)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+					if (!(x == 24 || y == 24) && (testRoom->tileValues[x + 1][y] == 0 || testRoom->tileValues[x][y + 1] == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);					
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 3.0, 1.0));
 					numberOfEntitesPlaced++;
 				}
 				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
+					if (!(x == 24 || y == 24) && (testRoom->tileValues[x + 1][y] == 0 || testRoom->tileValues[x][y + 1] == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 

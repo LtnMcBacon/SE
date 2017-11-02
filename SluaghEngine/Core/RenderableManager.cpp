@@ -107,8 +107,11 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
 		if (visible)
-		{
-			rmInstancing->AddEntity(entity, info);
+		{		
+			if (renderableObjectInfo.transparency[find->second] == 1u)
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			else
+				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		else
@@ -284,12 +287,12 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
-			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
-			rmInstancing->AddEntity(entity, info);
+			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
 		}
 		
 	}
