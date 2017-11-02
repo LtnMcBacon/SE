@@ -25,15 +25,17 @@ namespace SE
 			int AddSkeleton(const Utilz::GUID& guid, JointAttributes* jointData, size_t nrOfJoints);
 			bool IsSkeletonLoaded(const Utilz::GUID& guid)const;
 
-			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints);
+			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, uint32_t* joints, size_t nrOfKeyframes, size_t nrOfJoints);
 			bool IsAnimationLoaded(const Utilz::GUID& guid)const;
 
 			void CalculateMatrices(const Entity& entity, AnimationInfo& info);
 
-			void CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo1, AnimationInfo& animInfo2);
+			void CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo);
+
+			void CalculateLayering(const Entity& entity, AnimationInfo& animInfo);
 			
 		private:
-			void UpdateAnimation(AnimationInfo& info, DirectX::XMFLOAT4X4* at);
+			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);
 
 			void CalculateJointMatrix(int jointIndex, const Animation& animation, float animTimePos, DirectX::XMMATRIX& out) const;
 

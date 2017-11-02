@@ -33,7 +33,7 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void Start(const Entity& entity, bool looping, const Utilz::GUID& animation, float speed)override;
+			void Start(const Entity& entity, AnimationPlayInfo playInfo)override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
 			void Start(const Entity& entity, bool looping)const override;
