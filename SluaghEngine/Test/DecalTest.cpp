@@ -63,6 +63,9 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
 	dm->Create(decal2, "ft_stone01_c.sei");
+	DirectX::XMFLOAT4X4 transf;
+	DirectX::XMStoreFloat4x4(&transf, DirectX::XMMatrixTranslation(0.0f, 2.0f, 0.0f));
+	dm->SetLocalTransform(decal2, (float*)&transf);
 	tm->BindChild(box, decal);
 	tm->BindChild(box, decal2);
 	auto l = em->Create();
@@ -82,6 +85,10 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	window->MapActionButton(Window::KeyLeft, Window::KeyLeft);
 	window->MapActionButton(Window::KeyRight, Window::KeyRight);
 	window->MapActionButton(Window::KeyO, Window::KeyO);
+	window->MapActionButton(Window::KeyL, Window::KeyL);
+	window->MapActionButton(Window::KeyK, Window::KeyK);
+
+
 
 	bool running = true;
 	float dt = 1/60.0f * 5.0f;
@@ -104,6 +111,11 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 			tm->Rotate(camera, 0.0f, -3.14 / 10.0f* dt, 0.0f);
 		if (window->ButtonDown(Window::KeyRight))
 			tm->Rotate(camera, 0.0f, 3.14 / 10.0f* dt, 0.0f);
+
+		if (window->ButtonDown(Window::KeyK))
+			tm->Move(decal2, { -dt, 0.0f, 0.0f,0.0f});
+		if (window->ButtonDown(Window::KeyL))
+			tm->Move(decal2, { dt, 0.0f, 0.0f,0.0f });
 
 		if(window->ButtonPressed(Window::KeyO))
 		{
