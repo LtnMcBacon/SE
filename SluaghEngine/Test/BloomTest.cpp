@@ -1,7 +1,7 @@
 #include "BloomTest.h"
 #include <Core\IEngine.h>
 #include <Utilz\Timer.h>
-
+#include <Imgui\imgui.h>
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -46,6 +46,7 @@ namespace SE
 			{
 				auto managers = engine->GetManagers();
 				auto subSystem = engine->GetSubsystems();
+				ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
 
 				res = subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
@@ -64,6 +65,10 @@ namespace SE
 				});
 				if (res < 0)
 					goto error;
+
+				float bloomP[4] = { 5.0f, 2.0f, 0.8f, 0.6f };
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+
 
 				//
 				// Modified RenderableManagerTest Copy Below
@@ -135,8 +140,8 @@ namespace SE
 				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 3;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown3left", vp);
 
-				vp.width = 128;
-				vp.height = 128;
+				vp.width = 512;
+				vp.height = 288;
 				vp.topLeftX = 0;
 				vp.topLeftY = 0;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("bloomDownVP", vp);
@@ -165,8 +170,8 @@ namespace SE
 				Graphics::RenderTarget rt;
 				rt.bindAsShaderResource = true;
 				rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				rt.width = 128;
-				rt.height = 128;
+				rt.width = 512;
+				rt.height = 288;
 				res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
 				if (res < 0)
 					goto error;
@@ -192,8 +197,8 @@ namespace SE
 				uav.clearColor[2] = 0.0f;
 				uav.clearColor[3] = 0.0f;
 				uav.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				uav.width = 1280;
-				uav.height = 720;
+				uav.width = 512;
+				uav.height = 288;
 
 				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV1", uav);
 				if (res < 0)
@@ -205,13 +210,13 @@ namespace SE
 
 				Graphics::RenderJob horizontalPass;
 				horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl"; 
-				horizontalPass.pipeline.CSStage.textures[0] = "bloomTarget";
+				horizontalPass.pipeline.CSStage.textures[0] = "bloomDownTarget";
 				horizontalPass.pipeline.CSStage.textureCount = 1;
 				horizontalPass.pipeline.CSStage.textureBindings[0] = "inTex";
 				horizontalPass.pipeline.CSStage.uavs[0] = "BloomUAV1";
 				horizontalPass.pipeline.CSStage.uavCount = 1;
-				horizontalPass.ThreadGroupCountX = 32;
-				horizontalPass.ThreadGroupCountY = 45;
+				horizontalPass.ThreadGroupCountX = 16;
+				horizontalPass.ThreadGroupCountY = 9;
 				horizontalPass.ThreadGroupCountZ = 1;
 
 				subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_1);
@@ -234,8 +239,8 @@ namespace SE
 				verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
 				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
 				verticalPass.pipeline.CSStage.uavCount = 1;
-				verticalPass.ThreadGroupCountX = 32;
-				verticalPass.ThreadGroupCountY = 40;
+				verticalPass.ThreadGroupCountX = 16;
+				verticalPass.ThreadGroupCountY = 9;
 				verticalPass.ThreadGroupCountZ = 1;
 
 				subSystem.renderer->AddRenderJob(verticalPass, Graphics::RenderGroup::POST_PASS_2);
@@ -244,7 +249,7 @@ namespace SE
 				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV2";
 				drawBloomTexture.pipeline.RStage.viewport = Utilz::GUID();
 				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
-
+				drawBloomTexture.pipeline.OMStage.blendState = "RMTransparency";
 				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
 
 				Utilz::Timer timer;
@@ -284,6 +289,17 @@ namespace SE
 					//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 					engine->BeginFrame();
+	
+					if (ImGui::SliderFloat("Base Muliplier", &bloomP[0], 0.0f, 20.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Fade Exponent", &bloomP[1], 0.0f, 10.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Additive Color Strength Multiplier", &bloomP[2], 0.0f, 2.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Bloom Color Threshold", &bloomP[3], 0.0f, 1.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+
+
 
 					engine->EndFrame();
 				}
