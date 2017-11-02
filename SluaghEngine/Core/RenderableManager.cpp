@@ -470,6 +470,7 @@ void SE::Core::RenderableManager::Init()
 	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
 
+
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");

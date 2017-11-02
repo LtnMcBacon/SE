@@ -381,7 +381,7 @@ void DeviceManager::SetViewport() {
 
 void DeviceManager::Present() {
 
-	gSwapChain->Present(1, 0);
+	auto hr = gSwapChain->Present(0, 0);
 }
 
 void DeviceManager::ResizeSwapChain(HWND windowHandle)
