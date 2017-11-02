@@ -115,7 +115,7 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		if (window->ButtonDown(Window::KeyK))
 			tm->Move(decal2, { -dt, 0.0f, 0.0f,0.0f});
 		if (window->ButtonDown(Window::KeyL))
-			tm->Move(decal2, { dt, 0.0f, 0.0f,0.0f });
+			tm->Rotate(decal2, 0.0f, 3.14f/10.0f * dt, 0.0f);
 
 		if(window->ButtonPressed(Window::KeyO))
 		{
