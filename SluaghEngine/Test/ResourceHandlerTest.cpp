@@ -59,19 +59,23 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	});
 
 	if (Utilz::Memory::IsUnderLimit(10_mb))
+	{
+		r->Shutdown(); delete r;
 		return false;
-
+	}
 	Utilz::GUID guid = Utilz::GUID("test.txt");
 	result = false;
 	auto res = r->LoadResource(Utilz::GUID("test.txt"), &Load);
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	if (!result)
 	{
 		backend->Print("String was not 1337\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
@@ -84,6 +88,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	int timeOut = 0;
@@ -91,6 +96,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (!result)
 	{
 		backend->Print("Load timed out for test2.txt\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	
@@ -102,11 +108,13 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (res)
 	{
 		backend->Print("test.txt could not be loaded again.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	if (!result)
 	{
 		backend->Print("String was not 1337 again\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
@@ -117,6 +125,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (res)
 	{
 		backend->Print("test2.txt could not be loaded again.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	timeOut = 0;
@@ -124,6 +133,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (!result)
 	{
 		backend->Print("Load timed out for test2 again.txt\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
@@ -135,12 +145,14 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	res = r->LoadResource(Utilz::GUID("test3.txt"), &Load2, true);
 	if (res)
 	{
 		backend->Print("test3.txt could not be loaded again.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 	timeOut = 0;
@@ -148,6 +160,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (!result)
 	{
 		backend->Print("Load timed out for test3.txt\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
@@ -181,6 +194,7 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if (!result)
 	{
 		backend->Print("Load timed out for test5.txt\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
@@ -189,16 +203,19 @@ bool SE::Test::ResourceHandlerTest::Run(DevConsole::IConsole * backend)
 	if(res || !tt || !tt2)
 	{
 		backend->Print("Recursive load failed.\n");
+		r->Shutdown(); delete r;
 		return false;
 	}
 
 
 
 	if (!Utilz::Memory::IsUnderLimit(10_mb))
-		return false;
+	{
 
-	r->Shutdown();
-	delete r;
+		r->Shutdown(); delete r;
+		return false;
+	}
+	r->Shutdown(); delete r;
 
 	ProfileReturnConst(true);
 }

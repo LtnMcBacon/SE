@@ -14,7 +14,6 @@ namespace SE {
 
 			initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 
-			uint32_t numLights = 0;
 			auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(LightDataBuffer));
 			if (result < 0)
 				throw std::exception("Could not create LightDataBuffer");
@@ -100,7 +99,7 @@ namespace SE {
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
-					auto& cb = *(LightDataBuffer*)data;
+					auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
 					uint32_t count = 0;
 					for (auto& l : entityToLightData)
 					{

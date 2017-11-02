@@ -2,7 +2,7 @@
 #define ANIMATIONSTRUCTS_H
 
 #include <vector>
-
+#include <Utilz\GUID.h>
 #include <DirectXMath.h>
 
 namespace SE 
@@ -59,7 +59,7 @@ namespace SE
 
 				GlobalTx = DirectX::XMMatrixIdentity();
 				inverseBindPoseMatrix = DirectX::XMMatrixIdentity();
-				int parentIndex = 0;
+				parentIndex = 0;
 			}
 		};
 
@@ -70,6 +70,15 @@ namespace SE
 			Skeleton() {
 				Hierarchy.reserve(19);
 			}
+		};
+
+		struct AnimationInfo
+		{
+			Utilz::GUID skeleton;
+			Utilz::GUID animation;
+			float timePos;
+			float animationSpeed;
+			bool looping;
 		};
 
 	}

@@ -47,13 +47,13 @@ VS_OUT VS_main(VS_IN input)
 	
 	float3 position = float3(0.0f, 0.0f, 0.0f);
 	float3 normal = float3(0.0f, 0.0f, 0.0f);
-
 	for (int i = 0; i < 4; ++i) // loop trough the 4 weights
 	{
 
 		position += input.Weight[i] * mul(float4(input.Pos, 1.0f), BoneTransforms[input.InstanceId].t[input.BoneIndices[i]]).xyz; // the vertex position is affected by the joint movement and influenced by the corresponding weight
 
 		normal += input.Weight[i] * mul(input.Normal, (float3x3)BoneTransforms[input.InstanceId].t[input.BoneIndices[i]]); // we make it 3x3 matrix to skip homogenus and take away translation.
+	
 	}
 	
 	output.Pos = mul(mul(float4(position, 1), World[input.InstanceId]), ViewProj);

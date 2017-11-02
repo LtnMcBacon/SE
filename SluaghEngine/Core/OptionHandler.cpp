@@ -239,7 +239,7 @@ namespace SE {
 			ProfileReturnVoid;
 		}
 
-		void OptionHandler::SetOptionString(const std::string & section, const std::string & optionName, std::string newValue)
+		void OptionHandler::SetOptionString(const std::string & section, const std::string & optionName, const std::string & newValue)
 		{
 			StartProfile;
 			auto fileLoaded = optionMap.find(section);

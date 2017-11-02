@@ -261,8 +261,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->SetXPosition(enemyPos.x + .5f);
-		enemy->SetYPosition(enemyPos.y + .5f);
+		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
 
 		testRoom->AddEnemyToRoom(enemy);
 	}
@@ -422,6 +421,17 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				player->GetXPosition(),
 				player->GetYPosition(),
 				closestEnemy);
+
+			if (closestEnemy == nullptr)
+			{
+				delete testRoom;
+				delete player;
+				delete[] RoomArr;
+				game.Shutdown();
+				engine->Release();
+				delete engine;
+				ProfileReturnConst(false);
+			}
 
 			frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
 				player->GetXPosition(),
@@ -606,6 +616,17 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 					player->GetXPosition(),
 					player->GetYPosition(),
 					closestEnemy);
+
+				if (closestEnemy == nullptr)
+				{
+					delete testRoom;
+					delete player;
+					delete[] RoomArr;
+					game.Shutdown();
+					engine->Release();
+					delete engine;
+					ProfileReturnConst(false);
+				}
 
 				frameData.closestEnemyToPlayerBlockedByWall = testRoom->CheckLineOfSightBetweenPoints(
 					player->GetXPosition(),

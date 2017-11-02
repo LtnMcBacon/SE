@@ -32,7 +32,9 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 	}
 
 	diskLoader = new RawLoader;
-	diskLoader->Initialize();
+	auto res = diskLoader->Initialize();
+	if (res < 0)
+		return res;
 	_ASSERT(diskLoader);
 
 	Allocate(128);

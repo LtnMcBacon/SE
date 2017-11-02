@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
 	string loadPath = argv[1];
 
-	if (!File.Load(loadPath.c_str(), argv[2])) {
+	if (!File.Load(loadPath.c_str(), argv[2], loadPath.c_str())) {
 
 		exit(0);
 	}

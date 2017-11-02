@@ -4,8 +4,6 @@
 #include "GameUnit.h"
 #include <Gameplay\Projectile.h>
 #include <Gameplay\ProjectileData.h>
-#include <Gameplay\Room.h>
-#include <Gameplay\PlayerUnit.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "Utilz/GUID.h"
 
@@ -27,10 +25,15 @@ namespace SE
 		*
 		**/
 
+		class Room;
+		class PlayerUnit;
+		class ProjectileManager;
+
 		struct BehaviourPointers
 		{
 			Room** currentRoom;
 			PlayerUnit* player;
+			ProjectileManager* pManager;
 		};
 
 		class ProjectileFactory
@@ -57,6 +60,8 @@ namespace SE
 			};
 
 			BehaviourPointers ptrs;
+
+			uint64_t projectileGeneration;
 
 			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
 
@@ -208,6 +213,10 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> InverterBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 
+			/**
+			* @brief	Adds invert condition behaviour to the projectile that inverts the given behaviour
+			*/
+			std::function<bool(Projectile* projectile, float dt)> KillGenerationBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 
 
 		public:

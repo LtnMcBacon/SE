@@ -235,7 +235,16 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 				}
 			}
 		}
-
+		if (player == nullptr)
+		{
+			delete testRoom;
+			delete player;
+			delete[] RoomArr;
+			game.Shutdown();
+			engine->Release();
+			delete engine;
+			ProfileReturnConst(false);
+		}
 
 		Core::IMaterialManager::CreateInfo playerInfo;
 		material = Utilz::GUID("MCModell.mat");
@@ -243,9 +252,9 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		playerInfo.shader = shader;
 		playerInfo.materialFile = material;
 
-		managers.materialManager->Create(player->GetEntity(), playerInfo);
+		managers.materialManager->Create(player->GetEntity(), playerInfo, true);
 		managers.transformManager->SetScale(player->GetEntity(), 1.f);
-		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") });
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") }, true);
 
 		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);

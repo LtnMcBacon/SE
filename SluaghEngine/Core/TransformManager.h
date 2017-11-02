@@ -1,11 +1,7 @@
 #ifndef SE_CORE_TRANSFORMMANAGER_H_
 #define SE_CORE_TRANSFORMMANAGER_H_
 
-
 #include <ITransformManager.h>
-#include <unordered_map>
-
-
 #include <mutex>
 #include <random>
 
@@ -26,7 +22,7 @@ namespace SE
 		class TransformManager : public ITransformManager
 		{
 		public:
-			TransformManager(const InitializationInfo& initInfo);
+			TransformManager(const ITransformManager::InitializationInfo& initInfo);
 			~TransformManager();
 			TransformManager(const TransformManager& other) = delete;
 			TransformManager(const TransformManager&& other) = delete;

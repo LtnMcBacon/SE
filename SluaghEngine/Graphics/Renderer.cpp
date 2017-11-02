@@ -19,6 +19,10 @@ SE::Graphics::Renderer::Renderer()
 {
 	device = nullptr;
 	graphicResourceHandler = nullptr;
+	pipelineHandler = nullptr;
+	secPipelineHandler = nullptr;
+	spriteBatch = nullptr;
+	gpuTimer = nullptr;
 	memMeasure.Init();
 }
 
@@ -40,6 +44,7 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 	
 	pipelineHandler = new PipelineHandler(device->GetDevice(), device->GetDeviceContext(),device->GetRTV(), device->GetDepthStencil());
 	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
+	pipelineHandler->AddExisitingShaderResourceView("backbuffer", device->GetSRV());
 	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
 	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
 	//secPipelineHandler = new PipelineHandler(device->GetDevice(), device->GetSecondaryDeviceContext(), nullptr, nullptr);
@@ -145,7 +150,6 @@ size_t SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
 		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
 	}
 	ProfileReturn(job);
-	return 0;
 }
 
 size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
@@ -193,15 +197,16 @@ size_t SE::Graphics::Renderer::DisableTextureRendering(const size_t & jobID)
 int SE::Graphics::Renderer::Render() 
 {
 	StartProfile;
+	// ReSharper disable once CppDeclaratorNeverUsed
 	auto devContext = device->GetDeviceContext();
 	/******************General Jobs*********************/
 	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
 	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
 	
-	bool first = true;
+	
 	for (auto& group : jobGroups)
 	{
-		first = true;
+		bool first = true;
 		for (auto& j : group.second)
 		{
 			int32_t drawn = 0;
@@ -249,18 +254,27 @@ int SE::Graphics::Renderer::Render()
 					drawn += toDraw;
 				}
 			}
+			else if (j.job.ThreadGroupCountX != 0 || j.job.ThreadGroupCountY != 0 || j.job.ThreadGroupCountZ != 0)
+			{
+				devContext->Dispatch(j.job.ThreadGroupCountX, j.job.ThreadGroupCountY, j.job.ThreadGroupCountZ);
+			}
 			else if (j.job.vertexCount == 0)
 			{
 				for (auto& mf : j.job.mappingFunc)
 					mf(drawn, 0);
 				device->GetDeviceContext()->DrawAuto();
 			}
+			
 		}
 		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
 		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
+		ID3D11UnorderedAccessView* nullUAVS[8] = { nullptr };
 
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
+		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
+		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
+
 	}
 	{
 		ID3D11RenderTargetView* backbuf = device->GetRTV();
