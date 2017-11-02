@@ -63,10 +63,16 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 
 	auto& mainC = managers.entityManager->Create();
+	auto& mainC2 = managers.entityManager->Create();
 
 	managers.transformManager->Create(mainC);
+	managers.transformManager->Create(mainC2);
+
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
+
+	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
+	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -99,43 +105,36 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	info.shader = shader;	
 	info.materialFile = material;
 
-
 	managers.materialManager->Create(mainC, info);
+	managers.materialManager->Create(mainC2, info);
+
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
-	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
+	sai.animationCount = 2;
+	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim" , "BottomRunAnim_MCModell.anim"};
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
+	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "Run.mesh");
 	managers.animationManager->ToggleVisible(mainC, true);
+	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->Start(mainC, "RunAnimation_Run.anim", 1.0f);
-
-	auto& c2 = managers.entityManager->Create();
-	//managers.transformManager->Create(c2, { 3.0f, 0.0f, 0.0f });
-	//managers.materialManager->Create(c2, info);
-	//managers.animationManager->CreateAnimation(c2, sai);
-	//managers.animationManager->Start(c2, "RunAnimation_bakedTest.anim", 0.1f);
-	//managers.renderableManager->CreateRenderableObject(c2, { "bakedTest.mesh" });
-
-	//managers.collisionManager->CreateBoundingHierarchy(c2, "bakedTest.mesh");
-
-	//managers.renderableManager->ToggleRenderableObject(c2, true);
+	managers.animationManager->Start(mainC, false, "TopRunAnim_MCModell.anim", 1.0f);
+	managers.animationManager->Start(mainC2, false, "BottomRunAnim_MCModell.anim", 1.0f);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 0.0f, 0.0f, -5.0f };
+	d.pos = { 5.0f, 10.0f, -5.0f };
 	d.color = { 1, 1,1 };
 	d.castShadow = false;
 	d.isOrtographic = false;
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
-
 
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 
@@ -149,14 +148,14 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
-	auto entityToChange = c2;
+	auto main1 = mainC;
 
-	subSystem.window->BindMouseClickCallback(Window::MouseLeft, [&managers, &entityToChange, width ,height](auto x, auto y) {
+	subSystem.window->BindMouseClickCallback(Window::MouseLeft, [&managers, &main1, width ,height](auto x, auto y) {
 		XMVECTOR o;
 		XMVECTOR dir;
 		float d;
 		managers.cameraManager->WorldSpaceRayFromScreenPos(x, y, width, height, o, dir);
-		managers.collisionManager->Pick(o, dir, entityToChange, d);
+		managers.collisionManager->Pick(o, dir, main1, d);
 	});
 
 	while (running)
@@ -180,25 +179,27 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		if (subSystem.window->ButtonDown(ActionButton::Sink))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 
-		if (subSystem.window->ButtonDown(ActionButton::Stop))
-			managers.animationManager->Pause(c2);
-		if (subSystem.window->ButtonDown(ActionButton::Start))
-			managers.animationManager->Start(c2);
-
 		engine->BeginFrame();
 	
 		ImGui::Begin("Animation Stuff");
 
-		if(ImGui::SliderFloat("C2 Keyframe ", &keyframe, 0.0f, 60.0f))
-			managers.animationManager->SetKeyFrame(entityToChange, keyframe);
-		if (ImGui::SliderFloat("C2 Speed ", &speed, -10.0f, 10.0f))
-			managers.animationManager->SetSpeed(entityToChange, speed);
-		if (ImGui::Button("Start"))
-			managers.animationManager->Start(entityToChange);
-		if (ImGui::Button("Stop"))
-			managers.animationManager->Pause(entityToChange);
+		if(ImGui::SliderFloat("C1 Keyframe ", &keyframe, 0.0f, 60.0f))
+			managers.animationManager->SetKeyFrame(mainC, keyframe);
+			managers.animationManager->SetKeyFrame(mainC2, keyframe);
 
-		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string( entityToChange.id)).c_str());
+		if (ImGui::SliderFloat("C1 Speed ", &speed, -10.0f, 10.0f))
+			managers.animationManager->SetSpeed(mainC, speed);
+			managers.animationManager->SetSpeed(mainC2, speed);
+
+		if (ImGui::Button("C1 Start"))
+			managers.animationManager->Start(mainC, false);
+			managers.animationManager->Start(mainC2, false);
+
+		if (ImGui::Button("C1 Stop"))
+			managers.animationManager->Pause(mainC);
+			managers.animationManager->Pause(mainC2);
+
+		ImGui::TextUnformatted((std::string("Entity: ") + std::to_string(main1.id)).c_str());
 		
 		ImGui::End();
 		

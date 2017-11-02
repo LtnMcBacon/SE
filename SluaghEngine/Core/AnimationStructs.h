@@ -2,7 +2,7 @@
 #define ANIMATIONSTRUCTS_H
 
 #include <vector>
-
+#include <Utilz\GUID.h>
 #include <DirectXMath.h>
 
 namespace SE 
@@ -70,6 +70,15 @@ namespace SE
 			Skeleton() {
 				Hierarchy.reserve(19);
 			}
+		};
+
+		struct AnimationInfo
+		{
+			Utilz::GUID skeleton;
+			Utilz::GUID animation;
+			float timePos;
+			float animationSpeed;
+			bool looping;
 		};
 
 	}

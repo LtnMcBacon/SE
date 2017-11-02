@@ -408,6 +408,21 @@ namespace SE
 			* @retval int Returns a random value
 			*/
 			virtual int GetRand() = 0;
+			/**
+			* @brief Starts a recording of frames
+			*
+			*/
+			virtual void StartRecording() = 0;
+			/**
+			* @brief Stops a recording of frames
+			*
+			*/
+			virtual void StopRecording() = 0;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			virtual void LoadRecording(const std::string& file) = 0;
 		};
 
 		DECLDIR IWindow* CreateNewWindow();
