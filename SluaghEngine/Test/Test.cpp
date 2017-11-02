@@ -44,6 +44,7 @@
 #include "DecalTest.h"
 #include "ShadowTest.h"
 #include "ComputeTest.h"
+#include "ThreadPoolTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -112,6 +113,7 @@ int main(int argc, char** argv)
 	AddTest(DecalTest);
 	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
+	AddTest(ThreadPoolTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();
