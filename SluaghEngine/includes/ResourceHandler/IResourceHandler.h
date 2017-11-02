@@ -47,9 +47,7 @@ namespace SE
 			LOAD_FOR_VRAM = 1 << 0,
 			LOAD_FOR_RAM = 1 << 1,
 			ASYNC = 1 << 2,
-			IMMUTABLE = 1 << 3,
-			NO_INVOKE = 1 << 4,
-			NO_LOAD = 1 << 5
+			IMMUTABLE = 1 << 3
 		};
 
 		enum class State {
@@ -145,7 +143,7 @@ namespace SE
 				const Callbacks& callbacks,
 				LoadFlags loadFlags) = 0;
 			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
-			virtual int LoadResource(const Utilz::GUID& guid, const LoadResourceDelegate& callback, bool async = false, Behavior behavior = Behavior::QUICK) = 0;
+			virtual int LoadResource(const Utilz::GUID& guid, const std::function<InvokeReturn1(const Utilz::GUID&, void*, size_t)>& invokeCallback, LoadFlags loadFlags) = 0;
 
 			/**
 			* @brief	Unload the given resource
