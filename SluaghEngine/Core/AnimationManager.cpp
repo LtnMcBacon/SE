@@ -350,7 +350,7 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 	// After the joint indices comes the keyframe matrices
 	auto matrices = (DirectX::XMFLOAT4X4*)(joints + animH->nrOfJoints);
 
-	return animationSystem->AddAnimation(guid, matrices, animH->animationLength, animH->nrOfJoints);
+	return animationSystem->AddAnimation(guid, matrices,joints, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }

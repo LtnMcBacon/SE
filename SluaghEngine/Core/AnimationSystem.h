@@ -25,7 +25,7 @@ namespace SE
 			int AddSkeleton(const Utilz::GUID& guid, JointAttributes* jointData, size_t nrOfJoints);
 			bool IsSkeletonLoaded(const Utilz::GUID& guid)const;
 
-			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, size_t nrOfKeyframes, size_t nrOfJoints);
+			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, uint32_t* joints, size_t nrOfKeyframes, size_t nrOfJoints);
 			bool IsAnimationLoaded(const Utilz::GUID& guid)const;
 
 			void CalculateMatrices(const Entity& entity, AnimationInfo& info);

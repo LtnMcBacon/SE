@@ -43,7 +43,7 @@ namespace SE
 			unsigned int Length;
 
 			Animation() {
-				Joints.reserve(19);
+				Joints.resize(19);
 				Length = 0;
 			}
 		};
