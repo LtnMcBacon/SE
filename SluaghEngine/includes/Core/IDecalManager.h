@@ -42,6 +42,15 @@ namespace SE
 			virtual int Create(const Entity& entity, const Utilz::GUID& textureName) = 0;
 
 			/*
+			 * @brief sets a local transform that is offset from the transform component.
+			 * @details If the translation in the transform manager is {0,1,0} and the
+			 * local transform is {2,0,0} the decal will be rendered at {2,1,0}.
+			 * @param[in] entity The entity to apply a local transform to.
+			 * @param[in] transform16rowMajor A 4x4 transform matrix in row major format.
+			 */
+			virtual int SetLocalTransform(const Entity& entity, float* transform16rowMajor) = 0;
+
+			/*
 			 * @brief Removes a decal component from an entity.
 			 * @param[in] entity The entity to remove the decal component from.
 			 */
