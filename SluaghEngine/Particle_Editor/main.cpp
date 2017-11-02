@@ -175,7 +175,7 @@ int main()
 
 		engine->BeginFrame();
 		
-		ImGui::Begin("TestWin");
+		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat("Velocity X", &movBuffer.vel.x, -1.0f, 1.0f);
 		ImGui::SliderFloat("Velocity Y", &movBuffer.vel.y, -1.0f, 1.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -50.0f, 50.0f);
