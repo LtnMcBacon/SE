@@ -215,26 +215,43 @@ void SE::Window::WindowSDL::PlaybackFrame()
 void SE::Window::WindowSDL::StartRecording()
 {
 	StartProfile;
-	currentFrameStrategy = &WindowSDL::RecordFrame;
-	std::time_t currentTime = std::time(nullptr);
-	char timeChar[100];
-	std::strftime(timeChar, sizeof(timeChar),"%A %c", std::localtime(&currentTime));
-	std::string currentStringTime = timeChar;
-	currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
-	record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
-	record.recFile.write((char*)&currentTime, sizeof(std::time_t));
-	record.recordState = true;
-	int posX;
-	int posY;
-	SDL_GetMouseState(&posX, &posY);
-	record.recFile.write((char*)&posX, sizeof(int));
-	record.recFile.write((char*)&posY, sizeof(int));
-	std::srand(currentTime);
-	record.recThread = std::thread (&Window::WindowSDL::RecordToFile, this);
+	if (record.recordState == false)
+	{
+		currentFrameStrategy = &WindowSDL::RecordFrame;
+		std::time_t currentTime = std::time(nullptr);
+		char timeChar[100];
+		std::strftime(timeChar, sizeof(timeChar), "%A %c", std::localtime(&currentTime));
+		std::string currentStringTime = timeChar;
+		currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
+		record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
+		record.recFile.write((char*)&currentTime, sizeof(std::time_t));
+		record.recordState = true;
+		int posX;
+		int posY;
+		SDL_GetMouseState(&posX, &posY);
+		record.recFile.write((char*)&posX, sizeof(int));
+		record.recFile.write((char*)&posY, sizeof(int));
+		std::srand(currentTime);
+		record.recThread = std::thread(&Window::WindowSDL::RecordToFile, this);
+	}
 	StopProfile;
 }
 
-void SE::Window::WindowSDL::LoadRecording(std::string file)
+void SE::Window::WindowSDL::StopRecording()
+{
+	if (record.recordState)
+	{
+		record.recordState = false;
+		while (!record.recThread.joinable())
+		{
+
+		}
+		record.recThread.join();
+		record.recFile.close();
+	}
+}
+
+void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 {
 	StartProfile;
 	playRecord.playbackfile.open(file, std::ios::in | std::ios::binary);
