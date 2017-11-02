@@ -946,6 +946,58 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(KillGeneration);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetAliveBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	
+	auto SetAlive = [](Projectile* p, float dt) mutable -> bool
+	{
+		p->SetActive(true);
+		return false;
+	};
+
+	ProfileReturnConst(SetAlive);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::ENEMY)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::OBJECT)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::PLAYER)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
+}
+
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
@@ -1018,6 +1070,11 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateProjectilesBehaviour, this, std::placeholders::_1)); // s
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::InverterBehaviour, this, std::placeholders::_1)); // B
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillGenerationBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetAliveBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithEnemyConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithObjectConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithPlayerConditionBehaviour, this, std::placeholders::_1)); // 
+
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()

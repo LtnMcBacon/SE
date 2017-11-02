@@ -214,9 +214,34 @@ namespace SE
 			std::function<bool(Projectile* projectile, float dt)> InverterBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 
 			/**
-			* @brief	Adds invert condition behaviour to the projectile that inverts the given behaviour
+			* @brief	Adds a behaviour that kills all projectiles of a certain generation
 			*/
 			std::function<bool(Projectile* projectile, float dt)> KillGenerationBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+			/**
+			* @brief	Adds a behaviour to set a projectile as alive
+			*/
+			std::function<bool(Projectile* projectile, float dt)> SetAliveBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+
+			/**
+			* @brief	Adds a behaviour to set a projectile as alive
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+
+			/**
+			* @brief	Adds a behaviour to set a projectile as alive
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+
+			/**
+			* @brief	Adds a behaviour to set a projectile as alive
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+
+
 
 
 		public:
