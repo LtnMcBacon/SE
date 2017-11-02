@@ -33,10 +33,10 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void Start(const Entity& entity, const Utilz::GUID& animation, float speed)override;
+			void Start(const Entity& entity, bool looping, const Utilz::GUID& animation, float speed)override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
-			void Start(const Entity& entity)const override;
+			void Start(const Entity& entity, bool looping)const override;
 			void Pause(const Entity& entity)const override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
@@ -69,15 +69,6 @@ namespace SE
 			std::default_random_engine generator;
 
 			RenderableManager* renderableManager;
-
-
-			struct AnimationInfo
-			{
-				Utilz::GUID skeleton;
-				Utilz::GUID animation;
-				float timePos;
-				float animationSpeed;
-			};
 
 			struct AnimationData
 			{
