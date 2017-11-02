@@ -104,6 +104,9 @@ void PlayState::InitializeRooms()
 	uint32_t nrOfRooms;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
+	int nrOfRoomsToCreate = 10;
+	int nrOfRoomsCreated = 0;
+	int nrOfOpenDoors = 0;
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 	{
@@ -113,11 +116,22 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+	while (nrOfOpenDoors != 0 || nrOfRoomsCreated < nrOfRoomsToCreate)
+	{
+		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
-	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
-	currentRoom = testRoom;
+		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+		rooms.push_back(temp);
+		nrOfRoomsCreated++;
+		temp->RenderRoom(false);
+
+	}
+
+	currentRoom = rooms[0];
+	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
+
 }
 void PlayState::InitializePlayer()
 {
@@ -156,7 +170,7 @@ void PlayState::InitializePlayer()
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.0f, 1.5f));
+	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 
 	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });

@@ -257,6 +257,10 @@ namespace SE
 
 			float FloorCheck(int x, int y); 
 			
+			/**
+			* @brief Sets the enteties in the room to render or not
+			*/
+			void RenderRoom(bool render);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.

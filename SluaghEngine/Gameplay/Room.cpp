@@ -588,8 +588,16 @@ void SE::Gameplay::Room::CreateEntities()
 			}
 
 			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-
+			roomEntities.push_back(ent);
 		}
+	}
+}
+
+void SE::Gameplay::Room::RenderRoom(bool render)
+{
+	for (int i = 0; i < roomEntities.size(); i++)
+	{
+		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
 	}
 }
 
