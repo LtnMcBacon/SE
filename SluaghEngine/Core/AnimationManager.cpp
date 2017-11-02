@@ -344,8 +344,11 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 {
 	auto animH = (Animation_Header*)data;
 
-	// After the animation header, there will only be matrices of type XMFLOAT4X4
-	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
+	// After the animation header comes the animated joint indices
+	auto joints = (uint32_t*)(animH + 1);
+
+	// After the joint indices comes the keyframe matrices
+	auto matrices = (DirectX::XMFLOAT4X4*)(joints + animH->nrOfJoints);
 
 	return animationSystem->AddAnimation(guid, matrices, animH->animationLength, animH->nrOfJoints);
 
