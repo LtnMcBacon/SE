@@ -8,23 +8,32 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
+	float4 castShadow;
 };
 
-cbuffer LightDataBuffer : register(b2)
+cbuffer LightDataBuffer : register(b0)
 {
-	float4 nrOfLights;
+	uint4 nrOfLights;
 	Light pointLights[20];
 };
-cbuffer CameraPos : register(b3)
+cbuffer CameraPos : register(b1)
 {
 	float4 cameraPos;
 };
 
-cbuffer MaterialAttributes : register(b4)
+cbuffer MaterialAttributes : register(b2)
 {
 	float4 diffuse;
 	float4 ambient;
 	float4 specular;
+};
+
+cbuffer BloomProperties : register(b3)
+{
+	float BLOOM_BASE_MULTIPLIER;
+	float BLOOM_FADE_EXPONENT;
+	float BLOOM_ADDITIVE_COLOR_STRENGTH_MULTIPLIER;
+	float BLOOM_AT;
 };
 
 struct PS_IN
@@ -32,6 +41,8 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
+	float4 BinormalInW : BINORMALINW;
+	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 
@@ -75,9 +86,9 @@ PS_OUT PS_main(PS_IN input)
 	PS_OUT output;
 	output.backBuffer = float4(totLight, 1.0f);
 	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (output.backBuffer.r > .8) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
-	if (output.backBuffer.g > .8) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
-	if (output.backBuffer.b > .8) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
+	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
+	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
+	if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
 
 	return output;
 }

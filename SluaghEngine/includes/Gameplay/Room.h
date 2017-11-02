@@ -5,6 +5,8 @@
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
+#include <Core\IEngine.h>
+
 namespace SE
 {
 	namespace Gameplay
@@ -31,7 +33,7 @@ namespace SE
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
-			
+			std::vector<SE::Core::Entity> roomEntities;
 
 
 			/*Needed:
@@ -242,6 +244,11 @@ namespace SE
 			 * @brief Check if a point is inside a wall
 			 */
 			inline bool PointInsideWall(float x, float y);
+
+			/**
+			* @brief Creates enteties for the room 
+			*/
+			void CreateEntities();
 
 
 		public:
