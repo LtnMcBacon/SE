@@ -73,25 +73,25 @@
     <IncludePath>$(SolutionDir)/External Dependencies/includes;$(SolutionDir)/Includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)/External Dependencies/lib/$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)/External Dependencies/includes;$(SolutionDir)/Includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)/External Dependencies/lib/$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)/External Dependencies/includes;$(SolutionDir)/Includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)/External Dependencies/lib/$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)/External Dependencies/includes;$(SolutionDir)/Includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Build\lib\$(Platform)\;$(SolutionDir)/External Dependencies/lib/$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)Intermediate\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

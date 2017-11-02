@@ -1,5 +1,5 @@
-#include <Core\Engine.h>
-#include <Imgui/imgui.h>
+#include <Core\IEngine.h>
+#include <Imgui\imgui.h>
 #include <Utilz\Timer.h>
 #include <Graphics\ParticleSystemJob.h>
 #include "ParticleEmitter.h"
@@ -7,7 +7,15 @@
 using namespace SE;
 using namespace DirectX;
 using namespace Graphics;
+#ifdef _DEBUG
 
+#pragma comment(lib, "ImGuiDX11SDLD.lib")
+
+#else
+
+#pragma comment(lib, "ImGuiDX11SDL.lib");
+
+#endif
 #ifdef _DEBUG
 #pragma comment(lib, "CoreD.lib")
 #else
@@ -16,15 +24,19 @@ using namespace Graphics;
 int main()
 {
 	ParticleEmitter emitter;
-	auto& Engine = Core::Engine::GetInstance();
-	Engine.Init();
-	auto window = Engine.GetWindow();
-	auto Renderer = Engine.GetRenderer();
+	auto engine = Core::CreateEngine();
+	auto result = engine->Init();
+	if (result < 0)
+		return -1;
+	auto subSystem = engine->GetSubsystems();
+	auto window = subSystem.window;
+	auto Renderer = subSystem.renderer;
 	auto pipelineHandler = Renderer->GetPipelineHandler();
 	Pipeline pipeline;
 	Utilz::Timer time;
-	auto ResourceHandle = Engine.GetResourceHandler();
+	auto ResourceHandle = subSystem.resourceHandler;
 	
+	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 	srand(time.GetDelta());
 
 	ResourceHandle->LoadResource("ParticleGS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
@@ -62,18 +74,13 @@ int main()
 	p[1].velocity = { 0, 0, 0 };
 
 	//Pipeline for the update geometry shader
-	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	int k = pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
 	pipeline.VSStage.shader = "ParticleVS.hlsl";
-	pipeline.VSStage.constantBuffers[0] = "OncePerObject";
-	pipeline.VSStage.constantBufferCount = 1;
 	pipeline.GSStage.shader = "ParticleGSUpdate.hlsl";
-	pipeline.GSStage.constantBuffers[0] = "ParticleInfo";
-	pipeline.GSStage.constantBuffers[1] = "velocityBuffer";
-	pipeline.GSStage.constantBufferCount = 2;
 	pipeline.SOStage.streamOutTarget = "OutStreamBuffer2";
 	
 	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON});
@@ -101,6 +108,9 @@ int main()
 		float speed;
 		float emitRate;
 		float lifeTime;
+		float tangentValue;
+		float radialValue;
+		unsigned int circular;
 	};
 	moveMentStruct movBuffer;
 	movBuffer.vel = velocity;
@@ -111,15 +121,17 @@ int main()
 	movBuffer.color[0] = 0.35f;
 	movBuffer.color[1] = 0.2f;
 	movBuffer.color[2] = 0.45f;
-
+	movBuffer.circular = 0;
+	movBuffer.tangentValue = 0.0f;
+	movBuffer.radialValue = 0.0f;
 
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
-	updateParticleJob.mappingFunc = [&pipelineHandler, &movBuffer](int a, int b) {
+	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &movBuffer, sizeof(moveMentStruct));
-	};
+	});
 	updateParticleJob.vertexCount = 1;
-	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob);
+	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob, SE::Graphics::RenderGroup::PRE_PASS_0);
 
 	//Render particle job pipeline
 	Pipeline RPP;
@@ -127,11 +139,6 @@ int main()
 	RPP.IAStage.inputLayout = "ParticleVS.hlsl";
 	RPP.IAStage.vertexBuffer = "OutStreamBuffer2";
 	RPP.VSStage.shader = "ParticleVS.hlsl";
-	RPP.VSStage.constantBuffers[0] = "OncePerObject";
-	RPP.VSStage.constantBufferCount = 1;
-	RPP.GSStage.constantBuffers[0] = "OncePerFrame";
-	RPP.GSStage.constantBuffers[1] = "ParticleConstantBuffer";
-	RPP.GSStage.constantBufferCount = 2;
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
 	RPP.OMStage.renderTargets[0] = "backbuffer";
@@ -148,36 +155,48 @@ int main()
 		XMFLOAT3 eyePosition;
 		float pad2;
 	};
+	bool RandVelocity = false;
 
 	PCB constantBuffer;
 	constantBuffer.eyePosition = eyePos;
 	constantBuffer.upVector = upVec;
 
-	renderParticleJob.mappingFunc = [&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &constantBuffer](int a, int b) {
+	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &constantBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrix, sizeof(XMFLOAT4X4));
 		pipelineHandler->UpdateConstantBuffer("ParticleConstantBuffer", &constantBuffer, sizeof(PCB));
-	};
-	int RPPID = Renderer->AddRenderJob(renderParticleJob);
+	});
+	int RPPID = Renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 	 
 	window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
 	float value = 0;
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
 		time.Tick();
-		Engine.BeginFrame();
 
+		engine->BeginFrame();
+		
 		ImGui::Begin("TestWin");
 		ImGui::SliderFloat("Velocity X", &movBuffer.vel.x, -1.0f, 1.0f);
 		ImGui::SliderFloat("Velocity Y", &movBuffer.vel.y, -1.0f, 1.0f);
+		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -50.0f, 50.0f);
+		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -50.0f, 50.0f);
 		ImGui::SliderFloat("Emit position X", &movBuffer.emitPos.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.001, 0.09, "%.5f");
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.00900, "%.5f");
 		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 1.0000, "%.5f");
 		ImGui::ColorEdit3("StartColor", &movBuffer.color[0]);
 		ImGui::InputFloat("LifeTime", &movBuffer.lifeTime);
-		float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
-		float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
-		movBuffer.vel.x = r;
-		movBuffer.vel.y = r2;
+		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
+		ImGui::Checkbox("Random velocity", &RandVelocity);
+
+		if (RandVelocity)
+		{
+			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
+			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
+			float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 0.00900f);
+			movBuffer.vel.x = r;
+			movBuffer.vel.y = r2;
+			movBuffer.speed = r3;
+		}
 		
 		//** swapping renderjobs for particle outstream
 		std::swap(updateParticleJob.pipeline.SOStage.streamOutTarget, updateParticleJob.pipeline.IAStage.vertexBuffer);
@@ -186,12 +205,13 @@ int main()
 		Renderer->ChangeRenderJob(RPPID, renderParticleJob);
 		//*****
 		ImGui::End();
-		Engine.Frame(time.GetDelta());
+		engine->EndFrame();
 		updateParticleJob.vertexCount = 0;
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
 	}
 
-	Engine.Release();
+	engine->Release();
+	delete engine;
 	return 0;
 }
 void loadResources()
