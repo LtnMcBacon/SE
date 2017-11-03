@@ -222,7 +222,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-	if (input.skill1Button && attackCooldown <= 0.f) 
+	if (input.skill1Button) 
 	{
 		ProjectileData temp;
 
@@ -232,12 +232,30 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "NuckelaveeMeleeProjectile.SEP";
+		temp.fileNameGuid = "turretProjectile.SEP";
 
 		newProjectiles.push_back(temp);
 
-		attackCooldown = 0.2f * attackSpeed;
+		//attackCooldown = 0.2f * attackSpeed;
 	}
+
+	if (input.actionButton && attackCooldown <= 0.0f)
+	{
+		ProjectileData temp;
+
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
+		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MELEE, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+
+		newProjectiles.push_back(temp);
+
+		attackCooldown = 1.0f / attackSpeed;
+	}
+
 	if (attackCooldown > 0.f)
 	{
 		attackCooldown -= dt;

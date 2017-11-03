@@ -49,16 +49,19 @@ namespace SE
 				Graphics::TextGUI guiText;
 				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiText.effect = Graphics::Effect::NoEffect;
-				guiText.fontID = 0;
 				guiText.text = L"Is this pizza heaven????";
 				guiText.hashString = std::hash<std::wstring>()(guiText.text);
 				guiText.layerDepth = 0;
-				guiText.origin = DirectX::XMFLOAT2(0.0, 0.0);
-				guiText.pos = DirectX::XMFLOAT2(0.0, 0.0);
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 0;
+				guiText.posY = 0;
+				guiText.width = 300;
+				guiText.height = 100;
 				guiText.rotation = 0;
-				guiText.scale = DirectX::XMFLOAT2(1.0, 1.0);
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
 				
-				managers.textManager->Create({ entText, guiText });
+				managers.textManager->Create(entText, { Utilz::GUID(), guiText });
 				managers.textManager->ToggleRenderableText(entText, true);
 
 				// GUI texture creation
@@ -140,7 +143,7 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture5;
 				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture5.effect = Graphics::Effect::NoEffect;
-				guiTexture5.layerDepth = 0;
+				guiTexture5.layerDepth = 0.1;
 				guiTexture5.screenAnchor = { 0.5f ,0.5f };
 				guiTexture5.posX = 0;
 				guiTexture5.posY = 0;
