@@ -40,7 +40,7 @@ void Room::PlayerStartPos(PlayerUnit* player)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), tileValues);
 
 				break;
 			}
@@ -597,6 +597,7 @@ void SE::Gameplay::Room::CreateEntities()
 	auto floorGUID = Utilz::GUID("Placeholder_Floor.mesh");
 	auto wallGUID = Utilz::GUID("HighWall.mesh");
 	auto doorGUID = Utilz::GUID("Door.mesh");
+	int numberOfEntitesPlaced = 0;
 
 	for (int i = 0; i < 25; i++)
 	{
@@ -614,10 +615,12 @@ void SE::Gameplay::Room::CreateEntities()
 			else if (tileValues[i][j] == 10) 
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { wallGUID });
+				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.5f, j + 0.5f));
 			}
 			else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { doorGUID });
+				CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
 			}
 
 			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);

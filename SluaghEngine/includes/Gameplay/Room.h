@@ -6,7 +6,6 @@
 #include "Projectile.h"
 #include <Utilz\GUID.h>
 #include <Core\IEngine.h>
-
 #include <Gameplay/PlayerUnit.h>
 namespace SE
 {
