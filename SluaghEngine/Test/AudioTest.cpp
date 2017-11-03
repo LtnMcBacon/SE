@@ -45,7 +45,7 @@ namespace SE
 
 				auto entText = managers.entityManager->Create();
 
-				// Text creation
+			//	// Text creation
 				Graphics::TextGUI guiText;
 				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiText.effect = Graphics::Effect::NoEffect;
@@ -66,14 +66,18 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture;
 				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture.effect = Graphics::Effect::BothFlipEffect;
-				guiTexture.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture.layerDepth = 0.1;
-				guiTexture.pos = DirectX::XMFLOAT2(940.0, 560.0);
+				guiTexture.posX = 0;
+				guiTexture.posY = 0;
 				guiTexture.rotation = 0;
-				guiTexture.scale = DirectX::XMFLOAT2(1.0, 1.0);
+				guiTexture.width = -1;
+				guiTexture.height = -1;
+				guiTexture.origin = { 0.25f ,0.25f };
+				guiTexture.anchor = { 0.5f, 0.5f };
+				guiTexture.scale = { 1.0f, 1.0f };
 				//guiTexture.rect = nullptr;	//not needed default nullptr
 
-				managers.guiManager->Create({ entTexture, Utilz::GUID("GUITest.sei"), guiTexture });
+				managers.guiManager->Create( entTexture, { Utilz::GUID("GUITest.sei"), guiTexture });
 				managers.guiManager->ToggleRenderableTexture(entTexture, true);
 
 				// GUI texture creation2
@@ -81,15 +85,18 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture2;
 				guiTexture2.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture2.effect = Graphics::Effect::HoriFlipEffect;
-				guiTexture2.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture2.layerDepth = 0.1;
-				guiTexture2.pos = DirectX::XMFLOAT2(940.0, 200.0);
+				guiTexture2.posX = 0;
+				guiTexture2.posY = 0;
 				guiTexture2.rotation = 0;
-				guiTexture2.scale = DirectX::XMFLOAT2(1.0, 1.0);
+				guiTexture2.width = -1;
+				guiTexture2.height = -1;
+				guiTexture2.origin = { 0.75f ,0.25f };
+				guiTexture2.anchor = { 0.5f, 0.5f };
 				//guiTexture2.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Create({ entTexture2, Utilz::GUID("GUITest.sei"), guiTexture2 });
+				managers.guiManager->Create( entTexture2, {Utilz::GUID("GUITest.sei"), guiTexture2 });
 				managers.guiManager->ToggleRenderableTexture(entTexture2, true);
 
 				// GUI texture creation3
@@ -97,14 +104,16 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture3;
 				guiTexture3.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture3.effect = Graphics::Effect::VertiFlipEffect;
-				guiTexture3.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture3.layerDepth = 0.1;
-				guiTexture3.pos = DirectX::XMFLOAT2(300.0, 200.0);
+				guiTexture3.posX = 0;
+				guiTexture3.posY = 0;
 				guiTexture3.rotation = 0;
-				guiTexture3.scale = DirectX::XMFLOAT2(1.0, 1.0);
-			//	guiTexture3.rect = nullptr;	//not needed default nullptr
-
-				managers.guiManager->Create({ entTexture3, Utilz::GUID("GUITest.sei"), guiTexture3 });
+				guiTexture3.width = -1;
+				guiTexture3.height = -1;
+				guiTexture3.origin = { 0.25f ,0.75f };
+				guiTexture3.anchor = { 0.5f, 0.5f };
+		
+				managers.guiManager->Create( entTexture3,{ Utilz::GUID("GUITest.sei"), guiTexture3 });
 				managers.guiManager->ToggleRenderableTexture(entTexture3, true);
 
 				// GUI texture creation4
@@ -112,15 +121,18 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture4;
 				guiTexture4.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture4.effect = Graphics::Effect::NoEffect;
-				guiTexture4.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture4.layerDepth = 0.1;
-				guiTexture4.pos = DirectX::XMFLOAT2(300.0, 560.0);
+				guiTexture4.posX = 0;
+				guiTexture4.posY = 0;
 				guiTexture4.rotation = 0;
-				guiTexture4.scale = DirectX::XMFLOAT2(1.0, 1.0);
+				guiTexture4.width = -1;
+				guiTexture4.height = -1;
+				guiTexture4.origin = { 0.75f ,0.75f };
+				guiTexture4.anchor = { 0.5f, 0.5f };
 				//guiTexture4.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Create({ entTexture4, Utilz::GUID("GUITest.sei"), guiTexture4 });
+				managers.guiManager->Create( entTexture4,{ Utilz::GUID("GUITest.sei"), guiTexture4 });
 				managers.guiManager->ToggleRenderableTexture(entTexture4, true);
 
 				// GUI texture creation5
@@ -128,15 +140,20 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture5;
 				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture5.effect = Graphics::Effect::NoEffect;
-				guiTexture5.textureID = 0;	// Not needed gets set in the bind function
 				guiTexture5.layerDepth = 0;
-				guiTexture5.pos = DirectX::XMFLOAT2(800.0, 400.0);
-				guiTexture5.rotation = DirectX::XM_PIDIV2;
-				guiTexture5.scale = DirectX::XMFLOAT2(0.5, 0.5);
+				guiTexture5.origin = { 0.5f ,0.5f };
+				guiTexture5.posX = 0;
+				guiTexture5.posY = 0;
+				guiTexture5.rotation = 0;
+				guiTexture5.width = -1;
+				guiTexture5.height = -1;
+				guiTexture5.scale = { 0.25f, 0.25f };
+				guiTexture5.anchor = { 0.5f, 0.5f };
+				guiTexture5.absolute = false;
 				//guiTexture5.rect = nullptr;	//not needed default nullptr
 
 
-				managers.guiManager->Create({ entTexture5, Utilz::GUID("TransparentTest.sei"), guiTexture5 });
+				managers.guiManager->Create( entTexture5,{ Utilz::GUID("TransparentTest.sei"), guiTexture5 });
 				managers.guiManager->ToggleRenderableTexture(entTexture5, true);
 
 #pragma endregion GUI
@@ -160,7 +177,7 @@ namespace SE
 				{
 					rotation += 0.0002 * time.GetDelta();
 					managers.guiManager->SetTextureRotation(entTexture5, rotation);
-					managers.guiManager->SetTextureRotation(entTexture4, rotation);
+				//	managers.guiManager->SetTextureRotation(entTexture4, rotation);
 					
 					if (subSystems.window->ButtonPressed(1) == true)
 					{
@@ -196,8 +213,8 @@ namespace SE
 					}
 					if (subSystems.window->ButtonPressed(12) == true)
 					{
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 900);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1440);
 						subSystems.optionsHandler->Trigger();
 					}
 					e->BeginFrame();

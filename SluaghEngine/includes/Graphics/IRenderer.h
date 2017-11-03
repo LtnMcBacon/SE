@@ -98,7 +98,7 @@ namespace SE
 			* @param[in] handles The handles struct
 			* @retval jobID On success.
 			*/
-			virtual size_t EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			virtual size_t EnableTextureRendering(const GUIJob & handles) = 0;
 			
 			/**
 			* @brief    Removes a Text render job.
