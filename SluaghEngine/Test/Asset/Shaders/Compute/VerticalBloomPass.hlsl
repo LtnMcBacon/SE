@@ -1,44 +1,69 @@
+static const int2 RESOLUTION = { 640, 360 };
+
+
+static const int3 DISPATCH_SIZE = { 16, 15, 1 };
+static const int3 GROUP_SIZE = { 32, 32, 1 };
+
+static const int KERNEL_RADIUS = 32;
+
+
+//static const float BLOOM_BASE_MULTIPLIER = 5;
+//static const float BLOOM_FADE_EXPONENT = 2;
+//static const float BLOOM_ADDITIVE_COLOR_STRENGTH_MULTIPLIER = 0.8f;
+
+cbuffer BloomProperties : register(b0)
+{
+	float BLOOM_BASE_MULTIPLIER;
+	float BLOOM_FADE_EXPONENT;
+	float BLOOM_ADDITIVE_COLOR_STRENGTH_MULTIPLIER;
+	float BLOOM_AT;
+};
+
 Texture2D<unorm float4> inTex_bloom : register(t0);
-Texture2D<unorm float4> inTex_bb : register(t1);
+//Texture2D<unorm float4> inTex_bb : register(t1);
 RWTexture2D<unorm float4> outTex : register(u0);
 
-static const int3 dispatchSize = { 32, 40, 1 };
-static const int3 groupSize = { 32, 23, 1 };
+static const int GROUP_THREAD_COUNT = { GROUP_SIZE.x * GROUP_SIZE.y * GROUP_SIZE.z };
 
-static const int kernelRadius = 32;
 
-static const float bloomBaseMultiplier = 1;
-static const float bloomFadeExponent = 2;
-static const float bloomAdditiveColorStrengthMultiplier = .8f;
+groupshared float3 groupMemory[GROUP_THREAD_COUNT];
 
-groupshared float3 groupMemory[groupSize.x * groupSize.y];
 
-[numthreads(groupSize.x, groupSize.y, groupSize.z)]
-void CS_main(int3 groupID : SV_GroupID, int groupIndex : SV_GroupIndex)
+[numthreads(GROUP_SIZE.x, GROUP_SIZE.y, GROUP_SIZE.z)]
+void CS_main(int3 groupIndex_3d : SV_GroupID, int threadIndex : SV_GroupIndex)
 {
-    int formattedGroupID = groupID.y * dispatchSize.x + groupID.x;
-    int2 currentPixel = { formattedGroupID, groupIndex };
+    int groupIndex = (groupIndex_3d.z * DISPATCH_SIZE.x * DISPATCH_SIZE.y + groupIndex_3d.y * DISPATCH_SIZE.x + groupIndex_3d.x);
 
-    groupMemory[groupIndex] = inTex_bloom[currentPixel];
+    int pixelIndex = groupIndex * GROUP_THREAD_COUNT - (groupIndex * 2 * KERNEL_RADIUS) + threadIndex - KERNEL_RADIUS;
+    int2 pixelIndex_2d = { pixelIndex / RESOLUTION.y, pixelIndex % RESOLUTION.y };
+
+
+    groupMemory[threadIndex] = inTex_bloom[pixelIndex_2d];
 
     GroupMemoryBarrierWithGroupSync();
 
-    float4 backBufferColor = inTex_bb[currentPixel];
 
-    float3 blurredColor = { 0, 0, 0 };
-    for (int offset = -kernelRadius; offset < kernelRadius + 1; offset++)
+    if (threadIndex >= KERNEL_RADIUS && threadIndex < GROUP_THREAD_COUNT - KERNEL_RADIUS)
     {
-        int kernelIndex = groupIndex + offset;
-        kernelIndex = sign(kernelIndex) * kernelIndex +
-                      2 * min(0, 719 - kernelIndex);
+      //  float4 backBufferColor = inTex_bb[pixelIndex_2d];
 
-        blurredColor += groupMemory[kernelIndex];
+
+        float3 blurredColor = { 0, 0, 0 };
+        for (int pixelOffset = -KERNEL_RADIUS; pixelOffset <= KERNEL_RADIUS; pixelOffset++)
+        {
+            int offsetColumnIndex = pixelIndex_2d.y + pixelOffset;
+            int kernelOffset = (min(0, offsetColumnIndex) + max(0, offsetColumnIndex - (RESOLUTION.y - 1))) * -2;
+
+            blurredColor += groupMemory[threadIndex + pixelOffset + kernelOffset];
+        }
+        blurredColor /= 2 * KERNEL_RADIUS + 1;
+
+
+        blurredColor = BLOOM_BASE_MULTIPLIER * blurredColor +
+    pow(blurredColor, BLOOM_FADE_EXPONENT) +
+    BLOOM_ADDITIVE_COLOR_STRENGTH_MULTIPLIER * (blurredColor.r + blurredColor.g + blurredColor.b) * blurredColor;
+
+
+        outTex[pixelIndex_2d] = float4(blurredColor, 1);
     }
-    blurredColor /= 2 * kernelRadius + 1;
-
-    blurredColor =  bloomBaseMultiplier * blurredColor +
-                    pow(blurredColor, bloomFadeExponent) +
-                    bloomAdditiveColorStrengthMultiplier * (blurredColor.r + blurredColor.g + blurredColor.b) * blurredColor;
-
-    outTex[currentPixel] = backBufferColor + float4(blurredColor, 1);
 }

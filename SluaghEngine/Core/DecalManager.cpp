@@ -134,6 +134,10 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	decalToTransforms[textureName].world.push_back(world);
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
 	decalToTransforms[textureName].owners.push_back(entity);
+	const DirectX::XMMATRIX ident = DirectX::XMMatrixIdentity();
+	DirectX::XMFLOAT4X4 fident;
+	DirectX::XMStoreFloat4x4(&fident, ident);
+	decalToTransforms[textureName].localTransform.push_back(fident);
 	
 	const auto renderJob = decalToJobID.find(textureName);
 	if(renderJob == decalToJobID.end())
@@ -166,6 +170,20 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	ProfileReturnConst(0);
 }
 
+int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* transform16rowMajor)
+{
+	const auto texture = entityToTextureGuid.find(entity);
+	if(texture != entityToTextureGuid.end())
+	{
+		auto transforms = decalToTransforms.find(texture->second);
+		const auto transformIndex = entityToTransformIndex[entity];
+		transforms->second.localTransform[transformIndex] = *((DirectX::XMFLOAT4X4*)transform16rowMajor);
+		initInfo.transformManager->SetAsDirty(entity); //Triggers SetDirty
+		return 0;
+	}
+	return -1;
+}
+
 int SE::Core::DecalManager::Remove(const Entity& entity)
 {
 	return 0;
@@ -177,12 +195,22 @@ void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
 	auto texture = entityToTextureGuid.find(entity);
 	if(texture != entityToTextureGuid.end())
 	{
+		
 		const size_t transformIndex = entityToTransformIndex[entity];
-		DirectX::XMMATRIX mWorld = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index]);
+		const DirectX::XMMATRIX mWorld = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index]);
+		const DirectX::XMMATRIX lWorld = DirectX::XMLoadFloat4x4(&decalToTransforms[texture->second].localTransform[transformIndex]);
+		DirectX::XMVECTOR lScale, lRot, lTrans;
+		DirectX::XMVECTOR wScale, wRot, wTrans;
+		DirectX::XMMatrixDecompose(&lScale, &lRot, &lTrans, lWorld);
+		DirectX::XMMatrixDecompose(&wScale, &wRot, &wTrans, mWorld);
+		const DirectX::XMMATRIX mScale = DirectX::XMMatrixScalingFromVector(lScale) * DirectX::XMMatrixScalingFromVector(wScale);
+		const DirectX::XMMATRIX mRot = DirectX::XMMatrixRotationQuaternion(lRot) * DirectX::XMMatrixRotationQuaternion(wRot);
+		const DirectX::XMMATRIX mTrans = DirectX::XMMatrixTranslationFromVector(lTrans) * DirectX::XMMatrixTranslationFromVector(wTrans);
+		const DirectX::XMMATRIX actualWorld = mScale * mRot * mTrans;
 		DirectX::XMFLOAT4X4 world;
 		DirectX::XMFLOAT4X4 invWorld;
-		DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixTranspose(mWorld));
-		DirectX::XMStoreFloat4x4(&invWorld, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, mWorld)));
+		DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixTranspose(actualWorld));
+		DirectX::XMStoreFloat4x4(&invWorld, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, actualWorld)));
 		decalToTransforms[texture->second].world[transformIndex] = world;
 		decalToTransforms[texture->second].inverseWorld[transformIndex] = invWorld;
 	}
@@ -201,12 +229,14 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	auto bucket = decalToTransforms.find(texture); //Guaranteed to find it, no need to check
 	bucket->second.inverseWorld[transformIndex] = bucket->second.inverseWorld.back();
 	bucket->second.world[transformIndex] = bucket->second.world.back();
+	bucket->second.localTransform[transformIndex] = bucket->second.localTransform.back();
 	bucket->second.owners[transformIndex] = bucket->second.owners.back();
 
 	entityToTransformIndex[bucket->second.owners[transformIndex]] = transformIndex;
 
 	bucket->second.inverseWorld.pop_back();
 	bucket->second.world.pop_back();
+	bucket->second.localTransform.pop_back();
 	bucket->second.owners.pop_back();
 	
 	entityToTransformIndex.erase(entity);

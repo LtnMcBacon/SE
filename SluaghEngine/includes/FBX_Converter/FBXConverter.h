@@ -102,7 +102,7 @@ namespace SE
 			void WriteMaterial(std::string folderName, std::string textureFolder, Material& meshMaterial);
 			void WriteMesh(std::string folderName, Mesh& mesh);
 			void WriteSkeleton(std::string folderName, Skeleton skeleton, std::string meshName);
-			void WriteAnimation(std::string folderName, Skeleton skeleton);
+			void WriteAnimation(std::string folderName, vector<Animation>& animations);
 			void WriteLights(std::string folderName);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
