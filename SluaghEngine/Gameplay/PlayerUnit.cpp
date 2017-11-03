@@ -176,7 +176,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
-		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
+		/*if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
 		{
 			Core::IAnimationManager::AnimationPlayInfo playInfo;
 			playInfo.animations[0] = "RunAnimation_MCModell.anim";
@@ -187,7 +187,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 			playInfo.nrOfLayers = 1;
 
 			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-		}
+		}*/
 	}
 	else
 	{
