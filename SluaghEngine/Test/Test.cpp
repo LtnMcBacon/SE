@@ -44,6 +44,7 @@
 #include "DecalTest.h"
 #include "ShadowTest.h"
 #include "ComputeTest.h"
+#include "SkillTest.h"
 #include "ThreadPoolTest.h"
 
 #ifdef _DEBUG
@@ -104,6 +105,8 @@ int main(int argc, char** argv)
 	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
+	AddTest(SkillTest);
+
 	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
