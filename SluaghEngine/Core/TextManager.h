@@ -185,8 +185,8 @@ namespace SE
 			*/
 			void SetDefaultScale(float inHeight, float inWidth)override
 			{
-				height = inHeight;
-				width = inWidth;
+				originalScreenHeight = inHeight;
+				originalScreenWidth = inWidth;
 			}
 
 			/**
@@ -204,6 +204,7 @@ namespace SE
 
 			struct showID
 			{
+				Utilz::GUID font;
 				size_t ID;
 				size_t jobID;
 				bool show = false;
@@ -221,8 +222,8 @@ namespace SE
 
 			InitializationInfo initInfo;
 
-			float height = 720.0;
-			float width = 1280.0;
+			long originalScreenWidth = 1280;
+			long originalScreenHeight = 720;
 		};
 	}
 }

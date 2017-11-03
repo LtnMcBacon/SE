@@ -329,13 +329,26 @@ int SE::Graphics::Renderer::Render()
 
 		for (auto& job : renderTextJobs)
 		{
+			DirectX::XMFLOAT2 dim;
+			auto jw = (float)job.info.width;
+			auto jh = (float)job.info.height;
+			DirectX::XMStoreFloat2(&dim, fonts[job.fontID].MeasureString(job.info.text.c_str()));
+			auto scale = job.info.scale;
+			if (jw == -1)
+				jw = dim.x;
+			else
+				scale.x = (jw / dim.x)*job.info.scale.x;
+			if (jh == -1)
+				jh = dim.y;
+			else
+				scale.y = (jh / dim.y)*job.info.scale.y;
 			RECT rect;
 			rect.left = job.info.posX;
 			rect.top = job.info.posY;
-			rect.right = rect.left + job.info.width;
-			rect.bottom = rect.top + job.info.height;
+			rect.right = rect.left + jw;
+			rect.bottom = rect.top + jh;
 
-			DirectX::XMFLOAT2 origin = { job.info.anchor.x*job.info.width, job.info.anchor.y*job.info.height };
+			DirectX::XMFLOAT2 origin = { job.info.anchor.x*dim.x, job.info.anchor.y*dim.y };
 
 			// Scale to screen
 			if (!job.info.absolute)
@@ -352,8 +365,8 @@ int SE::Graphics::Renderer::Render()
 			rect.right += width * job.info.screenAnchor.x;
 			rect.bottom += height * job.info.screenAnchor.y;
 
-
-			fonts[job.fontID].DrawString(spriteBatch, job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			
+			fonts[job.fontID].DrawString(spriteBatch, job.info.text.c_str(), {(float) rect.left,(float) rect.top }, XMLoadFloat4(&job.info.colour), job.info.rotation, origin, scale, (DirectX::SpriteEffects)job.info.effect, job.info.layerDepth);
 		}
 		spriteBatch->End();
 	}
@@ -475,7 +488,7 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 {
 	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
-	return fonts.size();
+	return fonts.size() - 1;
 }
 
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
