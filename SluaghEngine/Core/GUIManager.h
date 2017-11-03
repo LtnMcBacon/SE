@@ -85,16 +85,16 @@ namespace SE
 
 			inline void SetTextureOrigin(const Entity& entity, DirectX::XMFLOAT2 origin) override {
 				// chexk if entity exist in texture 
-				auto fileLoaded = entTextureID.find(entity);
+				/*auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{			
 
-					textureInfo[fileLoaded->second.ID].origin = origin;
+					textureInfo[fileLoaded->second.ID] = origin;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
-				}
+				}*/
 			};
 
 			inline void SetTextureDimensions(const Entity& entity, long x, long y) override {

@@ -74,7 +74,7 @@ namespace SE
 
 			inline void SetTextFontID(const Entity& entity, size_t fontID)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
+			/*	auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].fontID = fontID;
@@ -82,7 +82,7 @@ namespace SE
 					{
 						dirtyEnt[entity] = true;
 					}
-				}
+				}*/
 			};
 
 			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) override {
@@ -98,12 +98,13 @@ namespace SE
 				}
 			};
 
-			inline void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
+			inline void SetTextPos(const Entity& entity, long x, long y)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[fileLoaded->second.ID].pos = pos;
+					loadedTexts[fileLoaded->second.ID].posX = x;
+					loadedTexts[fileLoaded->second.ID].posY = y;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
@@ -116,7 +117,7 @@ namespace SE
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[fileLoaded->second.ID].origin = origin;
+					loadedTexts[fileLoaded->second.ID]. = origin;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
