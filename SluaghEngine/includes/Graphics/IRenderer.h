@@ -1,15 +1,13 @@
 #ifndef _IRENDERER_H_
 #define _IRENDERER_H_
-#include <Utilz/GUID.h>
+
 #include <cstdint>
 #include "TextureDesc.h"
 #include <Graphics\GUIInfo.h>
-//#include "ShaderSettings.h"
 #include <Utilz\TimeCluster.h>
 #include "IPipelineHandler.h"
 #include "RenderJob.h"
 #include <functional>
-#include "GUIInfo.h"
 
 #if defined DLL_EXPORT_RENDERER
 #define DECLDIR_R __declspec(dllexport)
@@ -34,16 +32,14 @@ namespace SE
 
 			/**
 			* @brief Initialize the renderer
-			* @param[in] window A pointer to the window.
+			* @param[in] initInfo Initalization info container.
 			* @retval 0 On success.
 			* @retval other See HRESULT
-			* @endcode
 			*/
 			virtual int Initialize(const InitializationInfo& initInfo) = 0;
 
 			/**
 			* @brief Shutdown the renderer
-			* @endcode
 			*/
 			virtual void Shutdown() = 0;
 
@@ -87,15 +83,13 @@ namespace SE
 			* @brief    Sets a Text render jobs
 			* @param[in] handles The handles struct
 			* @retval jobID On success.
-			* @endcode
 			*/
 			virtual size_t EnableTextRendering(const TextGUI & handles) = 0;
 
 			/**
 			* @brief    Removes a Text render job.
-			* @param[in] handles The handles struct
+			* @param[in] jobID The ID of the job to disable.
 			* @retval jobID On success.
-			* @endcode
 			*/
 			virtual size_t DisableTextRendering(const size_t & jobID) = 0;
 
@@ -103,22 +97,19 @@ namespace SE
 			* @brief    Sets Text render jobs
 			* @param[in] handles The handles struct
 			* @retval jobID On success.
-			* @endcode
 			*/
-			virtual size_t EnableTextureRendering(const GUITextureInfo & handles) = 0;
+			virtual size_t EnableTextureRendering(const GUIJob & handles) = 0;
 			
 			/**
 			* @brief    Removes a Text render job.
-			* @param[in] handles The handles struct
+			* @param[in] jobID The ID of the job to disable.
 			* @retval jobID On success.
-			* @endcode
 			*/
 			virtual size_t DisableTextureRendering(const size_t & jobID) = 0;
 
 			/**
 			* @brief Renders the scene
 			* @retval 0 On success.
-			* @endcode
 			*/
 			virtual int Render() = 0;
 
@@ -156,20 +147,16 @@ namespace SE
 			* @brief Create a new font
 			* @retval 0+ Font ID
 			* @retval -1 Something went wrong.
-			* @endcode
 			*/
 			virtual int CreateTextFont(void * data, size_t size) = 0;
 			/**
 			* @brief Resizes the swapchain
 			* @param[in] windowHandle A window handle.
-			* @endcode
 			*/
 			virtual void ResizeSwapChain(void* windowHandle) = 0;
 			/**
 			* @brief	The amount of VRam currently used.
-			*
 			* @retval size_t The amount of VRam used in bytes.
-			*
 			*/
 			virtual size_t GetVRam() = 0;
 

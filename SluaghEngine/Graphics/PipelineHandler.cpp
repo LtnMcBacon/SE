@@ -69,21 +69,21 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	if (FAILED(hr))
 		throw std::exception("Could not compile fullscreenQuadVS");
 
-	CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 
 	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile MultiPS");
 
-	CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release(); 
 	
 	hr = D3DCompile(SinglePS, strlen(SinglePS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile SinglePS");
 
-	CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 	
 
@@ -136,9 +136,6 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 
 int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
 {
-	const auto exists = renderTargetViews.find(id);
-	if (exists != renderTargetViews.end())
-		return EXISTS;
 	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
 	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
 	manuallyAddedResources.insert(id);
@@ -147,9 +144,6 @@ int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
 {
-	const auto exists = depthStencilViews.find(id);
-	if (exists != depthStencilViews.end())
-		return EXISTS;
 	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -157,9 +151,6 @@ int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
 {
-	const auto exists = shaderResourceViews.find(id);
-	if (exists != shaderResourceViews.end())
-		return EXISTS;
 	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -186,7 +177,7 @@ int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, voi
 	bd.MiscFlags = 0;
 	bd.Usage = dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
 	bd.StructureByteStride = stride;
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (data)
 	{
@@ -864,7 +855,7 @@ int SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, s
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 
 
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (initialData)
 	{
@@ -1522,31 +1513,20 @@ int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	StartProfile;
-	ID3D11Buffer *nullBuffer = nullptr;
 	uint32_t offset = 0;
-
-	//if (pipeline.CSStage.shader != Utilz::GUID())
-	//{
-	//	SetPipelineForced(pipeline);
-	//}
-	//else
-	//{
-		//deviceContext->SOSetTargets(1, &nullBuffer, &offset);
-		SetInputAssemblerStage(pipeline.IAStage);
-		SetVertexShaderStage(pipeline.VSStage);
-		SetGeometryShaderStage(pipeline.GSStage);
-		if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
-		{
-			deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
-			currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
-		}
-		SetRasterizerStage(pipeline.RStage);
-		//ForcedSetOutputMergerStage(pipeline.OMStage);
-		SetPixelShaderStage(pipeline.PSStage);
-		SetOutputMergerStage(pipeline.OMStage);
-		SetComputeShaderStage(pipeline.CSStage);
-	//}
-	
+	SetInputAssemblerStage(pipeline.IAStage);
+	SetVertexShaderStage(pipeline.VSStage);
+	SetGeometryShaderStage(pipeline.GSStage);
+	if (pipeline.SOStage.streamOutTarget != currentPipeline.SOStage.streamOutTarget)
+	{
+		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
+		currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
+	}
+	SetRasterizerStage(pipeline.RStage);
+	//ForcedSetOutputMergerStage(pipeline.OMStage);
+	SetPixelShaderStage(pipeline.PSStage);
+	SetOutputMergerStage(pipeline.OMStage);
+	SetComputeShaderStage(pipeline.CSStage);
 	StopProfile;
 }
 

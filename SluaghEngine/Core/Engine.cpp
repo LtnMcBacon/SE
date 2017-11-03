@@ -61,7 +61,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 
 	SetupDebugConsole();
 
-	//default camera
+	//default cameradamera
 	auto defEntCam = managers.entityManager->Create();
 	managers.cameraManager->Create(defEntCam);
 	managers.cameraManager->SetActive(defEntCam);
@@ -149,6 +149,10 @@ int SE::Core::Engine::Release()
 	delete subSystems.optionsHandler;
 	subSystems.optionsHandler = nullptr;
 
+	if (subSystems.threadPool)
+		delete subSystems.threadPool;
+	subSystems.threadPool = nullptr;
+
 	delete perFrameStackAllocator;
 	ProfileReturnConst(0);
 }
@@ -210,6 +214,10 @@ void SE::Core::Engine::InitSubSystems()
 		auto res = subSystems.devConsole->Initialize();
 		if (res < 0)
 			throw std::exception("Could not initiate devConsole.");
+	}
+	if(!subSystems.threadPool)
+	{
+		subSystems.threadPool = new Utilz::ThreadPool(4);
 	}
 	StopProfile;
 }

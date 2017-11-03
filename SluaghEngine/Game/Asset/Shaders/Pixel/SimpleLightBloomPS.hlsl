@@ -8,11 +8,12 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
+	float4 castShadow;
 };
 
 cbuffer LightDataBuffer : register(b2)
 {
-	float4 nrOfLights;
+	uint4 nrOfLights;
 	Light pointLights[20];
 };
 cbuffer CameraPos : register(b3)
@@ -32,6 +33,8 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float4 PosInW : WORLDPOS;
 	float4 NormalInW : NORMALINW;
+	float4 BinormalInW : BINORMALINW;
+	float4 TangentInW : TANGENTINW;
 	float2 Tex : TEXCOORD;
 };
 

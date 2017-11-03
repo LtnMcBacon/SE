@@ -45,6 +45,7 @@
 #include "ShadowTest.h"
 #include "ComputeTest.h"
 #include "HUDTest.h"
+#include "ThreadPoolTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -113,6 +114,7 @@ int main(int argc, char** argv)
 	AddTest(DecalTest);
 	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
+	AddTest(ThreadPoolTest);
 	AddTest(HUDTest);
   
 	volatile bool running = true;
