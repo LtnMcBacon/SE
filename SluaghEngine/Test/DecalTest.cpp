@@ -92,6 +92,9 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	window->MapActionButton(Window::KeyL, Window::KeyL);
 	window->MapActionButton(Window::KeyK, Window::KeyK);
 
+	window->MapActionButton(Window::KeyY, Window::KeyY);
+	window->MapActionButton(Window::KeyT, Window::KeyT);
+
 
 
 	bool running = true;
@@ -120,6 +123,11 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 			tm->Move(decal2, { -dt, 0.0f, 0.0f,0.0f});
 		if (window->ButtonDown(Window::KeyL))
 			tm->Rotate(decal2, 0.0f, 0.0f, 3.14f / 10.0f * dt);
+
+		if (window->ButtonDown(Window::KeyT))
+			dm->ModifyOpacity(decal, 0.1 * dt);
+		if (window->ButtonDown(Window::KeyY))
+			dm->ModifyOpacity(decal, -0.1 * dt);
 		//auto pyr = tm->GetRotation(camera);
 		//tm->SetRotation(decal, pyr.x, pyr.y, pyr.z);
 		if(window->ButtonPressed(Window::KeyO))
