@@ -13,6 +13,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	worldConstantBuffer = "DecalsWorld";
 	inverseViewProj = "DecalsInverseViewProj";
 	inverseWorld = "DecalsInverseWorld";
+	opacities = "DecalOpacity";
 	blendState = "DecalBlend";
 	textureBindName = "DecalDiffuse";
 	rasterizerState = "DecalRS";
@@ -151,8 +152,10 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 		{
 			auto& worlds = decalToTransforms[textureName].world;
 			auto& invWorlds = decalToTransforms[textureName].inverseWorld;
+			auto& opacity = decalToTransforms[textureName].opacity;
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(worldConstantBuffer, &worlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseWorld, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
+			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(opacities, &opacity[drawn], sizeof(float) * toDrawNow);
 
 		});
 		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::POST_PASS_0);

@@ -37,6 +37,7 @@ namespace SE
 			Utilz::GUID worldConstantBuffer;
 			Utilz::GUID inverseViewProj;
 			Utilz::GUID inverseWorld;
+			Utilz::GUID opacities;
 			Utilz::GUID blendState;
 			Utilz::GUID textureBindName;
 			Utilz::GUID rasterizerState;
