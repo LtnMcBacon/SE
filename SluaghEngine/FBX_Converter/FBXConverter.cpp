@@ -1076,7 +1076,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				FbxAnimLayer* currentAnimLayer = AnimStack->GetMember<FbxAnimLayer>(j);
 
 				// Skip the base animation layer
-				if(currentAnimLayer->GetName() != "BaseLayer")
+				if (currentAnimLayer->GetName() != "BaseLayer")
 				{
 					if (j == index) {
 						pMesh.animations.push_back({});
@@ -1105,7 +1105,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
 					const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
 
-					if(j == index)
+					if (j == index)
 					{
 						index++;
 						CurrentAnimation.joints.resize(clusterCount);
@@ -1120,70 +1120,78 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					CurrentAnimation.Length = numKeys;
 
 					logFile << "-------------------------------------------------------\n"
-						<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nIndex: " << j << "\nLength: " << numKeys <<
+						<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nAnimation Index: " << j << "\nAnimation Length: " << numKeys <<
 						"\n-------------------------------------------------------\n";
 
-					auto& joint = CurrentAnimation.joints[currentJointIndex];
-					joint.keyframes.resize(numKeys);
-					// Access the current value on each individual channel on the different curves at a given keyframe
-					for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
+					if (currentJointIndex < CurrentAnimation.joints.size()) {
 
-						/*FbxTime currentTime;
-						currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
+						auto& joint = CurrentAnimation.joints[currentJointIndex];
+						joint.keyframes.resize(numKeys);
 
-						logFile << "Time: " << timeIndex + 1 << endl;
+						// Access the current value on each individual channel on the different curves at a given keyframe
+						for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
 
-						// Get the values on each channel
-						//translationCurveX->Evaluate(currentTime, 0);
-						//translationCurveX->KeyGetValue(timeIndex);
+							/*FbxTime currentTime;
+							currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
 
-						float translationX = translationCurveX->KeyGetValue(timeIndex);
-						float translationY = translationCurveY->KeyGetValue(timeIndex);
-						float translationZ = translationCurveZ->KeyGetValue(timeIndex);
+							logFile << "Time: " << timeIndex + 1 << endl;
 
-						float rotationX = rotationCurveX->KeyGetValue(timeIndex);
-						float rotationY = rotationCurveY->KeyGetValue(timeIndex);
-						float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
+							// Get the values on each channel
+							//translationCurveX->Evaluate(currentTime, 0);
+							//translationCurveX->KeyGetValue(timeIndex);
 
-						float scalingX = scalingCurveX->KeyGetValue(timeIndex);
-						float scalingY = scalingCurveY->KeyGetValue(timeIndex);
-						float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
+							float translationX = translationCurveX->KeyGetValue(timeIndex);
+							float translationY = translationCurveY->KeyGetValue(timeIndex);
+							float translationZ = translationCurveZ->KeyGetValue(timeIndex);
 
-						// Build the vectors for the global transform matrix
-						FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
-						FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
-						FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
+							float rotationX = rotationCurveX->KeyGetValue(timeIndex);
+							float rotationY = rotationCurveY->KeyGetValue(timeIndex);
+							float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
 
-						// Compose the quaternion from euler angles
-						FbxQuaternion quaternion;
-						quaternion.ComposeSphericalXYZ(rotationVector);
+							float scalingX = scalingCurveX->KeyGetValue(timeIndex);
+							float scalingY = scalingCurveY->KeyGetValue(timeIndex);
+							float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
 
-						// Set the vectors for the global transform matrix (Build the keyframe)
-						FbxAMatrix localTransform;
-						localTransform.SetTQS(translationVector, quaternion, scalingVector);
+							// Build the vectors for the global transform matrix
+							FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
+							FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
+							FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
-						// The root joint uses its local transform as global. It has no parents. 
-						if (currentJointIndex == 0) {
+							// Compose the quaternion from euler angles
+							FbxQuaternion quaternion;
+							quaternion.ComposeSphericalXYZ(rotationVector);
 
-							// Get the root joint local and global transform
-							joint.keyframes[timeIndex].LocalTransform = localTransform;
-							joint.keyframes[timeIndex].GlobalTransform = localTransform;
+							// Set the vectors for the global transform matrix (Build the keyframe)
+							FbxAMatrix localTransform;
+							localTransform.SetTQS(translationVector, quaternion, scalingVector);
 
-							//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
-						}
+							// The root joint uses its local transform as global. It has no parents. 
+							if (currentJointIndex == 0) {
 
-						// For all the other joints, this would be their local transforms
-						else {
+								// Get the root joint local and global transform
+								joint.keyframes[timeIndex].LocalTransform = localTransform;
+								joint.keyframes[timeIndex].GlobalTransform = localTransform;
 
-							// We must build their global transformation before export
-							joint.keyframes[timeIndex].LocalTransform = localTransform;
+								//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+							}
 
-							//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
-						}
+							// For all the other joints, this would be their local transforms
+							else {
+
+								// We must build their global transformation before export
+								joint.keyframes[timeIndex].LocalTransform = localTransform;
+
+								//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+							}
 
 					}
 
+				}
 
+					else {
+
+						logFile << "Indexing was outside animation joint size" << endl;
+					}
 				}
 			}
 
