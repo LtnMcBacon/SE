@@ -47,7 +47,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 	auto subSystem = engine->GetSubsystems();
 	
 
-	srand((int)time(NULL)); 
+	//srand((int)time(NULL)); 
 
 	float width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
 	float height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
@@ -94,7 +94,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	
-	int random = rand() % nrOfRooms;
+	int random = subSystem.window->GetRand() % nrOfRooms;
 
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
@@ -129,7 +129,16 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 			}
 		}
 	}
-	
+	if (player == nullptr)
+	{
+		delete testRoom;
+		delete player;
+		delete[] RoomArr;
+		game.Shutdown();
+		engine->Release();
+		delete engine;
+		ProfileReturnConst(false);
+	}
 
 	 managers.renderableManager->CreateRenderableObject(player->GetEntity(), {"MCModell.mesh"});
 
@@ -250,8 +259,8 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 		pos enemyPos;
 		do
 		{
-			enemyPos.x = rand() % 25;
-			enemyPos.y = rand() % 25;
+			enemyPos.x = subSystem.window->GetRand() % 25;
+			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);

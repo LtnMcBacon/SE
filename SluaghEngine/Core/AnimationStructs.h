@@ -2,7 +2,7 @@
 #define ANIMATIONSTRUCTS_H
 
 #include <vector>
-
+#include <Utilz\GUID.h>
 #include <DirectXMath.h>
 
 namespace SE 
@@ -43,7 +43,7 @@ namespace SE
 			unsigned int Length;
 
 			Animation() {
-				Joints.reserve(19);
+				Joints.resize(19);
 				Length = 0;
 			}
 		};
@@ -59,7 +59,7 @@ namespace SE
 
 				GlobalTx = DirectX::XMMatrixIdentity();
 				inverseBindPoseMatrix = DirectX::XMMatrixIdentity();
-				int parentIndex = 0;
+				parentIndex = 0;
 			}
 		};
 
@@ -70,6 +70,17 @@ namespace SE
 			Skeleton() {
 				Hierarchy.reserve(19);
 			}
+		};
+
+		struct AnimationInfo
+		{
+			static const size_t maxLayers = 4;
+			size_t nrOfLayers = 0;
+			Utilz::GUID skeleton;
+			Utilz::GUID animation[maxLayers];
+			float timePos[maxLayers];
+			float animationSpeed[maxLayers];
+			bool looping[maxLayers];
 		};
 
 	}

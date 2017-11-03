@@ -52,12 +52,13 @@ void SE::Core::ImGuiConsole::Frame()
 	StartProfile;
 	if (!showConsole)
 		ProfileReturnVoid;
-
+	msgLock.lock();
 	if(messages.size() == maxMessages)
 	{
 		//Keep half of the existing messages.
 		messages.erase(messages.begin(), messages.begin() + (maxMessages / 2));
 	}
+	msgLock.unlock();
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Dev console", &showConsole, ImGuiWindowFlags_MenuBar))
 	{
@@ -76,6 +77,7 @@ void SE::Core::ImGuiConsole::Frame()
 	ImGui::Checkbox("Scroll to bottom", &scrollToBottom);
 	ImGui::Separator();
 	ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+	msgLock.lock();
 	for (auto& m : messages)
 	{
 		ImVec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -97,6 +99,7 @@ void SE::Core::ImGuiConsole::Frame()
 		}	
 		ImGui::PopStyleColor();
 	}
+	msgLock.unlock();
 	if (scrollToBottom)
 		ImGui::SetScrollHere();
 	ImGui::EndChild();
@@ -129,7 +132,9 @@ void SE::Core::ImGuiConsole::EndFrame()
 
 void SE::Core::ImGuiConsole::Clear()
 {
+	msgLock.lock();
 	messages.clear();
+	msgLock.unlock();
 }
 
 void * SE::Core::ImGuiConsole::GetContext()
@@ -287,7 +292,9 @@ void SE::Core::ImGuiConsole::PrintChannel(const char * channel, const char * lin
 
 	va_end(args);
 	std::string f(formatted, r);
+	msgLock.lock();
 	messages.push_back({ std::chrono::system_clock::now(), f, channel });
+	msgLock.unlock();
 	delete[] formatted;
 }
 
@@ -310,7 +317,9 @@ void SE::Core::ImGuiConsole::Print(const char * line, ...)
 
 	va_end(args);
 	std::string f(formatted, r);
+	msgLock.lock();
 	messages.push_back({ std::chrono::system_clock::now(), f, "Global" });
+	msgLock.unlock();
 	delete[] formatted;
 }
 
@@ -330,7 +339,9 @@ void SE::Core::ImGuiConsole::VPrint(const char * line, va_list args)
 	}
 
 	std::string f(formatted, r);
+	msgLock.lock();
 	messages.push_back({ std::chrono::system_clock::now(), f, "Global" });
+	msgLock.unlock();
 	delete[] formatted;
 }
 
@@ -350,7 +361,9 @@ void SE::Core::ImGuiConsole::VPrint(const char * channel, const char * line, va_
 	}
 
 	std::string f(formatted, r);
+	msgLock.lock();
 	messages.push_back({ std::chrono::system_clock::now(), f, channel });
+	msgLock.unlock();
 	delete[] formatted;
 }
 

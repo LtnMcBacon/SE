@@ -21,6 +21,9 @@ namespace SE
 			*/
 			int Create(const Entity& entity, const Utilz::GUID& textureName) override;
 
+			/*@brief See IDecalManager
+			 */
+			int SetLocalTransform(const Entity& entity, float* transform16rowMajor) override;
 			/*
 			* @brief See IDecalManager
 			*/
@@ -41,6 +44,7 @@ namespace SE
 			Graphics::Pipeline defaultPipeline;
 			struct DecalTransforms
 			{
+				std::vector<DirectX::XMFLOAT4X4> localTransform;
 				std::vector<DirectX::XMFLOAT4X4> world;
 				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
 				std::vector<Entity> owners;

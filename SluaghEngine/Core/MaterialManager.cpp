@@ -11,7 +11,7 @@ static const SE::Utilz::GUID backBuffer("backbuffer");
 static const SE::Utilz::GUID bloomTarget("bloomTarget");
 
 
-SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo) : initInfo(initInfoo)//, mLoading(initInfo.renderer, initInfo.resourceHandler)
+SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn)//, mLoading(initInfo.renderer, initInfo.resourceHandler)
 {
 	_ASSERT(initInfo.resourceHandler);
 	_ASSERT(initInfo.renderer);
@@ -109,7 +109,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoo)
 
 	Graphics::RenderTarget rt;
 	rt.bindAsShaderResource = true;
-	rt.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
+	rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
 	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
 	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
 	rt.clearColor[0] = 0.0f;
@@ -217,8 +217,8 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 	StartProfile;
 	timer->Start(CREATE_ID_HASH("MaterialManager"));
 	GarbageCollection();
-
-	while (!toUpdate.wasEmpty())
+	std::vector<Entity> eTu;
+	if (mLoading.DoUpdate(eTu))
 	{
 		auto& job = toUpdate.top();
 

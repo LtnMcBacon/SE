@@ -63,6 +63,9 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
 	dm->Create(decal2, "ft_stone01_c.sei");
+	DirectX::XMFLOAT4X4 transf;
+	DirectX::XMStoreFloat4x4(&transf, DirectX::XMMatrixTranslation(0.0f, 2.0f, 0.0f));
+	dm->SetLocalTransform(decal2, (float*)&transf);
 	tm->BindChild(box, decal);
 	tm->BindChild(box, decal2);
 	auto l = em->Create();
@@ -82,6 +85,10 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	window->MapActionButton(Window::KeyLeft, Window::KeyLeft);
 	window->MapActionButton(Window::KeyRight, Window::KeyRight);
 	window->MapActionButton(Window::KeyO, Window::KeyO);
+	window->MapActionButton(Window::KeyL, Window::KeyL);
+	window->MapActionButton(Window::KeyK, Window::KeyK);
+
+
 
 	bool running = true;
 	float dt = 1/60.0f * 5.0f;
@@ -105,10 +112,16 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		if (window->ButtonDown(Window::KeyRight))
 			tm->Rotate(camera, 0.0f, 3.14 / 10.0f* dt, 0.0f);
 
+		if (window->ButtonDown(Window::KeyK))
+			tm->Move(decal2, { -dt, 0.0f, 0.0f,0.0f});
+		if (window->ButtonDown(Window::KeyL))
+			tm->Rotate(decal2, 0.0f, 0.0f, 3.14f / 10.0f * dt);
+		//auto pyr = tm->GetRotation(camera);
+		//tm->SetRotation(decal, pyr.x, pyr.y, pyr.z);
 		if(window->ButtonPressed(Window::KeyO))
 		{
 			em->Destroy(decal);
-			DirectX::XMFLOAT3 newPos = { (float)(rand() % 5), (float)(rand() % 5), 0.0f };
+			DirectX::XMFLOAT3 newPos = { (float)(subSystem.window->GetRand() % 5), (float)(subSystem.window->GetRand() % 5), 0.0f };
 			DirectX::XMFLOAT3 newRot = { 0,0,0 };// tm->GetRotation(box);
 			DirectX::XMFLOAT3 newScale = { 1.0f, 1.0f, 10.0f };
 			decal = em->Create();

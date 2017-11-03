@@ -18,10 +18,10 @@ namespace SE
 		class LightManager : public ILightManager
 		{
 		public:
-			LightManager(const InitializationInfo& initInfo);
+			LightManager(const ILightManager::InitializationInfo& initInfo);
 			~LightManager();		
 
-			void Create(const Entity& entity, const CreateInfo& data)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 			void ToggleLight(const Entity& entity, bool show)override;
 
@@ -52,7 +52,7 @@ namespace SE
 			{
 				DirectX::XMFLOAT4 colour;	//colour (rgba)
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
-				DirectX::XMFLOAT4 castShadow;
+				uint32_t castShadow[4];
 			};
 
 			struct LightViewProj {

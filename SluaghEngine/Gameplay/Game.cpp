@@ -19,7 +19,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
-	//state = new PlayState(CoreInit::subSystems.window, engine);
+	state = new PlayState(CoreInit::subSystems.window, engine);
 }
 
 void SE::Gameplay::Game::Run()
@@ -36,6 +36,20 @@ void SE::Gameplay::Game::Run()
 		 {
 			switch (newState)
 			{
+				case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
+				{
+					if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+						CoreInit::subSystems.window->StopRecording();
+				}
+				case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
+				{
+					if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+						CoreInit::subSystems.window->StopRecording();
+				}
+				case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
+				{
+					CoreInit::subSystems.window->StartRecording();
+				}
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
@@ -51,5 +65,5 @@ void SE::Gameplay::Game::Run()
 
 void SE::Gameplay::Game::Shutdown()
 {
-	//delete state;
+	delete state;
 }

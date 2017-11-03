@@ -14,7 +14,6 @@ namespace SE {
 
 			initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 
-			uint32_t numLights = 0;
 			auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(LightDataBuffer));
 			if (result < 0)
 				throw std::exception("Could not create LightDataBuffer");
@@ -46,7 +45,7 @@ namespace SE {
 				if (data.castShadow == true) {
 
 					//DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH (35, 35, 0.1, info.radius);
-					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3f, 1, 0.1, info.radius);
+					DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3, 1, 0.1, info.radius);
 
 					shadowCasters.push_back({ entity, proj, info.dir});
 
@@ -100,7 +99,7 @@ namespace SE {
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
-					auto& cb = *(LightDataBuffer*)data;
+					auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
 					uint32_t count = 0;
 					for (auto& l : entityToLightData)
 					{
@@ -108,7 +107,7 @@ namespace SE {
 						{
 							cb.data[count].colour = l.second.colour;
 							cb.data[count].pos = l.second.pos;
-							cb.data[count].castShadow.x = l.second.castShadow;
+							cb.data[count].castShadow[0] = l.second.castShadow;
 							count++;
 						}
 						if (count == 20)
@@ -126,7 +125,8 @@ namespace SE {
 				auto& k = shadowCasters[0];
 				auto pos = initInfo.transformManager->GetPosition(k.entity);
 
-				//initInfo.transformManager->SetForward(k.entity, k.dir);
+				XMVECTOR newDir = { 0.0f, -1.0f, 1.0f, 1.0f };
+				initInfo.transformManager->SetForward(k.entity, newDir);
 
 				auto dir = initInfo.transformManager->GetForward(k.entity);
 				auto right = initInfo.transformManager->GetRight(k.entity);

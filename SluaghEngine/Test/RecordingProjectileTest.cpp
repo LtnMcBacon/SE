@@ -200,7 +200,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 
-		int random = rand() % nrOfRooms;
+		int random = subSystem.window->GetRand() % nrOfRooms;
 
 		Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
@@ -235,7 +235,16 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 				}
 			}
 		}
-
+		if (player == nullptr)
+		{
+			delete testRoom;
+			delete player;
+			delete[] RoomArr;
+			game.Shutdown();
+			engine->Release();
+			delete engine;
+			ProfileReturnConst(false);
+		}
 
 		Core::IMaterialManager::CreateInfo playerInfo;
 		material = Utilz::GUID("MCModell.mat");
@@ -243,9 +252,9 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		playerInfo.shader = shader;
 		playerInfo.materialFile = material;
 
-		managers.materialManager->Create(player->GetEntity(), playerInfo);
+		managers.materialManager->Create(player->GetEntity(), playerInfo, true);
 		managers.transformManager->SetScale(player->GetEntity(), 1.f);
-		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") });
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") }, true);
 
 		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
@@ -359,8 +368,8 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = rand() % 25;
-				enemyPos.y = rand() % 25;
+				enemyPos.x = subSystem.window->GetRand() % 25;
+				enemyPos.y = subSystem.window->GetRand() % 25;
 			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
@@ -671,7 +680,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 
 	lam(Window::WindowState::Record);
-	lam(Window::WindowState::Playback);
+	//lam(Window::WindowState::Playback);
 
 	ProfileReturnConst(true)
 }

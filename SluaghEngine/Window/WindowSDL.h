@@ -92,6 +92,30 @@ namespace SE
 				else
 					return playRecord.playbackData[frame].dTime;
 			};
+			/**
+			* @brief Gets random value from sdt::rand
+			*
+			* @retval int Returns a random value
+			*/
+			inline int GetRand() override
+			{
+				return std::rand();
+			}
+			/**
+			* @brief Starts a recording of frames
+			*
+			*/
+			void StartRecording() override;
+			/**
+			* @brief Stops a recording of frames
+			*
+			*/
+			void StopRecording() override;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			void LoadRecording(const std::string& file) override;
 		private:
 			/*
 			* @brief Checks which event ev is.
@@ -104,6 +128,7 @@ namespace SE
 			uint32_t height;
 			bool fullScreen;
 			std::string windowTitle;
+			std::string PlaybackFile;
 			HWND hwnd;
 
 			/*input related things*/
@@ -156,7 +181,6 @@ namespace SE
 			};
 			recording record;
 			void RecordToFile();
-			void StartRecording();
 #pragma endregion Record
 
 #pragma region Playback
@@ -167,7 +191,6 @@ namespace SE
 				std::vector<inputRecData> playbackData;
 			};
 			playRecording playRecord;
-			void LoadRecording();
 #pragma endregion Playback
 
 			typedef void(WindowSDL::*FrameStrategy)();

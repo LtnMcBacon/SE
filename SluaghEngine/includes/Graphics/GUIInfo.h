@@ -21,44 +21,52 @@ namespace SE
 
 		struct TextGUI
 		{
-			size_t fontID;
-			int hashString;
+			size_t hashString;
 			std::wstring text;		
-			DirectX::XMFLOAT4 colour;
-			DirectX::XMFLOAT2 pos;
-			DirectX::XMFLOAT2 origin;			
-			DirectX::XMFLOAT2 scale;
-			Effect effect;
-			float rotation;		
-			float layerDepth;
-			bool anchor = false;
+			long posX = 0;
+			long posY = 0;
+			long width = -1;
+			long height = -1;
+			DirectX::XMFLOAT4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+			DirectX::XMFLOAT2 anchor = { 0.0f, 0.0f };
+			DirectX::XMFLOAT2 scale = { 1.0f, 1.0f };
+			DirectX::XMFLOAT2 screenAnchor = { 0.0f, 0.0f };
+
+			Effect effect = Effect::NoEffect;
+			float rotation = 0.0f;
+			float layerDepth = 0.0f;
+			bool absolute = false;
 		};
-		struct RECT
+		struct TextJob
 		{
-			int32_t    left;
-			int32_t    top;
-			int32_t    right;
-			int32_t    bottom;
-			RECT& operator=(const RECT& other)
-			{
-				memcpy(this, &other, sizeof(RECT));
-				return *this;
-			};
+			size_t fontID;
+			long originalScreenWidth;
+			long originalScreenHeight;
+			TextGUI info;
 		};
 		struct GUITextureInfo
 		{
-			int textureID = 0;
-			DirectX::XMFLOAT2 pos;
-			DirectX::XMFLOAT4 colour;
-			DirectX::XMFLOAT2 origin;
-			DirectX::XMFLOAT2 scale;
-			Effect effect;
-			RECT* rect = nullptr;
-			float rotation;
-			float layerDepth;
-			bool anchor = false;
-		};
+			long posX = 0;
+			long posY = 0;
+			long width = -1;
+			long height = -1;
+			DirectX::XMFLOAT4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+			DirectX::XMFLOAT2 anchor = { 0.0f, 0.0f };
+			DirectX::XMFLOAT2 scale = { 1.0f, 1.0f };
+			DirectX::XMFLOAT2 screenAnchor = { 0.0f, 0.0f };	
 
+			Effect effect = Effect::NoEffect;
+			float rotation = 0.0f;
+			float layerDepth = 0.0f;
+			bool absolute = false;
+		};
+		struct GUIJob
+		{
+			int textureID;
+			long originalScreenWidth;
+			long originalScreenHeight;
+			GUITextureInfo info;
+		};
 		struct TexUsage
 		{
 			int textureHandle;

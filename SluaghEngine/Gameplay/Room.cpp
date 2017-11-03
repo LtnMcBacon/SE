@@ -515,7 +515,8 @@ int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
 bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 {
 	StartProfile;
-
+	if (projectile.GetValidTarget() == ValidTarget::PLAYER)
+		ProfileReturnConst(false);
 	bool collidedRight = false;
 	bool collidedLeft = false;
 	float xPower = 0.0f;
@@ -540,12 +541,12 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 		enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
 		enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
 		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+		cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
 	}
 
 	if (cData.type != CollisionType::NONE)
 	{
 		projectile.SetCollisionData(cData);
-
 		ProfileReturnConst(true);
 	}
 

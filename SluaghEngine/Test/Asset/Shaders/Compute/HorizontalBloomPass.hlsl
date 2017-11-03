@@ -1,34 +1,48 @@
+static const int2 RESOLUTION = { 512, 288 };
+
+
+static const int3 DISPATCH_SIZE = { 16, 9, 1 };
+static const int3 GROUP_SIZE = { 32, 32, 1 };
+
+static const int KERNEL_RADIUS = 32;
+
+
 Texture2D<unorm float4> inTex : register(t0);
 RWTexture2D<unorm float4> outTex : register(u0);
 
-static const int3 dispatchSize = { 32, 45, 1 };
-static const int3 groupSize = { 32, 21, 1 };
+static const int GROUP_THREAD_COUNT = { GROUP_SIZE.x * GROUP_SIZE.y * GROUP_SIZE.z };
 
-static const int kernelRadius = 32;
 
-groupshared float3 groupMemory[groupSize.x * groupSize.y + kernelRadius];
+groupshared float3 groupMemory[GROUP_THREAD_COUNT];
 
-[numthreads(groupSize.x, groupSize.y, groupSize.z)]
-void CS_main(int3 groupID : SV_GroupID, int groupIndex : SV_GroupIndex)
+
+[numthreads(GROUP_SIZE.x, GROUP_SIZE.y, GROUP_SIZE.z)]
+void CS_main(int3 groupIndex_3d : SV_GroupID, int threadIndex : SV_GroupIndex)
 {
-    int2 formattedGroupID = { groupID.x % 2, groupID.y * (dispatchSize.x / 2) + groupID.x / 2 };
-    int2 currentPixel = { formattedGroupID.x * (640 - kernelRadius) + groupIndex, formattedGroupID.y };
+    int groupIndex = (groupIndex_3d.z * DISPATCH_SIZE.x * DISPATCH_SIZE.y + groupIndex_3d.y * DISPATCH_SIZE.x + groupIndex_3d.x);
 
-    groupMemory[groupIndex] = inTex[currentPixel];
+    int pixelIndex = groupIndex * GROUP_THREAD_COUNT - (groupIndex * 2 * KERNEL_RADIUS) + threadIndex - KERNEL_RADIUS;
+    int2 pixelIndex_2d = { pixelIndex % RESOLUTION.x, pixelIndex / RESOLUTION.x };
+
+
+    groupMemory[threadIndex] = inTex[pixelIndex_2d];
 
     GroupMemoryBarrierWithGroupSync();
 
-    float3 blurredColor = { 0, 0, 0 };
-    for (int offset = -kernelRadius; offset < kernelRadius + 1; offset++)
+
+    if(threadIndex >= KERNEL_RADIUS && threadIndex < GROUP_THREAD_COUNT - KERNEL_RADIUS)
     {
-        int kernelIndex = groupIndex + offset;
-        kernelIndex = ((formattedGroupID.x - 1) * -1) * sign(kernelIndex) * kernelIndex +
-                      formattedGroupID.x * (kernelIndex + 2 * min(0, (639 + kernelRadius) - kernelIndex));
+        float3 blurredColor = { 0, 0, 0 };
+        for (int pixelOffset = -KERNEL_RADIUS; pixelOffset <= KERNEL_RADIUS; pixelOffset++)
+        {
+            int offsetRowIndex = pixelIndex_2d.x + pixelOffset;
+            int kernelOffset = (min(0, offsetRowIndex) + max(0, offsetRowIndex - RESOLUTION.x)) * -2;
 
-        blurredColor += groupMemory[kernelIndex];
+            blurredColor += groupMemory[threadIndex + pixelOffset + kernelOffset];
+        }
+        blurredColor /= 2 * KERNEL_RADIUS + 1;
+
+
+        outTex[pixelIndex_2d] = float4(blurredColor, 1);
     }
-    blurredColor /= 2 * kernelRadius + 1;
-
-    if ((formattedGroupID.x == 0 && groupIndex < 640) || (formattedGroupID.x == 1 && groupIndex > kernelRadius - 1))
-        outTex[currentPixel] = float4(blurredColor, 1);
 }

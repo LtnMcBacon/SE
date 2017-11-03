@@ -36,13 +36,15 @@
 #include "EnemyFactoryTest.h"
 #include "TransformTest.h"
 #include "RecordingProjectileTest.h"
+#include "PlaybackProjectileTest.h"
 #include "BloomTest.h"
 #include "RandRoomTest.h"
 #include "GlaistigTest.h"
 #include "SlaughTest.h"
 #include "DecalTest.h"
 #include "ShadowTest.h"
-
+#include "ComputeTest.h"
+#include "ThreadPoolTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -61,13 +63,14 @@ void TypesafeTestAdding(const char* nameOfTest) { tests[SE::Utilz::GUID(nameOfTe
 
 int main(int argc, char** argv)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 10833;
+	//_crtBreakAlloc = 11830;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
+	AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	AddTest(WindowTest);
@@ -78,6 +81,7 @@ int main(int argc, char** argv)
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
+	AddTest(PlaybackProjectileTest);
 	AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	AddTest(ImageLoadTest);
@@ -107,8 +111,9 @@ int main(int argc, char** argv)
 	AddTest(ConsoleTest);
 	AddTest(TransformTest);
 	AddTest(DecalTest);
-//	AddTest(BloomTest);
+	AddTest(BloomTest);
 	AddTest(RandRoomTest); 
+	AddTest(ThreadPoolTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

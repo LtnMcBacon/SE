@@ -54,7 +54,7 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	vertexShaders[Utilz::GUID()] = { nullptr };
 	geometryShaders[Utilz::GUID()] = { nullptr };
 	pixelShaders[Utilz::GUID()] = { nullptr };
-	computeShaders[Utilz::GUID()] =  nullptr ;
+	computeShaders[Utilz::GUID()] = { nullptr };
 	constantBuffers[Utilz::GUID()] = nullptr;
 	shaderResourceViews[Utilz::GUID()] = nullptr;
 	renderTargetViews[Utilz::GUID()] = { nullptr };
@@ -69,21 +69,21 @@ SE::Graphics::PipelineHandler::PipelineHandler(ID3D11Device* device, ID3D11Devic
 	if (FAILED(hr))
 		throw std::exception("Could not compile fullscreenQuadVS");
 
-	CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreateVertexShader("FullscreenQuad", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 
 	hr = D3DCompile(MultiPS, strlen(MultiPS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile MultiPS");
 
-	CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("MultiPS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release(); 
 	
 	hr = D3DCompile(SinglePS, strlen(SinglePS), NULL, NULL, NULL, "PS_main", "ps_5_0", 0, 0, &blob, NULL);
 	if (FAILED(hr))
 		throw std::exception("Could not compile SinglePS");
 
-	CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
+	PipelineHandler::CreatePixelShader("SinglePS", blob->GetBufferPointer(), blob->GetBufferSize());
 	blob->Release();
 	
 
@@ -112,7 +112,7 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 	for (auto& r : pixelShaders)
 		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : computeShaders)
-		if (r.second)r.second->Release();
+		if (r.second.shader)r.second.shader->Release();
 	for (auto& r : constantBuffers)
 		if (r.second)r.second->Release();
 	for (auto& r : shaderResourceViews)
@@ -136,9 +136,6 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 
 int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
 {
-	const auto exists = renderTargetViews.find(id);
-	if (exists != renderTargetViews.end())
-		return EXISTS;
 	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
 	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
 	manuallyAddedResources.insert(id);
@@ -147,9 +144,6 @@ int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
 {
-	const auto exists = depthStencilViews.find(id);
-	if (exists != depthStencilViews.end())
-		return EXISTS;
 	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -157,9 +151,6 @@ int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
 {
-	const auto exists = shaderResourceViews.find(id);
-	if (exists != shaderResourceViews.end())
-		return EXISTS;
 	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -186,7 +177,7 @@ int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, voi
 	bd.MiscFlags = 0;
 	bd.Usage = dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
 	bd.StructureByteStride = stride;
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (data)
 	{
@@ -747,7 +738,65 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	computeShaders[id] = cs;
+	computeShaders[id] = { cs };
+
+
+	ID3D11ShaderReflection* reflection;
+	hr = D3DReflect(data, size, IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+
+	for (int i = 0; i < shaderDesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC sibd;
+		reflection->GetResourceBindingDesc(i, &sibd);
+		if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_UAV_RWTYPED)
+		{
+			const Utilz::GUID bindGuid(sibd.Name);
+			const Utilz::GUID combinedGuid = id + bindGuid;
+			shaderAndResourceNameToBindSlot[combinedGuid] = sibd.BindPoint;
+		}
+		else if (sibd.Type == D3D_SIT_CBUFFER)
+		{
+			//Can't get the size from the RBD, can't get bindslot from the SBD...	
+			//Find the sbd with the same name to get the size.
+			for (unsigned int j = 0; j < shaderDesc.ConstantBuffers; ++j)
+			{
+				D3D11_SHADER_BUFFER_DESC sbd;
+				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
+				srcb->GetDesc(&sbd);
+				if (std::string(sbd.Name) == std::string(sibd.Name))
+				{
+					const auto cbExists = constantBuffers.find(sbd.Name);
+					if (cbExists == constantBuffers.end())
+					{
+						D3D11_BUFFER_DESC bufDesc;
+						bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+						bufDesc.StructureByteStride = 0;
+						bufDesc.ByteWidth = sbd.Size;
+						bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+						bufDesc.MiscFlags = 0;
+						bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+						ID3D11Buffer* buffer;
+						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
+						if (FAILED(hr))
+							return DEVICE_FAIL;
+						constantBuffers[sbd.Name] = buffer;
+
+					}
+					computeShaders[id].constantBuffers.push_back(sbd.Name);
+					const Utilz::GUID cbNameGuid(sbd.Name);
+					const Utilz::GUID combined = id + cbNameGuid;
+					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
+					break;
+				}
+			}
+		}
+	}
+
 	return SUCCESS;
 }
 
@@ -786,7 +835,7 @@ int SE::Graphics::PipelineHandler::DestroyComputeShader(const Utilz::GUID& id)
 	auto exists = computeShaders.find(id);
 	if (exists == computeShaders.end())
 		return NOT_FOUND;
-	exists->second->Release();
+	exists->second.shader->Release();
 	computeShaders.erase(exists);
 	return SUCCESS;
 }
@@ -806,7 +855,7 @@ int SE::Graphics::PipelineHandler::CreateConstantBuffer(const Utilz::GUID& id, s
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 
 
-	HRESULT hr = S_OK;
+	HRESULT hr;
 	ID3D11Buffer* buffer;
 	if (initialData)
 	{
@@ -1388,14 +1437,11 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	td.Height = view.height;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
-
 	switch (view.format)
 	{
 	case TextureFormat::R32G32B32A32_FLOAT: td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
 	case TextureFormat::R8G8B8A8_UNORM:		td.Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 	}
-
-
 	td.SampleDesc.Count = 1;
 	td.SampleDesc.Quality = 0;
 	td.Usage = D3D11_USAGE_DEFAULT;
@@ -1408,21 +1454,7 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 	if (FAILED(hr))
 		return DEVICE_FAIL;
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
-	description.Format = td.Format;
-	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	description.Texture2D.MipSlice = 0;
-
-	ID3D11UnorderedAccessView* unorderedAccessView;
-	hr = device->CreateUnorderedAccessView(texture, &description, &unorderedAccessView);
-	if (FAILED(hr))
-		return DEVICE_FAIL;
-
-	unorderedAccessViews[id] = { unorderedAccessView };
-	unorderedAccessViews[id].clearColor[0] = view.clearColor[0];
-	unorderedAccessViews[id].clearColor[1] = view.clearColor[1];
-	unorderedAccessViews[id].clearColor[2] = view.clearColor[2];
-	unorderedAccessViews[id].clearColor[3] = view.clearColor[3];
+	
 
 	if (view.bindAsShaderResource)
 	{
@@ -1437,6 +1469,24 @@ int SE::Graphics::PipelineHandler::CreateUnorderedAccessView(const Utilz::GUID &
 			return DEVICE_FAIL;
 		shaderResourceViews[id] = srv;
 	}
+
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC description;
+	ZeroMemory(&description, sizeof(description));
+	description.Format = td.Format;
+	description.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	description.Texture2D.MipSlice = 0;
+
+	ID3D11UnorderedAccessView* unorderedAccessView;
+	hr = device->CreateUnorderedAccessView(texture, &description, &unorderedAccessView);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	unorderedAccessViews[id] = { unorderedAccessView };
+	unorderedAccessViews[id].clearColor[0] = view.clearColor[0];
+	unorderedAccessViews[id].clearColor[1] = view.clearColor[1];
+	unorderedAccessViews[id].clearColor[2] = view.clearColor[2];
+	unorderedAccessViews[id].clearColor[3] = view.clearColor[3];
 
 	texture->Release();
 
@@ -1463,9 +1513,7 @@ int SE::Graphics::PipelineHandler::DestroyUnorderedAccessView(const Utilz::GUID 
 void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 {
 	StartProfile;
-	ID3D11Buffer *nullBuffer = nullptr;
 	uint32_t offset = 0;
-	//deviceContext->SOSetTargets(1, &nullBuffer, &offset);
 	SetInputAssemblerStage(pipeline.IAStage);
 	SetVertexShaderStage(pipeline.VSStage);
 	SetGeometryShaderStage(pipeline.GSStage);
@@ -1478,13 +1526,16 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	//ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
-
+	SetComputeShaderStage(pipeline.CSStage);
 	StopProfile;
 }
 
 void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 {
 	StartProfile;
+
+
+
 	uint32_t offset = 0;
 	ForcedSetInputAssemblerStage(pipeline.IAStage);
 	ForcedSetVertexShaderStage(pipeline.VSStage);
@@ -1494,6 +1545,7 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 	ForcedSetRasterizerStage(pipeline.RStage);
 	ForcedSetPixelShaderStage(pipeline.PSStage);
 	ForcedSetOutputMergerStage(pipeline.OMStage);
+	ForcedSetComputeShaderStage(pipeline.CSStage);
 	StopProfile;
 }
 
@@ -1510,7 +1562,7 @@ void SE::Graphics::PipelineHandler::ClearAllRenderTargets()
 	{
 		if (uav.second.uav)
 		{
-			deviceContext->ClearUnorderedAccessViewFloat(uav.second.uav, uav.second.clearColor);
+			//deviceContext->ClearUnorderedAccessViewFloat(uav.second.uav, uav.second.clearColor);
 		}
 	}
 	for (auto& dsv : depthStencilViews) {
@@ -1851,6 +1903,67 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 	StopProfile;
 }
 
+void SE::Graphics::PipelineHandler::SetComputeShaderStage(const ShaderStage & css)
+{
+	auto& c = currentPipeline.CSStage;
+
+	if (css.shader != c.shader)
+	{
+		_ASSERT_EXPR(computeShaders.find(css.shader) != computeShaders.end(), "Create Compute shader has not been called for compute shader in pipeline.");
+		const auto& shader = computeShaders[css.shader];
+		deviceContext->CSSetShader(shader.shader, nullptr, 0);
+		c.shader = css.shader;
+
+		for (auto& cbg : shader.constantBuffers) // Any constant buffers
+		{
+			auto& cb = constantBuffers[cbg];
+			auto& binding = shaderAndResourceNameToBindSlot[css.shader + cbg];
+			deviceContext->CSSetConstantBuffers(binding, 1, &cb);
+		}
+	}
+
+	
+
+	ID3D11UnorderedAccessView* uavs[css.maxUAVs] = { nullptr };
+	bool changed = false;
+	for (uint8_t j = 0; j < css.uavCount; j++)
+	{		
+		auto i = css.maxUAVs - j - 1;
+		if (changed || css.uavs[i] != c.uavs[i])
+		{
+			changed = true;
+			auto const find = unorderedAccessViews.find(css.uavs[i]);
+			if(find != unorderedAccessViews.end())
+				uavs[i] = find->second.uav;
+			c.uavs[i] = css.uavs[i];
+		}
+			
+	}
+	c.uavCount = css.uavCount;
+	if(changed)
+		deviceContext->CSSetUnorderedAccessViews(0, css.maxUAVs, uavs, NULL);
+
+	for (int i = 0; i < css.textureCount; ++i)
+	{
+		if (css.textures[i] != c.textures[i] || css.textureBindings[i] != c.textureBindings[i])
+		{
+			auto srv = shaderResourceViews.find(css.textures[i]);
+			if (srv != shaderResourceViews.end())
+			{
+				const auto bindSlotID = css.shader + css.textureBindings[i];
+				const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+				if (bind != shaderAndResourceNameToBindSlot.end())
+				{
+					deviceContext->PSSetShaderResources(bind->second, 1, &srv->second);
+				}
+			}
+			c.textures[i] = css.textures[i];
+			c.textureBindings[i] = css.textureBindings[i];
+		}
+	}
+	c.textureCount = css.textureCount;
+}
+
 void SE::Graphics::PipelineHandler::ForcedSetInputAssemblerStage(const InputAssemblerStage& pIA)
 {
 	StartProfile;
@@ -2040,4 +2153,49 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 		c.depthStencilState = oms.depthStencilState;
 	}
 	StopProfile;
+}
+
+void SE::Graphics::PipelineHandler::ForcedSetComputeShaderStage(const ShaderStage & css)
+{
+	auto& c = currentPipeline.CSStage;
+
+	_ASSERT_EXPR(computeShaders.find(css.shader) != computeShaders.end(), "Create Compute shader has not been called for compute shader in pipeline.");
+	const auto& shader = computeShaders[css.shader];
+	deviceContext->CSSetShader(shader.shader, nullptr, 0);
+	c.shader = css.shader;
+	
+	for (auto& cbg : shader.constantBuffers) // Any constant buffers
+	{
+		auto& cb = constantBuffers[cbg];
+		auto& binding = shaderAndResourceNameToBindSlot[css.shader + cbg];
+		deviceContext->CSSetConstantBuffers(binding, 1, &cb);
+	}
+	
+	ID3D11UnorderedAccessView* uavs[css.maxUAVs] = { nullptr };
+	for (uint8_t i = 0; i < css.uavCount; i++)
+	{
+		auto const find = unorderedAccessViews.find(css.uavs[i]);
+		if (find != unorderedAccessViews.end())
+			uavs[i] = find->second.uav;
+		c.uavs[i] = css.uavs[i];		
+	}
+	c.uavCount = css.uavCount;
+	deviceContext->CSSetUnorderedAccessViews(0, css.maxUAVs, uavs, NULL);
+
+	for (int i = 0; i < css.textureCount; ++i)
+	{
+		auto srv = shaderResourceViews.find(css.textures[i]);
+		if (srv != shaderResourceViews.end())
+		{
+			const auto bindSlotID = css.shader + css.textureBindings[i];
+			const auto bind = shaderAndResourceNameToBindSlot.find(bindSlotID);
+			if (bind != shaderAndResourceNameToBindSlot.end())
+			{
+				deviceContext->CSSetShaderResources(bind->second, 1, &srv->second);
+			}
+		}
+		c.textures[i] = css.textures[i];
+		c.textureBindings[i] = css.textureBindings[i];
+	}
+	c.textureCount = css.textureCount;
 }

@@ -56,7 +56,7 @@ EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlack
 	if (useVariation)
 	{
 		int healthVariation = enemyCreationData->second.baseHealthVariation;
-		enemyHealth += rand() % (healthVariation * 2 + 1) - healthVariation;
+		enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
 	}
 
 	createdEnemy = new EnemyUnit(nullptr, 0.0f, 0.0f, enemyHealth);

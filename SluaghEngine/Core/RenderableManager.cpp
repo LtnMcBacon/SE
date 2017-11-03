@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 static const SE::Utilz::GUID solid("Solid");
 static const SE::Utilz::GUID wireframe("Wireframe");
-static const SE::Utilz::GUID defaultMesh("Cube.mesh");
+static const SE::Utilz::GUID defaultMesh("default.mesh");
 static const SE::Utilz::GUID defaultVertexShader("SimpleVS.hlsl");
 static const SE::Utilz::GUID defaultVertexShadowShader("ShadowVS.hlsl");
 static const SE::Utilz::GUID Transparency("RMTransparency");
@@ -33,12 +33,12 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 
 }
 
-SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, size_t allocsize, RenderableManagerInstancing * rmI) : initInfo(initInfo),
-rmInstancing(rmI)
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo & initInfo, 
+	size_t allocsize, RenderableManagerInstancing* rmI) : initInfo(initInfo), rmInstancing(rmI)
 {
 	Init();
 
-	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	shadowInstancing = nullptr;
 
 	Allocate(allocsize);
 }
@@ -122,8 +122,11 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
 		if (visible)
-		{
-			rmInstancing->AddEntity(entity, info);
+		{		
+			if (renderableObjectInfo.transparency[find->second] == 1u)
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			else
+				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		else
@@ -204,6 +207,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
 
 	info->pipeline.VSStage.shader = defaultVertexShadowShader;
+	info->pipeline.PSStage.shader = Utilz::GUID();
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index].mesh;
 	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
@@ -291,12 +295,12 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
-			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
-			rmInstancing->AddEntity(entity, info);
+			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
 		}
 		
 	}
@@ -315,10 +319,10 @@ bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
 
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
-	if (find != entityToRenderableObjectInfoIndex.end()) 
+	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 
-		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow){
+		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
 
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
 			Graphics::RenderJob info;
@@ -452,7 +456,6 @@ void SE::Core::RenderableManager::Init()
 	if(res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
 
-
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
 	info.fillMode = Graphics::FillMode::FILL_SOLID;
@@ -473,21 +476,21 @@ void SE::Core::RenderableManager::Init()
 	bs.enable = true;
 	bs.blendOperation = Graphics::BlendOperation::ADD;
 	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
-	bs.srcBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
 	bs.srcBlendAlpha = Graphics::Blend::ONE;
 	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
 
+
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
 		throw std::exception("Could not create Transparency Blendstate.");
-
 	
-	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 512, 512, true);
+	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
 	Graphics::Viewport vp;
 
-	vp.width = 512;
-	vp.height = 512;
+	vp.width = 1024;
+	vp.height = 1024;
 	vp.maxDepth = 1.0f;
 	vp.minDepth = 0.0f;
 	vp.topLeftX = 0.0f;
@@ -546,6 +549,7 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 			if (renderableObjectInfo.visible[find->second])
 			{
 				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+				shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
 			}				
 		}
 	}

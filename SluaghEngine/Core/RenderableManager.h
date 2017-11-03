@@ -51,6 +51,8 @@ namespace SE
 			*/
 			void CreateRenderableObject(const Entity& entity, const CreateInfo& info)override;
 
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
+
 			/**
 			* @brief	Hide/Show the renderable object
 			*
@@ -69,6 +71,8 @@ namespace SE
 
 			void ToggleTransparency(const Entity& entity, bool transparency) override;
 
+			void ToggleShadow(const Entity& entity, bool shadow) override;
+
 			bool IsVisible(const Entity& entity)const;
 
 			/**
@@ -77,8 +81,6 @@ namespace SE
 			void Destroy(size_t index)override;
 
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
-
-			void ToggleShadow(const Entity& entity, bool shadow) override;
 
 		private:
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
@@ -117,7 +119,7 @@ namespace SE
 
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(MeshData) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(MeshData) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
@@ -138,9 +140,7 @@ namespace SE
 			};
 			std::vector<DirtyEntityInfo> dirtyEntites;
 
-			RenderableManagerInstancing* rmInstancing;
-			RenderableManagerInstancing* shadowInstancing;
-
+			
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 

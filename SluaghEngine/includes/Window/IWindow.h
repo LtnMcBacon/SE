@@ -28,6 +28,7 @@ namespace SE
 		struct InitializationInfo
 		{
 			std::string windowTitle;
+			std::string file = "";
 			bool fullScreen = false;
 			uint32_t width = 1280;
 			uint32_t height = 720;
@@ -401,7 +402,27 @@ namespace SE
 			* @retval float Returns time int seconds
 			*/
 			virtual float GetDelta() const = 0;
-
+			/**
+			* @brief Gets random value from sdt::rand
+			*
+			* @retval int Returns a random value
+			*/
+			virtual int GetRand() = 0;
+			/**
+			* @brief Starts a recording of frames
+			*
+			*/
+			virtual void StartRecording() = 0;
+			/**
+			* @brief Stops a recording of frames
+			*
+			*/
+			virtual void StopRecording() = 0;
+			/**
+			* @brief Loads a recording
+			*
+			*/
+			virtual void LoadRecording(const std::string& file) = 0;
 		};
 
 		DECLDIR IWindow* CreateNewWindow();

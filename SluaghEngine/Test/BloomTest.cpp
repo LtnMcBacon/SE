@@ -1,7 +1,7 @@
 #include "BloomTest.h"
 #include <Core\IEngine.h>
 #include <Utilz\Timer.h>
-
+#include <Imgui\imgui.h>
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
 #else
@@ -46,6 +46,7 @@ namespace SE
 			{
 				auto managers = engine->GetManagers();
 				auto subSystem = engine->GetSubsystems();
+				ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
 
 				res = subSystem.resourceHandler->LoadResource("HorizontalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
@@ -63,6 +64,22 @@ namespace SE
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				if (res < 0)
+					goto error;
+
+				float bloomP[4] = { 5.0f, 2.0f, 0.8f, 0.6f };
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+
+				Graphics::BlendState bs;
+				bs.enable = true;
+				bs.blendOperation = Graphics::BlendOperation::ADD;
+				bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+				bs.srcBlend = Graphics::Blend::SRC_COLOR;
+				bs.srcBlendAlpha = Graphics::Blend::ONE;
+				bs.dstBlend = Graphics::Blend::ONE;
+				bs.dstBlendAlpha = Graphics::Blend::ONE;
+
+				result = subSystem.renderer->GetPipelineHandler()->CreateBlendState("BloomBS", bs);
+				if (result < 0)
 					goto error;
 
 				//
@@ -118,17 +135,30 @@ namespace SE
 				bool running = true;
 
 				Graphics::Viewport vp;
-				vp.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / 3.0f;
-				vp.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / 3.0f;
+				vp.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / 4.0f;
+				vp.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / 4.0f;
 				vp.topLeftX = 0;
 				vp.topLeftY = 0;
 				vp.maxDepth = 1;
 				vp.minDepth = 0.01;
 
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("topleft", vp);
-				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 3.0f)*1;
+				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f)*1;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown1left", vp);
 
+				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 2;
+				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown2left", vp);
+
+				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 3;
+				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown3left", vp);
+
+				vp.width = 512;
+				vp.height = 288;
+				vp.topLeftX = 0;
+				vp.topLeftY = 0;
+				subSystem.renderer->GetPipelineHandler()->CreateViewport("bloomDownVP", vp);
+
+				// Create a job for rendering the bloomTarget texture(Debug purposes)
 				Graphics::RenderJob drawBloomTexture;
 				drawBloomTexture.pipeline.VSStage.shader = "FullscreenQuad"; // A default shader
 				drawBloomTexture.pipeline.PSStage.shader = "MultiPS";// A default shader, also SinglePS
@@ -144,38 +174,95 @@ namespace SE
 				drawBloomTexture.vertexCount = 3;
 				drawBloomTexture.indexCount = 0;
 				drawBloomTexture.maxInstances = 0;
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
+				
+				
+				// Create a job for downsampling the bloomTarget
+			
+				Graphics::RenderTarget rt;
+				rt.bindAsShaderResource = true;
+				rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
+				rt.width = 512;
+				rt.height = 288;
+				res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
+				if (res < 0)
+					goto error;
 
-				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
-				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV1"; 
+				drawBloomTexture.pipeline.RStage.viewport = "bloomDownVP";
+				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "bloomDownTarget";
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_0);
+
+
+				// Create job for rendering the downsampled render target
+				drawBloomTexture.pipeline.PSStage.textures[0] = "bloomDownTarget"; 
 				drawBloomTexture.pipeline.RStage.viewport = "topdown1left";
-				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer"; 
+
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
 
 
+				// Create a job for horizontal blur
 				Graphics::UnorderedAccessView uav;
 				uav.bindAsShaderResource = true;
 				uav.clearColor[0] = 0.0f;
-				uav.clearColor[1] = 1.0f;
+				uav.clearColor[1] = 0.0f;
 				uav.clearColor[2] = 0.0f;
 				uav.clearColor[3] = 0.0f;
 				uav.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				uav.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 640);
-				uav.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800);
+				uav.width = 512;
+				uav.height = 288;
 
 				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV1", uav);
 				if (res < 0)
 					goto error;
 
-				/*res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
+				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
 				if (res < 0)
-					goto error;*/
+					goto error;
 
 				Graphics::RenderJob horizontalPass;
-				horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl"; // TODO: Should unset all other shaders automaticly when creating a CS job.
-				horizontalPass.pipeline.CSStage.textures[0] = "bloomTarget";
+				horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl"; 
+				horizontalPass.pipeline.CSStage.textures[0] = "bloomDownTarget";
 				horizontalPass.pipeline.CSStage.textureCount = 1;
 				horizontalPass.pipeline.CSStage.textureBindings[0] = "inTex";
-				//horizontalPass.pipeline.CSStage.UAV[0] = "BloomUAV1";
+				horizontalPass.pipeline.CSStage.uavs[0] = "BloomUAV1";
+				horizontalPass.pipeline.CSStage.uavCount = 1;
+				horizontalPass.ThreadGroupCountX = 16;
+				horizontalPass.ThreadGroupCountY = 9;
+				horizontalPass.ThreadGroupCountZ = 1;
 
+				subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_1);
+
+				// Create job for rendering the horizontal blured.
+				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV1";
+				drawBloomTexture.pipeline.RStage.viewport = "topdown2left";
+				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
+
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_4);
+
+
+				// Create job for vertical pass
+				Graphics::RenderJob verticalPass;
+				verticalPass.pipeline.CSStage.shader = "VerticalBloomPass.hlsl";
+				verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
+				verticalPass.pipeline.CSStage.textures[1] = "backbuffer";
+				verticalPass.pipeline.CSStage.textureCount = 1;
+				verticalPass.pipeline.CSStage.textureBindings[0] = "inTex_bloom";
+			//	verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
+				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
+				verticalPass.pipeline.CSStage.uavCount = 1;
+				verticalPass.ThreadGroupCountX = 16;
+				verticalPass.ThreadGroupCountY = 9;
+				verticalPass.ThreadGroupCountZ = 1;
+
+				subSystem.renderer->AddRenderJob(verticalPass, Graphics::RenderGroup::POST_PASS_2);
+
+				// Create job for rendering the vertical blured.
+				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV2";
+				drawBloomTexture.pipeline.RStage.viewport = Utilz::GUID();
+				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
+				drawBloomTexture.pipeline.OMStage.blendState = "BloomBS";
+				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
 
 				Utilz::Timer timer;
 				subSystem.devConsole->Toggle();
@@ -214,6 +301,17 @@ namespace SE
 					//tm.Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 					engine->BeginFrame();
+	
+					if (ImGui::SliderFloat("Base Muliplier", &bloomP[0], 0.0f, 20.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Fade Exponent", &bloomP[1], 0.0f, 10.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Additive Color Strength Multiplier", &bloomP[2], 0.0f, 2.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+					if (ImGui::SliderFloat("Bloom Color Threshold", &bloomP[3], 0.0f, 1.0f))
+						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
+
+
 
 					engine->EndFrame();
 				}

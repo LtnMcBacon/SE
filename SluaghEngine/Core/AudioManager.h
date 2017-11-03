@@ -21,7 +21,7 @@ namespace SE {
 		class AudioManager : public IAudioManager
 		{
 		public:
-			AudioManager(const InitializationInfo& initInfo);
+			AudioManager(const IAudioManager::InitializationInfo& initInfo);
 			~AudioManager();
 
 			/**

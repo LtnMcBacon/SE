@@ -8,7 +8,7 @@ cbuffer OncePerFrame : register(b1)
 	float4x4 ViewProj;
 };
 
-cbuffer OncePerObject : register(b2)
+cbuffer DebugLineW : register(b2)
 {
 	float4x4 World;
 };

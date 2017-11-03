@@ -84,7 +84,7 @@ namespace SE
 			* @retval jobID On success.
 			* @endcode
 			*/
-			size_t EnableTextRendering(const TextGUI & handles) override;
+			size_t EnableTextRendering(const TextJob & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
@@ -100,7 +100,7 @@ namespace SE
 			* @retval 0 On success.
 			* @endcode
 			*/
-			size_t EnableTextureRendering(const GUITextureInfo & handles) override;
+			size_t EnableTextureRendering(const GUIJob & handles) override;
 
 			/**
 			* @brief    Removes a Text render job.
@@ -246,8 +246,8 @@ namespace SE
 
 
 
-			std::vector<TextGUI> renderTextJobs;
-			std::vector<GUITextureInfo> renderTextureJobs;
+			std::vector<TextJob> renderTextJobs;
+			std::vector<GUIJob> renderTextureJobs;
 	
 			// fonts
 			DirectX::SpriteBatch* spriteBatch;

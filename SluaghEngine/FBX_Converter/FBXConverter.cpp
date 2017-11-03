@@ -41,10 +41,10 @@ void SE::FBX::FBXConverter::Deallocate() {
 
 }
 
-bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder) {
+bool SE::FBX::FBXConverter::Load(const std::string& fileName, const std::string& exportFolder, const std::string& map) {
 
 	// Check if the FBX file was loaded properly
-	workingDirectory = Utilz::getPath(fileName);
+	workingDirectory = map;
 	Utilz::get_all_files_names_within_folder(workingDirectory, filesInWorkingDirectory);
 	if (!LoadFBXFormat(fileName, exportFolder)) {
 
@@ -612,7 +612,7 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
-	string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
+	//string logFileName = logFolder + "/Log_" + "Weights_" + fileName + ".log";
 
 	//logFile.open(logFileName, ofstream::out);
 	//logFile.close();
@@ -1069,7 +1069,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 			int numLayers = AnimStack->GetMemberCount<FbxAnimLayer>();
 
 			// For every layer / every animation
-			for (int j = 0; j < numLayers; j++) 
+			for (int j = 0; j < numLayers; j++)
 			{
 
 				FbxAnimLayer* currentAnimLayer;
@@ -1078,99 +1078,105 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 				currentAnimLayer = AnimStack->GetMember<FbxAnimLayer>(j);
 				CurrentAnimation.Name = currentAnimLayer->GetName();
 
-				// From the current joint, get the animation curves
+				// Skip the base animation layer
+				if(CurrentAnimation.Name != "BaseLayer")
+				{
 
-				// Translation curves
-				FbxAnimCurve* translationCurveX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* translationCurveY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* translationCurveZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+					// From the current joint, get the animation curves
 
-				// Rotation curves
-				FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-				
-				// Scaling curves (Should always be 1)
-				FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-				FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-				FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-				
-				// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
-				const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
-				CurrentAnimation.Keyframes.resize(numKeys);
-				CurrentAnimation.Length = numKeys;
-				logFile << "-------------------------------------------------------\n"
-					<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nIndex: " << j << "\nLength: " << numKeys <<
-					"\n-------------------------------------------------------\n";
+					// Translation curves
+					FbxAnimCurve* translationCurveX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* translationCurveY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* translationCurveZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-				// Access the current value on each individual channel on the different curves at a given keyframe
-				for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
+					// Rotation curves
+					FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-					/*FbxTime currentTime;
-					currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
+					// Scaling curves (Should always be 1)
+					FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
-					logFile << "Time: " << timeIndex + 1 << endl;
+					// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
+					const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
+					CurrentAnimation.Keyframes.resize(numKeys);
+					CurrentAnimation.Length = numKeys;
+					logFile << "-------------------------------------------------------\n"
+						<< "Joint: " << currentJointName << "\nNumber of animations: " << numLayers - 1 << "\nAnimation: " << CurrentAnimation.Name << "\nIndex: " << j << "\nLength: " << numKeys <<
+						"\n-------------------------------------------------------\n";
 
-					// Get the values on each channel
-					//translationCurveX->Evaluate(currentTime, 0);
-					//translationCurveX->KeyGetValue(timeIndex);
-					
-					float translationX = translationCurveX->KeyGetValue(timeIndex);
-					float translationY = translationCurveY->KeyGetValue(timeIndex);
-					float translationZ = translationCurveZ->KeyGetValue(timeIndex);
+					// Access the current value on each individual channel on the different curves at a given keyframe
+					for (int timeIndex = 0; timeIndex < numKeys; timeIndex++) {
 
-					float rotationX = rotationCurveX->KeyGetValue(timeIndex);
-					float rotationY = rotationCurveY->KeyGetValue(timeIndex);
-					float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
+						/*FbxTime currentTime;
+						currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
 
-					float scalingX = scalingCurveX->KeyGetValue(timeIndex);
-					float scalingY = scalingCurveY->KeyGetValue(timeIndex);
-					float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
+						logFile << "Time: " << timeIndex + 1 << endl;
 
-					// Build the vectors for the global transform matrix
-					FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
-					FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
-					FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
+						// Get the values on each channel
+						//translationCurveX->Evaluate(currentTime, 0);
+						//translationCurveX->KeyGetValue(timeIndex);
 
-					// Compose the quaternion from euler angles
-					FbxQuaternion quaternion;
-					quaternion.ComposeSphericalXYZ(rotationVector);
+						float translationX = translationCurveX->KeyGetValue(timeIndex);
+						float translationY = translationCurveY->KeyGetValue(timeIndex);
+						float translationZ = translationCurveZ->KeyGetValue(timeIndex);
 
-					// Set the vectors for the global transform matrix (Build the keyframe)
-					FbxAMatrix localTransform;
-					localTransform.SetTQS(translationVector, quaternion, scalingVector);
+						float rotationX = rotationCurveX->KeyGetValue(timeIndex);
+						float rotationY = rotationCurveY->KeyGetValue(timeIndex);
+						float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
 
-					// The root joint uses its local transform as global. It has no parents. 
-					if (currentJointIndex == 0) {
+						float scalingX = scalingCurveX->KeyGetValue(timeIndex);
+						float scalingY = scalingCurveY->KeyGetValue(timeIndex);
+						float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
 
-						// Get the root joint local and global transform
-						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
-						CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
+						// Build the vectors for the global transform matrix
+						FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
+						FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
+						FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
 
-					//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+						// Compose the quaternion from euler angles
+						FbxQuaternion quaternion;
+						quaternion.ComposeSphericalXYZ(rotationVector);
+
+						// Set the vectors for the global transform matrix (Build the keyframe)
+						FbxAMatrix localTransform;
+						localTransform.SetTQS(translationVector, quaternion, scalingVector);
+
+						// The root joint uses its local transform as global. It has no parents. 
+						if (currentJointIndex == 0) {
+
+							// Get the root joint local and global transform
+							CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
+							CurrentAnimation.Keyframes[timeIndex].GlobalTransform = localTransform;
+
+							//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+						}
+
+						// For all the other joints, this would be their local transforms
+						else {
+
+							// We must build their global transformation before export
+							CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
+
+							//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						}
+
 					}
 
-					// For all the other joints, this would be their local transforms
+					// If the animation length wasn't greater than 0, don't push back the animation. Usually this is the base layer, or an empty animation layer
+					if (CurrentAnimation.Length > 0) {
+
+						pMesh.skeleton.hierarchy[currentJointIndex].Animations.push_back(CurrentAnimation);
+
+					}
+
 					else {
 
-						// We must build their global transformation before export
-						CurrentAnimation.Keyframes[timeIndex].LocalTransform = localTransform;
-
-						//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+						logFile << "This animation layer had no keyframes" << "\n\n";
 					}
 
-				}
-
-				// If the animation length wasn't greater than 0, don't push back the animation. Usually this is the base layer, or an empty animation layer
-				if (CurrentAnimation.Length > 0){
-
-					pMesh.skeleton.hierarchy[currentJointIndex].Animations.push_back(CurrentAnimation);
-
-				}
-
-				else {
-
-					logFile << "This animation layer had no keyframes" << "\n\n";
 				}
 			}
 
@@ -1634,24 +1640,38 @@ void SE::FBX::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton)
 		for (int currentAnimationIndex = 0; currentAnimationIndex < nrOfAnimations; currentAnimationIndex++)
 		{
 			vector<XMFLOAT4X4> animationTransformations;
+			vector<uint32_t>joints;
 
-			uint32_t currentAnimLength = (uint32_t)skeleton.hierarchy[0].Animations[currentAnimationIndex].Keyframes.size();
+			// Get animation name
 			string animationName = skeleton.hierarchy[0].Animations[currentAnimationIndex].Name;
+			uint32_t animLength = 0;
 
 			// Loop through each joint in hierarchy ( Every joint has the same number of transformations as the length of the current animation )
 			for (int currentJointIndex = 0; currentJointIndex < (int)nrOfJoints; currentJointIndex++) {
 
-				// Loop through each keyframe in the current joint being processed
-				for (int currentKeyFrameIndex = 0; currentKeyFrameIndex < (int)currentAnimLength; currentKeyFrameIndex++) {
+				// Get number of keyframes for the current joint in the animation
+				uint32_t currentAnimLength = (uint32_t)skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes.size();
 
-					FbxAMatrix keyframe = skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes[currentKeyFrameIndex].GlobalTransform;
-					auto jointGlobalTransform = XMLoadFloat4x4(& Load4X4Transformations(keyframe));
+				if (currentAnimLength > 0) {
 
-					// Transpose the matrix from column major to row major
-					XMFLOAT4X4 jbt;
-					XMStoreFloat4x4(&jbt,jointGlobalTransform);
-					animationTransformations.push_back(jbt);
+					// Update animation length
+					animLength = currentAnimLength;
 
+					// Push back index to belonging joint
+					joints.push_back(currentJointIndex);
+
+					// Loop through each keyframe in the current joint being processed
+					for (int currentKeyFrameIndex = 0; currentKeyFrameIndex < (int)currentAnimLength; currentKeyFrameIndex++) {
+
+						FbxAMatrix keyframe = skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes[currentKeyFrameIndex].GlobalTransform;
+						auto jointGlobalTransform = XMLoadFloat4x4(&Load4X4Transformations(keyframe));
+
+						// Transpose the matrix from column major to row major
+						XMFLOAT4X4 jbt;
+						XMStoreFloat4x4(&jbt, jointGlobalTransform);
+						animationTransformations.push_back(jbt);
+
+					}
 				}
 
 			}
@@ -1662,9 +1682,12 @@ void SE::FBX::FBXConverter::WriteAnimation(string folderName, Skeleton skeleton)
 			// Define the ofstream 
 			ofstream outBinary(binaryFile, std::ios::binary);
 
+			uint32_t animationJoints = joints.size();
+
 			// Write the current animation length, the number of joints and the total amount of keyframes for the animation
-			outBinary.write(reinterpret_cast<char*>(&nrOfJoints), sizeof(uint32_t));
-			outBinary.write(reinterpret_cast<char*>(&currentAnimLength), sizeof(uint32_t));
+			outBinary.write(reinterpret_cast<char*>(&animationJoints), sizeof(uint32_t));
+			outBinary.write(reinterpret_cast<char*>(&animLength), sizeof(uint32_t));
+			outBinary.write(reinterpret_cast<char*>(joints.data()), sizeof(joints[0]) * joints.size());
 			outBinary.write(reinterpret_cast<char*>(animationTransformations.data()), sizeof(animationTransformations[0]) * animationTransformations.size());
 
 			cout << "[OK] Exported " << animationName << " to " << folderName << endl;
