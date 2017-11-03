@@ -37,14 +37,14 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	});
 	if (res < 0)
 		throw std::exception("Could not load decal pixel shader");
-	BlendState bs;
+	Graphics::BlendState bs;
 	bs.enable = true;
-	bs.blendOperation = BlendOperation::ADD;
-	bs.blendOperationAlpha = BlendOperation::MAX;
-	bs.srcBlend = Blend::INV_SRC_ALPHA;
-	bs.srcBlendAlpha = Blend::ONE;
-	bs.dstBlend = Blend::INV_SRC_ALPHA;
-	bs.dstBlendAlpha = Blend::ONE;
+	bs.blendOperation = Graphics::BlendOperation::ADD;
+	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
+	bs.srcBlendAlpha = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlendAlpha = Graphics::Blend::ONE;
 	
 	res = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(blendState, bs);
 	if (res < 0)
@@ -70,7 +70,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	defaultPipeline.OMStage.renderTargetCount = 1;
 	defaultPipeline.OMStage.depthStencilView = "";
 	defaultPipeline.RStage.rasterizerState = rasterizerState;
-	//defaultPipeline.OMStage.blendState = blendState;
+	defaultPipeline.OMStage.blendState = blendState;
 	
 	DirectX::XMFLOAT4X4 vp = initInfo.cameraManager->GetViewProjection(initInfo.cameraManager->GetActive());
 
