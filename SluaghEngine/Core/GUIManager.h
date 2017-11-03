@@ -83,13 +83,13 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureOrigin(const Entity& entity, DirectX::XMFLOAT2 origin) override {
+			inline void SetTextureScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{			
 
-					textureInfo[fileLoaded->second.ID].origin = origin;
+					textureInfo[fileLoaded->second.ID].screenAnchor = anchor;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;

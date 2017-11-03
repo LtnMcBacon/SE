@@ -74,7 +74,7 @@ namespace SE
 			virtual  void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
 
 
-			virtual  void SetTextureOrigin(const Entity& entity, DirectX::XMFLOAT2 origin) = 0;
+			virtual  void SetTextureScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor) = 0;
 			virtual  void SetTextureDimensions(const Entity& entity, long width, long height) = 0;
 
 			virtual  void SetTextureEffect(const Entity& entity, Graphics::Effect effect) = 0;
