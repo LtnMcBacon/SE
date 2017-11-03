@@ -70,49 +70,49 @@ int main(int argc, char** argv)
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
-	AddTest(ComputeTest);
+	//AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
-	AddTest(WindowTest);
-	////AddTest(ObjLoaderTest);
+	//AddTest(WindowTest);
+	//AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
 	AddTest(SkeletonAnimationTest);
-	AddTest(INITest);
+	//AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
 	AddTest(RecordingProjectileTest);
 	AddTest(PlaybackProjectileTest);
-	AddTest(InitGraphicsTest);
+	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
-	AddTest(ImageLoadTest);
-	AddTest(BoundingTest);
-	AddTest(AllocatorTest);
+	//AddTest(ImageLoadTest);
+	//AddTest(BoundingTest);
+	//AddTest(AllocatorTest);
 	AddTest(LightTest);
 	//AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
-	AddTest(InstancingTest);
+	//AddTest(InstancingTest);
 
-	AddTest(FlowFieldTest);
-	AddTest(EnemyMovementTest);
-	AddTest(RoomCreationTest);
-	AddTest(PlayerMovementTest);
-	AddTest(GameStateTest);
-	AddTest(BehavioursTest);
-	AddTest(BehaviouralTreeFactoryTest);
-	AddTest(EnemyFactoryTest);
-	AddTest(GlaistigTest);
+	//AddTest(FlowFieldTest);
+	//AddTest(EnemyMovementTest);
+	//AddTest(RoomCreationTest);
+	//AddTest(PlayerMovementTest);
+	//AddTest(GameStateTest);
+	//AddTest(BehavioursTest);
+	//AddTest(BehaviouralTreeFactoryTest);
+	//AddTest(EnemyFactoryTest);
+	//AddTest(GlaistigTest);
 	AddTest(SlaughTest);
 
-	AddTest(PickingTest);
+	//AddTest(PickingTest);
 	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
-	AddTest(GarbageTest);
-	AddTest(ConsoleTest);
-	AddTest(TransformTest);
-	AddTest(DecalTest);
+	//AddTest(GarbageTest);
+	//AddTest(ConsoleTest);
+	//AddTest(TransformTest);
+	//AddTest(DecalTest);
 	AddTest(BloomTest);
-	AddTest(RandRoomTest); 
+	//AddTest(RandRoomTest); 
 	AddTest(ThreadPoolTest);
   
 	volatile bool running = true;

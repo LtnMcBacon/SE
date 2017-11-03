@@ -84,7 +84,8 @@ void GameUnit::PositionEntity(float xPos, float yPos)
 	StartProfile;
 	this->xPos = xPos;
 	this->yPos = yPos;
-	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, 0.0f, yPos });
+	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, zPos, yPos });
+	DirectX::XMFLOAT3 pos = CoreInit::managers.transformManager->GetPosition(this->unitEntity);
 	StopProfile;
 }
 

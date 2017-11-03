@@ -100,6 +100,7 @@ bool SE::Gameplay::ProjectileManager::CheckCollisionHelperFunction(GameUnit* uni
 
 SE::Gameplay::ProjectileManager::ProjectileManager(BehaviourPointers bPtrs)
 {
+	bPtrs.pManager = this;
 	factory.SetBehaviourPtrs(bPtrs);
 }
 
