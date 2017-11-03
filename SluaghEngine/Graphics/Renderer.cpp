@@ -318,10 +318,10 @@ int SE::Graphics::Renderer::Render()
 				//origin = { job.info.anchor.x*(job.info.width / (float)job.originalScreenWidth)* width, job.info.anchor.y*(job.info.height / (float)job.originalScreenHeight)*height };
 			}
 
-			rect.left += width * job.info.origin.x;
-			rect.top += height * job.info.origin.y;
-			rect.right += width * job.info.origin.x;
-			rect.bottom += height * job.info.origin.y;
+			rect.left += width * job.info.screenAnchor.x;
+			rect.top += height * job.info.screenAnchor.y;
+			rect.right += width * job.info.screenAnchor.x;
+			rect.bottom += height * job.info.screenAnchor.y;
 		
 
 			//rect.left = job.info.anchor.x * width + (job.info.posX / (float)job.originalScreenWidth) * width;

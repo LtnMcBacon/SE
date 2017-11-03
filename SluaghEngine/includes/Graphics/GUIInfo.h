@@ -41,9 +41,9 @@ namespace SE
 			long width = -1;
 			long height = -1;
 			DirectX::XMFLOAT4 colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-			DirectX::XMFLOAT2 origin = { 0.0f, 0.0f };
+			DirectX::XMFLOAT2 anchor = { 0.0f, 0.0f };
 			DirectX::XMFLOAT2 scale = { 1.0f, 1.0f };
-			DirectX::XMFLOAT2 anchor = { 0.0f, 0.0f };	
+			DirectX::XMFLOAT2 screenAnchor = { 0.0f, 0.0f };	
 
 			Effect effect = Effect::NoEffect;
 			float rotation = 0.0f;
