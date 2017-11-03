@@ -161,26 +161,28 @@ size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
 	ProfileReturn(job);
 }
 
-size_t SE::Graphics::Renderer::EnableTextureRendering(const GUITextureInfo & handles)
+size_t SE::Graphics::Renderer::EnableTextureRendering(const GUIJob & handles)
 {
 	StartProfile;
 	int job = (int)renderTextureJobs.size();
 	renderTextureJobs.push_back(handles);
-	if (!renderTextureJobs[job].anchor)
-	{
+	//if (!renderTextureJobs[job].anchor)
+	//{
 		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
-		float height = gBB_Desc.Height;
-		float width = gBB_Desc.Width;
-		if (renderTextureJobs[job].rect)
-		{
-			renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
-			renderTextureJobs[job].rect->top = renderTextureJobs[job].rect->top * height;
-			renderTextureJobs[job].rect->right = renderTextureJobs[job].rect->right * width;
-			renderTextureJobs[job].rect->left = renderTextureJobs[job].rect->left * width;
-		}
-		renderTextureJobs[job].scale = DirectX::XMFLOAT2(renderTextureJobs[job].scale.x * width, renderTextureJobs[job].scale.y * height);
-		renderTextureJobs[job].pos = DirectX::XMFLOAT2(renderTextureJobs[job].pos.x * width, renderTextureJobs[job].pos.y * height);
-	}
+		long height = gBB_Desc.Height;
+		long width = gBB_Desc.Width;
+		//if (renderTextureJobs[job].rect)
+		//{
+		//	renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
+		//	renderTextureJobs[job].rect->top = renderTextureJobs[job].rect->top * height;
+		//	renderTextureJobs[job].rect->right = renderTextureJobs[job].rect->right * width;
+		//	renderTextureJobs[job].rect->left = renderTextureJobs[job].rect->left * width;
+		//}
+		/*renderTextureJobs[job].info.width = renderTextureJobs[job].info.width * width;
+		renderTextureJobs[job].info.height = renderTextureJobs[job].info.height * height;
+		renderTextureJobs[job].info.posX = renderTextureJobs[job].info.posX * width;
+		renderTextureJobs[job].info.posY = renderTextureJobs[job].info.posY * height;*/
+//	}
 	ProfileReturn(int(job));
 }
 
@@ -289,12 +291,50 @@ int SE::Graphics::Renderer::Render()
 	//********* Render sprite overlays ********/
 	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
 	gpuTimer->Start(CREATE_ID_HASH("GUIJob-GPU"));
-	if (renderTextureJobs.size() && renderTextJobs.size())
+	if (renderTextureJobs.size() || renderTextJobs.size())
 	{
+		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		long height = gBB_Desc.Height;
+		long width = gBB_Desc.Width;
+
 		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
 		for (auto& job : renderTextureJobs)
 		{
-			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos,(tagRECT*)job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			RECT rect;
+			rect.left = job.info.posX;
+			rect.top = job.info.posY;
+			rect.right = rect.left + job.info.width;
+			rect.bottom = rect.top + job.info.height;
+
+			DirectX::XMFLOAT2 origin = { job.info.anchor.x*job.info.width, job.info.anchor.y*job.info.height };
+
+			// Scale to screen
+			if (!job.info.absolute)
+			{
+				rect.left = (rect.left / (float)job.originalScreenWidth)* width;
+				rect.top = (rect.top / (float)job.originalScreenHeight)*height;
+				rect.right = (rect.right / (float)job.originalScreenWidth)* width;
+				rect.bottom = (rect.bottom / (float)job.originalScreenHeight)*height;
+				//origin = { job.info.anchor.x*(job.info.width / (float)job.originalScreenWidth)* width, job.info.anchor.y*(job.info.height / (float)job.originalScreenHeight)*height };
+			}
+
+			rect.left += width * job.info.screenAnchor.x;
+			rect.top += height * job.info.screenAnchor.y;
+			rect.right += width * job.info.screenAnchor.x;
+			rect.bottom += height * job.info.screenAnchor.y;
+		
+
+			//rect.left = job.info.anchor.x * width + (job.info.posX / (float)job.originalScreenWidth) * width;
+			//rect.top = job.info.anchor.y * height + (job.info.posY / (float)job.originalScreenHeight) * height;
+			//rect.right = static_cast<long>((job.info.posX + job.info.width) * job.info.scale.x);
+			//rect.bottom = static_cast<long>((job.info.posY + job.info.height)*job.info.scale.y);	
+			//rect.right = (rect.right / (float)job.originalScreenWidth) * width;
+			//rect.bottom = (rect.bottom / (float)job.originalScreenHeight) * height;
+
+			//DirectX::XMFLOAT2 ori(job.info.origin.x*((job.info.width / (float)job.originalScreenWidth) * width), job.info.origin.y * ((job.info.height / (float)job.originalScreenHeight) * height));
+
+			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), rect, nullptr, XMLoadFloat4(&job.info.colour), job.info.rotation, origin, (DirectX::SpriteEffects)job.info.effect, job.info.layerDepth);
+			//spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos,(tagRECT*)job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 
 		for (auto& job : renderTextJobs)
@@ -366,7 +406,7 @@ int SE::Graphics::Renderer::BeginFrame()
 	pipelineHandler->ClearAllRenderTargets();
 
 	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
+	float clearColor[] = { 0, 0, 0, 1 };
 	
 	//if (!bloom)
 	{
@@ -427,6 +467,10 @@ int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)
 {
 	device->ResizeSwapChain((HWND)windowHandle);
+	pipelineHandler->AddExistingRenderTargetView("backbuffer", device->GetRTV());
+	pipelineHandler->AddExisitingShaderResourceView("backbuffer", device->GetSRV());
+	pipelineHandler->AddExistingDepthStencilView("backbuffer", device->GetDepthStencil());
+	pipelineHandler->AddExisitingShaderResourceView("backbufferdepth", device->GetDepthStencilSRV());
 }
 //
 //int SE::Graphics::Renderer::EnableBloom(int handleHorizontal, int handleVertical)

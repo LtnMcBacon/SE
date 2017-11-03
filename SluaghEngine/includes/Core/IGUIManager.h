@@ -41,9 +41,9 @@ namespace SE
 
 			struct CreateInfo
 			{
-				Entity entity;
-				Utilz::GUID texFile;
-				Graphics::GUITextureInfo texInfo;
+				
+				Utilz::GUID texture;		
+				Graphics::GUITextureInfo textureInfo;
 			};
 
 
@@ -56,7 +56,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			virtual int Create(CreateInfo info) = 0;
+			virtual int Create(const Entity& entity,const CreateInfo& info) = 0;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -69,21 +69,19 @@ namespace SE
 
 			// sets for texture
 			virtual  void SetTextureColour(const Entity& entity, DirectX::XMFLOAT4 colour) = 0;
-			virtual  void SetTexturePos(const Entity& entity, DirectX::XMFLOAT2 pos) = 0;
+			virtual  void SetTexturePos(const Entity& entity, long x, long y) = 0;
 
-			virtual  void SetTextureOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) = 0;
 			virtual  void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
+
+
+			virtual  void SetTextureScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor) = 0;
+			virtual  void SetTextureDimensions(const Entity& entity, long width, long height) = 0;
 
 			virtual  void SetTextureEffect(const Entity& entity, Graphics::Effect effect) = 0;
 
 			virtual  void SetTextureRotation(const Entity& entity, float rotation) = 0;
 
 			virtual  void SetTextureLayerDepth(const Entity& entity, float layerDepth) = 0;
-
-			virtual  void SetTextureID(const Entity& entity, Utilz::GUID& guid) = 0;
-
-			virtual  void SetTextureRect(const Entity& entity, Graphics::RECT& rect) = 0;
-
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc
 			* @param[in] inHeight The height.
