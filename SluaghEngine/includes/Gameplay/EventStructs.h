@@ -26,20 +26,22 @@ namespace SE
 			} type;
 
 			/*Int/Float for amount?*/
-			int amount;
+			float amount;
+			float originalAmount;
 
 			DamageEvent()
 			{
 				source = DamageSources::DAMAGE_SOURCE_MELEE;
 				type = DamageTypes::DAMAGE_TYPE_PHYSICAL;
 				amount = 1;
+				originalAmount = amount;
 			}
 
-			DamageEvent(DamageSources damageSource, DamageTypes damageType, int damageAmount)
+			DamageEvent(DamageSources damageSource, DamageTypes damageType, float damageAmount)
 			{
 				source = damageSource;
 				type = damageType;
-				amount = damageAmount;
+				originalAmount = amount = damageAmount;
 			}
 		};
 

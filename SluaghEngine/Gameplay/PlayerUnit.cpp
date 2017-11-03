@@ -222,6 +222,45 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
+
+	/*
+	if (skills[0]->CurrentCooldown() <= 0.0f && input.skill1Button) 
+	{
+		ProjectileData temp;
+
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
+		temp.eventDamage = skills[0]->GetDamageEvent();
+		temp.healingEvent = skills[0]->GetHealingEvent();
+		temp.conditionEvent = skills[0]->GetConditionEvent();
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = skills[0]->GetProjectileFilename();
+
+		newProjectiles.push_back(temp);
+	}
+	*/
+
+	/*
+	if (skills[1]->CurrentCooldown() <= 0.0f && input.skill2Button)
+	{
+	ProjectileData temp;
+
+	temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+	temp.startPosX = this->xPos;
+	temp.startPosY = this->yPos;
+	temp.target = ValidTarget::ENEMIES;
+	temp.eventDamage = skills[1]->GetDamageEvent();
+	temp.healingEvent = skills[1]->GetHealingEvent();
+	temp.conditionEvent = skills[1]->GetConditionEvent();
+	temp.ownerUnit = mySelf;
+	temp.fileNameGuid = skills[1]->GetProjectileFilename();
+
+	newProjectiles.push_back(temp);
+	}
+	*/
+
 	if (input.skill1Button) 
 	{
 		ProjectileData temp;
@@ -235,8 +274,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.fileNameGuid = "turretProjectile.SEP";
 
 		newProjectiles.push_back(temp);
-
-		//attackCooldown = 0.2f * attackSpeed;
 	}
 
 	if (input.actionButton && attackCooldown <= 0.0f)
@@ -386,19 +423,19 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
-	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
-	sai.animationCount = 1;
+	//Core::IAnimationManager::CreateInfo sai;
+	//sai.mesh = "Run.mesh";
+	//sai.skeleton = "Run.skel";
+	//sai.animationCount = 1;
 
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
-	sai.animations = anims;
+	//Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	//sai.animations = anims;
 
-	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	//CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
+	//CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
 
-	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+	//CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

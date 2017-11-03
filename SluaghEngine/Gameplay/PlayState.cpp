@@ -238,8 +238,11 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	UpdateInput(movementInput, actionInput);
 
+	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->UpdateMovement(input->GetDelta(), movementInput);
 	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
+	//projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+	//blackBoard.enemyProjectiles.clear();
 
 	UpdateProjectiles(newProjectiles);
 

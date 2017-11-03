@@ -216,32 +216,32 @@ namespace SE
 			/**
 			* @brief	Adds a behaviour that kills all projectiles of a certain generation
 			*/
-			std::function<bool(Projectile* projectile, float dt)> KillGenerationBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+			std::function<bool(Projectile* projectile, float dt)> KillGenerationBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
 			* @brief	Adds a behaviour to set a projectile as alive
 			*/
-			std::function<bool(Projectile* projectile, float dt)> SetAliveBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
-
-
-			/**
-			* @brief	Adds a behaviour to set a projectile as alive
-			*/
-			std::function<bool(Projectile* projectile, float dt)> CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
-
+			std::function<bool(Projectile* projectile, float dt)> SetAliveBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds a behaviour to set a projectile as alive
+			* @brief	Adds a condition to see if a projectile collided with an enemy
 			*/
-			std::function<bool(Projectile* projectile, float dt)> CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
-
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
 			/**
-			* @brief	Adds a behaviour to set a projectile as alive
+			* @brief	Adds a condition to see if a projectile collided with an object
 			*/
-			std::function<bool(Projectile* projectile, float dt)> CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
+			/**
+			* @brief	Adds a condition to see if a projectile collided with the player
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters);
 
+			/**
+			* @brief	Adds a condition to see if a projectile collided with the player
+			*/
+			std::function<bool(Projectile* projectile, float dt)> SetDamageBasedOnDTBehaviour(std::vector<BehaviourParameter> parameters);
 
 
 		public:

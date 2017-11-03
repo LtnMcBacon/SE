@@ -212,7 +212,7 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.devConsole = CreateConsole(subSystems.renderer, subSystems.window);
 		auto res = subSystems.devConsole->Initialize();
-		if (res < 0)
+		if (!res)
 			throw std::exception("Could not initiate devConsole.");
 	}
 	if(!subSystems.threadPool)

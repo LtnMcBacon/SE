@@ -228,6 +228,9 @@ namespace SE
 			stats baseStat;
 			stats newStat;
 
+			std::vector<void*> skills;
+			std::vector<void*> perks;
+
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused

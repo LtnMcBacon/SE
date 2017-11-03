@@ -250,6 +250,10 @@ namespace SE
 			*/
 			void CreateEntities();
 
+			/**
+			* @brief Places enemies in the room on free tiles
+			*/
+			void CreateEnemies();
 
 		public:
 			Room(Utilz::GUID fileName);
