@@ -22,16 +22,27 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	for (auto& HUDElement: fileParser.MainMenuElmVec)
 	{
 
+		
+
 
 		auto entity = CoreInit::managers.entityManager->Create();
 
-		GuiManager.entity = entity;
-		GuiManager.texFile = HUDElement.textName;
-		GuiManager.texInfo.pos.x = HUDElement.PositionX;
-		GuiManager.texInfo.pos.y = HUDElement.PositionY;
-		GuiManager.texInfo.layerDepth = HUDElement.layerDepth;
-		GuiManager.texInfo.scale.x = HUDElement.Width;
-		GuiManager.texInfo.scale.y = HUDElement.Height;
+		
+
+		GuiManager.textureInfo.width = HUDElement.Width;
+		GuiManager.textureInfo.height = HUDElement.Height;
+		GuiManager.textureInfo.posX = HUDElement.PositionX;
+		GuiManager.textureInfo.posY = HUDElement.PositionY;
+		GuiManager.textureInfo.layerDepth = HUDElement.layerDepth;
+
+		GuiManager.texture = HUDElement.textName;
+		
+		CoreInit::managers.guiManager->Create(entity, GuiManager);
+
+		CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
+		
+
+		
 
 		
 		
@@ -40,7 +51,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 
 	}
-	CoreInit::managers.guiManager->Create(GuiManager);
+	
 
 }
 
