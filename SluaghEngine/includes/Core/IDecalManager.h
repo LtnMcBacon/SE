@@ -21,7 +21,7 @@ namespace SE
 		struct DecalCreateInfo
 		{
 			Utilz::GUID textureName = Utilz::GUID();
-			float transparency = 1.0f;
+			float opacity = 1.0f;
 			float transform[16] = {1.0f, 0.0f,0.0f,0.0f,
 									0.0f,1.0f,0.0f,0.0f,
 									0.0f,0.0f,1.0f,0.0f,
