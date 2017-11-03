@@ -5,6 +5,7 @@
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
+#include <Gameplay/PlayerUnit.h>
 namespace SE
 {
 	namespace Gameplay
@@ -397,6 +398,12 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
+
+			/**
+			* @brief Set start pos to player. 
+			*/
+			void PlayerStartPos(PlayerUnit* player); 
+
 
 			inline void GetMap(char toReturn[25][25])
 			{

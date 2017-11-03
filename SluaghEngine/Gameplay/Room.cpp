@@ -13,6 +13,39 @@ using namespace Gameplay;
 #undef max
 #undef min
 
+void Room::PlayerStartPos(PlayerUnit* player)
+{
+	for (int x = 0; x < 25; x++)
+	{
+		for (int y = 0; y < 25; y++)
+		{
+			if (tileValues[x][y] == 1)
+			{
+				float rotation = ceilf((FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+				int xOffset = 0, yOffset = 0;
+				if (rotation == 0)
+				{
+					yOffset = 1;
+				}
+				else if (rotation == 90)
+				{
+					xOffset = 1;
+				}
+				else if (rotation == 180)
+				{
+					yOffset = -1;
+				}
+				else if (rotation == 270)
+				{
+					xOffset = -1;
+				}
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+
+				break;
+			}
+		}
+	}
+}
 void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
