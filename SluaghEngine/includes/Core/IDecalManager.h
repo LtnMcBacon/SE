@@ -60,6 +60,21 @@ namespace SE
 			virtual int SetLocalTransform(const Entity& entity, float* transform16rowMajor) = 0;
 
 			/*
+			* @brief Sets the opacity for a decal
+			* @param[in] entity The entity to set the opacity of
+			* @param[in] opacity A value between 0.0f and 1.0f
+			*/
+			virtual int SetOpacity(const Entity& entity, float opacity) = 0;
+
+			/*
+			* @brief Increases/decreases the opacity of a decal
+			* @param[in] entity The entity to set the opacity of
+			* @param[in] amount How much to change the opacity.
+			*/
+			virtual int ModifyOpacity(const Entity& entity, float amount) = 0;
+
+
+			/*
 			 * @brief Removes a decal component from an entity.
 			 * @param[in] entity The entity to remove the decal component from.
 			 */

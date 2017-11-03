@@ -24,6 +24,15 @@ namespace SE
 			/*@brief See IDecalManager
 			 */
 			int SetLocalTransform(const Entity& entity, float* transform16rowMajor) override;
+			
+			/*@brief See IDecalManager
+			*/
+			int SetOpacity(const Entity& entity, float opacity) override;
+
+			/*@brief See IDecalManager
+			*/
+			int ModifyOpacity(const Entity& entity, float amount) override;
+			
 			/*
 			* @brief See IDecalManager
 			*/

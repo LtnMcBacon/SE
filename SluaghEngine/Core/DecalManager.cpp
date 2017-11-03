@@ -1,6 +1,7 @@
 #include "DecalManager.h"
 #include <Profiler.h>
 #include <random>
+#include <algorithm>
 
 using namespace SE::Graphics;
 
@@ -182,6 +183,37 @@ int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* trans
 		const auto transformIndex = entityToTransformIndex[entity];
 		transforms->second.localTransform[transformIndex] = *((DirectX::XMFLOAT4X4*)transform16rowMajor);
 		initInfo.transformManager->SetAsDirty(entity); //Triggers SetDirty
+		return 0;
+	}
+	return -1;
+}
+
+int SE::Core::DecalManager::SetOpacity(const Entity& entity, float opacity)
+{
+	const auto texture = entityToTextureGuid.find(entity);
+	if(texture != entityToTextureGuid.end())
+	{
+		auto transforms = decalToTransforms.find(texture->second);
+		const auto transformIndex = entityToTransformIndex[entity];
+		if (opacity > 1.0f) opacity = 1.0f;
+		if (opacity < 0.0f) opacity = 0.0f;
+		transforms->second.opacity[transformIndex] = opacity;
+		return 0;
+	}
+	return -1;
+}
+
+int SE::Core::DecalManager::ModifyOpacity(const Entity& entity, float amount)
+{
+	const auto texture = entityToTextureGuid.find(entity);
+	if (texture != entityToTextureGuid.end())
+	{
+		auto transforms = decalToTransforms.find(texture->second);
+		const auto transformIndex = entityToTransformIndex[entity];
+		float opacity = transforms->second.opacity[transformIndex] + amount;
+		if (opacity > 1.0f) opacity = 1.0f;
+		if (opacity < 0.0f) opacity = 0.0f;
+		transforms->second.opacity[transformIndex] = opacity;
 		return 0;
 	}
 	return -1;
