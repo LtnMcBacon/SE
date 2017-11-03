@@ -32,6 +32,7 @@ namespace SE
 		struct JointKeyFrame
 		{
 			std::vector<Keyframe> Keyframes;
+
 			JointKeyFrame()
 			{
 				Keyframes.reserve(60);
@@ -41,10 +42,11 @@ namespace SE
 		struct Animation {
 
 			std::vector<JointKeyFrame> Joints;
+			std::vector<uint32_t> jointToActualJoint;
 			unsigned int Length;
 
 			Animation() {
-				Joints.resize(19);
+				Joints.reserve(19);
 				Length = 0;
 			}
 		};
