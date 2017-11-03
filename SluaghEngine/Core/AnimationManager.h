@@ -38,6 +38,7 @@ namespace SE
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void Pause(const Entity& entity)const override;
+			bool IsAnimationPlaying(const Entity& entity) const override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
 

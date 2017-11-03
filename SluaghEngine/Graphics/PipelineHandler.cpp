@@ -136,9 +136,6 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 
 int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
 {
-	const auto exists = renderTargetViews.find(id);
-	if (exists != renderTargetViews.end())
-		return EXISTS;
 	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
 	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
 	manuallyAddedResources.insert(id);
@@ -147,9 +144,6 @@ int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
 {
-	const auto exists = depthStencilViews.find(id);
-	if (exists != depthStencilViews.end())
-		return EXISTS;
 	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -157,9 +151,6 @@ int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
 {
-	const auto exists = shaderResourceViews.find(id);
-	if (exists != shaderResourceViews.end())
-		return EXISTS;
 	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;

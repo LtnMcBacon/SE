@@ -82,12 +82,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		SE::Core::Entity entities[numberOfBlocks];
 		SE::Core::Entity arrows[numberOfBlocks];
 
-		Core::IMaterialManager::CreateInfo cubeInfo;
-		material = Utilz::GUID("Cube.mat");
-		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
-		cubeInfo.shader = shader;
-		cubeInfo.materialFile = material;
-
 		Core::IMaterialManager::CreateInfo arrowInfo;
 		material = Utilz::GUID("Cube.mat");
 		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
@@ -97,7 +91,6 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
 			entities[i] = managers.entityManager->Create();
-			managers.materialManager->Create(entities[i], cubeInfo);
 			arrows[i] = managers.entityManager->Create();
 			managers.materialManager->Create(arrows[i], arrowInfo);
 		}
@@ -179,6 +172,10 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 #pragma endregion LightDataSet
 
 		auto Block = SE::Utilz::GUID{ "HighWall.mesh" };
+		auto Passage = SE::Utilz::GUID{ "HighWall_Passage.mesh" };
+		auto TopBlock = SE::Utilz::GUID{ "HighWall_OneSide.mesh" };
+		auto Corner = SE::Utilz::GUID{ "HighWall_Corner.mesh" };
+		auto ThreeSides = SE::Utilz::GUID{ "HighWall_ThreeSides.mesh" };
 		auto Arrow = SE::Utilz::GUID{ "Placeholder_Arrow.mesh" };
 		auto Door = SE::Utilz::GUID{ "Door.mesh" };
 
@@ -277,20 +274,249 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
+		Core::IMaterialManager::CreateInfo cubeInfo;
+		material = Utilz::GUID("Cube.mat");
+		cubeInfo.materialFile = material;
+
+		
+
 		for (int x = 0; x < 25; x++)
 		{
 			for (int y = 0; y < 25; y++)
 			{
 				if (testRoom->tileValues[x][y] == 10)
 				{
-					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+
+					int right = testRoom->tileValues[x + 1][y];
+					int left = testRoom->tileValues[x - 1][y];
+					int up = testRoom->tileValues[x][y + 1];
+					int down = testRoom->tileValues[x][y - 1];
+					if (right  + left + up + down == 40)
+						continue;
+					if (x == 24 || y == 24 || x == 0 || y == 0)
+					{
+						if ((x == 0 && y == 0) || (x == 24 && y == 0) || (x == 0 && y == 24) || (x == 24 && y == 24))
+						{
+							continue;
+						}
+						else if (x == 24 && y == 24)
+						{
+							managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+						}
+						else if ((x == 24 && y != 0))
+						{
+							if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+							}
+						}
+						else if ((y == 24 && x != 0))
+						{
+							if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+						}
+						else if ((x == 0 && y != 24))
+						{
+							if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+						}
+						else if ((y == 0 && x != 24))
+						{
+							if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+						}
+					}
+					else
+					{
+						int side = 1;
+						if (right == 10)
+							side = side * 5;
+						if (left == 10)
+							side = side * 2;
+						if (up == 10)
+							side = side * 3;
+						if (down == 10)
+							side = side * 7;
+						//    3
+						//  2/#/5
+						//    7
+
+						switch (side) {
+							case 1:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+								break;
+							}
+							case 2:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 3:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 5:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 7:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 10:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Passage });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 21:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Passage });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 6:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 15:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 35:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 14:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 30:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 105:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 70:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 42:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { TopBlock });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							default:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+								break;
+							}
+						}
+							
+					}
+										
+					if (!(x == 24 || y == 24) && (right == 0 || up == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+									
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);					
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 6.0, 1.0));
 					numberOfEntitesPlaced++;
 				}
 				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
+					if (!(x == 24 || y == 24) && (testRoom->tileValues[x + 1][y] == 0 || testRoom->tileValues[x][y + 1] == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 

@@ -37,6 +37,7 @@ namespace SE
 				Keyframes.reserve(60);
 			}
 		};
+
 		struct Animation {
 
 			std::vector<JointKeyFrame> Joints;

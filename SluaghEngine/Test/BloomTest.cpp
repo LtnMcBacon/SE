@@ -69,6 +69,18 @@ namespace SE
 				float bloomP[4] = { 5.0f, 2.0f, 0.8f, 0.6f };
 				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
+				Graphics::BlendState bs;
+				bs.enable = true;
+				bs.blendOperation = Graphics::BlendOperation::ADD;
+				bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+				bs.srcBlend = Graphics::Blend::SRC_COLOR;
+				bs.srcBlendAlpha = Graphics::Blend::ONE;
+				bs.dstBlend = Graphics::Blend::ONE;
+				bs.dstBlendAlpha = Graphics::Blend::ONE;
+
+				result = subSystem.renderer->GetPipelineHandler()->CreateBlendState("BloomBS", bs);
+				if (result < 0)
+					goto error;
 
 				//
 				// Modified RenderableManagerTest Copy Below
@@ -234,9 +246,9 @@ namespace SE
 				verticalPass.pipeline.CSStage.shader = "VerticalBloomPass.hlsl";
 				verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
 				verticalPass.pipeline.CSStage.textures[1] = "backbuffer";
-				verticalPass.pipeline.CSStage.textureCount = 2;
+				verticalPass.pipeline.CSStage.textureCount = 1;
 				verticalPass.pipeline.CSStage.textureBindings[0] = "inTex_bloom";
-				verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
+			//	verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
 				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
 				verticalPass.pipeline.CSStage.uavCount = 1;
 				verticalPass.ThreadGroupCountX = 16;
@@ -249,7 +261,7 @@ namespace SE
 				drawBloomTexture.pipeline.PSStage.textures[0] = "BloomUAV2";
 				drawBloomTexture.pipeline.RStage.viewport = Utilz::GUID();
 				drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
-				drawBloomTexture.pipeline.OMStage.blendState = "RMTransparency";
+				drawBloomTexture.pipeline.OMStage.blendState = "BloomBS";
 				subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
 
 				Utilz::Timer timer;

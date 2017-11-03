@@ -107,8 +107,11 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		Graphics::RenderJob info;
 		CreateRenderObjectInfo(find->second, &info);
 		if (visible)
-		{
-			rmInstancing->AddEntity(entity, info);
+		{		
+			if (renderableObjectInfo.transparency[find->second] == 1u)
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			else
+				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 		else
@@ -125,9 +128,9 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
-	_ASSERT(timer);
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("RenderableManager"));
+	if(timer)
+		timer->Start(CREATE_ID_HASH("RenderableManager"));
 	GarbageCollection();
 
 
@@ -156,7 +159,8 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 
 
 	UpdateDirtyTransforms();
-	timer->Stop(CREATE_ID_HASH("RenderableManager"));
+	if(timer)
+		timer->Stop(CREATE_ID_HASH("RenderableManager"));
 	ProfileReturnVoid;
 }
 
@@ -284,12 +288,12 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
+		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.transparency[find->second]) != transparency)
 		{
-			renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
-			rmInstancing->AddEntity(entity, info);
+			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
 		}
 		
 	}
@@ -462,10 +466,11 @@ void SE::Core::RenderableManager::Init()
 	bs.enable = true;
 	bs.blendOperation = Graphics::BlendOperation::ADD;
 	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
-	bs.srcBlend = Graphics::Blend::SRC_COLOR;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
 	bs.srcBlendAlpha = Graphics::Blend::ONE;
-	bs.dstBlend = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
+
 
 	result = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(Transparency, bs);
 	if (result < 0)
@@ -534,7 +539,8 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 			if (renderableObjectInfo.visible[find->second])
 			{
 				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
-				shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+				if(shadowInstancing)
+					shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
 			}				
 		}
 	}

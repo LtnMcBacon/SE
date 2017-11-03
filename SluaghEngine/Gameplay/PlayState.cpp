@@ -37,7 +37,9 @@ PlayState::~PlayState()
 {
 	delete projectileManager;
 	delete player;
-	delete currentRoom;
+	//delete currentRoom;
+	for (auto room : rooms)
+		delete room;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)

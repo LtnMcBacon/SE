@@ -176,6 +176,22 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
+		/*if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
+		{
+			Core::IAnimationManager::AnimationPlayInfo playInfo;
+			playInfo.animations[0] = "RunAnimation_MCModell.anim";
+			playInfo.animationSpeed[0] = 20.0f;
+			playInfo.timePos[0] = 0.0f;
+			playInfo.looping[0] = true;
+
+			playInfo.nrOfLayers = 1;
+
+			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+		}*/
+	}
+	else
+	{
+		CoreInit::managers.animationManager->SetKeyFrame(unitEntity, 0);
 	}
 
 	//------------------------
@@ -351,6 +367,20 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 {
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+
+	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "Run.mesh";
+	sai.skeleton = "Run.skel";
+	sai.animationCount = 1;
+
+	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	sai.animations = anims;
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
+
+	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()
