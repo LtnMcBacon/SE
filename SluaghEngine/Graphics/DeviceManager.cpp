@@ -206,8 +206,10 @@ HRESULT DeviceManager::CreateSwapChain(HWND windowHandle) {
 		ProfileReturnConst(hr);
 	}
 
-	dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
-
+	hr = dxgiFactory->CreateSwapChain(gDevice, &swChDesc, &gSwapChain);
+	if (FAILED(hr)) {
+		ProfileReturnConst(hr);
+	}
 	dxgiFactory->Release();
 	dxgiAdapter->Release();
 	dxgiDevice->Release();
@@ -381,13 +383,14 @@ void DeviceManager::SetViewport() {
 
 void DeviceManager::Present() {
 
-	gSwapChain->Present(1, 0);
+	auto hr = gSwapChain->Present(0, 0);
 }
 
 void DeviceManager::ResizeSwapChain(HWND windowHandle)
 {
 	gSwapChain->Release();
 	gBackBuffer->Release();
+	gBBSRV->Release();
 	gBackbufferRTV->Release();
 	pDSState->Release();
 	//gDepthStencil->Release();
