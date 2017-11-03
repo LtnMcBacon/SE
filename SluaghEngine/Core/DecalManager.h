@@ -48,6 +48,7 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> world;
 				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
 				std::vector<Entity> owners;
+				std::vector<float> opacity;
 			};
 			DirectX::XMMATRIX cachedViewProj;
 			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;
