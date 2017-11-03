@@ -112,7 +112,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 2;
-	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
+	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim"};
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
