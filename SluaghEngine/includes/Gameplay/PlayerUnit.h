@@ -261,9 +261,15 @@ namespace SE
 		private:		
 			std::vector<Skill> skills;
 			std::vector<Skill> aiSkills;
-			void addPlayerSkills();
-			void movePlayerSkillsToAI();
+			
+			/**
+			* @brief		Removes all the skills from the list.
+			*
+			* @param[ín]	skills is the list that will be emptied.
+			**/
 			void flushSkills(std::vector<Skill> skills);
+			//void addPlayerSkills();
+			//void movePlayerSkillsToAI();
 
 			SkillFactory SF;
 
