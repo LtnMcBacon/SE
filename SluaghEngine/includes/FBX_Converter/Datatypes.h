@@ -33,9 +33,20 @@ namespace SE
 
 		};
 
+		struct JointKeyframe {
+
+			vector<Keyframe>keyframes;
+
+			JointKeyframe() {
+
+				keyframes.reserve(60);
+			};
+
+		};
+
 		struct Animation { // Struct to hold a vector of keyframes and the length of the animation
 
-			vector<Keyframe> Keyframes;
+			vector<JointKeyframe>joints;
 			FbxLongLong Length;
 			string Name;
 		};
@@ -48,7 +59,6 @@ namespace SE
 			FbxAMatrix GlobalBindposeInverse;
 			FbxAMatrix GlobalTransform;
 			FbxAMatrix LocalTransform;
-			vector<Animation> Animations;
 
 			FbxNode* Node;
 
@@ -164,6 +174,7 @@ namespace SE
 			vector<VertexDeformer>boneVertices;
 
 			Skeleton skeleton;
+			vector<Animation>animations;
 
 			string name;
 			Material objectMaterial;
