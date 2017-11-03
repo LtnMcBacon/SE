@@ -136,19 +136,19 @@ void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const std::function
 	callback(jobGroups[jobGroup][indexInMap].job);
 }
 
-size_t SE::Graphics::Renderer::EnableTextRendering(const TextGUI& handles)
+size_t SE::Graphics::Renderer::EnableTextRendering(const TextJob& handles)
 {
 	StartProfile;
 	int job = (int)renderTextJobs.size();
 	renderTextJobs.push_back(handles);
-	if (!renderTextJobs[job].anchor)
+	/*if (!renderTextJobs[job].anchor)
 	{
 		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
 		size_t height = gBB_Desc.Height;
 		size_t width = gBB_Desc.Width;
 		renderTextJobs[job].scale = DirectX::XMFLOAT2(renderTextJobs[job].scale.x * width, renderTextJobs[job].scale.y * height);
 		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
-	}
+	}*/
 	ProfileReturn(job);
 }
 
@@ -168,9 +168,9 @@ size_t SE::Graphics::Renderer::EnableTextureRendering(const GUIJob & handles)
 	renderTextureJobs.push_back(handles);
 	//if (!renderTextureJobs[job].anchor)
 	//{
-		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
-		long height = gBB_Desc.Height;
-		long width = gBB_Desc.Width;
+		//D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
+		//long height = gBB_Desc.Height;
+		//long width = gBB_Desc.Width;
 		//if (renderTextureJobs[job].rect)
 		//{
 		//	renderTextureJobs[job].rect->bottom = renderTextureJobs[job].rect->bottom * height;
@@ -323,23 +323,50 @@ int SE::Graphics::Renderer::Render()
 			rect.right += width * job.info.screenAnchor.x;
 			rect.bottom += height * job.info.screenAnchor.y;
 		
-
-			//rect.left = job.info.anchor.x * width + (job.info.posX / (float)job.originalScreenWidth) * width;
-			//rect.top = job.info.anchor.y * height + (job.info.posY / (float)job.originalScreenHeight) * height;
-			//rect.right = static_cast<long>((job.info.posX + job.info.width) * job.info.scale.x);
-			//rect.bottom = static_cast<long>((job.info.posY + job.info.height)*job.info.scale.y);	
-			//rect.right = (rect.right / (float)job.originalScreenWidth) * width;
-			//rect.bottom = (rect.bottom / (float)job.originalScreenHeight) * height;
-
-			//DirectX::XMFLOAT2 ori(job.info.origin.x*((job.info.width / (float)job.originalScreenWidth) * width), job.info.origin.y * ((job.info.height / (float)job.originalScreenHeight) * height));
-
 			spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), rect, nullptr, XMLoadFloat4(&job.info.colour), job.info.rotation, origin, (DirectX::SpriteEffects)job.info.effect, job.info.layerDepth);
 			//spriteBatch->Draw(graphicResourceHandler->GetShaderResourceView(job.textureID), job.pos,(tagRECT*)job.rect, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
 		}
 
 		for (auto& job : renderTextJobs)
 		{
-			fonts[job.fontID].DrawString(spriteBatch, job.text.c_str(), job.pos, XMLoadFloat4(&job.colour), job.rotation, job.origin, job.scale, (DirectX::SpriteEffects)job.effect, job.layerDepth);
+			DirectX::XMFLOAT2 dim;
+			auto jw = (float)job.info.width;
+			auto jh = (float)job.info.height;
+			DirectX::XMStoreFloat2(&dim, fonts[job.fontID].MeasureString(job.info.text.c_str()));
+			auto scale = job.info.scale;
+			if (jw == -1)
+				jw = dim.x;
+			else
+				scale.x = (jw / dim.x)*job.info.scale.x;
+			if (jh == -1)
+				jh = dim.y;
+			else
+				scale.y = (jh / dim.y)*job.info.scale.y;
+			RECT rect;
+			rect.left = job.info.posX;
+			rect.top = job.info.posY;
+			rect.right = rect.left + jw;
+			rect.bottom = rect.top + jh;
+
+			DirectX::XMFLOAT2 origin = { job.info.anchor.x*dim.x, job.info.anchor.y*dim.y };
+
+			// Scale to screen
+			if (!job.info.absolute)
+			{
+				rect.left = (rect.left / (float)job.originalScreenWidth)* width;
+				rect.top = (rect.top / (float)job.originalScreenHeight)*height;
+				rect.right = (rect.right / (float)job.originalScreenWidth)* width;
+				rect.bottom = (rect.bottom / (float)job.originalScreenHeight)*height;
+				//origin = { job.info.anchor.x*(job.info.width / (float)job.originalScreenWidth)* width, job.info.anchor.y*(job.info.height / (float)job.originalScreenHeight)*height };
+			}
+
+			rect.left += width * job.info.screenAnchor.x;
+			rect.top += height * job.info.screenAnchor.y;
+			rect.right += width * job.info.screenAnchor.x;
+			rect.bottom += height * job.info.screenAnchor.y;
+
+			
+			fonts[job.fontID].DrawString(spriteBatch, job.info.text.c_str(), {(float) rect.left,(float) rect.top }, XMLoadFloat4(&job.info.colour), job.info.rotation, origin, scale, (DirectX::SpriteEffects)job.info.effect, job.info.layerDepth);
 		}
 		spriteBatch->End();
 	}
@@ -461,7 +488,7 @@ int SE::Graphics::Renderer::CreateTexture(void* data, const TextureDesc& descrip
 int SE::Graphics::Renderer::CreateTextFont(void * data, size_t size)
 {
 	fonts.push_back(DirectX::SpriteFont(device->GetDevice(), (uint8_t*)data, size));
-	return fonts.size();
+	return fonts.size() - 1;
 }
 
 void SE::Graphics::Renderer::ResizeSwapChain(void* windowHandle)

@@ -39,8 +39,8 @@ namespace SE
 
 			struct CreateInfo
 			{
-				Entity entity;
-				Graphics::TextGUI inTextInfo;
+				Utilz::GUID font;
+				Graphics::TextGUI info;
 			};
 
 
@@ -53,7 +53,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			virtual void Create(CreateInfo info) = 0;
+			virtual void Create(const Entity& entity, const CreateInfo& info) = 0;
 
 			/**
 			* @brief Create a new font
@@ -77,8 +77,8 @@ namespace SE
 			virtual  void SetText(const Entity& entity, std::wstring text) = 0;
 			virtual  void SetTextFontID(const Entity& entity, size_t fontID) = 0;
 			virtual  void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) = 0;
-			virtual  void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos) = 0;
-			virtual  void SetTextOrigin(const Entity& entity, DirectX::XMFLOAT2 origin) = 0;
+			virtual  void SetTextPos(const Entity& entity, long x, long y) = 0;
+			virtual  void SetTextScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor) = 0;
 
 			virtual  void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale) = 0;
 
