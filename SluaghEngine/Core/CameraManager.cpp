@@ -319,6 +319,11 @@ void SE::Core::CameraManager::Destroy(size_t index)
 
 void SE::Core::CameraManager::Destroy(const Entity & entity)
 {
+	const auto exists = entityToIndex.find(entity);
+	if(exists != entityToIndex.end())
+	{
+		Destroy(exists->second);
+	}
 }
 
 void SE::Core::CameraManager::GarbageCollection()
