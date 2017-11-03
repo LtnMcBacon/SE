@@ -1,6 +1,8 @@
 #ifndef _SE_GAMEPLAY_MAIN_MENU_STATE_H
 #define _SE_GAMEPLAY_MAIN_MENU_STATE_H
 #include "IGameState.h"
+#include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\HUD_Functionality.h>
 
 namespace SE
 {
@@ -41,6 +43,8 @@ namespace SE
 			*
 			*/
 			State Update(void* &passableInfo);
+			HUDParser fileParser;
+			HUDButtons ElementFunctionality;
 
 		private:
 

@@ -162,6 +162,9 @@
     <ClCompile Include="ComputeTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HUDTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManagerTest.h">
@@ -294,6 +297,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ComputeTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

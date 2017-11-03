@@ -139,6 +139,18 @@
     <Filter Include="Source Files\AI\Slaugh">
       <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HUD_Parsing">
+      <UniqueIdentifier>{ed7a0a45-35e0-4194-9410-3a92801d1c8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\HUD_Parsing">
+      <UniqueIdentifier>{1a2f18ed-3dc8-4f42-bf0b-3e199b2e1ebe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HUD_Functionality">
+      <UniqueIdentifier>{d637b8da-5ca5-44b5-ac88-1b4a94729e87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\HUD_Functionality">
+      <UniqueIdentifier>{d9b0b14b-011a-42ef-8399-4c9c96bfb1a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -305,6 +317,12 @@
     </ClCompile>
     <ClCompile Include="PechMeleeAttackLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_Parsing.cpp">
+      <Filter>Source Files\HUD_Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_Functionality.cpp">
+      <Filter>Source Files\HUD_Functionality</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -502,6 +520,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h">
+      <Filter>Header Files\HUD_Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h">
+      <Filter>Header Files\HUD_Functionality</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

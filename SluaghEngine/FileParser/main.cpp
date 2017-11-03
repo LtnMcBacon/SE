@@ -87,7 +87,10 @@ std::vector<Accepted> acceptedExt =
 					}},
 
 					{ "SEP", "SEP", "Projectiles", [](const char* filename, const char* outFilename) {
-					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
+
+					{ "HuD", "HuD", "HuDElements", [](const char* filename, const char* outFilename) {
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
 
 };
 

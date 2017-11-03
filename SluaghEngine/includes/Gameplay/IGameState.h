@@ -5,6 +5,7 @@
 #include <Gameplay\KeyBindings.h>
 #include <Core\IEngine.h>
 
+
 namespace SE
 {
 	namespace Gameplay
@@ -37,6 +38,8 @@ namespace SE
 				CHARACTER_CREATION_STATE = 3,
 				PAUSE_STATE = 4
 			};
+
+			 
 
 			// perhaps a pointer to decide states when switching between objects?
 			// or a bunch of subclasses objects.
