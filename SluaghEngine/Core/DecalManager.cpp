@@ -136,7 +136,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
 	decalToTransforms[textureName].localTransform.push_back(DirectX::XMFLOAT4X4(createInfo.transform));
 	decalToTransforms[textureName].owners.push_back(entity);
-	
+	decalToTransforms[textureName].opacity.push_back(createInfo.opacity);
 
 	const auto renderJob = decalToJobID.find(textureName);
 	if (renderJob == decalToJobID.end())

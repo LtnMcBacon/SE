@@ -9,6 +9,10 @@ cbuffer DecalsInverseWorld : register(b1)
 	float4x4 gInvWorld[256];
 };
 
+cbuffer DecalOpacity : register(b2);
+{
+	float opacity[256];
+}
 
 
 SamplerState gAnisotropicSam : register(s0);
