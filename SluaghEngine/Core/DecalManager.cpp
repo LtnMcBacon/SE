@@ -189,7 +189,20 @@ int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* trans
 
 int SE::Core::DecalManager::Remove(const Entity& entity)
 {
-	return 0;
+	StartProfile;
+	int index = -1;
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i] == entity)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != -1)
+		Destroy(index);
+	
+	ProfileReturn(index != -1 ? 0 : -1);
 }
 
 void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
