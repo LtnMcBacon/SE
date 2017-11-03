@@ -72,7 +72,7 @@ namespace SE
 				guiTexture.rotation = 0;
 				guiTexture.width = -1;
 				guiTexture.height = -1;
-				guiTexture.origin = { 0.25f ,0.25f };
+				guiTexture.screenAnchor = { 0.25f ,0.25f };
 				guiTexture.anchor = { 0.5f, 0.5f };
 				guiTexture.scale = { 1.0f, 1.0f };
 				//guiTexture.rect = nullptr;	//not needed default nullptr
@@ -91,7 +91,7 @@ namespace SE
 				guiTexture2.rotation = 0;
 				guiTexture2.width = -1;
 				guiTexture2.height = -1;
-				guiTexture2.origin = { 0.75f ,0.25f };
+				guiTexture2.screenAnchor = { 0.75f ,0.25f };
 				guiTexture2.anchor = { 0.5f, 0.5f };
 				//guiTexture2.rect = nullptr;	//not needed default nullptr
 
@@ -110,7 +110,7 @@ namespace SE
 				guiTexture3.rotation = 0;
 				guiTexture3.width = -1;
 				guiTexture3.height = -1;
-				guiTexture3.origin = { 0.25f ,0.75f };
+				guiTexture3.screenAnchor = { 0.25f ,0.75f };
 				guiTexture3.anchor = { 0.5f, 0.5f };
 		
 				managers.guiManager->Create( entTexture3,{ Utilz::GUID("GUITest.sei"), guiTexture3 });
@@ -127,7 +127,7 @@ namespace SE
 				guiTexture4.rotation = 0;
 				guiTexture4.width = -1;
 				guiTexture4.height = -1;
-				guiTexture4.origin = { 0.75f ,0.75f };
+				guiTexture4.screenAnchor = { 0.75f ,0.75f };
 				guiTexture4.anchor = { 0.5f, 0.5f };
 				//guiTexture4.rect = nullptr;	//not needed default nullptr
 
@@ -141,7 +141,7 @@ namespace SE
 				guiTexture5.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture5.effect = Graphics::Effect::NoEffect;
 				guiTexture5.layerDepth = 0;
-				guiTexture5.origin = { 0.5f ,0.5f };
+				guiTexture5.screenAnchor = { 0.5f ,0.5f };
 				guiTexture5.posX = 0;
 				guiTexture5.posY = 0;
 				guiTexture5.rotation = 0;
