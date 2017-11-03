@@ -134,11 +134,9 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 	entityToTransformIndex[entity] = decalToTransforms[textureName].world.size();
 	decalToTransforms[textureName].world.push_back(world);
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
+	decalToTransforms[textureName].localTransform.push_back(DirectX::XMFLOAT4X4(createInfo.transform));
 	decalToTransforms[textureName].owners.push_back(entity);
-	const DirectX::XMMATRIX ident = DirectX::XMMatrixIdentity();
-	DirectX::XMFLOAT4X4 fident;
-	DirectX::XMStoreFloat4x4(&fident, ident);
-	decalToTransforms[textureName].localTransform.push_back(fident);
+	
 
 	const auto renderJob = decalToJobID.find(textureName);
 	if (renderJob == decalToJobID.end())
