@@ -9,10 +9,10 @@ cbuffer DecalsInverseWorld : register(b1)
 	float4x4 gInvWorld[256];
 };
 
-cbuffer DecalOpacity : register(b2);
+cbuffer DecalOpacity : register(b2)
 {
-	float opacity[256];
-}
+	float4 opacities[64]; //Disgusting packing rules
+};
 
 
 SamplerState gAnisotropicSam : register(s0);
@@ -51,6 +51,8 @@ float4 PS_main(VS_OUT input) : SV_Target
 	
 //	return float4(1.0f,1.0f,1.0f,1.0f);
 	float4 decalColor = DecalDiffuse.Sample(gAnisotropicSam, decalUV);
+	float opac = ((float[4])(opacities[input.instanceID / 4]))[input.instanceID % 4];
+	decalColor.a *= opac;
 	clip(decalColor.a - 0.05f); //If the decal is very transparent right here, we dont need to do any blending.
 	
 	return decalColor;

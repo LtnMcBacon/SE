@@ -57,11 +57,13 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	rm->ToggleRenderableObject(box, true);
 
 	Core::DecalCreateInfo decalInfo;
-	decalInfo.textureName = "BlackPink.sei";
+	decalInfo.opacity = 0.25f;
+	decalInfo.textureName = "TransparentTest.sei";
 	Core::Entity decal = em->Create();
 	tm->Create(decal, { 1.0f,0.0f, 4.5f },{0,0,0}, {1,1,10});
 	dm->Create(decal, decalInfo);
 
+	
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
 	dm->Create(decal2, decalInfo);
