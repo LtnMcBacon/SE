@@ -725,7 +725,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		if (subSystem.window->ButtonPressed(ESCAPE))
 			running = false;
 		engine->BeginFrame();
-		if (ImGui::Button("Delete"))
+		if (ImGui::Button("Delete") && files.size() > 0)
 		{
 			std::remove(files[current].fullPath.c_str());
 			for (int ite = current; ite < files.size() - 1; ite++)

@@ -163,6 +163,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SkillTest.cpp">
+    <ClCompile Include="ThreadPoolTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -301,6 +302,8 @@
     </ClInclude>
     <ClInclude Include="SkillTest.h">
       <Filter>Header Files\GameplayTests</Filter>
+    <ClInclude Include="ThreadPoolTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,8 +2,6 @@
 #include <Profiler.h>
 //#include <Utilz\Console.h>
 
-static const SE::Utilz::GUID defaultTexture("ft_stone01_c.sei");
-
 
 SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn), mLoading(initInfoIn.renderer, initInfoIn.resourceHandler, initInfoIn.console)
 {
@@ -16,7 +14,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 	defaultPixelShader = "SimplePS.hlsl";
 	defaultTextureBinding = "DiffuseColor";
 	defaultSampler = "AnisotropicSampler";
-	defaultMaterial = "Cube.mat";
+	defaultMaterial = "default.mat";
 
 	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &MaterialManager::SetRenderObjectInfo });
 
@@ -31,15 +29,12 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 		throw std::exception("Could not load default material.");
 	auto& mdata = mLoading.GetMaterialFile(defaultMaterial);
 
-	//if(mdata.textureInfo.numTextures != 1)
-	//	throw std::exception("Default material does not have 1 channel");
-
-	//if (defaultTexture != mdata.textureInfo.textures[0])
-	//	throw std::exception("Default Texture and Default material does not compare");
+	if(mdata.textureInfo.numTextures != 1)
+		throw std::exception("Default material does not have 1 channel");
 
 	defaultTextureBinding = mdata.textureInfo.bindings[0];
 
-	res = mLoading.LoadTexture(defaultTexture);
+	res = mLoading.LoadTexture(mdata.textureInfo.textures[0]);
 	if (res < 0)
 		throw std::exception("Could not load default texture.");
 

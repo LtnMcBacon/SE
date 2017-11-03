@@ -41,7 +41,7 @@ bool SE::Test::ComputeTest::Run(SE::DevConsole::IConsole * console)
 		uav.clearColor[1] = 0.0f;
 		uav.clearColor[2] = 0.0f;
 		uav.clearColor[3] = 0.0f;
-		uav.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
+		uav.format = Graphics::TextureFormat::R32G32B32A32_FLOAT;
 		uav.width = 512;
 		uav.height = 512;
 
