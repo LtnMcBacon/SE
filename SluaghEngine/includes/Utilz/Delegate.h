@@ -157,10 +157,6 @@ namespace SE
 			bool operator+(const Delegate& other)const = delete;
 			bool operator-(const Delegate& other)const = delete;
 
-			//{
-			//	return this->uniqueIdentifier == other.uniqueIdentifier;
-			//};
-
 			/**
 			*@brief Assignment from Delegate to Delegate.
 			*/

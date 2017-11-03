@@ -109,22 +109,22 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC2, info);
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim"};
+	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim"};
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "Run.mesh");
-	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Run.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
 
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
 	Core::IAnimationManager::AnimationPlayInfo playInfo;
-	playInfo.animations[0] = "RunAnimation_Run.anim";
+	playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;

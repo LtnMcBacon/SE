@@ -162,6 +162,7 @@
     <ClCompile Include="ComputeTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkillTest.cpp">
     <ClCompile Include="ThreadPoolTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -299,6 +300,8 @@
     <ClInclude Include="ComputeTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SkillTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     <ClInclude Include="ThreadPoolTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
