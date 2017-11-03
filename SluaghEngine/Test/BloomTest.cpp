@@ -152,8 +152,8 @@ namespace SE
 				vp.topLeftY = (subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 800) / 4.0f) * 3;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("topdown3left", vp);
 
-				vp.width = 512;
-				vp.height = 288;
+				vp.width = 640;
+				vp.height = 360;
 				vp.topLeftX = 0;
 				vp.topLeftY = 0;
 				subSystem.renderer->GetPipelineHandler()->CreateViewport("bloomDownVP", vp);
@@ -182,8 +182,8 @@ namespace SE
 				Graphics::RenderTarget rt;
 				rt.bindAsShaderResource = true;
 				rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				rt.width = 512;
-				rt.height = 288;
+				rt.width = 640;
+				rt.height = 360;
 				res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
 				if (res < 0)
 					goto error;
@@ -209,8 +209,8 @@ namespace SE
 				uav.clearColor[2] = 0.0f;
 				uav.clearColor[3] = 0.0f;
 				uav.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-				uav.width = 512;
-				uav.height = 288;
+				uav.width = 640;
+				uav.height = 360;
 
 				res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV1", uav);
 				if (res < 0)
@@ -228,7 +228,7 @@ namespace SE
 				horizontalPass.pipeline.CSStage.uavs[0] = "BloomUAV1";
 				horizontalPass.pipeline.CSStage.uavCount = 1;
 				horizontalPass.ThreadGroupCountX = 16;
-				horizontalPass.ThreadGroupCountY = 9;
+				horizontalPass.ThreadGroupCountY = 15;
 				horizontalPass.ThreadGroupCountZ = 1;
 
 				subSystem.renderer->AddRenderJob(horizontalPass, Graphics::RenderGroup::POST_PASS_1);
@@ -252,7 +252,7 @@ namespace SE
 				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
 				verticalPass.pipeline.CSStage.uavCount = 1;
 				verticalPass.ThreadGroupCountX = 16;
-				verticalPass.ThreadGroupCountY = 9;
+				verticalPass.ThreadGroupCountY = 15;
 				verticalPass.ThreadGroupCountZ = 1;
 
 				subSystem.renderer->AddRenderJob(verticalPass, Graphics::RenderGroup::POST_PASS_2);
