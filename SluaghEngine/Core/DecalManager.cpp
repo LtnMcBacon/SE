@@ -99,9 +99,10 @@ void SE::Core::DecalManager::Frame(Utilz::TimeCluster* timer)
 	ProfileReturnVoid;
 }
 
-int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& textureName)
+int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& createInfo)
 {
 	StartProfile;
+	const auto& textureName = createInfo.textureName;
 	const auto exists = entityToTextureGuid.find(entity);
 	if (exists != entityToTextureGuid.end())
 		ProfileReturnConst(-1);
@@ -109,7 +110,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	const auto textureExists = decalToTransforms.find(textureName);
 	if (textureExists == decalToTransforms.end())
 	{
-		int result =  initInfo.resourceHandler->LoadResource(textureName, [this](auto guid, void* data, size_t size)
+		int result = initInfo.resourceHandler->LoadResource(textureName, [this](auto guid, void* data, size_t size)
 		{
 			Graphics::TextureDesc td;
 			td = *((Graphics::TextureDesc*)data);
@@ -138,9 +139,9 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	DirectX::XMFLOAT4X4 fident;
 	DirectX::XMStoreFloat4x4(&fident, ident);
 	decalToTransforms[textureName].localTransform.push_back(fident);
-	
+
 	const auto renderJob = decalToJobID.find(textureName);
-	if(renderJob == decalToJobID.end())
+	if (renderJob == decalToJobID.end())
 	{
 		Graphics::RenderJob j;
 		j.pipeline = defaultPipeline;
@@ -169,6 +170,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 
 	ProfileReturnConst(0);
 }
+
 
 int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* transform16rowMajor)
 {

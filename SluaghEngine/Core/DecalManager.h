@@ -19,7 +19,7 @@ namespace SE
 
 			/*@brief See IDecalManager
 			*/
-			int Create(const Entity& entity, const Utilz::GUID& textureName) override;
+			int Create(const Entity& entity, const DecalCreateInfo& createInfo) override;
 
 			/*@brief See IDecalManager
 			 */

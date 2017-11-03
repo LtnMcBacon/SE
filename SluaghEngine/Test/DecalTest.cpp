@@ -56,13 +56,15 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	rm->CreateRenderableObject(box, rmci, false);
 	rm->ToggleRenderableObject(box, true);
 
+	Core::DecalCreateInfo decalInfo;
+	decalInfo.textureName = "BlackPink.sei";
 	Core::Entity decal = em->Create();
 	tm->Create(decal, { 1.0f,0.0f, 4.5f },{0,0,0}, {1,1,10});
-	dm->Create(decal, "ft_stone01_c.sei");
+	dm->Create(decal, decalInfo);
 
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
-	dm->Create(decal2, "ft_stone01_c.sei");
+	dm->Create(decal2, decalInfo);
 	DirectX::XMFLOAT4X4 transf;
 	DirectX::XMStoreFloat4x4(&transf, DirectX::XMMatrixTranslation(0.0f, 2.0f, 0.0f));
 	dm->SetLocalTransform(decal2, (float*)&transf);
@@ -126,7 +128,8 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 			DirectX::XMFLOAT3 newScale = { 1.0f, 1.0f, 10.0f };
 			decal = em->Create();
 			tm->Create(decal, newPos, newRot, newScale);
-			dm->Create(decal, "BlackPink.sei");
+			
+			dm->Create(decal, decalInfo);
 			tm->BindChild(box, decal, true, true);
 
 		}

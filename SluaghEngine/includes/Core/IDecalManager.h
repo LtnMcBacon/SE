@@ -48,7 +48,7 @@ namespace SE
 			 * @param[in] textureName The filename of the texture to use as a decal.
 			 * @retval 0 On success.
 			 */
-			virtual int Create(const Entity& entity, const Utilz::GUID& textureName) = 0;
+			virtual int Create(const Entity& entity, const DecalCreateInfo& createInfo) = 0;
 
 			/*
 			 * @brief sets a local transform that is offset from the transform component.
