@@ -8,6 +8,7 @@
 #include <algorithm>
 
 
+
 using namespace SE;
 using namespace Gameplay;
 #undef max
@@ -557,6 +558,49 @@ bool Room::PointInsideWall(float x, float y)
 {
 	return !tileValues[int(x)][int(y)];
 }
+
+void SE::Gameplay::Room::CreateEntities()
+{
+	auto floorGUID = Utilz::GUID("Placeholder_Floor.mesh");
+	auto wallGUID = Utilz::GUID("HighWall.mesh");
+	auto doorGUID = Utilz::GUID("Door.mesh");
+
+	for (int i = 0; i < 25; i++)
+	{
+		for (int j = 0; j < 25; j++)
+		{
+			auto ent = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.transformManager->Create(ent);
+			CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+
+			if (tileValues[i][j] == 0) 
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { floorGUID });
+				CoreInit::managers.transformManager->SetScale(ent, DirectX::XMFLOAT3(0.04f, 1.0f, 0.04f));
+			}
+			else if (tileValues[i][j] == 10) 
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { wallGUID });
+			}
+			else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { doorGUID });
+			}
+
+			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
+			roomEntities.push_back(ent);
+		}
+	}
+}
+
+void SE::Gameplay::Room::RenderRoom(bool render)
+{
+	for (int i = 0; i < roomEntities.size(); i++)
+	{
+		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
+	}
+}
+
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
@@ -579,7 +623,7 @@ Room::Room(Utilz::GUID fileName)
 	//}
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
-
+	CreateEntities();
 	
 	StopProfile;
 }

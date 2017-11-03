@@ -22,9 +22,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 	this->input = Input;
 	this->engine = engine;
 
-	/*InitializeRooms();
+	InitializeRooms();
 	InitializePlayer();
-	InitializeOther();*/
+	InitializeOther();
 
 	BehaviourPointers temp;
 	temp.currentRoom = &currentRoom;
@@ -36,8 +36,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 PlayState::~PlayState()
 {
 	delete projectileManager;
-	/*delete player;
-	delete currentRoom;*/
+	delete player;
+	delete currentRoom;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -94,9 +94,9 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 {
 	projectileManager->AddProjectiles(newProjectiles);
 
-	projectileManager->UpdateProjectilePositions(1 / 60.0f);
+	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
-	projectileManager->UpdateProjectileActions(1 / 60.0f);
+	projectileManager->UpdateProjectileActions(input->GetDelta());
 }
 
 void PlayState::InitializeRooms()
@@ -104,6 +104,9 @@ void PlayState::InitializeRooms()
 	uint32_t nrOfRooms;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
+	int nrOfRoomsToCreate = 10;
+	int nrOfRoomsCreated = 0;
+	int nrOfOpenDoors = 0;
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 	{
@@ -113,11 +116,22 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+	while (nrOfOpenDoors != 0 || nrOfRoomsCreated < nrOfRoomsToCreate)
+	{
+		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
-	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
-	currentRoom = testRoom;
+		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+		rooms.push_back(temp);
+		nrOfRoomsCreated++;
+		temp->RenderRoom(false);
+
+	}
+
+	currentRoom = rooms[0];
+	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
+
 }
 void PlayState::InitializePlayer()
 {
@@ -150,12 +164,13 @@ void PlayState::InitializePlayer()
 				}
 				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
 				player->SetZPosition(0.0f);
+				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
 			}
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 
 	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
@@ -216,8 +231,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	UpdateInput(movementInput, actionInput);
 
-	player->UpdateMovement(1 / 60.0f, movementInput);
-	player->UpdateActions(1 / 60.0f, newProjectiles, actionInput);
+	player->UpdateMovement(input->GetDelta(), movementInput);
+	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
 
