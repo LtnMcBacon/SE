@@ -1172,7 +1172,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 								joint.keyframes[timeIndex].LocalTransform = localTransform;
 								joint.keyframes[timeIndex].GlobalTransform = localTransform;
 
-								//	Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].GlobalTransform);
+								Print4x4Matrix(joint.keyframes[timeIndex].GlobalTransform);
 							}
 
 							// For all the other joints, this would be their local transforms
@@ -1181,7 +1181,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 								// We must build their global transformation before export
 								joint.keyframes[timeIndex].LocalTransform = localTransform;
 
-								//Print4x4Matrix(CurrentAnimation.Keyframes[timeIndex].LocalTransform);
+								Print4x4Matrix(joint.keyframes[timeIndex].LocalTransform);
 							}
 
 					}
