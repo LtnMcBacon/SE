@@ -48,5 +48,6 @@ float4 PS_main(VS_OUT input) : SV_Target
 //	return float4(1.0f,1.0f,1.0f,1.0f);
 	float4 decalColor = DecalDiffuse.Sample(gAnisotropicSam, decalUV);
 	clip(decalColor.a - 0.05f); //If the decal is very transparent right here, we dont need to do any blending.
+	
 	return decalColor;
 }

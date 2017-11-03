@@ -18,6 +18,15 @@ namespace SE
 {
 	namespace Core
 	{
+		struct DecalCreateInfo
+		{
+			Utilz::GUID textureName = Utilz::GUID();
+			float transparency = 1.0f;
+			float transform[16] = {1.0f, 0.0f,0.0f,0.0f,
+									0.0f,1.0f,0.0f,0.0f,
+									0.0f,0.0f,1.0f,0.0f,
+									0.0f,0.0f,0.0f,1.0f};
+		};
 		class IDecalManager : public IManager
 		{
 		public:
