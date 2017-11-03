@@ -139,35 +139,35 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		Core::ILightManager::CreateInfo data;
 		//Light 1
-		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.color = DirectX::XMFLOAT3(0.3, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
 		data.radius = 10.0f;
 		managers.lightManager->Create(light[0], data);
 		managers.lightManager->ToggleLight(light[0], true);
 
 		//Light 2
-		data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
+		data.color = DirectX::XMFLOAT3(0.1, 0.3, 0.1);
 		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[1], data);
 		managers.lightManager->ToggleLight(light[1], true);
 
 		//Light 3
-		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
+		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.3);
 		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[2], data);
 		managers.lightManager->ToggleLight(light[2], true);
 
 		//Light 4
-		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.color = DirectX::XMFLOAT3(0.3, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[3], data);
 		managers.lightManager->ToggleLight(light[3], true);
 
 		//Light 5
-		data.color = DirectX::XMFLOAT3(0.8, 0.8, 0.8);
+		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
 		data.radius = 150.0;
 		managers.lightManager->Create(light[4], data);
