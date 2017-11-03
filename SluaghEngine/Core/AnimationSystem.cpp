@@ -171,22 +171,6 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
 	}
-
-	/*for (size_t i = 0; i < info.nrOfLayers; i++) {
-
-		auto& animation = animations[info.animation[i]];
-		size_t size = animation.Joints.size();
-
-		UpdateAnimation(animation, skeleton, info.timePos[i], bucket->matrices[bucketAndID.index].jointMatrix);
-
-		if (info.looping[i] == true) {
-
-			if (info.timePos[i] > (float)animation.Length)
-				info.timePos[i] = 0.0f;
-
-		}
-
-	}*/
 }
 
 void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, const XMMATRIX& matrix2, float blendFactor, XMFLOAT4X4& out) {
