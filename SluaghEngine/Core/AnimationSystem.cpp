@@ -294,21 +294,26 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 	// Animation has just started, so return the first keyframe
 	int animationLength = animation.Length - 1;
 	auto& joint = animation.Joints[jointIndex];
-	if (animTimePos <= animation.Joints[jointIndex].Keyframes[0].TimePos) //first keyframe
-	{
-		ReturnFirstFrameMatrix(joint, out);		
-	}
 
-	// Animation has reached its end, so return the last keyframe
-	else if (animTimePos >= animation.Joints[jointIndex].Keyframes[animationLength].TimePos) // last keyframe
-	{
-		ReturnLastFrameMatrix(joint, animation, out);
-	}
+	if(joint.Keyframes.size() > 0){
 
-	// Animation time is between two frames so they should be interpolated
-	else
-	{
-		Interpolate(joint, animTimePos, out);
+		if (animTimePos <= animation.Joints[jointIndex].Keyframes[0].TimePos) //first keyframe
+		{
+			ReturnFirstFrameMatrix(joint, out);		
+		}
+
+		// Animation has reached its end, so return the last keyframe
+		else if (animTimePos >= animation.Joints[jointIndex].Keyframes[animationLength].TimePos) // last keyframe
+		{
+			ReturnLastFrameMatrix(joint, animation, out);
+		}
+
+		// Animation time is between two frames so they should be interpolated
+		else
+		{
+			Interpolate(joint, animTimePos, out);
+		}
+
 	}
 	StopProfile;
 }
