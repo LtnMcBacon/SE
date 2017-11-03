@@ -406,7 +406,7 @@ int SE::Graphics::Renderer::BeginFrame()
 	pipelineHandler->ClearAllRenderTargets();
 
 	// clear the back buffer
-	float clearColor[] = { 0, 0, 1, 1 };
+	float clearColor[] = { 0, 0, 0, 1 };
 	
 	//if (!bloom)
 	{

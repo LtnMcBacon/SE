@@ -6,6 +6,7 @@
 #include <string>
 #include <ctime>
 #include <iostream>
+#include <experimental\filesystem>
 
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
@@ -217,6 +218,8 @@ void SE::Window::WindowSDL::StartRecording()
 	StartProfile;
 	if (record.recordState == false)
 	{
+		namespace fs = std::experimental::filesystem;
+		fs::create_directory("Recordings");
 		currentFrameStrategy = &WindowSDL::RecordFrame;
 		std::time_t currentTime = std::time(nullptr);
 		char timeChar[100];
