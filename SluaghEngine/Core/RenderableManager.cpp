@@ -125,9 +125,9 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
-	_ASSERT(timer);
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("RenderableManager"));
+	if(timer)
+		timer->Start(CREATE_ID_HASH("RenderableManager"));
 	GarbageCollection();
 
 
@@ -156,7 +156,8 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 
 
 	UpdateDirtyTransforms();
-	timer->Stop(CREATE_ID_HASH("RenderableManager"));
+	if(timer)
+		timer->Stop(CREATE_ID_HASH("RenderableManager"));
 	ProfileReturnVoid;
 }
 
@@ -534,7 +535,8 @@ void SE::Core::RenderableManager::UpdateDirtyTransforms()
 			if (renderableObjectInfo.visible[find->second])
 			{
 				rmInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
-				shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
+				if(shadowInstancing)
+					shadowInstancing->UpdateTransform(dirty.entity, arr[dirty.transformIndex]);
 			}				
 		}
 	}

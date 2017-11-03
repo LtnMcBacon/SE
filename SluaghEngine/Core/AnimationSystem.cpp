@@ -88,6 +88,7 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 
 			// Push back the animation at the corresponding joint index in the given skeleton
 			currentAnimation.Joints[joints[i]] = jointKeyFrame;
+			
 		}
 
 		return 0;
@@ -293,6 +294,12 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 	StartProfile;
 	// Animation has just started, so return the first keyframe
 	int animationLength = animation.Length - 1;
+	/*Something was called without any animation loaded*/
+	if(animationLength == -1)
+	{
+		StopProfile;
+		return;
+	}
 	auto& joint = animation.Joints[jointIndex];
 	if (animTimePos <= animation.Joints[jointIndex].Keyframes[0].TimePos) //first keyframe
 	{

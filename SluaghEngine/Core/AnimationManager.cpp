@@ -63,6 +63,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
+	animationData.animInfo[index].nrOfLayers = 0;
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
@@ -146,7 +147,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 		}
 			
 	}
-
+	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(CREATE_ID_HASH("AnimationManager"));
 }
@@ -243,6 +244,20 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 		animationData.playing[entityIndex->second] = 0u;
 	}
 	StopProfile;
+}
+
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+{
+	StartProfile;
+	
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		ProfileReturnConst(animationData.playing[entityIndex->second]);
+	}
+
+
+	ProfileReturnConst(false);
 }
 
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)

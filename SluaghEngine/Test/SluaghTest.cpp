@@ -146,9 +146,9 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	}
 
 	managers.transformManager->SetScale(player->GetEntity(), 1.f);
-	managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+	//managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 
-	managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+	//managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 	managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
 
@@ -334,6 +334,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	float dt = 1 / 60.0f;//subSystem.window->GetDelta();
 	while (running)
 	{
+		dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		newProjectiles.clear();
 
@@ -602,6 +603,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	running = true;
 	while (running)
 	{
+		dt = subSystem.window->GetDelta();
 	//	float dt = subSystem.window->GetDelta();
 		SpawnEnemy();
 		enemyDistances.clear();
