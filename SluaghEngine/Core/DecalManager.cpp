@@ -293,6 +293,7 @@ void SE::Core::DecalManager::Destroy(size_t index)
 
 void SE::Core::DecalManager::Destroy(const Entity& entity)
 {
+	Remove(entity);
 }
 
 void SE::Core::DecalManager::GarbageCollection()
