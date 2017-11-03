@@ -369,16 +369,16 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "MCModell.mesh";
-	sai.skeleton = "MCModell.skel";
+	sai.mesh = "Run.mesh";
+	sai.skeleton = "Run.skel";
 	sai.animationCount = 1;
 
-	Utilz::GUID anims[] = { "RunAnimation_MCModell.anim" };
+	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
 	sai.animations = anims;
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
 }
