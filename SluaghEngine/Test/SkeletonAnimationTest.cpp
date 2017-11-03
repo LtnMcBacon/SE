@@ -112,7 +112,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "RunAnimation_MCModell.anim"};
+	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim"};
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
@@ -124,7 +124,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC2, true);
 
 	Core::IAnimationManager::AnimationPlayInfo playInfo;
-	playInfo.animations[0] = "RunAnimation_MCModell.anim";
+	playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
