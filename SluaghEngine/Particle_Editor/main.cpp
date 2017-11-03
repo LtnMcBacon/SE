@@ -21,6 +21,27 @@ using namespace Graphics;
 #else
 #pragma comment(lib, "Core.lib")
 #endif
+struct moveMentStruct {
+	XMFLOAT2 vel;
+	XMFLOAT2 pad;
+	float emitPos[3];
+	float pad1;
+	float emitRange[3];
+	float pad5;
+	float gravity[3];
+	float pad4;
+	float color[3];
+	float pad2;
+	float speed;
+	float emitRate;
+	float lifeTime;
+	float tangentValue;
+	float radialValue;
+	float gravityValue;
+	unsigned int circular;
+	unsigned int gravityCheck;
+};
+moveMentStruct createParticleBuffer();
 int main()
 {
 	ParticleEmitter emitter;
@@ -55,23 +76,39 @@ int main()
 		pipelineHandler->CreatePixelShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
+	ResourceHandle->LoadResource("fire_texture.sei", [&pipelineHandler](auto guid, void* data, size_t size) {
+		Graphics::TextureDesc texDesc;
+		texDesc = *(TextureDesc*)data;
+		data = (char*)data + sizeof(TextureDesc);
+		pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
 
 	ParticleEmitter::Particle p[2];
-	p[0].pos = { 0.0f, 0.0f, 10.0f };
-	p[0].age = 0;
-	p[0].size = { 0.5f, 0.5f };
-	p[0].color = { 0.2f, 0.35f, 0.5f };
-	p[0].type = 0;
-	p[0].velocity = { 0, 0, 0 };
-	//p[0].opacity = 1.0f;
+	p[0].opacity = 1.0f;
+	p[1].opacity = 1.0f;
 
-	p[1].pos = { 0.0f, 0.0f, 10.0f };
-	p[1].age = 0;
-	p[1].size = { 0.5f, 0.5f };
-	p[1].color = { 0.2f, 0.35f, 0.5f };
-	//p[0].opacity = 1.0f;
-	p[1].type = 0;
-	p[1].velocity = { 0, 0, 0 };
+	
+	//Setting blend state
+	Graphics::BlendState bs;
+	bs.enable = true;
+	bs.blendOperation = Graphics::BlendOperation::ADD;
+	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
+	bs.srcBlendAlpha = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlendAlpha = Graphics::Blend::ONE;
+
+	pipelineHandler->CreateBlendState("ParticleBlend", bs);
+
+	//Setting particle sampler state
+	Graphics::SamplerState sampState;
+	sampState.addressU = AddressingMode::CLAMP;
+	sampState.addressV = AddressingMode::CLAMP;
+	sampState.addressW = AddressingMode::CLAMP;
+	sampState.filter = Filter::LINEAR;
+	sampState.maxAnisotropy = 0;
+	pipelineHandler->CreateSamplerState("ParticleSampler", sampState);
 
 	//Pipeline for the update geometry shader
 	int k = pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
@@ -95,35 +132,19 @@ int main()
 	XMMATRIX viewProj = viewMatrix * camera;
 	DirectX::XMStoreFloat4x4(&cameraMatrix, camera);
 
-	XMFLOAT2 velocity = { 0.0f, 1.0f };
-	XMFLOAT3 emitPosition = { 0.0f, 0.0f, 5.0f };
+
 	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
-	struct moveMentStruct {
-		XMFLOAT2 vel;
-		XMFLOAT2 pad;
-		XMFLOAT3 emitPos;
-		float pad1;
-		float color[3];
-		float pad2;
-		float speed;
-		float emitRate;
-		float lifeTime;
-		float tangentValue;
-		float radialValue;
-		unsigned int circular;
-	};
-	moveMentStruct movBuffer;
-	movBuffer.vel = velocity;
-	movBuffer.emitPos = emitPosition;
-	movBuffer.speed = 0.005;
-	movBuffer.emitRate = 0.01;
-	movBuffer.lifeTime = 5.0f;
-	movBuffer.color[0] = 0.35f;
-	movBuffer.color[1] = 0.2f;
-	movBuffer.color[2] = 0.45f;
-	movBuffer.circular = 0;
-	movBuffer.tangentValue = 0.0f;
-	movBuffer.radialValue = 0.0f;
+
+	moveMentStruct movBuffer = createParticleBuffer();
+
+	// Variables for randomization of particle attributes
+	
+	float minEmit = 0.0f;
+	float maxEmit = 0.0f;
+	float velocityRangeX[2] = { -1.0f , 1.0f };
+	float velocityRangeY[2] = { -1.0f , 1.0f };
+	float emitRangeX[2] = { 0.0f, 0.0f };
+	float emitRangeY[2] = { 0.0f, 0.0f };
 
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
@@ -141,6 +162,12 @@ int main()
 	RPP.VSStage.shader = "ParticleVS.hlsl";
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
+	RPP.PSStage.textures[0] = "fire_texture.sei";
+	RPP.PSStage.textureBindings[0] = "fireTex";
+	RPP.PSStage.textureCount = 1;
+	RPP.PSStage.samplers[0] = "ParticleSampler";
+	RPP.PSStage.samplerCount = 1;
+	RPP.OMStage.blendState = "ParticleBlend";
 	RPP.OMStage.renderTargets[0] = "backbuffer";
 	RPP.OMStage.depthStencilView = "backbuffer";
 	RPP.OMStage.depthStencilState = "noDepth";
@@ -174,28 +201,44 @@ int main()
 		time.Tick();
 
 		engine->BeginFrame();
-		
-		ImGui::Begin("Particle Attributes");
-		ImGui::SliderFloat("Velocity X", &movBuffer.vel.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("Velocity Y", &movBuffer.vel.y, -1.0f, 1.0f);
-		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -50.0f, 50.0f);
-		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -50.0f, 50.0f);
-		ImGui::SliderFloat("Emit position X", &movBuffer.emitPos.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.00900, "%.5f");
-		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 1.0000, "%.5f");
-		ImGui::ColorEdit3("StartColor", &movBuffer.color[0]);
+		//First window, main particle attributes
+		ImGui::Begin("Particle Attributes");//Putting each separate window withing a Begin/End() section
+		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 1.0f);
+		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -20.0f, 20.0f);
+		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -20.0f, 20.0f);
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.5f");
+		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
+		//ImGui::ColorEdit3("StartColor", &movBuffer.color[0]);
 		ImGui::InputFloat("LifeTime", &movBuffer.lifeTime);
+		ImGui::CheckboxFlags("Enable Gravity", &movBuffer.gravityCheck, 1);
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
-		ImGui::Checkbox("Random velocity", &RandVelocity);
+		ImGui::Checkbox("Random direction", &RandVelocity);
+		ImGui::End();
+
+		ImGui::Begin("Emit Attributes");
+		ImGui::SliderFloat("Direction X", &movBuffer.vel.x, -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction Y", &movBuffer.vel.y, -1.0f, 1.0f);
+		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
+		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
+		ImGui::SliderFloat2("Emit position", &movBuffer.emitPos[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
+		ImGui::End();
+		
+		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1] - emitRangeX[0]) - emitRangeX[0];
+		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) - emitRangeY[0];
+		movBuffer.emitRange[0] = randEmitX;
+		movBuffer.emitRange[1] = randEmitY;
 
 		if (RandVelocity)
 		{
-			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
-			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;
-			float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 0.00900f);
-			movBuffer.vel.x = r;
+			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1] - velocityRangeX[0]) + velocityRangeX[0];
+			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
+		/*	float r = static_cast <float> (rand() - 1) / static_cast <float> (RAND_MAX/2.0f) - 1;
+			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;*/
+			movBuffer.vel.x = r1;
 			movBuffer.vel.y = r2;
-			movBuffer.speed = r3;
 		}
 		
 		//** swapping renderjobs for particle outstream
@@ -204,7 +247,6 @@ int main()
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
 		Renderer->ChangeRenderJob(RPPID, renderParticleJob);
 		//*****
-		ImGui::End();
 		engine->EndFrame();
 		updateParticleJob.vertexCount = 0;
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
@@ -214,8 +256,31 @@ int main()
 	delete engine;
 	return 0;
 }
-void loadResources()
+moveMentStruct createParticleBuffer()
 {
+	XMFLOAT2 velocity = { 0.0f, 1.0f };
+	float emitPosition[3] = { 0.0f, 0.0f, 5.0f };
+	moveMentStruct movBuffer;
+	movBuffer.vel = velocity;
+	movBuffer.emitPos[0] = emitPosition[0];
+	movBuffer.emitPos[1] = emitPosition[1];
+	movBuffer.emitPos[2] = emitPosition[2];
+	movBuffer.emitRange[0] = 0;
+	movBuffer.emitRange[1] = 0;
+	movBuffer.emitRange[2] = 0;
+	movBuffer.gravity[0] = 0.0f;
+	movBuffer.gravity[1] = 0.0f;
+	movBuffer.gravity[2] = 0.0f;
+	movBuffer.gravityValue = 0.0f;
+	movBuffer.speed = 0.005;
+	movBuffer.emitRate = 0.01;
+	movBuffer.lifeTime = 5.0f;
+	movBuffer.color[0] = 0.35f;
+	movBuffer.color[1] = 0.2f;
+	movBuffer.color[2] = 0.45f;
+	movBuffer.circular = 0;
+	movBuffer.tangentValue = 0.0f;
+	movBuffer.radialValue = 0.0f;
 
-
+	return movBuffer;
 }
