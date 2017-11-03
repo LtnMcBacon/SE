@@ -33,7 +33,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			void Create(CreateInfo info)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief Create a new font
@@ -112,12 +112,12 @@ namespace SE
 				}
 			};
 
-			inline void SetTextOrigin(const Entity& entity, DirectX::XMFLOAT2 origin)override {
+			inline void SetTextScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[fileLoaded->second.ID]. = origin;
+					loadedTexts[fileLoaded->second.ID].screenAnchor = anchor;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;

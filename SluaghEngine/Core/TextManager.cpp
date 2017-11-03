@@ -20,19 +20,21 @@ namespace SE {
 
 		}
 
-		void TextManager::Create(CreateInfo info)
+		void TextManager::Create(const Entity& entity, const CreateInfo& info)
 		{
 			StartProfile;
 
 			// Check if the entity is alive
-			if (!initInfo.entityManager->Alive(info.entity))
+			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
 
-			if (info.inTextInfo.fontID >= guidToFont.size())
+			auto const findFont = guidToFont[info.font];
+
+			if (info.fontID >= guidToFont.size())
 				ProfileReturnVoid;
 
-			entID[info.entity].ID = loadedTexts.size();
-			textEnt.push_back(info.entity);
+			entID[entity].ID = loadedTexts.size();
+			textEnt.push_back(entity);
 			loadedTexts.push_back(info.inTextInfo);
 			if (!loadedTexts[loadedTexts.size() - 1].anchor)
 			{
