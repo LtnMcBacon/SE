@@ -103,6 +103,7 @@ namespace SE
 
 			struct ActionInput
 			{
+				bool actionButton;
 				bool skill1Button;
 				bool skill2Button;
 
@@ -111,10 +112,11 @@ namespace SE
 
 				}
 
-				ActionInput(bool skill1, bool skill2)
+				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
+					actionButton = action;
 				}
 			};
 

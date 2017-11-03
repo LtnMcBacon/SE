@@ -90,6 +90,11 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 		action.skill2Button = true;
 	}
 
+	if (input->ButtonDown(uint32_t(GameInput::ACTION)))
+	{
+		action.actionButton = true;
+	}
+
 }
 
 void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& newProjectiles)
