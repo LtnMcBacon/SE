@@ -1,6 +1,7 @@
 #include "DecalManager.h"
 #include <Profiler.h>
 #include <random>
+#include <algorithm>
 
 using namespace SE::Graphics;
 
@@ -13,6 +14,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	worldConstantBuffer = "DecalsWorld";
 	inverseViewProj = "DecalsInverseViewProj";
 	inverseWorld = "DecalsInverseWorld";
+	opacities = "DecalOpacity";
 	blendState = "DecalBlend";
 	textureBindName = "DecalDiffuse";
 	rasterizerState = "DecalRS";
@@ -37,14 +39,14 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	});
 	if (res < 0)
 		throw std::exception("Could not load decal pixel shader");
-	BlendState bs;
+	Graphics::BlendState bs;
 	bs.enable = true;
-	bs.blendOperation = BlendOperation::ADD;
-	bs.blendOperationAlpha = BlendOperation::MAX;
-	bs.srcBlend = Blend::INV_SRC_ALPHA;
-	bs.srcBlendAlpha = Blend::ONE;
-	bs.dstBlend = Blend::INV_SRC_ALPHA;
-	bs.dstBlendAlpha = Blend::ONE;
+	bs.blendOperation = Graphics::BlendOperation::ADD;
+	bs.blendOperationAlpha = Graphics::BlendOperation::MAX;
+	bs.srcBlend = Graphics::Blend::SRC_ALPHA;
+	bs.srcBlendAlpha = Graphics::Blend::ONE;
+	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	bs.dstBlendAlpha = Graphics::Blend::ONE;
 	
 	res = this->initInfo.renderer->GetPipelineHandler()->CreateBlendState(blendState, bs);
 	if (res < 0)
@@ -70,7 +72,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	defaultPipeline.OMStage.renderTargetCount = 1;
 	defaultPipeline.OMStage.depthStencilView = "";
 	defaultPipeline.RStage.rasterizerState = rasterizerState;
-	//defaultPipeline.OMStage.blendState = blendState;
+	defaultPipeline.OMStage.blendState = blendState;
 	
 	DirectX::XMFLOAT4X4 vp = initInfo.cameraManager->GetViewProjection(initInfo.cameraManager->GetActive());
 
@@ -99,9 +101,10 @@ void SE::Core::DecalManager::Frame(Utilz::TimeCluster* timer)
 	ProfileReturnVoid;
 }
 
-int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& textureName)
+int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& createInfo)
 {
 	StartProfile;
+	const auto& textureName = createInfo.textureName;
 	const auto exists = entityToTextureGuid.find(entity);
 	if (exists != entityToTextureGuid.end())
 		ProfileReturnConst(-1);
@@ -109,7 +112,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	const auto textureExists = decalToTransforms.find(textureName);
 	if (textureExists == decalToTransforms.end())
 	{
-		int result =  initInfo.resourceHandler->LoadResource(textureName, [this](auto guid, void* data, size_t size)
+		int result = initInfo.resourceHandler->LoadResource(textureName, [this](auto guid, void* data, size_t size)
 		{
 			Graphics::TextureDesc td;
 			td = *((Graphics::TextureDesc*)data);
@@ -133,14 +136,12 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	entityToTransformIndex[entity] = decalToTransforms[textureName].world.size();
 	decalToTransforms[textureName].world.push_back(world);
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
+	decalToTransforms[textureName].localTransform.push_back(DirectX::XMFLOAT4X4(createInfo.transform));
 	decalToTransforms[textureName].owners.push_back(entity);
-	const DirectX::XMMATRIX ident = DirectX::XMMatrixIdentity();
-	DirectX::XMFLOAT4X4 fident;
-	DirectX::XMStoreFloat4x4(&fident, ident);
-	decalToTransforms[textureName].localTransform.push_back(fident);
-	
+	decalToTransforms[textureName].opacity.push_back(createInfo.opacity);
+
 	const auto renderJob = decalToJobID.find(textureName);
-	if(renderJob == decalToJobID.end())
+	if (renderJob == decalToJobID.end())
 	{
 		Graphics::RenderJob j;
 		j.pipeline = defaultPipeline;
@@ -152,8 +153,10 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 		{
 			auto& worlds = decalToTransforms[textureName].world;
 			auto& invWorlds = decalToTransforms[textureName].inverseWorld;
+			auto& opacity = decalToTransforms[textureName].opacity;
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(worldConstantBuffer, &worlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseWorld, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
+			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(opacities, &opacity[drawn], sizeof(float) * toDrawNow);
 
 		});
 		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::POST_PASS_0);
@@ -170,6 +173,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const Utilz::GUID& text
 	ProfileReturnConst(0);
 }
 
+
 int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* transform16rowMajor)
 {
 	const auto texture = entityToTextureGuid.find(entity);
@@ -184,9 +188,53 @@ int SE::Core::DecalManager::SetLocalTransform(const Entity& entity, float* trans
 	return -1;
 }
 
+int SE::Core::DecalManager::SetOpacity(const Entity& entity, float opacity)
+{
+	const auto texture = entityToTextureGuid.find(entity);
+	if(texture != entityToTextureGuid.end())
+	{
+		auto transforms = decalToTransforms.find(texture->second);
+		const auto transformIndex = entityToTransformIndex[entity];
+		if (opacity > 1.0f) opacity = 1.0f;
+		if (opacity < 0.0f) opacity = 0.0f;
+		transforms->second.opacity[transformIndex] = opacity;
+		return 0;
+	}
+	return -1;
+}
+
+int SE::Core::DecalManager::ModifyOpacity(const Entity& entity, float amount)
+{
+	const auto texture = entityToTextureGuid.find(entity);
+	if (texture != entityToTextureGuid.end())
+	{
+		auto transforms = decalToTransforms.find(texture->second);
+		const auto transformIndex = entityToTransformIndex[entity];
+		float opacity = transforms->second.opacity[transformIndex] + amount;
+		if (opacity > 1.0f) opacity = 1.0f;
+		if (opacity < 0.0f) opacity = 0.0f;
+		transforms->second.opacity[transformIndex] = opacity;
+		return 0;
+	}
+	return -1;
+}
+
 int SE::Core::DecalManager::Remove(const Entity& entity)
 {
-	return 0;
+	StartProfile;
+	int index = -1;
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i] == entity)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != -1)
+		Destroy(index);
+	
+	ProfileReturn(index != -1 ? 0 : -1);
 }
 
 void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
