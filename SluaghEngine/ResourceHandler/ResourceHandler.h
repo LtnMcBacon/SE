@@ -8,7 +8,7 @@
 #include <stack>
 #include <Utilz\Event.h>
 #include <Utilz\CircularFiFo.h>
-
+#include <Utilz\ThreadPool.h>
 
 
 namespace SE
@@ -47,35 +47,17 @@ namespace SE
 
 
 		private:
-			struct LoadJob
-			{
-				Utilz::GUID guid;
-				Callbacks callbacks;
-				LoadFlags loadFlags;
-				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
-			};
-
-			Utilz::CircularFiFo<LoadJob> loadJobs;
-
-			struct InvokeJob
-			{
-				Utilz::GUID guid;
-				Utilz::Delegate<InvokeReturn(const Utilz::GUID&, void*, size_t)> invokeCallback;
-				LoadFlags loadFlags;
-				InvokeJob& operator=(const InvokeJob& other) { guid = other.guid; invokeCallback = other.invokeCallback; loadFlags = other.loadFlags; return *this; }
-			};
-			Utilz::CircularFiFo<InvokeJob> invokeJobs;
-
-
 			InitializationInfo initInfo;
 
+
+			/****************	Unloading		*****************/
 			void LinearUnload(size_t addedSize);
-
 			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
-
 			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;
-
+			/****************	END Unloading	*****************/
 	
+
+			/****************	Entires			*****************/
 			struct Data
 			{
 				void* data = nullptr;
@@ -93,25 +75,34 @@ namespace SE
 				State state = State::DEAD;
 			};
 		
-			std::vector<std::string> errors;
-
-			IAssetLoader* diskLoader;
-
 			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> guidToResourceInfo;
 
 
-			bool running = false;
+			/****************	END Entires		*****************/
 
-			std::thread loadThread;
-			void LoadThreadEntry();
+			// Errors
+			std::vector<std::string> errors;
 
-			std::thread invokeThread;
-			void InvokeThreadEntry();
+			/****************	Loading			*****************/
+			IAssetLoader* diskLoader;
+
+			Utilz::ThreadPool* load_threadPool;
+			Utilz::ThreadPool* invoke_threadPool;
+
+			struct LoadJob
+			{
+				Utilz::GUID guid;
+				Callbacks callbacks;
+				LoadFlags loadFlags;
+				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
+			};
+
+			bool Load(LoadJob job);
 
 
-			/****************	END To Callback info	*****************/
 			std::mutex infoLock;
 			std::mutex loadLock;
+			/****************	END Loading		*****************/
 		};
 	}
 }

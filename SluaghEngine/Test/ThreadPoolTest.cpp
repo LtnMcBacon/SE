@@ -22,6 +22,12 @@ struct X
 	{
 		return i + x;
 	}
+
+	bool Do(SE::Utilz::ThreadPool* tp)
+	{
+		auto res = tp->Enqueue(this, &X::Foo, 10);
+		return res.get() == i + 10;
+	}
 };
 
 bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
@@ -69,6 +75,9 @@ bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
 		X x(10);
 		auto ret = tp.Enqueue(&x, &X::Foo, 20);
 		if (ret.get() != 20 + x.i)
+			return false;
+
+		if(!x.Do(&tp))
 			return false;
 	}
 	

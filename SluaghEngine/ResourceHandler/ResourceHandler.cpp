@@ -37,24 +37,16 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 		return res;
 	_ASSERT(diskLoader);
 
-	running = true;
-
-	loadThread = std::thread(&ResourceHandler::LoadThreadEntry, this);
-	invokeThread = std::thread(&ResourceHandler::InvokeThreadEntry, this);
+	load_threadPool = new Utilz::ThreadPool(1);
+	invoke_threadPool = new Utilz::ThreadPool(2);
 
 	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
-
-	running = false;
-	if(loadThread.joinable())
-		loadThread.join();
-
-	if(invokeThread.joinable())
-		invokeThread.join();
-
+	delete load_threadPool;
+	delete invoke_threadPool;
 
 	for (auto& r : guidToResourceInfo)
 	{
@@ -89,6 +81,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	callbacks.invokeCallback = invokeCallback;
 	return LoadResource(guid, callbacks, loadFlags);
 }
+
 
 int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	const Callbacks& callbacks,
@@ -125,88 +118,9 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			ri.state |= State::IMMUTABLE;
 		infoLock.unlock();
 		if (loadFlags & LoadFlags::ASYNC)
-			loadJobs.push({ guid, callbacks, loadFlags });
+			load_threadPool->Enqueue(this, &ResourceHandler::Load, { guid, callbacks, loadFlags });
 		else
-		{
-
-			Data rawData;
-			if (!diskLoader->Exist(guid, &rawData.size))
-			{
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[guid];
-				ri2.state = State::FAIL;
-				errors.push_back("Resource does not exist, GUID: " + std::to_string(guid.id));
-				infoLock.unlock();
-				ProfileReturnConst(-2);
-			}
-
-			loadLock.lock();
-			auto result = diskLoader->LoadResource(guid, &rawData.data);
-			if (result < 0)
-			{
-				loadLock.unlock();
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[guid];
-				ri2.state = State::FAIL;
-				errors.push_back("Could not load resource, GUID: " + std::to_string(guid.id) + ", Error: " + std::to_string(result));
-				infoLock.unlock();
-				ProfileReturnConst(-3);
-			}
-
-			Data data;
-			if (callbacks.loadCallback)
-			{
-				auto lresult = callbacks.loadCallback(guid, rawData.data, rawData.size, &data.data, &data.size);
-				if (!(lresult & LoadReturn::NO_DELETE))
-					operator delete (rawData.data);
-				if (lresult & LoadReturn::FAIL)
-				{
-					loadLock.unlock();
-					infoLock.lock();
-					auto& ri2 = guidToResourceInfo[guid];
-
-					ri2.state = State::FAIL;
-					errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(guid.id));
-					infoLock.unlock();
-					ProfileReturnConst(-4);
-				}
-			}
-			else
-			{
-				data = rawData;
-			}
-			loadLock.unlock();
-			infoLock.lock();
-			auto& ri2 = guidToResourceInfo[guid];
-
-			ri2.state = State::LOADED;
-			if (!callbacks.loadCallback)
-				ri2.state |= State::RAW;
-			if (loadFlags & LoadFlags::LOAD_FOR_VRAM)
-			{
-				ri2.VRAMdestroyCallback = callbacks.destroyCallback;
-				ri2.state |= State::IN_VRAM;
-				ri2.VRAMData = data;
-			}
-			else if (loadFlags & LoadFlags::LOAD_FOR_RAM)
-			{
-				ri2.RAMdestroyCallback = callbacks.destroyCallback;
-				ri2.RAMData = data;
-				ri2.state |= State::IN_RAM;
-			}
-
-			infoLock.unlock();
-			auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
-			if (iresult & InvokeReturn::FAIL)
-			{
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[guid];
-				ri2.state = State::FAIL;
-				errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
-				infoLock.unlock();
-				ProfileReturnConst(-5);
-			}
-		}
+			Load({ guid, callbacks, loadFlags });
 	}
 	else // If the resource is loaded we just skip async.
 	{
@@ -250,6 +164,126 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 	StopProfile;
 }
 
+bool SE::ResourceHandler::ResourceHandler::Load(LoadJob job)
+{
+	// Do some checks
+	{
+		infoLock.lock();
+		auto ri = guidToResourceInfo[job.guid];
+		infoLock.unlock();
+		if (ri.state & State::DEAD)
+		{
+			return false;
+		}
+
+		if (!(ri.state & State::LOADING))
+			return false;
+	}
+
+
+	// Load the resource
+	Data data;
+	{
+		Data rawData;
+		if (!diskLoader->Exist(job.guid, &rawData.size))
+		{
+			infoLock.lock();
+			auto& ri = guidToResourceInfo[job.guid];
+			ri.state = State::FAIL;
+			errors.push_back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
+			infoLock.unlock();
+			return false;
+		}
+		loadLock.lock();
+		auto result = diskLoader->LoadResource(job.guid, &rawData.data);
+
+		if (result < 0)
+		{
+			loadLock.unlock();
+			infoLock.lock();
+			auto& ri = guidToResourceInfo[job.guid];
+
+			ri.state = State::FAIL;
+			errors.push_back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
+			infoLock.unlock();
+			return false;
+		}
+
+
+		if (job.callbacks.loadCallback)
+		{
+			auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
+			loadLock.unlock();
+			infoLock.lock();
+			auto& ri = guidToResourceInfo[job.guid];
+			if (lresult & LoadReturn::NO_DELETE)
+				ri.state |= State::RAW;
+			else
+				operator delete (rawData.data);
+			if (lresult & LoadReturn::FAIL)
+			{
+
+				ri.state = State::FAIL;
+				errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
+				infoLock.unlock();
+				return false;
+			}
+			infoLock.unlock();
+		}
+		else
+		{
+			loadLock.unlock();
+			data = rawData;
+		}
+	}
+	{
+		infoLock.lock();
+		auto& ri = guidToResourceInfo[job.guid];
+		ri.state = ri.state ^ State::LOADING | State::LOADED;
+		if (!job.callbacks.destroyCallback)
+			ri.state |= State::RAW;
+		if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
+		{
+			ri.VRAMdestroyCallback = job.callbacks.destroyCallback;
+			ri.state |= State::IN_VRAM;
+			ri.VRAMData = data;
+		}
+
+		if (job.loadFlags & LoadFlags::LOAD_FOR_RAM)
+		{
+			ri.RAMdestroyCallback = job.callbacks.destroyCallback;
+			ri.RAMData = data;
+			ri.state |= State::IN_RAM;
+		}
+		infoLock.unlock();
+	}
+
+	// Invoke the invoke callback
+	{
+
+		auto iresult = job.callbacks.invokeCallback(job.guid, data.data, data.size);
+		infoLock.lock();
+		auto& ri= guidToResourceInfo[job.guid];
+
+		if (iresult & InvokeReturn::FAIL)
+		{
+			if(job.loadFlags & LoadFlags::LOAD_FOR_RAM)
+				ri.refRAM--;
+			if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
+				ri.refVRAM--;
+			ri.state = State::FAIL;
+			errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(job.guid.id));
+			infoLock.unlock();
+			return false;
+		}
+		if (iresult & InvokeReturn::DEC_RAM)
+			ri.refRAM--;
+		if (iresult & InvokeReturn::DEC_VRAM)
+			ri.refVRAM--;
+		infoLock.unlock();
+	}
+}
+
 void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
 {
 	StartProfile;
@@ -288,146 +322,4 @@ void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
 	}*/
 	
 	ProfileReturnVoid;
-}
-
-using namespace std::chrono_literals;
-
-void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
-{
-	while (running)
-	{
-		while (running && !loadJobs.wasEmpty())
-		{
-		//	std::this_thread::sleep_for(2s);
-			const auto& job = loadJobs.top();
-
-			infoLock.lock();
-			auto ri = guidToResourceInfo[job.guid];
-			infoLock.unlock();
-			if (ri.state & State::DEAD)
-			{
-			
-				loadJobs.pop();				
-				continue;
-			}
-
-			if (ri.state & State::LOADING)
-			{
-				Data rawData;
-				if (!diskLoader->Exist(job.guid, &rawData.size))
-				{
-					infoLock.lock();
-					auto& ri2 = guidToResourceInfo[job.guid];
-					ri2.state = State::FAIL;
-					errors.push_back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
-					infoLock.unlock();
-					loadJobs.pop();
-					continue;
-				}
-				loadLock.lock();
-				auto result = diskLoader->LoadResource(job.guid, &rawData.data);
-				
-				if (result < 0)
-				{
-					loadLock.unlock();
-					infoLock.lock();
-					auto& ri2 = guidToResourceInfo[job.guid];
-					
-					ri2.state = State::FAIL;
-					errors.push_back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
-					infoLock.unlock();
-					loadJobs.pop();
-					continue;
-				}
-
-				Data data;
-				if (job.callbacks.loadCallback)
-				{
-					auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-					if (!(lresult & LoadReturn::NO_DELETE))
-						operator delete (rawData.data);
-					if (lresult & LoadReturn::FAIL)
-					{
-						loadLock.unlock();
-						infoLock.lock();
-						auto& ri2 = guidToResourceInfo[job.guid];
-						delete rawData.data;
-						ri2.state = State::FAIL;
-						errors.push_back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
-						infoLock.unlock();
-						loadJobs.pop();
-						continue;
-					}
-				}
-				else
-				{
-					data = rawData;
-				}
-				loadLock.unlock();
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[job.guid];
-				ri2.state = ri2.state ^ State::LOADING | State::LOADED;
-
-				if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
-				{
-					ri2.VRAMdestroyCallback = job.callbacks.destroyCallback;
-					ri2.state |= State::IN_VRAM;
-					ri2.VRAMData = data;
-				}
-
-				if (job.loadFlags & LoadFlags::LOAD_FOR_RAM)
-				{
-					ri2.RAMdestroyCallback = job.callbacks.destroyCallback;
-					ri2.RAMData = data;
-					ri2.state |= State::IN_RAM;
-				}
-				infoLock.unlock();
-
-				invokeJobs.push({ job.guid, job.callbacks.invokeCallback, job.loadFlags });
-			}
-
-			
-			loadJobs.pop();
-		}
-		std::this_thread::sleep_for(100ms);
-	}
-}
-
-void SE::ResourceHandler::ResourceHandler::InvokeThreadEntry()
-{
-	while (running)
-	{
-		while (running && !invokeJobs.wasEmpty())
-		{
-			const auto& job = invokeJobs.top();
-			infoLock.lock();
-			auto ri = guidToResourceInfo[job.guid];
-			infoLock.unlock();
-			if (ri.state & State::LOADED)
-			{
-				Data data;
-				if (ri.state & State::IN_RAM)
-					data = ri.RAMData;
-				else if (ri.state & State::IN_VRAM)
-					data = ri.VRAMData;
-				auto iresult = job.invokeCallback(job.guid, data.data, data.size);
-				if (iresult & InvokeReturn::FAIL)
-				{
-					infoLock.lock();
-					auto& ri2 = guidToResourceInfo[job.guid];
-					ri2.refVRAM--;
-					ri2.refRAM--;
-					ri2.state = State::FAIL;					
-					errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(job.guid.id));
-					infoLock.unlock();
-					loadJobs.pop();
-					continue;
-				}
-			}
-
-
-			invokeJobs.pop();
-		}
-		std::this_thread::sleep_for(100ms);
-	}
 }
