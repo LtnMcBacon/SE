@@ -95,6 +95,8 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	LoadFlags loadFlags)
 {
 	StartProfile;
+	_ASSERT_EXPR(callbacks.invokeCallback, "An invokeCallback must be provided");
+
 	infoLock.lock();
 	auto& ri = guidToResourceInfo[guid];
 
@@ -110,7 +112,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		ri.refRAM++;
 
 	bool load = false;
-	if (ri.state & (State::DEAD | State::LOADING))
+	if (ri.state & State::LOADING)
 		load = true;
 	else if ((loadFlags & LoadFlags::LOAD_FOR_RAM) && !(ri.state & State::IN_RAM))
 		load = true;
@@ -118,12 +120,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		load = true;
 	if (load)
 	{
-		auto temp = State::LOADING;
-		if (ri.state & State::IN_VRAM)
-			temp |= State::IN_VRAM;
-		if (ri.state & State::IN_RAM)
-			temp |= State::IN_RAM;
-		ri.state = temp;
+		ri.state = ri.state ^ State::DEAD | State::LOADING;
 		if (loadFlags & LoadFlags::IMMUTABLE)
 			ri.state |= State::IMMUTABLE;
 		infoLock.unlock();
@@ -199,7 +196,6 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			}
 
 			infoLock.unlock();
-
 			auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
 			if (iresult & InvokeReturn::FAIL)
 			{
@@ -212,36 +208,28 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			}
 		}
 	}
-	else // If the resource is loaded
+	else // If the resource is loaded we just skip async.
 	{
-		if (loadFlags & LoadFlags::ASYNC)
-		{
-			infoLock.unlock();
-			invokeJobs.push({ guid, callbacks.invokeCallback, loadFlags });
-		}
-		else
-		{
-			Data data;
-			if (ri.state & State::IN_RAM)
-				data = ri.RAMData;
-			else if (ri.state & State::IN_VRAM)
-				data = ri.VRAMData;
-			infoLock.unlock();
 
-			auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
-			if (iresult & InvokeReturn::FAIL)
-			{
-				infoLock.lock();
-				auto& ri2 = guidToResourceInfo[guid];
-				ri2.state = State::FAIL;
-				errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
-				infoLock.unlock();
-				ProfileReturnConst(-6);
-			}
+		Data data;
+		if (ri.state & State::IN_RAM)
+			data = ri.RAMData;
+		else if (ri.state & State::IN_VRAM)
+			data = ri.VRAMData;
+		infoLock.unlock();
+
+		auto iresult = callbacks.invokeCallback(guid, data.data, data.size);
+		if (iresult & InvokeReturn::FAIL)
+		{
+			infoLock.lock();
+			auto& ri2 = guidToResourceInfo[guid];
+			ri2.state = State::FAIL;
+			errors.push_back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
+			infoLock.unlock();
+			ProfileReturnConst(-6);
 		}
-		
+
 	}
-
 	ProfileReturnConst(0);
 }
 
@@ -257,7 +245,7 @@ void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & gu
 		if(ri.refVRAM > 0)
 			ri.refVRAM--;
 	if (ri.refRAM == 0 && ri.refVRAM == 0)
-		ri.state = State::DEAD;
+		ri.state = ri.state ^ State::LOADED | State::DEAD;
 	infoLock.unlock();
 	StopProfile;
 }
@@ -323,15 +311,7 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				continue;
 			}
 
-			bool load = false;
 			if (ri.state & State::LOADING)
-				load = true;
-			else if ((job.loadFlags & LoadFlags::LOAD_FOR_RAM) && !(ri.state & State::IN_RAM))
-				load = true;
-			else if ((job.loadFlags & LoadFlags::LOAD_FOR_VRAM) && !(ri.state & State::IN_VRAM))
-				load = true;
-
-			if (load)
 			{
 				Data rawData;
 				if (!diskLoader->Exist(job.guid, &rawData.size))
@@ -386,12 +366,8 @@ void SE::ResourceHandler::ResourceHandler::LoadThreadEntry()
 				loadLock.unlock();
 				infoLock.lock();
 				auto& ri2 = guidToResourceInfo[job.guid];
-				auto temp = ri2.state;
-			//	ri2.state & ~State::LOADING; // TODO
-				if(!(ri2.state & State::LOADED))
-					ri2.state = State::LOADED;
-				if (job.loadFlags & LoadFlags::IMMUTABLE)
-					ri.state |= State::IMMUTABLE;
+				ri2.state = ri2.state ^ State::LOADING | State::LOADED;
+
 				if (job.loadFlags & LoadFlags::LOAD_FOR_VRAM)
 				{
 					ri2.VRAMdestroyCallback = job.callbacks.destroyCallback;

@@ -42,6 +42,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Utilz::CPUTimeCluster timers;
 
+
 	timers.Start(("Init"));
 	auto engine = Core::CreateEngine();
 	auto r = engine->Init();
