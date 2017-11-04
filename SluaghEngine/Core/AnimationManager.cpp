@@ -309,6 +309,9 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 void SE::Core::AnimationManager::Destroy(const Entity & entity)
 {
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+		Destroy(exists->second);
 }
 
 void SE::Core::AnimationManager::GarbageCollection()
@@ -350,7 +353,7 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 	// After the joint indices comes the keyframe matrices
 	auto matrices = (DirectX::XMFLOAT4X4*)(joints + animH->nrOfJoints);
 
-	return animationSystem->AddAnimation(guid, matrices,joints, animH->animationLength, animH->nrOfJoints);
+	return animationSystem->AddAnimation(guid, matrices, joints, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }

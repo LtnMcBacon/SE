@@ -61,7 +61,6 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 	file.close();
 
 	ProfileReturnConst( 0);
-
 }
 
 bool SE::ResourceHandler::RawLoader::Exist(const Utilz::GUID & guid, size_t* size)const

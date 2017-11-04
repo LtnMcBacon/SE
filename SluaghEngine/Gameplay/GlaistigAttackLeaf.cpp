@@ -25,8 +25,7 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 		newProjectile.target = ValidTarget::PLAYER;
 		newProjectile.startPosX = gameBlackboard->playerPositionX;
 		newProjectile.startPosY = gameBlackboard->playerPositionY;
-		newProjectile.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MAGICAL,
-			DamageEvent::DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
+		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED,  Gameplay::DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
 
 		gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

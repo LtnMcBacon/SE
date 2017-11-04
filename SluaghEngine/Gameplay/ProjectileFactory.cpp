@@ -892,7 +892,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		temp.startPosX = p->GetXPosition();
 		temp.startPosY = p->GetYPosition();
 		temp.target = p->GetValidTarget();
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = p->GetSharedPtr();
 		temp.fileNameGuid = fileName;
 

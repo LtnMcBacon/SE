@@ -510,6 +510,15 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 
 void SE::Core::TransformManager::Destroy(const Entity & e)
 {
+	if (e.Index() < lookUpTableSize)
+	{
+		const int32_t index = lookUpTable[e.Index()];
+		if(index >= 0)
+		{
+			Destroy(index);
+		}
+	}
+	
 }
 
 
