@@ -17,11 +17,11 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	pixelShaderID = "DebugLinePS.hlsl";
 	transformBufferID = "DebugLineW";
 	initInfo.resourceHandler->LoadResource(pixelShaderID, [this](auto guid, auto data, auto size) {
-		this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	initInfo.resourceHandler->LoadResource(vertexShaderID, [this](auto guid, auto data, auto size) {
-		this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	initInfo.transformManager->RegisterSetDirty({ this, &DebugRenderManager::SetDirty });

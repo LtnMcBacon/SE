@@ -10,8 +10,9 @@ struct PS_IN
 
 float4 PS_main(PS_IN input) : SV_TARGET
 {
-	float3 dir = float3(-1.0f, -0.5f, 0.0f);
-	float lum = dot(input.NormalInW.xyz, -dir);
+	//float3 dir = float3(-1.0f, -0.5f, 0.0f);
+	//float lum = dot(input.NormalInW.xyz, -dir);
+	float3 color = float3(0.9f, 0.1f, 0.35f);
 
-	return float4(lum, lum, lum, 1.0f);
+	return float4(color, 1.0f);
 }

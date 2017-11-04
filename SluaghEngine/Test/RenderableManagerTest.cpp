@@ -81,7 +81,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("MCModell.mat");
+	auto material = Utilz::GUID("Run.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
@@ -89,7 +89,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" });
+	managers.renderableManager->CreateRenderableObject(mainC, { "Run.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -204,12 +204,11 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	}
 
 	timers.Stop(("Running"));
-
-	Utilz::TimeMap times;
+		Utilz::TimeMap times;
 	timers.GetMap(times);
 	engine->GetProfilingInformation(times);
-	for(auto& t: times)
-		console->Print("%s: %f\n", t.first, t.second);
+	for (auto& t : times)
+		console->Print("%s: %f\n", t.first.c_str(), t.second);
 
 	engine->Release(); delete engine;
 	ProfileReturnConst(true);

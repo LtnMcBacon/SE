@@ -485,8 +485,8 @@ namespace SE
 
 		class ConstexprStringAndHash
 		{
-			HashValue hash;
 			StringHash::ConstexprString string;
+			HashValue hash;		
 		public:
 			struct Hasher
 			{
@@ -497,7 +497,9 @@ namespace SE
 			};
 			template<std::size_t N>
 			constexpr ConstexprStringAndHash(const char(&a)[N]) : string(a){  };
-			constexpr operator const char*()const { return string; };	
+			operator const char*()const { return string; };	
+			const char* c_str() const { return string; };
+
 		};
 	}
 	constexpr Utilz::HashValue operator "" _hash(const char* toHash, std::size_t size)

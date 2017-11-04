@@ -112,14 +112,14 @@ namespace SE
 				managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 				Core::IMaterialManager::CreateInfo info;
-				auto material = Utilz::GUID("MCModell.mat");
+				auto material = Utilz::GUID("Run.mat");
 				auto shader = Utilz::GUID("SimpleLightBloomPS.hlsl");
 				info.shader = shader;
 				info.materialFile = material;
 				info.bloom = true;
 				managers.materialManager->Create(mainC, info);
 
-				managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" });
+				managers.renderableManager->CreateRenderableObject(mainC, { "Run.mesh" });
 				managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 				auto& l = managers.entityManager->Create();
