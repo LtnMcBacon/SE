@@ -119,7 +119,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
-	timer->Start(CREATE_ID_HASH("AnimationManager"));
+	timer->Start(("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
 
@@ -148,7 +148,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	}
 
 	GarbageCollection();
-	timer->Stop(CREATE_ID_HASH("AnimationManager"));
+	timer->Stop(("AnimationManager"));
 }
 
 void SE::Core::AnimationManager::Start(const Entity & entity, AnimationPlayInfo playInfo)

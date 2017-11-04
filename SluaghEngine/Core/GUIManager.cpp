@@ -22,8 +22,8 @@ namespace SE {
 			auto fileLoaded = textureGUID.find(info.texture);
 			if (fileLoaded == textureGUID.end())
 			{
-				textureGUID[info.texFile].textureHandle = -1;
-				initInfo.resourceHandler->LoadResource(info.texFile, [this](auto guid, auto data, auto size) {
+				textureGUID[info.texture].textureHandle = -1;
+				initInfo.resourceHandler->LoadResource(info.texture, [this](auto guid, auto data, auto size) {
 					Graphics::TextureDesc td;
 					memcpy(&td, data, sizeof(td));
 					/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
@@ -110,7 +110,7 @@ namespace SE {
 		void GUIManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH("GUIManager"));
+			timer->Start(("GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -125,7 +125,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 

@@ -51,7 +51,6 @@ namespace SE
 			*/
 			void CreateRenderableObject(const Entity& entity, const CreateInfo& info)override;
 
-			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -145,6 +144,9 @@ namespace SE
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
 		
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
+
 			struct toUpdateStruct
 			{
 				MeshData data;

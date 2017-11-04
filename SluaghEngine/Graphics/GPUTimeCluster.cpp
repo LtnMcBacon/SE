@@ -14,7 +14,7 @@ SE::Graphics::GPUTimeCluster::~GPUTimeCluster()
 {
 }
 
-void SE::Graphics::GPUTimeCluster::Start(const Utilz::IDHash & id)
+void SE::Graphics::GPUTimeCluster::Start(const Utilz::ConstexprStringAndHash & id)
 {
 	TimerSet& timer = timers[id];
 	if (!timer.QueryStarted && !timer.QueryFinished)
@@ -50,7 +50,7 @@ void SE::Graphics::GPUTimeCluster::Start(const Utilz::IDHash & id)
 	}
 }
 
-void SE::Graphics::GPUTimeCluster::Stop(const Utilz::IDHash & id)
+void SE::Graphics::GPUTimeCluster::Stop(const Utilz::ConstexprStringAndHash & id)
 {
 	TimerSet& timer = timers[id];
 

@@ -136,11 +136,11 @@ namespace SE {
 		void AudioManager::Frame(Utilz::TimeCluster * timer)
 		{
 			_ASSERT(timer);
-			timer->Start(CREATE_ID_HASH("AudioManager"));
+			timer->Start(("AudioManager"));
 			GarbageCollection();
 			if (PanExist)
 				UpdateDirtyTransforms();
-			timer->Stop(CREATE_ID_HASH("AudioManager"));
+			timer->Stop(("AudioManager"));
 		}
 
 		void AudioManager::SetCameraEnt(const Entity & entity)

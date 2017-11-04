@@ -80,7 +80,7 @@ int SE::Core::Engine::BeginFrame()
 		ProfileReturnConst( -1);
 
 	frameBegun = true;
-	timeClus.Start(CREATE_ID_HASH("Frame"));
+	timeClus.Start(("Frame"));
 	subSystems.window->Frame();
 	
 	subSystems.renderer->BeginFrame();
@@ -108,7 +108,7 @@ int SE::Core::Engine::EndFrame()
 	
 
 
-	timeClus.Stop(CREATE_ID_HASH("Frame"));
+	timeClus.Stop(("Frame"));
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -495,7 +495,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			static float maxFrameTime = 0.0f;
 			static float minFrameTime = 999999999.0f;
 			static float avg100Frames = 0.0f;
-			const auto frame = map.find(CREATE_ID_HASH("Frame"));
+			const auto frame = map.find(("Frame"));
 			if (frame != map.end())
 			{
 				static float runningSum = 0.0f;
@@ -518,7 +518,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
 			for (auto& m : map)
 			{
-				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+				ImGui::TextUnformatted(m.first); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
 			}
 
 

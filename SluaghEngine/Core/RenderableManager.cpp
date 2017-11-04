@@ -145,7 +145,7 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("RenderableManager"));
+	timer->Start(("RenderableManager"));
 	GarbageCollection();
 
 
@@ -166,7 +166,7 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 
 
 	UpdateDirtyTransforms();
-	timer->Stop(CREATE_ID_HASH("RenderableManager"));
+	timer->Stop(("RenderableManager"));
 	ProfileReturnVoid;
 }
 

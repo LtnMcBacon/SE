@@ -39,7 +39,9 @@ namespace SE {
 				auto const findFont = guidToFont.find(info.font);
 				if (findFont == guidToFont.end())
 				{
-					auto ret = initInfo.resourceHandler->LoadResource(info.font, { this, &TextManager::LoadFont });
+					auto ret = initInfo.resourceHandler->LoadResource(info.font, [this](auto guid, auto data, auto size) {
+						guidToFont[guid] = this->initInfo.renderer->CreateTextFont(data, size);
+						return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM; });
 					if (ret)
 					{
 						ProfileReturnVoid;
@@ -98,7 +100,7 @@ namespace SE {
 		void TextManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH( "GUIManager"));
+			timer->Start(( "GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -113,7 +115,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 

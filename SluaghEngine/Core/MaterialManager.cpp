@@ -215,10 +215,10 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("MaterialManager"));
+	timer->Start(("MaterialManager"));
 	GarbageCollection();
 	std::vector<Entity> eTu;
-	if (mLoading.DoUpdate(eTu))
+	while (!toUpdate.wasEmpty())
 	{
 		auto& job = toUpdate.top();
 
@@ -231,7 +231,7 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 		}
 		toUpdate.pop();
 	}
-	timer->Stop(CREATE_ID_HASH("MaterialManager"));
+	timer->Stop(("MaterialManager"));
 	StopProfile;
 }
 

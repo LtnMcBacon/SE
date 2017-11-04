@@ -52,7 +52,7 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("DebugRenderManager"));
+	timer->Start(("DebugRenderManager"));
 	GarbageCollection();
 	CreateBoundingBoxes();
 	if (dirty)
@@ -102,7 +102,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 		}
 		dirty = false;
 	}
-	timer->Stop(CREATE_ID_HASH("DebugRenderManager"));
+	timer->Stop(("DebugRenderManager"));
 	ProfileReturnVoid;
 }
 
