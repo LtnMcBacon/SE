@@ -200,12 +200,12 @@ namespace SE
 					}
 					if (subSystems.window->ButtonPressed(4) == true)
 					{
-						console->Print("VRam: %d \n", Utilz::Memory::toMB(subSystems.renderer->GetVRam()));
+						console->Print("VRam: %d \n", toMB(subSystems.renderer->GetVRam()));
 					}
 					if (subSystems.window->ButtonPressed(5) == true)
 					{
-						size_t physMem = Utilz::Memory::toMB(Utilz::Memory::GetPhysicalProcessMemory());
-						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
+						size_t physMem = toMB(Utilz::Memory::GetPhysicalProcessMemory());
+						size_t virtMem = toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
 					if (subSystems.window->ButtonPressed(11) == true)

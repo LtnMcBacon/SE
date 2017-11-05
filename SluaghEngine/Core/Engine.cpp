@@ -181,8 +181,8 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
-		info.maxMemory = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
-		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
+		info.RAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
+		info.VRAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
 			throw std::exception("Could not initiate resourceHandler.");
@@ -332,7 +332,6 @@ void SE::Core::Engine::InitRenderableManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.console = subSystems.devConsole;
-		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
 		managers.renderableManager = CreateRenderableManager(info);
 
 	}
@@ -475,14 +474,14 @@ void SE::Core::Engine::SetupDebugConsole()
 		if (subSystems.renderer->GetVRam() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
 		{
 		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
-		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
 		ImGui::PopStyleColor();
 		}
 		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
 		{
 		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
 		ImGui::PopStyleColor();
 		}
 		ImGui::Separator();

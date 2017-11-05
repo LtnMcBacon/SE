@@ -21,7 +21,7 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 
 	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
 		initInfo.console, initInfo.entityManager,
-		initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear },
+		initInfo.eventManager, initInfo.transformManager },
 		10, animationSystem);
 
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {

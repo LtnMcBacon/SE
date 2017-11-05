@@ -3,7 +3,8 @@
 #include <Utilz\GUID.h>
 #include <functional>
 #include <Utilz\Delegate.h>
-
+#include <Utilz\Memory.h>
+#include <vector>
 #if defined DLL_EXPORT_RH
 #define DECLDIR __declspec(dllexport)
 #else
@@ -52,17 +53,6 @@ namespace SE
 			IMMUTABLE = 1 << 3
 		};
 
-		enum class State {
-			IN_RAM = 1 << 0,
-			IN_VRAM = 1 << 1,
-			LOADING = 1 << 2,
-			DEAD = 1 << 3,
-			FAIL = 1 << 4,
-			LOADED = 1 << 5,
-			IMMUTABLE = 1 << 6,
-			RAW  = 1 << 7
-		};
-
 		enum class UnloadFlags {
 			VRAM = 1 << 0,
 			RAM = 1 << 1
@@ -75,16 +65,33 @@ namespace SE
 			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 		};
 
-		enum class UnloadingStrategy
+		enum class EvictStrickness
+		{
+			IMMIDIATE,
+			HARD,
+			SEMI_HARD,
+			SEMI_LOW,
+			LOW,
+			ONLY_WHEN_FULL
+		};
+	
+		enum class EvictPolicy
 		{
 			Linear,
 			FIFO
 		};
-	
 		struct InitializationInfo
 		{
-			size_t maxMemory = 256*1024*1024;
-			UnloadingStrategy unloadingStrat = UnloadingStrategy::Linear;
+			size_t RAM_max = 256_mb;
+			float RAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
+			EvictPolicy RAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
+			EvictStrickness RAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
+
+			size_t VRAM_max = 512_mb;
+			float VRAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage. */
+			EvictPolicy VRAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
+			EvictStrickness VRAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
+			std::function<size_t()> GetVRAMCurrentlyInUse_Callback; /**< The callback the resource handler will use when checking if under VRAM limit.*/
 		};
 
 		/**
@@ -113,10 +120,42 @@ namespace SE
 			virtual const InitializationInfo& GetInfo()const = 0;
 			virtual void UpdateInfo(const InitializationInfo& initInfo) = 0;
 
+			/**
+			* @brief	Load a given resource
+			*
+			* @details This function will load a resource for either RAM or VRAM, and in either SYNC or ASYNC. This is specified in the loadFlags argument.
+			* 
+			* Not providing the load and destroy callbacks the resource is considered RAW and will be handled by the resource handler.
+			* This only works with RAM, if specifying VRAM the resource handler can not handle unloading of the resource from VRAM.
+			*
+			* @param[in] guid The GUID of the resource to be unloaded.
+			* @param[in] callbacks A struct containing the callbacks used when loading a resource. Each callback is a std function with a specific template.
+			* @param[in] loadFlags See UnloadFlags.
+			* @warning When using asynchronious loading you need to make sure that your invoke and destroy callback is threadsafe!!!! Load does not need to be threadsafe (for now).
+			* @warning When VRAM has been specified AND a destroy callback is not provided the resource handler can not unload resources from VRAM.
+			* @sa LoadFlags
+			* @sa Callbacks
+			**/
 			virtual int LoadResource(const Utilz::GUID& guid,
 				const Callbacks& callbacks,
 				LoadFlags loadFlags) = 0;
 			
+			/**
+			* @brief	Load a given resource, with only an invoke.
+			*
+			* @details This function will load a resource for either RAM or VRAM, and in either SYNC or ASYNC. This is specified in the loadFlags argument.
+			*
+			* When using this overload the load and destroy callbacks are not used. This means that the resource is considered RAW and will be handled by the resource handler.
+			* This only works with RAM, if specifying VRAM the resource handler can not handle unloading of the resource from VRAM.
+			*
+			* @param[in] guid The GUID of the resource to be unloaded.
+			* @param[in] invokeCallback The callback to use when the resource has been loaded.
+			* @param[in] loadFlags See UnloadFlags.
+			* @warning When using asynchronious loading you need to make sure that your invoke and destroy callback is threadsafe!!!! Load does not need to be threadsafe (for now).
+			* @warning When VRAM has been specified AND a destroy callback is not provided the resource handler can not unload resources from VRAM.
+			* @sa LoadFlags
+			* @sa Callbacks
+			**/
 			virtual int LoadResource(const Utilz::GUID& guid, 
 				const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
 				LoadFlags loadFlags = LoadFlags::LOAD_FOR_RAM) = 0;
@@ -129,9 +168,17 @@ namespace SE
 			* Either by dumping the memory to disk, or just discarding it.
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
+			* @param[in] unloadFlags See UnloadFlags.
 			* @warning This does not force the resource to unload!
 			**/
 			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
+
+
+			/**
+			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
+			*
+			**/
+			virtual void GetErrorMessages(std::vector<std::string>& errors) = 0;
 
 		protected:
 			IResourceHandler() {};
@@ -147,7 +194,6 @@ namespace SE
 ENUM_FLAGS(SE::ResourceHandler::LoadReturn);
 ENUM_FLAGS(SE::ResourceHandler::InvokeReturn);
 ENUM_FLAGS(SE::ResourceHandler::LoadFlags);
-ENUM_FLAGS(SE::ResourceHandler::State);
 ENUM_FLAGS(SE::ResourceHandler::UnloadFlags);
 
 

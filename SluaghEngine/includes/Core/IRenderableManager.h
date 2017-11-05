@@ -40,7 +40,6 @@ namespace SE
 				IEntityManager* entityManager;
 				IEventManager* eventManager;
 				ITransformManager* transformManager;
-				ResourceHandler::UnloadingStrategy unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
 			};
 
 			struct CreateInfo

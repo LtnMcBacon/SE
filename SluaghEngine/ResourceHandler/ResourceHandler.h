@@ -2,19 +2,35 @@
 #define SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_
 #include <IResourceHandler.h>
 #include "IAssetLoader.h"
-#include <map>
+#include <unordered_map>
 #include <thread>
 #include <mutex>
 #include <stack>
 #include <Utilz\Event.h>
 #include <Utilz\CircularFiFo.h>
 #include <Utilz\ThreadPool.h>
-
-
+#include <Utilz\Concurrent_Vector.h>
+#include <Utilz\Concurrent_Unordered_Map.h>
 namespace SE
 {
 	namespace ResourceHandler
 	{
+		struct Data
+		{
+			void* data = nullptr;
+			size_t size = 0;
+		};
+
+		enum class State {
+			LOADING = 1 << 2,
+			DEAD = 1 << 3,
+			FAIL = 1 << 4,
+			LOADED = 1 << 5,
+			IMMUTABLE = 1 << 6,
+			RAW = 1 << 7
+		};
+
+
 		/**
 		*
 		* @brief The resource handler
@@ -45,46 +61,39 @@ namespace SE
 
 			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags)override;
 
-
+			/**
+			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
+			*
+			**/		
+			inline void GetErrorMessages(std::vector<std::string>& errors) override
+			{
+				Utilz::Move(this->errors, errors);
+			}
 		private:
 			InitializationInfo initInfo;
 
 
-			/****************	Unloading		*****************/
-			void LinearUnload(size_t addedSize);
-			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
-			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;
-			/****************	END Unloading	*****************/
-	
-
 			/****************	Entires			*****************/
-			struct Data
-			{
-				void* data = nullptr;
-				size_t size = 0;
-			};
 
-			struct ResourceInfo
+			struct Resource_Entry
 			{
-				Data RAMData;
-				Data VRAMData;
-				uint32_t refRAM = 0;
-				uint32_t refVRAM = 0;
-				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> RAMdestroyCallback;
-				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> VRAMdestroyCallback;
+				Data data;
+				uint32_t ref;
+				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 				State state = State::DEAD;
 			};
-		
-			std::map<Utilz::GUID, ResourceInfo, Utilz::GUID::Compare> guidToResourceInfo;
 
+			Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher> guidToRAMEntry;
+			Utilz::Concurrent_Unordered_Map< Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher> guidToVRAMEntry;
 
 			/****************	END Entires		*****************/
 
 			// Errors
-			std::vector<std::string> errors;
+			Utilz::Concurrent_Vector<std::string> errors;
 
 			/****************	Loading			*****************/
 			IAssetLoader* diskLoader;
+			std::mutex loadLock;
 
 			Utilz::ThreadPool* load_threadPool;
 			Utilz::ThreadPool* invoke_threadPool;
@@ -97,14 +106,19 @@ namespace SE
 				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
-			bool Load(LoadJob job);
+			bool Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job);
 
-
-			std::mutex infoLock;
-			std::mutex loadLock;
+			
 			/****************	END Loading		*****************/
+
+
+			/****************	Unloading		*****************/
+			/*void LinearEvict(std::vector<Utilz::GUID>& evictOrder, size_t addedSize, UnloadFlags flags);
+			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
+			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;*/
+			/****************	END Unloading	*****************/
 		};
 	}
 }
-
+ENUM_FLAGS(SE::ResourceHandler::State);
 #endif //SE_RESOURCE_HANDLER_RESOURCE_HANDLER_H_
