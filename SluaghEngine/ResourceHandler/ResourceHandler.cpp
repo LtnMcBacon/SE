@@ -66,15 +66,7 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 	};
 	Utilz::Operate(guidToRAMEntry, lam);
 	Utilz::Operate(guidToVRAMEntry, lam);
-	//for (auto& r : guidToRAMEntry)
-	//{
-	//	if (r.second.state & State::RAW)
-	//		operator delete(r.second.data.data);
-	//	else if (r.second.state & State::LOADED)
-	//		if(r.second.destroyCallback)
-	//			r.second.destroyCallback(r.first, r.second.data.data, r.second.data.size);
-	//}
-		
+
 	delete diskLoader;
 }
 
@@ -130,7 +122,7 @@ static const auto decRef = [](auto& resource) {
 	if (resource.ref > 0)
 		resource.ref--;
 	if (resource.ref == 0u)
-		resource.state = (resource.state ^ SE::ResourceHandler::State::LOADED) | SE::ResourceHandler::State::DEAD;
+		resource.state |= SE::ResourceHandler::State::DEAD;
 };
 
 static const auto invoke = [](auto& map, auto& guid, auto data, auto& callback, auto& errors)
@@ -180,10 +172,12 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			return invoke(map, guid, data, callbacks.invokeCallback, errors) ? 0 : -3;
 		}
 	};
-	if (loadFlags & LoadFlags::LOAD_FOR_RAM)
-		load(guidToRAMEntry);
-	else if (loadFlags & LoadFlags::LOAD_FOR_VRAM)
-		load(guidToVRAMEntry);
+	if (loadFlags & LoadFlags::LOAD_FOR_RAM) {
+		ProfileReturn(load(guidToRAMEntry));
+	}
+	else if (loadFlags & LoadFlags::LOAD_FOR_VRAM) {
+		ProfileReturn(load(guidToVRAMEntry));
+	}
 
 	ProfileReturnConst(0);
 }
