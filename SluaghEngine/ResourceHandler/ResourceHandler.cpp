@@ -61,7 +61,8 @@ void SE::ResourceHandler::ResourceHandler::Shutdown()
 			if (r.second.state & State::RAW)
 				operator delete(r.second.data.data);
 			else if (r.second.state & State::LOADED)
-				r.second.destroyCallback(r.first, r.second.data.data, r.second.data.size);
+				if(r.second.destroyCallback)
+					r.second.destroyCallback(r.first, r.second.data.data, r.second.data.size);
 		}
 	};
 	Utilz::Operate(guidToRAMEntry, lam);
@@ -80,6 +81,14 @@ void SE::ResourceHandler::ResourceHandler::UpdateInfo(const InitializationInfo &
 	this->initInfo = initInfo;
 }
 
+void SE::ResourceHandler::ResourceHandler::GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids)const
+{
+	diskLoader->GetAllGUIDsWithExtension(ext, guids);
+}
+void SE::ResourceHandler::ResourceHandler::GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const
+{
+	diskLoader->GetAllGUIDsWithExtension(ext, guids, names);
+}
 int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 	const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
 	LoadFlags loadFlags)
@@ -133,14 +142,14 @@ static const auto invoke = [](auto& map, auto& guid, auto data, auto& callback, 
 	{
 		SE::Utilz::OperateSingle(map, guid, setFail);
 		errors.Push_Back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
-		return false;
+		return -1;
 	}
 
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_RAM)
 		SE::Utilz::OperateSingle(map, guid, decRef);
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_VRAM)
 		SE::Utilz::OperateSingle(map, guid, decRef);
-	return true;
+	return 0;
 };
 
 
@@ -163,14 +172,16 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 			if (loadFlags & LoadFlags::ASYNC)
 				load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
 			else
-				return Load(&map, { guid, callbacks, loadFlags }) ? 0 : -2;
+				return Load(&map, { guid, callbacks, loadFlags });
 		}
 		else
 		{
 			Data data;
 			Utilz::OperateSingle(map, guid, getResourceData, data);
-			return invoke(map, guid, data, callbacks.invokeCallback, errors) ? 0 : -3;
+			return invoke(map, guid, data, callbacks.invokeCallback, errors);
 		}
+
+		return 0;
 	};
 	if (loadFlags & LoadFlags::LOAD_FOR_RAM) {
 		ProfileReturn(load(guidToRAMEntry));
@@ -208,7 +219,7 @@ static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& er
 		error = false;
 };
 
-bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job)
+int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job)
 {
 
 	// Do some checks
@@ -216,7 +227,7 @@ bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<
 		bool error = false;
 		Utilz::OperateSingle(*map, job.guid, checkStillLoad, job.guid, error, errors);
 		if (error)
-			return false;
+			return -1;
 	}
 
 
@@ -228,7 +239,7 @@ bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<
 		{
 			Utilz::OperateSingle(*map, job.guid, setFail);
 			errors.Push_Back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
-			return false;
+			return -1;
 		}
 		loadLock.lock();
 		auto result = diskLoader->LoadResource(job.guid, &rawData.data);
@@ -237,7 +248,7 @@ bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<
 			loadLock.unlock();
 			Utilz::OperateSingle(*map, job.guid, setFail);
 			errors.Push_Back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
-			return false;
+			return -1;
 		}
 
 
@@ -262,7 +273,7 @@ bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<
 			if (error)
 			{
 				errors.Push_Back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
-				return false;
+				return -1;
 			}
 		}
 		else
@@ -288,12 +299,13 @@ bool SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<
 	}
 
 	// Invoke the invoke callback
-	if (!invoke(*map, job.guid, data, job.callbacks.invokeCallback, errors))
+	auto res = invoke(*map, job.guid, data, job.callbacks.invokeCallback, errors);
+	if (res < 0)
 	{
-		return false;
+		return -1;
 	}
 
-	return true;
+	return 0;
 }
 //
 //void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)

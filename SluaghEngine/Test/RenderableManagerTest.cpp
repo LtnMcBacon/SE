@@ -10,6 +10,12 @@
 #else
 #pragma comment(lib, "core.lib")
 #endif
+bool VectorOfStringGetter(void* data, int n, const char** out_text)
+{
+	const std::vector<std::string>* v = (std::vector<std::string>*)data;
+	*out_text = (v->operator[](n)).c_str();
+	return true;
+}
 
 enum ActionButton
 {
@@ -56,6 +62,19 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
+
+	std::vector<Utilz::GUID> guids;
+	std::vector<std::string> names;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("mesh", guids, names);
+
+
+
+
+
+
+
+
+
 	auto& mainC = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
 
@@ -83,14 +102,14 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto material = Utilz::GUID("Run.mat");
-	auto shader = Utilz::GUID("SimplePS.hlsl");
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
 	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "Body_HP.mesh" });
+	managers.renderableManager->CreateRenderableObject(mainC, { "Run.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -120,6 +139,9 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	auto e3 = managers.entityManager->Create();
 	managers.entityManager->Destroy(e3);
+
+	int currentMesh = 0; 
+
 	while (running)
 	{
 		if (subSystem.window->ButtonPressed(0))
@@ -201,15 +223,31 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			managers.entityManager->Destroy(e3);
 		}
 
+		ImGui::ListBox("Meshes", &currentMesh, [](void*data, int n, const char** out) {
+			auto& v = *(std::vector<std::string>*)data;
+			if (n < v.size())
+			{
+				*out = v[n].c_str();
+				return true;
+			}
+
+			return false; 
+		}, &names, names.size(), 10);
+
+		if (ImGui::Button("Create"))
+		{
+			managers.entityManager->Destroy(mainC);
+			mainC = managers.entityManager->Create();
+			managers.transformManager->Create(mainC);
+			managers.materialManager->Create(mainC, info);
+			managers.renderableManager->CreateRenderableObject(mainC, { guids[currentMesh] });
+			managers.renderableManager->ToggleRenderableObject(mainC, true);
+		}
+
 		engine->EndFrame();
 	}
 
 	timers.Stop(("Running"));
-		Utilz::TimeMap times;
-	timers.GetMap(times);
-	engine->GetProfilingInformation(times);
-	for (auto& t : times)
-		console->Print("%s: %f\n", t.first.c_str(), t.second);
 
 	engine->Release(); delete engine;
 	ProfileReturnConst(true);

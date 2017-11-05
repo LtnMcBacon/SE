@@ -42,7 +42,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 		throw std::exception("Could not load default pixel shader");
 
 	ResourceHandler::Callbacks materialCallback;
-	materialCallback.loadCallback = materialLoadCallback = [](auto guid, auto data, auto size, auto udata, auto usize)
+	materialCallback.loadCallback = materialLoadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		*udata = (void*)new MaterialFileData;
 
@@ -152,11 +152,12 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 	// Register the entity
 	size_t newEntry = materialInfo.used++;
+	entityToMaterialInfo[entity] = newEntry;
 	materialInfo.entity[newEntry] = entity;
-	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
-	materialInfo.shader[newEntry] = defaultPixelShader; // TODO: Make it pink
+	materialInfo.bloom[newEntry] = 0u;// info.bloom ? 1u : 0u;
+	materialInfo.shader[newEntry] = defaultPixelShader; 
 	materialInfo.material[newEntry] = defaultMaterialInfo;
-
+	materialInfo.materialGUID[newEntry] = defaultMaterial;
 
 
 	ResourceHandler::Callbacks shaderCallbacks;
@@ -195,20 +196,20 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				mdata->textureInfo.textures[i] = defaultTexture;
 		}
 
-		if (!toUpdate.push({ info.shader, mdata, entity }))
+		if (!toUpdate.push({guid, info.materialFile, mdata, entity }))
 			return ResourceHandler::InvokeReturn::FAIL;
 
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 
-	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks,  ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
 	if (res < 0)
 	{
 		materialInfo.used--;
+		entityToMaterialInfo.erase(entity);
 		ProfileReturnVoid;
 	}
 
-	entityToMaterialInfo[entity] = newEntry;
 	StopProfile;
 }
 
@@ -227,6 +228,7 @@ void SE::Core::MaterialManager::Frame(Utilz::TimeCluster * timer)
 		{
 			materialInfo.shader[find->second] = job.shader;
 			materialInfo.material[find->second] = job.material;
+			materialInfo.materialGUID[find->second] = job.mat;
 			initInfo.eventManager->TriggerUpdateRenderableObject(job.entity);
 		}
 		toUpdate.pop();
@@ -248,7 +250,7 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
 	newData.shader = (Utilz::GUID*)(newData.entity + newData.allocated);
-	newData.materialGUID = (Utilz::GUID*)(newData.entity + newData.allocated);
+	newData.materialGUID = (Utilz::GUID*)(newData.shader + newData.allocated);
 	newData.material = (MaterialFileData**)(newData.materialGUID + newData.allocated);
 	newData.bloom = (uint8_t*)(newData.material + newData.allocated);
 
@@ -269,7 +271,6 @@ void SE::Core::MaterialManager::Allocate(size_t size)
 void SE::Core::MaterialManager::Destroy(size_t index)
 {
 	StartProfile;
-
 	// Temp variables
 	size_t last = materialInfo.used - 1;
 	const Entity entity = materialInfo.entity[index];

@@ -104,6 +104,7 @@ namespace SE
 			struct toUpdateStruct
 			{
 				Utilz::GUID shader;
+				Utilz::GUID mat;
 				MaterialFileData* material;
 				Entity entity;
 			};

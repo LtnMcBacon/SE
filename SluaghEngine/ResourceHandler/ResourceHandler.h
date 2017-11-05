@@ -51,6 +51,9 @@ namespace SE
 			const InitializationInfo& GetInfo()const override;
 			void UpdateInfo(const InitializationInfo& initInfo)override;
 
+			void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids)const override;
+			void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const override;
+
 			int LoadResource(const Utilz::GUID& guid, 
 				const std::function<InvokeReturn(const Utilz::GUID&, void*, size_t)>& invokeCallback, 
 				LoadFlags loadFlags = LoadFlags::LOAD_FOR_RAM)override;
@@ -79,7 +82,7 @@ namespace SE
 			{
 				Data data;
 				uint32_t ref;
-				Utilz::Delegate<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
+				std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 				State state = State::DEAD;
 			};
 
@@ -106,7 +109,7 @@ namespace SE
 				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
-			bool Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job);
+			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job);
 
 			
 			/****************	END Loading		*****************/

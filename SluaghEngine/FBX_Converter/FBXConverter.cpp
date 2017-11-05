@@ -580,11 +580,11 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 		if (pMesh.meshNode->GetElementBinormalCount() < 1)
 		{
-			std::cout << "[WARNING] Missing Binormals" << endl;
+			std::cout << "[WARNING] Missing Binormals!" << endl;
 		}
 		if (pMesh.meshNode->GetElementTangentCount() < 1)
 		{
-			std::cout << "[WARNING] Missing Tangents" << endl;
+			std::cout << "[WARNING] Missing Tangents!" << endl;
 		}
 
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
@@ -617,7 +617,12 @@ void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxR
 
 			else
 			{
-				auto tr = { 0, 1, 2, 3,0,2 };
+				if (pMesh.meshNode->GetElementTangentCount() < 1)
+				{
+					std::cout << "[WARNING] Not triangulated!" << endl;
+				}
+
+				auto tr = { 0,1, 2, 0,2,3 };
 				for (auto& k : tr)
 				{
 					// Retrieve the vertex index to know which control point in the vector to use

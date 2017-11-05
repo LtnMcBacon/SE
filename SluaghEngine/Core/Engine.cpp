@@ -16,7 +16,7 @@ using namespace SE::Utilz::Memory;
 #pragma comment(lib, "ResourceHandler.lib")
 #pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
-#pragma comment(lib, "ImGuiDX11SDL.lib");
+#pragma comment(lib, "ImGuiDX11SDL.lib")
 #pragma comment(lib, "DevConsole.lib")
 #endif
 
@@ -56,7 +56,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		);
 #endif
 		this->Release();
-		return -1;
+		ProfileReturnConst(-1);
 	}
 
 	SetupDebugConsole();
@@ -106,7 +106,10 @@ int SE::Core::Engine::EndFrame()
 	subSystems.devConsole->EndFrame();
 	subSystems.renderer->EndFrame();
 	
-
+	std::vector<std::string> errors;
+	subSystems.resourceHandler->GetErrorMessages(errors);
+	for (auto& r : errors)
+		subSystems.devConsole->PrintChannel("ResourceHandler", "%s", r.c_str());
 
 	timeClus.Stop(("Frame"));
 	perFrameStackAllocator->ClearStackAlloc();
@@ -445,6 +448,7 @@ void SE::Core::Engine::SetupDebugConsole()
 {
 	subSystems.devConsole->AddFrameCallback([this]()
 	{
+
 		static bool plot_memory_usage;
 		static bool show_gpu_timings;
 		if (ImGui::BeginMenuBar())
@@ -457,7 +461,6 @@ void SE::Core::Engine::SetupDebugConsole()
 			}
 			ImGui::EndMenuBar();
 		}
-
 
 		if(plot_memory_usage)
 		{

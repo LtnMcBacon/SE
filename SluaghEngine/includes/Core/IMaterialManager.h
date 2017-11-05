@@ -39,7 +39,7 @@ namespace SE
 			{
 				Utilz::GUID shader;
 				Utilz::GUID materialFile;
-				bool bloom = true;
+				bool bloom = false;
 			};
 
 			virtual ~IMaterialManager() {};

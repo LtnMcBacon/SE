@@ -120,6 +120,9 @@ namespace SE
 			virtual const InitializationInfo& GetInfo()const = 0;
 			virtual void UpdateInfo(const InitializationInfo& initInfo) = 0;
 
+			virtual void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids)const = 0;
+			virtual void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const = 0;
+
 			/**
 			* @brief	Load a given resource
 			*

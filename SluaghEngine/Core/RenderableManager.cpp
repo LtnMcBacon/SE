@@ -76,6 +76,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		renderableObjectInfo.wireframe[newEntry] = info.wireframe ? 1u: 0u;
 		renderableObjectInfo.transparency[newEntry] = info.transparent ? 1u : 0u;
 		renderableObjectInfo.shadow[newEntry] = info.shadow ? 1u : 0u;
+		entityToRenderableObjectInfoIndex[entity] = newEntry;
 
 		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &RenderableManager::Destroy });
 
@@ -95,10 +96,11 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		if (res < 0)
 		{
 			renderableObjectInfo.used--;
+			entityToRenderableObjectInfoIndex.erase(newEntry);
 			ProfileReturnVoid;
 		}
 
-		entityToRenderableObjectInfoIndex[entity] = newEntry;
+	
 
 	}
 	StopProfile;
@@ -433,7 +435,7 @@ void SE::Core::RenderableManager::Init()
 	auto res = initInfo.resourceHandler->LoadResource(defaultMesh, meshCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default mesh");
-
+	
 	ResourceHandler::Callbacks shaderCallbacks;
 	shaderCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
