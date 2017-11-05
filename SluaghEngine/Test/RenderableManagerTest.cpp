@@ -83,14 +83,14 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto material = Utilz::GUID("Run.mat");
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimplePS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
 	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "Run.mesh" });
+	managers.renderableManager->CreateRenderableObject(mainC, { "Body_HP.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -142,7 +142,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::TL))
 			managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
-		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(mainC, 0.0f, 0.001f*dt, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 		engine->BeginFrame();
