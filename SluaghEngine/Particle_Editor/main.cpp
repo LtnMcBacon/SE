@@ -3,6 +3,8 @@
 #include <Utilz\Timer.h>
 #include <Graphics\ParticleSystemJob.h>
 #include "ParticleEmitter.h"
+#include <string>
+#include <fstream>
 
 using namespace SE;
 using namespace DirectX;
@@ -42,6 +44,7 @@ struct moveMentStruct {
 	unsigned int gravityCheck;
 };
 moveMentStruct createParticleBuffer();
+void exportParticleInfo(Pipeline particleJobInfo, moveMentStruct pInfo, char fileName[], bool randomVelocity);
 int main()
 {
 	ParticleEmitter emitter;
@@ -56,9 +59,16 @@ int main()
 	Pipeline pipeline;
 	Utilz::Timer time;
 	auto ResourceHandle = subSystem.resourceHandler;
+	bool changedTexture = false;
+	char particleName[100] = "";
+
+	bool exportWindow = false;
 	
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 	srand(time.GetDelta());
+
+	char tempText[100] = "";//Used for finding texture
+
 
 	ResourceHandle->LoadResource("ParticleGS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateGeometryShader(guid, data, size);
@@ -199,7 +209,18 @@ int main()
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
 		time.Tick();
-
+		//if (changedTexture)
+		//{
+		//	ResourceHandle->LoadResource(tempText, [&pipelineHandler](auto guid, void* data, size_t size) {
+		//		Graphics::TextureDesc texDesc;
+		//		texDesc = *(TextureDesc*)data;
+		//		data = (char*)data + sizeof(TextureDesc);
+		//		pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
+		//		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		//	});
+		//
+		//	changedTexture = false;
+		//}
 		engine->BeginFrame();
 		//First window, main particle attributes
 		ImGui::Begin("Particle Attributes");//Putting each separate window withing a Begin/End() section
@@ -209,13 +230,26 @@ int main()
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -20.0f, 20.0f);
 		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.5f");
 		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
-		//ImGui::ColorEdit3("StartColor", &movBuffer.color[0]);
 		ImGui::InputFloat("LifeTime", &movBuffer.lifeTime);
 		ImGui::CheckboxFlags("Enable Gravity", &movBuffer.gravityCheck, 1);
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
 		ImGui::Checkbox("Random direction", &RandVelocity);
+		ImGui::InputText("Texture", tempText, 100);
+		if (ImGui::Button("Export Settings")) exportWindow ^= 1;
 		ImGui::End();
 
+		if (exportWindow)//Exporting window
+		{
+			
+			
+			ImGui::Begin("Export Window");
+			ImGui::InputText("File name", particleName, 100);
+			
+			if (ImGui::Button("Export"))
+				exportParticleInfo(RPP, movBuffer, particleName, RandVelocity);
+			ImGui::End();
+		}
+		//Window for emit specific properties
 		ImGui::Begin("Emit Attributes");
 		ImGui::SliderFloat("Direction X", &movBuffer.vel.x, -1.0f, 1.0f);
 		ImGui::SliderFloat("Direction Y", &movBuffer.vel.y, -1.0f, 1.0f);
@@ -226,8 +260,8 @@ int main()
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::End();
 		
-		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1] - emitRangeX[0]) - emitRangeX[0];
-		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) - emitRangeY[0];
+		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1] - emitRangeX[0]) + emitRangeX[0];
+		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
 		movBuffer.emitRange[0] = randEmitX;
 		movBuffer.emitRange[1] = randEmitY;
 
@@ -235,8 +269,6 @@ int main()
 		{
 			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1] - velocityRangeX[0]) + velocityRangeX[0];
 			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
-		/*	float r = static_cast <float> (rand() - 1) / static_cast <float> (RAND_MAX/2.0f) - 1;
-			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f) - 1;*/
 			movBuffer.vel.x = r1;
 			movBuffer.vel.y = r2;
 		}
@@ -283,4 +315,19 @@ moveMentStruct createParticleBuffer()
 	movBuffer.radialValue = 0.0f;
 
 	return movBuffer;
+}
+void exportParticleInfo(Pipeline particleJobInfo, moveMentStruct pInfo, char fileName[], bool randomVelocity)
+{
+	std::string file = fileName;
+	
+	file += ".txt";
+	Utilz::GUID textureName = particleJobInfo.PSStage.textures[0];
+	std::ofstream toFile;
+	
+	toFile.open(file, std::ios::out | std::ios::binary);
+	toFile << randomVelocity;
+	toFile.write((char*)&textureName, sizeof(Utilz::GUID));
+	toFile.write((char*)&pInfo, sizeof(moveMentStruct));
+	toFile.close();
+
 }

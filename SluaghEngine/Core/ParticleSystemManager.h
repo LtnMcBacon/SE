@@ -61,7 +61,24 @@ namespace SE
 
 			struct ParticleSystemFileInfo
 			{
-
+				DirectX::XMFLOAT2 vel;
+				DirectX::XMFLOAT2 pad;
+				float emitPos[3];
+				float pad1;
+				float emitRange[3];
+				float pad5;
+				float gravity[3];
+				float pad4;
+				float color[3];
+				float pad2;
+				float speed;
+				float emitRate;
+				float lifeTime;
+				float tangentValue;
+				float radialValue;
+				float gravityValue;
+				unsigned int circular;
+				unsigned int gravityCheck;
 			};
 			struct ParticleSystemData
 			{
