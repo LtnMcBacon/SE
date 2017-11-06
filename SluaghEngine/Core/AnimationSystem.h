@@ -30,9 +30,7 @@ namespace SE
 
 			void CalculateMatrices(const Entity& entity, AnimationInfo& info);
 
-			void CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo);
-
-			void CalculateLayering(const Entity& entity, AnimationInfo& animInfo);
+			void CalculateBlendMatrices(const DirectX::XMMATRIX& matrix1, const DirectX::XMMATRIX& matrix2, float blendFactor, DirectX::XMFLOAT4X4& out);
 			
 		private:
 			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);
