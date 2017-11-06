@@ -91,7 +91,6 @@ SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::RenderableManage
 {
 	StartProfile;
 	auto bucket = new RenderBucket(job.pipeline);
-	bucket->pipeline = job.pipeline;
 	//	job.maxInstances = 256; Set from the outside
 	auto hax = job.specialHaxxor;
 	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {

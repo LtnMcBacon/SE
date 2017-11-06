@@ -264,7 +264,10 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
-			rmInstancing->AddEntity(entity, info);
+			if(renderableObjectInfo.transparency[find->second] == 1u)
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			else
+				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 	}
