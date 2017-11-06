@@ -202,12 +202,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	};
 
 	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks,  ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
-	if (res < 0)
-	{
-		materialInfo.used--;
-		entityToMaterialInfo.erase(entity);
-		ProfileReturnVoid;
-	}
+
 
 	StopProfile;
 }

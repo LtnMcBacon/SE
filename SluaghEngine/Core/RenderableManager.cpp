@@ -92,13 +92,8 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 				return ResourceHandler::InvokeReturn::FAIL;
 			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
-		auto res = initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
-		if (res < 0)
-		{
-			renderableObjectInfo.used--;
-			entityToRenderableObjectInfoIndex.erase(newEntry);
-			ProfileReturnVoid;
-		}
+		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+
 
 	
 

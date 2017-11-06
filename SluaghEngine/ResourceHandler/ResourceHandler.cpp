@@ -102,7 +102,7 @@ static const auto setupInfo = [](auto& resource, auto& guid, bool& load, bool& e
 
 	if (resource.state & SE::ResourceHandler::State::FAIL)
 	{
-		errors.Push_Back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
+		errors.Push_Back("Resource has previously failed, GUID: " + std::to_string(guid.id));
 		error = true;
 		return;
 	}

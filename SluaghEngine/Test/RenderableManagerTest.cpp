@@ -102,14 +102,14 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto material = Utilz::GUID("Cube.mat");
-	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormTransPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
 	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "HighWall.mesh" });
+	managers.renderableManager->CreateRenderableObject(mainC, { "HighWall.mesh", true });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -173,6 +173,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e1))
 			{
+				managers.entityManager->Destroy(e3);
 				e1 = managers.entityManager->Create();
 				managers.transformManager->Create(e1);
 				managers.transformManager->SetPosition(e1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
@@ -195,6 +196,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e2))
 			{
+				managers.entityManager->Destroy(e3);
 				e2 = managers.entityManager->Create();
 				managers.transformManager->Create(e2);
 				managers.transformManager->SetPosition(e2, DirectX::XMFLOAT3(-2.0f, -2.0f, 0.0f));
@@ -211,6 +213,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e3))
 			{
+				managers.entityManager->Destroy(e3);
 				e3 = managers.entityManager->Create();
 				managers.transformManager->Create(e3);
 				managers.transformManager->SetPosition(e3, DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
