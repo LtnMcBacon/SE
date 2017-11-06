@@ -316,7 +316,9 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 void SE::Core::AnimationManager::Destroy(const Entity & entity)
 {
-
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+		Destroy(exists->second);
 }
 
 void SE::Core::AnimationManager::GarbageCollection()

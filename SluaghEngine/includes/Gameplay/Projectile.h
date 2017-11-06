@@ -93,6 +93,7 @@ namespace SE
 			float width;
 			float height;
 			ValidTarget projectileTarget;
+			uint64_t generation;
 		};
 
 		class Projectile : public GameUnit
@@ -183,6 +184,8 @@ namespace SE
 			float lifeTime;
 			bool active = true;
 
+			uint64_t generation;
+
 			ValidTarget target; // what type of unit the enemy can hit
 
 			DamageEvent eventDamage; // event to be transfered on hit
@@ -261,7 +264,10 @@ namespace SE
 				lifeTime = value;
 			}
 
-
+			inline uint64_t GetGeneration()
+			{
+				return generation;
+			}
 
 			inline bool GetActive()
 			{

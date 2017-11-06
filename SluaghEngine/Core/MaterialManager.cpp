@@ -259,7 +259,7 @@ void SE::Core::MaterialManager::GarbageCollection()
 
 void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graphics::RenderJob* info)
 {
-	auto& find = entityToMaterialInfo.find(entity);
+	auto find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
 		auto& mdata = mLoading.GetMaterialFile(materialInfo.material[find->second]);

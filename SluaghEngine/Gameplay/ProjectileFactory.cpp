@@ -1,6 +1,9 @@
 #include <Gameplay\ProjectileFactory.h>
 #include <Profiler.h>
 #include <Core/IEngine.h>
+#include <Gameplay/ProjectileManager.h>
+#include <Gameplay/PlayerUnit.h>
+#include <Gameplay/Room.h>
 #include "EnemyUnit.h"
 
 #include "CoreInit.h"
@@ -38,6 +41,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			inputData.height = loaded.projectileHeight;
 			inputData.width = loaded.projectileWidth;
 			inputData.projectileTarget = projData.target;
+			inputData.generation = projectileGeneration;
 
 			Projectile temp(inputData, projData);
 
@@ -46,7 +50,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
 			auto owner = data.ownerUnit.lock();
-			if (!loaded.boundToOwner && owner)
+			if (loaded.boundToOwner && owner)
 			{
 				auto unit = *owner.get();
 				CoreInit::managers.transformManager->BindChild(unit->GetEntity(), temp.GetEntity());
@@ -68,9 +72,11 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			}
 
 			newProjectiles.push_back(temp);
+			
 		}
 	}
 
+	projectileGeneration++;
 	
 	StopProfile;
 	
@@ -177,6 +183,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		inputData.height = loaded.projectileHeight;
 		inputData.width = loaded.projectileWidth;
 		inputData.projectileTarget = projData.target;
+		inputData.generation = projectileGeneration;
 
 		Projectile temp(inputData, projData);
 
@@ -185,7 +192,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
 		auto owner = data.ownerUnit.lock();
-		if (!loaded.boundToOwner && owner)
+		if (loaded.boundToOwner && owner)
 		{
 			auto unit = *owner.get();
 			CoreInit::managers.transformManager->BindChild(unit->GetEntity(), temp.GetEntity());
@@ -798,8 +805,7 @@ LockToPlayerBehaviour(std::vector<BehaviourParameter> parameters)
 	
 	auto LockToPlayer = [player](Projectile* p, float dt) -> bool
 	{
-		p->SetXPosition(player->GetXPosition());
-		p->SetYPosition(player->GetYPosition());
+		p->PositionEntity(player->GetXPosition(), player->GetYPosition());
 		return false;
 	};
 
@@ -892,7 +898,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		temp.startPosX = p->GetXPosition();
 		temp.startPosY = p->GetYPosition();
 		temp.target = p->GetValidTarget();
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = p->GetSharedPtr();
 		temp.fileNameGuid = fileName;
 
@@ -918,6 +924,78 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	};
 
 	ProfileReturnConst(Close);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KillGenerationBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+
+	auto pManager = ptrs.pManager;
+
+	auto KillGeneration = [pManager](Projectile* p, float dt) mutable -> bool
+	{
+		auto &projectiles = pManager->GetAllProjectiles();
+		for(auto &projectile : projectiles)
+		{
+			if (projectile.GetGeneration() == p->GetGeneration())
+				projectile.SetActive(false);
+		}
+		return false;
+	};
+
+	ProfileReturnConst(KillGeneration);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetAliveBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	
+	auto SetAlive = [](Projectile* p, float dt) mutable -> bool
+	{
+		p->SetActive(true);
+		return false;
+	};
+
+	ProfileReturnConst(SetAlive);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::ENEMY)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::OBJECT)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (p->GetCollisionType() == CollisionType::PLAYER)
+			return true;
+		return false;
+	};
+
+	ProfileReturnConst(CollisionCheck);
 }
 
 
@@ -991,6 +1069,12 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CloseToPlayerConditionBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateProjectilesBehaviour, this, std::placeholders::_1)); // s
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::InverterBehaviour, this, std::placeholders::_1)); // B
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KillGenerationBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetAliveBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithEnemyConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithObjectConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithPlayerConditionBehaviour, this, std::placeholders::_1)); // 
+
 }
 
 SE::Gameplay::ProjectileFactory::~ProjectileFactory()
