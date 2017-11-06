@@ -92,12 +92,16 @@ std::vector<Accepted> acceptedExt =
 					{ "HuD", "HuD", "HuDElements", [](const char* filename, const char* outFilename) {
 						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 
-					{ "jpg", "jpg", "Textures", [](const char* filename, const char* outFilename) {
+					{ "jpg", "jpg", "HuDElements", [](const char* filename, const char* outFilename) {
 					if (ImageParse(filename, outFilename))
 						printf("Could not parse: %s\n", filename); } },
-					{ "png", "png", "Textures", [](const char* filename, const char* outFilename) {
+
+					{ "png", "png", "HuDElements", [](const char* filename, const char* outFilename) {
 					if (ImageParse(filename, outFilename))
-						printf("Could not parse: %s\n", filename); } }
+						printf("Could not parse: %s\n", filename); } },
+						
+
+					
 
 };
 

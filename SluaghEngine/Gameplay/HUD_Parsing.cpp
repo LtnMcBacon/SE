@@ -37,6 +37,8 @@ namespace SE
 				//	NUMBER OF TEXT ELEMENTS
 				memcpy(&nrOfTexts, (char*)data + head, sizeof(int));
 				head += sizeof(int);
+
+				// PARSE TEXTURES
 				for (size_t i = 0; i < nrOfRects; i++)
 				{
 
@@ -131,6 +133,13 @@ namespace SE
 					this->MainMenuElmVec.push_back(CurrentElm);
 					
 				}
+
+
+
+
+				
+
+				// PARSE TEXTS
 				for (size_t l = 0; l < nrOfTexts; l++)
 				{
 
@@ -188,6 +197,91 @@ namespace SE
 			});
 
 		}
+
+		void HUDParser::InitiateTextures()
+		{
+			
+
+			for (auto& HUDElement : MainMenuElmVec)
+			{
+				auto entity = CoreInit::managers.entityManager->Create();
+
+				GuiManager.textureInfo.width = HUDElement.Width;
+				GuiManager.textureInfo.height = HUDElement.Height;
+				GuiManager.textureInfo.posX = HUDElement.PositionX;
+				GuiManager.textureInfo.posY = HUDElement.PositionY;
+
+				GuiManager.textureInfo.layerDepth = 1.0f - HUDElement.layerDepth / 1000.0f;
+
+				GuiManager.texture = HUDElement.textName;
+
+				CoreInit::managers.guiManager->Create(entity, GuiManager);
+
+				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
+
+			}
+			for (auto& HUDText : MainMenuTextVec)
+			{
+
+			}
+		}
+
+		void HUDParser::checkPressed(bool pressed, int mousePosX, int mousePosY)
+		{
+			for (auto & HUDElement : MainMenuElmVec)
+			{
+				if (HUDElement.Btn)
+				{
+					HoverButton(pressed,mousePosX, mousePosY,HUDElement);
+				}
+
+			}
+		}
+
+		void HUDParser::HoverButton(bool pressed, int mousePosX, int mousePosY,HUDElement HUDButton)
+		{
+			bool inside = false;
+
+			if (mousePosX < HUDButton.PositionX + HUDButton.Width && mousePosX > HUDButton.PositionX)
+			{
+				if (mousePosY < HUDButton.PositionY + HUDButton.Height && mousePosY > HUDButton.PositionY)
+				{
+					inside = true;
+				}
+			}
+
+			if (inside)
+			{
+				if (pressed)
+				{
+					texPressed();
+				}
+				else
+				{
+					texHovered();
+				}
+			}
+			else
+			{
+				texIdle();
+			}
+		}
+		void HUDParser::texHovered()
+		{
+
+		}
+		void HUDParser::texPressed()
+		{
+
+		}
+		void HUDParser::texIdle()
+		{
+
+		}
+
+		
 	}
 }
+
+
 

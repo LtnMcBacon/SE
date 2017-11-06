@@ -1,4 +1,6 @@
 #include "HUD_Functionality.h"
+#include <HUD_Parsing.h>
+#include "CoreInit.h"
 
 using namespace std;
 namespace SE
@@ -13,31 +15,74 @@ namespace SE
 		{
 		}
 
-		void HUDButtons::HoverButton(HUDInputCheck InputCheck )
+		void HUDButtons::HoverButton(HUDInputCheck InputCheck)
 		{
 			
-			bool inside = false;
+			
 
-			if (InputCheck.mousePosX < InputCheck.posX + InputCheck.width && InputCheck.mousePosX > InputCheck.posX)
-			{
-				if (InputCheck.mousePosY < InputCheck.posY + InputCheck.height && InputCheck.mousePosY > InputCheck.posY)
-				{
-					inside = true;
-				}
-			}
+		}
+		void HUDButtons::texHovered(HUDInputCheck InputCheck)
+		{
+			Core::IGUIManager::CreateInfo GuiManager;
 
-			if (inside)
-			{
-				if (InputCheck.pressed)
-				{
 
-				}
-				else
-				{
+			auto entity = CoreInit::managers.entityManager->Create();
 
-				}
-			}
+			GuiManager.textureInfo.width = InputCheck.width;
+			GuiManager.textureInfo.height = InputCheck.height;
+			GuiManager.textureInfo.posX = InputCheck.posX;
+			GuiManager.textureInfo.posY = InputCheck.posY;
 
+			GuiManager.textureInfo.layerDepth = 1.0f - InputCheck.layerDepth / 1000.0f;
+
+			GuiManager.texture = InputCheck.hoverTex;
+			
+
+			CoreInit::managers.guiManager->Create(entity, GuiManager);
+
+			CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
+		}
+
+		void HUDButtons::texPressed(HUDInputCheck InputCheck)
+		{
+			Core::IGUIManager::CreateInfo GuiManager;
+
+
+			auto entity = CoreInit::managers.entityManager->Create();
+
+			GuiManager.textureInfo.width = InputCheck.width;
+			GuiManager.textureInfo.height = InputCheck.height;
+			GuiManager.textureInfo.posX = InputCheck.posX;
+			GuiManager.textureInfo.posY = InputCheck.posY;
+
+			GuiManager.textureInfo.layerDepth = 1.0f - InputCheck.layerDepth / 1000.0f;
+
+			GuiManager.texture = InputCheck.pressTex;
+
+			CoreInit::managers.guiManager->Create(entity, GuiManager);
+
+			CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
+		}
+
+		void HUDButtons::texIdle(HUDInputCheck InputCheck)
+		{
+			Core::IGUIManager::CreateInfo GuiManager;
+
+
+			auto entity = CoreInit::managers.entityManager->Create();
+
+			GuiManager.textureInfo.width = InputCheck.width;
+			GuiManager.textureInfo.height = InputCheck.height;
+			GuiManager.textureInfo.posX = InputCheck.posX;
+			GuiManager.textureInfo.posY = InputCheck.posY;
+
+			GuiManager.textureInfo.layerDepth = 1.0f - InputCheck.layerDepth / 1000.0f;
+
+			GuiManager.texture = InputCheck.idleTex;
+
+			CoreInit::managers.guiManager->Create(entity, GuiManager);
+
+			CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
 		}
 
 	}

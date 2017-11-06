@@ -18,6 +18,10 @@ namespace SE
 			int width;
 			int height;
 			bool pressed;
+			std::string pressTex;
+			std::string hoverTex;
+			std::string idleTex;
+			double layerDepth;
 		};
 		class HUDButtons
 		{
@@ -27,7 +31,10 @@ namespace SE
 
 
 			
-			void HoverButton(HUDInputCheck InputCheck);
+			void HoverButton(HUDInputCheck InputCheck );
+			void texHovered(HUDInputCheck InputCheck);
+			void texPressed(HUDInputCheck InputCheck);
+			void texIdle(HUDInputCheck InputCheck);
 
 		private:
 

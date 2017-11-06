@@ -46,7 +46,15 @@ namespace SE
 			HUDParser();
 			~HUDParser();
 			void ParseFiles(Utilz::GUID fileName);
+			void InitiateTextures();
+			void checkPressed(bool pressed, int mousePosX, int mousePosY);
 
+			void HoverButton(bool pressed, int mousePosX, int mousePosY, HUDElement HUDButton);
+			void texHovered();
+			void texPressed();
+			void texIdle();
+
+			Core::IGUIManager::CreateInfo GuiManager;
 		private:
 
 		};
