@@ -5,6 +5,8 @@
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
+#include <Core\IEngine.h>
+#include <Gameplay/PlayerUnit.h>
 namespace SE
 {
 	namespace Gameplay
@@ -31,7 +33,7 @@ namespace SE
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
-			
+			std::vector<SE::Core::Entity> roomEntities;
 
 
 			/*Needed:
@@ -243,6 +245,11 @@ namespace SE
 			 */
 			inline bool PointInsideWall(float x, float y);
 
+			/**
+			* @brief Creates enteties for the room 
+			*/
+			void CreateEntities();
+
 
 		public:
 			Room(Utilz::GUID fileName);
@@ -250,6 +257,10 @@ namespace SE
 
 			float FloorCheck(int x, int y); 
 			
+			/**
+			* @brief Sets the enteties in the room to render or not
+			*/
+			void RenderRoom(bool render);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -397,6 +408,7 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
+
 
 			inline void GetMap(char toReturn[25][25])
 			{

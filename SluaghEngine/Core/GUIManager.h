@@ -171,6 +171,31 @@ namespace SE
 
 			};
 
+			inline void SetTexture(const Entity& entity, Utilz::GUID texture)override
+			{
+				auto texLoaded = textureGUID.find(texture);
+				if (texLoaded == textureGUID.end())
+				{
+					textureGUID[texture].textureHandle = -1;
+					initInfo.resourceHandler->LoadResource(texture, { this, &GUIManager::LoadTexture });
+				}
+				// chexk if entity exist in texture 
+				auto fileLoaded = entTextureID.find(entity);
+				if (fileLoaded != entTextureID.end())
+				{
+					textureGUID[fileLoaded->second.GUID].refCount--;
+					fileLoaded->second.GUID = texture;
+					textureGUID[fileLoaded->second.GUID].refCount++;
+					entTextureID[entity].textureHandle = textureGUID[texture].textureHandle;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
+				}
+
+
+			};
+
 
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc

@@ -171,6 +171,8 @@ namespace SE
 				subSystems.window->MapActionButton(5, Window::KeyM);
 				subSystems.window->MapActionButton(11, Window::KeyU);
 				subSystems.window->MapActionButton(12, Window::KeyJ);
+				subSystems.window->MapActionButton(13, Window::KeyO);
+				subSystems.window->MapActionButton(14, Window::KeyL);
 
 				console->Print("Start main loop!!\n");
 				Utilz::Timer time;
@@ -219,6 +221,14 @@ namespace SE
 						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 900);
 						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1440);
 						subSystems.optionsHandler->Trigger();
+					}
+					if (subSystems.window->ButtonPressed(13) == true)
+					{
+						managers.guiManager->SetTexture(entTexture3, Utilz::GUID("GUITest.sei"));
+					}
+					if (subSystems.window->ButtonPressed(14) == true)
+					{
+						managers.guiManager->SetTexture(entTexture3, Utilz::GUID("TransparentTest.sei"));
 					}
 					e->BeginFrame();
 					e->EndFrame();
