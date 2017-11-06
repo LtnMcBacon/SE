@@ -134,6 +134,7 @@
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />

@@ -17,13 +17,13 @@ PlayState::PlayState()
 
 }
 
-PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
+PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	this->input = Input;
 	this->engine = engine;
 
 	InitializeRooms();
-	InitializePlayer();
+	InitializePlayer(passedInfo);
 	InitializeOther();
 
 	BehaviourPointers temp;
@@ -140,7 +140,7 @@ void PlayState::InitializeRooms()
 	delete[] RoomArr;
 
 }
-void PlayState::InitializePlayer()
+void PlayState::InitializePlayer(void* playerInfo)
 {
 	char map[25][25];
 	currentRoom->GetMap(map);
@@ -169,7 +169,7 @@ void PlayState::InitializePlayer()
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
+				player = new Gameplay::PlayerUnit(((PlayStateData*)playerInfo)->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
 				player->SetZPosition(0.0f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
