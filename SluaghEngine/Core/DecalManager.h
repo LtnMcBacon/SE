@@ -19,11 +19,20 @@ namespace SE
 
 			/*@brief See IDecalManager
 			*/
-			int Create(const Entity& entity, const Utilz::GUID& textureName) override;
+			int Create(const Entity& entity, const DecalCreateInfo& createInfo) override;
 
 			/*@brief See IDecalManager
 			 */
 			int SetLocalTransform(const Entity& entity, float* transform16rowMajor) override;
+			
+			/*@brief See IDecalManager
+			*/
+			int SetOpacity(const Entity& entity, float opacity) override;
+
+			/*@brief See IDecalManager
+			*/
+			int ModifyOpacity(const Entity& entity, float amount) override;
+			
 			/*
 			* @brief See IDecalManager
 			*/
@@ -37,6 +46,7 @@ namespace SE
 			Utilz::GUID worldConstantBuffer;
 			Utilz::GUID inverseViewProj;
 			Utilz::GUID inverseWorld;
+			Utilz::GUID opacities;
 			Utilz::GUID blendState;
 			Utilz::GUID textureBindName;
 			Utilz::GUID rasterizerState;
@@ -48,6 +58,7 @@ namespace SE
 				std::vector<DirectX::XMFLOAT4X4> world;
 				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
 				std::vector<Entity> owners;
+				std::vector<float> opacity;
 			};
 			DirectX::XMMATRIX cachedViewProj;
 			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;

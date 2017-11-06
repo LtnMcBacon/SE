@@ -79,19 +79,19 @@ int main(int argc, char** argv)
 	AddTest(RenderableManagerTest);
 	AddTest(SkeletonAnimationTest);
 	//AddTest(INITest);
-	AddTest(MaterialManagerTest);
+	//AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
-	AddTest(RecordingProjectileTest);
+	//AddTest(RecordingProjectileTest);
 	AddTest(PlaybackProjectileTest);
 	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
 	//AddTest(ImageLoadTest);
 	//AddTest(BoundingTest);
 	//AddTest(AllocatorTest);
-	AddTest(LightTest);
+	//AddTest(LightTest);
 	//AddTest(RecordingTest);
-	AddTest(DebugRenderManagerTest);
-	//AddTest(InstancingTest);
+	//AddTest(DebugRenderManagerTest);
+	AddTest(InstancingTest);
 
 	//AddTest(FlowFieldTest);
 	//AddTest(EnemyMovementTest);
@@ -101,19 +101,20 @@ int main(int argc, char** argv)
 	//AddTest(BehavioursTest);
 	//AddTest(BehaviouralTreeFactoryTest);
 	//AddTest(EnemyFactoryTest);
-	//AddTest(GlaistigTest);
+	AddTest(GlaistigTest);
 	AddTest(SlaughTest);
 
 	AddTest(PickingTest);
 	AddTest(SkillTest);
 
+	//AddTest(PickingTest);
 	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
 	//AddTest(GarbageTest);
 	//AddTest(ConsoleTest);
 	//AddTest(TransformTest);
-	//AddTest(DecalTest);
+	AddTest(DecalTest);
 	AddTest(BloomTest);
 	//AddTest(RandRoomTest); 
 	AddTest(ThreadPoolTest);
