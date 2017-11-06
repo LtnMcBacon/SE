@@ -2,13 +2,12 @@
 #define _SE_GAMEPLAY_PLAYER_UNIT_H_
 
 #include "GameUnit.h"
-
+#include <Gameplay\SkillFactory.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
-
 		struct ProjectileData;
 		/**
 		*
@@ -167,7 +166,7 @@ namespace SE
 			float rotMov[2] = {};
 
 		private:
-			struct stats
+			struct Stats
 			{
 				//std::string characterName;
 				int str = 5;
@@ -176,19 +175,19 @@ namespace SE
 
 				//str
 				float health			 = 100.f;
-				float damage			 = 10.f;
+				float damage			 = 1.f;
 				float meleeMultiplier	 = 1.f;
 				float physicalResistance = 1.f;
 
 				//agi
-				float rangedDamage		= 10.f;
+				float rangedDamage		= 1.f;
 				float rangedMultiplier  = 1.f;
 				float movementSpeed		= 1.f;
 				//float healBonus			= 1.f;
 				//float attackSpeed		= 1.f;
 
 				//whi
-				float magicDamage		= 10.f;
+				float magicDamage		= 1.f;
 				float magicMultiplier	= 1.f;
 				float magicResistance	= 1.f;
 				float natureResistance	= 1.f;
@@ -196,37 +195,16 @@ namespace SE
 				float waterResistance	= 1.f;
 				
 				int armorCap			= 3;
-				/**
-				* @breif	A class used to make scripting easier when changing the players armor type.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* inventory.
-				**/
-				enum class equippedArmorType		  { LIGHT, MEDIUM, HEAVY, NONE };
-				/**
-				* @breif	A class used to make scripting easier when changing the players equipment.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* weapons.
-				**/
-				enum class equippedWeaponType		  { CLOSE, RANGED, MAGIC, NONE };
-				/**
-				* @breif	A class used to make scripting easier when changing the players equipment.
-				* @details	The class should be used for readablitity when switching items in the inventory.
-				*			The class does not inherit from other classes.
-				* @sa		*Coming* skills.
-				**/
-				enum class equippedElementalType	  { FIRE, WATER, NATURE, NONE};
 
-				equippedArmorType armor		  = equippedArmorType::NONE;
-				equippedWeaponType weapon	  = equippedWeaponType::NONE;
-				equippedElementalType element = equippedElementalType::NONE;
+				ArmourType armour		= ArmourType::ARMOUR_TYPE_NONE;
+				DamageSources weapon	= DamageSources::DAMAGE_SOURCE_MELEE;
+				DamageTypes element		= DamageTypes::DAMAGE_TYPE_PHYSICAL;
 
 				
 
 			};
-			stats baseStat;
-			stats newStat;
+			Stats baseStat;
+			Stats newStat;
 
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
@@ -250,30 +228,62 @@ namespace SE
 			* @brief	  Changes the equipped armor type.
 			* @param [in] The new given armor type.
 			**/
-			void changeArmorType(stats::equippedArmorType armor);
+			void changeArmorType(ArmourType armoUr);
 			/**
 			* @brief	  Changes the equipped weapon type.
 			* @param [in] The new given weapon type.
 			**/
-			void changeWeaponType(stats::equippedWeaponType weapon);
+			void changeWeaponType(DamageSources weapon);
 			/**
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(stats::equippedElementalType element);
+			void changeElementType(DamageTypes element);
+		
+		public:
+			struct Skill
+			{
+				std::string skillName = "";
+				DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
+				DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+				Boons boon = Boons::CONDITIONAL_BOONS_NONE;
+				Banes bane = Banes::CONDITIONAL_BANES_NONE;
+				unsigned short int animation = 0;
+				unsigned short int particle = 0;
+
+				float skillDamage = 0.f;
+				float boonEffectValue = 0.f;
+				float boonRange = 0.f;
+				float boonDuration = 0.f;
+				float baneEffectValue = 0.f;
+				float baneRange = 0.f;
+				float baneDuration = 0.f;
+			};
+
+		private:		
+			std::vector<Skill> skills;
+			std::vector<Skill> aiSkills;
+			
+			/**
+			* @brief		Removes all the skills from the list.
+			*
+			* @param[ín]	skills is the list that will be emptied.
+			**/
+			void flushSkills(std::vector<Skill> skills);
+			//void addPlayerSkills();
+			//void movePlayerSkillsToAI();
+
+			SkillFactory SF;
+
+			//void changeElementType(Gameplay::DamageTypes element);
 			
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
 		public:
-			
 			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
 		};
 
 	}
 }
-
-
-
-
 #endif

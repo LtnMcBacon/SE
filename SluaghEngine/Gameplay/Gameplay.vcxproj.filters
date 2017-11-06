@@ -139,6 +139,12 @@
     <Filter Include="Source Files\AI\Slaugh">
       <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Skills">
+      <UniqueIdentifier>{8c7d0cff-ebf2-481e-b455-7459d945c8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Skills">
+      <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -306,6 +312,9 @@
     <ClCompile Include="PechMeleeAttackLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
+    <ClCompile Include="SkillFactory.cpp">
+      <Filter>Source Files\Skills</Filter>
+    </ClCompile>
     <ClCompile Include="AnimationLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
@@ -349,9 +358,6 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PauseState.h">
       <Filter>Header Files\IGameState\PauseState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
-      <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h">
       <Filter>Header Files\AI\BehaviouralTree</Filter>
@@ -520,6 +526,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
+      <Filter>Header Files\GameUnits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
+      <Filter>Header Files\Skills</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
