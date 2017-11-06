@@ -322,7 +322,7 @@
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
     <ClCompile Include="InTheSameRoomAsThePlayerCondition.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

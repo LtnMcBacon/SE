@@ -1050,6 +1050,7 @@ Room::~Room()
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
 
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)

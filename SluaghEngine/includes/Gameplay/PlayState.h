@@ -8,6 +8,8 @@
 #include <Gameplay\ProjectileManager.h>
 #include <Gameplay\Projectile.h>
 #include <Gameplay\ProjectileData.h>
+#include "GameBlackboard.h"
+#include "EnemyFactory.h"
 
 namespace SE 
 {
@@ -49,6 +51,7 @@ namespace SE
 			
 		private:
 			void InitializeRooms();
+			void InitializeEnemies();
 			void InitializePlayer();
 			void InitializeOther();
 
@@ -60,6 +63,9 @@ namespace SE
 			PlayerUnit* player;
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
+			const int enemiesInEachRoom = 10;
+			Gameplay::GameBlackboard blackBoard;
+			Gameplay::EnemyFactory eFactory;
 
 			ProjectileManager* projectileManager;
 

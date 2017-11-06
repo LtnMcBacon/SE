@@ -2,6 +2,7 @@
 #include <Profiler.h>
 #include <Utilz\Tools.h>
 #include "CoreInit.h"
+#include "EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -23,6 +24,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 	this->engine = engine;
 
 	InitializeRooms();
+	InitializeEnemies();
 	InitializePlayer();
 	InitializeOther();
 
@@ -135,9 +137,50 @@ void PlayState::InitializeRooms()
 
 	}
 
-	currentRoom = rooms[0];
+	blackBoard.currentRoom = currentRoom = rooms[0];
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
+
+}
+void SE::Gameplay::PlayState::InitializeEnemies()
+{
+	char map[25][25];
+
+	EnemyCreationStruct eStruct;
+	EnemyUnit** enemies;
+
+	enemies = new EnemyUnit*[enemiesInEachRoom];
+	for(auto room : rooms)
+	{
+		room->GetMap(map);
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+
+			EnemyCreationData data;
+			data.type = ENEMY_TYPE_GLAISTIG;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
+		}
+
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			room->AddEnemyToRoom(enemies[i]);
+		}
+
+	}
+	delete[] enemies;
 
 }
 void PlayState::InitializePlayer()

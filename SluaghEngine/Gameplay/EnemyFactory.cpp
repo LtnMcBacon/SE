@@ -152,14 +152,13 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			cInfo.mesh = enemyCreationData->second.meshGUID;
 			cInfo.skeleton = enemyCreationData->second.skeletonGUID;
 			CoreInit::managers.animationManager->CreateAnimatedObject(createdEnemy->GetEntity(), cInfo);
-			// temp material
+			CoreInit::managers.animationManager->ToggleVisible(createdEnemy->GetEntity(), true);
 
 			Core::IMaterialManager::CreateInfo enemyInfo;
 			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
 			enemyInfo.shader = enemyCreationData->second.shaderGUID;
 			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
-			// end temp material
-			CoreInit::managers.renderableManager->ToggleRenderableObject(createdEnemy->GetEntity(), true);
+
 			unitArray[numberOfCreatedEnemies++] = createdEnemy;
 		}
 	}
