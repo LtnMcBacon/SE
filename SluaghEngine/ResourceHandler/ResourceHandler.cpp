@@ -11,7 +11,7 @@ void Push_(std::mutex& lock, const std::string&& msg)
 	lock.lock();
 }
 
-SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr)
+SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr), stop(false)
 {
 	
 }
@@ -21,7 +21,7 @@ SE::ResourceHandler::ResourceHandler::~ResourceHandler()
 {
 }
 
-int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& initInfo)
+int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& initInfo) 
 {
 	StartProfile;
 	this->initInfo = initInfo;
@@ -44,17 +44,44 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 		return res;
 	_ASSERT(diskLoader);
 
-	load_threadPool = new Utilz::ThreadPool(1);
-	invoke_threadPool = new Utilz::ThreadPool(2);
+	//load_threadPool = new Utilz::ThreadPool(2);
 
+	for (size_t i = 0; i < 1; ++i)
+		workers.emplace_back(
+			[this]
+	{
+		for (;;)
+		{
+			std::function<void()> task;
 
+			{
+				std::unique_lock<std::mutex> lock(this->queue_mutex);
+				this->condition.wait(lock,
+					[this] { return this->stop || !this->tasks.empty(); });
+				if (this->stop && this->tasks.empty())
+					return;
+				task = std::move(this->tasks.front());
+				this->tasks.pop();
+			}
+
+			task();
+		}
+	}
+	);
 	ProfileReturnConst(0);
 }
 
 void SE::ResourceHandler::ResourceHandler::Shutdown()
 {
-	delete load_threadPool;
-	delete invoke_threadPool;
+	//delete load_threadPool;
+	{
+		std::unique_lock<std::mutex> lock(queue_mutex);
+		stop = true;
+	}
+	condition.notify_all();
+	for (std::thread &worker : workers)
+		worker.join();
+
 	auto lam = [](auto& map) {
 		for (auto& r : map)
 		{
@@ -170,7 +197,21 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		if (load)
 		{
 			if (loadFlags & LoadFlags::ASYNC)
-				load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
+			{
+				{
+					std::unique_lock<std::mutex> lock(queue_mutex);
+
+					// don't allow enqueueing after stopping the pool
+					if (stop)
+						throw std::runtime_error("enqueue on stopped ThreadPool");
+
+					LoadJob c = { guid, callbacks, loadFlags };
+					auto asd = [this, &map, c]()->void { Load(&map, c); } ;
+					tasks.emplace(asd);
+				}
+				condition.notify_one();		
+			}
+				//load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
 			else
 				return Load(&map, { guid, callbacks, loadFlags });
 		}
@@ -190,6 +231,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		ProfileReturn(load(guidToVRAMEntry));
 	}
 
+	
 	ProfileReturnConst(0);
 }
 
@@ -251,11 +293,13 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 			return -1;
 		}
 
-
+		loadLock.unlock();
 		if (job.callbacks.loadCallback)
 		{
+			loadCallbackLock.lock();
 			auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-			loadLock.unlock();
+			loadCallbackLock.unlock();
+		
 			bool error = false;
 			Utilz::OperateSingle(*map, job.guid, [lresult,&error,&rawData](auto& resource)
 			{
@@ -278,7 +322,6 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		}
 		else
 		{
-			loadLock.unlock();
 			data = rawData;
 		}
 	}
