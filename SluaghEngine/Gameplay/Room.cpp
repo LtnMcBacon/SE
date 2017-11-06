@@ -974,8 +974,11 @@ void SE::Gameplay::Room::CreateEntities()
 					auto entFloor = CoreInit::managers.entityManager->Create();
 					cubeInfo.materialFile = FloorMat;
 					cubeInfo.shader = Norm;
+					CoreInit::managers.transformManager->Create(entFloor);
+					CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 					CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
-					CoreInit::managers.materialManager->Create(ent, cubeInfo);
+					CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
+					CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
 					roomEntities.push_back(entFloor);
 
 					cubeInfo.materialFile = DoorMat;
