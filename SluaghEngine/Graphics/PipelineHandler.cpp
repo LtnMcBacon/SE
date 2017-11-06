@@ -1405,6 +1405,12 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::CreateDepthStencilViewCube(const Utilz::GUID& id, size_t width, size_t height,
+	bool bindAsTexture)
+{
+	return 0;
+}
+
 int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
 {
 	auto dsv = depthStencilViews.find(id);
