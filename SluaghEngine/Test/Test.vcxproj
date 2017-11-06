@@ -176,7 +176,6 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="GameStateTest.cpp" />
     <ClCompile Include="GarbageTest.cpp" />
     <ClCompile Include="GlaistigTest.cpp" />
-    <ClCompile Include="HUDTest.cpp" />
     <ClCompile Include="ImageLoadTest.cpp" />
     <ClCompile Include="INITest.cpp" />
     <ClCompile Include="FlowFieldTest.cpp" />
@@ -198,6 +197,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="ShadowTest.cpp" />
     <ClCompile Include="SkeletonAnimationTest.cpp" />
     <ClCompile Include="SluaghTest.cpp" />
+    <ClCompile Include="SkillTest.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="ThreadPoolTest.cpp" />
     <ClCompile Include="TransformManagerTest.cpp" />
@@ -222,7 +222,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="GameStateTest.h" />
     <ClInclude Include="GarbageTest.h" />
     <ClInclude Include="GlaistigTest.h" />
-    <ClInclude Include="HUDTest.h" />
+    <ClInclude Include="SkillTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="INITest.h" />
     <ClInclude Include="InitGraphicsTest.h" />

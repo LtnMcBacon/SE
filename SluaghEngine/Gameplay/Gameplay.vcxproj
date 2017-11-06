@@ -72,6 +72,7 @@
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="StunnedCondition.cpp" />
+    <ClCompile Include="SkillFactory.cpp" />
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
