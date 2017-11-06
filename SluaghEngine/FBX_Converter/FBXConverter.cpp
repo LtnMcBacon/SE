@@ -1686,8 +1686,11 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
 			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
 
+			Utilz::GUID jointName = skeleton.hierarchy[jointIndex].Name;
+
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
+			outBinary.write(reinterpret_cast<char*>(&jointName), sizeof(Utilz::GUID));
 
 		}
 
@@ -1745,84 +1748,6 @@ void SE::FBX::FBXConverter::WriteAnimation(std::string folderName, vector<Animat
 
 		outBinary.close();
 	}
-
-	//if (skeleton.hierarchy.size() > 0) {
-
-	//	//Vector to hold the total amount of keyframes for all animations. Format supports up to five animations.
-	//	size_t nrOfAnimations = skeleton.hierarchy[0].Animations.size();
-	//	uint32_t nrOfJoints = (uint32_t)skeleton.hierarchy.size();
-
-	//	// Loop through each animation
-	//	for (int currentAnimationIndex = 0; currentAnimationIndex < nrOfAnimations; currentAnimationIndex++)
-	//	{
-	//		vector<XMFLOAT4X4> animationTransformations;
-	//		vector<uint32_t>joints;
-
-	//		// Get animation name
-	//		string animationName = skeleton.hierarchy[0].Animations[currentAnimationIndex].Name;
-	//		uint32_t animLength = 0;
-
-	//		// Loop through each joint in hierarchy ( Every joint has the same number of transformations as the length of the current animation )
-	//		for (int currentJointIndex = 0; currentJointIndex < (int)nrOfJoints; currentJointIndex++) {
-
-	//			uint32_t animationCount = (uint32_t)skeleton.hierarchy[currentJointIndex].Animations.size();
-
-	//			if (animationCount > 0) {
-
-	//				// Get number of keyframes for the current joint in the animation
-	//				uint32_t currentAnimLength = (uint32_t)skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes.size();
-
-	//				if (currentAnimLength > 0) {
-
-	//					// Update animation length
-	//					animLength = currentAnimLength;
-
-	//					// Push back index to belonging joint
-	//					joints.push_back(currentJointIndex);
-
-	//					// Loop through each keyframe in the current joint being processed
-	//					for (int currentKeyFrameIndex = 0; currentKeyFrameIndex < (int)currentAnimLength; currentKeyFrameIndex++) {
-
-	//						FbxAMatrix keyframe = skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes[currentKeyFrameIndex].GlobalTransform;
-	//						auto jointGlobalTransform = XMLoadFloat4x4(&Load4X4Transformations(keyframe));
-
-	//						// Transpose the matrix from column major to row major
-	//						XMFLOAT4X4 jbt;
-	//						XMStoreFloat4x4(&jbt, jointGlobalTransform);
-	//						animationTransformations.push_back(jbt);
-
-	//					}
-	//				}
-
-	//			}
-
-	//		}
-
-	//		// Define the file name
-	//		string binaryFile = folderName + "/" + animationName + "_" + fileName + ".anim";
-
-	//		// Define the ofstream 
-	//		ofstream outBinary(binaryFile, std::ios::binary);
-
-	//		uint32_t animationJoints = joints.size();
-
-	//		// Write the current animation length, the number of joints and the total amount of keyframes for the animation
-	//		outBinary.write(reinterpret_cast<char*>(&animationJoints), sizeof(uint32_t));
-	//		outBinary.write(reinterpret_cast<char*>(&animLength), sizeof(uint32_t));
-	//		outBinary.write(reinterpret_cast<char*>(joints.data()), sizeof(joints[0]) * joints.size());
-	//		outBinary.write(reinterpret_cast<char*>(animationTransformations.data()), sizeof(animationTransformations[0]) * animationTransformations.size());
-
-	//		cout << "[OK] Exported " << animationName << " to " << folderName << endl;
-
-	//		outBinary.close();
-	//	}
-
-	//}
-
-	//else {
-
-	//	cout << "[WARNING] No animations found" << endl;
-	//}
 
 }
 
