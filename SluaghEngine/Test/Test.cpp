@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
-	AddTest(ComputeTest);
+	//AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
 	//AddTest(WindowTest);
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 	//AddTest(TransformTest);
 	AddTest(DecalTest);
 	AddTest(BloomTest);
-	AddTest(RandRoomTest); 
+	//AddTest(RandRoomTest); 
 	AddTest(ThreadPoolTest);
   
 	volatile bool running = true;
