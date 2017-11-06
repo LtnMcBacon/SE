@@ -57,6 +57,7 @@ namespace SE
 			DirectX::XMMATRIX LocalTx;
 			DirectX::XMMATRIX inverseBindPoseMatrix;
 			unsigned int parentIndex;
+			Utilz::GUID jointName;
 			
 			Joint() {
 

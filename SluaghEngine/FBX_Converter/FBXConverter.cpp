@@ -1650,8 +1650,11 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
 			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
 
+			Utilz::GUID jointName = skeleton.hierarchy[jointIndex].Name;
+
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
+			outBinary.write(reinterpret_cast<char*>(&jointName), sizeof(Utilz::GUID));
 
 		}
 

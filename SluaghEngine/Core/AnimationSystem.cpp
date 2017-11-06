@@ -32,6 +32,7 @@ int SE::Core::AnimationSystem::AddSkeleton(const Utilz::GUID& guid, JointAttribu
 
 			joint.parentIndex = jointData[i].ParentIndex;
 			joint.inverseBindPoseMatrix = XMLoadFloat4x4((XMFLOAT4X4*)&jointData[i].bindposeMatrix);
+			joint.jointName = jointData[i].jointName;
 
 			skeleton.Hierarchy.push_back(joint);
 
