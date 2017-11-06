@@ -153,7 +153,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 	size_t newEntry = materialInfo.used++;
 	entityToMaterialInfo[entity] = newEntry;
 	materialInfo.entity[newEntry] = entity;
-	materialInfo.bloom[newEntry] = 0u;// info.bloom ? 1u : 0u;
+	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
 	materialInfo.shader[newEntry] = defaultPixelShader; 
 	materialInfo.material[newEntry] = defaultMaterialInfo;
 	materialInfo.materialGUID[newEntry] = defaultMaterial;
