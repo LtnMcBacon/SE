@@ -247,7 +247,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MELEE, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 

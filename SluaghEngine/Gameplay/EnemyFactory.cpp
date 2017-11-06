@@ -61,13 +61,13 @@ ResourceHandler::InvokeReturn EnemyFactory::LoadEnemyFromResourceHandler(const U
 	loadedEnemy.skeletonGUID = Utilz::GUID(GetLineData(line));
 	++line;
 	line->pop_back();
+	loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
+	++line;
+	line->pop_back();
 	loadedEnemy.materialGUID = Utilz::GUID(GetLineData(line));
 	++line;
 	line->pop_back();
 	loadedEnemy.shaderGUID = Utilz::GUID(GetLineData(line));
-	++line;
-	line->pop_back();
-	loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
 	++line;
 	line->pop_back();
 	loadedEnemy.baseDamage = GetLineDataAsInt(line);
@@ -155,11 +155,12 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			// temp material
 
 			Core::IMaterialManager::CreateInfo enemyInfo;
-			enemyInfo.shader = enemyCreationData->second.materialGUID;
-			enemyInfo.materialFile = enemyCreationData->second.shaderGUID;
+			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
+			enemyInfo.shader = enemyCreationData->second.shaderGUID;
 			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
 			// end temp material
 			CoreInit::managers.renderableManager->ToggleRenderableObject(createdEnemy->GetEntity(), true);
+			unitArray[numberOfCreatedEnemies++] = createdEnemy;
 		}
 	}
 	

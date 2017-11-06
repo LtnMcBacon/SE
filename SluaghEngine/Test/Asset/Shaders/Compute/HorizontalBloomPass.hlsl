@@ -1,7 +1,7 @@
-static const int2 RESOLUTION = { 640, 360 };
+static const int2 RESOLUTION = { 512, 288 };
 
 
-static const int3 DISPATCH_SIZE = { 16, 15, 1 };
+static const int3 DISPATCH_SIZE = { 16, 9, 1 };
 static const int3 GROUP_SIZE = { 32, 32, 1 };
 
 static const int KERNEL_RADIUS = 32;
@@ -36,7 +36,7 @@ void CS_main(int3 groupIndex_3d : SV_GroupID, int threadIndex : SV_GroupIndex)
         for (int pixelOffset = -KERNEL_RADIUS; pixelOffset <= KERNEL_RADIUS; pixelOffset++)
         {
             int offsetRowIndex = pixelIndex_2d.x + pixelOffset;
-            int kernelOffset = (min(0, offsetRowIndex) + max(0, offsetRowIndex - (RESOLUTION.x - 1))) * -2;
+            int kernelOffset = (min(0, offsetRowIndex) + max(0, offsetRowIndex - RESOLUTION.x)) * -2;
 
             blurredColor += groupMemory[threadIndex + pixelOffset + kernelOffset];
         }
