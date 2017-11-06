@@ -232,7 +232,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	UpdateInput(movementInput, actionInput);
 
-	player->UpdateMovement(input->GetDelta(), movementInput);
+	player->UpdateMovement(input->GetDelta() * 3.0f, movementInput);
 	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
