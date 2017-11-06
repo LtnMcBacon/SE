@@ -1,8 +1,8 @@
 
-cbuffer LightDataBuffer : register(b0)
+cbuffer LightShadowDataBuffer : register(b0)
 {
 	float4 LightPosWorld;
-	float LightRange;
+	float4 LightRange;
 };
 
 struct PS_IN
@@ -14,5 +14,5 @@ struct PS_IN
 
 float PS_main(PS_IN input) : SV_Depth
 {
-	return length(input.LightDirWorld) / LightRange;
+	return length(input.LightDirWorld) / LightRange.x;
 }

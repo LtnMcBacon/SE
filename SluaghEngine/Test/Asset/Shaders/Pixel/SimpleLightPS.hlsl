@@ -2,7 +2,7 @@ Texture2D DiffuseColor : register(t0);
 
 Texture2D NormalMap : register(t1);
 
-Texture2D ShadowMap : register(t2);
+TextureCube ShadowMap : register(t2);
 
 SamplerState sampAni : register(s0);
 SamplerState sampPoint : register(s1);
@@ -70,38 +70,45 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
 		float3 calcDiffuse = normalDotLight * pointLights[i].colour.xyz * (DiffuseColor.Sample(sampAni, input.Tex).xyz * diffuse.xyz);
 		
-		if(pointLights[i].castShadow.x == 1){
+		//if(pointLights[i].castShadow.x == 1){
+		//
+		//	float4 lPos = mul(input.PosInW, lViewProj);
+		//
+		//	// Division by w
+		//	lPos.xyz /= lPos.w;
+		//	
+		//	// From light space to texture space "[-1, 1] to [0, 1]";
+		//	float2 ProjTexC = float2(0.5f * lPos.x + 0.5f, -0.5f * lPos.y + 0.5f);
+		//	
+		//	// Get pixels distance from the light and define a depth bias
+		//	float depth = lPos.z;
+		//	float depthBias = 0.00032f;
+		//	
+		//	// Texture sampling uses the texel position to look up a texel value. An offset can be applied to the position before lookup.
+		//	// Sample shadow map to get nearest depth to the light and add 
+		//	
+		//	float s0 = (ShadowMap.Sample(sampPoint, ProjTexC.xy).r + depthBias < depth) ? 0.25f : 1.0f;
+		//	float s1 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, 0.0f)).r + depthBias < depth) ? 0.25f : 1.0f;
+		//	float s2 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(0.0f, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
+		//	float s3 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
+		//	
+		//	// Transform to texel space
+		//	float2 texelPos = MAP_SIZE * ProjTexC.xy;
+		//	
+		//	// Determine the interpolation amount
+		//	float2 t = frac(texelPos);
+		//	
+		//	// Interpolate results
+		//	shadowFactor = lerp(lerp(s0, s1, t.x), lerp(s2, s3, t.x), t.y);
+		//
+		//}
 		
-			float4 lPos = mul(input.PosInW, lViewProj);
-		
-			// Division by w
-			lPos.xyz /= lPos.w;
-			
-			// From light space to texture space "[-1, 1] to [0, 1]";
-			float2 ProjTexC = float2(0.5f * lPos.x + 0.5f, -0.5f * lPos.y + 0.5f);
-			
-			// Get pixels distance from the light and define a depth bias
-			float depth = lPos.z;
-			float depthBias = 0.00032f;
-			
-			// Texture sampling uses the texel position to look up a texel value. An offset can be applied to the position before lookup.
-			// Sample shadow map to get nearest depth to the light and add 
-			
-			float s0 = (ShadowMap.Sample(sampPoint, ProjTexC.xy).r + depthBias < depth) ? 0.25f : 1.0f;
-			float s1 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, 0.0f)).r + depthBias < depth) ? 0.25f : 1.0f;
-			float s2 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(0.0f, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
-			float s3 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
-			
-			// Transform to texel space
-			float2 texelPos = MAP_SIZE * ProjTexC.xy;
-			
-			// Determine the interpolation amount
-			float2 t = frac(texelPos);
-			
-			// Interpolate results
-			shadowFactor = lerp(lerp(s0, s1, t.x), lerp(s2, s3, t.x), t.y);
-		
-		}
+		float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
+		float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+		float4 lPos = mul(input.PosInW, lViewProj);
+		lPos.xyz /= lPos.w;
+		if(mapDepth + 0.00128f < lPos.z)
+			shadowFactor = 0.5f;
 		
 		//Calculate specular term
 		float3 V = cameraPos.xyz - input.PosInW.xyz;

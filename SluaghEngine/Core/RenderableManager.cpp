@@ -184,7 +184,7 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
 
-	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
+	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "DepthCube";
 
 	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
 
@@ -196,13 +196,15 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 {
 	info->pipeline.OMStage.renderTargets[0] = Utilz::GUID();
 	info->pipeline.OMStage.renderTargetCount = 1;
-	info->pipeline.OMStage.depthStencilView = "shadowMapDSV";
+	info->pipeline.OMStage.depthStencilView = "DepthCube";
 
-	info->pipeline.VSStage.shader = defaultVertexShadowShader;
-	info->pipeline.PSStage.shader = Utilz::GUID();
+	info->pipeline.VSStage.shader = "CubeDepthVS.hlsl";
+	info->pipeline.GSStage.shader = "CubeDepthGS.hlsl";
+	info->pipeline.PSStage.shader = "CubeDepthPS.hlsl";
+
 
 	info->pipeline.IAStage.vertexBuffer = renderableObjectInfo.mesh[index];
-	info->pipeline.IAStage.inputLayout = defaultVertexShadowShader;
+	info->pipeline.IAStage.inputLayout = "CubeDepthVS.hlsl";
 	info->pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 
 	info->pipeline.RStage.rasterizerState = solid;
@@ -441,9 +443,38 @@ void SE::Core::RenderableManager::Init()
 
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
-
-	if(res < 0)
+	if (res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
+
+	res = initInfo.resourceHandler->LoadResource("CubeDepthVS.hlsl", [this](auto guid, void* data, size_t size)
+	{
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (status < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return  ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if (res < 0)
+		throw std::exception("Could not load depthShader");
+
+	res = initInfo.resourceHandler->LoadResource("CubeDepthGS.hlsl", [this](auto guid, void* data, size_t size)
+	{
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
+		if (status < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return  ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if (res < 0)
+		throw std::exception("Could not load depthShader");
+
+	res = initInfo.resourceHandler->LoadResource("CubeDepthPS.hlsl", [this](auto guid, void* data, size_t size)
+	{
+		int status = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (status < 0)
+			return ResourceHandler::InvokeReturn::Fail;
+		return  ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	if (res < 0)
+		throw std::exception("Could not load depthShader");
 
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
@@ -478,8 +509,8 @@ void SE::Core::RenderableManager::Init()
 	this->initInfo.renderer->GetPipelineHandler()->CreateDepthStencilView("shadowMapDSV", 1024, 1024, true);
 	Graphics::Viewport vp;
 
-	vp.width = 1024;
-	vp.height = 1024;
+	vp.width = 512;
+	vp.height = 512;
 	vp.maxDepth = 1.0f;
 	vp.minDepth = 0.0f;
 	vp.topLeftX = 0.0f;
@@ -562,7 +593,7 @@ void SE::Core::RenderableManager::LoadResource(const Utilz::GUID& meshGUID, size
 {
 	StartProfile;
 	// Load model
-	auto& findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
+	auto findBuffer = guidToBufferInfo.find(meshGUID); // See if it the mesh is loaded.
 	auto& bufferInfo = guidToBufferInfo[meshGUID]; // Get a reference to the buffer index
 	bufferLock.lock();
 	renderableObjectInfo.mesh[newEntry] = defaultMesh;

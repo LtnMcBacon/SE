@@ -60,9 +60,13 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
 	// Create entities
-	auto& mainC = managers.entityManager->Create();
-	auto& floor = managers.entityManager->Create();
-	auto& camera = managers.entityManager->Create();
+	auto mainC = managers.entityManager->Create();
+	auto floor = managers.entityManager->Create();
+	auto camera = managers.entityManager->Create();
+
+	auto box2 = managers.entityManager->Create();
+	auto box3 = managers.entityManager->Create();
+	auto box4 = managers.entityManager->Create();
 
 	// Create camera
 	managers.cameraManager->Create(camera);
@@ -90,7 +94,14 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	managers.transformManager->Create(mainC);
 	managers.transformManager->Create(floor);
 
-	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	managers.transformManager->Create(box2);
+	managers.transformManager->Create(box3);
+	managers.transformManager->Create(box4);
+	managers.transformManager->SetPosition(box2, DirectX::XMFLOAT3(6.0f, 0.0f, 0.0f));
+	managers.transformManager->SetPosition(box3, DirectX::XMFLOAT3(-6.0f, 0.0f, 0.0f));
+	managers.transformManager->SetPosition(box4, DirectX::XMFLOAT3(0.0f, 0.0f, 6.0f));
+
+	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, -6.0f));
 
 	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(0.0f, -0.9f, 5.0));
 	managers.transformManager->SetRotation(floor, 0.0f, 0.0f, 0.0f);
@@ -110,6 +121,9 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	floorInfo.materialFile = floorMaterial;
 
 	managers.materialManager->Create(mainC, info, true);
+	managers.materialManager->Create(box2, info, true);
+	managers.materialManager->Create(box3, info, true);
+	managers.materialManager->Create(box4, info, true);
 	managers.materialManager->Create(floor, floorInfo, true);
 
 	// Create renderable objects from the entities
@@ -117,14 +131,26 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 	managers.renderableManager->ToggleShadow(mainC, true);
 
+	managers.renderableManager->CreateRenderableObject(box2, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->ToggleRenderableObject(box2, true);
+	managers.renderableManager->ToggleShadow(box2, true);
+
+	managers.renderableManager->CreateRenderableObject(box3, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->ToggleRenderableObject(box3, true);
+	managers.renderableManager->ToggleShadow(box3, true);
+
+	managers.renderableManager->CreateRenderableObject(box4, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->ToggleRenderableObject(box4, true);
+	managers.renderableManager->ToggleShadow(box4, true);
+
 	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" }, false);
 	managers.renderableManager->ToggleRenderableObject(floor, true);
 
 	// Create light
-	auto& l = managers.entityManager->Create();
+	auto l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
-	d.pos = { 0.0f, 3.0f, -3.0f };
+	d.pos = { 0.0f, 3.0f, 0.0f };
 	d.color = { 1, 1, 1 };
 	d.dir = { 0.0f, 0.0f, 1.0f };
 	d.castShadow = true;
@@ -132,7 +158,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
-
+	managers.lightManager->SetShadowCaster(l);
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 
 	bool running = true;
@@ -173,6 +199,9 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 		if (subSystem.window->ButtonDown(ActionButton::TL))
 			managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
 		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(box2, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(box3, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(box4, 0.0f, 0.01f, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 		engine->BeginFrame();

@@ -149,7 +149,8 @@ namespace SE {
 
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
 			}
-
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
+			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
 			timer->Stop(CREATE_ID_HASH("LightManger"));
 			StopProfile;
 		}
@@ -174,6 +175,38 @@ namespace SE {
 				Destroy(i);
 			}
 			StopProfile;
+		}
+
+		void LightManager::SetShadowCaster(const Entity& entity)
+		{
+			const auto exists = entityToLightData.find(entity);
+			if (exists == entityToLightData.end())
+				return;
+
+			DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
+			const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
+												{ 1.0f, 0.0f, 0.0f, 0.0f },
+												{ 0.0f, 1.0f, 0.0f, 0.0f },
+												{ 0.0f, -1.0f, 0.0f, 0.0f },
+												{ 0.0f, 0.0f, 1.0f, 0.0f },
+												{ 0.0f, 0.0f, -1.0f, 0.0f } };
+			const DirectX::XMVECTOR ups[] = { { 0.0f, 1.0f, 0.0f, 0.0f },
+											{ 1.0f, 1.0f, 0.0f, 0.0f },
+											{ 0.0f, 0.0f, -1.0f, 0.0f },
+											{ 0.0f, 0.0f, 1.0f, 0.0f },
+											{ 0.0f, 1.0f, 0.0f, 0.0f },
+											{ 0.0f, 1.0f, 0.0f, 0.0f } };
+			DirectX::XMFLOAT3 lpos = initInfo.transformManager->GetPosition(exists->first);
+			const DirectX::XMVECTOR vpos = DirectX::XMLoadFloat3(&lpos);
+			for(int i = 0; i < 6; ++i)
+			{
+				const DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH(vpos, looks[i], ups[i]);
+				DirectX::XMStoreFloat4x4(&lightVPBuffer.viewProjections[i], DirectX::XMMatrixTranspose(view * proj));
+			}
+
+			lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, 1.0f);
+			lightShadowDataBuffer.range = { 20.0f, 0.0f, 0.0f, 0.0f };
+
 		}
 
 		void LightManager::Destroy(size_t index)

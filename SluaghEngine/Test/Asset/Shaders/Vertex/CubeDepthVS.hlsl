@@ -1,7 +1,7 @@
-cbuffer LightDataBuffer : register(b0)
+cbuffer LightShadowDataBuffer : register(b0)
 {
 	float4 LightPosWorld;
-	float LightRange;
+	float4 LightRange;
 };
 
 cbuffer OncePerObject : register(b1)

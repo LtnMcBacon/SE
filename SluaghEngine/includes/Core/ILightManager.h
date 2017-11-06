@@ -44,6 +44,8 @@ namespace SE
 
 			virtual void ToggleLight(const Entity& entity, bool show) = 0;
 
+			virtual void SetShadowCaster(const Entity& entity) = 0;
+
 		protected:
 			ILightManager() {};
 	
