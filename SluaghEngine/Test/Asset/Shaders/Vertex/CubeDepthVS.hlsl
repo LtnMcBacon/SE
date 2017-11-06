@@ -1,7 +1,7 @@
 cbuffer LightWorldPos
 {
 	float4 LightPosWorld;
-}
+};
 
 cbuffer OncePerObject : register(b1)
 {
