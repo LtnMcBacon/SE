@@ -214,7 +214,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_RANGED, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "NuckelaveeMeleeProjectile.SEP";
 
@@ -333,17 +333,22 @@ void SE::Gameplay::PlayerUnit::calcWhiChanges()
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::changeArmorType(stats::equippedArmorType armor)
+void SE::Gameplay::PlayerUnit::changeArmorType(ArmourType armour)
 {
-	newStat.armor = armor;
+	newStat.armour = armour;
 }
-void SE::Gameplay::PlayerUnit::changeWeaponType(stats::equippedWeaponType weapon)
+void SE::Gameplay::PlayerUnit::changeWeaponType(DamageSources weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(stats::equippedElementalType element)
+void SE::Gameplay::PlayerUnit::changeElementType(DamageTypes element)
 {
 	newStat.element = element;
+}
+
+void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
+{
+	skills.clear();
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
