@@ -117,19 +117,11 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	StopProfile;
 }
 
-
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
-
-	/*auto& ai = animationData.animInfo[0];
-	auto& ai2 = animationData.animInfo[1];
-	ai.timePos += ai.animationSpeed*dt;
-	ai2.timePos += ai2.animationSpeed*dt;
-
-	animationSystem->CalculateLayering(animationData.entity[0], ai, ai2);*/
 
 	for (size_t i = 0; i < animationData.used; i++)
 	{
@@ -192,7 +184,12 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		animationData.animInfo[entityIndex->second].animationSpeed[0] = speed;
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			animationData.animInfo[entityIndex->second].animationSpeed[i] = speed;
+		}
 	}
 	StopProfile;
 }
@@ -205,9 +202,14 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 	if (entityIndex != entityToIndex.end())
 	{
 		auto& ai = animationData.animInfo[entityIndex->second];
-		ai.timePos[0] = keyFrame;
-		animationData.playing[entityIndex->second] = 0u;
-		animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			ai.timePos[i] = keyFrame;
+			animationData.playing[entityIndex->second] = 0u;
+			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+
+		}
 	}
 	StopProfile;
 }
@@ -221,13 +223,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, bool looping)const
 	{
 		if (renderableManager->IsVisible(entity))
 		{
-			if (animationSystem->IsAnimationLoaded(animationData.animInfo[entityIndex->second].animation[0]))
-			{
-				auto& ai = animationData.animInfo[entityIndex->second];
+			auto& ai = animationData.animInfo[entityIndex->second];
 
-				ai.looping[0] = looping;
-				animationData.playing[entityIndex->second] = 1u;
-				
+			for(size_t i = 0; i < ai.nrOfLayers; i++){
+
+				if (animationSystem->IsAnimationLoaded(ai.animation[i]))
+				{
+
+					ai.looping[i] = looping;
+					animationData.playing[entityIndex->second] = 1u;
+					
+				}
+
 			}
 		}
 	}

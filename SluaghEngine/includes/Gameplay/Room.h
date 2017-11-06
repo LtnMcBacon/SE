@@ -250,6 +250,10 @@ namespace SE
 			*/
 			void CreateEntities();
 
+			/**
+			* @brief Creates wall ent for the room
+			*/
+			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
 		public:
 			Room(Utilz::GUID fileName);
