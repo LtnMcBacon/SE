@@ -163,14 +163,15 @@ void PlayState::InitializePlayer()
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
-				player->SetZPosition(0.0f);
+				
+				player->SetZPosition(1.0f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
 			}
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
+	//CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 
 	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
@@ -200,7 +201,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false);
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
 	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
 	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 

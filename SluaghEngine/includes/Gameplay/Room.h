@@ -409,11 +409,6 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
-			/**
-			* @brief Set start pos to player. 
-			*/
-			void PlayerStartPos(PlayerUnit* player); 
-
 
 			inline void GetMap(char toReturn[25][25])
 			{
