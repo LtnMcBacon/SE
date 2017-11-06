@@ -215,7 +215,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	//-----------------------
 
 	/*Move the entity in the normalized direction*/
-	MoveEntity(xMovement * dt, yMovement * dt);
+	MoveEntity(xMovement * dt * newStat.movementSpeed, yMovement * dt * newStat.movementSpeed);
 	StopProfile;
 }
 
@@ -223,43 +223,40 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
-	/*
-	if (skills[0]->CurrentCooldown() <= 0.0f && input.skill1Button) 
-	{
-		ProjectileData temp;
 
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = skills[0]->GetDamageEvent();
-		temp.healingEvent = skills[0]->GetHealingEvent();
-		temp.conditionEvent = skills[0]->GetConditionEvent();
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = skills[0]->GetProjectileFilename();
+	//if (skills[0].coolDown <= 0.0f && input.skill1Button) 
+	//{
+	//	ProjectileData temp;
 
-		newProjectiles.push_back(temp);
-	}
-	*/
+	//	temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+	//	temp.startPosX = this->xPos;
+	//	temp.startPosY = this->yPos;
+	//	temp.target = ValidTarget::ENEMIES;
+	//	temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
+	//	//temp.healingEvent = skills[0]->GetHealingEvent();
+	//	//temp.conditionEvent = skills[0]->GetConditionEvent();
+	//	temp.ownerUnit = mySelf;
+	//	temp.fileNameGuid = skills[0].projectileFileGUID();
 
-	/*
-	if (skills[1]->CurrentCooldown() <= 0.0f && input.skill2Button)
-	{
-	ProjectileData temp;
+	//	newProjectiles.push_back(temp);
+	//}
 
-	temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-	temp.startPosX = this->xPos;
-	temp.startPosY = this->yPos;
-	temp.target = ValidTarget::ENEMIES;
-	temp.eventDamage = skills[1]->GetDamageEvent();
-	temp.healingEvent = skills[1]->GetHealingEvent();
-	temp.conditionEvent = skills[1]->GetConditionEvent();
-	temp.ownerUnit = mySelf;
-	temp.fileNameGuid = skills[1]->GetProjectileFilename();
+	//if (skills[1].coolDown <= 0.0f && input.skill2Button) 
+	//{
+	//	ProjectileData temp;
 
-	newProjectiles.push_back(temp);
-	}
-	*/
+	//	temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+	//	temp.startPosX = this->xPos;
+	//	temp.startPosY = this->yPos;
+	//	temp.target = ValidTarget::ENEMIES;
+	//	temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
+	//	//temp.healingEvent = skills[1]->GetHealingEvent();
+	//	//temp.conditionEvent = skills[1]->GetConditionEvent();
+	//	temp.ownerUnit = mySelf;
+	//	temp.fileNameGuid = skills[1].projectileFileGUID();
+
+	//	newProjectiles.push_back(temp);
+	//}
 
 	if (input.skill1Button) 
 	{
@@ -284,7 +281,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageEvent::DamageSources::DAMAGE_SOURCE_MELEE, DamageEvent::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 

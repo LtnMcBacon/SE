@@ -3,12 +3,35 @@
 
 #include "GameUnit.h"
 #include <Gameplay\SkillFactory.h>
+#include <Utilz\GUID.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
 		struct ProjectileData;
+
+		struct Skill
+		{
+			std::string skillName = "";
+			DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
+			DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+			Boons boon = Boons::CONDITIONAL_BOONS_NONE;
+			Banes bane = Banes::CONDITIONAL_BANES_NONE;
+			unsigned short int animation = 0;
+			unsigned short int particle = 0;
+
+			float skillDamage = 0.f;
+			float boonEffectValue = 0.f;
+			float boonRange = 0.f;
+			float boonDuration = 0.f;
+			float baneEffectValue = 0.f;
+			float baneRange = 0.f;
+			float baneDuration = 0.f;
+			float coolDown = 0.f;
+			Utilz::GUID projectileFileGUID;
+		};
+
 		/**
 		*
 		* @brief The player class
@@ -182,7 +205,7 @@ namespace SE
 				//agi
 				float rangedDamage		= 1.f;
 				float rangedMultiplier  = 1.f;
-				float movementSpeed		= 1.f;
+				float movementSpeed		= 5.f;
 				//float healBonus			= 1.f;
 				//float attackSpeed		= 1.f;
 
@@ -205,9 +228,6 @@ namespace SE
 			};
 			Stats baseStat;
 			Stats newStat;
-
-			std::vector<void*> skills;
-			std::vector<void*> perks;
 
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
@@ -244,28 +264,10 @@ namespace SE
 			void changeElementType(DamageTypes element);
 		
 		public:
-			struct Skill
-			{
-				std::string skillName = "";
-				DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
-				DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-				Boons boon = Boons::CONDITIONAL_BOONS_NONE;
-				Banes bane = Banes::CONDITIONAL_BANES_NONE;
-				unsigned short int animation = 0;
-				unsigned short int particle = 0;
 
-				float skillDamage = 0.f;
-				float boonEffectValue = 0.f;
-				float boonRange = 0.f;
-				float boonDuration = 0.f;
-				float baneEffectValue = 0.f;
-				float baneRange = 0.f;
-				float baneDuration = 0.f;
-			};
 
 		private:		
 			std::vector<Skill> skills;
-			std::vector<Skill> aiSkills;
 			
 			/**
 			* @brief		Removes all the skills from the list.

@@ -80,6 +80,8 @@ namespace SE
 			/*Int/Float for amount?*/
 			float amount;
 			float originalAmount;
+			DamageSources source;
+			DamageTypes type;
 
 			DamageEvent()
 			{
