@@ -44,6 +44,7 @@
 #include "DecalTest.h"
 #include "ShadowTest.h"
 #include "ComputeTest.h"
+#include "SkillTest.h"
 #include "ThreadPoolTest.h"
 
 #ifdef _DEBUG
@@ -73,44 +74,44 @@ int main(int argc, char** argv)
 	//AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
-	//AddTest(WindowTest);
-	//AddTest(ObjLoaderTest);
+	AddTest(WindowTest);
+	////AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
 	AddTest(SkeletonAnimationTest);
-	//AddTest(INITest);
+	AddTest(INITest);
 	AddTest(MaterialManagerTest);
 	AddTest(AudioTest);
-	AddTest(RecordingProjectileTest);
+	//AddTest(RecordingProjectileTest);
 	AddTest(PlaybackProjectileTest);
 	//AddTest(InitGraphicsTest);
 	AddTest(TransformManagerTest);
-	//AddTest(ImageLoadTest);
-	//AddTest(BoundingTest);
-	//AddTest(AllocatorTest);
+	AddTest(ImageLoadTest);
+	AddTest(BoundingTest);
+	AddTest(AllocatorTest);
 	AddTest(LightTest);
 	//AddTest(RecordingTest);
 	AddTest(DebugRenderManagerTest);
-	//AddTest(InstancingTest);
+	AddTest(InstancingTest);
 
-	//AddTest(FlowFieldTest);
-	//AddTest(EnemyMovementTest);
-	//AddTest(RoomCreationTest);
-	//AddTest(PlayerMovementTest);
-	//AddTest(GameStateTest);
-	//AddTest(BehavioursTest);
-	//AddTest(BehaviouralTreeFactoryTest);
-	//AddTest(EnemyFactoryTest);
-	//AddTest(GlaistigTest);
+	AddTest(FlowFieldTest);
+	AddTest(EnemyMovementTest);
+	AddTest(RoomCreationTest);
+	AddTest(PlayerMovementTest);
+	AddTest(GameStateTest);
+	AddTest(BehavioursTest);
+	AddTest(BehaviouralTreeFactoryTest);
+	AddTest(EnemyFactoryTest);
+	AddTest(GlaistigTest);
 	AddTest(SlaughTest);
 
-	//AddTest(PickingTest);
+	AddTest(PickingTest);
 	AddTest(ShadowTest);
   
 	AddTest(ProjectileTest);
-	//AddTest(GarbageTest);
-	//AddTest(ConsoleTest);
-	//AddTest(TransformTest);
-	//AddTest(DecalTest);
+	AddTest(GarbageTest);
+	AddTest(ConsoleTest);
+	AddTest(TransformTest);
+	AddTest(DecalTest);
 	AddTest(BloomTest);
 	//AddTest(RandRoomTest); 
 	AddTest(ThreadPoolTest);
