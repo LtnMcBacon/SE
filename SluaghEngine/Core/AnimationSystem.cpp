@@ -199,7 +199,7 @@ void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, 
 
 	XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-	XMStoreFloat4x4(&out, XMMatrixTranspose(XMMatrixAffineTransformation(S, zero, Q, T)));
+	XMStoreFloat4x4(&out, XMMatrixAffineTransformation(S, zero, Q, T));
 
 }
 
