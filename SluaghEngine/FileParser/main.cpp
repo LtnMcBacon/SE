@@ -194,13 +194,21 @@ int main(int argc, char* argv[])
 			}
 		}
 		std::ofstream gE;
-		gE.open("rawLoaderEntries.txt", std::ios::trunc);
+		auto s = std::string(argv[argc - 1]) + "/../rawLoaderEntries.txt";
+		gE.open(s, std::ios::trunc);
+
 		if (gE.is_open())
 		{
 			for (auto& f : acceptedFiles)
+			{
 				gE << f << std::endl;
+				gE << Utilz::GUID(f).id << std::endl;
+		
+			}				
 			gE << std::string(argv[argc - 1]) + "/RoomGeneration.txt" << std::endl;
+			gE << Utilz::GUID((std::string(argv[argc - 1]) + "/RoomGeneration.txt")).id <<  std::endl;
 		}
+
 
 		std::ofstream RM; 
 		RM.open(std::string(argv[argc - 1]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary);

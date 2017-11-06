@@ -23,7 +23,7 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[info.texture].textureHandle = -1;
-				initInfo.resourceHandler->LoadResource(info.texture, [this](auto guid, auto data, auto size) {
+				auto res  = initInfo.resourceHandler->LoadResource(info.texture, [this](auto guid, auto data, auto size) {
 					Graphics::TextureDesc td;
 					memcpy(&td, data, sizeof(td));
 					/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
@@ -39,6 +39,8 @@ namespace SE {
 					textureGUID[guid].width = td.width; 
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
+				if (res < 0)
+					textureGUID[info.texture].textureHandle = 0;
 			}
 
 			// Check if the entity is alive

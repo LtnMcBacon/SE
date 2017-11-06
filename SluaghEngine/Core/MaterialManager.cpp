@@ -2,14 +2,13 @@
 #include <Profiler.h>
 //#include <Utilz\Console.h>
 
-static const SE::Utilz::GUID defaultMaterial("Cube.mat");
+static const SE::Utilz::GUID defaultMaterial("default.mat");
 static const SE::Utilz::GUID defaultTexture("BlackPink.sei");
 static const SE::Utilz::GUID defaultPixelShader("SimplePS.hlsl");
 static const SE::Utilz::GUID defaultTextureBinding("DiffuseColor");
 static const SE::Utilz::GUID defaultSampler("AnisotropicSampler");
 static const SE::Utilz::GUID backBuffer("backbuffer");
 static const SE::Utilz::GUID bloomTarget("bloomTarget");
-
 
 SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn)//, mLoading(initInfo.renderer, initInfo.resourceHandler)
 {
@@ -103,7 +102,7 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 		initInfo.renderer->GetPipelineHandler()->DestroyTexture(guid);
 	};
 
-	res = initInfo.resourceHandler->LoadResource(defaultMaterialInfo->textureInfo.textures[0], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	res = initInfo.resourceHandler->LoadResource(defaultTexture, textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load default texture");
 

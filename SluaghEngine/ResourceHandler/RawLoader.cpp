@@ -39,6 +39,9 @@ int SE::ResourceHandler::RawLoader::Initialize()
 		file.close();
 
 		resourceEntires[nh] = { eh, s, Utilz::removeExtension( name), size };
+
+		getline(in, s);
+		auto guid = s;
 	}
 	in.close();
 	ProfileReturnConst(0);
