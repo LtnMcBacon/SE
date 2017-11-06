@@ -17,6 +17,8 @@ namespace SE {
 			auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(LightDataBuffer));
 			if (result < 0)
 				throw std::exception("Could not create LightDataBuffer");
+
+			result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
 		}
 
 		LightManager::~LightManager()
