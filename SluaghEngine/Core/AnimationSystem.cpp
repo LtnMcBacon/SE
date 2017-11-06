@@ -92,7 +92,7 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 			}
 
 			// Push back the animation at the corresponding joint index in the given skeleton
-			currentAnimation.Joints[joints[i]] = jointKeyFrame;
+			currentAnimation.Joints.push_back( jointKeyFrame);
 			
 		}
 
