@@ -116,19 +116,11 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	StopProfile;
 }
 
-
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(CREATE_ID_HASH("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
-
-	/*auto& ai = animationData.animInfo[0];
-	auto& ai2 = animationData.animInfo[1];
-	ai.timePos += ai.animationSpeed*dt;
-	ai2.timePos += ai2.animationSpeed*dt;
-
-	animationSystem->CalculateLayering(animationData.entity[0], ai, ai2);*/
 
 	for (size_t i = 0; i < animationData.used; i++)
 	{
@@ -324,6 +316,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 void SE::Core::AnimationManager::Destroy(const Entity & entity)
 {
+
 }
 
 void SE::Core::AnimationManager::GarbageCollection()

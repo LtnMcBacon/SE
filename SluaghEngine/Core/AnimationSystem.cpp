@@ -134,10 +134,13 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		// Loop through each joint in the animation
 		for (size_t jointIndex = 0; jointIndex < animation.Joints.size(); jointIndex++) {
 			
+			// Get the actual index to the animated joint
 			uint32_t actualIndex = animation.jointToActualJoint[jointIndex];
 
+			// The actual index must be lower than the hierarchy size
 			if (actualIndex < skeleton.Hierarchy.size()) {
 
+				// Calculate the transformation
 				XMMATRIX tempMatrix;
 				CalculateJointMatrix(jointIndex, animation, info.timePos[layerIndex], tempMatrix);
 
@@ -198,52 +201,6 @@ void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, 
 
 	XMStoreFloat4x4(&out, XMMatrixTranspose(XMMatrixAffineTransformation(S, zero, Q, T)));
 
-}
-
-void SE::Core::AnimationSystem::CalculateLayering(const Entity& entity, AnimationInfo& animInfo1) {
-
-	auto& animation1 = animations[animInfo1.animation[0]];
-
-	animation1.Joints.size();
-	auto& animation2 = animations[animInfo1.animation[1]];
-	auto& skel = skeletons[animInfo1.skeleton];
-
-	// Get animation bucket
-	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
-
-	// LAYERING EXAMPLE
-	for (int i = 0; i < skel.Hierarchy.size(); i++) {
-
-		if (i < 12) {
-
-			XMMATRIX transform;
-			CalculateJointMatrix(i, animation1, animInfo1.timePos[0], transform);
-
-			Joint &b = skel.Hierarchy[i];
-
-			// Get the current joint GLOBAL transformation at the current animation time pose
-			b.GlobalTx = transform;
-
-			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-
-		}
-
-		else {
-
-			XMMATRIX transform;
-			CalculateJointMatrix(i, animation2, animInfo1.timePos[1], transform);
-
-			Joint &b = skel.Hierarchy[i];
-
-			// Get the current joint GLOBAL transformation at the current animation time pose
-			b.GlobalTx = transform;
-
-			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-		}
-	}
 }
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
