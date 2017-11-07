@@ -108,7 +108,7 @@ namespace SE
 				MaterialFileData* material;
 				Entity entity;
 			};
-			Utilz::CircularFiFo<toUpdateStruct> toUpdate;
+			Utilz::CircularFiFo<toUpdateStruct, 20000> toUpdate;
 		};
 	}
 }

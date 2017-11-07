@@ -63,10 +63,17 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
 
-	std::vector<Utilz::GUID> guids;
-	std::vector<std::string> names;
-	subSystem.resourceHandler->GetAllGUIDsWithExtension("mesh", guids, names);
+	std::vector<Utilz::GUID> guidsMesh;
+	std::vector<std::string> namesMesh;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("mesh", guidsMesh, namesMesh);
 
+	std::vector<Utilz::GUID> guidsMat;
+	std::vector<std::string> namesMat;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("mat", guidsMat, namesMat);
+	
+	std::vector<Utilz::GUID> guidsSha;
+	std::vector<std::string> namesSha;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("hlsl", guidsSha, namesSha);
 
 
 
@@ -102,7 +109,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto material = Utilz::GUID("Cube.mat");
-	auto shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
@@ -141,7 +148,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.entityManager->Destroy(e3);
 
 	int currentMesh = 0; 
-
+	int currentMat= 0;
+	int currentSha = 0;
 	while (running)
 	{
 		if (subSystem.window->ButtonPressed(0))
@@ -235,15 +243,62 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			}
 
 			return false; 
-		}, &names, names.size(), 10);
+		}, &namesMesh, namesMesh.size(), 10);
 
-		if (ImGui::Button("Create"))
+		if (ImGui::Button("ChangeMesh"))
 		{
 			managers.entityManager->Destroy(mainC);
 			mainC = managers.entityManager->Create();
 			managers.transformManager->Create(mainC);
 			managers.materialManager->Create(mainC, info);
-			managers.renderableManager->CreateRenderableObject(mainC, { guids[currentMesh] });
+			managers.renderableManager->CreateRenderableObject(mainC, { guidsMesh[currentMesh] });
+			managers.renderableManager->ToggleRenderableObject(mainC, true);
+		}
+		ImGui::ListBox("Materials", &currentMat, [](void*data, int n, const char** out) {
+			auto& v = *(std::vector<std::string>*)data;
+			if (n < v.size())
+			{
+				*out = v[n].c_str();
+				return true;
+			}
+
+			return false;
+		}, &namesMat, namesMat.size(), 10);
+
+		if (ImGui::Button("ChangeMat"))
+		{
+			managers.entityManager->Destroy(mainC);
+			mainC = managers.entityManager->Create();
+			managers.transformManager->Create(mainC);
+			info.materialFile = guidsMat[currentMat];
+
+			managers.materialManager->Create(mainC, info);
+
+			managers.renderableManager->CreateRenderableObject(mainC, { guidsMesh[currentMesh] });
+			managers.renderableManager->ToggleRenderableObject(mainC, true);
+		}
+
+		ImGui::ListBox("Shaders", &currentSha, [](void*data, int n, const char** out) {
+			auto& v = *(std::vector<std::string>*)data;
+			if (n < v.size())
+			{
+				*out = v[n].c_str();
+				return true;
+			}
+
+			return false;
+		}, &namesSha, namesSha.size(), 10);
+
+		if (ImGui::Button("ChangeShader"))
+		{
+			managers.entityManager->Destroy(mainC);
+			mainC = managers.entityManager->Create();
+			managers.transformManager->Create(mainC);
+			info.shader = guidsSha[currentSha];
+
+			managers.materialManager->Create(mainC, info);
+
+			managers.renderableManager->CreateRenderableObject(mainC, { guidsMesh[currentMesh] });
 			managers.renderableManager->ToggleRenderableObject(mainC, true);
 		}
 

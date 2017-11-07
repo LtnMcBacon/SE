@@ -169,9 +169,9 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (load)
 		{
-			if (loadFlags & LoadFlags::ASYNC)
+			/*if (loadFlags & LoadFlags::ASYNC)
 				load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
-			else
+			else*/
 				return Load(&map, { guid, callbacks, loadFlags });
 		}
 		else
