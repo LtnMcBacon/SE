@@ -51,7 +51,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		info.subSystems.optionsHandler = Core::CreateOptionsHandler();
 		info.subSystems.optionsHandler->Initialize("Config.ini");
-
+		
 		float width = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
 		float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
 
@@ -70,7 +70,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		auto managers = engine->GetManagers();
 		auto subSystem = engine->GetSubsystems();
 
-
+		subSystem.devConsole->Toggle();
 
 
 
@@ -247,7 +247,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		}
 
 		Core::IMaterialManager::CreateInfo playerInfo;
-		material = Utilz::GUID("MCModell.mat");
+		material = Utilz::GUID("Run.mat");
 		shader = Utilz::GUID("SimpleLightPS.hlsl");
 		playerInfo.shader = shader;
 		playerInfo.materialFile = material;

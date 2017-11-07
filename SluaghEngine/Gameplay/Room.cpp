@@ -1015,6 +1015,24 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	beingRendered = render;
 }
 
+void SE::Gameplay::Room::CreateEnemies()
+{
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	pos enemyPos;
+	//	do
+	//	{
+	//		enemyPos.x = subSystem.window->GetRand() % 25;
+	//		enemyPos.y = subSystem.window->GetRand() % 25;
+	//	} while (tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+	//	Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+	//	enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
+
+	//	testRoom->AddEnemyToRoom(enemy);
+	//}
+}
+
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;

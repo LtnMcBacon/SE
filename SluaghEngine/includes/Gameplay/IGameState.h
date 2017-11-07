@@ -4,11 +4,18 @@
 
 #include <Gameplay\KeyBindings.h>
 #include <Core\IEngine.h>
+#include <Gameplay\Skill.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
+
+		struct PlayStateData
+		{
+			Skill skills[2];
+			//Perk perks[3];
+		};
 
 		/**
 		*

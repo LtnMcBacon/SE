@@ -5,6 +5,7 @@
 
 #include <Gameplay\IGameState.h>
 #include <Gameplay\PlayState.h>
+#include <Gameplay\CharacterCreationState.h>
 
 #include <Gameplay\KeyBindings.h>
 
@@ -21,6 +22,7 @@ namespace SE
 			IGameState* state;
 			Window::IWindow* input;
 			SE::Core::IEngine* engine;
+			SE::Gameplay::IGameState::State currentState;
 
 		public:
 			void Initiate(Core::IEngine* engine);

@@ -19,14 +19,14 @@ PlayState::PlayState()
 
 }
 
-PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
+PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	this->input = Input;
 	this->engine = engine;
 
 	InitializeRooms();
+	InitializePlayer(passedInfo);
 	InitializeEnemies();
-	InitializePlayer();
 	InitializeOther();
 
 	BehaviourPointers temp;
@@ -187,7 +187,8 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	delete[] enemies;
 
 }
-void PlayState::InitializePlayer()
+
+void PlayState::InitializePlayer(void* playerInfo)
 {
 	char map[25][25];
 	currentRoom->GetMap(map);
@@ -285,9 +286,12 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
-	
-	player->UpdateMovement(input->GetDelta() * 3.0f, movementInput);
+
+	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
+	player->UpdateMovement(input->GetDelta(), movementInput);
 	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
+	//projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+	//blackBoard.enemyProjectiles.clear();
 
 	UpdateProjectiles(newProjectiles);
 

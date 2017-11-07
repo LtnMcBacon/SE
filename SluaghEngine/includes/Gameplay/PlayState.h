@@ -30,7 +30,7 @@ namespace SE
 		{
 		public:
 			PlayState();
-			PlayState(Window::IWindow* Input, SE::Core::IEngine* engine);
+			PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo);
 			~PlayState();
 			/**
 			* @brief	The update loop for the Play state process.
@@ -50,7 +50,7 @@ namespace SE
 		private:
 			void InitializeRooms();
 			void InitializeEnemies();
-			void InitializePlayer();
+			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);

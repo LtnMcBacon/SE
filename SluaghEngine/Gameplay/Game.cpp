@@ -25,13 +25,16 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 		CoreInit::subSystems.devConsole->Toggle();
 	});
 
-	state = new PlayState(CoreInit::subSystems.window, engine);
+	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
+	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
+	state = new CharacterCreationState(CoreInit::subSystems.window);
+	currentState = SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE;
 }
 
 void SE::Gameplay::Game::Run()
 {
 	void* data = nullptr;
-	SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
+	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState;
 
 	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
@@ -59,9 +62,11 @@ void SE::Gameplay::Game::Run()
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
-					state = new SE::Gameplay::PlayState(input, engine);
+					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 				}
 			 }
+
+			currentState = newState;
 		 }
 
 		 CoreInit::engine->BeginFrame();

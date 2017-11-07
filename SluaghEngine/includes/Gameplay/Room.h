@@ -253,6 +253,10 @@ namespace SE
 			void CreateEntities();
 
 			/**
+			* @brief Places enemies in the room on free tiles
+			*/
+			void CreateEnemies();
+			/**
 			* @brief Creates wall ent for the room
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);

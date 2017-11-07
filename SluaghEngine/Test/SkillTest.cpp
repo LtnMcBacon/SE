@@ -32,7 +32,7 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 
 	SE::Gameplay::SkillFactory SF;
 
-	SE::Gameplay::PlayerUnit::Skill skill;
+	SE::Gameplay::Skill skill;
 
 	unsigned short int tempEnumHolder[6];
 	float floatValues[7];
