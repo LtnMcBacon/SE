@@ -14,10 +14,16 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::DOWN), Window::KeyS);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::LEFT), Window::KeyA);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::RIGHT), Window::KeyD);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::CONSOLE), Window::KeyTab);
 
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL1), Window::Key1);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
+
+	CoreInit::subSystems.window->BindKeyPressCallback(uint32_t(GameInput::CONSOLE), []()
+	{
+		CoreInit::subSystems.devConsole->Toggle();
+	});
 
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;

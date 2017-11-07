@@ -152,7 +152,7 @@ namespace SE
 				MeshData data;
 				Entity entity;
 			};
-			Utilz::CircularFiFo<toUpdateStruct> toUpdate;
+			Utilz::CircularFiFo<toUpdateStruct, 19999> toUpdate;
 		};
 	}
 }

@@ -212,8 +212,6 @@ namespace SE
 			void Destroy(const size_t index)override;
 			void Destroy(const Entity& e)override;
 
-			void UpdateTransform(size_t index);
-
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 
 			enum TransformFlags : uint16_t
