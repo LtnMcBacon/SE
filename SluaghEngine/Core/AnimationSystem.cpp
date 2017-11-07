@@ -205,6 +205,23 @@ void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, 
 
 }
 
+int SE::Core::AnimationSystem::FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind) {
+
+	// Get the skeleton
+	auto& skel = skeletons[skeleton];
+
+	// Loop through the hierarchy
+	for (size_t jointIndex = 0; jointIndex < skel.Hierarchy.size(); jointIndex++) {
+
+		if (skel.Hierarchy[jointIndex].jointName == jointNameToFind) {
+
+			return jointIndex;
+		}
+	}
+	
+	return -1;
+}
+
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 	

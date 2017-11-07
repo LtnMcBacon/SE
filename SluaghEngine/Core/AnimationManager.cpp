@@ -145,14 +145,27 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	timer->Stop(("AnimationManager"));
 }
 
-void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID) {
+void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) {
+
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
 
 	// Find the source entity
 	auto &sourceEntityIndex = entityToIndex.find(source);
 	if (sourceEntityIndex != entityToIndex.end())
 	{
-		
-		
+		// Get animation info and attacher slots for the source entity
+		auto& ai = animationData.animInfo[sourceEntityIndex->second];
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+
+		// If the entity to attach exists, check if the joint can be found in the source entity skeleton
+		int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
+		if(found != -1){
+
+			at.slots[slotIndex].entity = entityToAttach;
+			at.slots[slotIndex].jointIndex = found;
+
+		}
 	}
 }
 
@@ -360,11 +373,13 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + size);
 	newData.playing = (uint8_t*)(newData.animInfo + size);
+	newData.attacher = (Attacher*)(newData.playing + size);
 	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.animInfo, animationData.animInfo, animationData.used * sizeof(AnimationInfo));
 	memcpy(newData.playing, animationData.playing, animationData.used * sizeof(uint8_t));
+	memcpy(newData.attacher, animationData.attacher, animationData.used * sizeof(Attacher));
 
 
 	// Delete old data;
