@@ -117,7 +117,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 	auto& skeleton = skeletons[info.skeleton];
 
 	// Create vector of identity matrices with the same size as the skeleton
-	auto& bucketTransform = bucket->matrices[bucketAndID.index][bucket->vectorIndex].jointMatrix;
+	auto& bucketTransform = bucket->matrices[bucket->vectorIndex][bucketAndID.index].jointMatrix;
 	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4));
 
 	// Create vector of bools to check blending status at each joint
@@ -353,8 +353,9 @@ void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity
 void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
 {
 	const auto last = matrices[0].size() - 1;
-	matrices[index][0] = matrices[last][0];
-	matrices[index][1] = matrices[last][1];
+	matrices[1][index] = matrices[1][last];
+	matrices[0][index] = matrices[0][last];
+	
 	matrices[0].pop_back();
 	matrices[1].pop_back();
 
