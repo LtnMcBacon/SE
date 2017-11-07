@@ -118,6 +118,12 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		finalColor += total*diffuse*shadowFactor*attenuation*pointLights[i].colour.xyz;
 	}
 	
-	return float4(finalColor, 0.8f);
+	
+	
+	
+	float trans = min(sqrt(input.Pos.x*input.Pos.x + input.Pos.y*input.Pos.y), 1);
+	
+	
+	return float4(finalColor, trans);
 }
 
