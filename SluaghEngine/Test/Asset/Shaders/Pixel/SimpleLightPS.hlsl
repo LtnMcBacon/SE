@@ -7,19 +7,16 @@ TextureCube ShadowMap : register(t2);
 SamplerState sampAni : register(s0);
 SamplerState sampPoint : register(s1);
 
-static const float MAP_SIZE = 1024.0f;
-static const float MAP_X = 1.0f / MAP_SIZE;
 
 struct Light
 {
 	float4 colour;
 	float4 pos;
-	uint4 castShadow;
 };
 
 cbuffer LightDataBuffer : register(b0)
 {
-	uint4 nrOfLights;
+	uint4 nrOfLights; //x-component for number, y-component for which light is casting shadow.
 	Light pointLights[20];
 };
 
@@ -58,68 +55,40 @@ float4 PS_main(PS_IN input) : SV_TARGET
 	float shadowFactor = 1.0f;
 	float distance;
 	float specPower = specular.w;
+	float3 textureColor = DiffuseColor.Sample(sampAni, input.Tex).xyz;
+	
+	float3 diffuseContribution = float3(0.0f, 0.0f, 0.0f);
+	float3 specularContribution = float3(0.0f, 0.0f, 0.0f);
 
 	for (int i = 0; i < nrOfLights.x; i++)
 	{
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
-		attenuation = max(0, 1.0f - (distance / pointLights[i].pos.w));	//Dämpning
+		float divby = (distance / pointLights[i].pos.w) + 1.0f;
+		attenuation = 1.0f / (divby * divby);
 
 		light /= distance;
 
 		float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
-		float3 calcDiffuse = normalDotLight * pointLights[i].colour.xyz * (DiffuseColor.Sample(sampAni, input.Tex).xyz * diffuse.xyz);
 		
-		//if(pointLights[i].castShadow.x == 1){
-		//
-		//	float4 lPos = mul(input.PosInW, lViewProj);
-		//
-		//	// Division by w
-		//	lPos.xyz /= lPos.w;
-		//	
-		//	// From light space to texture space "[-1, 1] to [0, 1]";
-		//	float2 ProjTexC = float2(0.5f * lPos.x + 0.5f, -0.5f * lPos.y + 0.5f);
-		//	
-		//	// Get pixels distance from the light and define a depth bias
-		//	float depth = lPos.z;
-		//	float depthBias = 0.00032f;
-		//	
-		//	// Texture sampling uses the texel position to look up a texel value. An offset can be applied to the position before lookup.
-		//	// Sample shadow map to get nearest depth to the light and add 
-		//	
-		//	float s0 = (ShadowMap.Sample(sampPoint, ProjTexC.xy).r + depthBias < depth) ? 0.25f : 1.0f;
-		//	float s1 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, 0.0f)).r + depthBias < depth) ? 0.25f : 1.0f;
-		//	float s2 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(0.0f, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
-		//	float s3 = (ShadowMap.Sample(sampPoint, ProjTexC.xy + float2(MAP_X, MAP_X)).r + depthBias < depth) ? 0.25f : 1.0f;
-		//	
-		//	// Transform to texel space
-		//	float2 texelPos = MAP_SIZE * ProjTexC.xy;
-		//	
-		//	// Determine the interpolation amount
-		//	float2 t = frac(texelPos);
-		//	
-		//	// Interpolate results
-		//	shadowFactor = lerp(lerp(s0, s1, t.x), lerp(s2, s3, t.x), t.y);
-		//
-		//}
 		
-		float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
-		float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
-		float4 lPos = mul(input.PosInW, lViewProj);
-		lPos.xyz /= lPos.w;
-		if(mapDepth + 0.00128f < lPos.z)
-			shadowFactor = 0.5f;
+		if(i == nrOfLights.y)
+		{
+			float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
+			float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+			if(mapDepth + 0.0001f < distance / pointLights[i].pos.w)
+				shadowFactor = 0.0f;
+		}
 		
 		//Calculate specular term
 		float3 V = cameraPos.xyz - input.PosInW.xyz;
 		float3 H = normalize(light + V);
 		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;
-		float3 specularTot = power * colour * normalDotLight;
-
-
-		totLight = ((calcDiffuse + specularTot) * attenuation) * shadowFactor + totLight;
+		specularContribution += power * colour * normalDotLight * shadowFactor;
+		diffuseContribution += normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 	}
 	
-	return float4(totLight, 1.0f);
+	return saturate(float4(textureColor * (diffuseContribution + specularContribution + float3(0.1f, 0.1f, 0.1f)),1.0f));
+
 }

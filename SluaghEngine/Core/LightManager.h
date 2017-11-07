@@ -64,7 +64,6 @@ namespace SE
 			{
 				DirectX::XMFLOAT4 colour;	//colour (rgba)
 				DirectX::XMFLOAT4 pos;	//pos (pos + range)
-				uint32_t castShadow[4];
 			};
 
 			struct LightViewProj {

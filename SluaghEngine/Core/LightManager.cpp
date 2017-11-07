@@ -80,19 +80,22 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
 			auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
 			uint32_t count = 0;
+			uint32_t shadowCasterIndex = 21;
 			for (auto& l : entityToLightData)
 			{
 				if (l.second.visible)
 				{
 					cb.data[count].colour = l.second.colour;
 					cb.data[count].pos = l.second.pos;
-					cb.data[count].castShadow[0] = l.second.castShadow;
+					if (l.first == shadowCaster)
+						shadowCasterIndex = count;
 					count++;
 				}
 				if (count == 20)
 					break;
 			}
 			cb.size[0] = count;
+			cb.size[1] = shadowCasterIndex;
 
 		});
 
@@ -100,7 +103,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 	}
 
 	if (hasShadowCaster) {
-		const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
+		const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, entityToLightData[shadowCaster].pos.w);
 		const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
 		{ 1.0f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 1.0f, 0.0f, 0.0f },
@@ -120,7 +123,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 			const DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH(vpos, looks[i], ups[i]);
 			DirectX::XMStoreFloat4x4(&lightVPBuffer.viewProjections[i], DirectX::XMMatrixTranspose(view * proj));
 		}
-		lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, 20.0f);
+		lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, entityToLightData[shadowCaster].pos.w);
 		lightShadowDataBuffer.range = { entityToLightData[shadowCaster].pos.w, 0.0f, 0.0f, 0.0f };
 
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
