@@ -114,9 +114,9 @@ void PlayState::InitializeRooms()
 	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
-	int nrOfRoomsToCreate = 10;
+	int sideLength = 3;
+	int nrOfRoomsToCreate = sideLength * sideLength;
 	int nrOfRoomsCreated = 0;
-	int nrOfOpenDoors = 0;
 	
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
@@ -127,7 +127,7 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
-	while (nrOfOpenDoors != 0 || nrOfRoomsCreated < nrOfRoomsToCreate)
+	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
 		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
 
@@ -140,6 +140,14 @@ void PlayState::InitializeRooms()
 		nrOfRoomsCreated++;
 		temp->RenderRoom(false);
 
+	}
+
+	for (int i = 0; i < nrOfRoomsToCreate; i++)
+	{
+		if (i < sideLength)
+		{
+			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+		}
 	}
 
 	blackBoard.currentRoom = currentRoom = rooms[0];
@@ -192,6 +200,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 {
 	char map[25][25];
 	currentRoom->GetMap(map);
+	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -217,7 +226,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));

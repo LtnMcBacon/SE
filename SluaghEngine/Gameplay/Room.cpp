@@ -1132,8 +1132,8 @@ float Room::FloorCheck(int x, int y)
 }
 
 
-void Room::CloseDoor(int DoorNr)
+void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
-	DoorArr[DoorNr] = false; 
+	DoorArr[int(DoorNr)] = false;
 
 }

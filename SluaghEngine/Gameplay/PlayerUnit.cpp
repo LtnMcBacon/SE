@@ -143,6 +143,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 			stunDuration = 0.f;
 		ProfileReturnVoid;
 	}
+	dt *= newStat.movementSpeed;
 	float xMovement = 0.f;
 	float yMovement = 0.f;
 
@@ -215,7 +216,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	//-----------------------
 
 	/*Move the entity in the normalized direction*/
-	MoveEntity(xMovement * dt * newStat.movementSpeed, yMovement * dt * newStat.movementSpeed);
+	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
 }
 
@@ -223,8 +224,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
-
-	if (skills[0].currentCooldown <= 0.0f && input.skill1Button) 
+	int nrOfSKills = skills.size();
+	
+	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
 	{
 		ProjectileData temp;
 
@@ -242,7 +244,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[0].currentCooldown = skills[0].coolDown;
 	}
 
-	if (skills[1].currentCooldown <= 0.0f && input.skill2Button) 
+	if (nrOfSKills > 1 && skills[1].currentCooldown <= 0.0f && input.skill2Button)
 	{
 		ProjectileData temp;
 
@@ -260,11 +262,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown = skills[1].coolDown;
 	}
 
-	if (skills[0].currentCooldown > 0.0f)
+	if (nrOfSKills > 0 && skills[0].currentCooldown > 0.0f)
 	{
 		skills[0].currentCooldown -= dt;
 	}
-	if (skills[1].currentCooldown > 0.0f)
+	if (nrOfSKills > 1 && skills[1].currentCooldown > 0.0f)
 	{
 		skills[1].currentCooldown -= dt;
 	}
