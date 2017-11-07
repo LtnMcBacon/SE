@@ -88,6 +88,7 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 		callbacks.invokeCallback = [this, entity](auto guid, auto data, auto size)
 		{
 			MeshData md = { guid, *(size_t*)data };
+
 			if(!toUpdate.push({ md, entity }))
 				return ResourceHandler::InvokeReturn::FAIL;
 			return ResourceHandler::InvokeReturn::SUCCESS;
@@ -189,13 +190,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
-
-	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
-
-	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
-
-	info->pipeline.PSStage.samplers[info->pipeline.PSStage.samplerCount++] = "shadowPointSampler";
-	
 }
 
 void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
@@ -499,14 +493,7 @@ void SE::Core::RenderableManager::Init()
 
 	this->initInfo.renderer->GetPipelineHandler()->CreateViewport("shadowVP", vp);
 
-	Graphics::SamplerState pointSampler;
-	pointSampler.filter = Graphics::Filter::POINT;
-	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
-	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
-	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
-	pointSampler.maxAnisotropy = 0;
 
-	this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
 }
 
 void SE::Core::RenderableManager::Destroy(const Entity & entity)
