@@ -158,12 +158,17 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 		auto& ai = animationData.animInfo[sourceEntityIndex->second];
 		auto& at = animationData.attacher[sourceEntityIndex->second];
 
-		// If the entity to attach exists, check if the joint can be found in the source entity skeleton
-		int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
-		if(found != -1){
+		// Check if the entity to attach is alive
+		if(initInfo.entityManager->Alive(entityToAttach)){
 
-			at.slots[slotIndex].entity = entityToAttach;
-			at.slots[slotIndex].jointIndex = found;
+			// If the entity to attach exists, check if the joint can be found in the source entity skeleton
+			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
+			if(found != -1){
+
+				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].jointIndex = found;
+
+			}
 
 		}
 	}
