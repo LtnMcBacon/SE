@@ -11,7 +11,7 @@ SE::Core::CameraManager::CameraManager(const InitializationInfo & initInfo) : in
 
 	initInfo.transformManager->RegisterSetDirty({ this, &CameraManager::SetDirty });
 
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4), nullptr);
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("OncePerFrame", sizeof(XMFLOAT4X4) * 2, nullptr);
 	if (result < 0)
 		throw std::exception("Could not create OncePerFrame buffer");
 
@@ -221,13 +221,17 @@ void SE::Core::CameraManager::Frame(Utilz::TimeCluster * timer)
 			XMStoreFloat4x4(&cameraData.view[currentActive.activeCamera], view);
 			XMMATRIX viewproj = view * XMMatrixPerspectiveFovLH(cameraData.fov[currentActive.activeCamera], cameraData.aspectRatio[currentActive.activeCamera], cameraData.nearPlane[currentActive.activeCamera], cameraData.farPlane[currentActive.activeCamera]);
 
-			XMFLOAT4X4 viewProjMatrix;
-			XMStoreFloat4x4(&viewProjMatrix, XMMatrixTranspose(viewproj));
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("OncePerFrame", &viewProjMatrix, sizeof(XMFLOAT4X4));
+			initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("OncePerFrame", [&view, &viewproj](void* data) {
+				XMStoreFloat4x4((XMFLOAT4X4*)data, XMMatrixTranspose(view));
+				XMStoreFloat4x4((XMFLOAT4X4*)data + 1, XMMatrixTranspose(viewproj));
+			});
 
 			XMFLOAT3 fpos;
 			XMStoreFloat3(&fpos, pos);
-			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CameraPos", &fpos, sizeof(XMFLOAT3));
+			initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("CameraPos", [&up, &pos](void* data) {
+				XMStoreFloat4((XMFLOAT4*)data, up);
+				XMStoreFloat4((XMFLOAT4*)data + 1, pos);
+			});
 
 
 			cameraData.dirty[currentActive.activeCamera] = ~0u;

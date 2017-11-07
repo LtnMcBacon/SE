@@ -7,6 +7,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <unordered_map>
 #include <random>
+#include <Particle_Editor\ParticleEmitter.h>
 namespace SE
 {
 	namespace Core
@@ -27,7 +28,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void CreateSystem(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateSystem(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief	Hide/Show a particle system.
@@ -43,6 +44,7 @@ namespace SE
 
 		private:
 			InitializationInfo initInfo;
+			Graphics::Pipeline updatePipeline;
 
 			/**
 			* @brief	Remove an enitity entry
@@ -61,8 +63,9 @@ namespace SE
 
 			struct ParticleSystemFileInfo
 			{
-				DirectX::XMFLOAT2 vel;
-				DirectX::XMFLOAT2 pad;
+	
+				float vel[3];
+				float pad;
 				float emitPos[3];
 				float pad1;
 				float emitRange[3];
@@ -77,14 +80,18 @@ namespace SE
 				float tangentValue;
 				float radialValue;
 				float gravityValue;
+				float pSize;
 				unsigned int circular;
 				unsigned int gravityCheck;
+				unsigned int emit;
 			};
 			struct ParticleSystemData
 			{
 				uint8_t visible;
 				uint8_t loaded;
 				ParticleSystemFileInfo particleFileInfo;
+				bool randVelocity;
+				Utilz::GUID textureName;
 			};
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;

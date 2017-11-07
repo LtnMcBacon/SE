@@ -2,8 +2,9 @@
 #include <Imgui\imgui.h>
 #include <Utilz\Timer.h>
 #include <Graphics\ParticleSystemJob.h>
-#include "ParticleEmitter.h"
+#include <Particle_Editor\ParticleEmitter.h>
 #include <string>
+
 #include <fstream>
 
 using namespace SE;
@@ -23,9 +24,9 @@ using namespace Graphics;
 #else
 #pragma comment(lib, "Core.lib")
 #endif
-struct moveMentStruct {
-	XMFLOAT2 vel;
-	XMFLOAT2 pad;
+struct ParticleDataStruct {
+	float vel[3];
+	float pad;
 	float emitPos[3];
 	float pad1;
 	float emitRange[3];
@@ -40,14 +41,16 @@ struct moveMentStruct {
 	float tangentValue;
 	float radialValue;
 	float gravityValue;
+	float pSize;
 	unsigned int circular;
 	unsigned int gravityCheck;
+	unsigned int emit;
 };
-moveMentStruct createParticleBuffer();
-void exportParticleInfo(Pipeline particleJobInfo, moveMentStruct pInfo, char fileName[], bool randomVelocity);
+ParticleDataStruct createParticleBuffer();
+void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity);
 int main()
 {
-	ParticleEmitter emitter;
+	Particle emitter;
 	auto engine = Core::CreateEngine();
 	auto result = engine->Init();
 	if (result < 0)
@@ -59,7 +62,7 @@ int main()
 	Pipeline pipeline;
 	Utilz::Timer time;
 	auto ResourceHandle = subSystem.resourceHandler;
-	bool changedTexture = false;
+	int changedTexture = 0;
 	char particleName[100] = "";
 
 	bool exportWindow = false;
@@ -74,10 +77,6 @@ int main()
 		pipelineHandler->CreateGeometryShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
-	ResourceHandle->LoadResource("ParticleGSUpdate.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
-		pipelineHandler->CreateGeometryShaderStreamOut(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
 	ResourceHandle->LoadResource("ParticleVS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateVertexShader(guid ,data, size);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
@@ -86,7 +85,11 @@ int main()
 		pipelineHandler->CreatePixelShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
-	ResourceHandle->LoadResource("fire_texture.sei", [&pipelineHandler](auto guid, void* data, size_t size) {
+	ResourceHandle->LoadResource("ParticleGSUpdate.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
+		pipelineHandler->CreateGeometryShaderStreamOut(guid, data, size);
+		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	});
+	ResourceHandle->LoadResource("galaxy_texture.sei", [&pipelineHandler](auto guid, void* data, size_t size) {
 		Graphics::TextureDesc texDesc;
 		texDesc = *(TextureDesc*)data;
 		data = (char*)data + sizeof(TextureDesc);
@@ -94,7 +97,7 @@ int main()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	ParticleEmitter::Particle p[2];
+	Particle p[2];
 	p[0].opacity = 1.0f;
 	p[1].opacity = 1.0f;
 
@@ -121,8 +124,8 @@ int main()
 	pipelineHandler->CreateSamplerState("ParticleSampler", sampState);
 
 	//Pipeline for the update geometry shader
-	int k = pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(ParticleEmitter::Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -130,8 +133,8 @@ int main()
 	pipeline.GSStage.shader = "ParticleGSUpdate.hlsl";
 	pipeline.SOStage.streamOutTarget = "OutStreamBuffer2";
 	
-	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON});
-
+	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON });
+	/*ComparisonOperation::NO_COMPARISON*/
 	XMFLOAT3 lookAt = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 eyePos = { 0.0f, 0.0f, -5.0f };
 	XMFLOAT3 upVec = { 0.0f, 1.0f, 0.0f };
@@ -145,7 +148,7 @@ int main()
 
 	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
 
-	moveMentStruct movBuffer = createParticleBuffer();
+	ParticleDataStruct movBuffer = createParticleBuffer();
 
 	// Variables for randomization of particle attributes
 	
@@ -153,13 +156,15 @@ int main()
 	float maxEmit = 0.0f;
 	float velocityRangeX[2] = { -1.0f , 1.0f };
 	float velocityRangeY[2] = { -1.0f , 1.0f };
+	float velocityRangeZ[2] = { -1.0f , 1.0f };
 	float emitRangeX[2] = { 0.0f, 0.0f };
 	float emitRangeY[2] = { 0.0f, 0.0f };
+	float emitRangeZ[2] = { 0.0f, 0.0f };
 
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
 	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer](int a, int b) {
-		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &movBuffer, sizeof(moveMentStruct));
+		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &movBuffer, sizeof(ParticleDataStruct));
 	});
 	updateParticleJob.vertexCount = 1;
 	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob, SE::Graphics::RenderGroup::PRE_PASS_0);
@@ -172,7 +177,7 @@ int main()
 	RPP.VSStage.shader = "ParticleVS.hlsl";
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
-	RPP.PSStage.textures[0] = "fire_texture.sei";
+	RPP.PSStage.textures[0] = "galaxy_texture.sei";
 	RPP.PSStage.textureBindings[0] = "fireTex";
 	RPP.PSStage.textureCount = 1;
 	RPP.PSStage.samplers[0] = "ParticleSampler";
@@ -193,13 +198,14 @@ int main()
 		float pad2;
 	};
 	bool RandVelocity = false;
+	bool gravityOn = false;
 
 	PCB constantBuffer;
 	constantBuffer.eyePosition = eyePos;
 	constantBuffer.upVector = upVec;
 
 	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &constantBuffer](int a, int b) {
-		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrix, sizeof(XMFLOAT4X4));
+		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrix, sizeof(XMFLOAT4X4) * 2);
 		pipelineHandler->UpdateConstantBuffer("ParticleConstantBuffer", &constantBuffer, sizeof(PCB));
 	});
 	int RPPID = Renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
@@ -209,39 +215,49 @@ int main()
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
 		time.Tick();
-		//if (changedTexture)
-		//{
-		//	ResourceHandle->LoadResource(tempText, [&pipelineHandler](auto guid, void* data, size_t size) {
-		//		Graphics::TextureDesc texDesc;
-		//		texDesc = *(TextureDesc*)data;
-		//		data = (char*)data + sizeof(TextureDesc);
-		//		pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
-		//		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		//	});
-		//
-		//	changedTexture = false;
-		//}
+		if (changedTexture)
+		{
+			ResourceHandle->LoadResource(tempText, [&pipelineHandler](auto guid, void* data, size_t size) {
+				Graphics::TextureDesc texDesc;
+				texDesc = *(TextureDesc*)data;
+				data = (char*)data + sizeof(TextureDesc);
+				pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
+				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			});
+			renderParticleJob.pipeline.PSStage.textures[0] = tempText;
+		
+			changedTexture = 0;
+		}
 		engine->BeginFrame();
+		//Putting each separate window withing a Begin/End() section
 		//First window, main particle attributes
-		ImGui::Begin("Particle Attributes");//Putting each separate window withing a Begin/End() section
+		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 1.0f);
-		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -20.0f, 20.0f);
-		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -20.0f, 20.0f);
+		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
+		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.5f");
-		ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
+		//ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
+		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
+		if (movBuffer.emitRate < 0)
+			movBuffer.emitRate = 0;
 		ImGui::InputFloat("LifeTime", &movBuffer.lifeTime);
+		if (movBuffer.lifeTime < 0)
+			movBuffer.lifeTime = 0;
+		if (movBuffer.lifeTime > 30)
+			movBuffer.lifeTime = 30;
+		ImGui::InputFloat("Particle Size", &movBuffer.pSize);
 		ImGui::CheckboxFlags("Enable Gravity", &movBuffer.gravityCheck, 1);
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
 		ImGui::Checkbox("Random direction", &RandVelocity);
-		ImGui::InputText("Texture", tempText, 100);
+		ImGui::InputText("Texture file", tempText, 100);
+		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
+		
 		if (ImGui::Button("Export Settings")) exportWindow ^= 1;
 		ImGui::End();
 
 		if (exportWindow)//Exporting window
 		{
-			
-			
 			ImGui::Begin("Export Window");
 			ImGui::InputText("File name", particleName, 100);
 			
@@ -251,26 +267,36 @@ int main()
 		}
 		//Window for emit specific properties
 		ImGui::Begin("Emit Attributes");
-		ImGui::SliderFloat("Direction X", &movBuffer.vel.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("Direction Y", &movBuffer.vel.y, -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction Y", &movBuffer.vel[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction Z", &movBuffer.vel[2], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
-		ImGui::SliderFloat2("Emit position", &movBuffer.emitPos[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
+		ImGui::SliderFloat3("Emit position", &movBuffer.emitPos[0], -5.0f, 5.0f);
 		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
+		if (ImGui::Button("Start/Stop Emit")) {
+			movBuffer.emit ^= 1;
+		}		
 		ImGui::End();
 		
 		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1] - emitRangeX[0]) + emitRangeX[0];
 		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
+		float randEmitZ = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeZ[1] - emitRangeZ[0]) + emitRangeZ[0];
 		movBuffer.emitRange[0] = randEmitX;
 		movBuffer.emitRange[1] = randEmitY;
+		movBuffer.emitRange[2] = randEmitZ;
 
 		if (RandVelocity)
 		{
 			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1] - velocityRangeX[0]) + velocityRangeX[0];
 			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
-			movBuffer.vel.x = r1;
-			movBuffer.vel.y = r2;
+			float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeZ[1] - velocityRangeZ[0]) + velocityRangeZ[0];
+			movBuffer.vel[0] = r1;
+			movBuffer.vel[1] = r2;
+			movBuffer.vel[2] = r3;
 		}
 		
 		//** swapping renderjobs for particle outstream
@@ -282,28 +308,33 @@ int main()
 		engine->EndFrame();
 		updateParticleJob.vertexCount = 0;
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
+
 	}
 
 	engine->Release();
 	delete engine;
 	return 0;
 }
-moveMentStruct createParticleBuffer()
+ParticleDataStruct createParticleBuffer()
 {
-	XMFLOAT2 velocity = { 0.0f, 1.0f };
+	float velocity[3] = { 0.0f, 1.0f , 0.0f };
 	float emitPosition[3] = { 0.0f, 0.0f, 5.0f };
-	moveMentStruct movBuffer;
-	movBuffer.vel = velocity;
+	ParticleDataStruct movBuffer;
+	movBuffer.vel[0] = velocity[0];
+	movBuffer.vel[1] = velocity[1];
+	movBuffer.vel[2] = velocity[2];
 	movBuffer.emitPos[0] = emitPosition[0];
 	movBuffer.emitPos[1] = emitPosition[1];
 	movBuffer.emitPos[2] = emitPosition[2];
 	movBuffer.emitRange[0] = 0;
 	movBuffer.emitRange[1] = 0;
 	movBuffer.emitRange[2] = 0;
+	movBuffer.gravityCheck = 0;
 	movBuffer.gravity[0] = 0.0f;
 	movBuffer.gravity[1] = 0.0f;
 	movBuffer.gravity[2] = 0.0f;
 	movBuffer.gravityValue = 0.0f;
+	movBuffer.pSize = 0.1f;
 	movBuffer.speed = 0.005;
 	movBuffer.emitRate = 0.01;
 	movBuffer.lifeTime = 5.0f;
@@ -313,10 +344,11 @@ moveMentStruct createParticleBuffer()
 	movBuffer.circular = 0;
 	movBuffer.tangentValue = 0.0f;
 	movBuffer.radialValue = 0.0f;
+	movBuffer.emit = 0;
 
 	return movBuffer;
 }
-void exportParticleInfo(Pipeline particleJobInfo, moveMentStruct pInfo, char fileName[], bool randomVelocity)
+void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity)
 {
 	std::string file = fileName;
 	
@@ -325,9 +357,9 @@ void exportParticleInfo(Pipeline particleJobInfo, moveMentStruct pInfo, char fil
 	std::ofstream toFile;
 	
 	toFile.open(file, std::ios::out | std::ios::binary);
-	toFile << randomVelocity;
+	toFile.write((char*)&randomVelocity, sizeof(bool));
 	toFile.write((char*)&textureName, sizeof(Utilz::GUID));
-	toFile.write((char*)&pInfo, sizeof(moveMentStruct));
+	toFile.write((char*)&pInfo, sizeof(ParticleDataStruct));
 	toFile.close();
 
 }

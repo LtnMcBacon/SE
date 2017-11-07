@@ -147,10 +147,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ParticleEmitter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ParticleEmitter.h" />
+    <ClInclude Include="..\includes\Particle_Editor\ParticleEmitter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
