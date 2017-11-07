@@ -13,11 +13,9 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateConstantBuffer("LightDataBuffer", sizeof(LightDataBuffer));
+	auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
 	if (result < 0)
-		throw std::exception("Could not create LightDataBuffer");
-
-	result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
+		throw std::exception("Failed to create depth stencil cube.");
 }
 
 SE::Core::LightManager::~LightManager()
@@ -238,7 +236,6 @@ void SE::Core::LightManager::UpdateDirtyPos(const Entity& entity, size_t index)
 	if (find != entityToLightData.end())
 	{
 		dirtyEntites.push_back({ index, entity });
-	//	initInfo.renderer->UpdateLightPos(initInfo.transformManager->GetPosition(entity), find->second.jobID);
 	}
 	ProfileReturnVoid;
 }
