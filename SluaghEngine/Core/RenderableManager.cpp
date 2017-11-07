@@ -141,7 +141,8 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
-	timer->Start(("RenderableManager"));
+	if(timer)
+		timer->Start(("RenderableManager"));
 	GarbageCollection();
 
 
@@ -162,7 +163,8 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 
 
 	UpdateDirtyTransforms();
-	timer->Stop(("RenderableManager"));
+	if(timer)
+		timer->Stop(("RenderableManager"));
 	ProfileReturnVoid;
 }
 

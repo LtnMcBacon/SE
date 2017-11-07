@@ -88,16 +88,17 @@ namespace SE
 			}
 
 			/**
-			* @brief	Load the description of an enemy from file
+			* @brief	Load an enemy into memory. Must be called before an enemy can be created.
 			*
-			* @details	Called from LoadEnemyIntoMemory to parse the enemy data and put into the map.
+			* @details	Load an enemy specifed by the GUID into memory. Uses LoadEnemyFromResourceHandler
+			* to parse the data
 			*
-			* @param[in] GUID The GUID of the Enemy to be parsed.
-			* @param[in] data The data recieved from the file.
-			* @param[out] size The size of the data recieved from the file.
-			*
+			* @param[in] GUID The GUID for the file containing the enemy.
+
+			* @retval true The enemy is loaded into memory and enemies can be created.
+			* @retval false The enemy could not be loaded.
 			*/
-			ResourceHandler::InvokeReturn LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
+			bool LoadEnemyIntoMemory(Utilz::GUID GUID);
 			
 			
 		public:

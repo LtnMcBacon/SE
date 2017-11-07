@@ -1045,6 +1045,8 @@ Room::~Room()
 		enemy->DestroyEntity();
 		delete enemy;
 	}
+
+
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
