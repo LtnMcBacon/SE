@@ -33,6 +33,8 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
+			void AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID)override;
+
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
@@ -81,6 +83,7 @@ namespace SE
 				Entity* entity;
 				AnimationInfo* animInfo;	
 				uint8_t* playing;
+
 			};
 			
 			AnimationData animationData;

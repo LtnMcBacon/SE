@@ -143,6 +143,17 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	timer->Stop(("AnimationManager"));
 }
 
+void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID) {
+
+	// Find the source entity
+	auto &sourceEntityIndex = entityToIndex.find(source);
+	if (sourceEntityIndex != entityToIndex.end())
+	{
+		
+		
+	}
+}
+
 void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
 {	
 	StartProfile;

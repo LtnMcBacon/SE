@@ -59,6 +59,7 @@ namespace SE
 			unsigned int parentIndex;
 			Utilz::GUID jointName;
 			
+			
 			Joint() {
 
 				GlobalTx = DirectX::XMMatrixIdentity();

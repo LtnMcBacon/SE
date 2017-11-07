@@ -167,7 +167,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::Timer timer;
 	float radians = (180 * 3.14) / 180;
 
-	//managers.transformManager->Rotate(mainC, 0.0f, radians, 0.01f);
+	// managers.transformManager->Rotate(mainC, 0.0f, radians, 0.01f);
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
 	static float blendFactorSpeed = 0.00f;
