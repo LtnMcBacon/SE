@@ -43,18 +43,14 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 		// If entity is shadow caster, push back to shadow casters
 		if (data.castShadow == true) {
 
-			//DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH (35, 35, 0.1, info.radius);
 			DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3, 1, 0.1, info.radius);
 
 			shadowCasters.push_back({ entity, proj, info.dir});
-
-
 		}
 
 		initInfo.transformManager->Create(entity, info.pos);
 
 		indexToEntity.push_back(entity);
-
 	}
 	ProfileReturnVoid;
 }
@@ -69,20 +65,14 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 	// chexk if entity exist in text 
 	const auto fileLoaded = entityToLightData.find(entity);
 	if (fileLoaded != entityToLightData.end())
-	{
-				
+	{		
 		if (show && !fileLoaded->second.visible)
 		{
 			anyTogglesThisFrame = true;
-
-				
 		}
 		else if (!show && fileLoaded->second.visible)
 		{
 			anyTogglesThisFrame = true;
-			/*size_t tempJobID = initInfo.renderer->DisableLightRendering(fileLoaded->second.jobID);
-			fileLoaded->second.show = false;
-			entID[jobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;*/
 		}
 		fileLoaded->second.visible = show;
 	}
