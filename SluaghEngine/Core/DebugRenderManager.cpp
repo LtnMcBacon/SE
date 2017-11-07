@@ -231,8 +231,8 @@ SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelSha
 void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
-	//const auto find = entityToLineList.find(entity);
-	//if (find != entityToLineList.end())
+	const auto find = entityToLineList.find(entity);
+	if (find != entityToLineList.end())
 	{
 		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index])));
 	}

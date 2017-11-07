@@ -270,6 +270,7 @@ void SE::Core::Engine::InitTransformManager()
 	{
 		ITransformManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.threadPool = subSystems.threadPool;
 		managers.transformManager = CreateTransformManager(info);
 	}
 	managersVec.push_back(managers.transformManager);
