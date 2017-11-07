@@ -138,7 +138,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	playInfo.blendSpeed[1] = 0.05f;
 	playInfo.blendFactor[1] = 0.0f;
 
-	playInfo.animations[2] = "TopAttackAnim_MCModell.anim";
+	playInfo.animations[2] = "DeathAnim_MCModell.anim";
 	playInfo.animationSpeed[2] = 1.0f;
 	playInfo.timePos[2] = 0.0f;
 	playInfo.looping[2] = true;
@@ -224,7 +224,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		}
 
-		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -10.0f, 10.0f)) {
+		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -0.1f, 0.1f)) {
 
 			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 
