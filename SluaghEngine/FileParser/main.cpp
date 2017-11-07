@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 			for (auto& f : acceptedFiles)
 			{
 				gE << f << std::endl;
-				gE << Utilz::GUID(f).id << std::endl;
+				gE << Utilz::GUID(Utilz::getFilename( f)).id << std::endl;
 		
 			}				
 			gE << std::string(argv[argc - 1]) + "/RoomGeneration.txt" << std::endl;

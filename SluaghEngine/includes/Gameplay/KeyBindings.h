@@ -10,7 +10,8 @@ enum class GameInput
 	DOWN,
 	SKILL1,
 	SKILL2,
-	ACTION
+	ACTION,
+	CONSOLE
 
 };
 

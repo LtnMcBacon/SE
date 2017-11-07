@@ -30,7 +30,7 @@ void SE::Core::RenderableManagerInstancing::AddEntity(const Entity & entity, Gra
 	else
 	{
 		if(findEntity != entityToBucketAndIndexInBucket.end())
-			if (bucket->pipeline.id == job.pipeline.id)
+			if (pipelineToRenderBucket[bucketAndIndexInBucket.bucket]->pipeline.id == job.pipeline.id)
 				ProfileReturnVoid;
 	}
 

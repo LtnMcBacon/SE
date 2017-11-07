@@ -1117,4 +1117,5 @@ float Room::FloorCheck(int x, int y)
 void Room::CloseDoor(int DoorNr)
 {
 	DoorArr[DoorNr] = false; 
+
 }

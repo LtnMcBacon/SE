@@ -351,8 +351,8 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.animInfo = (AnimationInfo*)(newData.entity + newData.allocated);
-	newData.playing = (uint8_t*)(newData.animInfo + newData.allocated);
+	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + size);
+	newData.playing = (uint8_t*)(newData.animInfo + size);
 	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
