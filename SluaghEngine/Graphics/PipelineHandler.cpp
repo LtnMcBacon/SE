@@ -1868,7 +1868,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 	
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
-		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
+		//if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
 		{
 			auto srv = shaderResourceViews.find(pss.textures[i]);
 			if (srv != shaderResourceViews.end())

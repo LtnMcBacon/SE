@@ -152,9 +152,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	d.radius = 100.0f;
 	d.pos = { 0.0f, 3.0f, 0.0f };
 	d.color = { 1, 1, 1 };
-	d.dir = { 0.0f, 0.0f, 1.0f };
-	d.castShadow = true;
-	d.isOrtographic = false;
+
 
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);

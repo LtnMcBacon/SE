@@ -37,19 +37,9 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 		data.visible = false;
 		data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
 		data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
-		data.dir = { info.dir.x, info.dir.y, info.dir.z, 1.0f };
-		data.castShadow = info.castShadow;
-
-		// If entity is shadow caster, push back to shadow casters
-		if (data.castShadow == true) {
-
-			DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(2.3, 1, 0.1, info.radius);
-
-			shadowCasters.push_back({ entity, proj, info.dir});
-		}
+		data.castShadow = false;
 
 		initInfo.transformManager->Create(entity, info.pos);
-
 		indexToEntity.push_back(entity);
 	}
 	ProfileReturnVoid;
@@ -109,35 +99,34 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		anyTogglesThisFrame = false;
 	}
 
-	if (shadowCasters.size() > 0) {
+	if (hasShadowCaster) {
+		const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
+		const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
+		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 1.0f, 0.0f, 0.0f },
+		{ 0.0f, -1.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		{ 0.0f, 0.0f, -1.0f, 0.0f } };
+		const DirectX::XMVECTOR ups[] = { { 0.0f, 1.0f, 0.0f, 0.0f },
+		{ 1.0f, 1.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, -1.0f, 0.0f },
+		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		{ 0.0f, 1.0f, 0.0f, 0.0f },
+		{ 0.0f, 1.0f, 0.0f, 0.0f } };
+		DirectX::XMFLOAT3 lpos = initInfo.transformManager->GetPosition(shadowCaster);
+		const DirectX::XMVECTOR vpos = DirectX::XMLoadFloat3(&lpos);
+		for (int i = 0; i < 6; ++i)
+		{
+			const DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH(vpos, looks[i], ups[i]);
+			DirectX::XMStoreFloat4x4(&lightVPBuffer.viewProjections[i], DirectX::XMMatrixTranspose(view * proj));
+		}
+		lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, 20.0f);
+		lightShadowDataBuffer.range = { entityToLightData[shadowCaster].pos.w, 0.0f, 0.0f, 0.0f };
 
-		auto& k = shadowCasters[0];
-		auto pos = initInfo.transformManager->GetPosition(k.entity);
-
-		XMVECTOR newDir = { 0.0f, -1.0f, 1.0f, 1.0f };
-		initInfo.transformManager->SetForward(k.entity, newDir);
-
-		auto dir = initInfo.transformManager->GetForward(k.entity);
-		auto right = initInfo.transformManager->GetRight(k.entity);
-
-		auto vDir = XMLoadFloat3(&dir);
-		auto vRight = XMLoadFloat3(&right);
-
-		auto vUp = XMVector3Cross(vDir, vRight);
-
-		XMMATRIX view = XMMatrixLookToLH(XMLoadFloat3(&pos), vDir, vUp);
-
-		view = view * k.lProj;
-
-		view = XMMatrixTranspose(view);
-
-		XMFLOAT4X4 viewProj;
-		XMStoreFloat4x4(&viewProj, view);
-
-		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
+		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
+		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
 	}
-	initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
-	initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
+	
 	timer->Stop(CREATE_ID_HASH("LightManger"));
 	StopProfile;
 }
@@ -151,7 +140,7 @@ void SE::Core::LightManager::GarbageCollection()
 
 	while (entityToLightData.size() > 0 && alive_in_row < 4U)
 	{
-		std::uniform_int_distribution<uint32_t> distribution(0U, entityToLightData.size() - 1U);
+		const std::uniform_int_distribution<uint32_t> distribution(0U, entityToLightData.size() - 1U);
 		uint32_t i = distribution(generator);
 		if (initInfo.entityManager->Alive(indexToEntity[i]))
 		{
@@ -169,30 +158,12 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 	const auto exists = entityToLightData.find(entity);
 	if (exists == entityToLightData.end())
 		return;
+	if (hasShadowCaster)
+		return;
 
-	const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
-	const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
-										{ 1.0f, 0.0f, 0.0f, 0.0f },
-										{ 0.0f, 1.0f, 0.0f, 0.0f },
-										{ 0.0f, -1.0f, 0.0f, 0.0f },
-										{ 0.0f, 0.0f, 1.0f, 0.0f },
-										{ 0.0f, 0.0f, -1.0f, 0.0f } };
-	const DirectX::XMVECTOR ups[] = { { 0.0f, 1.0f, 0.0f, 0.0f },
-									{ 1.0f, 1.0f, 0.0f, 0.0f },
-									{ 0.0f, 0.0f, -1.0f, 0.0f },
-									{ 0.0f, 0.0f, 1.0f, 0.0f },
-									{ 0.0f, 1.0f, 0.0f, 0.0f },
-									{ 0.0f, 1.0f, 0.0f, 0.0f } };
-	DirectX::XMFLOAT3 lpos = initInfo.transformManager->GetPosition(exists->first);
-	const DirectX::XMVECTOR vpos = DirectX::XMLoadFloat3(&lpos);
-	for(int i = 0; i < 6; ++i)
-	{
-		const DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH(vpos, looks[i], ups[i]);
-		DirectX::XMStoreFloat4x4(&lightVPBuffer.viewProjections[i], DirectX::XMMatrixTranspose(view * proj));
-	}
+	hasShadowCaster = true;
+	shadowCaster = entity;
 
-	lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, 1.0f);
-	lightShadowDataBuffer.range = { 20.0f, 0.0f, 0.0f, 0.0f };
 
 }
 
@@ -203,6 +174,9 @@ void SE::Core::LightManager::Destroy(size_t index)
 	const size_t last = entityToLightData.size() - 1;
 	const Entity entity = indexToEntity[index];
 	const Entity last_entity = indexToEntity[last];
+
+	if (entity == shadowCaster)
+		hasShadowCaster = false;
 
 	// Copy the data
 	indexToEntity[index] = last_entity;

@@ -140,8 +140,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	d.radius = 100.0f;
 	d.pos = { 5.0f, 10.0f, -5.0f };
 	d.color = { 1, 1,1 };
-	d.castShadow = false;
-	d.isOrtographic = false;
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 

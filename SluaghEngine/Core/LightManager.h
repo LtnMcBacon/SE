@@ -78,15 +78,6 @@ namespace SE
 				LightAttributes data[20];
 			};
 
-			struct ShadowCaster {
-
-				Entity entity;
-				DirectX::XMMATRIX lProj;
-				DirectX::XMFLOAT3 dir;
-			};
-
-			std::vector<ShadowCaster> shadowCasters;
-
 			// Light variables
 			std::unordered_map<Entity, LightData, EntityHasher> entityToLightData;
 			std::vector<Entity> indexToEntity;
