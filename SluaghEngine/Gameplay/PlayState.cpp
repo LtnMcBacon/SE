@@ -3,6 +3,7 @@
 #include <Utilz\Tools.h>
 #include "CoreInit.h"
 #include "EnemyFactory.h"
+#include <GameBlackboard.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -174,7 +175,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			data.useVariation = true;
 			eStruct.information.push_back(data);
 		}
-
+		
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
 		for (int i = 0; i < enemiesInEachRoom; i++)
@@ -216,26 +217,27 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(((PlayStateData*)playerInfo)->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
-				player->SetZPosition(0.0f);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
+				
+				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
+
+				//CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 				break;
 			}
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
+	//CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 
-	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
-	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+	//Core::IMaterialManager::CreateInfo materialInfo;
+	//materialInfo.shader = "SimpleLightPS.hlsl";
+	//Utilz::GUID material = Utilz::GUID("MCModell.mat");
+	//materialInfo.materialFile = material;
+	//CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
 
-	Core::IMaterialManager::CreateInfo materialInfo;
-	materialInfo.shader = "SimpleLightPS.hlsl";
-	Utilz::GUID material = Utilz::GUID("MCModell.mat");
-	materialInfo.materialFile = material;
-	CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
-
-	CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
@@ -292,6 +294,29 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	//blackBoard.enemyProjectiles.clear();
 
 	UpdateProjectiles(newProjectiles);
+
+	blackBoard.playerPositionX = player->GetXPosition();
+	blackBoard.playerPositionY = player->GetYPosition();
+	blackBoard.deltaTime = input->GetDelta();
+	blackBoard.playerHealth = player->GetHealth();
+	
+
+	/**
+	 *	Must be put in change room once the function is done!
+	 */
+	blackBoard.currentRoom = currentRoom;
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+
+	/**
+	 * End of must
+	 */
+
+	currentRoom->Update(input->GetDelta(), player->GetXPosition(), player->GetYPosition());
+
+
+	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+	blackBoard.enemyProjectiles.clear();
+
 
 	ProfileReturn(returnValue);
 
