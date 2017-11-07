@@ -335,8 +335,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		auto& mdata = *materialInfo.material[find->second];
 		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
 		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
-		if (info->vertexCount == 6 && info->pipeline.PSStage.shader != defaultPixelShader)
-			int i = 0;
+
 		for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
 		{
 			info->pipeline.PSStage.textureBindings[i] = mdata.textureInfo.bindings[i];
