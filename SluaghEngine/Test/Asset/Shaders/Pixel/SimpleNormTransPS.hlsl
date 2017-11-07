@@ -73,12 +73,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
 	}
 	
-	
-	
-	
-	float trans = min(sqrt(input.Pos.x*input.Pos.x + input.Pos.y*input.Pos.y), 1);
-	
-	
-	return float4(finalColor, trans);
+	return float4(totLight, 0.7f);
 }
-
