@@ -127,6 +127,17 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 	info.addressV = Graphics::AddressingMode::WRAP;
 	info.addressW = Graphics::AddressingMode::WRAP;
 	initInfo.renderer->GetPipelineHandler()->CreateSamplerState(defaultSampler, info);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	res = this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
+	if (res < 0)
+		throw std::exception("Could not create shadowpointsampler");
 }
 
 SE::Core::MaterialManager::~MaterialManager()
@@ -320,10 +331,12 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	auto find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
+		
 		auto& mdata = *materialInfo.material[find->second];
 		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
 		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
-
+		if (info->vertexCount == 6 && info->pipeline.PSStage.shader != defaultPixelShader)
+			int i = 0;
 		for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
 		{
 			info->pipeline.PSStage.textureBindings[i] = mdata.textureInfo.bindings[i];
@@ -348,6 +361,12 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("MaterialAttributes", (void*)&attrib, sizeof(attrib));
 		});
 
+		info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
+
+		info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
+
+		info->pipeline.PSStage.samplers[1] = "shadowPointSampler";
+		info->pipeline.PSStage.samplerCount = 2;
 
 	}
 	else
