@@ -110,12 +110,13 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void PlayState::InitializeRooms()
 {
-	uint32_t nrOfRooms;
+	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
 	int nrOfRoomsToCreate = 10;
 	int nrOfRoomsCreated = 0;
 	int nrOfOpenDoors = 0;
+	
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 	{
@@ -128,9 +129,12 @@ void PlayState::InitializeRooms()
 	while (nrOfOpenDoors != 0 || nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
 		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
-		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		
+		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+
 		rooms.push_back(temp);
 		nrOfRoomsCreated++;
 		temp->RenderRoom(false);
@@ -290,3 +294,4 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	ProfileReturn(returnValue);
 
 }
+

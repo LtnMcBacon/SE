@@ -47,8 +47,6 @@ namespace SE
 			State Update(void*& passableInfo);
 
 			
-
-			
 		private:
 			void InitializeRooms();
 			void InitializeEnemies();
