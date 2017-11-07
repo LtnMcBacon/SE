@@ -96,6 +96,23 @@ namespace SE {
 			timer->Start(("LightManger"));
 			GarbageCollection();
 
+			if (dirtyEntites.size())
+			{
+				for (auto& l : dirtyEntites)
+				{
+					const auto fl = entityToLightData.find(l.entity);
+					if (fl != entityToLightData.end())
+					{
+						auto pos = initInfo.transformManager->GetPosition(l.entity);
+						fl->second.pos.x = pos.x;
+						fl->second.pos.y = pos.y;
+						fl->second.pos.z = pos.z;
+					}
+				}
+				anyTogglesThisFrame = true;
+			}
+
+
 			if (anyTogglesThisFrame)
 			{
 				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
