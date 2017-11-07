@@ -32,7 +32,7 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 		ProfileReturnVoid;
 
 	// chexk if entity exist
-	auto& fileLoaded = entityToLightData.find(entity);
+	const auto fileLoaded = entityToLightData.find(entity);
 	auto& data = entityToLightData[entity];
 	if (fileLoaded == entityToLightData.end())
 	{
@@ -69,7 +69,7 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 		ProfileReturnVoid;
 
 	// chexk if entity exist in text 
-	auto fileLoaded = entityToLightData.find(entity);
+	const auto fileLoaded = entityToLightData.find(entity);
 	if (fileLoaded != entityToLightData.end())
 	{
 				
@@ -182,7 +182,7 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 	if (exists == entityToLightData.end())
 		return;
 
-	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
+	const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, 20.0f);
 	const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
 										{ 1.0f, 0.0f, 0.0f, 0.0f },
 										{ 0.0f, 1.0f, 0.0f, 0.0f },
@@ -212,7 +212,7 @@ void SE::Core::LightManager::Destroy(size_t index)
 {
 	StartProfile;
 	// Temp variables
-	size_t last = entityToLightData.size() - 1;
+	const size_t last = entityToLightData.size() - 1;
 	const Entity entity = indexToEntity[index];
 	const Entity last_entity = indexToEntity[last];
 
@@ -234,7 +234,7 @@ void SE::Core::LightManager::Destroy(const Entity & entity)
 void SE::Core::LightManager::UpdateDirtyPos(const Entity& entity, size_t index)
 {
 	StartProfile;
-	auto find = entityToLightData.find(entity);
+	const auto find = entityToLightData.find(entity);
 	if (find != entityToLightData.end())
 	{
 		dirtyEntites.push_back({ index, entity });
