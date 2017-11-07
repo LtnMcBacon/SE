@@ -430,7 +430,7 @@ namespace SE
 					}
 				}
 			}
-
+			bool beingRendered = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 
