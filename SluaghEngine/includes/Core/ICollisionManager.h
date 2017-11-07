@@ -50,7 +50,7 @@ namespace SE
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
 			*/
-			virtual void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
+			virtual void CreateBoundingHierarchy(const Entity& entity, const Utilz::GUID& mesh) = 0;
 
 			/**
 			* @brief	Bind a callback that will be called if the given entity collides with any other entity.

@@ -23,7 +23,24 @@ namespace SE {
 			if (fileLoaded == textureGUID.end())
 			{
 				textureGUID[info.texture].textureHandle = -1;
-				initInfo.resourceHandler->LoadResource(info.texture, { this, &GUIManager::LoadTexture });
+				auto res  = initInfo.resourceHandler->LoadResource(info.texture, [this](auto guid, auto data, auto size) {
+					Graphics::TextureDesc td;
+					memcpy(&td, data, sizeof(td));
+					/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+					if (td.width * td.height * 4 != size - sizeof(td))
+						return ResourceHandler::InvokeReturn::FAIL;
+					void* rawTextureData = ((char*)data) + sizeof(td);
+					auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
+					if (handle == -1)
+						return ResourceHandler::InvokeReturn::FAIL;
+					textureGUID[guid].textureHandle = handle;
+					textureGUID[guid].refCount = 0;
+					textureGUID[guid].height = td.height;
+					textureGUID[guid].width = td.width; 
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				if (res < 0)
+					textureGUID[info.texture].textureHandle = 0;
 			}
 
 			// Check if the entity is alive
@@ -95,7 +112,7 @@ namespace SE {
 		void GUIManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH("GUIManager"));
+			timer->Start(("GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -110,7 +127,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 
@@ -199,25 +216,6 @@ namespace SE {
 			StopProfile;
 		}
 
-		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
-		{
-			StartProfile;
-			Graphics::TextureDesc td;
-			memcpy(&td, data, sizeof(td));
-			/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
-			if (td.width * td.height * 4 != size - sizeof(td))
-				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-			void* rawTextureData = ((char*)data) + sizeof(td);
-			auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
-			if (handle == -1)
-				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-			textureGUID[guid].textureHandle = handle;
-			textureGUID[guid].refCount = 0;
-			textureGUID[guid].height = td.height;
-			textureGUID[guid].width = td.width;
-
-			ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-		}
 
 	}
 }
