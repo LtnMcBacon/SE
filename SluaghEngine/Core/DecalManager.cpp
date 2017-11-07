@@ -23,8 +23,8 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	{
 		auto res = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (res < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	if (res < 0)
@@ -34,8 +34,8 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	{
 		auto res = this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 		if (res < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (res < 0)
 		throw std::exception("Could not load decal pixel shader");
@@ -119,9 +119,9 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 			void* textureData = ((char*)data) + sizeof(Graphics::TextureDesc);
 			int res = this->initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, textureData, td.width, td.height);
 			if (res < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
-		}, false);
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		});
 		if (result)
 			ProfileReturnConst(-1);
 	}

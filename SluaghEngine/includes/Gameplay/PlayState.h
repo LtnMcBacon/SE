@@ -45,8 +45,6 @@ namespace SE
 			State Update(void*& passableInfo);
 
 			
-
-			
 		private:
 			void InitializeRooms();
 			void InitializePlayer();
@@ -60,8 +58,11 @@ namespace SE
 			PlayerUnit* player;
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
+			
 
 			ProjectileManager* projectileManager;
+
+			
 
 		protected:
 
