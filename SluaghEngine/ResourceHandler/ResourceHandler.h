@@ -71,6 +71,8 @@ namespace SE
 			inline void GetErrorMessages(std::vector<std::string>& errors) override
 			{
 				Utilz::Move(this->errors, errors);
+				if (errors.size())
+					int i = 0;
 			}
 		private:
 			InitializationInfo initInfo;
