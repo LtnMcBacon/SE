@@ -129,10 +129,7 @@ void PlayState::InitializeRooms()
 
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
-		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
-
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
-		
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
 
@@ -144,10 +141,23 @@ void PlayState::InitializeRooms()
 
 	for (int i = 0; i < nrOfRoomsToCreate; i++)
 	{
-		if (i < sideLength)
+		if (i < sideLength) // top row
 		{
 			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 		}
+		else if (i % sideLength == sideLength - 1) // right side
+		{
+			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+		}
+		else if (i % sideLength == 0) // left side
+		{
+			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+		}
+		else if (i >= sideLength * sideLength - 1) // bottom row
+		{
+			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+		}
+
 	}
 
 	blackBoard.currentRoom = currentRoom = rooms[0];

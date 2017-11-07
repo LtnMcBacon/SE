@@ -993,6 +993,22 @@ void SE::Gameplay::Room::CreateEntities()
 					}
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+					int arrPos = -1;
+					if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
+						arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+					else if (j - 1 >= 0 && tileValues[i][j - 1] == 0)
+						arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+					else if (j + 1 < 25 && tileValues[i][j + 1] == 0)
+						arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+					else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
+						arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+
+					DoorArr[arrPos].doorEntityPos = roomEntities.size();
+					DoorArr[arrPos].xPos = i + 0.5f;
+					DoorArr[arrPos].yPos = j + 0.5f;
+					DoorArr[arrPos].active = true;
+
 				}
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
@@ -1134,6 +1150,9 @@ float Room::FloorCheck(int x, int y)
 
 void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
-	DoorArr[int(DoorNr)] = false;
+	if (DoorArr[int(DoorNr)].active)
+	{
+		//Turn it into a wall
+	}
 
 }

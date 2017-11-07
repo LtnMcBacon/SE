@@ -29,8 +29,16 @@ namespace SE
 		class Room
 		{
 		private:
+			
+			struct DoorData
+			{
+				int doorEntityPos = -1;
+				bool active = true;
+				float xPos, yPos;
+			};
+			
 			Room* adjacentRooms[4] = {};
-			bool DoorArr[4] = { true, true, true,true };
+			DoorData DoorArr[4];
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
