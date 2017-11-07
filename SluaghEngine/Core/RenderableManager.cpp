@@ -141,6 +141,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 
 void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 {
+
 	StartProfile;
 	if(timer)
 		timer->Start(("RenderableManager"));
@@ -164,7 +165,7 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 
 
 	UpdateDirtyTransforms();
-	if(timer)
+	if (timer)
 		timer->Stop(("RenderableManager"));
 	ProfileReturnVoid;
 }
@@ -323,7 +324,8 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 			Graphics::RenderJob info;
 			CreateShadowRenderObjectInfo(find->second, &info);
 			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
-			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			if(shadowInstancing)
+				shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 
 		}
 	}
