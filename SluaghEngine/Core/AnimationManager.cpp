@@ -21,14 +21,14 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 
 	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
 		initInfo.console, initInfo.entityManager,
-		initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear },
+		initInfo.eventManager, initInfo.transformManager },
 		10, animationSystem);
 
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
@@ -81,8 +81,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 		auto result = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
 			auto result = LoadSkeleton(guid, data, size);
 			if (result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 		if (result < 0)
 		{
@@ -102,8 +102,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 			auto result = initInfo.resourceHandler->LoadResource(info.animations[i], [this](auto guid, auto data, auto size) {
 				auto result = LoadAnimation(guid, data, size);
 				if (result < 0)
-					return ResourceHandler::InvokeReturn::Fail;
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+					return ResourceHandler::InvokeReturn::FAIL;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			if (result < 0)
 			{
@@ -119,7 +119,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
-	timer->Start(CREATE_ID_HASH("AnimationManager"));
+	timer->Start(("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
 
@@ -141,7 +141,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	}
 	renderableManager->Frame(nullptr);
 	GarbageCollection();
-	timer->Stop(CREATE_ID_HASH("AnimationManager"));
+	timer->Stop(("AnimationManager"));
 }
 
 void SE::Core::AnimationManager::Start(const Entity & entity, AnimationPlayInfo playInfo)

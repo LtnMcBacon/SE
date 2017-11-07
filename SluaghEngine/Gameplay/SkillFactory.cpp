@@ -16,7 +16,7 @@ SE::Gameplay::SkillFactory::SkillFactory()
 			this->skillAmounts = 0;
 		}
 
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 }
 
@@ -74,7 +74,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 		offset += usiSize;
 		tempSkill->Particle		= *((char*)(filePointer)+offset);
 
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	name = tempSkill->skillName;
@@ -117,7 +117,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, floa
 		memcpy(&tempSkill->baneDuration, (char*)filePointer + offset, sizeof(float));
 		offset += sizeof(float);
 
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
  	attributes[0] = tempSkill->skillDamage;

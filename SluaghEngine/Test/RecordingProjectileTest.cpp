@@ -197,7 +197,7 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 			nrOfRooms = *(uint32_t *)data;
 			RoomArr = new Utilz::GUID[nrOfRooms];
 			memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 
 		int random = subSystem.window->GetRand() % nrOfRooms;
@@ -252,9 +252,9 @@ bool SE::Test::RecordingProjectileTest::Run(SE::DevConsole::IConsole* console)
 		playerInfo.shader = shader;
 		playerInfo.materialFile = material;
 
-		managers.materialManager->Create(player->GetEntity(), playerInfo, true);
+		managers.materialManager->Create(player->GetEntity(), playerInfo);
 		managers.transformManager->SetScale(player->GetEntity(), 1.f);
-		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") }, true);
+		managers.renderableManager->CreateRenderableObject(player->GetEntity(), { Utilz::GUID("MCModell.mesh") });
 
 		managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 		managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);

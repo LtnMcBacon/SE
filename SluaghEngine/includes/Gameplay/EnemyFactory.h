@@ -99,18 +99,7 @@ namespace SE
 			*/
 			ResourceHandler::InvokeReturn LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
 			
-			/**
-			* @brief	Load an enemy into memory. Must be called before an enemy can be created.
-			*
-			* @details	Load an enemy specifed by the GUID into memory. Uses LoadEnemyFromResourceHandler 
-			* to parse the data
-			*
-			* @param[in] GUID The GUID for the file containing the enemy.
 			
-			* @retval true The enemy is loaded into memory and enemies can be created.
-			* @retval false The enemy could not be loaded.
-			*/
-			bool LoadEnemyIntoMemory(Utilz::GUID GUID);
 		public:
 
 

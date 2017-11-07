@@ -93,7 +93,7 @@ namespace SE {
 		void LightManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH("LightManger"));
+			timer->Start(("LightManger"));
 			GarbageCollection();
 
 			if (anyTogglesThisFrame)
@@ -148,7 +148,7 @@ namespace SE {
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
 			}
 
-			timer->Stop(CREATE_ID_HASH("LightManger"));
+			timer->Stop(("LightManger"));
 			StopProfile;
 		}
 		

@@ -10,6 +10,12 @@
 #else
 #pragma comment(lib, "core.lib")
 #endif
+bool VectorOfStringGetter(void* data, int n, const char** out_text)
+{
+	const std::vector<std::string>* v = (std::vector<std::string>*)data;
+	*out_text = (v->operator[](n)).c_str();
+	return true;
+}
 
 enum ActionButton
 {
@@ -42,7 +48,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	Utilz::CPUTimeCluster timers;
 
-	timers.Start(CREATE_ID_HASH("Init"));
+
+	timers.Start(("Init"));
 	auto engine = Core::CreateEngine();
 	auto r = engine->Init();
 	if (r < 0)
@@ -54,6 +61,19 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
+
+
+	std::vector<Utilz::GUID> guids;
+	std::vector<std::string> names;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("mesh", guids, names);
+
+
+
+
+
+
+
+
 
 	auto& mainC = managers.entityManager->Create();
 	auto& camera = managers.entityManager->Create();
@@ -81,15 +101,15 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("MCModell.mat");
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("Cube.mat");
+	auto shader = Utilz::GUID("SimpleNormTransPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
 
-	managers.materialManager->Create(mainC, info, true);
+	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, true);
+	managers.renderableManager->CreateRenderableObject(mainC, { "HighWall.mesh", true });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();
@@ -107,8 +127,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 	Utilz::Timer timer;
-	timers.Stop(CREATE_ID_HASH("Init"));
-	timers.Start(CREATE_ID_HASH("Running"));
+	timers.Stop(("Init"));
+	timers.Start(("Running"));
 	subSystem.devConsole->Toggle();
 
 	auto e1 = managers.entityManager->Create();
@@ -119,6 +139,9 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 	auto e3 = managers.entityManager->Create();
 	managers.entityManager->Destroy(e3);
+
+	int currentMesh = 0; 
+
 	while (running)
 	{
 		if (subSystem.window->ButtonPressed(0))
@@ -141,7 +164,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			managers.transformManager->Move(camera, DirectX::XMFLOAT3 { 0.0f, 0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::TL))
 			managers.transformManager->Rotate(camera, 0.0f, 0.01f, 0.0f);
-		managers.transformManager->Rotate(mainC, 0.0f, 0.01f, 0.0f);
+		managers.transformManager->Rotate(mainC, 0.0f, 0.001f*dt, 0.0f);
 		//managers.transformManager->Move(mainC, { 0.01f, 0.0f, 0.0f });
 
 		engine->BeginFrame();
@@ -150,10 +173,11 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e1))
 			{
+				managers.entityManager->Destroy(e3);
 				e1 = managers.entityManager->Create();
 				managers.transformManager->Create(e1);
 				managers.transformManager->SetPosition(e1, DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e1, { "bakedTest.mesh" }, false);
+				managers.renderableManager->CreateRenderableObject(e1, { "bakedTest.mesh" });
 				managers.renderableManager->ToggleRenderableObject(e1, true);
 			}		
 		}
@@ -172,10 +196,11 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e2))
 			{
+				managers.entityManager->Destroy(e3);
 				e2 = managers.entityManager->Create();
 				managers.transformManager->Create(e2);
 				managers.transformManager->SetPosition(e2, DirectX::XMFLOAT3(-2.0f, -2.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e2, { "bakedTest2.mesh" }, false);
+				managers.renderableManager->CreateRenderableObject(e2, { "bakedTest2.mesh" });
 				managers.renderableManager->ToggleRenderableObject(e2, true);
 			}
 		}
@@ -188,10 +213,11 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 		{
 			if (!managers.entityManager->Alive(e3))
 			{
+				managers.entityManager->Destroy(e3);
 				e3 = managers.entityManager->Create();
 				managers.transformManager->Create(e3);
 				managers.transformManager->SetPosition(e3, DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
-				managers.renderableManager->CreateRenderableObject(e3, { "bakedTest3.mesh" }, false);
+				managers.renderableManager->CreateRenderableObject(e3, { "bakedTest3.mesh" });
 				managers.renderableManager->ToggleRenderableObject(e3, true);
 			}
 		}
@@ -200,16 +226,31 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 			managers.entityManager->Destroy(e3);
 		}
 
+		ImGui::ListBox("Meshes", &currentMesh, [](void*data, int n, const char** out) {
+			auto& v = *(std::vector<std::string>*)data;
+			if (n < v.size())
+			{
+				*out = v[n].c_str();
+				return true;
+			}
+
+			return false; 
+		}, &names, names.size(), 10);
+
+		if (ImGui::Button("Create"))
+		{
+			managers.entityManager->Destroy(mainC);
+			mainC = managers.entityManager->Create();
+			managers.transformManager->Create(mainC);
+			managers.materialManager->Create(mainC, info);
+			managers.renderableManager->CreateRenderableObject(mainC, { guids[currentMesh] });
+			managers.renderableManager->ToggleRenderableObject(mainC, true);
+		}
+
 		engine->EndFrame();
 	}
 
-	timers.Stop(CREATE_ID_HASH("Running"));
-
-	Utilz::TimeMap times;
-	timers.GetMap(times);
-	engine->GetProfilingInformation(times);
-	for(auto& t: times)
-		console->Print("%s: %f\n", t.first.str, t.second);
+	timers.Stop(("Running"));
 
 	engine->Release(); delete engine;
 	ProfileReturnConst(true);
