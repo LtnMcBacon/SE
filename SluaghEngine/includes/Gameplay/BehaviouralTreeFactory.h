@@ -146,12 +146,28 @@ namespace SE
 			IBehaviour* CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID);
 
 			/**
-			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			* @brief	Create a ChannelingCondition Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateChannelingConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a InTheSameRoomAsThePlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateInTheSameRoomAsThePlayerConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a AnimiationRunningCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID);
 
 			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
@@ -186,7 +202,7 @@ namespace SE
 			IBehaviour* CreateLeapAtPlayerLeaf(NodeData* dataArray, int nodeID);
 
 			/**
-			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			* @brief	Create a BodachMeleeAttackLeaf Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
@@ -194,7 +210,7 @@ namespace SE
 			IBehaviour* CreateBodachMeleeAttackLeaf(NodeData* dataArray, int nodeID);
 
 			/**
-			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			* @brief	Create a PechMeleeAttackLeaf Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
@@ -202,12 +218,21 @@ namespace SE
 			IBehaviour* CreatePechMeleeAttackLeaf(NodeData* dataArray, int nodeID);
 
 			/**
-			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			* @brief	Create a PechRAngedAttackLeaf Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreatePechRangedAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create an AnimationLeaf Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAnimationLeaf(NodeData* dataArray, int nodeID);
+
 
 			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
@@ -307,14 +332,6 @@ namespace SE
 			* CreateFromType for the creation of individual nodes.
 			*/
 			bool CreateTreeFromNodeData(const Utilz::GUID& GUID, NodeData* dataArray, size_t size);
-
-			/**
-			* @brief	Read the data from the BehaviouralTree file, parsing it, and send a NodeData array
-			* to CreateTreeFromNodeData.
-			*
-			* @sa CreateTreeFromNodeData
-			*/
-			ResourceHandler::InvokeReturn LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
 		public:
 
 			/**

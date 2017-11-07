@@ -25,6 +25,9 @@
 #include "BodachMeleeAttackLeaf.h"
 #include "PechMeleeAttackLeaf.h"
 #include "PechRangedAttackLeaf.h"
+#include "AnimationLeaf.h"
+#include "InTheSameRoomAsThePlayerCondition.h"
+#include "AnimationRunningCondition.h"
 
 /*Composites*/
 #include "IComposite.h"

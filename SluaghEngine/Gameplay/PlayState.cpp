@@ -2,6 +2,7 @@
 #include <Profiler.h>
 #include <Utilz\Tools.h>
 #include "CoreInit.h"
+#include "EnemyFactory.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -24,6 +25,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	InitializeRooms();
 	InitializePlayer(passedInfo);
+	InitializeEnemies();
 	InitializeOther();
 
 	BehaviourPointers temp;
@@ -108,38 +110,83 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void PlayState::InitializeRooms()
 {
-	uint32_t nrOfRooms;
+	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
 	int nrOfRoomsToCreate = 10;
 	int nrOfRoomsCreated = 0;
 	int nrOfOpenDoors = 0;
+	
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 	{
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	while (nrOfOpenDoors != 0 || nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
 		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
-		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		
+		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+
 		rooms.push_back(temp);
 		nrOfRoomsCreated++;
 		temp->RenderRoom(false);
 
 	}
 
-	currentRoom = rooms[0];
+	blackBoard.currentRoom = currentRoom = rooms[0];
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
 
 }
+void SE::Gameplay::PlayState::InitializeEnemies()
+{
+	char map[25][25];
+
+	EnemyCreationStruct eStruct;
+	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+	for(auto room : rooms)
+	{
+		room->GetMap(map);
+		eStruct.information.clear();
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+
+			EnemyCreationData data;
+			data.type = ENEMY_TYPE_GLAISTIG;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
+		}
+
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			room->AddEnemyToRoom(enemies[i]);
+		}
+
+	}
+	delete[] enemies;
+
+}
+
 void PlayState::InitializePlayer(void* playerInfo)
 {
 	char map[25][25];
@@ -177,7 +224,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
+	//CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 
 	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
@@ -207,7 +254,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false);
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
 	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
 	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
@@ -249,3 +296,4 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	ProfileReturn(returnValue);
 
 }
+

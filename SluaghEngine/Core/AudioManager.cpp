@@ -48,7 +48,7 @@ namespace SE {
 			{
 				auto res = initInfo.resourceHandler->LoadResource(createInfo.soundFile, [this](auto guid, auto data, auto size) {
 					guidToSound[guid].handle = audioHandler->LoadSound(data, size);
-					return ResourceHandler::InvokeReturn::Success;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				if (res)
 				{
@@ -136,11 +136,11 @@ namespace SE {
 		void AudioManager::Frame(Utilz::TimeCluster * timer)
 		{
 			_ASSERT(timer);
-			timer->Start(CREATE_ID_HASH("AudioManager"));
+			timer->Start(("AudioManager"));
 			GarbageCollection();
 			if (PanExist)
 				UpdateDirtyTransforms();
-			timer->Stop(CREATE_ID_HASH("AudioManager"));
+			timer->Stop(("AudioManager"));
 		}
 
 		void AudioManager::SetCameraEnt(const Entity & entity)

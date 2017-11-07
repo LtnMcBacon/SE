@@ -45,7 +45,7 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 
 	Utilz::CPUTimeCluster timers;
 
-	timers.Start(CREATE_ID_HASH("Init"));
+	timers.Start(("Init"));
 	auto engine = Core::CreateEngine();
 	auto r = engine->Init();
 	if (r < 0)
@@ -109,15 +109,15 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	floorInfo.shader = shader;
 	floorInfo.materialFile = floorMaterial;
 
-	managers.materialManager->Create(mainC, info, true);
-	managers.materialManager->Create(floor, floorInfo, true);
+	managers.materialManager->Create(mainC, info);
+	managers.materialManager->Create(floor, floorInfo);
 
 	// Create renderable objects from the entities
-	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 	managers.renderableManager->ToggleShadow(mainC, true);
 
-	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" });
 	managers.renderableManager->ToggleRenderableObject(floor, true);
 
 	// Create light
@@ -138,8 +138,8 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	bool running = true;
 
 	Utilz::Timer timer;
-	timers.Stop(CREATE_ID_HASH("Init"));
-	timers.Start(CREATE_ID_HASH("Running"));
+	timers.Stop(("Init"));
+	timers.Start(("Running"));
 	subSystem.devConsole->Toggle();
 
 	auto e1 = managers.entityManager->Create();
@@ -180,13 +180,13 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 		engine->EndFrame();
 	}
 
-	timers.Stop(CREATE_ID_HASH("Running"));
+	timers.Stop(("Running"));
 
 	Utilz::TimeMap times;
 	timers.GetMap(times);
 	engine->GetProfilingInformation(times);
 	for (auto& t : times)
-		console->Print("%s: %f\n", t.first.str, t.second);
+		console->Print("%s: %f\n", t.first, t.second);
 
 	engine->Release(); delete engine;
 	ProfileReturnConst(true);

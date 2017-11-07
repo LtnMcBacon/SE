@@ -81,6 +81,8 @@ namespace SE
 
 			virtual  void SetTextureRotation(const Entity& entity, float rotation) = 0;
 
+			virtual void SetTexture(const Entity& entity, Utilz::GUID texture) = 0;
+
 			virtual  void SetTextureLayerDepth(const Entity& entity, float layerDepth) = 0;
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc

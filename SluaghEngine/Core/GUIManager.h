@@ -171,6 +171,48 @@ namespace SE
 
 			};
 
+			inline void SetTexture(const Entity& entity, Utilz::GUID texture)override
+			{
+				auto texLoaded = textureGUID.find(texture);
+				if (texLoaded == textureGUID.end())
+				{
+					textureGUID[texture].textureHandle = -1;
+					auto res = initInfo.resourceHandler->LoadResource(texture, [this](auto guid, auto data, auto size) {
+						Graphics::TextureDesc td;
+						memcpy(&td, data, sizeof(td));
+						/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+						if (td.width * td.height * 4 != size - sizeof(td))
+							return ResourceHandler::InvokeReturn::FAIL;
+						void* rawTextureData = ((char*)data) + sizeof(td);
+						auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
+						if (handle == -1)
+							return ResourceHandler::InvokeReturn::FAIL;
+						textureGUID[guid].textureHandle = handle;
+						textureGUID[guid].refCount = 0;
+						textureGUID[guid].height = td.height;
+						textureGUID[guid].width = td.width;
+						return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+					});
+					if (res < 0)
+						textureGUID[texture].textureHandle = 0;
+				}
+				// chexk if entity exist in texture 
+				auto fileLoaded = entTextureID.find(entity);
+				if (fileLoaded != entTextureID.end())
+				{
+					textureGUID[fileLoaded->second.GUID].refCount--;
+					fileLoaded->second.GUID = texture;
+					textureGUID[fileLoaded->second.GUID].refCount++;
+					entTextureID[entity].textureHandle = textureGUID[texture].textureHandle;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
+				}
+
+
+			};
+
 
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc
@@ -194,7 +236,6 @@ namespace SE
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			struct EntBindIDGUID
 			{

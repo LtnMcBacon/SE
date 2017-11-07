@@ -12,6 +12,7 @@
 #include "Gameplay/EnemyFactory.h"
 #include <Gameplay\Game.h>
 #include <Imgui\imgui.h>
+#include "../Gameplay/CoreInit.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "coreD.lib")
@@ -39,55 +40,34 @@ SE::Test::ProjectileTest::~ProjectileTest()
 bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 {
 	StartProfile;
+
 	using namespace DirectX;
+
+	Core::IEngine::InitializationInfo info;
+
+	info.subSystems.optionsHandler = Core::CreateOptionsHandler();
+	info.subSystems.optionsHandler->Initialize("Config.ini");
+
+	float width = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
+	float height = info.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
+
+	Window::InitializationInfo winInfo;
+	winInfo.winState = Window::WindowState::Playback;
+	winInfo.height = height;
+	winInfo.width = width;
+	winInfo.windowTitle = "Recording";
+	winInfo.fullScreen = false;
+
+	info.subSystems.window = Window::CreateNewWindow();
+	info.subSystems.window->Initialize(winInfo);
+
 	auto engine = Core::CreateEngine();
-	Gameplay::Game game;
-	engine->Init();
-	game.Initiate(engine);
+	engine->Init(info);
+	Gameplay::CoreInit::Init(engine);
+
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();
-	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 
-
-	
-
-	float width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-	float height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 600);
-
-	auto floor = managers.entityManager->Create();
-	const int numberOfBlocks = 25 * 25;
-	SE::Core::Entity entities[numberOfBlocks];
-	SE::Core::Entity arrows[numberOfBlocks];
-
-	for (int i = 0; i < numberOfBlocks; i++)
-	{
-		entities[i] = managers.entityManager->Create();
-		arrows[i] = managers.entityManager->Create();
-	}
-	managers.transformManager->Create(floor);
-	managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
-
-	for (int i = 0; i < numberOfBlocks; i++)
-	{
-		managers.transformManager->Create(entities[i]);
-		managers.transformManager->Create(arrows[i]);
-	}
-
-
-	managers.renderableManager->CreateRenderableObject(floor, {"Placeholder_Floor.mesh"});
-	managers.renderableManager->ToggleRenderableObject(floor, true);
-
-	managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
-
-
-	auto Block = Utilz::GUID("HighWall.mesh");
-	auto Arrow = Utilz::GUID("Placeholder_Arrow.mesh");
-
-
-
-
-	int numberOfEntitesPlaced = 0;
-	int numberOfArrows = 0;
 	uint32_t nrOfRooms;
 	Utilz::GUID* RoomArr;
 
@@ -96,7 +76,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	int random = subSystem.window->GetRand() % nrOfRooms;
@@ -142,6 +122,21 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	managers.transformManager->SetRotation(player->GetEntity(), 0, 0, 0);
 
 
+	//Create a default light
+
+	auto dummy = Gameplay::CoreInit::managers.entityManager->Create();
+	Gameplay::CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
+	Gameplay::CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	Gameplay::CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+
+	SE::Core::ILightManager::CreateInfo lightInfo;
+	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
+	lightInfo.color = { 1.0f, 1.0f, 1.0f };
+	lightInfo.radius = 10000.0f;
+
+	Gameplay::CoreInit::managers.lightManager->Create(dummy, lightInfo);
+	Gameplay::CoreInit::managers.lightManager->ToggleLight(dummy, true);
+
 	SE::Core::Entity camera = managers.entityManager->Create();
 
 	Core::ICameraManager::CreateInfo cInfo;
@@ -168,79 +163,18 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
-	for (int x = 0; x < 25; x++)
-	{
-		for (int y = 0; y < 25; y++)
-		{
-			if (testRoom->tileValues[x][y])
-			{
-				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
-				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-				managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
-				numberOfEntitesPlaced++;
-			}
-			else
-			{
-				managers.renderableManager->CreateRenderableObject(arrows[numberOfArrows], { Arrow });
-				managers.renderableManager->ToggleRenderableObject(arrows[numberOfArrows], true);
-				float xMagnitude = 0.0f;
-				float zMagnitude = 0.0f;
-				pos enemyPos;
-				enemyPos.x = x + 0.5f;
-				enemyPos.y = y + 0.5f;
-				testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-				managers.transformManager->SetPosition(arrows[numberOfArrows], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
-				managers.transformManager->SetScale(arrows[numberOfArrows], 0.25f);
-				if (xMagnitude == 1.0f)
-				{
-					managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
-				}
-				else if (xMagnitude == -1.0f)
-				{
-					managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV2, 0.0f);
-				}
-				else if (zMagnitude == 1.0f)
-				{
-					managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI, 0.0f);
-				}
-				else if (zMagnitude == -1.0f)
-				{
-					managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, 0.0f, 0.0f);
-
-				}
-				else if (xMagnitude == 0.707f)
-				{
-					if (zMagnitude == 0.707f)
-					{
-						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
-					}
-					else if (zMagnitude == -0.707f)
-					{
-						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
-					}
-				}
-				else if (xMagnitude == -0.707f)
-				{
-					if (zMagnitude == 0.707f)
-					{
-						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
-					}
-					else if (zMagnitude == -0.707f)
-					{
-						managers.transformManager->SetRotation(arrows[numberOfArrows], 0.0f, DirectX::XM_PIDIV4, 0.0f);
-					}
-				}
-
-				numberOfArrows++;
-			}
-		}
-	}
+	
 	Gameplay::EnemyFactory eFactory;
-	auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
-	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::EnemyCreationStruct eStruct;
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 10; i++)
+
+	const int enemiesSize = 100;
+	Gameplay::EnemyUnit** enemies;
+
+	enemies = new Gameplay::EnemyUnit*[enemiesSize];
+
+	for (int i = 0; i < enemiesSize; i++)
 	{
 		pos enemyPos;
 		do
@@ -249,16 +183,24 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
-		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
-
-		//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-		managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
-		managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
-		managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-		managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
-		testRoom->AddEnemyToRoom(enemy);
+		Gameplay::EnemyCreationData data;
+		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
+		data.startX = enemyPos.x;
+		data.startY = enemyPos.y;
+		data.useVariation = true;
+		eStruct.information.push_back(data);
 	}
+
+
+
+	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+	for (int i = 0; i < enemiesSize; i++)
+	{
+		testRoom->AddEnemyToRoom(enemies[i]);
+	}
+
+	delete[] enemies;
 
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 	subSystem.window->MapActionButton(1, Window::Key1);
@@ -289,15 +231,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 	playerPos.y = 1.5f;
 
 	std::vector<Gameplay::ProjectileData> newProjectiles;
-
-	DirectX::XMFLOAT3 tPos = managers.transformManager->GetPosition(floor);
-	DirectX::XMFLOAT3 tRot = managers.transformManager->GetRotation(floor);
-	DirectX::XMFLOAT3 tScale = managers.transformManager->GetScale(floor);
-	DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
-		0, tScale.y, 0, 0,
-		0, 0, tScale.z, 0,
-		tPos.x, tPos.y, tPos.z, 1.0f };
-
+	
 	bool stepping = false;
 	bool running = true;
 	//unsigned char counter = 0;
@@ -372,72 +306,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
-		int arrowIndex = 0;
-		for (int x = 0; x < 25; x++)
-		{
-			for (int y = 0; y < 25; y++)
-			{
-				if (testRoom->tileValues[x][y])
-				{
-
-				}
-				else
-				{
-
-					float xMagnitude = 0.0f;
-					float zMagnitude = 0.0f;
-					pos enemyPos;
-					enemyPos.x = x + 0.5f;
-					enemyPos.y = y + 0.5f;
-					testRoom->GetFlowFieldMap()->SampleFromMap(enemyPos, xMagnitude, zMagnitude);
-
-					if (xMagnitude == 1.0f)
-					{
-						managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
-					}
-					else if (xMagnitude == -1.0f)
-					{
-						managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV2, 0.0f);
-					}
-					else if (zMagnitude == 1.0f)
-					{
-						managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI, 0.0f);
-					}
-					else if (zMagnitude == -1.0f)
-					{
-						managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, 0.0f, 0.0f);
-
-					}
-					else if (xMagnitude == 0.707f)
-					{
-						if (zMagnitude == 0.707f)
-						{
-							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
-						}
-						else if (zMagnitude == -0.707f)
-						{
-							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
-						}
-					}
-					else if (xMagnitude == -0.707f)
-					{
-						if (zMagnitude == 0.707f)
-						{
-							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
-						}
-						else if (zMagnitude == -0.707f)
-						{
-							managers.transformManager->SetRotation(arrows[arrowIndex], 0.0f, DirectX::XM_PIDIV4, 0.0f);
-						}
-					}
-
-					arrowIndex++;
-				}
-
-			}
-
-		}
-
 		player->UpdateMovement(dt * 5, input);
 		player->UpdateActions(dt, newProjectiles, actionInput);
 
@@ -486,9 +354,6 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 	delete RoomArr;
 
-	
-
-	game.Shutdown();
 	engine->Release(); delete engine;
 	ProfileReturnConst(true)
 }
