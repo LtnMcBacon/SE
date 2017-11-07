@@ -262,19 +262,6 @@ namespace SE
 			~Room();
 
 
-			struct Doors
-			{
-				bool up; 
-				bool down; 
-				bool left; 
-				bool right;
-			};
-			struct Doorss {
-				bool open;
-			};
-
-			bool Doors[4];
-			
 			float FloorCheck(int x, int y); 
 			
 			/**
