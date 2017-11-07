@@ -307,14 +307,6 @@ namespace SE
 			* CreateFromType for the creation of individual nodes.
 			*/
 			bool CreateTreeFromNodeData(const Utilz::GUID& GUID, NodeData* dataArray, size_t size);
-
-			/**
-			* @brief	Read the data from the BehaviouralTree file, parsing it, and send a NodeData array
-			* to CreateTreeFromNodeData.
-			*
-			* @sa CreateTreeFromNodeData
-			*/
-			ResourceHandler::InvokeReturn LoadTreeFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
 		public:
 
 			/**

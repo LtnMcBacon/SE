@@ -38,12 +38,30 @@ int SE::ResourceHandler::RawLoader::Initialize()
 
 		file.close();
 
-		resourceEntires[nh] = { eh, s, size };
+		resourceEntires[nh] = { eh, s, Utilz::removeExtension( name), size };
+
+		getline(in, s);
+		auto guid = s;
 	}
 	in.close();
 	ProfileReturnConst(0);
 }
 
+void SE::ResourceHandler::RawLoader::GetAllGUIDsWithExtension(const Utilz::GUID & ext, std::vector<Utilz::GUID>& guids) const
+{
+	for (auto& e : resourceEntires)
+		if (e.second.ext == ext)
+			guids.push_back(e.first);
+}
+void SE::ResourceHandler::RawLoader::GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const
+{
+	for (auto& e : resourceEntires)
+		if (e.second.ext == ext)
+		{
+			guids.push_back(e.first);
+			names.push_back(e.second.name);
+		}
+}
 int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data)const
 {
 	_ASSERT(data);
@@ -52,12 +70,12 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 	if (find == resourceEntires.end())
 		ProfileReturnConst( -1);
 
-	ifstream file(std::get<1>(find->second), ios::in | ios::binary);
+	ifstream file(find->second.path, ios::in | ios::binary);
 	if (!file.is_open())
 		ProfileReturnConst( -2);
 
-	*data = operator new(std::get<2>(find->second));
-	file.read((char*)*data, std::get<2>(find->second));
+	*data = operator new(find->second.size);
+	file.read((char*)*data, find->second.size);
 	file.close();
 
 	ProfileReturnConst( 0);
@@ -72,6 +90,6 @@ bool SE::ResourceHandler::RawLoader::Exist(const Utilz::GUID & guid, size_t* siz
 		ProfileReturnConst(false);
 
 	if(size)
-		*size = std::get<2>(find->second);
+		*size = find->second.size;
 	ProfileReturnConst(true);
 }

@@ -24,7 +24,7 @@ SE::Core::CollisionManager::CollisionManager(const InitializationInfo& initInfo)
 	initInfo.resourceHandler->LoadResource("Placeholder_Block.mesh", [this](const Utilz::GUID& mesh, void*data, size_t size){
 		LoadMesh(defaultHierarchy, data, size);
 
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 
@@ -41,7 +41,7 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 {
 }
 
-void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh, bool async, ResourceHandler::Behavior behavior)
+void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh)
 {
 	StartProfile;
 	auto find = entityToCollisionData.find(entity);
@@ -79,21 +79,21 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 				// Register the new hierarchy
 				auto newHI = boundingHierarchy.used++;
 			//	std::function<int(size_t, void*, size_t)> asd = std::bind(&CollisionManager::LoadMesh, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-				auto res = initInfo.resourceHandler->LoadResource(mesh, [this,newHI, cp,async](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
+				auto res = initInfo.resourceHandler->LoadResource(mesh, [this,newHI, cp](auto mesh, auto data, auto size) ->ResourceHandler::InvokeReturn {
 			
 
 					auto res = LoadMesh(newHI, data, size);
 					if (res)
-						return ResourceHandler::InvokeReturn::Fail;
+						return ResourceHandler::InvokeReturn::FAIL;
 
-					if (async)
+			/*		if (async)
 						toUpdate.push({ newHI, cp });
 					else
 						boundingInfo[cp].index = newHI;
+*/
 
-
-					return ResourceHandler::InvokeReturn::DecreaseRefcount;
-				}, async, behavior);
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
 
 
 				if (res)
@@ -104,8 +104,8 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 			collisionData.boundingIndex[newEntry] = bIndex;		
 			boundingInfo[bIndex].entities.push_back(entity);
 
-			if(!async)
-				initInfo.transformManager->SetAsDirty(entity);
+			/*if(!async)
+				initInfo.transformManager->SetAsDirty(entity);*/
 
 		}
 
@@ -159,7 +159,7 @@ bool SE::Core::CollisionManager::Pick(const DirectX::XMVECTOR& rayO, const Direc
 void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("CollisionManager"));
+	timer->Start(("CollisionManager"));
 	GarbageCollection();
 
 	{
@@ -213,7 +213,7 @@ void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 		toUpdate.pop();
 	}
 
-	timer->Stop(CREATE_ID_HASH("CollisionManager"));
+	timer->Stop(("CollisionManager"));
 	StopProfile;
 }
 

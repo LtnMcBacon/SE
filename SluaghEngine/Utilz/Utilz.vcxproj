@@ -142,6 +142,9 @@
   <ItemGroup>
     <ClInclude Include="..\includes\Utilz\CircularFiFo.h" />
     <ClInclude Include="..\includes\Utilz\CompileTimeStringHasher.h" />
+    <ClInclude Include="..\includes\Utilz\Concurrent.h" />
+    <ClInclude Include="..\includes\Utilz\Concurrent_Unordered_Map.h" />
+    <ClInclude Include="..\includes\Utilz\Concurrent_Vector.h" />
     <ClInclude Include="..\includes\Utilz\CPUTimeCluster.h" />
     <ClInclude Include="..\includes\Utilz\crc_table.h" />
     <ClInclude Include="..\includes\Utilz\Delegate.h" />

@@ -1,6 +1,8 @@
 #ifndef SE_RESOURCE_HANDLER_IASSET_LOADER_H_
 #define SE_RESOURCE_HANDLER_IASSET_LOADER_H_
 #include <Utilz\GUID.h>
+#include <vector>
+
 namespace SE
 {
 	namespace ResourceHandler
@@ -30,6 +32,9 @@ namespace SE
 			*
 			*/
 			virtual int Initialize() = 0;
+
+			virtual void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids)const = 0;
+			virtual void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const = 0;
 
 			/**
 			* @brief Load a resource.

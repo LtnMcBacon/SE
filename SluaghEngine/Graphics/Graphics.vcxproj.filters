@@ -39,9 +39,6 @@
     <ClInclude Include="..\includes\Graphics\ShaderSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Graphics\TextureDesc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Graphics\GUIInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Graphics\RenderJob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Graphics\TextureDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -30,6 +30,9 @@ namespace SE
 			*/
 			int Initialize();
 
+			void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids)const override;
+			void GetAllGUIDsWithExtension(const Utilz::GUID& ext, std::vector<Utilz::GUID>& guids, std::vector<std::string>& names)const override;
+
 			/**
 			* @brief Load a resource.
 			*
@@ -67,7 +70,14 @@ namespace SE
 			*/
 			bool Exist(const Utilz::GUID& guid, size_t* size)const override;
 		private:
-			std::map<Utilz::GUID, std::tuple<Utilz::GUID, std::string, size_t>, Utilz::GUID::Compare> resourceEntires;
+			struct Entry
+			{
+				Utilz::GUID ext;
+				std::string path;
+				std::string name;
+				size_t size;
+			};
+			std::map<Utilz::GUID, Entry, Utilz::GUID::Compare> resourceEntires;
 		};
 	}
 }

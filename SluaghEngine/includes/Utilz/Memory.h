@@ -42,44 +42,45 @@ namespace SE
 					return (static_cast<size_t>(pmc.WorkingSetSize)) <= max;
 				return false;
 			}
-			constexpr size_t toKB(size_t bytes)
-			{
-				return bytes / size_t(1024u);
-			}
-			constexpr size_t toMB(size_t bytes)
-			{
-				return bytes / size_t(1024u) / size_t(1024u);
-			}
-			constexpr size_t toGB(size_t bytes)
-			{
-				return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u);
-			}
-			constexpr size_t toTB(size_t bytes)
-			{
-				return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u) / size_t(1024u);
-			}
-
-			constexpr size_t operator "" _kb(unsigned long long _Val)
-			{
-				return static_cast<size_t>(_Val) * size_t(1024u);
-			}
-
-			constexpr size_t operator "" _mb(unsigned long long _Val)
-			{
-				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u);
-			}
-
-			constexpr size_t operator "" _gb(unsigned long long _Val)
-			{
-				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u);
-			}
-
-			constexpr size_t operator "" _tb(unsigned long long _Val)
-			{
-				return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u) * size_t(1024u);
-			}
-		}
 			
+		}
+		
+	}
+	constexpr size_t toKB(size_t bytes)
+	{
+		return bytes / size_t(1024u);
+	}
+	constexpr size_t toMB(size_t bytes)
+	{
+		return bytes / size_t(1024u) / size_t(1024u);
+	}
+	constexpr size_t toGB(size_t bytes)
+	{
+		return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u);
+	}
+	constexpr size_t toTB(size_t bytes)
+	{
+		return bytes / size_t(1024u) / size_t(1024u) / size_t(1024u) / size_t(1024u);
+	}
+
+	constexpr size_t operator "" _kb(unsigned long long _Val)
+	{
+		return static_cast<size_t>(_Val) * size_t(1024u);
+	}
+
+	constexpr size_t operator "" _mb(unsigned long long _Val)
+	{
+		return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u);
+	}
+
+	constexpr size_t operator "" _gb(unsigned long long _Val)
+	{
+		return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u);
+	}
+
+	constexpr size_t operator "" _tb(unsigned long long _Val)
+	{
+		return static_cast<size_t>(_Val) * size_t(1024u) * size_t(1024u) * size_t(1024u) * size_t(1024u);
 	}
 }
 #endif //SE_UTILZ_MEMORY_H_
