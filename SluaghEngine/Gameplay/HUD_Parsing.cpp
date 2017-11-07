@@ -9,11 +9,17 @@ namespace SE
 	{
 		HUDParser::HUDParser()
 		{
-
+			std::function<void()> test = std::bind(&HUDParser::InitiateTextures, this);
+			test();
+			this->InitiateTextures();
 		}
 		HUDParser::~HUDParser()
 		{
-
+			for (auto& entities: texEntityVec)
+			{
+				CoreInit::managers.guiManager->ToggleRenderableTexture(entities, false);
+				CoreInit::managers.entityManager->Destroy(entities);
+			}
 		}
 		void HUDParser::ParseFiles(Utilz::GUID fileName)
 		{
@@ -201,11 +207,11 @@ namespace SE
 		void HUDParser::InitiateTextures()
 		{
 			
-
+			int i = 0;
 			for (auto& HUDElement : MainMenuElmVec)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
-
+				
 				GuiManager.textureInfo.width = HUDElement.Width;
 				GuiManager.textureInfo.height = HUDElement.Height;
 				GuiManager.textureInfo.posX = HUDElement.PositionX;
@@ -218,6 +224,12 @@ namespace SE
 				CoreInit::managers.guiManager->Create(entity, GuiManager);
 
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
+			
+				texEntityVec.push_back(entity);
+				HUDElement.EntityID = entity.id;
+				
+				HUDElement.EntityIndex = i;
+				i++;
 
 			}
 			for (auto& HUDText : MainMenuTextVec)
@@ -228,14 +240,17 @@ namespace SE
 
 		void HUDParser::checkPressed(bool pressed, int mousePosX, int mousePosY)
 		{
-			for (auto & HUDElement : MainMenuElmVec)
+			for (size_t i = 0; i < MainMenuElmVec.size(); i++)
 			{
-				if (HUDElement.Btn)
-				{
-					HoverButton(pressed,mousePosX, mousePosY,HUDElement);
-				}
+				HUDElement HUDs = MainMenuElmVec.at(i);
 
+				if (HUDs.Btn)
+				{
+					HoverButton(pressed,mousePosX, mousePosY,HUDs);
+				}
 			}
+
+			
 		}
 
 		void HUDParser::HoverButton(bool pressed, int mousePosX, int mousePosY,HUDElement HUDButton)
@@ -254,29 +269,50 @@ namespace SE
 			{
 				if (pressed)
 				{
-					texPressed();
+					texPressed(HUDButton);
 				}
 				else
 				{
-					texHovered();
+					texHovered(HUDButton);
 				}
 			}
 			else
 			{
-				texIdle();
+				texIdle(HUDButton);
 			}
 		}
-		void HUDParser::texHovered()
+		void HUDParser::texHovered(HUDElement HUDButton)
 		{
-
+			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
+			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.hoverTex);
+			
+			
 		}
-		void HUDParser::texPressed()
+		void HUDParser::texPressed(HUDElement HUDButton)
 		{
-
+			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
+			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.PressTex);
+			HUDButton.bindButton();
 		}
-		void HUDParser::texIdle()
+		void HUDParser::texIdle(HUDElement HUDButton)
 		{
+			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
+			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.textName);
+			
+		}
 
+		void HUDParser::SetFunctionOnPress(string identifier, function<void()> func)
+		{
+			for (auto& HUDElements : MainMenuElmVec)
+			{
+
+				if (HUDElements.rectName == identifier)
+				{
+					HUDElements.bindButton = func;
+				}
+
+
+			}
 		}
 
 		

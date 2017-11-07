@@ -44,7 +44,8 @@ namespace SE
 			*/
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
-			HUDButtons ElementFunctionality;
+			IGameState::State CurrentState;
+			
 
 		private:
 

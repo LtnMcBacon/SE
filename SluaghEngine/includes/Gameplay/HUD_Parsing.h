@@ -1,11 +1,10 @@
 #pragma once
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <Windows.h>
 #include <vector>
 #include <Utilz\GUID.h>
-
+#include <Core\IGUIManager.h>
+#include <functional>
 
 namespace SE
 {
@@ -24,11 +23,15 @@ namespace SE
 				int PositionX;
 				int PositionY;
 				int Opacity;
-
+				int EntityID;
+				int EntityIndex;
 				bool Btn;
 				std::string hoverTex;
 				std::string PressTex;
 				int layerDepth;
+
+				std::function<void()> bindButton;
+
 			};
 
 			struct HUDText
@@ -41,6 +44,7 @@ namespace SE
 				int PosY;
 			};
 			std::vector<HUDElement> MainMenuElmVec;
+			std::vector<SE::Core::Entity> texEntityVec;
 			std::vector<HUDText> MainMenuTextVec;
 
 			HUDParser();
@@ -50,11 +54,16 @@ namespace SE
 			void checkPressed(bool pressed, int mousePosX, int mousePosY);
 
 			void HoverButton(bool pressed, int mousePosX, int mousePosY, HUDElement HUDButton);
-			void texHovered();
-			void texPressed();
-			void texIdle();
+			void texHovered( HUDElement HUDButton);
+			void texPressed(HUDElement HUDButton);
+			void texIdle(HUDElement HUDButton);
+
+			void SetFunctionOnPress(std::string identifier, std::function<void()> func);
+			
 
 			Core::IGUIManager::CreateInfo GuiManager;
+
+
 		private:
 
 		};
