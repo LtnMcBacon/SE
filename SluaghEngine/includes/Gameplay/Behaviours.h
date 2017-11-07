@@ -28,6 +28,7 @@
 #include "AnimationLeaf.h"
 #include "InTheSameRoomAsThePlayerCondition.h"
 #include "AnimationRunningCondition.h"
+#include "StopChannelingLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

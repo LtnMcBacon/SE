@@ -392,8 +392,8 @@ SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, floa
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 1;
 
 	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };

@@ -144,6 +144,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreatePechRangedAttackLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "StopChannelingLeaf")
+	{
+		finishedBehaviour = CreateStopChannelingLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -367,6 +371,12 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 
 
 	ProfileReturn(new AnimationLeaf(nullptr, nullptr, numberOfLayers, animations, animationSpeeds, startKeyFrame, looping));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopChannelingLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new StopChannelingLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)

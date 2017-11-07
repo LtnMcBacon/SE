@@ -533,5 +533,8 @@
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
       <Filter>Header Files\Skills</Filter>
     </ClInclude>
+    <ClInclude Include="StopChannelingLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
