@@ -20,6 +20,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
 	state = new PlayState(CoreInit::subSystems.window, engine);
+	CoreInit::subSystems.devConsole->Toggle(); 
 }
 
 void SE::Gameplay::Game::Run()

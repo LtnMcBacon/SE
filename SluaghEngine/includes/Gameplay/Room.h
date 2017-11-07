@@ -57,7 +57,7 @@ namespace SE
 		public:
 
 
-			bool CloseDoor(int DoorNr); 
+			void CloseDoor(int DoorNr); 
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 			char tileValues[25][25];
