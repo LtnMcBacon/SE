@@ -67,7 +67,7 @@ namespace SE
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
 			virtual void SetBlendSpeed(const Entity& entity, int index, float speed) = 0;
 			virtual void Pause(const Entity& entity)const = 0;
-			virtual void UpdateBlending(const Entity& entity, int index)const = 0;
+			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
 

@@ -170,6 +170,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	//managers.transformManager->Rotate(mainC, 0.0f, radians, 0.01f);
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
+	static float blendFactorSpeed = 0.00f;
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
@@ -182,8 +183,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		managers.cameraManager->WorldSpaceRayFromScreenPos(x, y, width, height, o, dir);
 		managers.collisionManager->Pick(o, dir, main1, d);
 	});
-
-	static float blendFactorSpeed = 0.0f;
 
 	while (running)
 	{
@@ -206,16 +205,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		if (subSystem.window->ButtonDown(ActionButton::Sink))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 		
-		if (subSystem.window->ButtonPressed(ActionButton::Increase)){
-			blendFactorSpeed += 0.5;
-			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
-		}
-
-		if (subSystem.window->ButtonPressed(ActionButton::Lower)) {
-			blendFactorSpeed -= 0.5;
-			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
-		}
-
 		engine->BeginFrame();
 
 		managers.animationManager->UpdateBlending(mainC, 2);
@@ -232,6 +221,12 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 			
 			managers.animationManager->SetSpeed(mainC, speed);
 			managers.animationManager->SetSpeed(mainC2, speed);
+
+		}
+
+		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -10.0f, 10.0f)) {
+
+			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 
 		}
 

@@ -217,7 +217,11 @@ void SE::Core::AnimationManager::SetBlendSpeed(const Entity& entity, int index, 
 
 		else {
 
-			ai.blendSpeed[index] = speed;
+			if(index < AnimationInfo::maxLayers){
+
+				ai.blendSpeed[index] = speed;
+
+			}
 		}
 
 	}
@@ -283,7 +287,7 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	StopProfile;
 }
 
-void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)const {
+void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index) {
 
 	StartProfile;
 
@@ -298,16 +302,21 @@ void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)
 		if (index == -1) {
 
 			for (size_t i = 0; i < ai.nrOfLayers; i++) {
-			
-				if (ai.blendFactor[i] <= 1.0f && ai.blendFactor[i] >= 0.0f)
-					ai.blendFactor[i] += ai.blendSpeed[i] * dt;
+
+				ai.blendFactor[i] += ai.blendSpeed[i] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
 			}
 		}
 
 		else {
 
-			if (ai.blendFactor[index] <= 1.0f && ai.blendFactor[index] >= 0.0f)
+			if (index < AnimationInfo::maxLayers) {
+					
 				ai.blendFactor[index] += ai.blendSpeed[index] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
+			}
 		}
 
 	}
