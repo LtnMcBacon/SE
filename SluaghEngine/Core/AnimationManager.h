@@ -34,11 +34,15 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void Start(const Entity& entity, AnimationPlayInfo playInfo)override;
+			void AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID)override;
+
+			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
+			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
-			void Start(const Entity& entity, bool looping)const override;
+			void SetBlendSpeed(const Entity& entity, int index, float speed)override;
 			void Pause(const Entity& entity)const override;
+			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
 
@@ -80,6 +84,7 @@ namespace SE
 				Entity* entity;
 				AnimationInfo* animInfo;	
 				uint8_t* playing;
+
 			};
 			
 			AnimationData animationData;

@@ -59,6 +59,7 @@ namespace SE
 			unsigned int parentIndex;
 			Utilz::GUID jointName;
 			
+			
 			Joint() {
 
 				GlobalTx = DirectX::XMMatrixIdentity();
@@ -85,6 +86,8 @@ namespace SE
 			float timePos[maxLayers];
 			float animationSpeed[maxLayers];
 			bool looping[maxLayers];
+			float blendFactor[maxLayers];
+			float blendSpeed[maxLayers];
 		};
 
 	}
