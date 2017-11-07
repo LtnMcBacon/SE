@@ -397,7 +397,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 	}
 
 	GarbageCollection();
-	timer->Stop(CREATE_ID_HASH("TransformManager"));
+	timer->Stop(("TransformManager"));
 	StopProfile;
 }
 
