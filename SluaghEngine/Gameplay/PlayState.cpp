@@ -224,7 +224,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 		}
 	}
 
-	//CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
+	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 
 	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
