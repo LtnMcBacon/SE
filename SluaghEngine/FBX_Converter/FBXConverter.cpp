@@ -577,32 +577,70 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
+
+		if (pMesh.meshNode->GetElementBinormalCount() < 1)
+		{
+			std::cout << "[WARNING] Missing Binormals!" << endl;
+		}
+		if (pMesh.meshNode->GetElementTangentCount() < 1)
+		{
+			std::cout << "[WARNING] Missing Tangents!" << endl;
+		}
+
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
 			// Retreive the size of every polygon which should be represented as a triangle
 			int iNumVertices = pMesh.meshNode->GetPolygonSize(j);
 
 			// Reassure that every polygon is a triangle and if not, don't allow the user to pass this point
-			assert(iNumVertices == 3);
+			if (iNumVertices == 3)
+			{
+				// Process every vertex in the triangle
+				for (int k = 0; k < iNumVertices; k++) {
 
-			// Process every vertex in the triangle
-			for (int k = 0; k < iNumVertices; k++) {
+					// Retrieve the vertex index to know which control point in the vector to use
+					int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+					ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
+					Vertex vertex;
 
-				// Retrieve the vertex index to know which control point in the vector to use
-				int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
-				ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
-				Vertex vertex;
+					vertex.pos = currentControlPoint->Position;
+					vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
+					vertex.normal = CreateNormals(pMesh.meshNode, j, k);
+					vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
+					vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
 
-				vertex.pos = currentControlPoint->Position;
-				vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
-				vertex.normal = CreateNormals(pMesh.meshNode, j, k);
-				vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
-				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
+					// Push back vertices to the current mesh
+					pMesh.standardVertices.push_back(vertex);
 
-				// Push back vertices to the current mesh
-				pMesh.standardVertices.push_back(vertex);
-
+				}
 			}
+
+			else
+			{
+				if (pMesh.meshNode->GetElementTangentCount() < 1)
+				{
+					std::cout << "[WARNING] Not triangulated!" << endl;
+				}
+
+				auto tr = { 0,1, 2, 0,2,3 };
+				for (auto& k : tr)
+				{
+					// Retrieve the vertex index to know which control point in the vector to use
+					int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+					ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
+					Vertex vertex;
+
+					vertex.pos = currentControlPoint->Position;
+					vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
+					vertex.normal = CreateNormals(pMesh.meshNode, j, k);
+					vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
+					vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
+
+					// Push back vertices to the current mesh
+					pMesh.standardVertices.push_back(vertex);
+				}
+			}
+			
 
 		}
 
@@ -682,8 +720,7 @@ XMFLOAT3 SE::FBX::FBXConverter::CreateBinormals(FbxMesh* meshNode, int j, int k)
 
 	if (meshNode->GetElementBinormalCount() < 1)
 	{
-		cout << ("Invalid Binormal Number") << endl;
-
+		return binormal;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -734,8 +771,7 @@ XMFLOAT3 SE::FBX::FBXConverter::CreateTangents(FbxMesh* meshNode, int j, int k) 
 
 	if (meshNode->GetElementTangentCount() < 1)
 	{
-		cout << ("Invalid Tangent Number") << endl;
-
+		return tangent;
 	}
 
 	//////////////////////////////////////////////////////////////
