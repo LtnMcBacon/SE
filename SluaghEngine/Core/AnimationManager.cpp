@@ -120,6 +120,8 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
 	
+	renderableManager->Frame(nullptr);
+
 	auto dt = initInfo.window->GetDelta();
 
 	for (size_t i = 0; i < animationData.used; i++)
