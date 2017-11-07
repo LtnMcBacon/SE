@@ -565,7 +565,7 @@ void SE::Gameplay::Room::CreateEntities()
 	auto wallGUID = Utilz::GUID("HighWall.mesh");
 	auto doorGUID = Utilz::GUID("Door.mesh");
 	int numberOfEntitesPlaced = 0;
-
+	int DoorCounter = 0;
 
 	for (int i = 0; i < 25; i++)
 	{
@@ -587,8 +587,24 @@ void SE::Gameplay::Room::CreateEntities()
 			}
 			else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
 			{
-				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { doorGUID });
-				CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+				if (DoorArr[DoorCounter] == true )
+				{
+	
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { doorGUID });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j),0.0f);
+					DoorCounter++; 
+				}
+
+				else
+				{
+
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { wallGUID });
+					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.5f, j + 0.5f));
+				}
+
+				
+				
 			}
 
 			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
@@ -682,7 +698,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 float Room::FloorCheck(int x, int y)
 {
 	StartProfile;
-	float rotation = 0; 
+	float rotation = 0;
 
 
 	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
@@ -696,6 +712,12 @@ float Room::FloorCheck(int x, int y)
 
 	rotation += 270;
 
-	rotation *= 3.1416 / 180; 
+	rotation *= 3.1416 / 180;
 	ProfileReturnConst(rotation);
+}
+
+
+bool Room::CloseDoor(int DoorNr)
+{
+	DoorArr[DoorNr] = false; 
 }
