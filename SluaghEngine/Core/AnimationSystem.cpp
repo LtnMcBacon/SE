@@ -147,7 +147,8 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 
 				if (blendCheck[actualIndex] == true) {
 
-					CalculateBlendMatrices(tempMatrix, XMLoadFloat4x4(&bucketTransform[actualIndex]), 0.5f, bucketTransform[actualIndex]);
+						CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
+
 				}
 
 				else {
