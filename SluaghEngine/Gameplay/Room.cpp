@@ -935,7 +935,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 void SE::Gameplay::Room::CreateEntities()
 {
 	int numberOfEntitesPlaced = 0;
-
+	int DoorCounter = 0; 
 	Core::IMaterialManager::CreateInfo cubeInfo;
 	
 
@@ -971,28 +971,41 @@ void SE::Gameplay::Room::CreateEntities()
 				}
 				else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
 				{
-					auto entFloor = CoreInit::managers.entityManager->Create();
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
-					CoreInit::managers.transformManager->Create(entFloor);
-					CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
-					CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
-					CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
-					CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
-					roomEntities.push_back(entFloor);
 
-					cubeInfo.materialFile = DoorMat;
-					if ((tileValues[i][j + 1] == 0 || tileValues[i + 1][j] == 0 || tileValues[i + 1][j + 1] == 0 || tileValues[i - 1][j + 1] == 0 || tileValues[i + 1][j - 1] == 0))
+					if (DoorArr[DoorCounter] == true)
 					{
-						cubeInfo.shader = Trans;
-						CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+						auto entFloor = CoreInit::managers.entityManager->Create();
+						cubeInfo.materialFile = FloorMat;
+						cubeInfo.shader = Norm;
+						CoreInit::managers.transformManager->Create(entFloor);
+						CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+						CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
+						CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
+						CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
+						roomEntities.push_back(entFloor);
+
+						cubeInfo.materialFile = DoorMat;
+						if ((tileValues[i][j + 1] == 0 || tileValues[i + 1][j] == 0 || tileValues[i + 1][j + 1] == 0 || tileValues[i - 1][j + 1] == 0 || tileValues[i + 1][j - 1] == 0))
+						{
+							cubeInfo.shader = Trans;
+							CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+						}
+						else
+						{
+							cubeInfo.shader = Norm;
+						}
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
+						CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+						DoorCounter++; 
 					}
 					else
 					{
+						cubeInfo.materialFile = FloorMat;
 						cubeInfo.shader = Norm;
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
 					}
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
-					CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+					
 				}
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
@@ -1106,7 +1119,8 @@ float Room::FloorCheck(int x, int y)
 }
 
 
-bool Room::CloseDoor(int DoorNr)
+void Room::CloseDoor(int DoorNr)
 {
 	DoorArr[DoorNr] = false; 
+
 }
