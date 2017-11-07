@@ -360,7 +360,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("TransformManager"));
+	timer->Start(("TransformManager"));
 	auto LoopDirty = [this](int start, int end)
 	{
 		for (int i = start; i < end; ++i)

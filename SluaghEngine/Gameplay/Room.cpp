@@ -1078,7 +1078,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		}
 
 	
-		return ResourceHandler::InvokeReturn::Success;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	
 	StopProfile; 
@@ -1087,7 +1087,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 float Room::FloorCheck(int x, int y)
 {
 	StartProfile;
-	float rotation = 0; 
+	float rotation = 0;
 
 
 	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
@@ -1101,6 +1101,12 @@ float Room::FloorCheck(int x, int y)
 
 	rotation += 270;
 
-	rotation *= 3.1416 / 180; 
+	rotation *= 3.1416 / 180;
 	ProfileReturnConst(rotation);
+}
+
+
+bool Room::CloseDoor(int DoorNr)
+{
+	DoorArr[DoorNr] = false; 
 }
