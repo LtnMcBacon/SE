@@ -35,7 +35,8 @@ namespace SE
 				Window::IWindow* window;
 				IEntityManager* entityManager;
 				IEventManager* eventManager;
-				ITransformManager* transformManager;				
+				ITransformManager* transformManager;
+				Utilz::ThreadPool* threadPool;
 			};
 			struct CreateInfo
 			{

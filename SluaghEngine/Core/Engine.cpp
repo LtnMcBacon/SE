@@ -354,6 +354,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.threadPool = subSystems.threadPool;
 		managers.animationManager = CreateAnimationManager(info);
 	}
 	managersVec.push_back(managers.animationManager);

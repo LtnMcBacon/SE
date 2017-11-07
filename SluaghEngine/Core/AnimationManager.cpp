@@ -121,7 +121,10 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	timer->Start(("AnimationManager"));
 	
 	auto dt = initInfo.window->GetDelta();
+	while (updateJob.size() > 0)
+	{
 
+	}
 	for (size_t i = 0; i < animationData.used; i++)
 	{
 		if (animationData.playing[i] == 1u)
@@ -133,11 +136,22 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 				ai.timePos[j] += ai.animationSpeed[j] *dt;
 
 			}
-
-			animationSystem->CalculateMatrices(animationData.entity[i], ai);
+			updateJob.push({ animationData.entity[i], ai });
+			//animationSystem->CalculateMatrices(animationData.entity[i], ai);
 		}
 			
 	}
+	auto UpdateLoop = [this]()
+	{
+		for (int i = 0; i < updateJob.size(); )
+		{
+			animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo);
+			updateJob.pop();
+		}
+		return true;
+	};
+
+	initInfo.threadPool->Enqueue(UpdateLoop);
 
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));

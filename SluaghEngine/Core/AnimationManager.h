@@ -9,6 +9,7 @@
 #include <Utilz\CircularFiFo.h>
 #include "RenderableManager.h"
 #include "AnimationSystem.h"
+#include <stack>
 
 namespace SE
 {
@@ -84,6 +85,13 @@ namespace SE
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
+			struct updateInfo
+			{
+				Entity ent;
+				AnimationInfo animInfo;
+			};
+
+			std::stack<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
 		};
 	}

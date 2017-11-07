@@ -117,7 +117,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 	auto& skeleton = skeletons[info.skeleton];
 
 	// Create vector of identity matrices with the same size as the skeleton
-	auto& bucketTransform = bucket->matrices[bucketAndID.index].jointMatrix;
+	auto& bucketTransform = bucket->matrices[bucketAndID.index][bucket->vectorIndex].jointMatrix;
 	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4));
 
 	// Create vector of bools to check blending status at each joint
@@ -175,6 +175,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
 	}
+	bucket->vectorIndex = bucket->vectorIndex + 1u % 2;
 }
 
 void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, const XMMATRIX& matrix2, float blendFactor, XMFLOAT4X4& out) {
@@ -344,14 +345,17 @@ void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity
 {
 	RenderBucket::AddEntity(entity, transform, bucketAndID);
 
-  matrices.push_back(mats);
+	matrices[0].push_back(mats);
+	matrices[1].push_back(mats);
 }
 
 void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
 {
-	const auto last = matrices.size() - 1;
-	matrices[index] = matrices[last];
-	matrices.pop_back();
+	const auto last = matrices[0].size() - 1;
+	matrices[index][0] = matrices[last][0];
+	matrices[index][1] = matrices[last][1];
+	matrices[0].pop_back();
+	matrices[1].pop_back();
 
 	RenderBucket::RemoveFromBucket(rm, index, transform);
 
