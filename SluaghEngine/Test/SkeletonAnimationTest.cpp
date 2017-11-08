@@ -130,21 +130,18 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
 	playInfo.blendSpeed[0] = 0.00f;
-	playInfo.blendFactor[0] = 0.0f;
 
 	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
 	playInfo.animationSpeed[1] = 1.0f;
 	playInfo.timePos[1] = 0.0f;
 	playInfo.looping[1] = true;
-	playInfo.blendSpeed[1] = 0.05f;
-	playInfo.blendFactor[1] = 0.0f;
+	playInfo.blendSpeed[1] = 0.00f;
 
 	playInfo.animations[2] = "DeathAnim_MCModell.anim";
 	playInfo.animationSpeed[2] = 1.0f;
 	playInfo.timePos[2] = 0.0f;
 	playInfo.looping[2] = true;
-	playInfo.blendSpeed[2] = 0.05f;
-	playInfo.blendFactor[2] = 0.0f;
+	playInfo.blendSpeed[2] = 0.00f;
 
 	playInfo.nrOfLayers = 3;
 
@@ -156,7 +153,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
 	d.pos = { 5.0f, 10.0f, -5.0f };
-	d.color = { 1, 1,1 };
+	d.color = { 1, 1, 1 };
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
@@ -205,8 +202,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 		
 		engine->BeginFrame();
-
-		managers.animationManager->UpdateBlending(mainC, 2);
 	
 		ImGui::Begin("Animation Stuff");
 
@@ -223,7 +218,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		}
 
-		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -0.1f, 0.1f)) {
+		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -10.0f, 10.0f)) {
 
 			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 

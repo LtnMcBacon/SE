@@ -55,7 +55,6 @@ namespace SE
 				float animationSpeed[maxLayers];
 				bool looping[maxLayers];
 				float blendSpeed[maxLayers];
-				float blendFactor[maxLayers];
 			};
 
 			virtual ~IAnimationManager() {};

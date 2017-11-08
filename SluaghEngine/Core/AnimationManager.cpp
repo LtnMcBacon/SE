@@ -144,6 +144,9 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
 
+					ai.blendFactor[j] += ai.blendSpeed[j] * dt;
+					ai.blendFactor[j] = max(0.0f, min(ai.blendFactor[j], 1.0f));
+
 				}
 				updateJob.push({ animationData.entity[i], ai });
 				//animationSystem->CalculateMatrices(animationData.entity[i], ai, true);
@@ -155,6 +158,18 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 			for (int i = updateJob.size(); i > 0; --i)
 			{
 				animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo, true);
+
+				for (size_t k = 0; k < Attacher::maxSlots; k++) {
+
+					auto& att = animationData.attacher;
+
+					if (att->slots[k].attached == true) {
+
+						DirectX::XMFLOAT4X4 matrix;
+						animationSystem->GetJointMatrix(animationData.entity[i], att->slots[k].jointIndex, matrix);
+					}
+				}
+
 				updateJob.pop();
 			}
 			return true;
@@ -190,6 +205,7 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
 			if(found != -1){
 
+				at.slots[slotIndex].attached = true;
 				at.slots[slotIndex].entity = entityToAttach;
 				at.slots[slotIndex].jointIndex = found;
 
@@ -219,7 +235,6 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 				ai.animation[i] = playInfo.animations[i];
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
-				ai.blendFactor[i] = playInfo.blendFactor[i];
 				ai.blendSpeed[i] = playInfo.blendSpeed[i];
 				ai.timePos[i] = playInfo.timePos[i];
 

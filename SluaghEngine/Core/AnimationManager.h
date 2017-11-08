@@ -78,8 +78,9 @@ namespace SE
 
 			struct AttacherSlot {
 
+				bool attached = false;
 				Entity entity;
-				int jointIndex;
+				int jointIndex = -1;
 			};
 
 			struct Attacher {
