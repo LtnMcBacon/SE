@@ -61,7 +61,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	
 	subSystem.devConsole->Toggle();
 
-
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
 
@@ -115,6 +114,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
+	managers.animationManager->AttachToEntity(mainC, mainC2, "LHand", 0);
+
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
@@ -128,7 +129,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.05f;
+	playInfo.blendSpeed[0] = 0.00f;
 	playInfo.blendFactor[0] = 0.0f;
 
 	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
