@@ -26,6 +26,7 @@ static const SE::Utilz::GUID Floor("floorTest.mesh");
 static const SE::Utilz::GUID Chair("Chair.mesh");
 static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
 static const SE::Utilz::GUID FloorTorch("FloorTorch.mesh");
+static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
 
 //materials
 static const SE::Utilz::GUID Stone("Cube.mat");
@@ -952,6 +953,10 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(ent);
 				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
+				auto floorEnt = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.transformManager->Create(floorEnt);
+				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+
 				if (tileValues[i][j] == 0)
 				{
 					cubeInfo.materialFile = FloorMat;
@@ -961,16 +966,24 @@ void SE::Gameplay::Room::CreateEntities()
 				// Torch
 				else if (tileValues[i][j] == 214 / 25 || tileValues[i][j] == 215 / 25)
 				{
-					
-					CoreInit::managers.transformManager->SetScale(ent, 3);
+					// Create torch
 					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+
+					// Create floor
+					cubeInfo.materialFile = FloorMat;
+					cubeInfo.shader = Norm;
+					CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
 				}
 				// Other
 				else if (tileValues[i][j] == 158 / 25)
 				{
 
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { FloorTorch });
+				}
+				else if (tileValues[i][j] == 232 / 25)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
 				}
 				else if (tileValues[i][j] == 255 / 25 )
 				{
@@ -1027,6 +1040,10 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 				roomEntities.push_back(ent);
+
+				CoreInit::managers.materialManager->Create(floorEnt, cubeInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(floorEnt, true);
+				roomEntities.push_back(floorEnt);
 			}
 		}
 	}
@@ -1120,13 +1137,13 @@ float Room::WallCheck(int x, int y)
 	float rotation = 0;
 
 
-	if (x - 1 >= 0 && tileValues[x - 1][y] == 10)
+	if (x - 1 >= 0 && ( tileValues[x - 1][y] == 10 || tileValues[x - 1][y] == 232 / 25 ))
 		rotation = 180;
-	else if (y - 1 >= 0 && tileValues[x][y - 1] == 10)
+	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == 10 || tileValues[x][y - 1] == 232 / 25))
 		rotation = 90;
-	else if (y + 1 < 25 && tileValues[x][y + 1] == 10)
+	else if (y + 1 < 25 && ( tileValues[x][y + 1] == 10 || tileValues[x][y + 1] == 232 / 25))
 		rotation = -90;
-	else if (x + 1 < 25 && tileValues[x + 1][y] == 10)
+	else if (x + 1 < 25 && ( tileValues[x + 1][y] == 10 || tileValues[x + 1][y] == 232 / 25))
 		rotation = 0;
 
 
