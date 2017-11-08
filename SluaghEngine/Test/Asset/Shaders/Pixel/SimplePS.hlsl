@@ -12,6 +12,6 @@ float4 PS_main(PS_IN input) : SV_TARGET
 {
 	float3 dir = float3(-1.0f, -0.5f, 0.0f);
 	float lum = dot(input.NormalInW.xyz, -dir);
-
-	return float4(lum, lum, lum, 1.0f);
+	float3 color = float3(0.8, 0.1, 0.3)*lum;
+	return float4(color, 1.0f);
 }
