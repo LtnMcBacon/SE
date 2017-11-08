@@ -31,7 +31,6 @@ namespace SE
 		private:
 			Room* adjacentRooms[4] = {};
 			bool DoorArr[4] = { true, true, true,true };
-			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
@@ -60,7 +59,6 @@ namespace SE
 			void CloseDoor(int DoorNr); 
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
-			char tileValues[25][25];
 
 			/**
 			*
@@ -83,6 +81,7 @@ namespace SE
 			};
 		private:
 
+			char tileValues[25][25];
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -396,6 +395,8 @@ namespace SE
 			float WallCheck(int x, int y);
 
 
+			const SE::Utilz::GUID GenerateRandomProp();
+
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
@@ -432,7 +433,7 @@ namespace SE
 				{
 					for (int j = 0; j < 25; j++)
 					{
-						toReturn[i][j] = map[i][j];
+						toReturn[i][j] = tileValues[i][j];
 					}
 				}
 			}

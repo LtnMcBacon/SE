@@ -107,11 +107,14 @@ bool SE::Test::RoomCreationTest::Run(SE::DevConsole::IConsole* console)
 
 	Gameplay::Room* testRoom = new Gameplay::Room("");
 	
+	char map[25][25];
+	testRoom->GetMap(map);
+
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y])
+			if (map[x][y])
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
