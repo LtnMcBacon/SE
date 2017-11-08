@@ -193,7 +193,7 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 
 		enemyData[this->GUIDToEnemyType(guid)] = loadedEnemy;
 
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		return ResourceHandler::InvokeReturn::SUCCESS;
 	});
 
 	if (done != -1)
