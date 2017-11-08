@@ -4,9 +4,9 @@
 #include <Graphics\ParticleSystemJob.h>
 #include <Particle_Editor\ParticleEmitter.h>
 #include <string>
-
+#include <filesystem>
 #include <fstream>
-
+namespace FS = std::experimental::filesystem;
 using namespace SE;
 using namespace DirectX;
 using namespace Graphics;
@@ -74,26 +74,26 @@ int main()
 
 	ResourceHandle->LoadResource("ParticleGS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateGeometryShader(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	ResourceHandle->LoadResource("ParticleVS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateVertexShader(guid ,data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	ResourceHandle->LoadResource("ParticlePS.hlsl", [&pipelineHandler](auto guid,void* data, size_t size) {
 		pipelineHandler->CreatePixelShader(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	ResourceHandle->LoadResource("ParticleGSUpdate.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateGeometryShaderStreamOut(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	ResourceHandle->LoadResource("galaxy_texture.sei", [&pipelineHandler](auto guid, void* data, size_t size) {
 		Graphics::TextureDesc texDesc;
 		texDesc = *(TextureDesc*)data;
 		data = (char*)data + sizeof(TextureDesc);
 		pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	Particle p;
@@ -231,7 +231,7 @@ int main()
 				texDesc = *(TextureDesc*)data;
 				data = (char*)data + sizeof(TextureDesc);
 				pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			renderParticleJob.pipeline.PSStage.textures[0] = tempText;
 		
@@ -376,6 +376,7 @@ ParticleDataStruct createParticleBuffer()
 }
 void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[])
 {
+	FS::create_directory("Particle_Systems");
 	std::string file = fileName;
 	XMFLOAT2 velocityRange[3];
 	XMFLOAT2 emitRange[3];
@@ -390,12 +391,12 @@ void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char
 	Utilz::GUID textureName = particleJobInfo.PSStage.textures[0];
 	std::ofstream toFile;
 	
-	toFile.open(file, std::ios::out | std::ios::binary);
+	toFile.open("Particle_Systems/" + file, std::ios::out | std::ios::binary);
 	toFile.write((char*)&randomVelocity, sizeof(bool));
 	toFile.write((char*)&textureName, sizeof(Utilz::GUID));
 	toFile.write((char*)&pInfo, sizeof(ParticleDataStruct));
-	toFile.write((char*)&velocityRange, sizeof(XMFLOAT2) * 3);
-	toFile.write((char*)&emitRange, sizeof(XMFLOAT2) * 3);
+	toFile.write((char*)velocityRange, sizeof(XMFLOAT2) * 3);
+	toFile.write((char*)emitRange, sizeof(XMFLOAT2) * 3);
 	toFile.close();
 
 }

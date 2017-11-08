@@ -10,29 +10,70 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
-	initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-		initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	auto res = initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
+			auto res = initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
+			if (res < 0)
+			{
+				return ResourceHandler::InvokeReturn::FAIL;
+			}
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		});
+	if (res < 0)
+	{
+		throw std::exception("Failed to create ParticleGS");
+	}
+
+	res = initInfo.resourceHandler->LoadResource("ParticleVS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
+			auto res = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+			if (res < 0)
+			{
+				return ResourceHandler::InvokeReturn::FAIL;
+			}
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		});
+	if (res < 0)
+	{
+		throw std::exception("Failed to create ParticleVS");
+	}
+	res = initInfo.resourceHandler->LoadResource("ParticlePS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
+			auto res = initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+			if (res < 0)
+			{
+				return ResourceHandler::InvokeReturn::FAIL;
+			}
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
-	initInfo.resourceHandler->LoadResource("ParticleVS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-		initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+	if (res < 0)
+	{
+		throw std::exception("Failed to create ParticlePS");
+	}
+	res = initInfo.resourceHandler->LoadResource("ParticleGSUpdate.hlsl", [&initInfo](auto guid, void* data, size_t size) {
+			auto res =initInfo.renderer->GetPipelineHandler()->CreateGeometryShaderStreamOut(guid, data, size);
+			if (res < 0)
+			{
+				return ResourceHandler::InvokeReturn::FAIL;
+			}
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
-	initInfo.resourceHandler->LoadResource("ParticlePS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-		initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
-	initInfo.resourceHandler->LoadResource("ParticleGSUpdate.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-		initInfo.renderer->GetPipelineHandler()->CreateGeometryShaderStreamOut(guid, data, size);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
-	});
+	if (res < 0)
+	{
+		throw std::exception("Failed to create ParticleGSUpdate");
+	}
 	//Pipeline for the update geometry shader
 	Particle p;
 	p.opacity = 1.0f;
 
 
-	initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
-	initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+	res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+	if (res < 0)
+	{
+		throw std::exception("Failed to create OutStreamBuffer1");
+	}
+	res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+	if (res < 0)
+	{
+		throw std::exception("Failed to create OutStreamBuffer2");
+	}
 	updatePipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	updatePipeline.IAStage.topology = Graphics::PrimitiveTopology::POINT_LIST;
 	updatePipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -50,7 +91,11 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	bs.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
 	bs.dstBlendAlpha = Graphics::Blend::ONE;
 
-	initInfo.renderer->GetPipelineHandler()->CreateBlendState("ParticleBlend", bs);
+	res = initInfo.renderer->GetPipelineHandler()->CreateBlendState("ParticleBlend", bs);
+	if (res < 0)
+	{
+		throw std::exception("Failed to create particle blend state");
+	}
 
 	//Setting particle sampler state
 	Graphics::SamplerState sampState;
@@ -59,9 +104,18 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	sampState.addressW = Graphics::AddressingMode::CLAMP;
 	sampState.filter = Graphics::Filter::LINEAR;
 	sampState.maxAnisotropy = 0;
-	initInfo.renderer->GetPipelineHandler()->CreateSamplerState("ParticleSampler", sampState);
+	res = initInfo.renderer->GetPipelineHandler()->CreateSamplerState("ParticleSampler", sampState);
+	if (res < 0)
+	{
+		throw std::exception("Failed to create particle SamplerState");
+	}
 
-	initInfo.renderer->GetPipelineHandler()->CreateDepthStencilState("noDepth", { false, false, Graphics::ComparisonOperation::NO_COMPARISON });
+
+	res = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilState("noDepth", { false, false, Graphics::ComparisonOperation::NO_COMPARISON });
+	if (res < 0)
+	{
+		throw std::exception("Failed to create particle DepthStencilState");
+	}
 }
 
 
@@ -77,25 +131,26 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 	{
 		/*Register the entity*/
 		auto newEntry = particleSystemData.size();
-		indexToEntity[newEntry] = entity;
+		indexToEntity.push_back(entity);
+		entityToIndex[entity] = newEntry;
 
+		particleSystemData.push_back({});
 		// Register instant destroy
 		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
 
 		particleSystemData[newEntry].visible = 0u;
 		particleSystemData[newEntry].loaded = 0u;
 
-		particleSystemData.push_back({});
 		// Load the particle system file
 		{
 			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this](auto guid, auto data, auto size) {
 				memcpy(&particleSystemData[newEntry].randVelocity, data, sizeof(bool));
 				memcpy(&particleSystemData[newEntry].textureName, (char*)data + sizeof(bool), sizeof(Utilz::GUID));
-				memcpy(&particleSystemData[newEntry].particleFileInfo, (char*)data + sizeof(bool) + sizeof(Utilz::GUID), sizeof(particleSystemData[newEntry].particleFileInfo));
+				memcpy(&particleSystemData[newEntry].particleFileInfo, (char*)data + sizeof(bool) + sizeof(Utilz::GUID), sizeof(ParticleSystemFileInfo));
 				memcpy(&particleSystemData[newEntry].velocityRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo), sizeof(DirectX::XMFLOAT2) * 3);
 				memcpy(&particleSystemData[newEntry].emitRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo) + (sizeof(DirectX::XMFLOAT2) * 3), sizeof(DirectX::XMFLOAT2) * 3);
 				
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 
 			if (res)
@@ -141,13 +196,21 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.OMStage.depthStencilState = "noDepth";
 		RPP.OMStage.renderTargetCount = 1;
 		//Loading texture for the current particle system
-		initInfo.resourceHandler->LoadResource(particleSystemData[newEntry].textureName, [this](auto guid, void* data, size_t size) {
-			Graphics::TextureDesc texDesc;
-			texDesc = *(Graphics::TextureDesc*)data;
-			data = (char*)data + sizeof(Graphics::TextureDesc);
-			initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, data, texDesc.width, texDesc.height);
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		auto res = initInfo.resourceHandler->LoadResource(particleSystemData[newEntry].textureName, [this](auto guid, void* data, size_t size) {
+					Graphics::TextureDesc texDesc;
+					texDesc = *(Graphics::TextureDesc*)data;
+					data = (char*)data + sizeof(Graphics::TextureDesc);
+					auto res =	initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, data, texDesc.width, texDesc.height);
+					if (res < 0)
+					{
+						return ResourceHandler::InvokeReturn::FAIL;
+					}
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
+		if (res < 0)
+		{
+			throw std::exception("Failed to load particle texture");
+		}
 
 		Graphics::RenderJob renderParticleJob;
 		renderParticleJob.pipeline = RPP;
@@ -222,12 +285,21 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 	//Swapping the buffers for the update and render particle jobs
 	for (size_t i = 0; i < particleSystemData.size(); i++)
 	{
-		std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
-		particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
-		initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
-		initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
-		particleSystemData[i].updateJob.vertexCount = 0;
-		initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+		static int k = 0;
+		if (k == 1)
+		{
+
+			particleSystemData[i].updateJob.vertexCount = 0;
+			initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+		}
+		if (k >= 1)
+		{
+			std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
+			particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
+			initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+			initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
+		}
+		k++;
 	}
 
 	timer->Stop(("ParticleSystemManager"));

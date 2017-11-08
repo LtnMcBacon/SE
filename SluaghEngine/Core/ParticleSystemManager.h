@@ -72,8 +72,6 @@ namespace SE
 				float pad5;
 				float gravity[3];
 				float pad4;
-				float color[3];
-				float pad2;
 				float speed;
 				float emitRate;
 				float lifeTime;

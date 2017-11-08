@@ -22,7 +22,10 @@ cbuffer LightDataBuffer : register(b0)
 
 cbuffer CameraPos : register(b1)
 {
-	float4 cameraPos;
+	float3 camUpVector;
+	float pad;
+	float3 eyePos;
+	float pad2;
 };
 
 cbuffer MaterialAttributes : register(b2)
@@ -80,7 +83,7 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		}
 		
 		//Calculate specular term
-		float3 V = cameraPos.xyz - input.PosInW.xyz;
+		float3 V = eyePos.xyz - input.PosInW.xyz;
 		float3 H = normalize(light + V);
 		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;

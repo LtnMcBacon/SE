@@ -1,4 +1,4 @@
-cbuffer OncePerFrame : register(b0)
+cbuffer LightViewProj : register(b0)
 {
 	float4x4 lViewProj;
 }
