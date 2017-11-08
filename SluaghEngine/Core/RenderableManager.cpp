@@ -274,9 +274,12 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 			Graphics::RenderJob shadowInfo;
 			CreateShadowRenderObjectInfo(find->second, &shadowInfo);
 			if (renderableObjectInfo.shadow[find->second] == 1u)
+			{
 				shadowInstancing->AddEntity(entity, shadowInfo, Graphics::RenderGroup::PRE_PASS_0);
+				shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			}
 
-			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 	}
