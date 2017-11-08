@@ -67,6 +67,7 @@ namespace SE
 			int DestroyRenderTarget(const Utilz::GUID& id) override;
 
 			int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) override;
+			int CreateDepthStencilViewCube(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = true) override;
 			int DestroyDepthStencilView(const Utilz::GUID& id) override;
 
 			int CreateUnorderedAccessView(const Utilz::GUID& id, const UnorderedAccessView& view)override;

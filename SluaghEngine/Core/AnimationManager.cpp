@@ -63,6 +63,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
+	animationData.animInfo[index].nrOfLayers = 0;
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
@@ -156,18 +157,38 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 	lambda = initInfo.threadPool->Enqueue(UpdateLoop);
 
+			
+	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
 }
 
-void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID) {
+void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) {
+
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
 
 	// Find the source entity
 	auto &sourceEntityIndex = entityToIndex.find(source);
 	if (sourceEntityIndex != entityToIndex.end())
 	{
-		
-		
+		// Get animation info and attacher slots for the source entity
+		auto& ai = animationData.animInfo[sourceEntityIndex->second];
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+
+		// Check if the entity to attach is alive
+		if(initInfo.entityManager->Alive(entityToAttach)){
+
+			// If the entity to attach exists, check if the joint can be found in the source entity skeleton
+			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
+			if(found != -1){
+
+				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].jointIndex = found;
+
+			}
+
+		}
 	}
 }
 
@@ -351,6 +372,20 @@ void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)
 	StopProfile;
 }
 
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+{
+	StartProfile;
+	
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		ProfileReturnConst(animationData.playing[entityIndex->second]);
+	}
+
+
+	ProfileReturnConst(false);
+}
+
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
@@ -375,11 +410,13 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 	newData.entity = (Entity*)newData.data;
 	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + size);
 	newData.playing = (uint8_t*)(newData.animInfo + size);
+	newData.attacher = (Attacher*)(newData.playing + size);
 	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.animInfo, animationData.animInfo, animationData.used * sizeof(AnimationInfo));
 	memcpy(newData.playing, animationData.playing, animationData.used * sizeof(uint8_t));
+	memcpy(newData.attacher, animationData.attacher, animationData.used * sizeof(Attacher));
 
 
 	// Delete old data;

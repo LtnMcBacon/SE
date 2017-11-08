@@ -92,7 +92,8 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 			}
 
 			// Push back the animation at the corresponding joint index in the given skeleton
-			currentAnimation.Joints.push_back(jointKeyFrame);
+			currentAnimation.Joints.push_back( jointKeyFrame);
+			
 		}
 
 		return 0;
@@ -125,7 +126,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		memcpy(bucketTransformUnThreaded, &mats, sizeof(XMFLOAT4X4));
 	}	
 	bucketTransform = bucket->matrices[updateIndex][bucketAndID.index].jointMatrix;
-	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4));
+	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4) * 30);
 
 	// Create vector of bools to check blending status at each joint
 	std::vector<bool> blendCheck;
@@ -184,9 +185,22 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		const Joint &b = skeleton.Hierarchy[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+		
+		if(blendCheck[i] == true){
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
+		}
+		else {
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
+		}
 		if (!threaded)
-			XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransformUnThreaded[i])));
+		{
+			if (blendCheck[i] == true) {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransformUnThreaded[i])));
+			}
+			else {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixIdentity());
+			}
+		}
 	}
 }
 
@@ -215,6 +229,23 @@ void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, 
 
 	XMStoreFloat4x4(&out, XMMatrixAffineTransformation(S, zero, Q, T));
 
+}
+
+int SE::Core::AnimationSystem::FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind) {
+
+	// Get the skeleton
+	auto& skel = skeletons[skeleton];
+
+	// Loop through the hierarchy
+	for (size_t jointIndex = 0; jointIndex < skel.Hierarchy.size(); jointIndex++) {
+
+		if (skel.Hierarchy[jointIndex].jointName == jointNameToFind) {
+
+			return jointIndex;
+		}
+	}
+	
+	return -1;
 }
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
@@ -250,6 +281,12 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 	StartProfile;
 	// Animation has just started, so return the first keyframe
 	int animationLength = animation.Length - 1;
+	/*Something was called without any animation loaded*/
+	if(animationLength == -1)
+	{
+		StopProfile;
+		return;
+	}
 	auto& joint = animation.Joints[jointIndex];
 
 	if(joint.Keyframes.size() > 0){

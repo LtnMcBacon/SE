@@ -60,6 +60,7 @@ namespace SE
 			virtual int DestroyRenderTarget(const Utilz::GUID& id) = 0;
 
 			virtual int CreateDepthStencilView(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = false) = 0;
+			virtual int CreateDepthStencilViewCube(const Utilz::GUID& id, size_t width, size_t height, bool bindAsTexture = true) = 0;
 			virtual int DestroyDepthStencilView(const Utilz::GUID& id) = 0;
 
 			virtual int CreateUnorderedAccessView(const Utilz::GUID& id, const UnorderedAccessView& view) = 0;
