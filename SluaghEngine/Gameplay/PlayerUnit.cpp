@@ -180,12 +180,17 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
 		{
 			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.animations[0] = "RunAnimation_MCModell.anim";
+			playInfo.animations[0] = "TopRunAnim_MCModell.anim";
 			playInfo.animationSpeed[0] = 20.0f;
 			playInfo.timePos[0] = 0.0f;
 			playInfo.looping[0] = true;
 
-			playInfo.nrOfLayers = 1;
+			playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
+			playInfo.animationSpeed[1] = 20.0f;
+			playInfo.timePos[1] = 0.0f;
+			playInfo.looping[1] = true;
+
+			playInfo.nrOfLayers = 2;
 
 			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
 		}
@@ -447,9 +452,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
-	sai.animationCount = 1;
+	sai.animationCount = 4;
 
-	Utilz::GUID anims[] = { "RunAnimation_MCModell.anim" };
+	Utilz::GUID anims[] = { "TopIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim" , "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
