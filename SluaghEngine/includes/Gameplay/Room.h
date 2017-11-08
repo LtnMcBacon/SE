@@ -391,6 +391,12 @@ namespace SE
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
 			/**
+			* @brief	Checks the wall to rotate the torch in that direction
+			*/
+			float WallCheck(int x, int y);
+
+
+			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);

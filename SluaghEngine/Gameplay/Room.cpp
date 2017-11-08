@@ -23,6 +23,9 @@ static const SE::Utilz::GUID Top("HighWall_Top.mesh");
 static const SE::Utilz::GUID ThreeSides("HighWall_ThreeSides.mesh");
 static const SE::Utilz::GUID Door("Door.mesh");
 static const SE::Utilz::GUID Floor("floorTest.mesh");
+static const SE::Utilz::GUID Chair("Chair.mesh");
+static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
+static const SE::Utilz::GUID FloorTorch("FloorTorch.mesh");
 
 //materials
 static const SE::Utilz::GUID Stone("Cube.mat");
@@ -943,7 +946,7 @@ void SE::Gameplay::Room::CreateEntities()
 	{
 		for (int j = 0; j < 25; j++)
 		{
-			if (tileValues[i][j] != 3)
+			if (tileValues[i][j] != 104 / 25)
 			{
 				auto ent = CoreInit::managers.entityManager->Create();
 				CoreInit::managers.transformManager->Create(ent);
@@ -955,7 +958,21 @@ void SE::Gameplay::Room::CreateEntities()
 					cubeInfo.shader = Norm;
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
 				}
-				else if (tileValues[i][j] == 10)
+				// Torch
+				else if (tileValues[i][j] == 214 / 25 || tileValues[i][j] == 215 / 25)
+				{
+					
+					CoreInit::managers.transformManager->SetScale(ent, 3);
+					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+				}
+				// Other
+				else if (tileValues[i][j] == 158 / 25)
+				{
+
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { FloorTorch });
+				}
+				else if (tileValues[i][j] == 255 / 25 )
 				{
 					cubeInfo.materialFile = Stone;
 					if (CreateWall(ent, i, j) == true)
@@ -969,7 +986,7 @@ void SE::Gameplay::Room::CreateEntities()
 					}			
 					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
 				}
-				else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
+				else if (tileValues[i][j] == 32 / 25 || tileValues[i][j] == 66 / 25 || tileValues[i][j] == 67 / 25 || tileValues[i][j] == 68 / 25)
 				{
 
 					if (DoorArr[DoorCounter] == true)
@@ -1085,7 +1102,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		{
 			for (int x = 0; x < 25; x++)
 			{
-				tileValues[x][y] = (float)(in[counter] / 25); 
+				tileValues[x][y] = (float)(in[counter] / 25.0); 
 				counter++; 
 			}
 		}
@@ -1095,6 +1112,28 @@ void Room::loadfromFile(Utilz::GUID fileName)
 	});
 	
 	StopProfile; 
+}
+
+float Room::WallCheck(int x, int y)
+{
+	StartProfile;
+	float rotation = 0;
+
+
+	if (x - 1 >= 0 && tileValues[x - 1][y] == 10)
+		rotation = 180;
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == 10)
+		rotation = 90;
+	else if (y + 1 < 25 && tileValues[x][y + 1] == 10)
+		rotation = -90;
+	else if (x + 1 < 25 && tileValues[x + 1][y] == 10)
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+	ProfileReturnConst(rotation);
 }
 
 float Room::FloorCheck(int x, int y)
