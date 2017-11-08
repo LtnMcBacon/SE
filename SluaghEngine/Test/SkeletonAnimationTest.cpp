@@ -61,7 +61,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	
 	subSystem.devConsole->Toggle();
 
-
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
 
