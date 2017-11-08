@@ -177,22 +177,21 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
-		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
-		{
-			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.animations[0] = "RunAnimation_MCModell.anim";
-			playInfo.animationSpeed[0] = 20.0f;
-			playInfo.timePos[0] = 0.0f;
-			playInfo.looping[0] = true;
+		
+		Core::IAnimationManager::AnimationPlayInfo playInfo;
+		playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
+		playInfo.animationSpeed[0] = 1.0f;
+		playInfo.timePos[0] = 0.0f;
+		playInfo.looping[0] = true;
 
-			playInfo.nrOfLayers = 1;
+		playInfo.nrOfLayers = 1;
 
-			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-		}
+		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+		
 	}
 	else
 	{
-		CoreInit::managers.animationManager->SetKeyFrame(unitEntity, 0);
+		//CoreInit::managers.animationManager->SetKeyFrame(unitEntity, 0);
 	}
 
 	//------------------------
@@ -447,16 +446,26 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
-	sai.animationCount = 1;
+	sai.animationCount = 2;
 
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	Utilz::GUID anims[] = { "BottomRun_MCModellAnim.anim", "BottomIdleAnim_MCModell.anim" };
 	sai.animations = anims;
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+
+	Core::IAnimationManager::AnimationPlayInfo playInfo;
+	playInfo.animations[0] = "BottomIdleAnim_MCModell.anim";
+	playInfo.animationSpeed[0] = 1.0f;
+	playInfo.timePos[0] = 0.0f;
+	playInfo.looping[0] = true;
+
+	playInfo.nrOfLayers = 1;
+
+	CoreInit::managers.animationManager->Start(unitEntity, playInfo);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

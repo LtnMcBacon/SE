@@ -114,6 +114,9 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 	}
 
+	// Set Playing to false
+	animationData.playing[index] = 0u;
+
 	StopProfile;
 }
 
