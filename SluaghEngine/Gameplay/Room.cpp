@@ -35,7 +35,7 @@ static const SE::Utilz::GUID Table_round("Table_round.mesh");
 
 //materials
 static const SE::Utilz::GUID Stone("Cube.mat");
-static const SE::Utilz::GUID FloorMat("Cube.mat");
+static const SE::Utilz::GUID FloorMat("floorTest.mat");
 static const SE::Utilz::GUID DoorMat("Cube.mat");
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
