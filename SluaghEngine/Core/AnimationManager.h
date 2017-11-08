@@ -84,7 +84,6 @@ namespace SE
 				Entity* entity;
 				AnimationInfo* animInfo;	
 				uint8_t* playing;
-
 			};
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
