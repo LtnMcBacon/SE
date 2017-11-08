@@ -111,6 +111,8 @@ namespace SE
 
 			std::stack<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
+
+			float aniUpdateTime = 0.0;
 		};
 	}
 }
