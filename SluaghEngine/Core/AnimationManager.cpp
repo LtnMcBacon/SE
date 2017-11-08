@@ -64,6 +64,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
 	animationData.animInfo[index].nrOfLayers = 0;
+	animationData.playing[index] = 0u;
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 

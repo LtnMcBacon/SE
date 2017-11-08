@@ -449,14 +449,23 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 1;
 
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	Utilz::GUID anims[] = { "RunAnimation_MCModell.anim" };
 	sai.animations = anims;
 
-	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
 
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(unitEntity, { "MCModell.mesh" });
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(unitEntity, true);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()
