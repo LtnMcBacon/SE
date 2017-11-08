@@ -396,6 +396,8 @@ namespace SE
 			float WallCheck(int x, int y);
 
 
+			const SE::Utilz::GUID GenerateRandomProp();
+
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
