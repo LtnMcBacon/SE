@@ -33,7 +33,7 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID)override;
+			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
 
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
@@ -75,15 +75,28 @@ namespace SE
 
 			RenderableManager* renderableManager;
 
+			struct AttacherSlot {
+
+				Entity entity;
+				int jointIndex;
+			};
+
+			struct Attacher {
+
+				static const size_t maxSlots = 2;
+				AttacherSlot slots[maxSlots];
+			};
+
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(AnimationInfo) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(AnimationInfo) + sizeof(uint8_t) + sizeof(Attacher);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				AnimationInfo* animInfo;	
 				uint8_t* playing;
+				Attacher* attacher;
 
 			};
 			

@@ -61,7 +61,7 @@ namespace SE
 
 			virtual void CreateAnimatedObject(const Entity& entity, const CreateInfo& info) = 0;
 
-			virtual void AttachToEntity(const Entity& source, const Utilz::GUID& jointGUID) = 0;
+			virtual void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) = 0;
 
 			virtual void Start(const Entity& entity, const AnimationPlayInfo& playInfo) = 0;
 			virtual void Start(const Entity& entity, bool looping)const = 0;
