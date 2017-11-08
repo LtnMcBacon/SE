@@ -30,18 +30,18 @@ namespace SE
 		{
 		private:
 			Room* adjacentRooms[4] = {};
+			bool DoorArr[4] = { true, true, true,true };
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
-
-
+			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
 			 * FlowField map and calculations
 			 * Function(s) to build the room
-			 */
+			 */	
 
 			struct LinePoint
 			{
@@ -56,6 +56,16 @@ namespace SE
 
 		public:
 
+			enum class DirectionToAdjacentRoom
+			{
+
+				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
+				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
+				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
+				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
+			};
+
+			void CloseDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 			char tileValues[25][25];
@@ -71,14 +81,6 @@ namespace SE
 			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-			enum class DirectionToAdjacentRoom
-			{
-
-				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
-				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
-				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
-				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
-			};
 		private:
 
 			/**
@@ -251,6 +253,10 @@ namespace SE
 			void CreateEntities();
 
 			/**
+			* @brief Places enemies in the room on free tiles
+			*/
+			void CreateEnemies();
+			/**
 			* @brief Creates wall ent for the room
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
@@ -258,6 +264,7 @@ namespace SE
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
+
 
 			float FloorCheck(int x, int y); 
 			
@@ -413,7 +420,10 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
-
+			/**
+			* @brief set Room door pointer to values
+			*/
+			
 			inline void GetMap(char toReturn[25][25])
 			{
 				for (int i = 0; i < 25; i++)
@@ -424,7 +434,7 @@ namespace SE
 					}
 				}
 			}
-
+			bool beingRendered = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 

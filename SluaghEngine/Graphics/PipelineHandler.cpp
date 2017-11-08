@@ -1410,6 +1410,63 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::CreateDepthStencilViewCube(const Utilz::GUID& id, size_t width, size_t height,
+	bool bindAsTexture)
+{
+	const auto exists = depthStencilViews.find(id);
+	if(exists != depthStencilViews.end())
+	{
+		DestroyDepthStencilView(id);
+		depthStencilViews.erase(exists);
+	}
+
+	D3D11_TEXTURE2D_DESC td;
+	td.Width = width;
+	td.Height = height;
+	td.Format = DXGI_FORMAT_R32_TYPELESS;
+	td.ArraySize = 6;
+	td.MipLevels = 1;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	td.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	td.CPUAccessFlags = 0;
+
+	ID3D11Texture2D* texture;
+	HRESULT hr = device->CreateTexture2D(&td, nullptr, &texture);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	ZeroMemory(&dsvd, sizeof(dsvd));
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+	dsvd.Texture2DArray.ArraySize = 6;
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
+	
+	ID3D11DepthStencilView* dsv;
+	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srvd.Format = DXGI_FORMAT_R32_FLOAT;
+	srvd.TextureCube.MipLevels = 1;
+	srvd.TextureCube.MostDetailedMip = 0;
+
+	ID3D11ShaderResourceView* srv;
+	hr = device->CreateShaderResourceView(texture, &srvd, &srv);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	depthStencilViews[id] = dsv;
+	shaderResourceViews[id] = srv;
+	texture->Release();
+	return SUCCESS;
+}
+
 int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
 {
 	auto dsv = depthStencilViews.find(id);
@@ -1816,7 +1873,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 	
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
-		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
+		//if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
 		{
 			auto srv = shaderResourceViews.find(pss.textures[i]);
 			if (srv != shaderResourceViews.end())

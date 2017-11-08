@@ -1008,6 +1008,29 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	{
 		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
 	}
+	for(auto enemy : enemyUnits)
+	{
+		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
+	}
+	beingRendered = render;
+}
+
+void SE::Gameplay::Room::CreateEnemies()
+{
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	pos enemyPos;
+	//	do
+	//	{
+	//		enemyPos.x = subSystem.window->GetRand() % 25;
+	//		enemyPos.y = subSystem.window->GetRand() % 25;
+	//	} while (tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+	//	Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+	//	enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
+
+	//	testRoom->AddEnemyToRoom(enemy);
+	//}
 }
 
 Room::Room(Utilz::GUID fileName)
@@ -1045,13 +1068,16 @@ Room::~Room()
 		enemy->DestroyEntity();
 		delete enemy;
 	}
+
+
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
-
+	CoreInit::managers.animationManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
@@ -1087,7 +1113,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 float Room::FloorCheck(int x, int y)
 {
 	StartProfile;
-	float rotation = 0; 
+	float rotation = 0;
 
 
 	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
@@ -1101,6 +1127,13 @@ float Room::FloorCheck(int x, int y)
 
 	rotation += 270;
 
-	rotation *= 3.1416 / 180; 
+	rotation *= 3.1416 / 180;
 	ProfileReturnConst(rotation);
+}
+
+
+void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
+{
+	DoorArr[int(DoorNr)] = false;
+
 }

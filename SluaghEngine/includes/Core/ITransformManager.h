@@ -10,6 +10,7 @@
 #include "IManager.h"
 #include "IEntityManager.h"
 #include <DirectXMath.h>
+#include <Utilz\ThreadPool.h>
 
 namespace SE
 {
@@ -31,6 +32,7 @@ namespace SE
 			struct InitializationInfo
 			{
 				IEntityManager* entityManager;
+				Utilz::ThreadPool* threadPool;
 			};
 
 

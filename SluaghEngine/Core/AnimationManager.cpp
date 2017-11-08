@@ -63,6 +63,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
+	animationData.animInfo[index].nrOfLayers = 0;
+	animationData.playing[index] = 0u;
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
@@ -120,6 +122,8 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
 	
+	renderableManager->Frame(nullptr);
+
 	auto dt = initInfo.window->GetDelta();
 
 	for (size_t i = 0; i < animationData.used; i++)
@@ -130,7 +134,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 			for(size_t j = 0; j < ai.nrOfLayers; j++){
 
-				ai.timePos[j] += ai.animationSpeed[j] *dt;
+				ai.timePos[j] += ai.animationSpeed[j] * dt;
 
 			}
 
@@ -138,12 +142,41 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 		}
 			
 	}
-
+	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, AnimationPlayInfo playInfo)
+void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) {
+
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
+
+	// Find the source entity
+	auto &sourceEntityIndex = entityToIndex.find(source);
+	if (sourceEntityIndex != entityToIndex.end())
+	{
+		// Get animation info and attacher slots for the source entity
+		auto& ai = animationData.animInfo[sourceEntityIndex->second];
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+
+		// Check if the entity to attach is alive
+		if(initInfo.entityManager->Alive(entityToAttach)){
+
+			// If the entity to attach exists, check if the joint can be found in the source entity skeleton
+			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
+			if(found != -1){
+
+				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].jointIndex = found;
+
+			}
+
+		}
+	}
+}
+
+void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
 {	
 	StartProfile;
 
@@ -163,6 +196,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity, AnimationPlayInfo 
 				ai.animation[i] = playInfo.animations[i];
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
+				ai.blendFactor[i] = playInfo.blendFactor[i];
+				ai.blendSpeed[i] = playInfo.blendSpeed[i];
 				ai.timePos[i] = playInfo.timePos[i];
 
 				animationData.playing[entityIndex->second] = 1u;
@@ -189,6 +224,39 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 
 			animationData.animInfo[entityIndex->second].animationSpeed[i] = speed;
 		}
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::SetBlendSpeed(const Entity& entity, int index, float speed) {
+
+	StartProfile;
+
+	auto dt = initInfo.window->GetDelta();
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		if (index == -1) {
+
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				ai.blendSpeed[i] = speed;
+			}
+		}
+
+		else {
+
+			if(index < AnimationInfo::maxLayers){
+
+				ai.blendSpeed[index] = speed;
+
+			}
+		}
+
 	}
 	StopProfile;
 }
@@ -252,6 +320,56 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 	StopProfile;
 }
 
+void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index) {
+
+	StartProfile;
+
+	auto dt = initInfo.window->GetDelta();
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		if (index == -1) {
+
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				ai.blendFactor[i] += ai.blendSpeed[i] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
+			}
+		}
+
+		else {
+
+			if (index < AnimationInfo::maxLayers) {
+					
+				ai.blendFactor[index] += ai.blendSpeed[index] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
+			}
+		}
+
+	}
+	StopProfile;
+}
+
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+{
+	StartProfile;
+	
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		ProfileReturnConst(animationData.playing[entityIndex->second]);
+	}
+
+
+	ProfileReturnConst(false);
+}
+
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
@@ -274,13 +392,15 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + newData.size);
-	newData.playing = (uint8_t*)(newData.animInfo + newData.size);
+	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + size);
+	newData.playing = (uint8_t*)(newData.animInfo + size);
+	newData.attacher = (Attacher*)(newData.playing + size);
 	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.animInfo, animationData.animInfo, animationData.used * sizeof(AnimationInfo));
 	memcpy(newData.playing, animationData.playing, animationData.used * sizeof(uint8_t));
+	memcpy(newData.attacher, animationData.attacher, animationData.used * sizeof(Attacher));
 
 
 	// Delete old data;

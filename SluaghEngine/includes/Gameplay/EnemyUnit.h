@@ -10,6 +10,7 @@ namespace SE
 		class FlowField;
 		class BehaviouralTree;
 		struct EnemyBlackboard;
+		class Room;
 		/**
 		*
 		* @brief The base class for all enemies
@@ -147,6 +148,16 @@ namespace SE
 				flowFieldForRoom = roomFlowField;
 			}
 
+			inline void SetCurrentRoom(const Room* currentRoom)
+			{
+				myRoom = currentRoom;
+			}
+
+			inline const Room* GetCurrentRoom() const
+			{
+				return myRoom;
+			}
+
 		private:
 			EnemyUnit() = delete;
 			EnemyUnit(const EnemyUnit& other) = delete;
@@ -159,6 +170,7 @@ namespace SE
 			BehaviouralTree* myBehaviouralTree;
 
 			const FlowField* flowFieldForRoom = nullptr;
+			const Room* myRoom;
 			float forcesToApply[2] = {}; /*HARDCODED RIGHT NOW!*/
 			float radius;
 			float extraSampleCoords[2] = {};

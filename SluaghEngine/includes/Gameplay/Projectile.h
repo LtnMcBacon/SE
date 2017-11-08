@@ -264,6 +264,21 @@ namespace SE
 				lifeTime = value;
 			}
 
+			inline DamageEvent GetDamageEvent()
+			{
+				return eventDamage;
+			}
+
+			inline HealingEvent GetHealingEvent()
+			{
+				return eventHealing;
+			}
+
+			inline ConditionEvent GetConditionEvent()
+			{
+				return eventCondition;
+			}
+
 			inline uint64_t GetGeneration()
 			{
 				return generation;
