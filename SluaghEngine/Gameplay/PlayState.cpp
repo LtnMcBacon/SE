@@ -104,7 +104,7 @@ void PlayState::InitializeRooms()
 	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
-	int nrOfRoomsToCreate = 10;
+	int nrOfRoomsToCreate = 1;
 	int nrOfRoomsCreated = 0;
 	int nrOfOpenDoors = 0;
 	
@@ -121,7 +121,7 @@ void PlayState::InitializeRooms()
 	{
 		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
 
-		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		int random = 0;//CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
@@ -146,7 +146,7 @@ void PlayState::InitializePlayer()
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (currentRoom->tileValues[x][y] == 1)
+			if (map[x][y] == 32)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -166,7 +166,7 @@ void PlayState::InitializePlayer()
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				
 				player->SetZPosition(1.0f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));

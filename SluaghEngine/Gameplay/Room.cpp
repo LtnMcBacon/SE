@@ -1124,7 +1124,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		{
 			for (int x = 0; x < 25; x++)
 			{
-				tileValues[x][y] = (float)(in[counter]); 
+				tileValues[x][y] = (float)(in[counter]);
 				counter++; 
 			}
 		}
