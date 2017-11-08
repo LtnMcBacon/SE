@@ -91,7 +91,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	
 	int random = subSystem.window->GetRand() % nrOfRooms;
@@ -99,36 +99,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
 	Gameplay::PlayerUnit* player = nullptr;
-	for (int x = 0; x < 25; x++)
-	{
-		for (int y = 0; y < 25; y++)
-		{
-			if (testRoom->tileValues[x][y] == 1)
-			{
-				float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
-				int xOffset = 0, yOffset = 0; 
-				if (rotation == 0)
-				{
-					yOffset = 1; 
-				}
-				else if (rotation == 90)
-				{
-					xOffset = 1; 
-				}
-				else if (rotation == 180)
-				{
-					yOffset = -1;
-				}
-				else if (rotation == 270)
-				{
-					xOffset = -1;
-				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
-
-				break; 
-			}
-		}
-	}
+	
 	if (player == nullptr)
 	{
 		delete testRoom;

@@ -106,7 +106,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	int random = subSystem.window->GetRand() % nrOfRooms;
@@ -261,8 +261,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->SetXPosition(enemyPos.x + .5f);
-		enemy->SetYPosition(enemyPos.y + .5f);
+		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
 
 		testRoom->AddEnemyToRoom(enemy);
 	}

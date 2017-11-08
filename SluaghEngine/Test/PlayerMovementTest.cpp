@@ -104,9 +104,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 	minfo.shader = shader;
 	minfo.materialFile = material;
 
-	managers.materialManager->Create(player->GetEntity(), minfo, true);
+	managers.materialManager->Create(player->GetEntity(), minfo);
 
-	managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" }, true);
+	managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 	managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 
 	auto& l = managers.entityManager->Create();

@@ -214,7 +214,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 			reflection->Release();
 			ProfileReturnConst(-1)
 		}
-		vShaders[index].constBufferNameToHandleAndBindSlot[sbd.Name].handle = constBufferHandle;
+		vShaders[index].constBufferNameToHandleAndBindSlot[std::string(sbd.Name)].handle = constBufferHandle;
 	}
 	for (unsigned int i = 0; i < shaderDesc.BoundResources; ++i)
 	{
@@ -222,7 +222,7 @@ HRESULT GraphicResourceHandler::CreateVertexShader(ID3D11Device* gDevice, void* 
 		reflection->GetResourceBindingDesc(i, &sibd);
 		if(sibd.Type == D3D_SIT_CBUFFER)
 		{
-			vShaders[index].constBufferNameToHandleAndBindSlot[sibd.Name].bindSlot = sibd.BindPoint;
+			vShaders[index].constBufferNameToHandleAndBindSlot[std::string(sibd.Name)].bindSlot = sibd.BindPoint;
 		}
 	}
 
@@ -253,7 +253,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 			D3D11_SHADER_BUFFER_DESC sbd;
 			ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(i);
 			srcb->GetDesc(&sbd);
-			auto& cbInfo = settings.bufferNameToBufferInfo[sbd.Name];
+			auto& cbInfo = settings.bufferNameToBufferInfo[std::string(sbd.Name)];
 			cbInfo.size = sbd.Size;
 			cbInfo.bindSlot = i;
 			for (unsigned int j = 0; j < sbd.Variables; j++)
@@ -261,7 +261,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 				ID3D11ShaderReflectionVariable* var = srcb->GetVariableByIndex(i);
 				D3D11_SHADER_VARIABLE_DESC svd;
 				var->GetDesc(&svd);
-				auto& varInfo = cbInfo.variables[svd.Name];
+				auto& varInfo = cbInfo.variables[std::string(svd.Name)];
 				varInfo.size = svd.Size;
 				varInfo.offset = svd.StartOffset;
 			}
@@ -272,7 +272,7 @@ HRESULT GraphicResourceHandler::CreatePixelShader(ID3D11Device* gDevice, void* d
 			reflection->GetResourceBindingDesc(i, &sibd);
 			if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_STRUCTURED)
 			{
-				settings.textureNameToBindSlot[sibd.Name] = sibd.BindPoint;
+				settings.textureNameToBindSlot[std::string(sibd.Name)] = sibd.BindPoint;
 			}
 		}
 		reflection->Release();

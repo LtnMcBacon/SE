@@ -48,19 +48,6 @@ namespace SE
 			BehaviouralTreeFactory* SEBTFactory;
 			std::map<Utilz::GUID, EnemyDescriptionStruct, Utilz::GUID::Compare> enemyData;
 
-			/**
-			* @brief	Load the description of an enemy from file
-			*
-			* @details	Called from LoadEnemyIntoMemory to parse the enemy data and put into the map.
-			*
-			* @param[in] GUID The GUID of the Enemy to be parsed.
-			* @param[in] data The data recieved from the file.
-			* @param[out] size The size of the data recieved from the file.
-			*
-			*/
-			ResourceHandler::InvokeReturn LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size);
-			
-
 		public:
 
 			/**

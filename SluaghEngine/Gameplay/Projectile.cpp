@@ -171,8 +171,10 @@ SE::Gameplay::Projectile::Projectile(SE::Gameplay::ProjectileCreationData& cData
 	eventDamage = pData.eventDamage;
 	eventHealing = pData.eventHealing;
 	eventCondition = pData.eventCondition;
-
+	
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
+
+	generation = cData.generation;
 
 	UpdateBounding();
 }
@@ -197,6 +199,7 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->rotData = other.rotData;
 	this->speed = other.speed;
 	this->target = other.target;
+	this->generation = other.generation;
 }
 
 SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile & other)
@@ -220,6 +223,7 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->rotData = other.rotData;
 	this->speed = other.speed;
 	this->target = other.target;
+	this->generation = other.generation;
 
 	return *this;
 }
@@ -244,6 +248,7 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->rotData = other.rotData;
 	this->speed = other.speed;
 	this->target = other.target;
+	this->generation = other.generation;
 }
 
 SE::Gameplay::Projectile::~Projectile()

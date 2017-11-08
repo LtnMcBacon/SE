@@ -141,65 +141,77 @@ int main(int argc, char* argv[])
 
 	if (argc < 3)
 	{
-		printf("Usage: %s <source directory> [target directory]\n", argv[0]);
+		printf("Usage: %s <source directory(, ...)> [target directory]\n", argv[0]);
 	}
 	else
 	{
-		texMap = argv[1];
-
-
-		fs::remove_all(argv[2]);
-		fs::remove_all("FBXTemp");
-		vector<Utilz::File> files;
 		vector<std::string> acceptedFiles;
-
-		Utilz::get_all_files_names_within_folder(argv[1], files);
-		for (auto& f : files)
+		fs::remove_all(argv[argc-1]);
+		fs::remove_all("FBXTemp");
+		for (int i = 1; i < argc - 1; i++)
 		{
-			auto a = IsAccepted(acceptedExt, f);
-			if (a != nullptr)
-			{
-				std::string path = std::string(argv[2]) + "/" + a->map + "/"+ Utilz::removeExtension(f.name) + "." + a->newExt;
-				if(a->newExt != "nil")
-					acceptedFiles.push_back(path);
-				auto idx = path.find_last_of("\\/");
-				auto path2 = path.substr(0, idx);
-				fs::create_directories(path2);
+			texMap = argv[i];
 
-				a->callback(f.fullPath.c_str(), path.c_str());
+
+		
+			vector<Utilz::File> files;
+		
+
+			Utilz::get_all_files_names_within_folder(argv[i], files);
+			for (auto& f : files)
+			{
+				auto a = IsAccepted(acceptedExt, f);
+				if (a != nullptr)
+				{
+					std::string path = std::string(argv[argc - 1]) + "/" + a->map + "/" + Utilz::removeExtension(f.name) + "." + a->newExt;
+					if (a->newExt != "nil")
+						acceptedFiles.push_back(path);
+					auto idx = path.find_last_of("\\/");
+					auto path2 = path.substr(0, idx);
+					fs::create_directories(path2);
+
+					a->callback(f.fullPath.c_str(), path.c_str());
+				}
+			}
+
+			vector<Utilz::File> fbxConvFiles;
+			Utilz::get_all_files_names_within_folder("FBXTemp", fbxConvFiles);
+
+			for (auto& f : fbxConvFiles)
+			{
+				auto a = IsAccepted(fbxAccepted, f);
+				if (a != nullptr)
+				{
+					std::string path = std::string(argv[argc - 1]) + "/" + a->map + "/" + Utilz::removeExtension(f.name) + "." + a->newExt;
+					if (a->newExt != "nil")
+						acceptedFiles.push_back(path);
+					auto idx = path.find_last_of("\\/");
+					auto path2 = path.substr(0, idx);
+					fs::create_directories(path2);
+
+					a->callback(f.fullPath.c_str(), path.c_str());
+				}
 			}
 		}
-
-		vector<Utilz::File> fbxConvFiles;
-		Utilz::get_all_files_names_within_folder("FBXTemp", fbxConvFiles);
-
-		for (auto& f : fbxConvFiles)
-		{
-			auto a = IsAccepted(fbxAccepted, f);
-			if (a != nullptr)
-			{
-				std::string path = std::string(argv[2]) + "/" + a->map + "/" + Utilz::removeExtension(f.name) + "." + a->newExt;
-				if (a->newExt != "nil")
-					acceptedFiles.push_back(path);
-				auto idx = path.find_last_of("\\/");
-				auto path2 = path.substr(0, idx);
-				fs::create_directories(path2);
-
-				a->callback(f.fullPath.c_str(), path.c_str());
-			}
-		}
-
 		std::ofstream gE;
-		gE.open("rawLoaderEntries.txt", std::ios::trunc);
+		auto s = std::string(argv[argc - 1]) + "/../rawLoaderEntries.txt";
+		gE.open(s, std::ios::trunc);
+
 		if (gE.is_open())
 		{
 			for (auto& f : acceptedFiles)
+			{
 				gE << f << std::endl;
-			gE << std::string(argv[2]) + "/RoomGeneration.txt" << std::endl; 
+				gE << Utilz::GUID(Utilz::getFilename( f)).id << std::endl;
+		
+			}				
+			gE << std::string(argv[argc - 1]) + "/RoomGeneration.txt" << std::endl;
+			gE << Utilz::GUID((std::string(argv[argc - 1]) + "/RoomGeneration.txt")).id <<  std::endl;
 		}
 
+
 		std::ofstream RM; 
-		RM.open(std::string(argv[2]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary); 
+		RM.open(std::string(argv[argc - 1]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary);
 		if (RM.is_open())
 		{
 			uint32_t nrOfRooms = RoomMaps.size(); 

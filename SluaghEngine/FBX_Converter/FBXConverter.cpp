@@ -577,32 +577,70 @@ void SE::FBX::FBXConverter::CheckSkinNode(Mesh &pMesh) {
 void SE::FBX::FBXConverter::CreateVertexDataStandard(Mesh &pMesh, FbxNode* pFbxRootNode) {
 
 	if (pFbxRootNode) {
+
+		if (pMesh.meshNode->GetElementBinormalCount() < 1)
+		{
+			std::cout << "[WARNING] Missing Binormals!" << endl;
+		}
+		if (pMesh.meshNode->GetElementTangentCount() < 1)
+		{
+			std::cout << "[WARNING] Missing Tangents!" << endl;
+		}
+
 		for (int j = 0; j < pMesh.meshNode->GetPolygonCount(); j++) {
 
 			// Retreive the size of every polygon which should be represented as a triangle
 			int iNumVertices = pMesh.meshNode->GetPolygonSize(j);
 
 			// Reassure that every polygon is a triangle and if not, don't allow the user to pass this point
-			assert(iNumVertices == 3);
+			if (iNumVertices == 3)
+			{
+				// Process every vertex in the triangle
+				for (int k = 0; k < iNumVertices; k++) {
 
-			// Process every vertex in the triangle
-			for (int k = 0; k < iNumVertices; k++) {
+					// Retrieve the vertex index to know which control point in the vector to use
+					int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+					ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
+					Vertex vertex;
 
-				// Retrieve the vertex index to know which control point in the vector to use
-				int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
-				ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
-				Vertex vertex;
+					vertex.pos = currentControlPoint->Position;
+					vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
+					vertex.normal = CreateNormals(pMesh.meshNode, j, k);
+					vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
+					vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
 
-				vertex.pos = currentControlPoint->Position;
-				vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
-				vertex.normal = CreateNormals(pMesh.meshNode, j, k);
-				vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
-				vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
+					// Push back vertices to the current mesh
+					pMesh.standardVertices.push_back(vertex);
 
-				// Push back vertices to the current mesh
-				pMesh.standardVertices.push_back(vertex);
-
+				}
 			}
+
+			else
+			{
+				if (pMesh.meshNode->GetElementTangentCount() < 1)
+				{
+					std::cout << "[WARNING] Not triangulated!" << endl;
+				}
+
+				auto tr = { 0,1, 2, 0,2,3 };
+				for (auto& k : tr)
+				{
+					// Retrieve the vertex index to know which control point in the vector to use
+					int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);
+					ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
+					Vertex vertex;
+
+					vertex.pos = currentControlPoint->Position;
+					vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
+					vertex.normal = CreateNormals(pMesh.meshNode, j, k);
+					vertex.binormal = CreateBinormals(pMesh.meshNode, j, k);
+					vertex.tangent = CreateTangents(pMesh.meshNode, j, k);
+
+					// Push back vertices to the current mesh
+					pMesh.standardVertices.push_back(vertex);
+				}
+			}
+			
 
 		}
 
@@ -682,8 +720,7 @@ XMFLOAT3 SE::FBX::FBXConverter::CreateBinormals(FbxMesh* meshNode, int j, int k)
 
 	if (meshNode->GetElementBinormalCount() < 1)
 	{
-		cout << ("Invalid Binormal Number") << endl;
-
+		return binormal;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -734,8 +771,7 @@ XMFLOAT3 SE::FBX::FBXConverter::CreateTangents(FbxMesh* meshNode, int j, int k) 
 
 	if (meshNode->GetElementTangentCount() < 1)
 	{
-		cout << ("Invalid Tangent Number") << endl;
-
+		return tangent;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -1650,8 +1686,11 @@ void SE::FBX::FBXConverter::WriteSkeleton(string folderName, Skeleton skeleton, 
 			uint32_t parentIndex = skeleton.hierarchy[jointIndex].ParentIndex;
 			XMFLOAT4X4 bindPoseMatrix = Load4X4Transformations(skeleton.hierarchy[jointIndex].GlobalBindposeInverse);
 
+			Utilz::GUID jointName = skeleton.hierarchy[jointIndex].Name;
+
 			outBinary.write(reinterpret_cast<char*>(&parentIndex), sizeof(uint32_t));
 			outBinary.write(reinterpret_cast<char*>(&bindPoseMatrix), sizeof(XMFLOAT4X4));
+			outBinary.write(reinterpret_cast<char*>(&jointName), sizeof(Utilz::GUID));
 
 		}
 
@@ -1709,84 +1748,6 @@ void SE::FBX::FBXConverter::WriteAnimation(std::string folderName, vector<Animat
 
 		outBinary.close();
 	}
-
-	//if (skeleton.hierarchy.size() > 0) {
-
-	//	//Vector to hold the total amount of keyframes for all animations. Format supports up to five animations.
-	//	size_t nrOfAnimations = skeleton.hierarchy[0].Animations.size();
-	//	uint32_t nrOfJoints = (uint32_t)skeleton.hierarchy.size();
-
-	//	// Loop through each animation
-	//	for (int currentAnimationIndex = 0; currentAnimationIndex < nrOfAnimations; currentAnimationIndex++)
-	//	{
-	//		vector<XMFLOAT4X4> animationTransformations;
-	//		vector<uint32_t>joints;
-
-	//		// Get animation name
-	//		string animationName = skeleton.hierarchy[0].Animations[currentAnimationIndex].Name;
-	//		uint32_t animLength = 0;
-
-	//		// Loop through each joint in hierarchy ( Every joint has the same number of transformations as the length of the current animation )
-	//		for (int currentJointIndex = 0; currentJointIndex < (int)nrOfJoints; currentJointIndex++) {
-
-	//			uint32_t animationCount = (uint32_t)skeleton.hierarchy[currentJointIndex].Animations.size();
-
-	//			if (animationCount > 0) {
-
-	//				// Get number of keyframes for the current joint in the animation
-	//				uint32_t currentAnimLength = (uint32_t)skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes.size();
-
-	//				if (currentAnimLength > 0) {
-
-	//					// Update animation length
-	//					animLength = currentAnimLength;
-
-	//					// Push back index to belonging joint
-	//					joints.push_back(currentJointIndex);
-
-	//					// Loop through each keyframe in the current joint being processed
-	//					for (int currentKeyFrameIndex = 0; currentKeyFrameIndex < (int)currentAnimLength; currentKeyFrameIndex++) {
-
-	//						FbxAMatrix keyframe = skeleton.hierarchy[currentJointIndex].Animations[currentAnimationIndex].Keyframes[currentKeyFrameIndex].GlobalTransform;
-	//						auto jointGlobalTransform = XMLoadFloat4x4(&Load4X4Transformations(keyframe));
-
-	//						// Transpose the matrix from column major to row major
-	//						XMFLOAT4X4 jbt;
-	//						XMStoreFloat4x4(&jbt, jointGlobalTransform);
-	//						animationTransformations.push_back(jbt);
-
-	//					}
-	//				}
-
-	//			}
-
-	//		}
-
-	//		// Define the file name
-	//		string binaryFile = folderName + "/" + animationName + "_" + fileName + ".anim";
-
-	//		// Define the ofstream 
-	//		ofstream outBinary(binaryFile, std::ios::binary);
-
-	//		uint32_t animationJoints = joints.size();
-
-	//		// Write the current animation length, the number of joints and the total amount of keyframes for the animation
-	//		outBinary.write(reinterpret_cast<char*>(&animationJoints), sizeof(uint32_t));
-	//		outBinary.write(reinterpret_cast<char*>(&animLength), sizeof(uint32_t));
-	//		outBinary.write(reinterpret_cast<char*>(joints.data()), sizeof(joints[0]) * joints.size());
-	//		outBinary.write(reinterpret_cast<char*>(animationTransformations.data()), sizeof(animationTransformations[0]) * animationTransformations.size());
-
-	//		cout << "[OK] Exported " << animationName << " to " << folderName << endl;
-
-	//		outBinary.close();
-	//	}
-
-	//}
-
-	//else {
-
-	//	cout << "[WARNING] No animations found" << endl;
-	//}
 
 }
 

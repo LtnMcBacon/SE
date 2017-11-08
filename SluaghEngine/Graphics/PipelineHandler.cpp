@@ -460,9 +460,10 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -476,9 +477,9 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 					}
-					vertexShaders[id].constantBuffers.push_back(sbd.Name);
+					vertexShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -525,9 +526,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -541,10 +543,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					geometryShaders[id].constantBuffers.push_back(sbd.Name);
+					geometryShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -617,9 +619,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -633,10 +636,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					geometryShaders[id].constantBuffers.push_back(sbd.Name);
+					geometryShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -695,9 +698,10 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -711,10 +715,10 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					pixelShaders[id].constantBuffers.push_back(sbd.Name);
+					pixelShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -768,9 +772,10 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -784,10 +789,10 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 
 					}
-					computeShaders[id].constantBuffers.push_back(sbd.Name);
+					computeShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;

@@ -5,6 +5,8 @@
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
+#include <Core\IEngine.h>
+#include <Gameplay/PlayerUnit.h>
 namespace SE
 {
 	namespace Gameplay
@@ -28,18 +30,18 @@ namespace SE
 		{
 		private:
 			Room* adjacentRooms[4] = {};
+			bool DoorArr[4] = { true, true, true,true };
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
+			std::vector<SE::Core::Entity> roomEntities;
 			
-
-
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
 			 * FlowField map and calculations
 			 * Function(s) to build the room
-			 */
+			 */	
 
 			struct LinePoint
 			{
@@ -54,6 +56,8 @@ namespace SE
 
 		public:
 
+
+			void CloseDoor(int DoorNr); 
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 			char tileValues[25][25];
@@ -243,13 +247,27 @@ namespace SE
 			 */
 			inline bool PointInsideWall(float x, float y);
 
+			/**
+			* @brief Creates enteties for the room 
+			*/
+			void CreateEntities();
+
+			/**
+			* @brief Creates wall ent for the room
+			*/
+			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
 
+
 			float FloorCheck(int x, int y); 
 			
+			/**
+			* @brief Sets the enteties in the room to render or not
+			*/
+			void RenderRoom(bool render);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -398,6 +416,10 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
+			/**
+			* @brief set Room door pointer to values
+			*/
+			
 			inline void GetMap(char toReturn[25][25])
 			{
 				for (int i = 0; i < 25; i++)

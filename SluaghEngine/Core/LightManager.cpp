@@ -69,12 +69,47 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 	ProfileReturnVoid;
 }
 
-void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
-{
-	StartProfile;
-	timer->Start(CREATE_ID_HASH("LightManger"));
-	GarbageCollection();
+		void LightManager::Frame(Utilz::TimeCluster * timer)
+		{
+			StartProfile;
+			timer->Start(("LightManger"));
+			GarbageCollection();
 
+			if (dirtyEntites.size())
+			{
+				for (auto& l : dirtyEntites)
+				{
+					const auto fl = entityToLightData.find(l.entity);
+					if (fl != entityToLightData.end())
+					{
+						auto pos = initInfo.transformManager->GetPosition(l.entity);
+						fl->second.pos.x = pos.x;
+						fl->second.pos.y = pos.y;
+						fl->second.pos.z = pos.z;
+					}
+				}
+				anyTogglesThisFrame = true;
+			}
+
+
+			if (anyTogglesThisFrame)
+			{
+				initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
+					auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
+					uint32_t count = 0;
+					for (auto& l : entityToLightData)
+					{
+						if (l.second.visible)
+						{
+							cb.data[count].colour = l.second.colour;
+							cb.data[count].pos = l.second.pos;
+							cb.data[count].castShadow[0] = l.second.castShadow;
+							count++;
+						}
+						if (count == 20)
+							break;
+					}
+					cb.size[0] = count;
 	if (anyTogglesThisFrame)
 	{
 		initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
@@ -126,13 +161,12 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		lightShadowDataBuffer.position = DirectX::XMFLOAT4(lpos.x, lpos.y, lpos.z, entityToLightData[shadowCaster].pos.w);
 		lightShadowDataBuffer.range = { entityToLightData[shadowCaster].pos.w, 0.0f, 0.0f, 0.0f };
 
-		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
-		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
-	}
-	
-	timer->Stop(CREATE_ID_HASH("LightManger"));
-	StopProfile;
-}
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightViewProj", &viewProj, sizeof(XMFLOAT4X4));
+			}
+
+			timer->Stop(("LightManger"));
+			StopProfile;
+		}
 		
 
 
