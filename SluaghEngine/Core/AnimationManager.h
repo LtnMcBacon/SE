@@ -113,6 +113,7 @@ namespace SE
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;
+
 		};
 	}
 }
