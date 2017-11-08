@@ -110,7 +110,7 @@ namespace SE
 				AnimationInfo& animInfo;
 			};
 
-			std::stack<updateInfo> updateJob;
+			std::vector<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;
