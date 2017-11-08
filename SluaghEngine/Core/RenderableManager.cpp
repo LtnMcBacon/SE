@@ -192,9 +192,8 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
 
-	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "DepthCube";
-	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
-	info->pipeline.PSStage.samplers[info->pipeline.PSStage.samplerCount++] = "shadowPointSampler";
+
+	
 	
 }
 
@@ -271,6 +270,13 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
 			else
 				rmInstancing->AddEntity(entity, info);
+			
+			Graphics::RenderJob shadowInfo;
+			CreateShadowRenderObjectInfo(find->second, &shadowInfo);
+			if (renderableObjectInfo.shadow[find->second] == 1u)
+				shadowInstancing->AddEntity(entity, shadowInfo, Graphics::RenderGroup::PRE_PASS_0);
+
+			shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
 		}
 	}
@@ -460,43 +466,46 @@ void SE::Core::RenderableManager::Init()
 	if(res < 0)
 		throw std::exception("Could not load defaultVertexShadowShader");
 
-	ResourceHandler::Callbacks kuckelikuu;
-	kuckelikuu.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	
+
+	ResourceHandler::Callbacks geometryShaderCallbacks;
+	geometryShaderCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		auto res = initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
 		if (res < 0)
 			return ResourceHandler::LoadReturn::FAIL;
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
-	kuckelikuu.invokeCallback = [](auto guid, auto data, auto size) {
+	geometryShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
-	kuckelikuu.destroyCallback = [this](auto guid, auto data, auto size) {
+	geometryShaderCallbacks.destroyCallback = [this](auto guid, auto data, auto size) {
 		initInfo.renderer->GetPipelineHandler()->DestroyGeometryShader(guid);
 	};
-	ResourceHandler::Callbacks kuckelikuu2;
-	kuckelikuu2.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	ResourceHandler::Callbacks pixelShaderCallbacks;
+	pixelShaderCallbacks.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		auto res = initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
 		if (res < 0)
 			return ResourceHandler::LoadReturn::FAIL;
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
-	kuckelikuu2.invokeCallback = [](auto guid, auto data, auto size) {
+	pixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
-	kuckelikuu2.destroyCallback = [this](auto guid, auto data, auto size) {
+	pixelShaderCallbacks.destroyCallback = [this](auto guid, auto data, auto size) {
 		initInfo.renderer->GetPipelineHandler()->DestroyPixelShader(guid);
 	};
-	res = initInfo.resourceHandler->LoadResource("DepthCubeVS.hlsl", shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+
+	res = initInfo.resourceHandler->LoadResource("CubeDepthVS.hlsl", shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res < 0)
-		throw std::exception("Could not load depthCube");
-	res = initInfo.resourceHandler->LoadResource("DepthCubeGS.hlsl", kuckelikuu, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+		throw std::exception("Could not load depthCubeVS");
+	res = initInfo.resourceHandler->LoadResource("CubeDepthGS.hlsl", geometryShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res < 0)
-		throw std::exception("Could not load depthCube");
-	res = initInfo.resourceHandler->LoadResource("DepthCubePS.hlsl", kuckelikuu2, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+		throw std::exception("Could not load depthCubeGS");
+	res = initInfo.resourceHandler->LoadResource("CubeDepthPS.hlsl", pixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res < 0)
-		throw std::exception("Could not load depthCube");
+		throw std::exception("Could not load depthCubePS");
 	Graphics::RasterizerState info;
 	info.cullMode = Graphics::CullMode::CULL_BACK;
 	info.fillMode = Graphics::FillMode::FILL_SOLID;

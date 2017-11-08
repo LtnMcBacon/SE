@@ -120,30 +120,30 @@ bool SE::Test::ShadowTest::Run(DevConsole::IConsole* console) {
 	floorInfo.shader = shader;
 	floorInfo.materialFile = floorMaterial;
 
-	managers.materialManager->Create(mainC, info, true);
-	managers.materialManager->Create(box2, info, true);
-	managers.materialManager->Create(box3, info, true);
-	managers.materialManager->Create(box4, info, true);
-	managers.materialManager->Create(floor, floorInfo, true);
+	managers.materialManager->Create(mainC, info);
+	managers.materialManager->Create(box2, info);
+	managers.materialManager->Create(box3, info);
+	managers.materialManager->Create(box4, info);
+	managers.materialManager->Create(floor, floorInfo);
 
 	// Create renderable objects from the entities
 	managers.renderableManager->CreateRenderableObject(mainC, { "MCModell.mesh" });
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 	managers.renderableManager->ToggleShadow(mainC, true);
 
-	managers.renderableManager->CreateRenderableObject(box2, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(box2, { "Placeholder_Block.mesh" });
 	managers.renderableManager->ToggleRenderableObject(box2, true);
 	managers.renderableManager->ToggleShadow(box2, true);
 
-	managers.renderableManager->CreateRenderableObject(box3, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(box3, { "Placeholder_Block.mesh" });
 	managers.renderableManager->ToggleRenderableObject(box3, true);
 	managers.renderableManager->ToggleShadow(box3, true);
 
-	managers.renderableManager->CreateRenderableObject(box4, { "Placeholder_Block.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(box4, { "Placeholder_Block.mesh" });
 	managers.renderableManager->ToggleRenderableObject(box4, true);
 	managers.renderableManager->ToggleShadow(box4, true);
 
-	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" }, false);
+	managers.renderableManager->CreateRenderableObject(floor, { "floorTest.mesh" });
 	managers.renderableManager->ToggleRenderableObject(floor, true);
 
 	// Create light

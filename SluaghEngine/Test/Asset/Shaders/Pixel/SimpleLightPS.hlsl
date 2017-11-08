@@ -77,7 +77,7 @@ float4 PS_main(PS_IN input) : SV_TARGET
 			float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
 			float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
 			if(mapDepth + 0.0001f < distance / pointLights[i].pos.w)
-				shadowFactor = 0.0f;
+				shadowFactor = 0.25f;
 		}
 		
 		//Calculate specular term
