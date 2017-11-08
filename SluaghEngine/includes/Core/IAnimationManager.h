@@ -50,11 +50,11 @@ namespace SE
 				static const size_t maxLayers = 4;
 				size_t nrOfLayers = 0;
 				Utilz::GUID animations[maxLayers];
-				float timePos[maxLayers];
-				float animationSpeed[maxLayers];
-				bool looping[maxLayers];
-				float blendSpeed[maxLayers];
-				float blendFactor[maxLayers];
+				float timePos[maxLayers] = { 0.0f };
+				float animationSpeed[maxLayers] = { 10.0f };
+				bool looping[maxLayers] = { false };
+				float blendSpeed[maxLayers] = { 0.0f };
+				float blendFactor[maxLayers] = { 0.0f };
 			};
 
 			virtual ~IAnimationManager() {};
@@ -69,7 +69,7 @@ namespace SE
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
 			virtual void SetBlendSpeed(const Entity& entity, int index, float speed) = 0;
 			virtual void Pause(const Entity& entity)const = 0;
-			virtual bool IsAnimationPlaying(const Entity& entity) const = 0;
+			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const = 0;
 			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;

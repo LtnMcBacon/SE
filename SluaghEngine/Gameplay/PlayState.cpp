@@ -288,7 +288,6 @@ void SE::Gameplay::PlayState::InitializeOther()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
-
 	IGameState::State returnValue = State::PLAY_STATE;
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);

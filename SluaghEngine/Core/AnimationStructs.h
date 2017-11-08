@@ -83,11 +83,11 @@ namespace SE
 			size_t nrOfLayers = 0;
 			Utilz::GUID skeleton;
 			Utilz::GUID animation[maxLayers];
-			float timePos[maxLayers];
-			float animationSpeed[maxLayers];
-			bool looping[maxLayers];
-			float blendFactor[maxLayers];
-			float blendSpeed[maxLayers];
+			float timePos[maxLayers] = { 0.0f };
+			float animationSpeed[maxLayers] = { 10.0f };
+			bool looping[maxLayers] = { false };
+			float blendFactor[maxLayers] = { 0.0f };
+			float blendSpeed[maxLayers] = { 0.0f };
 		};
 
 	}

@@ -41,7 +41,7 @@ namespace SE
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
 			void SetBlendSpeed(const Entity& entity, int index, float speed)override;
 			void Pause(const Entity& entity)const override;
-			bool IsAnimationPlaying(const Entity& entity) const override;
+			bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const override;
 			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;

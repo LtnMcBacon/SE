@@ -4,6 +4,26 @@
 #include "ProjectileData.h"
 #include "CoreInit.h"
 
+void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
+{
+
+}
+
+void SE::Gameplay::PlayerUnit::BlendToAnimation(AvailableAnimations animationToRun)
+{
+
+
+}
+
+void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun)
+{
+	if (currentAnimation != animationToRun)
+	{
+		CoreInit::managers.animationManager->Start(unitEntity, animationPlayInfos[animationToRun]);
+		currentAnimation = animationToRun;
+	}
+}
+
 void SE::Gameplay::PlayerUnit::ResolveEvents()
 {
 	StartProfile;
@@ -177,21 +197,48 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
-		
-		Core::IAnimationManager::AnimationPlayInfo playInfo;
-		playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
-		playInfo.animationSpeed[0] = 1.0f;
-		playInfo.timePos[0] = 0.0f;
-		playInfo.looping[0] = true;
+		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity, "BottomRunAnim_MCModell.anim"))
+		{
 
-		playInfo.nrOfLayers = 1;
+			Core::IAnimationManager::AnimationPlayInfo playInfo;
+			playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
+			playInfo.animationSpeed[0] = 10.0f;
+			playInfo.timePos[0] = 0.0f;
+			playInfo.looping[0] = true;
+			playInfo.blendSpeed[0] = 0.0f;
+			playInfo.blendFactor[0] = 0.0f;
+			playInfo.animations[1] = "TopRunAnim_MCModell.anim";
+			playInfo.animationSpeed[1] = 10.0f;
+			playInfo.timePos[1] = 0.0f;
+			playInfo.looping[1] = true;
+			playInfo.blendSpeed[1] = 0.0f;
+			playInfo.blendFactor[1] = 0.0f;
+			playInfo.nrOfLayers = 2;
 
-		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+		}
 		
 	}
 	else
 	{
-		//CoreInit::managers.animationManager->SetKeyFrame(unitEntity, 0);
+		if (CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity, "TopRunAnim_MCModell.anim"))
+		{
+
+			Core::IAnimationManager::AnimationPlayInfo playInfo;
+			playInfo.animations[0] = "BottomIdleAnim_MCModell.anim";
+			playInfo.animationSpeed[0] = 10.0f;
+			playInfo.timePos[0] = 0.0f;
+			playInfo.looping[0] = true;
+			playInfo.blendSpeed[0] = 0.0f;
+			playInfo.blendFactor[0] = 0.0f;
+			playInfo.animations[1] = "TopIdleAnim_MCModell.anim";
+			playInfo.animationSpeed[1] = 10.0f;
+			playInfo.timePos[1] = 0.0f;
+			playInfo.looping[1] = true;
+			playInfo.blendSpeed[1] = 0.0f;
+			playInfo.blendFactor[1] = 0.0f;
+			playInfo.nrOfLayers = 2;
+
+		}
 	}
 
 	//------------------------
@@ -446,9 +493,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
-	sai.animationCount = 2;
+	sai.animationCount = 4;
 
-	Utilz::GUID anims[] = { "BottomRun_MCModellAnim.anim", "BottomIdleAnim_MCModell.anim" };
+	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim", "TopIdleAnim_MCModell.anim" };
 	sai.animations = anims;
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
@@ -459,11 +506,18 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	Core::IAnimationManager::AnimationPlayInfo playInfo;
 	playInfo.animations[0] = "BottomIdleAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 1.0f;
+	playInfo.animationSpeed[0] = 10.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
-
-	playInfo.nrOfLayers = 1;
+	playInfo.blendSpeed[0] = 0.0f;
+	playInfo.blendFactor[0] = 0.0f;
+	playInfo.animations[1] = "TopIdleAnim_MCModell.anim";
+	playInfo.animationSpeed[1] = 10.0f;
+	playInfo.timePos[1] = 0.0f;
+	playInfo.looping[1] = true;
+	playInfo.blendSpeed[1] = 0.0f;
+	playInfo.blendFactor[1] = 0.0f;
+	playInfo.nrOfLayers = 2;
 
 	CoreInit::managers.animationManager->Start(unitEntity, playInfo);
 }

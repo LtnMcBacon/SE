@@ -358,14 +358,20 @@ void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)
 	StopProfile;
 }
 
-bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const
 {
 	StartProfile;
 	
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		ProfileReturnConst(animationData.playing[entityIndex->second]);
+		auto& ai = animationData.animInfo[entityIndex->second];
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			if (animationToCheck == ai.animation[i])
+				ProfileReturnConst(true);
+
+		}
 	}
 
 
