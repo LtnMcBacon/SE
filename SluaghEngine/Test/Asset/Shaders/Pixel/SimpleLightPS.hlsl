@@ -50,7 +50,6 @@ struct PS_IN
 float4 PS_main(PS_IN input) : SV_TARGET
 {
 	float attenuation = 1.0f;
-	float3 totLight = ambient.xyz + float3(0.1, 0.1, 0.1);
 	float3 light = float3(0.0, 0.0, 0.0);
 	float shadowFactor = 1.0f;
 	float distance;
