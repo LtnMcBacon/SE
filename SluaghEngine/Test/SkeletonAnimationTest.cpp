@@ -129,7 +129,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.05f;
+	playInfo.blendSpeed[0] = 0.00f;
 	playInfo.blendFactor[0] = 0.0f;
 
 	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";

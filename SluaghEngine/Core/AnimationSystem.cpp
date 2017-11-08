@@ -118,7 +118,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 
 	// Create vector of identity matrices with the same size as the skeleton
 	auto& bucketTransform = bucket->matrices[bucketAndID.index].jointMatrix;
-	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4));
+	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4) * 30);
 
 	// Create vector of bools to check blending status at each joint
 	std::vector<bool> blendCheck;
@@ -147,7 +147,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 
 				if (blendCheck[actualIndex] == true) {
 
-						CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
+					CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
 
 				}
 
@@ -174,7 +174,13 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		const Joint &b = skeleton.Hierarchy[i];
 
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+		
+		if(blendCheck[i] == true){
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
+		}
+		else {
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
+		}
 	}
 }
 
