@@ -47,22 +47,29 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	mInfo.materialFile = material;
 	Core::Entity box = em->Create();
 	tm->Create(box, { 0,0,5 }, { 0,0,0 }, { 8,8,1 });
-	mm->Create(box, mInfo, false);
+	mm->Create(box, mInfo);
 
 	Core::IRenderableManager::CreateInfo rmci;
 	rmci.meshGUID = "Placeholder_Block.mesh";
 	rmci.transparent = false;
 	rmci.wireframe = false;
-	rm->CreateRenderableObject(box, rmci, false);
+	rm->CreateRenderableObject(box, rmci);
 	rm->ToggleRenderableObject(box, true);
 
+	Core::DecalCreateInfo decalInfo;
+	decalInfo.opacity = 0.25f;
+	decalInfo.textureName = "TransparentTest.sei";
 	Core::Entity decal = em->Create();
 	tm->Create(decal, { 1.0f,0.0f, 4.5f },{0,0,0}, {1,1,10});
-	dm->Create(decal, "ft_stone01_c.sei");
+	dm->Create(decal, decalInfo);
 
+	
 	Core::Entity decal2 = em->Create();
 	tm->Create(decal2, { -2.0f,0.0f, 4.5f }, { 0,0,0 }, { 1,1,10 });
-	dm->Create(decal2, "ft_stone01_c.sei");
+	dm->Create(decal2, decalInfo);
+	DirectX::XMFLOAT4X4 transf;
+	DirectX::XMStoreFloat4x4(&transf, DirectX::XMMatrixTranslation(0.0f, 2.0f, 0.0f));
+	dm->SetLocalTransform(decal2, (float*)&transf);
 	tm->BindChild(box, decal);
 	tm->BindChild(box, decal2);
 	auto l = em->Create();
@@ -82,6 +89,13 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 	window->MapActionButton(Window::KeyLeft, Window::KeyLeft);
 	window->MapActionButton(Window::KeyRight, Window::KeyRight);
 	window->MapActionButton(Window::KeyO, Window::KeyO);
+	window->MapActionButton(Window::KeyL, Window::KeyL);
+	window->MapActionButton(Window::KeyK, Window::KeyK);
+
+	window->MapActionButton(Window::KeyY, Window::KeyY);
+	window->MapActionButton(Window::KeyT, Window::KeyT);
+
+
 
 	bool running = true;
 	float dt = 1/60.0f * 5.0f;
@@ -105,6 +119,17 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 		if (window->ButtonDown(Window::KeyRight))
 			tm->Rotate(camera, 0.0f, 3.14 / 10.0f* dt, 0.0f);
 
+		if (window->ButtonDown(Window::KeyK))
+			tm->Move(decal2, { -dt, 0.0f, 0.0f,0.0f});
+		if (window->ButtonDown(Window::KeyL))
+			tm->Rotate(decal2, 0.0f, 0.0f, 3.14f / 10.0f * dt);
+
+		if (window->ButtonDown(Window::KeyT))
+			dm->ModifyOpacity(decal, 0.1 * dt);
+		if (window->ButtonDown(Window::KeyY))
+			dm->ModifyOpacity(decal, -0.1 * dt);
+		//auto pyr = tm->GetRotation(camera);
+		//tm->SetRotation(decal, pyr.x, pyr.y, pyr.z);
 		if(window->ButtonPressed(Window::KeyO))
 		{
 			em->Destroy(decal);
@@ -113,7 +138,8 @@ bool SE::Test::DecalTest::Run(DevConsole::IConsole* console)
 			DirectX::XMFLOAT3 newScale = { 1.0f, 1.0f, 10.0f };
 			decal = em->Create();
 			tm->Create(decal, newPos, newRot, newScale);
-			dm->Create(decal, "BlackPink.sei");
+			
+			dm->Create(decal, decalInfo);
 			tm->BindChild(box, decal, true, true);
 
 		}

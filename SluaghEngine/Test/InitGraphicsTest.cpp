@@ -45,7 +45,7 @@ bool SE::Test::InitGraphicsTest::Run(DevConsole::IConsole * console)
 	r->Shutdown();
 	w->Shutdown();
 
-	delete r;
+	r->Shutdown(); delete r;
 	delete w;
 
 

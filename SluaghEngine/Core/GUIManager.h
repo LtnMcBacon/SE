@@ -33,7 +33,7 @@ namespace SE
 			* @retval -1 Already loaded or currently loading.
 			* @endcode
 			*/
-			int Create(CreateInfo info)override;
+			int Create(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief	Hide/Show the renderable texture
@@ -63,17 +63,19 @@ namespace SE
 				}
 			};
 
-			inline void SetTexturePos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
+			inline void SetTexturePos(const Entity& entity, long x, long y)override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
 					
-					if (textureInfo[fileLoaded->second.ID].anchor == true)
+					textureInfo[fileLoaded->second.ID].posX = x;
+					textureInfo[fileLoaded->second.ID].posY = y;
+					/*if (textureInfo[fileLoaded->second.ID].anchor == true)
 						textureInfo[fileLoaded->second.ID].pos = pos;
 					else
 						textureInfo[fileLoaded->second.ID].pos = DirectX::XMFLOAT2(textureInfo[fileLoaded->second.ID].pos.x / width, textureInfo[fileLoaded->second.ID].pos.y / height);
-
+*/
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
@@ -81,15 +83,13 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureOrogin(const Entity& entity, DirectX::XMFLOAT2 origin) override {
+			inline void SetTextureScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{			
-					if (textureInfo[fileLoaded->second.ID].anchor == true)
-						textureInfo[fileLoaded->second.ID].origin = origin;
-					else
-						textureInfo[fileLoaded->second.ID].origin = DirectX::XMFLOAT2(textureGUID[fileLoaded->second.GUID].width / 2, textureGUID[fileLoaded->second.GUID].height / 2);
+
+					textureInfo[fileLoaded->second.ID].screenAnchor = anchor;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
@@ -97,16 +97,18 @@ namespace SE
 				}
 			};
 
-			inline void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale) override {
+			inline void SetTextureDimensions(const Entity& entity, long x, long y) override {
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					if (textureInfo[fileLoaded->second.ID].anchor == true)
-						textureInfo[fileLoaded->second.ID].scale = scale;
-					else
-						textureInfo[fileLoaded->second.ID].scale = DirectX::XMFLOAT2(textureInfo[fileLoaded->second.ID].scale.x / width, textureInfo[fileLoaded->second.ID].scale.y / height);
-					if (fileLoaded->second.show == true)
+					textureInfo[fileLoaded->second.ID].width = x;
+					textureInfo[fileLoaded->second.ID].height = y;
+					/*if (textureInfo[fileLoaded->second.ID].anchor == true)
+						textureInfo[fileLoaded->second.ID]. = scale;*/
+					/*else
+						textureInfo[fileLoaded->second.ID].dimensions = DirectX::XMFLOAT2(textureInfo[fileLoaded->second.ID].scale.x / width, textureInfo[fileLoaded->second.ID].scale.y / height);
+				*/	if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -153,35 +155,64 @@ namespace SE
 				
 			};
 
-			inline void SetTextureID(const Entity& entity, Utilz::GUID& guid) override {
-				// chexk if entity exist in texture 
-				auto fileLoaded = entTextureID.find(entity);
-				auto guidLoaded = textureGUID.find(guid);
-				if (fileLoaded != entTextureID.end() && guidLoaded != textureGUID.end())
-				{
-					textureGUID[fileLoaded->second.GUID].refCount--;
-					fileLoaded->second.GUID = guid;
-					textureInfo[fileLoaded->second.ID].textureID = guidLoaded->second.textureHandle;
-					guidLoaded->second.refCount++;
-					if (fileLoaded->second.show == true)
-					{
-						dirtyEnt[entity] = true;
-					}
-				}
-			};
-
-			inline void SetTextureRect(const Entity& entity, Graphics::RECT& rect)override {
+			inline void SetTextureScale(const Entity& entity, DirectX::XMFLOAT2 scale)override
+			{
 				// chexk if entity exist in texture 
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					*textureInfo[fileLoaded->second.ID].rect = rect;
+					textureInfo[fileLoaded->second.ID].scale = scale;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
 				}
+
+
 			};
+
+			inline void SetTexture(const Entity& entity, Utilz::GUID texture)override
+			{
+				auto texLoaded = textureGUID.find(texture);
+				if (texLoaded == textureGUID.end())
+				{
+					textureGUID[texture].textureHandle = -1;
+					auto res = initInfo.resourceHandler->LoadResource(texture, [this](auto guid, auto data, auto size) {
+						Graphics::TextureDesc td;
+						memcpy(&td, data, sizeof(td));
+						/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+						if (td.width * td.height * 4 != size - sizeof(td))
+							return ResourceHandler::InvokeReturn::FAIL;
+						void* rawTextureData = ((char*)data) + sizeof(td);
+						auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
+						if (handle == -1)
+							return ResourceHandler::InvokeReturn::FAIL;
+						textureGUID[guid].textureHandle = handle;
+						textureGUID[guid].refCount = 0;
+						textureGUID[guid].height = td.height;
+						textureGUID[guid].width = td.width;
+						return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+					});
+					if (res < 0)
+						textureGUID[texture].textureHandle = 0;
+				}
+				// chexk if entity exist in texture 
+				auto fileLoaded = entTextureID.find(entity);
+				if (fileLoaded != entTextureID.end())
+				{
+					textureGUID[fileLoaded->second.GUID].refCount--;
+					fileLoaded->second.GUID = texture;
+					textureGUID[fileLoaded->second.GUID].refCount++;
+					entTextureID[entity].textureHandle = textureGUID[texture].textureHandle;
+					if (fileLoaded->second.show == true)
+					{
+						dirtyEnt[entity] = true;
+					}
+				}
+
+
+			};
+
 
 			/**
 			* @brief Sets the default height and width to be used in GUI scale calc
@@ -191,8 +222,8 @@ namespace SE
 			*/
 			void SetDefaultScale(float inHeight, float inWidth)override
 			{
-				height = inHeight;
-				width = inWidth;
+				originalScreenHeight = inHeight;
+				originalScreenWidth = inWidth;
 			}
 
 			/**
@@ -205,13 +236,13 @@ namespace SE
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
-			ResourceHandler::InvokeReturn LoadTexture(const Utilz::GUID& guid, void*data, size_t size);
 
 			struct EntBindIDGUID
 			{
 				Utilz::GUID GUID;
 				size_t ID;
 				size_t jobID;
+				int textureHandle;
 				bool show = false;
 			};
 
@@ -228,9 +259,8 @@ namespace SE
 			InitializationInfo initInfo;
 
 			
-			
-			float height = 720.0;
-			float width = 1280.0;
+			long originalScreenWidth = 1280;
+			long originalScreenHeight = 720;
 		};
 	}
 }

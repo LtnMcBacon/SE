@@ -10,7 +10,9 @@ namespace SE {
 			_ASSERT(initInfo.renderer);
 			_ASSERT(initInfo.entityManager);
 
-			auto ret = initInfo.resourceHandler->LoadResource("moonhouse.spritefont", { this, &TextManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource("moonhouse.spritefont", [this](auto guid, auto data, auto size) {
+				guidToFont[guid] = this->initInfo.renderer->CreateTextFont(data, size);
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM; });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -20,25 +22,43 @@ namespace SE {
 
 		}
 
-		void TextManager::Create(CreateInfo info)
+		void TextManager::Create(const Entity& entity, const CreateInfo& info)
 		{
 			StartProfile;
 
 			// Check if the entity is alive
-			if (!initInfo.entityManager->Alive(info.entity))
+			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
+			auto font = info.font;
+			if (info.font == Utilz::GUID())
+			{
+				font = "moonhouse.spritefont";
+			}
+			else
+			{
+				auto const findFont = guidToFont.find(info.font);
+				if (findFont == guidToFont.end())
+				{
+					auto ret = initInfo.resourceHandler->LoadResource(info.font, [this](auto guid, auto data, auto size) {
+						guidToFont[guid] = this->initInfo.renderer->CreateTextFont(data, size);
+						return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM; });
+					if (ret)
+					{
+						ProfileReturnVoid;
+					}
+				}
+			}
+			
 
-			if (info.inTextInfo.fontID >= guidToFont.size())
-				ProfileReturnVoid;
-
-			entID[info.entity].ID = loadedTexts.size();
-			textEnt.push_back(info.entity);
-			loadedTexts.push_back(info.inTextInfo);
-			if (!loadedTexts[loadedTexts.size() - 1].anchor)
+			entID[entity].ID = loadedTexts.size();
+			entID[entity].font = font;
+			textEnt.push_back(entity);
+			loadedTexts.push_back(info.info);
+		/*	if (!loadedTexts[loadedTexts.size() - 1].anchor)
 			{
 				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
 				loadedTexts[loadedTexts.size() - 1].scale = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].scale.x / width, loadedTexts[loadedTexts.size() - 1].scale.y / height);
-			}
+			}*/
 			ProfileReturnVoid;
 		}
 
@@ -51,7 +71,7 @@ namespace SE {
 			{
 				if (show && !fileLoaded->second.show)
 				{
-					fileLoaded->second.jobID = initInfo.renderer->EnableTextRendering(loadedTexts[fileLoaded->second.ID]);
+					fileLoaded->second.jobID = initInfo.renderer->EnableTextRendering({ guidToFont[fileLoaded->second.font], originalScreenWidth, originalScreenHeight,  loadedTexts[fileLoaded->second.ID] });
 					textJobobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
 				}
@@ -63,7 +83,6 @@ namespace SE {
 					textJobobToEnt[fileLoaded->second.jobID] = textJobobToEnt[tempJobID];
 					textJobobToEnt.erase(tempJobID);
 				}
-				ProfileReturnVoid;
 			}
 			StopProfile;
 		}
@@ -71,7 +90,9 @@ namespace SE {
 		int TextManager::MakeFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = initInfo.resourceHandler->LoadResource(fontFile, { this, &TextManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource(fontFile, [this](auto guid, auto data, auto size) {
+				guidToFont[guid] = initInfo.renderer->CreateTextFont(data, size);
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM ; });
 
 			ProfileReturnConst(0);
 		}
@@ -79,7 +100,7 @@ namespace SE {
 		void TextManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH( "GUIManager"));
+			timer->Start(( "GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -94,7 +115,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 
@@ -105,7 +126,7 @@ namespace SE {
 			{
 				for (auto& entity : textEnt)
 				{
-					if (!loadedTexts[entID[entity].ID].anchor && entID[entity].show)
+					if (entID[entity].show)
 					{
 						ToggleRenderableText(entity, false);
 						ToggleRenderableText(entity, true);
@@ -113,12 +134,6 @@ namespace SE {
 				}
 			}
 			StopProfile;
-		}
-
-		ResourceHandler::InvokeReturn TextManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
-		{
-			guidToFont[font] = initInfo.renderer->CreateTextFont(data, size);
-			return ResourceHandler::InvokeReturn::Success;
 		}
 
 		void TextManager::Destroy(size_t index)

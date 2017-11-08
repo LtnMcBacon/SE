@@ -71,50 +71,46 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		auto managers = engine->GetManagers();
 		auto subSystem = engine->GetSubsystems();
 
-		Core::IMaterialManager::CreateInfo floorInfo;
+		/*Core::IMaterialManager::CreateInfo floorInfo;
 		Utilz::GUID material = Utilz::GUID("Cube.mat");
 		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		floorInfo.shader = shader;
 		floorInfo.materialFile = material;
 		auto floor = managers.entityManager->Create();
-		managers.materialManager->Create(floor, floorInfo);
+		managers.materialManager->Create(floor, floorInfo);*/
 		const int numberOfBlocks = 25 * 25;
 		SE::Core::Entity entities[numberOfBlocks];
 		SE::Core::Entity arrows[numberOfBlocks];
-
-		Core::IMaterialManager::CreateInfo cubeInfo;
-		material = Utilz::GUID("Cube.mat");
-		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
-		cubeInfo.shader = shader;
-		cubeInfo.materialFile = material;
+		SE::Core::Entity floor[numberOfBlocks];
 
 		Core::IMaterialManager::CreateInfo arrowInfo;
-		material = Utilz::GUID("Cube.mat");
-		shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+		Utilz::GUID material = Utilz::GUID("Cube.mat");
+		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		arrowInfo.shader = shader;
 		arrowInfo.materialFile = material;
 
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
 			entities[i] = managers.entityManager->Create();
-			managers.materialManager->Create(entities[i], cubeInfo);
 			arrows[i] = managers.entityManager->Create();
+			floor[i] = managers.entityManager->Create();
 			managers.materialManager->Create(arrows[i], arrowInfo);
 		}
-		managers.transformManager->Create(floor);
-		managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));
+		/*managers.transformManager->Create(floor);
+		managers.transformManager->SetPosition(floor, DirectX::XMFLOAT3(12.5f, 0.0f, 12.5f));*/
 
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
 			managers.transformManager->Create(entities[i]);
 			managers.transformManager->Create(arrows[i]);
+			managers.transformManager->Create(floor[i]);
 		}
 
 
-		managers.renderableManager->CreateRenderableObject(floor, { "Placeholder_Floor.mesh" });
+		/*managers.renderableManager->CreateRenderableObject(floor, { "Placeholder_Floor.mesh" });
 		managers.renderableManager->ToggleRenderableObject(floor, true);
 
-		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));
+		managers.collisionManager->CreateBoundingHierarchy(floor, Utilz::GUID("Placeholder_Floor.mesh"));*/
 
 
 #pragma region AudioData
@@ -143,35 +139,35 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		Core::ILightManager::CreateInfo data;
 		//Light 1
-		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.color = DirectX::XMFLOAT3(0.3, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 22.5);
 		data.radius = 10.0f;
 		managers.lightManager->Create(light[0], data);
 		managers.lightManager->ToggleLight(light[0], true);
 
 		//Light 2
-		data.color = DirectX::XMFLOAT3(0.1, 0.8, 0.1);
+		data.color = DirectX::XMFLOAT3(0.1, 0.3, 0.1);
 		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 22.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[1], data);
 		managers.lightManager->ToggleLight(light[1], true);
 
 		//Light 3
-		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.8);
+		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.3);
 		data.pos = DirectX::XMFLOAT3(22.5, 1.0, 2.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[2], data);
 		managers.lightManager->ToggleLight(light[2], true);
 
 		//Light 4
-		data.color = DirectX::XMFLOAT3(0.8, 0.1, 0.1);
+		data.color = DirectX::XMFLOAT3(0.3, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(2.5, 1.0, 2.5);
 		data.radius = 10.0;
 		managers.lightManager->Create(light[3], data);
 		managers.lightManager->ToggleLight(light[3], true);
 
 		//Light 5
-		data.color = DirectX::XMFLOAT3(0.8, 0.8, 0.8);
+		data.color = DirectX::XMFLOAT3(0.1, 0.1, 0.1);
 		data.pos = DirectX::XMFLOAT3(12.5, 40.0, 12.5);
 		data.radius = 150.0;
 		managers.lightManager->Create(light[4], data);
@@ -179,11 +175,18 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 #pragma endregion LightDataSet
 
 		auto Block = SE::Utilz::GUID{ "HighWall.mesh" };
+		auto Passage = SE::Utilz::GUID{ "HighWall_Passage.mesh" };
+		auto OneSide = SE::Utilz::GUID{ "HighWall_OneSide.mesh" };
+		auto Corner = SE::Utilz::GUID{ "HighWall_Corner.mesh" };
+		auto Top = SE::Utilz::GUID{ "HighWall_Top.mesh" };
+		auto ThreeSides = SE::Utilz::GUID{ "HighWall_ThreeSides.mesh" };
 		auto Arrow = SE::Utilz::GUID{ "Placeholder_Arrow.mesh" };
 		auto Door = SE::Utilz::GUID{ "Door.mesh" };
+		auto Floor = SE::Utilz::GUID{ "floorTest.mesh" };
 
 		int numberOfEntitesPlaced = 0;
 		int numberOfArrows = 0;
+		int numberOfFloor = 0;
 		uint32_t nrOfRooms;
 		Utilz::GUID* RoomArr;
 
@@ -192,7 +195,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 			nrOfRooms = *(uint32_t *)data;
 			RoomArr = new Utilz::GUID[nrOfRooms];
 			memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 
 		int random = subSystem.window->GetRand() % nrOfRooms;
@@ -277,28 +280,294 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(temp);
 
+		Core::IMaterialManager::CreateInfo cubeInfo;
+		material = Utilz::GUID("Cube.mat");
+		cubeInfo.materialFile = material;
+
+		
+
 		for (int x = 0; x < 25; x++)
 		{
 			for (int y = 0; y < 25; y++)
 			{
 				if (testRoom->tileValues[x][y] == 10)
 				{
-					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+
+					int right = testRoom->tileValues[x + 1][y];
+					int left = testRoom->tileValues[x - 1][y];
+					int up = testRoom->tileValues[x][y + 1];
+					int down = testRoom->tileValues[x][y - 1];
+					
+					if (x == 24 || y == 24 || x == 0 || y == 0)
+					{
+						if ((x == 0 && y == 0) || (x == 24 && y == 0) || (x == 0 && y == 24) || (x == 24 && y == 24))
+						{
+							managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
+						}
+						else if ((x == 24 && y != 0))
+						{
+							if (testRoom->tileValues[x - 1][y] == 10)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
+							}
+							else if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+							}
+						}
+						else if ((y == 24 && x != 0))
+						{
+							if (testRoom->tileValues[x][y - 1] == 10)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
+							}
+							else if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+						}
+						else if ((x == 0 && y != 24))
+						{
+							if (testRoom->tileValues[x + 1][y] == 10)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
+							}
+							else if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+							}
+						}
+						else if ((y == 0 && x != 24))
+						{
+							if (testRoom->tileValues[x][y + 1] == 10)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
+							}
+							else if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+							}
+							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+							}
+							else
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+							}
+						}
+					}
+					else if (right + left + up + down == 40)
+					{
+						continue;
+					}
+					else
+					{
+						int side = 1;
+						if (right == 10)
+							side = side * 5;
+						if (left == 10)
+							side = side * 2;
+						if (up == 10)
+							side = side * 3;
+						if (down == 10)
+							side = side * 7;
+						//    3
+						//  2/#/5
+						//    7
+
+						switch (side) {
+							case 1:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+								break;
+							}
+							case 2:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 3:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 5:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 7:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { ThreeSides });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 10:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Passage });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 21:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Passage });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 6:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 15:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							case 35:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 14:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 30:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 105:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
+								break;
+							}
+							case 70:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
+								break;
+							}
+							case 42:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { OneSide });
+								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
+								break;
+							}
+							default:
+							{
+								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
+								break;
+							}
+						}
+							
+					}
+					
+					
+					if (!(x == 24 || y == 24) && (right == 0 || up == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+									
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);					
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
-					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 1.0f, y + 0.5f));
+					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 1.0, 1.0));
 					numberOfEntitesPlaced++;
 				}
 				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
+					if (!(x == 24 || y == 24) && (testRoom->tileValues[x + 1][y] == 0 || testRoom->tileValues[x][y + 1] == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					{
+						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
+						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
+					}
+					else
+						shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(entities[numberOfEntitesPlaced], cubeInfo);
 					managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 					managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 
 					managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, testRoom->FloorCheck(x, y), 0.0f);
 					numberOfEntitesPlaced++;
+
+					managers.renderableManager->CreateRenderableObject(floor[numberOfFloor], { Floor });
+					shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(floor[numberOfFloor], cubeInfo);
+					managers.renderableManager->ToggleRenderableObject(floor[numberOfFloor], true);
+					managers.transformManager->SetPosition(floor[numberOfFloor], DirectX::XMFLOAT3(x + 0.5f, 0.0f, y + 0.5f));
+
+					numberOfFloor++;
 				}
 				else if (testRoom->tileValues[x][y] == 0)
 				{
+					managers.renderableManager->CreateRenderableObject(floor[numberOfFloor], { Floor });
+					shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+					cubeInfo.shader = shader;
+					managers.materialManager->Create(floor[numberOfFloor], cubeInfo);
+					managers.renderableManager->ToggleRenderableObject(floor[numberOfFloor], true);
+					managers.transformManager->SetPosition(floor[numberOfFloor], DirectX::XMFLOAT3(x + 0.5f, 0.0f, y + 0.5f));
+
+					numberOfFloor++;
+#pragma region Arrows
+
+
+
 					managers.renderableManager->CreateRenderableObject(arrows[numberOfArrows], { Arrow });
 					managers.renderableManager->ToggleRenderableObject(arrows[numberOfArrows], true);
 					float xMagnitude = 0.0f;
@@ -350,16 +619,21 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					}
 
 					numberOfArrows++;
+#pragma endregion Arrows
 				}
 			}
 		}
 		Gameplay::EnemyFactory eFactory;
-		auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
-		eFactory.LoadEnemyIntoMemory(enemyGUID);
+		Gameplay::EnemyCreationStruct eStruct;
 		Gameplay::GameBlackboard blackBoard;
 		blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 
-		for (int i = 0; i < 100; i++)
+		const int enemiesSize = 100;
+		Gameplay::EnemyUnit** enemies;
+
+		enemies = new Gameplay::EnemyUnit*[enemiesSize];
+
+		for (int i = 0; i < enemiesSize; i++)
 		{
 			pos enemyPos;
 			do
@@ -368,18 +642,24 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 				enemyPos.y = subSystem.window->GetRand() % 25;
 			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
-			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-			enemy->SetXPosition(enemyPos.x + .5f);
-			enemy->SetYPosition(enemyPos.y + .5f);
-
-			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-			managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
-			managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
-			managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-			managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
-			testRoom->AddEnemyToRoom(enemy);
+			Gameplay::EnemyCreationData data;
+			data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
 		}
 
+
+
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+		for (int i = 0; i < enemiesSize; i++)
+		{
+			testRoom->AddEnemyToRoom(enemies[i]);
+		}
+
+		delete[] enemies;
 		subSystem.window->MapActionButton(0, Window::KeyEscape);
 		subSystem.window->MapActionButton(1, Window::Key1);
 		subSystem.window->MapActionButton(2, Window::Key2);
@@ -418,13 +698,13 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 		std::vector<Gameplay::ProjectileData> newProjectiles;
 
-		DirectX::XMFLOAT3 tPos = managers.transformManager->GetPosition(floor);
+		/*DirectX::XMFLOAT3 tPos = managers.transformManager->GetPosition(floor);
 		DirectX::XMFLOAT3 tRot = managers.transformManager->GetRotation(floor);
 		DirectX::XMFLOAT3 tScale = managers.transformManager->GetScale(floor);
 		DirectX::XMMATRIX worldM = { tScale.x, 0, 0, 0,
 			0, tScale.y, 0, 0,
 			0, 0, tScale.z, 0,
-			tPos.x, tPos.y, tPos.z, 1.0f };
+			tPos.x, tPos.y, tPos.z, 1.0f };*/
 
 		bool stepping = false;
 		bool running = true;
@@ -745,7 +1025,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		}
 		ImGui::ListBox("PlaybackFiles", &current, fileNames.data(), fileNames.size());
 		ImGui::LabelText("NrOfFiles", "%d",fileNames.size());
-		if (ImGui::Button("Play"))
+		if (ImGui::Button("Play") && files.size() > 0)
 		{
 			play = true;
 			running = false;

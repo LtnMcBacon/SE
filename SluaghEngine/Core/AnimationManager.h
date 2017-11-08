@@ -9,6 +9,7 @@
 #include <Utilz\CircularFiFo.h>
 #include "RenderableManager.h"
 #include "AnimationSystem.h"
+#include <stack>
 
 namespace SE
 {
@@ -33,11 +34,16 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 
-			void Start(const Entity& entity, bool looping, const Utilz::GUID& animation, float speed)override;
+			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
+
+			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
+			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
-			void Start(const Entity& entity, bool looping)const override;
+			void SetBlendSpeed(const Entity& entity, int index, float speed)override;
 			void Pause(const Entity& entity)const override;
+			bool IsAnimationPlaying(const Entity& entity) const override;
+			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
 
@@ -70,21 +76,44 @@ namespace SE
 
 			RenderableManager* renderableManager;
 
+			struct AttacherSlot {
+
+				Entity entity;
+				int jointIndex;
+			};
+
+			struct Attacher {
+
+				static const size_t maxSlots = 2;
+				AttacherSlot slots[maxSlots];
+			};
+
 			struct AnimationData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(AnimationInfo) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(AnimationInfo) + sizeof(uint8_t) + sizeof(Attacher);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				AnimationInfo* animInfo;	
 				uint8_t* playing;
+				Attacher* attacher;
+
 			};
-			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
+			struct updateInfo
+			{
+				Entity ent;
+				AnimationInfo& animInfo;
+			};
+
+			std::stack<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
+
+			float aniUpdateTime = 0.0;
+
 		};
 	}
 }

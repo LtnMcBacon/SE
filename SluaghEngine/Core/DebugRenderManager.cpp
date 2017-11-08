@@ -16,9 +16,14 @@ SE::Core::DebugRenderManager::DebugRenderManager(const InitializationInfo & init
 	vertexShaderID = "DebugLineVS.hlsl";
 	pixelShaderID = "DebugLinePS.hlsl";
 	transformBufferID = "DebugLineW";
-	initInfo.resourceHandler->LoadResource(pixelShaderID, { this, &DebugRenderManager::LoadLinePixelShader });
-	initInfo.resourceHandler->LoadResource(vertexShaderID, { this, &DebugRenderManager::LoadLineVertexShader });
-
+	initInfo.resourceHandler->LoadResource(pixelShaderID, [this](auto guid, auto data, auto size) {
+		this->initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
+	initInfo.resourceHandler->LoadResource(vertexShaderID, [this](auto guid, auto data, auto size) {
+		this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
 	initInfo.transformManager->RegisterSetDirty({ this, &DebugRenderManager::SetDirty });
 
 	auto pipelineHandler = initInfo.renderer->GetPipelineHandler();
@@ -47,7 +52,7 @@ SE::Core::DebugRenderManager::~DebugRenderManager()
 void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("DebugRenderManager"));
+	timer->Start(("DebugRenderManager"));
 	GarbageCollection();
 	CreateBoundingBoxes();
 	if (dirty)
@@ -97,7 +102,7 @@ void SE::Core::DebugRenderManager::Frame(Utilz::TimeCluster * timer)
 		}
 		dirty = false;
 	}
-	timer->Stop(CREATE_ID_HASH("DebugRenderManager"));
+	timer->Stop(("DebugRenderManager"));
 	ProfileReturnVoid;
 }
 
@@ -212,27 +217,11 @@ void SE::Core::DebugRenderManager::CreateBoundingBoxes()
 	}
 }
 
-
-SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);
-	
-}
-
-SE::ResourceHandler::InvokeReturn SE::Core::DebugRenderManager::LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size)
-{
-	StartProfile;
-	initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
-	ProfileReturn(ResourceHandler::InvokeReturn::DecreaseRefcount);	
-}
-
 void SE::Core::DebugRenderManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
-	//const auto find = entityToLineList.find(entity);
-	//if (find != entityToLineList.end())
+	const auto find = entityToLineList.find(entity);
+	if (find != entityToLineList.end())
 	{
 		DirectX::XMStoreFloat4x4(&cachedTransforms[entity], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetCleanedTransforms()[index])));
 	}

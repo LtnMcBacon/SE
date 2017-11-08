@@ -16,7 +16,7 @@ using namespace SE::Utilz::Memory;
 #pragma comment(lib, "ResourceHandler.lib")
 #pragma comment(lib, "Graphics.lib")
 #pragma comment(lib, "Window.lib")
-#pragma comment(lib, "ImGuiDX11SDL.lib");
+#pragma comment(lib, "ImGuiDX11SDL.lib")
 #pragma comment(lib, "DevConsole.lib")
 #endif
 
@@ -56,7 +56,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 		);
 #endif
 		this->Release();
-		return -1;
+		ProfileReturnConst(-1);
 	}
 
 	SetupDebugConsole();
@@ -80,7 +80,7 @@ int SE::Core::Engine::BeginFrame()
 		ProfileReturnConst( -1);
 
 	frameBegun = true;
-	timeClus.Start(CREATE_ID_HASH("Frame"));
+	timeClus.Start(("Frame"));
 	subSystems.window->Frame();
 	
 	subSystems.renderer->BeginFrame();
@@ -106,9 +106,12 @@ int SE::Core::Engine::EndFrame()
 	subSystems.devConsole->EndFrame();
 	subSystems.renderer->EndFrame();
 	
+	std::vector<std::string> errors;
+	subSystems.resourceHandler->GetErrorMessages(errors);
+	for (auto& r : errors)
+		subSystems.devConsole->PrintChannel("ResourceHandler", "%s", r.c_str());
 
-
-	timeClus.Stop(CREATE_ID_HASH("Frame"));
+	timeClus.Stop(("Frame"));
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -117,6 +120,11 @@ int SE::Core::Engine::EndFrame()
 int SE::Core::Engine::Release()
 {
 	StartProfile;
+
+	if (subSystems.resourceHandler)
+		subSystems.resourceHandler->Shutdown();
+	delete subSystems.resourceHandler;
+	subSystems.resourceHandler = nullptr;
 
 	for (auto rit = managersVec.rbegin(); rit != managersVec.rend(); ++rit)
 		delete *rit;
@@ -139,10 +147,7 @@ int SE::Core::Engine::Release()
 	delete subSystems.window;
 	subSystems.window = nullptr;
 
-	if (subSystems.resourceHandler)
-		subSystems.resourceHandler->Shutdown();
-	delete subSystems.resourceHandler;
-	subSystems.resourceHandler = nullptr;
+	
 
 	if (subSystems.optionsHandler)
 		subSystems.optionsHandler->UnloadOption("Config.ini");
@@ -173,17 +178,17 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.optionsHandler = CreateOptionsHandler();
 		auto res = subSystems.optionsHandler->Initialize("Config.ini");
 		if (res < 0)
-			throw std::exception("Could not initiate optionsHandler.");
+			throw std::exception("Could not initiate optionsHandler. Something went wrong with the Config.ini file");
 	}
 	if (!subSystems.resourceHandler)
 	{
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
-		info.maxMemory = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
-		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
+		info.RAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
+		info.VRAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
-			throw std::exception("Could not initiate resourceHandler.");
+			throw std::exception("Could not initiate resourceHandler. Make sure you have run the fileparser. And in the right folder,etc.");
 	}
 	if (!subSystems.window)
 	{
@@ -212,7 +217,7 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.devConsole = CreateConsole(subSystems.renderer, subSystems.window);
 		auto res = subSystems.devConsole->Initialize();
-		if (res < 0)
+		if (!res)
 			throw std::exception("Could not initiate devConsole.");
 	}
 	if(!subSystems.threadPool)
@@ -270,6 +275,7 @@ void SE::Core::Engine::InitTransformManager()
 	{
 		ITransformManager::InitializationInfo info;
 		info.entityManager = managers.entityManager;
+		info.threadPool = subSystems.threadPool;
 		managers.transformManager = CreateTransformManager(info);
 	}
 	managersVec.push_back(managers.transformManager);
@@ -330,7 +336,6 @@ void SE::Core::Engine::InitRenderableManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.console = subSystems.devConsole;
-		info.unloadingStrat = ResourceHandler::UnloadingStrategy::Linear;
 		managers.renderableManager = CreateRenderableManager(info);
 
 	}
@@ -349,6 +354,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.threadPool = subSystems.threadPool;
 		managers.animationManager = CreateAnimationManager(info);
 	}
 	managersVec.push_back(managers.animationManager);
@@ -444,6 +450,7 @@ void SE::Core::Engine::SetupDebugConsole()
 {
 	subSystems.devConsole->AddFrameCallback([this]()
 	{
+
 		static bool plot_memory_usage;
 		static bool show_gpu_timings;
 		if (ImGui::BeginMenuBar())
@@ -456,7 +463,6 @@ void SE::Core::Engine::SetupDebugConsole()
 			}
 			ImGui::EndMenuBar();
 		}
-
 
 		if(plot_memory_usage)
 		{
@@ -473,14 +479,14 @@ void SE::Core::Engine::SetupDebugConsole()
 		if (subSystems.renderer->GetVRam() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
 		{
 		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
-		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
 		ImGui::PopStyleColor();
 		}
 		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
 		{
 		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(Utilz::Memory::toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
+		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
 		ImGui::PopStyleColor();
 		}
 		ImGui::Separator();
@@ -493,7 +499,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			static float maxFrameTime = 0.0f;
 			static float minFrameTime = 999999999.0f;
 			static float avg100Frames = 0.0f;
-			const auto frame = map.find(CREATE_ID_HASH("Frame"));
+			const auto frame = map.find(("Frame"));
 			if (frame != map.end())
 			{
 				static float runningSum = 0.0f;
@@ -516,7 +522,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
 			for (auto& m : map)
 			{
-				ImGui::TextUnformatted(m.first.str); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+				ImGui::TextUnformatted(m.first); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
 			}
 
 

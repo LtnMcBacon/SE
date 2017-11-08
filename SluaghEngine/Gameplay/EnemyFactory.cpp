@@ -43,126 +43,79 @@ namespace
 		return std::stoi(GetLineData(line));
 	}
 }
-ResourceHandler::InvokeReturn EnemyFactory::LoadEnemyFromResourceHandler(const Utilz::GUID& GUID, void* data, size_t size)
-{
-	StartProfile;
-	if (!size)
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	std::string const EnemyFileData((char*)data, size);
-	auto lineByLineData = split(EnemyFileData, '\n');
 
-	auto line = lineByLineData.begin();
-	line->pop_back();
-	EnemyDescriptionStruct loadedEnemy;
-	auto temp = Utilz::GUID("Placeholder_Block.mesh");
-	loadedEnemy.meshGUID = Utilz::GUID(GetLineData(line));
-	++line;
-	line->pop_back();
-	loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
-	++line;
-	line->pop_back();
-	loadedEnemy.baseDamage = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseDamageVariation = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseHealth = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.baseHealthVariation = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.physicalResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.magicalResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.natureResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.fireResistance = GetLineDataAsInt(line);
-	++line;
-	line->pop_back();
-	loadedEnemy.waterResistance = GetLineDataAsInt(line);
-
-	if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-
-	/*Load mesh here?*/
-
-	enemyData[GUID] = loadedEnemy;
-
-	/*Return 0 for success, -1 for fail, 1 for refcount*/
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-}
-
-EnemyUnit* EnemyFactory::CreateEnemy(Utilz::GUID GUID, GameBlackboard* gameBlackboard, bool useVariation)
-{
-	StartProfile;
-	EnemyUnit* createdEnemy = nullptr;
-
-	auto const enemyCreationData = enemyData.find(GUID);
-	if (enemyCreationData == enemyData.end())
-		ProfileReturn(nullptr);
-	int enemyHealth = enemyCreationData->second.baseHealth;
-	if (useVariation)
-	{
-		int healthVariation = enemyCreationData->second.baseHealthVariation;
-		enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
-	}
-
-	createdEnemy = new EnemyUnit(nullptr, 0.0f, 0.0f, enemyHealth);
-	/*To do: Add the rest of the data here!*/
-
-	EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
-
-	createdEnemy->SetBehaviouralTree(SEBTFactory->BuildBehaviouralTree(
-		enemyCreationData->second.behaviouralTreeGUID,
-		gameBlackboard,
-		enemyBlackboard));
-
-	createdEnemy->SetEnemyBlackboard(enemyBlackboard);
-
-	/*Fix with managers*/
-	CoreInit::managers.renderableManager->CreateRenderableObject(createdEnemy->GetEntity(),
-	{ enemyCreationData->second.meshGUID });
-	// temp material
-
-	Core::IMaterialManager::CreateInfo enemyInfo;
-	Utilz::GUID material = Utilz::GUID("Cube.mat");
-	Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
-	enemyInfo.shader = shader;
-	enemyInfo.materialFile = material;
-	CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
-	// end temp material
-	CoreInit::managers.renderableManager->ToggleRenderableObject(createdEnemy->GetEntity(), true);
-
-	ProfileReturn(createdEnemy);
-}
-
-void EnemyFactory::CreateEnemies(EnemyToCreateDescription* descriptions, GameBlackboard* gameBlackboard,
-								 int numberOfEnemies, EnemyUnit** unitArray)
+void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBlackboard* gameBlackboard, EnemyUnit** unitArray)
 {
 	StartProfile;
 	int numberOfCreatedEnemies = 0;
-	int descCounter = 0;
-	while(numberOfCreatedEnemies != numberOfEnemies)
+	for(auto desc : descriptions.information)
 	{
-		for(int i = 0; i < descriptions[descCounter].nrOfEnemiesWithThisDescription; i++)
+		EnemyType type;
+		if(desc.type == ENEMY_TYPE_RANDOM)
 		{
-			unitArray[numberOfCreatedEnemies++] = CreateEnemy(descriptions[descCounter].GUID,
-				gameBlackboard, descriptions[descCounter].useVariation);
+			type = EnemyType(CoreInit::subSystems.window->GetRand() % 5);
 		}
-		descCounter++;
+		else
+		{
+			type = desc.type;
+		}
+		auto const enemyCreationData = enemyData.find(type);
+		if (enemyCreationData != enemyData.end())
+		{
+			EnemyUnit* createdEnemy = nullptr;
+			int enemyHealth = enemyCreationData->second.baseHealth;
+			if (desc.useVariation)
+			{
+				int healthVariation = enemyCreationData->second.baseHealthVariation;
+				enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
+			}
+
+			createdEnemy = new EnemyUnit(nullptr, desc.startX, desc.startY, enemyHealth);
+			/*To do: Add the rest of the data here!*/
+
+			EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
+
+			createdEnemy->SetBehaviouralTree(SEBTFactory->BuildBehaviouralTree(
+				enemyCreationData->second.behaviouralTreeGUID,
+				gameBlackboard,
+				enemyBlackboard));
+
+			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
+
+			/*Fix with managers*/
+			Core::IAnimationManager::CreateInfo cInfo;
+			cInfo.animationCount = 0;
+			cInfo.animations = nullptr;
+			cInfo.mesh = enemyCreationData->second.meshGUID;
+			cInfo.skeleton = enemyCreationData->second.skeletonGUID;
+			CoreInit::managers.animationManager->CreateAnimatedObject(createdEnemy->GetEntity(), cInfo);
+			CoreInit::managers.animationManager->ToggleVisible(createdEnemy->GetEntity(), true);
+
+			Core::IMaterialManager::CreateInfo enemyInfo;
+			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
+			enemyInfo.shader = enemyCreationData->second.shaderGUID;
+			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
+
+			unitArray[numberOfCreatedEnemies++] = createdEnemy;
+		}
 	}
+	
 	StopProfile;
 }
 
 EnemyFactory::EnemyFactory()
 {
 	this->SEBTFactory = new BehaviouralTreeFactory();
+	this->enemyTypes["Bodach.SEC"] = ENEMY_TYPE_BODACH;
+	this->enemyTypes["Glaistig.SEC"] = ENEMY_TYPE_GLAISTIG;
+	this->enemyTypes["Nuckelavee.SEC"] = ENEMY_TYPE_NUCKELAVEE;
+	this->enemyTypes["PechMelee.SEC"] = ENEMY_TYPE_PECH_MELEE;
+	this->enemyTypes["PechRanged.SEC"] = ENEMY_TYPE_PECH_RANGED;
+	this->LoadEnemyIntoMemory("Bodach.SEC");
+	this->LoadEnemyIntoMemory("Glaistig.SEC");
+	this->LoadEnemyIntoMemory("Nuckelavee.SEC");
+	this->LoadEnemyIntoMemory("PechMelee.SEC");
+	this->LoadEnemyIntoMemory("PechRanged.SEC");
 }
 
 EnemyFactory::~EnemyFactory()
@@ -174,14 +127,74 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 {
 	StartProfile;
 
-	auto& loadedTree = enemyData.find(GUID);
+	auto& loadedTree = enemyData.find(GUIDToEnemyType(GUID));
 	if (loadedTree != enemyData.end())
 	{
 		ProfileReturnConst(true);
 	}
 
 	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(GUID,
-	{ this,&EnemyFactory::LoadEnemyFromResourceHandler});
+		[this](auto guid, auto data, auto size) {
+		if (!size)
+			return ResourceHandler::InvokeReturn::FAIL;
+		std::string const EnemyFileData((char*)data, size);
+		auto lineByLineData = split(EnemyFileData, '\n');
+
+		auto line = lineByLineData.begin();
+		line->pop_back();
+		EnemyDescriptionStruct loadedEnemy;
+		auto temp = Utilz::GUID("Placeholder_Block.mesh");
+
+		loadedEnemy.meshGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.skeletonGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.materialGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.shaderGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.baseDamage = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseDamageVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseHealth = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseHealthVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.physicalResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.magicalResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.natureResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.fireResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+
+		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
+			return ResourceHandler::InvokeReturn::FAIL;
+
+		/*Load mesh here?*/
+
+		enemyData[this->GUIDToEnemyType(guid)] = loadedEnemy;
+
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	});
 
 	if (done != -1)
 		ProfileReturnConst(true);

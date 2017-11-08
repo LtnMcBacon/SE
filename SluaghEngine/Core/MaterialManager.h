@@ -9,7 +9,7 @@
 #include <random>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
-#include "MaterialLoading.h"
+#include <Graphics\FileHeaders.h>
 
 namespace SE
 {
@@ -32,7 +32,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			void Create(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 
 			/**
@@ -59,44 +59,56 @@ namespace SE
 
 			void SetRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info);
 
-		
+			struct TextureInfo
+			{
+				uint32_t numTextures;
+				Utilz::GUID bindings[Graphics::ShaderStage::maxTextures];
+				Utilz::GUID textures[Graphics::ShaderStage::maxTextures];
+			};
 
-			std::map<Utilz::GUID, ShaderData, Utilz::GUID::Compare> guidToShader;
-			std::map<Utilz::GUID, TextureData, Utilz::GUID::Compare> guidToTexture;
-			std::map<Utilz::GUID, MaterialFileData, Utilz::GUID::Compare> guidToMaterial;
-
-
-			MaterialLoading mLoading;
-		
+			struct MaterialFileData
+			{
+				Graphics::MaterialAttributes attrib;
+				TextureInfo textureInfo;
+			};
 
 			struct MaterialData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(Utilz::GUID) + sizeof(MaterialFileData*) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
 				Utilz::GUID* shader;
-				Utilz::GUID* material;
+				Utilz::GUID* materialGUID;
+				MaterialFileData** material;
 				uint8_t* bloom;
 			};
-			
+
 			InitializationInfo initInfo;
 			std::default_random_engine generator;
 
+			MaterialFileData* defaultMaterialInfo = nullptr;
 			MaterialData materialInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToMaterialInfo;
 
-			Utilz::GUID defaultPixelShader;
-			Utilz::GUID defaultTextureBinding;
-			Utilz::GUID defaultSampler;
-			Utilz::GUID defaultMaterial;
+			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> shaderLoadCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> shaderDestroyCallback;
+
+			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> materialLoadCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> materialDestroyCallback;
+
+			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> textureLoadCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> textureDestroyCallback;
 
 			struct toUpdateStruct
 			{
-				Utilz::GUID material;
+				Utilz::GUID shader;
+				Utilz::GUID mat;
+				MaterialFileData* material;
+				Entity entity;
 			};
-			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
+			Utilz::CircularFiFo<toUpdateStruct, 20000> toUpdate;
 		};
 	}
 }

@@ -21,14 +21,14 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 
 	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
 		initInfo.console, initInfo.entityManager,
-		initInfo.eventManager, initInfo.transformManager, ResourceHandler::UnloadingStrategy::Linear },
+		initInfo.eventManager, initInfo.transformManager },
 		10, animationSystem);
 
 	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
-			return ResourceHandler::InvokeReturn::Fail;
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+			return ResourceHandler::InvokeReturn::FAIL;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
@@ -63,7 +63,14 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	auto index = animationData.used++;
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
-	animationData.animInfo[index].timePos = 0.0f;
+	animationData.animInfo[index].nrOfLayers = 0;
+	animationData.playing[index] = 0u;
+
+	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
+
+	animationData.animInfo[index].timePos[j] = 0.0f;
+
+	}
 
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
@@ -75,8 +82,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 		auto result = initInfo.resourceHandler->LoadResource(info.skeleton, [this](auto guid, auto data, auto size) {
 			auto result = LoadSkeleton(guid, data, size);
 			if (result < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 		if (result < 0)
 		{
@@ -96,8 +103,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 			auto result = initInfo.resourceHandler->LoadResource(info.animations[i], [this](auto guid, auto data, auto size) {
 				auto result = LoadAnimation(guid, data, size);
 				if (result < 0)
-					return ResourceHandler::InvokeReturn::Fail;
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+					return ResourceHandler::InvokeReturn::FAIL;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			if (result < 0)
 			{
@@ -111,50 +118,118 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	StopProfile;
 }
 
-
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
-	timer->Start(CREATE_ID_HASH("AnimationManager"));
-	
+	timer->Start(("AnimationManager"));
+	renderableManager->Frame(nullptr);
+	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-
-	for (size_t i = 0; i < animationData.used; i++)
+	
+	aniUpdateTime += dt;
+	if (aniUpdateTime > 0.033f)
 	{
-		if (animationData.playing[i] == 1u)
+		if (lambda.valid())
 		{
-			auto& ai = animationData.animInfo[i];
-			ai.timePos += ai.animationSpeed*dt;
-
-			animationSystem->CalculateMatrices(animationData.entity[i], ai);
+			lambda.get();
 		}
-			
+
+		animationSystem->UpdateMatricesIndex();
+		for (size_t i = 0; i < animationData.used; i++)
+		{
+			if (animationData.playing[i] == 1u)
+			{
+				auto& ai = animationData.animInfo[i];
+
+				for (size_t j = 0; j < ai.nrOfLayers; j++) {
+
+					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
+
+				}
+				updateJob.push({ animationData.entity[i], ai });
+				//animationSystem->CalculateMatrices(animationData.entity[i], ai, true);
+			}
+
+		}
+		auto UpdateLoop = [this]()
+		{
+			for (int i = updateJob.size(); i > 0; --i)
+			{
+				animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo, true);
+				updateJob.pop();
+			}
+			return true;
+		};
+
+		lambda = initInfo.threadPool->Enqueue(UpdateLoop);
+		aniUpdateTime = 0.0f;
 	}
 
+			
+	renderableManager->Frame(nullptr);
 	GarbageCollection();
-	timer->Stop(CREATE_ID_HASH("AnimationManager"));
+	timer->Stop(("AnimationManager"));
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, bool looping, const Utilz::GUID & animation, float speed)
+void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) {
+
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
+
+	// Find the source entity
+	auto &sourceEntityIndex = entityToIndex.find(source);
+	if (sourceEntityIndex != entityToIndex.end())
+	{
+		// Get animation info and attacher slots for the source entity
+		auto& ai = animationData.animInfo[sourceEntityIndex->second];
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+
+		// Check if the entity to attach is alive
+		if(initInfo.entityManager->Alive(entityToAttach)){
+
+			// If the entity to attach exists, check if the joint can be found in the source entity skeleton
+			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
+			if(found != -1){
+
+				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].jointIndex = found;
+
+			}
+
+		}
+	}
+}
+
+void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
 {	
 	StartProfile;
+
+	_ASSERT(playInfo.nrOfLayers < AnimationPlayInfo::maxLayers);
+
 	// Get the entity register from the animationManager
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		if (renderableManager->IsVisible(entity))
-		{
-			if (animationSystem->IsAnimationLoaded(animation))
+		auto& ai = animationData.animInfo[entityIndex->second];
+		ai.nrOfLayers = playInfo.nrOfLayers;
+
+		for(size_t i = 0; i < playInfo.nrOfLayers; i++){
+
+			if (animationSystem->IsAnimationLoaded(playInfo.animations[i]))
 			{
-				auto& ai = animationData.animInfo[entityIndex->second];
-				ai.animation = animation;
-				ai.animationSpeed = speed;
-				ai.looping = looping;
+				ai.animation[i] = playInfo.animations[i];
+				ai.animationSpeed[i] = playInfo.animationSpeed[i];
+				ai.looping[i] = playInfo.looping[i];
+				ai.blendFactor[i] = playInfo.blendFactor[i];
+				ai.blendSpeed[i] = playInfo.blendSpeed[i];
+				ai.timePos[i] = playInfo.timePos[i];
 
 				animationData.playing[entityIndex->second] = 1u;
 			}
+
 			else
-				initInfo.console->PrintChannel("Resources", "Tried to start an unloaded animation. GUID: %u.", animation);
-		}		
+				initInfo.console->PrintChannel("Resources", "Tried to start an unloaded animation. GUID: %u.", playInfo.animations[i]);
+		}	
+
 	}
 	StopProfile;
 }
@@ -166,7 +241,45 @@ void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		animationData.animInfo[entityIndex->second].animationSpeed= speed;
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			animationData.animInfo[entityIndex->second].animationSpeed[i] = speed;
+		}
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::SetBlendSpeed(const Entity& entity, int index, float speed) {
+
+	StartProfile;
+
+	auto dt = initInfo.window->GetDelta();
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		if (index == -1) {
+
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				ai.blendSpeed[i] = speed;
+			}
+		}
+
+		else {
+
+			if(index < AnimationInfo::maxLayers){
+
+				ai.blendSpeed[index] = speed;
+
+			}
+		}
+
 	}
 	StopProfile;
 }
@@ -179,9 +292,14 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 	if (entityIndex != entityToIndex.end())
 	{
 		auto& ai = animationData.animInfo[entityIndex->second];
-		ai.timePos = keyFrame;
-		animationData.playing[entityIndex->second] = 0u;
-		animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			ai.timePos[i] = keyFrame;
+			animationData.playing[entityIndex->second] = 0u;
+			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai, false);
+
+		}
 	}
 	StopProfile;
 }
@@ -195,13 +313,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, bool looping)const
 	{
 		if (renderableManager->IsVisible(entity))
 		{
-			if (animationSystem->IsAnimationLoaded(animationData.animInfo[entityIndex->second].animation))
-			{
-				auto& ai = animationData.animInfo[entityIndex->second];
+			auto& ai = animationData.animInfo[entityIndex->second];
 
-				ai.looping = looping;
-				animationData.playing[entityIndex->second] = 1u;
-				
+			for(size_t i = 0; i < ai.nrOfLayers; i++){
+
+				if (animationSystem->IsAnimationLoaded(ai.animation[i]))
+				{
+
+					ai.looping[i] = looping;
+					animationData.playing[entityIndex->second] = 1u;
+					
+				}
+
 			}
 		}
 	}
@@ -218,6 +341,56 @@ void SE::Core::AnimationManager::Pause(const Entity & entity)const
 		animationData.playing[entityIndex->second] = 0u;
 	}
 	StopProfile;
+}
+
+void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index) {
+
+	StartProfile;
+
+	auto dt = initInfo.window->GetDelta();
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		if (index == -1) {
+
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				ai.blendFactor[i] += ai.blendSpeed[i] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
+			}
+		}
+
+		else {
+
+			if (index < AnimationInfo::maxLayers) {
+					
+				ai.blendFactor[index] += ai.blendSpeed[index] * dt;
+				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
+
+			}
+		}
+
+	}
+	StopProfile;
+}
+
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+{
+	StartProfile;
+	
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		ProfileReturnConst(animationData.playing[entityIndex->second]);
+	}
+
+
+	ProfileReturnConst(false);
 }
 
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
@@ -242,13 +415,15 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 
 	// Setup the new pointers
 	newData.entity = (Entity*)newData.data;
-	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + newData.size);
-	newData.playing = (uint8_t*)(newData.animInfo + newData.size);
+	newData.animInfo = reinterpret_cast<AnimationInfo*>(newData.entity + size);
+	newData.playing = (uint8_t*)(newData.animInfo + size);
+	newData.attacher = (Attacher*)(newData.playing + size);
 	
 	// Copy data
 	memcpy(newData.entity, animationData.entity, animationData.used * sizeof(Entity));
 	memcpy(newData.animInfo, animationData.animInfo, animationData.used * sizeof(AnimationInfo));
 	memcpy(newData.playing, animationData.playing, animationData.used * sizeof(uint8_t));
+	memcpy(newData.attacher, animationData.attacher, animationData.used * sizeof(Attacher));
 
 
 	// Delete old data;
@@ -284,6 +459,9 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 
 void SE::Core::AnimationManager::Destroy(const Entity & entity)
 {
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+		Destroy(exists->second);
 }
 
 void SE::Core::AnimationManager::GarbageCollection()
@@ -319,10 +497,13 @@ int SE::Core::AnimationManager::LoadAnimation(const Utilz::GUID& guid, void * da
 {
 	auto animH = (Animation_Header*)data;
 
-	// After the animation header, there will only be matrices of type XMFLOAT4X4
-	auto matrices = (DirectX::XMFLOAT4X4*)(animH + 1);
+	// After the animation header comes the animated joint indices
+	auto joints = (uint32_t*)(animH + 1);
 
-	return animationSystem->AddAnimation(guid, matrices, animH->animationLength, animH->nrOfJoints);
+	// After the joint indices comes the keyframe matrices
+	auto matrices = (DirectX::XMFLOAT4X4*)(joints + animH->nrOfJoints);
+
+	return animationSystem->AddAnimation(guid, matrices, joints, animH->animationLength, animH->nrOfJoints);
 
 	//return initInfo.renderer->CreateAnimation(matrices, animH->animationLength, animH->nrOfJoints);
 }

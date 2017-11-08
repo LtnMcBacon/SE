@@ -49,9 +49,8 @@ namespace SE
 			* @param[in] meshGUID The guid of the mesh to be used.
 			*
 			*/
-			void CreateRenderableObject(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK)override;
+			void CreateRenderableObject(const Entity& entity, const CreateInfo& info)override;
 
-			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)override;
 
 			/**
 			* @brief	Hide/Show the renderable object
@@ -83,28 +82,19 @@ namespace SE
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
 
 		private:
-			void LoadResource(const Utilz::GUID& meshGUID, size_t newEntry, bool async, ResourceHandler::Behavior behavior);
+			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
+			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
+			std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
+			
+
 
 			/**
 			* @brief	Allocate more memory
 			*/
 			void Allocate(size_t size);
-
-
 			void Init();
-
 			void UpdateRenderableObject(const Entity& entity);
-			
-			RenderableManagerInstancing* rmInstancing;
-			RenderableManagerInstancing* shadowInstancing;
-			
-			void LinearUnload(size_t sizeToAdd);
-
-			typedef void(RenderableManager::*UnloadingStrategy)(size_t sizeToAdd);
-
-			UnloadingStrategy Unload;
-
-
+			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			void SetDirty(const Entity& entity, size_t index);
 
 			
@@ -119,20 +109,21 @@ namespace SE
 
 			void UpdateDirtyTransforms();
 
-			ResourceHandler::InvokeReturn LoadDefaultShader(const Utilz::GUID& guid, void* data, size_t size);
-
-			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, int& vertexCount);
 			
+			struct MeshData
+			{
+				Utilz::GUID mesh;
+				size_t vertexCount;
+			};
 
-		
 			struct RenderableObjectData
 			{
-				static const size_t size = sizeof(Entity) + sizeof(Utilz::GUID) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
+				static const size_t size = sizeof(Entity) + sizeof(MeshData) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
-				Utilz::GUID* mesh;
+				MeshData* mesh;
 				uint8_t* visible;
 				uint8_t* wireframe;
 				uint8_t* transparency;
@@ -152,31 +143,16 @@ namespace SE
 			RenderableObjectData renderableObjectInfo;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToRenderableObjectInfoIndex;
 
-			enum class BufferState
-			{
-				Loaded,
-				Loading,
-				Dead
-			};
-
-			struct BufferInfo
-			{
-				BufferState state;
-				size_t size;
-				int vertexCount;
-				std::list<Entity> entities;
-			};
-
-			std::unordered_map<Utilz::GUID, BufferInfo, Utilz::GUID::Hasher> guidToBufferInfo;
-			std::mutex bufferLock;
+		
+			RenderableManagerInstancing* rmInstancing;
+			RenderableManagerInstancing* shadowInstancing;
 
 			struct toUpdateStruct
 			{
-				Utilz::GUID mesh;
-				size_t size;
-				int vertexCount;
+				MeshData data;
+				Entity entity;
 			};
-			Utilz::CircularFiFo<toUpdateStruct, 10> toUpdate;
+			Utilz::CircularFiFo<toUpdateStruct, 19999> toUpdate;
 		};
 	}
 }

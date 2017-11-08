@@ -13,11 +13,11 @@ namespace SE
 			~CPUTimeCluster() {};
 
 
-			inline void Start(const Utilz::IDHash& id)override
+			inline void Start(const Utilz::ConstexprStringAndHash& id)override
 			{
 				timers[id].startTime = std::chrono::high_resolution_clock::now();
 			};
-			inline void Stop(const Utilz::IDHash& id)override
+			inline void Stop(const Utilz::ConstexprStringAndHash& id)override
 			{
 				timers[id].time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - timers[id].startTime).count();
 			}
@@ -27,7 +27,7 @@ namespace SE
 			* @brief Get the time for one timer
 			**/
 			template<typename Ratio = std::milli>
-			inline float GetTime(const Utilz::IDHash& id)
+			inline float GetTime(const Utilz::ConstexprStringAndHash& id)
 			{
 				return timers[id].time;
 			}
@@ -45,7 +45,7 @@ namespace SE
 				float time = 0.0f;
 			};
 
-			std::unordered_map<Utilz::IDHash, Timer, Utilz::IDHash::Hasher> timers;
+			std::unordered_map<Utilz::ConstexprStringAndHash, Timer, Utilz::ConstexprStringAndHash::Hasher> timers;
 		};
 	}
 }

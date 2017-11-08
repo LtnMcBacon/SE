@@ -32,14 +32,17 @@ namespace SE
 		struct JointKeyFrame
 		{
 			std::vector<Keyframe> Keyframes;
+
 			JointKeyFrame()
 			{
 				Keyframes.reserve(60);
 			}
 		};
+
 		struct Animation {
 
 			std::vector<JointKeyFrame> Joints;
+			std::vector<uint32_t> jointToActualJoint;
 			unsigned int Length;
 
 			Animation() {
@@ -54,6 +57,8 @@ namespace SE
 			DirectX::XMMATRIX LocalTx;
 			DirectX::XMMATRIX inverseBindPoseMatrix;
 			unsigned int parentIndex;
+			Utilz::GUID jointName;
+			
 			
 			Joint() {
 
@@ -74,11 +79,15 @@ namespace SE
 
 		struct AnimationInfo
 		{
+			static const size_t maxLayers = 4;
+			size_t nrOfLayers = 0;
 			Utilz::GUID skeleton;
-			Utilz::GUID animation;
-			float timePos;
-			float animationSpeed;
-			bool looping;
+			Utilz::GUID animation[maxLayers];
+			float timePos[maxLayers];
+			float animationSpeed[maxLayers];
+			bool looping[maxLayers];
+			float blendFactor[maxLayers];
+			float blendSpeed[maxLayers];
 		};
 
 	}

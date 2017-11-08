@@ -13,39 +13,67 @@ namespace SE {
 
 		GUIManager::~GUIManager()
 		{
-			for (auto& t : textureInfo)
-				delete t.rect;
+
 		}
 
-		int GUIManager::Create(CreateInfo info)
+		int GUIManager::Create(const Entity& entity, const CreateInfo& info)
 		{
 			StartProfile;
-			auto fileLoaded = textureGUID.find(info.texFile);
+			auto fileLoaded = textureGUID.find(info.texture);
 			if (fileLoaded == textureGUID.end())
 			{
-				textureGUID[info.texFile].textureHandle = -1;
-				initInfo.resourceHandler->LoadResource(info.texFile, { this, &GUIManager::LoadTexture });
+				textureGUID[info.texture].textureHandle = -1;
+				auto res  = initInfo.resourceHandler->LoadResource(info.texture, [this](auto guid, auto data, auto size) {
+					Graphics::TextureDesc td;
+					memcpy(&td, data, sizeof(td));
+					/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
+					if (td.width * td.height * 4 != size - sizeof(td))
+						return ResourceHandler::InvokeReturn::FAIL;
+					void* rawTextureData = ((char*)data) + sizeof(td);
+					auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
+					if (handle == -1)
+						return ResourceHandler::InvokeReturn::FAIL;
+					textureGUID[guid].textureHandle = handle;
+					textureGUID[guid].refCount = 0;
+					textureGUID[guid].height = td.height;
+					textureGUID[guid].width = td.width; 
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				if (res < 0)
+					textureGUID[info.texture].textureHandle = 0;
 			}
 
 			// Check if the entity is alive
-			if (!initInfo.entityManager->Alive(info.entity))
+			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnConst(-1);
 
-			auto entLoaded = entTextureID.find(info.entity);
+			auto entLoaded = entTextureID.find(entity);
 			if (entLoaded == entTextureID.end())
 			{
-				entTextureID[info.entity].ID = textureInfo.size();
-				entTextureID[info.entity].GUID = info.texFile;
-				textureGUID[info.texFile].refCount++;
-				textureEnt.push_back(info.entity);
-				textureInfo.push_back(info.texInfo);
-				textureInfo[textureInfo.size() - 1].textureID = textureGUID[info.texFile].textureHandle;
-				if (!textureInfo[textureInfo.size() - 1].anchor)
+				entTextureID[entity].ID = textureInfo.size();
+				entTextureID[entity].GUID = info.texture;
+				textureGUID[info.texture].refCount++;
+				textureEnt.push_back(entity);
+
+
+				
+				textureInfo.push_back(info.textureInfo);
+				entTextureID[entity].textureHandle = textureGUID[info.texture].textureHandle;
+				
+				auto& ti = textureInfo[textureInfo.size() - 1];
+				if (ti.width == -1)
+					ti.width = textureGUID[info.texture].width;
+				if (ti.height == -1)
+					ti.height = textureGUID[info.texture].height;
+
+				//ti.origin = { ti.posX + ti.origin.x, ti.posY + ti.origin.y };
+
+				/*if (!textureInfo[textureInfo.size() - 1].anchor)
 				{
-					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[info.texFile].width / 2, textureGUID[info.texFile].height / 2);
+					textureInfo[textureInfo.size() - 1].origin = DirectX::XMFLOAT2(textureGUID[info.texture].width / 2, textureGUID[info.texture].height / 2);
 					textureInfo[textureInfo.size() - 1].pos = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].pos.x / width, textureInfo[textureInfo.size() - 1].pos.y / height);
 					textureInfo[textureInfo.size() - 1].scale = DirectX::XMFLOAT2(textureInfo[textureInfo.size() - 1].scale.x / width, textureInfo[textureInfo.size() - 1].scale.y / height);
-				}
+				}*/
 				ProfileReturnConst(0);
 			}
 
@@ -61,7 +89,10 @@ namespace SE {
 			{
 				if (show && textureGUID[fileLoaded->second.GUID].textureHandle != -1 && !fileLoaded->second.show)
 				{
-					fileLoaded->second.jobID = initInfo.renderer->EnableTextureRendering(textureInfo[fileLoaded->second.ID]);
+					auto& ti = textureInfo[fileLoaded->second.ID];
+				//	Graphics::GUITextureInfo scaled;
+				//	scaled.posX = static_cast<long>(ti.posX / );
+					fileLoaded->second.jobID = initInfo.renderer->EnableTextureRendering({ fileLoaded->second.textureHandle, originalScreenWidth, originalScreenHeight, ti });
 					jobToEnt[fileLoaded->second.jobID] = entity;
 					fileLoaded->second.show = true;
 				}
@@ -81,7 +112,7 @@ namespace SE {
 		void GUIManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH("GUIManager"));
+			timer->Start(("GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -96,7 +127,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 
@@ -107,7 +138,7 @@ namespace SE {
 			{
 				for (auto& entity : textureEnt)
 				{
-					if (!textureInfo[entTextureID[entity].ID].anchor && entTextureID[entity].show)
+					if (entTextureID[entity].show)
 					{
 						ToggleRenderableTexture(entity, false);
 						ToggleRenderableTexture(entity, true);
@@ -127,7 +158,6 @@ namespace SE {
 
 			// Copy the data
 			textureEnt[index] = last_entity;
-			delete textureInfo[index].rect;
 			textureInfo[index] = textureInfo[last];
 			textureGUID[entTextureID[entity].GUID].refCount--;
 			entTextureID[last_entity].ID = entTextureID[entity].ID;
@@ -186,25 +216,6 @@ namespace SE {
 			StopProfile;
 		}
 
-		ResourceHandler::InvokeReturn GUIManager::LoadTexture(const Utilz::GUID & guid, void * data, size_t size)
-		{
-			StartProfile;
-			Graphics::TextureDesc td;
-			memcpy(&td, data, sizeof(td));
-			/*Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel*/
-			if (td.width * td.height * 4 != size - sizeof(td))
-				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-			void* rawTextureData = ((char*)data) + sizeof(td);
-			auto handle = initInfo.renderer->CreateTexture(rawTextureData, td);
-			if (handle == -1)
-				ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-			textureGUID[guid].textureHandle = handle;
-			textureGUID[guid].refCount = 0;
-			textureGUID[guid].height = td.height;
-			textureGUID[guid].width = td.width;
-
-			ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-		}
 
 	}
 }

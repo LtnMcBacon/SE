@@ -11,6 +11,7 @@ SE::Core::TransformManager::TransformManager(const ITransformManager::Initializa
 {
 
 	this->initInfo = initInfo;
+
 	_ASSERT(initInfo.entityManager);
 	Allocate(512);
 	lookUpTableSize = 512;
@@ -71,7 +72,7 @@ void SE::Core::TransformManager::Create(const Entity& e, const DirectX::XMFLOAT3
 	data.parentIndex[data.used] = -1;
 	data.flags[data.used] = TransformFlags::DIRTY | TransformFlags::INHERIT_TRANSLATION;
 	++data.used;
-
+	dirtyTransforms.resize(data.used);
 	ProfileReturnVoid;
 }
 
@@ -353,38 +354,50 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 	return data.used;
 }
 
+
+
 void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("TransformManager"));
-	dirtyTransforms.clear();
-	dirtyTransforms.reserve(data.used);
-	for(int i = 0; i < data.used; ++i)
+	timer->Start(("TransformManager"));
+	auto LoopDirty = [this](int start, int end)
+	{
+		for (int i = start; i < end; ++i)
+		{
+			if (data.flags[i] & TransformFlags::DIRTY)
+			{
+				XMFLOAT4X4 transform;
+				const auto& translation = XMMatrixTranslationFromVector(XMLoadFloat3(&data.positions[i]));
+				const auto& rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[i]));
+				const auto& scale = XMMatrixScalingFromVector(XMLoadFloat3(&data.scalings[i]));
+				XMStoreFloat4x4(&transform, scale*rotation*translation);
+				dirtyTransforms[i] = transform;
+			}
+		}
+		return true;
+	};
+	
+	/*auto job1 = initInfo.threadPool->Enqueue(LoopDirty, 0, data.used / 2);
+	auto job2 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 4, data.used / 2);
+	auto job3 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 2, (data.used / 4) * 3);*/
+	LoopDirty(0, data.used);//(data.used / 4) * 3, data.used);
+	/*job1.get();
+	job2.get();
+	job3.get();*/
+	
+
+	for (int i = 0; i < data.used; ++i)
 	{
 		if (data.flags[i] & TransformFlags::DIRTY)
-			UpdateTransform(i);
+		{
+			SetDirty(data.entities[i], i);
+			data.flags[i] &= ~TransformFlags::DIRTY;
+		}
 	}
 
 	GarbageCollection();
-	timer->Stop(CREATE_ID_HASH("TransformManager"));
-	StopProfile;
-}
-
-
-
-void SE::Core::TransformManager::UpdateTransform(size_t index)
-{
-	StartProfile;
-	XMFLOAT4X4 transform;
-	const auto& translation = XMMatrixTranslationFromVector(XMLoadFloat3(&data.positions[index]));
-	const auto& rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[index]));
-	const auto& scale = XMMatrixScalingFromVector(XMLoadFloat3(&data.scalings[index]));
-	XMStoreFloat4x4(&transform, scale*rotation*translation);
-	const size_t di = dirtyTransforms.size();
-	dirtyTransforms.push_back(transform);
-	SetDirty(data.entities[index], di);
-	data.flags[index] &= ~TransformFlags::DIRTY;
+	timer->Stop(("TransformManager"));
 	StopProfile;
 }
 
@@ -510,6 +523,15 @@ void SE::Core::TransformManager::Destroy(const size_t index)
 
 void SE::Core::TransformManager::Destroy(const Entity & e)
 {
+	if (e.Index() < lookUpTableSize)
+	{
+		const int32_t index = lookUpTable[e.Index()];
+		if(index >= 0)
+		{
+			Destroy(index);
+		}
+	}
+	
 }
 
 

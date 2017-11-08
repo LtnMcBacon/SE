@@ -136,9 +136,6 @@ SE::Graphics::PipelineHandler::~PipelineHandler()
 
 int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID& id, void* rtv)
 {
-	const auto exists = renderTargetViews.find(id);
-	if (exists != renderTargetViews.end())
-		return EXISTS;
 	ID3D11RenderTargetView* renderTargetView = (ID3D11RenderTargetView*)rtv;
 	renderTargetViews[id] = { renderTargetView, {0.0f,0.0f,0.0f,0.0f} };
 	manuallyAddedResources.insert(id);
@@ -147,9 +144,6 @@ int SE::Graphics::PipelineHandler::AddExistingRenderTargetView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID& id, void* dsv)
 {
-	const auto exists = depthStencilViews.find(id);
-	if (exists != depthStencilViews.end())
-		return EXISTS;
 	depthStencilViews[id] = (ID3D11DepthStencilView*)dsv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -157,9 +151,6 @@ int SE::Graphics::PipelineHandler::AddExistingDepthStencilView(const Utilz::GUID
 
 int SE::Graphics::PipelineHandler::AddExisitingShaderResourceView(const Utilz::GUID& id, void* srv)
 {
-	const auto exists = shaderResourceViews.find(id);
-	if (exists != shaderResourceViews.end())
-		return EXISTS;
 	shaderResourceViews[id] = (ID3D11ShaderResourceView*)srv;
 	manuallyAddedResources.insert(id);
 	return SUCCESS;
@@ -469,9 +460,10 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -485,9 +477,9 @@ int SE::Graphics::PipelineHandler::CreateVertexShader(const Utilz::GUID& id, voi
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 					}
-					vertexShaders[id].constantBuffers.push_back(sbd.Name);
+					vertexShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -534,9 +526,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -550,10 +543,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShader(const Utilz::GUID& id, v
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					geometryShaders[id].constantBuffers.push_back(sbd.Name);
+					geometryShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -626,9 +619,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -642,10 +636,10 @@ int SE::Graphics::PipelineHandler::CreateGeometryShaderStreamOut(const Utilz::GU
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					geometryShaders[id].constantBuffers.push_back(sbd.Name);
+					geometryShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -704,9 +698,10 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -720,10 +715,10 @@ int SE::Graphics::PipelineHandler::CreatePixelShader(const Utilz::GUID& id, void
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 						
 					}
-					pixelShaders[id].constantBuffers.push_back(sbd.Name);
+					pixelShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -777,9 +772,10 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 				D3D11_SHADER_BUFFER_DESC sbd;
 				ID3D11ShaderReflectionConstantBuffer* srcb = reflection->GetConstantBufferByIndex(j);
 				srcb->GetDesc(&sbd);
-				if (std::string(sbd.Name) == std::string(sibd.Name))
+				Utilz::GUID name = std::string(sbd.Name);
+				if (name == std::string(sibd.Name))
 				{
-					const auto cbExists = constantBuffers.find(sbd.Name);
+					const auto cbExists = constantBuffers.find(name);
 					if (cbExists == constantBuffers.end())
 					{
 						D3D11_BUFFER_DESC bufDesc;
@@ -793,10 +789,10 @@ int SE::Graphics::PipelineHandler::CreateComputeShader(const Utilz::GUID& id, vo
 						hr = device->CreateBuffer(&bufDesc, nullptr, &buffer);
 						if (FAILED(hr))
 							return DEVICE_FAIL;
-						constantBuffers[sbd.Name] = buffer;
+						constantBuffers[name] = buffer;
 
 					}
-					computeShaders[id].constantBuffers.push_back(sbd.Name);
+					computeShaders[id].constantBuffers.push_back(name);
 					const Utilz::GUID cbNameGuid(sbd.Name);
 					const Utilz::GUID combined = id + cbNameGuid;
 					shaderAndResourceNameToBindSlot[combined] = sibd.BindPoint;
@@ -1414,6 +1410,63 @@ int SE::Graphics::PipelineHandler::CreateDepthStencilView(const Utilz::GUID& id,
 	return SUCCESS;
 }
 
+int SE::Graphics::PipelineHandler::CreateDepthStencilViewCube(const Utilz::GUID& id, size_t width, size_t height,
+	bool bindAsTexture)
+{
+	const auto exists = depthStencilViews.find(id);
+	if(exists != depthStencilViews.end())
+	{
+		DestroyDepthStencilView(id);
+		depthStencilViews.erase(exists);
+	}
+
+	D3D11_TEXTURE2D_DESC td;
+	td.Width = width;
+	td.Height = height;
+	td.Format = DXGI_FORMAT_R32_TYPELESS;
+	td.ArraySize = 6;
+	td.MipLevels = 1;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	td.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	td.CPUAccessFlags = 0;
+
+	ID3D11Texture2D* texture;
+	HRESULT hr = device->CreateTexture2D(&td, nullptr, &texture);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	ZeroMemory(&dsvd, sizeof(dsvd));
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+	dsvd.Texture2DArray.ArraySize = 6;
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
+	
+	ID3D11DepthStencilView* dsv;
+	hr = device->CreateDepthStencilView(texture, &dsvd, &dsv);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srvd.Format = DXGI_FORMAT_R32_FLOAT;
+	srvd.TextureCube.MipLevels = 1;
+	srvd.TextureCube.MostDetailedMip = 0;
+
+	ID3D11ShaderResourceView* srv;
+	hr = device->CreateShaderResourceView(texture, &srvd, &srv);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+
+	depthStencilViews[id] = dsv;
+	shaderResourceViews[id] = srv;
+	texture->Release();
+	return SUCCESS;
+}
+
 int SE::Graphics::PipelineHandler::DestroyDepthStencilView(const Utilz::GUID& id)
 {
 	auto dsv = depthStencilViews.find(id);
@@ -1825,7 +1878,7 @@ void SE::Graphics::PipelineHandler::SetPixelShaderStage(const ShaderStage& pss)
 	
 	for (int i = 0; i < pss.textureCount; ++i)
 	{
-		if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
+		//if (pss.textures[i] != c.textures[i] || pss.textureBindings[i] != c.textureBindings[i])
 		{
 			auto srv = shaderResourceViews.find(pss.textures[i]);
 			if (srv != shaderResourceViews.end())

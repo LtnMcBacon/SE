@@ -33,7 +33,7 @@ namespace SE
 			* @param[in] textInfo Struct with the required information.
 			*
 			*/
-			void Create(CreateInfo info)override;
+			void Create(const Entity& entity, const CreateInfo& info)override;
 
 			/**
 			* @brief Create a new font
@@ -74,7 +74,7 @@ namespace SE
 
 			inline void SetTextFontID(const Entity& entity, size_t fontID)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
+			/*	auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
 					loadedTexts[fileLoaded->second.ID].fontID = fontID;
@@ -82,7 +82,7 @@ namespace SE
 					{
 						dirtyEnt[entity] = true;
 					}
-				}
+				}*/
 			};
 
 			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) override {
@@ -98,12 +98,13 @@ namespace SE
 				}
 			};
 
-			inline void SetTextPos(const Entity& entity, DirectX::XMFLOAT2 pos)override {
+			inline void SetTextPos(const Entity& entity, long x, long y)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[fileLoaded->second.ID].pos = pos;
+					loadedTexts[fileLoaded->second.ID].posX = x;
+					loadedTexts[fileLoaded->second.ID].posY = y;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
@@ -111,12 +112,12 @@ namespace SE
 				}
 			};
 
-			inline void SetTextOrigin(const Entity& entity, DirectX::XMFLOAT2 origin)override {
+			inline void SetTextScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor)override {
 				// chexk if entity exist in text 
 				auto fileLoaded = entID.find(entity);
 				if (fileLoaded != entID.end())
 				{
-					loadedTexts[fileLoaded->second.ID].origin = origin;
+					loadedTexts[fileLoaded->second.ID].screenAnchor = anchor;
 					if (fileLoaded->second.show == true)
 					{
 						dirtyEnt[entity] = true;
@@ -184,8 +185,8 @@ namespace SE
 			*/
 			void SetDefaultScale(float inHeight, float inWidth)override
 			{
-				height = inHeight;
-				width = inWidth;
+				originalScreenHeight = inHeight;
+				originalScreenWidth = inWidth;
 			}
 
 			/**
@@ -195,14 +196,13 @@ namespace SE
 			void updateText()override;
 
 		private:
-			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
-
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
 
 			struct showID
 			{
+				Utilz::GUID font;
 				size_t ID;
 				size_t jobID;
 				bool show = false;
@@ -220,8 +220,8 @@ namespace SE
 
 			InitializationInfo initInfo;
 
-			float height = 720.0;
-			float width = 1280.0;
+			long originalScreenWidth = 1280;
+			long originalScreenHeight = 720;
 		};
 	}
 }

@@ -14,6 +14,22 @@ static int Chungus(int a, int b)
 	return a + b;
 }
 
+struct X
+{
+	X(int i_) : i(i_) {  };
+	int i;
+	int Foo(int x)const
+	{
+		return i + x;
+	}
+
+	bool Do(SE::Utilz::ThreadPool* tp)
+	{
+		auto res = tp->Enqueue(this, &X::Foo, 10);
+		return res.get() == i + 10;
+	}
+};
+
 bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
 {
 	Utilz::ThreadPool tp(4);
@@ -53,6 +69,20 @@ bool SE::Test::ThreadPoolTest::Run(DevConsole::IConsole* console)
 		if (future.get() != Chungus(10, 15))
 			return false;
 	}
+
+	// Testing methods
+	{
+		X x(10);
+		auto ret = tp.Enqueue(&x, &X::Foo, 20);
+		if (ret.get() != 20 + x.i)
+			return false;
+
+		if(!x.Do(&tp))
+			return false;
+	}
+	
+	
+
 	
 	return true;
 }

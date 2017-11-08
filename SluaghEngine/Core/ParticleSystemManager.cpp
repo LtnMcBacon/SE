@@ -198,7 +198,7 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(CREATE_ID_HASH("ParticleSystemManager"));
+	timer->Start(("ParticleSystemManager"));
 	GarbageCollection();
 
 	//while (!toUpdate.wasEmpty())
@@ -230,7 +230,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
 	}
 
-	timer->Stop(CREATE_ID_HASH("ParticleSystemManager"));
+	timer->Stop(("ParticleSystemManager"));
 	StopProfile;
 }
 
