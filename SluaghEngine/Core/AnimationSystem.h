@@ -31,6 +31,8 @@ namespace SE
 			void CalculateMatrices(const Entity& entity, AnimationInfo& info);
 
 			void CalculateBlendMatrices(const DirectX::XMMATRIX& matrix1, const DirectX::XMMATRIX& matrix2, float blendFactor, DirectX::XMFLOAT4X4& out);
+
+			int FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind);
 			
 		private:
 			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);

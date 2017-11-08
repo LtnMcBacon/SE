@@ -115,6 +115,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
+	managers.animationManager->AttachToEntity(mainC, mainC2, "LHand", 0);
+
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
