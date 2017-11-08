@@ -6,8 +6,8 @@ struct Particle {
 	float pad;
 	DirectX::XMFLOAT3 velocity;
 	float pad2;
-	DirectX::XMFLOAT3 color;
-	float pad3;
+	DirectX::XMFLOAT3 startEmitPos;
+	float pad5;
 	float size;
 	float pad4;
 	float opacity;

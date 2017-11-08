@@ -33,8 +33,6 @@ struct ParticleDataStruct {
 	float pad5;
 	float gravity[3];
 	float pad4;
-	float color[3];
-	float pad2;
 	float speed;
 	float emitRate;
 	float lifeTime;
@@ -47,7 +45,8 @@ struct ParticleDataStruct {
 	unsigned int emit;
 };
 ParticleDataStruct createParticleBuffer();
-void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity);
+void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
+
 int main()
 {
 	Particle emitter;
@@ -97,9 +96,9 @@ int main()
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 
-	Particle p[2];
-	p[0].opacity = 1.0f;
-	p[1].opacity = 1.0f;
+	Particle p;
+	p.opacity = 1.0f;
+	
 
 	
 	//Setting blend state
@@ -125,7 +124,7 @@ int main()
 
 	//Pipeline for the update geometry shader
 	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -143,7 +142,9 @@ int main()
 	XMFLOAT4X4 cameraMatrix;
 	XMMATRIX camera = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
 	XMMATRIX viewProj = viewMatrix * camera;
-	DirectX::XMStoreFloat4x4(&cameraMatrix, camera);
+	XMFLOAT4X4 view;
+	XMStoreFloat4x4(&view, viewMatrix);
+	DirectX::XMStoreFloat4x4(&cameraMatrix, viewProj);
 
 
 	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
@@ -156,7 +157,7 @@ int main()
 	float maxEmit = 0.0f;
 	float velocityRangeX[2] = { -1.0f , 1.0f };
 	float velocityRangeY[2] = { -1.0f , 1.0f };
-	float velocityRangeZ[2] = { -1.0f , 1.0f };
+	float velocityRangeZ[2] = { 0.0f , 0.0f };
 	float emitRangeX[2] = { 0.0f, 0.0f };
 	float emitRangeY[2] = { 0.0f, 0.0f };
 	float emitRangeZ[2] = { 0.0f, 0.0f };
@@ -178,7 +179,7 @@ int main()
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
 	RPP.PSStage.textures[0] = "galaxy_texture.sei";
-	RPP.PSStage.textureBindings[0] = "fireTex";
+	RPP.PSStage.textureBindings[0] = "particleTex";
 	RPP.PSStage.textureCount = 1;
 	RPP.PSStage.samplers[0] = "ParticleSampler";
 	RPP.PSStage.samplerCount = 1;
@@ -204,9 +205,17 @@ int main()
 	constantBuffer.eyePosition = eyePos;
 	constantBuffer.upVector = upVec;
 
-	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrix, &constantBuffer](int a, int b) {
-		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrix, sizeof(XMFLOAT4X4) * 2);
-		pipelineHandler->UpdateConstantBuffer("ParticleConstantBuffer", &constantBuffer, sizeof(PCB));
+	struct CameraMatrices {
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 viewProj;
+	};
+	CameraMatrices cameraMatrices;
+	cameraMatrices.view = view;
+	cameraMatrices.viewProj = cameraMatrix;
+
+	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer](int a, int b) {
+		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrices, sizeof(CameraMatrices));
+		pipelineHandler->UpdateConstantBuffer("CameraPos", &constantBuffer, sizeof(PCB));
 	});
 	int RPPID = Renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 	 
@@ -231,12 +240,45 @@ int main()
 		engine->BeginFrame();
 		//Putting each separate window withing a Begin/End() section
 		//First window, main particle attributes
+		//Window for emit specific properties
+		ImGui::Begin("Emit Attributes");
+		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction Y", &movBuffer.vel[1], -1.0f, 1.0f);
+		ImGui::SliderFloat("Direction Z", &movBuffer.vel[2], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
+		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
+		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
+		ImGui::SliderFloat3("Emit position", &movBuffer.emitPos[0], -5.0f, 5.0f);
+		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
+		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
+		if (ImGui::Button("Start/Stop Emit")) {
+			movBuffer.emit ^= 1;
+		}		
+		ImGui::End();
+		
+		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1]/*Max*/ - emitRangeX[0]/*Min*/) + emitRangeX[0];
+		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
+		float randEmitZ = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeZ[1] - emitRangeZ[0]) + emitRangeZ[0];
+		movBuffer.emitRange[0] = randEmitX;
+		movBuffer.emitRange[1] = randEmitY;
+		movBuffer.emitRange[2] = randEmitZ;
+
+		if (RandVelocity)
+		{
+			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1]/*Max*/ - velocityRangeX[0]/*Min*/) + velocityRangeX[0];
+			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
+			float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeZ[1] - velocityRangeZ[0]) + velocityRangeZ[0];
+			movBuffer.vel[0] = r1;
+			movBuffer.vel[1] = r2;
+			movBuffer.vel[2] = r3;
+		}
 		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 1.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.5f");
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.100f, "%.5f");
 		//ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
@@ -258,56 +300,43 @@ int main()
 
 		if (exportWindow)//Exporting window
 		{
+			XMFLOAT2 velocityRange[3];
+			XMFLOAT2 emitRange[3];
+			//XMFLOAT2 .x value is Max, .y is Min
+
+			//Fill the XMFLOAT2's with the data to export
+			velocityRange[0].x = velocityRangeX[1];
+			velocityRange[0].y = velocityRangeX[0];
+			velocityRange[1].x = velocityRangeY[1];
+			velocityRange[1].y = velocityRangeY[0];
+			velocityRange[2].x = velocityRangeZ[1];
+			velocityRange[2].y = velocityRangeZ[0];
+
+			emitRange[0].x = emitRangeX[1];
+			emitRange[0].y = emitRangeX[0];
+			emitRange[1].x = emitRangeY[1];
+			emitRange[1].y = emitRangeY[0];
+			emitRange[2].x = emitRangeZ[1];
+			emitRange[2].y = emitRangeZ[0];
+
 			ImGui::Begin("Export Window");
 			ImGui::InputText("File name", particleName, 100);
 			
 			if (ImGui::Button("Export"))
-				exportParticleInfo(RPP, movBuffer, particleName, RandVelocity);
+				exportParticleInfo(RPP, movBuffer, particleName, RandVelocity, velocityRange, emitRange);
 			ImGui::End();
 		}
-		//Window for emit specific properties
-		ImGui::Begin("Emit Attributes");
-		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
-		ImGui::SliderFloat("Direction Y", &movBuffer.vel[1], -1.0f, 1.0f);
-		ImGui::SliderFloat("Direction Z", &movBuffer.vel[2], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
-		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
-		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
-		ImGui::SliderFloat3("Emit position", &movBuffer.emitPos[0], -5.0f, 5.0f);
-		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
-		if (ImGui::Button("Start/Stop Emit")) {
-			movBuffer.emit ^= 1;
-		}		
-		ImGui::End();
-		
-		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1] - emitRangeX[0]) + emitRangeX[0];
-		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
-		float randEmitZ = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeZ[1] - emitRangeZ[0]) + emitRangeZ[0];
-		movBuffer.emitRange[0] = randEmitX;
-		movBuffer.emitRange[1] = randEmitY;
-		movBuffer.emitRange[2] = randEmitZ;
-
-		if (RandVelocity)
-		{
-			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1] - velocityRangeX[0]) + velocityRangeX[0];
-			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
-			float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeZ[1] - velocityRangeZ[0]) + velocityRangeZ[0];
-			movBuffer.vel[0] = r1;
-			movBuffer.vel[1] = r2;
-			movBuffer.vel[2] = r3;
-		}
-		
 		//** swapping renderjobs for particle outstream
 		std::swap(updateParticleJob.pipeline.SOStage.streamOutTarget, updateParticleJob.pipeline.IAStage.vertexBuffer);
 		renderParticleJob.pipeline.IAStage.vertexBuffer = updateParticleJob.pipeline.SOStage.streamOutTarget;
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
 		Renderer->ChangeRenderJob(RPPID, renderParticleJob);
-		//*****
-		engine->EndFrame();
 		updateParticleJob.vertexCount = 0;
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
+		//*****
+		engine->EndFrame();
+		/*updateParticleJob.vertexCount = 0;
+		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);*/
 
 	}
 
@@ -318,7 +347,7 @@ int main()
 ParticleDataStruct createParticleBuffer()
 {
 	float velocity[3] = { 0.0f, 1.0f , 0.0f };
-	float emitPosition[3] = { 0.0f, 0.0f, 5.0f };
+	float emitPosition[3] = { 0.0f, 0.0f, 1.0f };
 	ParticleDataStruct movBuffer;
 	movBuffer.vel[0] = velocity[0];
 	movBuffer.vel[1] = velocity[1];
@@ -338,9 +367,6 @@ ParticleDataStruct createParticleBuffer()
 	movBuffer.speed = 0.005;
 	movBuffer.emitRate = 0.01;
 	movBuffer.lifeTime = 5.0f;
-	movBuffer.color[0] = 0.35f;
-	movBuffer.color[1] = 0.2f;
-	movBuffer.color[2] = 0.45f;
 	movBuffer.circular = 0;
 	movBuffer.tangentValue = 0.0f;
 	movBuffer.radialValue = 0.0f;
@@ -348,10 +374,18 @@ ParticleDataStruct createParticleBuffer()
 
 	return movBuffer;
 }
-void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity)
+void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[])
 {
 	std::string file = fileName;
-	
+	XMFLOAT2 velocityRange[3];
+	XMFLOAT2 emitRange[3];
+
+	for (size_t i = 0; i < 3; i++)
+	{
+		velocityRange[i] = velocityArr[i];
+		emitRange[i] = emitArr[i];
+	}
+
 	file += ".txt";
 	Utilz::GUID textureName = particleJobInfo.PSStage.textures[0];
 	std::ofstream toFile;
@@ -360,6 +394,8 @@ void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char
 	toFile.write((char*)&randomVelocity, sizeof(bool));
 	toFile.write((char*)&textureName, sizeof(Utilz::GUID));
 	toFile.write((char*)&pInfo, sizeof(ParticleDataStruct));
+	toFile.write((char*)&velocityRange, sizeof(XMFLOAT2) * 3);
+	toFile.write((char*)&emitRange, sizeof(XMFLOAT2) * 3);
 	toFile.close();
 
 }

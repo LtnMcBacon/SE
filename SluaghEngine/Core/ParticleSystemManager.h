@@ -92,6 +92,13 @@ namespace SE
 				ParticleSystemFileInfo particleFileInfo;
 				bool randVelocity;
 				Utilz::GUID textureName;
+				Graphics::RenderJob updateJob;
+				Graphics::RenderJob renderJob;
+				int updateJobID;
+				int renderJobID;
+				//Each index contains a XMFLOAT2 with min and max values for velocity and emit in the order of x, y and z. X and Y is Max and Min respectively in each vector
+				DirectX::XMFLOAT2 velocityRange[3];
+				DirectX::XMFLOAT2 emitRange[3];
 			};
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;

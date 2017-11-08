@@ -27,12 +27,12 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 		return ResourceHandler::InvokeReturn::DecreaseRefcount;
 	});
 	//Pipeline for the update geometry shader
-	Particle p[2];
-	p[0].opacity = 1.0f;
-	p[1].opacity = 1.0f;
+	Particle p;
+	p.opacity = 1.0f;
+
 
 	initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
-	initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2", p, 2, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+	initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
 	updatePipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	updatePipeline.IAStage.topology = Graphics::PrimitiveTopology::POINT_LIST;
 	updatePipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -92,6 +92,8 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 				memcpy(&particleSystemData[newEntry].randVelocity, data, sizeof(bool));
 				memcpy(&particleSystemData[newEntry].textureName, (char*)data + sizeof(bool), sizeof(Utilz::GUID));
 				memcpy(&particleSystemData[newEntry].particleFileInfo, (char*)data + sizeof(bool) + sizeof(Utilz::GUID), sizeof(particleSystemData[newEntry].particleFileInfo));
+				memcpy(&particleSystemData[newEntry].velocityRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo), sizeof(DirectX::XMFLOAT2) * 3);
+				memcpy(&particleSystemData[newEntry].emitRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo) + (sizeof(DirectX::XMFLOAT2) * 3), sizeof(DirectX::XMFLOAT2) * 3);
 				
 				return ResourceHandler::InvokeReturn::DecreaseRefcount;
 			});
@@ -105,7 +107,16 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 			auto const entityIndex = entityToIndex.find(entity);
 			if (entityIndex != entityToIndex.end())
 			{
-				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &particleSystemData[entityIndex->second].particleFileInfo, sizeof(ParticleSystemFileInfo));
+				auto& fileInfo = particleSystemData[entityIndex->second].particleFileInfo;
+				auto& PSD = particleSystemData[entityIndex->second];
+				fileInfo.vel[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[0].x/*Max*/ - PSD.velocityRange[0].y/*Min*/) + PSD.velocityRange[0].y;
+				fileInfo.vel[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[1].x/*Max*/ - PSD.velocityRange[1].y/*Min*/) + PSD.velocityRange[1].y;
+				fileInfo.vel[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[2].x/*Max*/ - PSD.velocityRange[2].y/*Min*/) + PSD.velocityRange[2].y;
+
+				fileInfo.emitRange[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[0].x/*Max*/ - PSD.emitRange[0].y/*Min*/) + PSD.emitRange[0].y;
+				fileInfo.emitRange[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
+				fileInfo.emitRange[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo, sizeof(ParticleSystemFileInfo));
 			}
 		});
 		updateParticleJob.vertexCount = 1;
@@ -120,7 +131,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.GSStage.shader = "ParticleGS.hlsl";
 		RPP.PSStage.shader = "ParticlePS.hlsl";
 		RPP.PSStage.textures[0] = particleSystemData[newEntry].textureName;
-		RPP.PSStage.textureBindings[0] = "fireTex";
+		RPP.PSStage.textureBindings[0] = "particleTex";
 		RPP.PSStage.textureCount = 1;
 		RPP.PSStage.samplers[0] = "ParticleSampler";
 		RPP.PSStage.samplerCount = 1;
@@ -141,8 +152,13 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		Graphics::RenderJob renderParticleJob;
 		renderParticleJob.pipeline = RPP;
 
-		initInfo.renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
+		int renderParticleJobID = initInfo.renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 
+		//Storing render jobs and job IDs
+		particleSystemData[newEntry].updateJob = updateParticleJob;
+		particleSystemData[newEntry].updateJobID = updateParticleJobID;
+		particleSystemData[newEntry].renderJob = renderParticleJob;
+		particleSystemData[newEntry].renderJobID = renderParticleJobID;
 	}
 
 	StopProfile;
@@ -185,28 +201,35 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 	timer->Start(CREATE_ID_HASH("ParticleSystemManager"));
 	GarbageCollection();
 
-	while (!toUpdate.wasEmpty())
+	//while (!toUpdate.wasEmpty())
+	//{
+	//	auto& top = toUpdate.top();
+
+	//	auto find = entityToIndex.find(top.entity);
+	//	if (find != entityToIndex.end())
+	//	{
+	//		particleSystemData[find->second].particleFileInfo = top.info;
+	//		particleSystemData[find->second].loaded = 1u;
+	//		if (particleSystemData[find->second].visible == 1u)
+	//		{
+	//			// Tell renderer
+	//		}
+	//	}
+
+	//	toUpdate.pop();
+
+	//}
+	//Swapping the buffers for the update and render particle jobs
+	for (size_t i = 0; i < particleSystemData.size(); i++)
 	{
-		auto& top = toUpdate.top();
-
-		auto find = entityToIndex.find(top.entity);
-		if (find != entityToIndex.end())
-		{
-			particleSystemData[find->second].particleFileInfo = top.info;
-			particleSystemData[find->second].loaded = 1u;
-			if (particleSystemData[find->second].visible == 1u)
-			{
-				// Tell renderer
-			}
-		}
-
-		toUpdate.pop();
-
+		std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
+		particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
+		initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+		initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
+		particleSystemData[i].updateJob.vertexCount = 0;
+		initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
 	}
-	//std::swap(updateParticleJob.pipeline.SOStage.streamOutTarget, updateParticleJob.pipeline.IAStage.vertexBuffer);
-	//renderParticleJob.pipeline.IAStage.vertexBuffer = updateParticleJob.pipeline.SOStage.streamOutTarget;
-	//Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
-	//Renderer->ChangeRenderJob(RPPID, renderParticleJob);
+
 	timer->Stop(CREATE_ID_HASH("ParticleSystemManager"));
 	StopProfile;
 }
