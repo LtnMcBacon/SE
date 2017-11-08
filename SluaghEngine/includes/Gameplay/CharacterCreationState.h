@@ -1,6 +1,7 @@
 #ifndef _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #define _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #include "IGameState.h"
+#include <Gameplay\Skill.h>
 
 namespace SE
 {
