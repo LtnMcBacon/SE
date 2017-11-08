@@ -86,14 +86,13 @@ namespace SE
 				uint8_t* playing;
 
 			};
-			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
 			struct updateInfo
 			{
 				Entity ent;
-				AnimationInfo animInfo;
+				AnimationInfo& animInfo;
 			};
 
 			std::stack<updateInfo> updateJob;

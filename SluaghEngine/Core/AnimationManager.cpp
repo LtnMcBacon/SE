@@ -119,14 +119,15 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
-	
 	renderableManager->Frame(nullptr);
-
+	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-	while (updateJob.size() > 0)
+	if (lambda.valid())
 	{
-
+		lambda.get();
 	}
+
+	animationSystem->UpdateMatricesIndex();
 	for (size_t i = 0; i < animationData.used; i++)
 	{
 		if (animationData.playing[i] == 1u)
@@ -145,15 +146,15 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	}
 	auto UpdateLoop = [this]()
 	{
-		for (int i = 0; i < updateJob.size(); )
+		for (int i = updateJob.size(); i > 0; --i)
 		{
-			animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo);
+			animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo, true);
 			updateJob.pop();
 		}
 		return true;
 	};
 
-	initInfo.threadPool->Enqueue(UpdateLoop);
+	lambda = initInfo.threadPool->Enqueue(UpdateLoop);
 
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
@@ -268,7 +269,7 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 
 			ai.timePos[i] = keyFrame;
 			animationData.playing[entityIndex->second] = 0u;
-			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai, false);
 
 		}
 	}

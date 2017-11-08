@@ -28,10 +28,15 @@ namespace SE
 			int AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, uint32_t* joints, size_t nrOfKeyframes, size_t nrOfJoints);
 			bool IsAnimationLoaded(const Utilz::GUID& guid)const;
 
-			void CalculateMatrices(const Entity& entity, AnimationInfo& info);
+			void CalculateMatrices(const Entity& entity, AnimationInfo& info, bool threaded);
 
 			void CalculateBlendMatrices(const DirectX::XMMATRIX& matrix1, const DirectX::XMMATRIX& matrix2, float blendFactor, DirectX::XMFLOAT4X4& out);
 			
+			inline void UpdateMatricesIndex() {
+				updateIndex = (updateIndex + 1) % 2;
+				mapingIndex = (mapingIndex + 1) % 2;
+			};
+
 		private:
 			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);
 
@@ -47,10 +52,11 @@ namespace SE
 			{
 				AnimationBucket(const Graphics::Pipeline& p) : RenderableManagerInstancing::RenderBucket(p) {};
 				std::vector<JointMatrices> matrices[2];
-				uint8_t vectorIndex = 1u;
 				virtual void AddEntity(const Entity& entity, const DirectX::XMFLOAT4X4& transform, RenderableManagerInstancing::BucketAndID& bucketAndID)override;
 				virtual void RemoveFromBucket(RenderableManagerInstancing* rm, size_t index, DirectX::XMFLOAT4X4* transform)override;
 			};
+			uint8_t updateIndex = 0u;
+			uint8_t mapingIndex = 1u;
 
 			virtual RenderBucket* CreateBucket(Graphics::RenderJob & job)override;
 
