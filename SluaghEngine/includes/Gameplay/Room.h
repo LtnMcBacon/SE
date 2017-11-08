@@ -29,6 +29,7 @@ namespace SE
 		class Room
 		{
 		private:
+
 			Room* adjacentRooms[4] = {};
 			bool DoorArr[4] = { true, true, true,true };
 			std::vector<EnemyUnit*> enemyUnits;

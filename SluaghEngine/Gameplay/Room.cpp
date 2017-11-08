@@ -1161,9 +1161,9 @@ float Room::WallCheck(int x, int y)
 const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp()
 {
 
-	srand((unsigned)time(0));
+	int rand = CoreInit::subSystems.window->GetRand();
 
-	int randNr = (rand() % 4) + 1;
+	int randNr = (rand % 4) + 1;
 
 	switch (randNr)
 	{
