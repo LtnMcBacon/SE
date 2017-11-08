@@ -61,7 +61,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	
 	subSystem.devConsole->Toggle();
 
-
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
 
@@ -130,7 +129,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.05f;
+	playInfo.blendSpeed[0] = 0.00f;
 	playInfo.blendFactor[0] = 0.0f;
 
 	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
@@ -158,8 +157,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	d.radius = 100.0f;
 	d.pos = { 5.0f, 10.0f, -5.0f };
 	d.color = { 1, 1,1 };
-	d.castShadow = false;
-	d.isOrtographic = false;
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 

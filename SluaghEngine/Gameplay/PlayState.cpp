@@ -198,6 +198,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 void PlayState::InitializePlayer(void* playerInfo)
 {
+	start:
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
@@ -237,6 +238,12 @@ void PlayState::InitializePlayer(void* playerInfo)
 		}
 	}
 
+	if (!player)
+	{
+		CoreInit::subSystems.devConsole->Print("Player could not find an empty spot");
+		currentRoom = rooms[1];
+		goto start;
+	}
 	//CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
 	//CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 

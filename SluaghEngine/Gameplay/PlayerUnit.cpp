@@ -214,7 +214,8 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 			playInfo.blendSpeed[1] = 0.0f;
 			playInfo.blendFactor[1] = 0.0f;
 			playInfo.nrOfLayers = 2;
-
+			
+			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
 		}
 		
 	}
@@ -497,6 +498,14 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim", "TopIdleAnim_MCModell.anim" };
 	sai.animations = anims;
+
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 

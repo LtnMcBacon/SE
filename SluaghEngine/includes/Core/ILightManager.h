@@ -32,9 +32,6 @@ namespace SE
 				DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };
 				float radius = 1.0f;
 				DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
-				DirectX::XMFLOAT3 dir = { 0.0f, 0.0f, 1.0f };
-				bool castShadow = false;
-				bool isOrtographic = false;
 			};
 
 
@@ -43,6 +40,8 @@ namespace SE
 			virtual void Create(const Entity& entity, const CreateInfo& info) = 0;
 
 			virtual void ToggleLight(const Entity& entity, bool show) = 0;
+
+			virtual void SetShadowCaster(const Entity& entity) = 0;
 
 		protected:
 			ILightManager() {};

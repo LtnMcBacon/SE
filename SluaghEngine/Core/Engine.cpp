@@ -178,7 +178,7 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.optionsHandler = CreateOptionsHandler();
 		auto res = subSystems.optionsHandler->Initialize("Config.ini");
 		if (res < 0)
-			throw std::exception("Could not initiate optionsHandler.");
+			throw std::exception("Could not initiate optionsHandler. Something went wrong with the Config.ini file");
 	}
 	if (!subSystems.resourceHandler)
 	{
@@ -188,7 +188,7 @@ void SE::Core::Engine::InitSubSystems()
 		info.VRAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
-			throw std::exception("Could not initiate resourceHandler.");
+			throw std::exception("Could not initiate resourceHandler. Make sure you have run the fileparser. And in the right folder,etc.");
 	}
 	if (!subSystems.window)
 	{
@@ -354,6 +354,7 @@ void SE::Core::Engine::InitAnimationManager()
 		info.eventManager = managers.eventManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.threadPool = subSystems.threadPool;
 		managers.animationManager = CreateAnimationManager(info);
 	}
 	managersVec.push_back(managers.animationManager);

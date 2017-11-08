@@ -64,6 +64,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	entityToIndex[entity] = index;
 	animationData.entity[index] = entity;
 	animationData.animInfo[index].nrOfLayers = 0;
+	animationData.playing[index] = 0u;
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
@@ -123,27 +124,50 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
-	
 	renderableManager->Frame(nullptr);
-
+	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-
-	for (size_t i = 0; i < animationData.used; i++)
+	
+	aniUpdateTime += dt;
+	if (aniUpdateTime > 0.033f)
 	{
-		if (animationData.playing[i] == 1u)
+		if (lambda.valid())
 		{
-			auto& ai = animationData.animInfo[i];
+			lambda.get();
+		}
 
-			for(size_t j = 0; j < ai.nrOfLayers; j++){
+		animationSystem->UpdateMatricesIndex();
+		for (size_t i = 0; i < animationData.used; i++)
+		{
+			if (animationData.playing[i] == 1u)
+			{
+				auto& ai = animationData.animInfo[i];
 
-				ai.timePos[j] += ai.animationSpeed[j] * dt;
+				for (size_t j = 0; j < ai.nrOfLayers; j++) {
 
+					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
+
+				}
+				updateJob.push({ animationData.entity[i], ai });
+				//animationSystem->CalculateMatrices(animationData.entity[i], ai, true);
 			}
 
-			animationSystem->CalculateMatrices(animationData.entity[i], ai);
 		}
-			
+		auto UpdateLoop = [this]()
+		{
+			for (int i = updateJob.size(); i > 0; --i)
+			{
+				animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo, true);
+				updateJob.pop();
+			}
+			return true;
+		};
+
+		lambda = initInfo.threadPool->Enqueue(UpdateLoop);
+		aniUpdateTime = 0.0f;
 	}
+
+			
 	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
@@ -276,7 +300,7 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 
 			ai.timePos[i] = keyFrame;
 			animationData.playing[entityIndex->second] = 0u;
-			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai, false);
 
 		}
 	}
