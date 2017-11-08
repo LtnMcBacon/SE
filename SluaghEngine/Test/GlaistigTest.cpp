@@ -233,11 +233,16 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		}
 	}
 	Gameplay::EnemyFactory eFactory;
-	auto enemyGUID = Utilz::GUID("Glaistig.SEC");
-	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::EnemyCreationStruct eStruct;
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 1; i++)
+
+	const int enemiesSize = 100;
+	Gameplay::EnemyUnit** enemies;
+
+	enemies = new Gameplay::EnemyUnit*[enemiesSize];
+
+	for (int i = 0; i < enemiesSize; i++)
 	{
 		pos enemyPos;
 		do
@@ -246,12 +251,24 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 			enemyPos.y = subSystem.window->GetRand() % 25;
 		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
 
-		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
-
-		testRoom->AddEnemyToRoom(enemy);
+		Gameplay::EnemyCreationData data;
+		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
+		data.startX = enemyPos.x;
+		data.startY = enemyPos.y;
+		data.useVariation = true;
+		eStruct.information.push_back(data);
 	}
 
+
+
+	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+	for (int i = 0; i < enemiesSize; i++)
+	{
+		testRoom->AddEnemyToRoom(enemies[i]);
+	}
+
+	delete[] enemies;
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 	subSystem.window->MapActionButton(1, Window::Key1);
 	subSystem.window->MapActionButton(2, Window::Key2);
