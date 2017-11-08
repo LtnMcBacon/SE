@@ -121,7 +121,7 @@ void PlayState::InitializeRooms()
 	{
 		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
 
-		int random = 0;//CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
@@ -146,7 +146,7 @@ void PlayState::InitializePlayer()
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (map[x][y] == 32)
+			if (map[x][y] == 22)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
