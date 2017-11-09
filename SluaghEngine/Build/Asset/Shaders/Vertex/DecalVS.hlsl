@@ -5,8 +5,10 @@ cbuffer DecalsWorld : register(b0)
 
 cbuffer OncePerFrame : register(b1)
 {
-	float4x4 gViewProj;
+	float4x4 View;
+	float4x4 ViewProj;
 };
+
 
 struct VS_OUT
 {
@@ -41,7 +43,7 @@ VS_OUT VS_main(VS_IN input)
 		float3(0.5f, -0.5f, -0.5f)
 	};
 	//SV_Position also does some z-divide or whatever in the hardware thats not done just by the matrix mul. That's why we also have the posWVP
-	output.posNDC = mul(mul(float4(positions[input.vertexID],1.0f), gWorld[input.instanceID]), gViewProj);
+	output.posNDC = mul(mul(float4(positions[input.vertexID],1.0f), gWorld[input.instanceID]), ViewProj);
 	output.posWVP = output.posNDC;
 	output.instanceID = input.instanceID;
 	return output;

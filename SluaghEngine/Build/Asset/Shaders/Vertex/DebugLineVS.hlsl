@@ -5,8 +5,10 @@ cbuffer OncePerRenderer : register(b0)
 
 cbuffer OncePerFrame : register(b1)
 {
+	float4x4 View;
 	float4x4 ViewProj;
 };
+
 
 cbuffer DebugLineW : register(b2)
 {
