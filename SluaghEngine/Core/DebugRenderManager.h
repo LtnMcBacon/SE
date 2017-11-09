@@ -93,10 +93,6 @@ namespace SE
 			std::unordered_map<Entity, DirectX::XMFLOAT4X4, EntityHasher> cachedTransforms;
 			//In case we don't leave it up to the caller to not enable the same entity twice
 			std::unordered_set<Entity, EntityHasher> entityRendersBoundingVolume;
-			
-
-			ResourceHandler::InvokeReturn LoadLineVertexShader(const Utilz::GUID & guid, void * data, size_t size);
-			ResourceHandler::InvokeReturn LoadLinePixelShader(const Utilz::GUID & guid, void * data, size_t size);
 
 			void SetDirty(const Entity & entity, size_t index);
 

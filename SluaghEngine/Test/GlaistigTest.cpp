@@ -92,7 +92,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
 	int random = subSystem.window->GetRand() % nrOfRooms;
@@ -100,11 +100,14 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
 	Gameplay::PlayerUnit* player = nullptr;
+
+	char map[25][25];
+	testRoom->GetMap(map);
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y] == 1)
+			if (map[x][y] == 1)
 			{
 				float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -124,7 +127,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				player->SetZPosition(1.5f);
 				break;
 			}
@@ -169,7 +172,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y])
+			if (map[x][y])
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
@@ -233,25 +236,42 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		}
 	}
 	Gameplay::EnemyFactory eFactory;
-	auto enemyGUID = Utilz::GUID("Glaistig.SEC");
-	eFactory.LoadEnemyIntoMemory(enemyGUID);
+	Gameplay::EnemyCreationStruct eStruct;
 	Gameplay::GameBlackboard blackBoard;
 	blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
-	for (int i = 0; i < 1; i++)
+
+	const int enemiesSize = 100;
+	Gameplay::EnemyUnit** enemies;
+
+	enemies = new Gameplay::EnemyUnit*[enemiesSize];
+
+	for (int i = 0; i < enemiesSize; i++)
 	{
 		pos enemyPos;
 		do
 		{
 			enemyPos.x = subSystem.window->GetRand() % 25;
 			enemyPos.y = subSystem.window->GetRand() % 25;
-		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
-		Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-		enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
-
-		testRoom->AddEnemyToRoom(enemy);
+		Gameplay::EnemyCreationData data;
+		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
+		data.startX = enemyPos.x;
+		data.startY = enemyPos.y;
+		data.useVariation = true;
+		eStruct.information.push_back(data);
 	}
 
+
+
+	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+	for (int i = 0; i < enemiesSize; i++)
+	{
+		testRoom->AddEnemyToRoom(enemies[i]);
+	}
+
+	delete[] enemies;
 	subSystem.window->MapActionButton(0, Window::KeyEscape);
 	subSystem.window->MapActionButton(1, Window::Key1);
 	subSystem.window->MapActionButton(2, Window::Key2);
@@ -368,7 +388,7 @@ bool SE::Test::GlaistigTest::Run(SE::DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (testRoom->tileValues[x][y])
+				if (map[x][y])
 				{
 
 				}

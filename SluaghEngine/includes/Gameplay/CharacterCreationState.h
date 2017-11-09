@@ -6,6 +6,7 @@
 #include <vector>
 //#include <SkillFactory.h>
 //#include <PlayerUnit.h>
+#include <Gameplay\Skill.h>
 
 namespace SE
 {

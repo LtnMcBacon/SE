@@ -10,7 +10,9 @@ namespace SE {
 			_ASSERT(initInfo.renderer);
 			_ASSERT(initInfo.entityManager);
 
-			auto ret = initInfo.resourceHandler->LoadResource("moonhouse.spritefont", { this, &TextManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource("moonhouse.spritefont", [this](auto guid, auto data, auto size) {
+				guidToFont[guid] = this->initInfo.renderer->CreateTextFont(data, size);
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM; });
 			if (ret)
 				throw std::exception("Could not load default font.");
 		}
@@ -37,7 +39,9 @@ namespace SE {
 				auto const findFont = guidToFont.find(info.font);
 				if (findFont == guidToFont.end())
 				{
-					auto ret = initInfo.resourceHandler->LoadResource(info.font, { this, &TextManager::LoadFont });
+					auto ret = initInfo.resourceHandler->LoadResource(info.font, [this](auto guid, auto data, auto size) {
+						guidToFont[guid] = this->initInfo.renderer->CreateTextFont(data, size);
+						return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM; });
 					if (ret)
 					{
 						ProfileReturnVoid;
@@ -86,7 +90,9 @@ namespace SE {
 		int TextManager::MakeFont(const Utilz::GUID& fontFile)
 		{
 			StartProfile;
-			auto ret = initInfo.resourceHandler->LoadResource(fontFile, { this, &TextManager::LoadFont });
+			auto ret = initInfo.resourceHandler->LoadResource(fontFile, [this](auto guid, auto data, auto size) {
+				guidToFont[guid] = initInfo.renderer->CreateTextFont(data, size);
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM ; });
 
 			ProfileReturnConst(0);
 		}
@@ -94,7 +100,7 @@ namespace SE {
 		void TextManager::Frame(Utilz::TimeCluster * timer)
 		{
 			StartProfile;
-			timer->Start(CREATE_ID_HASH( "GUIManager"));
+			timer->Start(( "GUIManager"));
 			for (auto& dirt : dirtyEnt)
 			{
 				// Check if the entity is alive
@@ -109,7 +115,7 @@ namespace SE {
 			}
 			dirtyEnt.clear();
 			GarbageCollection();
-			timer->Stop(CREATE_ID_HASH("GUIManager"));
+			timer->Stop(("GUIManager"));
 			StopProfile;
 		}
 
@@ -130,12 +136,6 @@ namespace SE {
 			StopProfile;
 		}
 
-		ResourceHandler::InvokeReturn TextManager::LoadFont(const Utilz::GUID & font, void * data, size_t size)
-		{
-			guidToFont[font] = initInfo.renderer->CreateTextFont(data, size);
-			return ResourceHandler::InvokeReturn::Success;
-		}
-
 		void TextManager::Destroy(size_t index)
 		{
 			StartProfile;
@@ -147,13 +147,12 @@ namespace SE {
 			// Copy the data
 			textEnt[index] = last_entity;
 			loadedTexts[index] = loadedTexts[last];
-			entID[last_entity] = entID[entity];
+			entID[last_entity].ID = entID[entity].ID;
 
 			// Remove last spot 
 			entID.erase(entity);
 			loadedTexts.pop_back();
 			textEnt.pop_back();
-
 			StopProfile;
 		}
 
@@ -186,15 +185,16 @@ namespace SE {
 				// Temp variables
 				size_t last = loadedTexts.size() - 1;
 				size_t index = entID[entity].ID;
+				const Entity currentEntity = textEnt[index];
 				const Entity last_entity = textEnt[last];
 
 				// Copy the data
 				textEnt[index] = last_entity;
 				loadedTexts[index] = loadedTexts[last];
-				entID[last_entity] = entID[entity];
+				entID[last_entity].ID = entID[currentEntity].ID;
 
 				// Remove last spot 
-				entID.erase(entity);
+				entID.erase(currentEntity);
 				loadedTexts.pop_back();
 				textEnt.pop_back();
 			}

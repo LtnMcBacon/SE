@@ -4,8 +4,6 @@
 #include "GameUnit.h"
 #include <Gameplay\Projectile.h>
 #include <Gameplay\ProjectileData.h>
-#include <Gameplay\Room.h>
-#include <Gameplay\PlayerUnit.h>
 #include <ResourceHandler\IResourceHandler.h>
 #include "Utilz/GUID.h"
 
@@ -27,10 +25,15 @@ namespace SE
 		*
 		**/
 
+		class Room;
+		class PlayerUnit;
+		class ProjectileManager;
+
 		struct BehaviourPointers
 		{
 			Room** currentRoom;
 			PlayerUnit* player;
+			ProjectileManager* pManager;
 		};
 
 		class ProjectileFactory
@@ -57,6 +60,8 @@ namespace SE
 			};
 
 			BehaviourPointers ptrs;
+
+			uint64_t projectileGeneration;
 
 			std::vector<std::function<std::function<bool(Projectile* projectile, float dt)>(std::vector<BehaviourParameter> parameter)>> behaviourFunctions;
 
@@ -156,7 +161,7 @@ namespace SE
 			/**
 			* @brief	Adds time condition behaviour to the projectile so that other behaviours are run once after the time is up
 			*/
-			std::function<bool(Projectile* projectile, float dt)> TimeConditionBehaviour(std::vector<BehaviourParameter> parameters/*float delay, bool repeat, Projectile* projectile*/);
+			std::function<bool(Projectile* projectile, float dt)> TimeConditionBehaviour(std::vector<BehaviourParameter> parameters/*float delay, int timesToRepeat, Projectile* projectile*/);
 			
 			/**
 			 * @brief	Adds a behaviour for projectiles to follow the player
@@ -208,6 +213,40 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> InverterBehaviour(std::vector<BehaviourParameter> parameters/*vector arguments*/);
 
+			/**
+			* @brief	Adds a behaviour that kills all projectiles of a certain generation
+			*/
+			std::function<bool(Projectile* projectile, float dt)> KillGenerationBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a behaviour to set a projectile as alive
+			*/
+			std::function<bool(Projectile* projectile, float dt)> SetAliveBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to see if a projectile collided with an enemy
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to see if a projectile collided with an object
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to see if a projectile collided with the player
+			*/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to see if a projectile collided with the player
+			*/
+			std::function<bool(Projectile* projectile, float dt)> SetDamageBasedOnDTBehaviour(std::vector<BehaviourParameter> parameters);
+
+			/**
+			* @brief	Adds a condition to see if a projectiles owner's health is above a certain amount
+			*/
+			std::function<bool(Projectile* projectile, float dt)> UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters); // f, o
 
 
 		public:

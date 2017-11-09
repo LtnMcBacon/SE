@@ -76,6 +76,18 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateChannelingConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "AnimationRunningCondition")
+	{
+		finishedBehaviour = CreateAnimationRunningLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "StunnedCondition")
+	{
+		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "InTheSameRoomAsThePlayerCondition")
+	{
+		finishedBehaviour = CreateInTheSameRoomAsThePlayerConditionLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
@@ -108,9 +120,9 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateTickDownAttackCooldownLeaf(dataArray, nodeID);
 	}
-	else if(dataArray[nodeID].Type == "StunnedCondition")
+	else if(dataArray[nodeID].Type == "AnimationLeaf")
 	{
-		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
+		finishedBehaviour = CreateAnimationLeaf(dataArray, nodeID);
 	}
 	else if(dataArray[nodeID].Type == "FaceThePlayerLeaf")
 	{
@@ -131,6 +143,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if (dataArray[nodeID].Type == "PechRangedAttackLeaf")
 	{
 		finishedBehaviour = CreatePechRangedAttackLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "StopChannelingLeaf")
+	{
+		finishedBehaviour = CreateStopChannelingLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -271,6 +287,18 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateChannelingConditionLeaf
 	ProfileReturn( new ChannelingCondition(nullptr, nullptr));
 }
 
+IBehaviour* BehaviouralTreeFactory::CreateInTheSameRoomAsThePlayerConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new InTheSameRoomAsThePlayerCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new AnimationRunningCondition(nullptr, nullptr));
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
@@ -312,6 +340,43 @@ IBehaviour* BehaviouralTreeFactory::CreatePechRangedAttackLeaf(NodeData* dataArr
 {
 	StartProfile;
 	ProfileReturn(new PechRangedAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+
+	std::string animations[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+	float animationSpeeds[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+	float startKeyFrame[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+	bool looping[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+
+	int counter = 0;
+	int numberOfLayers = stoi(dataArray->nodeData[counter++]);
+
+	for(int i = 0; i < numberOfLayers; i++)
+	{
+		animations[i] = dataArray->nodeData[counter++];
+		animationSpeeds[i] = std::stof(dataArray->nodeData[counter++]);
+		startKeyFrame[i] = std::stof(dataArray->nodeData[counter++]);
+		if(dataArray->nodeData[counter++] == "True")
+		{
+			looping[i] = true;
+		}
+		else
+		{
+			looping[i] = false;
+		}
+	}
+
+
+	ProfileReturn(new AnimationLeaf(nullptr, nullptr, numberOfLayers, animations, animationSpeeds, startKeyFrame, looping));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopChannelingLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new StopChannelingLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
@@ -436,49 +501,6 @@ bool BehaviouralTreeFactory::CreateTreeFromNodeData(const Utilz::GUID& GUID, Nod
 	ProfileReturnConst(false);
 }
 
-ResourceHandler::InvokeReturn BehaviouralTreeFactory::LoadTreeFromResourceHandler(
-	const Utilz::GUID& GUID, void* data, size_t size)
-{
-	StartProfile;
-
-	std::string stringData((char*)data, size);
-	stringData.erase(std::remove(stringData.begin(), stringData.end(), '\r'), stringData.end());
-
-	auto lineSplit = split(stringData, '\n');
-	auto lineSplitIt = lineSplit.begin();
-	int numberOfNodes = std::stoi(*lineSplitIt);
-	++lineSplitIt;
-	NodeData* dataArray = new NodeData[numberOfNodes];
-	do
-	{
-		int id = std::stoi(*lineSplitIt);
-		++lineSplitIt;
-		dataArray[id].Type = *lineSplitIt;
-		++lineSplitIt;
-		dataArray[id].nodeData = split(*lineSplitIt, ',');
-
-		++lineSplitIt;
-		auto childs = split(*lineSplitIt, ',');
-		for (auto const& info : childs)
-		{
-			dataArray[id].childID.push_back(std::stoi(info));
-		}
-
-		++lineSplitIt;
-	}
-	while (lineSplitIt != lineSplit.end());
-
-	/*Build the tree from the dataArray*/
-	if (!CreateTreeFromNodeData(GUID, dataArray, numberOfNodes))
-	{
-		delete[] dataArray;
-		ProfileReturnConst(ResourceHandler::InvokeReturn::Fail);
-	}
-	/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
-	delete[] dataArray;
-	ProfileReturnConst(ResourceHandler::InvokeReturn::DecreaseRefcount);
-}
-
 bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 {
 	StartProfile;
@@ -490,7 +512,43 @@ bool BehaviouralTreeFactory::LoadTree(const Utilz::GUID& guid)
 	}
 
 	const auto done = CoreInit::subSystems.resourceHandler->LoadResource(guid,
-	{ this, &BehaviouralTreeFactory::LoadTreeFromResourceHandler });
+		[this](auto guid, auto data, auto size) {
+		std::string stringData((char*)data, size);
+		stringData.erase(std::remove(stringData.begin(), stringData.end(), '\r'), stringData.end());
+
+		auto lineSplit = split(stringData, '\n');
+		auto lineSplitIt = lineSplit.begin();
+		int numberOfNodes = std::stoi(*lineSplitIt);
+		++lineSplitIt;
+		NodeData* dataArray = new NodeData[numberOfNodes];
+		do
+		{
+			int id = std::stoi(*lineSplitIt);
+			++lineSplitIt;
+			dataArray[id].Type = *lineSplitIt;
+			++lineSplitIt;
+			dataArray[id].nodeData = split(*lineSplitIt, ',');
+
+			++lineSplitIt;
+			auto childs = split(*lineSplitIt, ',');
+			for (auto const& info : childs)
+			{
+				dataArray[id].childID.push_back(std::stoi(info));
+			}
+
+			++lineSplitIt;
+		} while (lineSplitIt != lineSplit.end());
+
+		/*Build the tree from the dataArray*/
+		if (!CreateTreeFromNodeData(guid, dataArray, numberOfNodes))
+		{
+			delete[] dataArray;
+			return ResourceHandler::InvokeReturn::FAIL;
+		}
+		/*ProfileReturn 0 for success, -1 for fail, 1 for refcount*/
+		delete[] dataArray;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
 
 	if (done != -1)
 	ProfileReturnConst(true);

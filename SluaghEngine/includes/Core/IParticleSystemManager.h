@@ -49,7 +49,7 @@ namespace SE
 			* @param [in] behavior The streaming behavior.
 			* @sa CreateInfo
 			*/
-			virtual void CreateSystem(const Entity& entity, const CreateInfo& info, bool async = false, ResourceHandler::Behavior behavior = ResourceHandler::Behavior::QUICK) = 0;
+			virtual void CreateSystem(const Entity& entity, const CreateInfo& info) = 0;
 
 			/**
 			* @brief	Hide/Show a particle system.

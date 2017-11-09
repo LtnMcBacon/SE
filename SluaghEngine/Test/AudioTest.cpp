@@ -43,7 +43,11 @@ namespace SE
 			{	
 #pragma region GUI
 
-				auto entText = managers.entityManager->Create();
+				Core::Entity entText[4];
+				entText[0] = managers.entityManager->Create();
+				entText[1] = managers.entityManager->Create();
+				entText[2] = managers.entityManager->Create();
+				entText[3] = managers.entityManager->Create();
 
 			//	// Text creation
 				Graphics::TextGUI guiText;
@@ -61,8 +65,62 @@ namespace SE
 				guiText.rotation = 0;
 				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
 				
-				managers.textManager->Create(entText, { Utilz::GUID(), guiText });
-				managers.textManager->ToggleRenderableText(entText, true);
+				managers.textManager->Create(entText[0], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[0], true);
+
+
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 10;
+				guiText.posY = 10;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[1], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[1], true);
+
+
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 20;
+				guiText.posY = 20;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[2], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[2], true);
+
+;
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 30;
+				guiText.posY = 30;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[3], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[3], true);
 
 				// GUI texture creation
 				auto entTexture = managers.entityManager->Create();
@@ -173,6 +231,7 @@ namespace SE
 				subSystems.window->MapActionButton(12, Window::KeyJ);
 				subSystems.window->MapActionButton(13, Window::KeyO);
 				subSystems.window->MapActionButton(14, Window::KeyL);
+				subSystems.window->MapActionButton(15, Window::KeyM);
 
 				console->Print("Start main loop!!\n");
 				Utilz::Timer time;
@@ -200,14 +259,21 @@ namespace SE
 						managers.audioManager->RemoveSound(soundEnt, "Canary.wav");
 
 					}
+					if (subSystems.window->ButtonPressed(15) == true)
+					{
+						managers.entityManager->Destroy(entText[0]);
+						managers.entityManager->Destroy(entText[1]);
+						managers.entityManager->Destroy(entText[2]);
+						managers.entityManager->Destroy(entText[3]);
+					}
 					if (subSystems.window->ButtonPressed(4) == true)
 					{
-						console->Print("VRam: %d \n", Utilz::Memory::toMB(subSystems.renderer->GetVRam()));
+						console->Print("VRam: %d \n", toMB(subSystems.renderer->GetVRam()));
 					}
 					if (subSystems.window->ButtonPressed(5) == true)
 					{
-						size_t physMem = Utilz::Memory::toMB(Utilz::Memory::GetPhysicalProcessMemory());
-						size_t virtMem = Utilz::Memory::toMB(Utilz::Memory::GetVirtualProcessMemory());
+						size_t physMem = toMB(Utilz::Memory::GetPhysicalProcessMemory());
+						size_t virtMem = toMB(Utilz::Memory::GetVirtualProcessMemory());
 						console->Print("PhysicalProcessMemory: %d \nVirtualProcessMemory: %d \n", physMem, virtMem);
 					}
 					if (subSystems.window->ButtonPressed(11) == true)

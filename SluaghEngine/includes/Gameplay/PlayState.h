@@ -8,6 +8,8 @@
 #include <Gameplay\ProjectileManager.h>
 #include <Gameplay\Projectile.h>
 #include <Gameplay\ProjectileData.h>
+#include "GameBlackboard.h"
+#include "EnemyFactory.h"
 
 namespace SE 
 {
@@ -28,7 +30,7 @@ namespace SE
 		{
 		public:
 			PlayState();
-			PlayState(Window::IWindow* Input, SE::Core::IEngine* engine);
+			PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo);
 			~PlayState();
 			/**
 			* @brief	The update loop for the Play state process.
@@ -45,11 +47,10 @@ namespace SE
 			State Update(void*& passableInfo);
 
 			
-
-			
 		private:
 			void InitializeRooms();
-			void InitializePlayer();
+			void InitializeEnemies();
+			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
@@ -58,8 +59,11 @@ namespace SE
 			Core::Entity cam;
 			Core::Entity dummy;
 			PlayerUnit* player;
-			std::vector<Room> rooms;
+			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
+			const int enemiesInEachRoom = 1;
+			Gameplay::GameBlackboard blackBoard;
+			Gameplay::EnemyFactory eFactory;
 
 			ProjectileManager* projectileManager;
 

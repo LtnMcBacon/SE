@@ -202,8 +202,8 @@ int SE::Graphics::Renderer::Render()
 	// ReSharper disable once CppDeclaratorNeverUsed
 	auto devContext = device->GetDeviceContext();
 	/******************General Jobs*********************/
-	cpuTimer.Start(CREATE_ID_HASH("RenderJob-CPU"));
-	gpuTimer->Start(CREATE_ID_HASH("RenderJob-GPU"));
+	cpuTimer.Start(("RenderJob-CPU"));
+	gpuTimer->Start(("RenderJob-GPU"));
 	
 	
 	for (auto& group : jobGroups)
@@ -283,14 +283,14 @@ int SE::Graphics::Renderer::Render()
 		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();
 		device->GetDeviceContext()->OMSetRenderTargets(1, &backbuf, depthsv);
 	}
-	gpuTimer->Stop(CREATE_ID_HASH("RenderJob-GPU"));
-	cpuTimer.Stop(CREATE_ID_HASH("RenderJob-CPU"));
+	gpuTimer->Stop(("RenderJob-GPU"));
+	cpuTimer.Stop(("RenderJob-CPU"));
 	/*****************End General Jobs******************/
 
 
 	//********* Render sprite overlays ********/
-	cpuTimer.Start(CREATE_ID_HASH("GUIJob-CPU"));
-	gpuTimer->Start(CREATE_ID_HASH("GUIJob-GPU"));
+	cpuTimer.Start(("GUIJob-CPU"));
+	gpuTimer->Start(("GUIJob-GPU"));
 	if (renderTextureJobs.size() || renderTextJobs.size())
 	{
 		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
@@ -370,8 +370,8 @@ int SE::Graphics::Renderer::Render()
 		}
 		spriteBatch->End();
 	}
-	gpuTimer->Stop(CREATE_ID_HASH("GUIJob-GPU"));
-	cpuTimer.Stop(CREATE_ID_HASH("GUIJob-CPU"));
+	gpuTimer->Stop(("GUIJob-GPU"));
+	cpuTimer.Stop(("GUIJob-CPU"));
 
 	device->SetDepthStencilStateAndRS();
 	device->SetBlendTransparencyState(0);
@@ -380,8 +380,8 @@ int SE::Graphics::Renderer::Render()
 	////********* Apply bloom post-processing ********/
 	//if (bloom)
 	//{
-	//	cpuTimer.Start(CREATE_ID_HASH("Bloom-CPU"));
-	//	gpuTimer->Start(CREATE_ID_HASH("Bloom-GPU"));
+	//	cpuTimer.Start(("Bloom-CPU"));
+	//	gpuTimer->Start(("Bloom-GPU"));
 
 
 	//	ID3D11ShaderResourceView* shaderResourceViews[] = {
@@ -419,8 +419,8 @@ int SE::Graphics::Renderer::Render()
 	//	device->GetDeviceContext()->CopyResource(device->GetBackBufferTexture(), graphicResourceHandler->GetBloomBufferTexture());
 
 
-	//	gpuTimer->Stop(CREATE_ID_HASH("Bloom-GPU"));
-	//	cpuTimer.Stop(CREATE_ID_HASH("Bloom-CPU"));
+	//	gpuTimer->Stop(("Bloom-GPU"));
+	//	cpuTimer.Stop(("Bloom-CPU"));
 	//}
 	//******* END Apply bloom post-processing ******/
 

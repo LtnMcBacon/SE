@@ -28,8 +28,8 @@ bool SE::Test::ComputeTest::Run(SE::DevConsole::IConsole * console)
 		res = subSystem.resourceHandler->LoadResource("ClearTexture.hlsl", [subSystem](auto guid, auto data, auto size) {
 			auto res = subSystem.renderer->GetPipelineHandler()->CreateComputeShader(guid, data, size);
 			if (res < 0)
-				return ResourceHandler::InvokeReturn::Fail;
-			return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
 		if (res < 0)
 			goto error;

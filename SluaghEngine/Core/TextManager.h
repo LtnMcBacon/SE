@@ -196,8 +196,6 @@ namespace SE
 			void updateText()override;
 
 		private:
-			ResourceHandler::InvokeReturn LoadFont(const Utilz::GUID& font, void*data, size_t size);
-
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;

@@ -1,16 +1,12 @@
-cbuffer LightViewProj : register(b0)
+cbuffer LightShadowDataBuffer : register(b0)
 {
-	float4x4 lViewProj;
-}
+	float4 LightPosWorld;
+	float4 LightRange;
+};
 
 cbuffer OncePerObject : register(b1)
 {
 	float4x4 World[256];
-};
-
-cbuffer InversWorld : register(b2)
-{
-	float4x4 invers[256];
 };
 
 struct VS_IN
@@ -25,15 +21,18 @@ struct VS_IN
 
 struct VS_OUT
 {
-	float4 Pos : SV_POSITION;
+	float4 PosWorld : SV_POSITION;
+	float4 LightDirWorld : DIRECTION;
 };
+
+
 
 VS_OUT VS_main(VS_IN input)
 {
 	VS_OUT output = (VS_OUT)0;
-	
-	// Transform vertex into light space
-	output.Pos = mul(mul(float4(input.Pos, 1), World[input.InstanceID]), lViewProj);
-	
+
+	output.PosWorld = mul(float4(input.Pos, 1), World[input.InstanceID]);
+	output.LightDirWorld = output.PosWorld - LightPosWorld;
+
 	return output;
 }

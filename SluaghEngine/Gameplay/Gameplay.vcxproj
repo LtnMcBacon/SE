@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
+    <ClCompile Include="AnimationLeaf.cpp" />
+    <ClCompile Include="AnimationRunningCondition.cpp" />
     <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
@@ -44,6 +46,7 @@
     <ClCompile Include="IComposite.cpp" />
     <ClCompile Include="IDecorator.cpp" />
     <ClCompile Include="IGameState.cpp" />
+    <ClCompile Include="InTheSameRoomAsThePlayerCondition.cpp" />
     <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="LeapAtPlayerLeaf.cpp" />
     <ClCompile Include="LineOfSightCondition.cpp" />
@@ -80,6 +83,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h" />
     <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTree.h" />
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
@@ -107,6 +112,7 @@
     <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
     <ClInclude Include="..\includes\Gameplay\IComposite.h" />
     <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
+    <ClInclude Include="..\includes\Gameplay\InTheSameRoomAsThePlayerCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Inverter.h" />
     <ClInclude Include="..\includes\Gameplay\KeyBindings.h" />
     <ClInclude Include="..\includes\Gameplay\LeapAtPlayerLeaf.h" />
@@ -138,7 +144,9 @@
     <ClInclude Include="..\includes\Gameplay\Room.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
+    <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
+    <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
