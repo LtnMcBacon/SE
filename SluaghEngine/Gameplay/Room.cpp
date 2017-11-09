@@ -27,16 +27,13 @@ static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
 static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
 
 
-// Random props
-std::vector<SE::Utilz::GUID> randomProps;
-
-
-
-
 //materials
 static const SE::Utilz::GUID Stone("Cube.mat");
 static const SE::Utilz::GUID FloorMat("floorTest.mat");
 static const SE::Utilz::GUID DoorMat("Cube.mat");
+static const SE::Utilz::GUID HighWallMat("HighWall.mat");
+static const SE::Utilz::GUID BushMat("Bush.mat");
+
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
 static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
@@ -965,54 +962,31 @@ void SE::Gameplay::Room::CreateEntities()
 
 				if (IsOutside)
 				{
-					if (tileValues[i][j] == (char)13)
+					if (tileValues[i][j] == (char)13) // Bush
 					{
-					auto& props = propVectors[PropTypes::BUSHES];
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+						CreateBush(ent, i, j, cubeInfo);
 					}
 				}
 
-				if (tileValues[i][j] == (char)0)
+				if (tileValues[i][j] == (char)0) // Floor
 				{
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
+					CreateFloor(ent, i, j, cubeInfo);
 				}
-				// Torch
-				else if (tileValues[i][j] == (char)203)
+				else if (tileValues[i][j] == (char)203) // Torch
 				{
-					// Create torch
-					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
-
-					// Create floor
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
-					CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
+					CreateTorch(ent, floorEnt, i, j, cubeInfo);
 				}
-				// Other
-				else if (tileValues[i][j] == (char)137 )
+				else if (tileValues[i][j] == (char)137 ) // Other
 				{
-
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
+					CreateProp(ent, i, j, cubeInfo);
 				}
 				else if (tileValues[i][j] == (char)225 ) // Pillar
 				{
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
+					CreatePillar(ent, i, j, cubeInfo);
 				}
-				else if (tileValues[i][j] == (char)255 )
+				else if (tileValues[i][j] == (char)255 ) // Wall
 				{
-					cubeInfo.materialFile = Stone;
-					if (CreateWall(ent, i, j) == true)
-					{						
-						cubeInfo.shader = Trans;
-						CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
-					}
-					else
-					{
-						cubeInfo.shader = Norm;
-					}			
-					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
+					CreateWall2(ent, i, j, cubeInfo);
 				}
 				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
@@ -1063,6 +1037,7 @@ void SE::Gameplay::Room::CreateEntities()
 		}
 	}
 }
+
 
 void SE::Gameplay::Room::RenderRoom(bool render)
 {
@@ -1231,6 +1206,62 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 
 
 	ProfileReturnConst(propList[randNr]);
+}
+
+void SE::Gameplay::Room::CreateBush(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	auto& props = propVectors[PropTypes::BUSHES];
+	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+
+	mat.materialFile = BushMat;
+	mat.shader = Trans;
+	CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+}
+
+void SE::Gameplay::Room::CreateFloor(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	mat.materialFile = FloorMat;
+	mat.shader = Norm;
+	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
+}
+
+void SE::Gameplay::Room::CreateTorch(SE::Core::Entity ent, SE::Core::Entity floorEnt, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	// Create torch
+	CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
+	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+
+	// Create floor
+	mat.materialFile = FloorMat;
+	mat.shader = Norm;
+	CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
+
+	tileValues[i][j] = (char)0;
+}
+
+void SE::Gameplay::Room::CreatePillar(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
+}
+
+void SE::Gameplay::Room::CreateProp(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
+}
+
+void SE::Gameplay::Room::CreateWall2(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+{
+	mat.materialFile = HighWallMat;
+	if (CreateWall(ent, i, j) == true)
+	{
+		mat.shader = Trans;
+		CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+	}
+	else
+	{
+		mat.shader = Norm;
+	}
+	CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
 }
 
 float Room::FloorCheck(int x, int y)

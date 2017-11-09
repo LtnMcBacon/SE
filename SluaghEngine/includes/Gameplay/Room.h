@@ -46,6 +46,8 @@ namespace SE
 			};
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
+			//std::map<char, std::function<void()>> propItemToFunction;
+
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -414,6 +416,31 @@ namespace SE
 			* @brief	Generates random props
 			*/
 			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+
+			/**
+			* @brief
+			*/
+			void CreateBush(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			/**
+			* @brief	
+			*/
+			void CreateFloor(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			/**
+			* @brief
+			*/
+			void CreateTorch(SE::Core::Entity ent, SE::Core::Entity floorEnt, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			/**
+			* @brief
+			*/
+			void CreatePillar(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			/**
+			* @brief
+			*/
+			void CreateProp(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			/**
+			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
+			*/
+			void CreateWall2(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
 
 
 			/**
