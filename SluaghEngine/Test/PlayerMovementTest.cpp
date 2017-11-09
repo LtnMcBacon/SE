@@ -88,8 +88,10 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 	int numberOfEntitesPlaced = 0;
 	int numberOfArrows = 0;
 	Gameplay::Room* testRoom = new Gameplay::Room("");
+	char map[25][25];
+	testRoom->GetMap(map);
 
-	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, testRoom->tileValues);
+	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, map);
 
 
 
@@ -141,7 +143,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y])
+			if (map[x][y])
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 				managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
@@ -221,7 +223,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 		{
 			enemyPos.x = subSystem.window->GetRand() % 25;
 			enemyPos.y = subSystem.window->GetRand() % 25;
-		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyCreationData data;
 		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
@@ -339,7 +341,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (testRoom->tileValues[x][y])
+				if (map[x][y])
 				{
 
 				}
