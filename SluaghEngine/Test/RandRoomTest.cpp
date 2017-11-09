@@ -144,18 +144,21 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 
 	SE::Gameplay::ProjectileManager* projectileManager = new SE::Gameplay::ProjectileManager(initBP);
 
+	char map[25][25];
+	testRoom->GetMap(map);
+
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y] == 10)
+			if (map[x][y] == 10)
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Block });
 				 managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
 				 managers.transformManager->SetPosition(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 				numberOfEntitesPlaced++;
 			}
-			else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
+			else if (map[x][y] == 2 || map[x][y] == 1)
 			{
 				managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
 				 managers.renderableManager->ToggleRenderableObject(entities[numberOfEntitesPlaced], true);
@@ -164,7 +167,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 				 managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0f, testRoom->FloorCheck(x,y) , 0.0f);
 				numberOfEntitesPlaced++;
 			}
-			else if (testRoom->tileValues[x][y] == 0)
+			else if (map[x][y] == 0)
 			{
 				managers.renderableManager->CreateRenderableObject(arrows[numberOfArrows], { Arrow });
 				 managers.renderableManager->ToggleRenderableObject(arrows[numberOfArrows], true);
@@ -237,7 +240,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 		{
 			enemyPos.x = subSystem.window->GetRand() % 25;
 			enemyPos.y = subSystem.window->GetRand() % 25;
-		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyCreationData data;
 		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
@@ -372,7 +375,7 @@ bool SE::Test::RandRoomTest::Run(DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (testRoom->tileValues[x][y])
+				if (map[x][y])
 				{
 
 				}

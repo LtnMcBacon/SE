@@ -194,7 +194,7 @@ bool SE::Test::RoomCreationTest::Run(SE::DevConsole::IConsole* console)
 		{
 			enemyPos.x = subSystem.window->GetRand() % 25;
 			enemyPos.y = subSystem.window->GetRand() % 25;
-		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyCreationData data;
 		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;

@@ -239,6 +239,8 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	{
 		if(testRoom->NumberOfEnemiesInRoom() < 2)
 		{
+			char map[25][25];
+			testRoom->GetMap(map);
 			Gameplay::EnemyCreationStruct eStruct;
 			blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 
@@ -254,7 +256,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				{
 					enemyPos.x = subSystem.window->GetRand() % 25;
 					enemyPos.y = subSystem.window->GetRand() % 25;
-				} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+				} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 				Gameplay::EnemyCreationData data;
 				data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
