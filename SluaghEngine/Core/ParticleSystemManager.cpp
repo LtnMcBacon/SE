@@ -168,6 +168,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 				fileInfo.emitRange[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
 				fileInfo.emitRange[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo, sizeof(ParticleSystemFileInfo));
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform, sizeof(DirectX::XMFLOAT4X4));
 			}
 		});
 		updateParticleJob.vertexCount = 1;
@@ -192,8 +193,6 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.OMStage.depthStencilState = "noDepth";
 		RPP.OMStage.renderTargetCount = 1;
 		
-
-
 		Particle p;
 		p.opacity = 1.0f;
 
@@ -227,14 +226,6 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 		Graphics::RenderJob renderParticleJob;
 		renderParticleJob.pipeline = RPP;
-
-		renderParticleJob.mappingFunc.push_back([this, entity](int offSet, int toDraw){
-			auto const entityIndex = entityToIndex.find(entity);
-			if (entityIndex != entityToIndex.end())
-			{
-				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &particleSystemData[entityIndex->second].transform, sizeof(DirectX::XMFLOAT4X4));
-			}
-		});
 
 		int renderParticleJobID = initInfo.renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 
@@ -311,9 +302,12 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 			const auto find = entityToIndex.find(de.entity);
 			if (find != entityToIndex.end())
 			{
-				particleSystemData[find->second].transform = transForm[de.transformIndex];
+				auto transposedMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transForm[de.transformIndex]));
+				
+				DirectX::XMStoreFloat4x4(&particleSystemData[find->second].transform, transposedMatrix);
 			}
 		}
+		dirtyEntites.clear();
 	}
 	//Swapping the buffers for the update and render particle jobs
 	for (size_t i = 0; i < particleSystemData.size(); i++)
