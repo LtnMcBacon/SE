@@ -948,7 +948,8 @@ void SE::Gameplay::Room::CreateEntities()
 	int DoorCounter = 0; 
 	Core::IMaterialManager::CreateInfo cubeInfo;
 	
-
+	
+	int counter = 0;
 	for (int i = 0; i < 25; i++)
 	{
 		for (int j = 0; j < 25; j++)
@@ -959,9 +960,20 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(ent);
 				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
-				auto floorEnt = CoreInit::managers.entityManager->Create();
-				CoreInit::managers.transformManager->Create(floorEnt);
-				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+				auto floorLambda = [this](int i, int j)
+				{
+					Core::IMaterialManager::CreateInfo cubeInfo;
+					// Create floor
+					auto entFloor = CoreInit::managers.entityManager->Create();
+					cubeInfo.materialFile = FloorMat;
+					cubeInfo.shader = Norm;
+					CoreInit::managers.transformManager->Create(entFloor);
+					CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+					CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
+					CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
+					CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
+					roomEntities.push_back(entFloor);
+				};
 
 				if (IsOutside)
 				{
@@ -981,25 +993,36 @@ void SE::Gameplay::Room::CreateEntities()
 				// Torch
 				else if (tileValues[i][j] == (char)203)
 				{
+					floorLambda(i, j);
+
+					auto entFire = CoreInit::managers.entityManager->Create();
+					CoreInit::managers.transformManager->Create(entFire);
+					CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(i + 1.0f, 2.0f, j - 0.5f));
+					SE::Core::IParticleSystemManager::CreateInfo info;
+					info.systemFile = Utilz::GUID("fireBall.txt");
+					CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
+					CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+					roomEntities.push_back(entFire);
+
 					// Create torch
 					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
-
-					// Create floor
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
-					CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
+					counter++;
 				}
 				// Other
 				else if (tileValues[i][j] == (char)137 )
 				{
+					floorLambda(i, j);
 
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
 				}
 				else if (tileValues[i][j] == (char)225 ) // Pillar
 				{
+					floorLambda(i, j);
+
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
 				}
+				// wall
 				else if (tileValues[i][j] == (char)255 )
 				{
 					cubeInfo.materialFile = Stone;
@@ -1019,15 +1042,7 @@ void SE::Gameplay::Room::CreateEntities()
 
 					if (DoorArr[DoorCounter] == true)
 					{
-						auto entFloor = CoreInit::managers.entityManager->Create();
-						cubeInfo.materialFile = FloorMat;
-						cubeInfo.shader = Norm;
-						CoreInit::managers.transformManager->Create(entFloor);
-						CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
-						CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
-						CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
-						CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
-						roomEntities.push_back(entFloor);
+						floorLambda(i, j);
 
 						cubeInfo.materialFile = DoorMat;
 						if ((tileValues[i][j + 1] == (char)0 || tileValues[i + 1][j] == (char)0 || tileValues[i + 1][j + 1] == (char)0 || tileValues[i - 1][j + 1] == (char)0 || tileValues[i + 1][j - 1] == (char)0))
@@ -1055,10 +1070,6 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 				roomEntities.push_back(ent);
-
-				CoreInit::managers.materialManager->Create(floorEnt, cubeInfo);
-				CoreInit::managers.renderableManager->ToggleRenderableObject(floorEnt, true);
-				roomEntities.push_back(floorEnt);
 			}
 		}
 	}
@@ -1068,11 +1079,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 {
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
-		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
+		CoreInit::managers.eventManager->ToggleVisible(roomEntities[i], render);
 	}
 	for(auto enemy : enemyUnits)
 	{
-		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
+		CoreInit::managers.eventManager->ToggleVisible(enemy->GetEntity(), render);
 	}
 	beingRendered = render;
 }
@@ -1144,7 +1155,7 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	StartProfile;
 	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
-	CoreInit::managers.animationManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
+	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/

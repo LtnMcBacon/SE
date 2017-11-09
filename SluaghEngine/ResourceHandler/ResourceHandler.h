@@ -99,9 +99,18 @@ namespace SE
 			/****************	Loading			*****************/
 			IAssetLoader* diskLoader;
 			std::mutex loadLock;
+			std::mutex loadCallbackLock;
+			//Utilz::ThreadPool* load_threadPool;
 
-			Utilz::ThreadPool* load_threadPool;
-			Utilz::ThreadPool* invoke_threadPool;
+			// need to keep track of threads so we can join them
+			std::vector< std::thread > workers;
+			// the task queue
+			std::queue< std::function<void()> > tasks;
+
+			// synchronization
+			std::mutex queue_mutex;
+			std::condition_variable condition;
+			bool stop;
 
 			struct LoadJob
 			{
@@ -111,13 +120,18 @@ namespace SE
 				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
-			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job);
+			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job);
 
 			
 			/****************	END Loading		*****************/
 
 
 			/****************	Unloading		*****************/
+
+			void EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed);
+
+
+
 			/*void LinearEvict(std::vector<Utilz::GUID>& evictOrder, size_t addedSize, UnloadFlags flags);
 			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
 			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;*/
