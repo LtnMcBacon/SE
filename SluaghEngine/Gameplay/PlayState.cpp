@@ -114,7 +114,7 @@ void PlayState::InitializeRooms()
 	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
-	int sideLength = 2;
+	int sideLength = 3;
 	int nrOfRoomsToCreate = sideLength * sideLength;
 	int nrOfRoomsCreated = 0;
 	
@@ -326,13 +326,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	blackBoard.playerPositionY = player->GetYPosition();
 	blackBoard.deltaTime = input->GetDelta();
 	blackBoard.playerHealth = player->GetHealth();
-	
 
-	/**
-	 *	Must be put in change room once the function is done!
-	 */
-	blackBoard.currentRoom = currentRoom;
-	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 
 	/**
 	 * End of must
@@ -418,6 +412,11 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 			delete tempPtr;
 
+			/**
+			*	Must be put in change room once the function is done!
+			*/
+			blackBoard.currentRoom = currentRoom;
+			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 		}
 	}
 

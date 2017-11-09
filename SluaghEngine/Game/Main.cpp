@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	auto engine = Core::CreateEngine();
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
-	initInfo.file = "Recordings/RecordingThursday Thu Nov  9 161020 2017.bin";
+	initInfo.file = "Recordings/shadowCreep.bin";
 	Core::IEngine::InitializationInfo engineInit;
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);

@@ -1099,9 +1099,9 @@ SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransiti
 	{
 		if (DoorArr[i].active)
 		{
-			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 1)
+			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 2)
 			{
-				if (sqrt((DoorArr[i].xPos - pickingX) * (DoorArr[i].xPos - pickingX) + (DoorArr[i].yPos - pickingY) * (DoorArr[i].yPos - pickingY)) <= 0.5f)
+				if (sqrt((DoorArr[i].xPos - pickingX) * (DoorArr[i].xPos - pickingX) + (DoorArr[i].yPos - pickingY) * (DoorArr[i].yPos - pickingY)) <= 1.0f)
 				{
 					return DoorArr[i].side;
 				}
