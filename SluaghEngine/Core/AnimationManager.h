@@ -36,6 +36,7 @@ namespace SE
 
 			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
 
+			void Start(const Entity& entity, GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;

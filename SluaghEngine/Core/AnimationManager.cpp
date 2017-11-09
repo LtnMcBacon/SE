@@ -274,6 +274,16 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 	}
 }
 
+void SE::Core::AnimationManager::Start(const Entity & entity, GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+{
+	StartProfile;
+
+
+
+	StopProfile;
+
+}
+
 void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
 {	
 	StartProfile;
