@@ -2,6 +2,7 @@
 #define SE_GAMEPLAY_SKILL_FACTORY_H_
 
 #include <string>
+#include <Utilz\GUID.h>
 
 namespace SE
 {
@@ -23,6 +24,7 @@ namespace SE
 			};
 			struct SkillAttributes
 			{
+				std::string projectileReference = "";
 				float skillDamage = 0.f;
 				float boonEffectValue = 0.f;
 				float boonRange = 0.f;
@@ -30,6 +32,7 @@ namespace SE
 				float baneEffectValue = 0.f;
 				float baneRange = 0.f;
 				float baneDuration = 0.f;
+				float cooldown = 0.f;
 			};
 
 
@@ -43,7 +46,8 @@ namespace SE
 			*				the index from where the skill is placed in the file.
 			*
 			* @param[out]	name will return you the name of the skill.
-			* @param[out]	typeList will return the description of the skill, must be manually
+			* @param[out]	typeList The input must be an array of 6 unsigned short ints. 
+			*				Will return the description of the skill, must be manually
 			*				converted to the enum types in skill found in player.
 			*
 			* @Warning		Output value typeList must be manually converted into skill enums found in player.
@@ -57,13 +61,15 @@ namespace SE
 			* @details		Function will give you the attributes of the skill on the given index.
 			*
 			* @param[in]	index is the location of the skill in the file.
-			* @param[out]	attributes is the list of all the attributes that skill contains.
+			* @param[out]	projectileReference will return you the name of the projectile to use. 
+			*				This will then later be compared with a GUID.
+			* @param[out]	attributes is the list of all the attributes that skill contains. Must be an array of 8 floats
 			*
 			* @Warning		Output value typeList must be manually converted into skill enums found in player.
 			*
 			* @retval		Returns the skill index position in the file
 			**/
-			void readAttributesFromFile(unsigned int index, float* attributes);
+			void readAttributesFromFile(unsigned int index, SE::Utilz::GUID &projectileReference, float* attributes);
 
 		};
 	}

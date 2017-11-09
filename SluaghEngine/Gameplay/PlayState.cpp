@@ -198,7 +198,6 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 void PlayState::InitializePlayer(void* playerInfo)
 {
-	start:
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
@@ -207,7 +206,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (map[x][y] == 22)
+			if (map[x][y] == (char)22)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -238,22 +237,6 @@ void PlayState::InitializePlayer(void* playerInfo)
 		}
 	}
 
-	if (!player)
-	{
-		CoreInit::subSystems.devConsole->Print("Player could not find an empty spot");
-		currentRoom = rooms[1];
-		goto start;
-	}
-	//CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
-	//CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
-
-	//Core::IMaterialManager::CreateInfo materialInfo;
-	//materialInfo.shader = "SimpleLightPS.hlsl";
-	//Utilz::GUID material = Utilz::GUID("MCModell.mat");
-	//materialInfo.materialFile = material;
-	//CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
-
-	//CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
@@ -295,7 +278,6 @@ void SE::Gameplay::PlayState::InitializeOther()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
-
 	IGameState::State returnValue = State::PLAY_STATE;
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
@@ -333,6 +315,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
 
+	if (!player->IsAlive())
+		returnValue = State::GAME_OVER_STATE;
 
 	ProfileReturn(returnValue);
 

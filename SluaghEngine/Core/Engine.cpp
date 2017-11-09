@@ -76,6 +76,7 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 int SE::Core::Engine::BeginFrame()
 {
 	StartProfile;
+	static int calls = 0;
 	if (frameBegun)
 		ProfileReturnConst( -1);
 
@@ -89,7 +90,7 @@ int SE::Core::Engine::BeginFrame()
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
-
+	calls++;
 	subSystems.renderer->Render();
 	subSystems.devConsole->Frame();
 
