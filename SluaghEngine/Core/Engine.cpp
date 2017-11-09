@@ -185,8 +185,12 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
-		info.RAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
-		info.VRAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
+		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
+		info.RAM.tryUnloadWhenOver = 0.5;
+		info.RAM.getCurrentMemoryUsage = []() { return Utilz::Memory::GetPhysicalProcessMemory(); };
+		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
+		info.VRAM.tryUnloadWhenOver = 0.5;
+		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
 			throw std::exception("Could not initiate resourceHandler. Make sure you have run the fileparser. And in the right folder,etc.");
@@ -293,6 +297,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.eventManager = managers.eventManager;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
 	}
 	managersVec.push_back(managers.particleSystemManager);

@@ -80,18 +80,20 @@ namespace SE
 			Linear,
 			FIFO
 		};
+
+		struct EvictInfo
+		{
+			size_t max = 256_mb;
+			float tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
+			EvictPolicy nloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
+			EvictStrickness evictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
+			std::function<size_t()> getCurrentMemoryUsage = []()->size_t { return ~0; }; /**< The callback the resource handler will use to get the memory limit*/
+		};
+
 		struct InitializationInfo
 		{
-			size_t RAM_max = 256_mb;
-			float RAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
-			EvictPolicy RAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
-			EvictStrickness RAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
-
-			size_t VRAM_max = 512_mb;
-			float VRAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage. */
-			EvictPolicy VRAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
-			EvictStrickness VRAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
-			std::function<size_t()> GetVRAMCurrentlyInUse_Callback; /**< The callback the resource handler will use when checking if under VRAM limit.*/
+			EvictInfo RAM = { 256_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
+			EvictInfo VRAM = { 512_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
 		};
 
 		/**
