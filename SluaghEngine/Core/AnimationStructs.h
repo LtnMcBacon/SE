@@ -96,7 +96,8 @@ namespace SE
 			bool looping[maxLayers];
 			float blendFactor[maxLayers];
 			float blendSpeed[maxLayers];
-			bool toBlendBack = false;
+			bool toBlendTarget = false;
+			bool toBlendSource = false;
 			BlendBackInfo blendBackInfo;
 		};
 

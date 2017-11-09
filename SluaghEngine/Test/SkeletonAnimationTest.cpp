@@ -78,7 +78,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
-	managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
+	//managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -211,15 +211,10 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		}
 
-		if (ImGui::Button("Blend")) {
+		if (ImGui::Button("BlendToAndBack")) {
 
 			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
 			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
-		}
-
-		if (ImGui::Button("BlendBack")) {
-
-			managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::BLENDTO);
 		}
 
 		if (ImGui::Button("C1 Start")){

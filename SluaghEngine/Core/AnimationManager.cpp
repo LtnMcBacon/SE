@@ -147,13 +147,26 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 					if (ai.blendFactor[j] < 0.0) {
 					
-						if (ai.toBlendBack == true) {
+						if (ai.toBlendTarget == true) {
 
 							ai.blendSpeed[j] = 0.0f;
 							ai.blendFactor[j] = 0.0f;
 						}
 
 						else {
+
+							if (ai.toBlendSource == true) {
+
+								if (j == ai.blendBackInfo.animIndex) {
+
+									ai.toBlendSource = false;
+
+									for(size_t k = 0; k < ai.nrOfLayers - 1; k++){
+
+										ai.animationSpeed[k] = ai.blendBackInfo.previousSpeed[k];
+									}
+								}
+							}
 
 							OverwriteAnimation(ai, j, ai.nrOfLayers - 1);
 							ai.nrOfLayers--;
@@ -162,13 +175,14 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						
 					}
 
-					if (ai.toBlendBack == true) {
+					if (ai.toBlendTarget == true) {
 
 						if (j == ai.blendBackInfo.animIndex) {
 
 							if (ai.timePos[j] >= ai.blendBackInfo.animLength) {
 
-								ai.toBlendBack = false;
+								ai.toBlendTarget = false;
+								ai.toBlendSource = true;
 								ai.blendSpeed[j] = -10.0f;
 
 								for (size_t index = 0; index < ai.nrOfLayers; index++) {
@@ -352,12 +366,9 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 
 			if (flag & AnimationFlags::BLENDTOANDBACK) {
 
-				ai.toBlendBack = true;
+				ai.toBlendTarget = true;
 				ai.blendBackInfo.animIndex = ai.nrOfLayers;
 				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(animations[0]);
-
-
-				//ai.blendBackInfo.previousSpeed
 
 				flag |= AnimationFlags::BLENDTO;
 			}
@@ -371,6 +382,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 					//ai.looping[i] = false;
 					ai.blendSpeed[i] = -10.0f;
 					ai.blendFactor[i] = 1.0f;
+					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+					ai.animationSpeed[i] = 0.0f;
 				}
 
 				// Set info for the new animations to blend to
