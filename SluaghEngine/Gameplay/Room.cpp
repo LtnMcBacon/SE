@@ -1017,7 +1017,7 @@ void SE::Gameplay::Room::CreateEntities()
 				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
 
-					if (DoorArr[DoorCounter] == true)
+					if (DoorArr[DoorCounter].active == true)
 					{
 						auto entFloor = CoreInit::managers.entityManager->Create();
 						cubeInfo.materialFile = FloorMat;
@@ -1041,6 +1041,22 @@ void SE::Gameplay::Room::CreateEntities()
 						}
 						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
 						CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+						int arrPos = -1;
+						if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
+							arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+						else if (j - 1 >= 0 && tileValues[i][j - 1] == 0)
+							arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+						else if (j + 1 < 25 && tileValues[i][j + 1] == 0)
+							arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+						else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
+							arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+
+						DoorArr[arrPos].doorEntityPos = roomEntities.size();
+						DoorArr[arrPos].xPos = i + 0.5f;
+						DoorArr[arrPos].yPos = j + 0.5f;
+						DoorArr[arrPos].active = true;
+						DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
 
 						DoorCounter++; 
 					}
@@ -1075,6 +1091,26 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
 	}
 	beingRendered = render;
+}
+
+SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY, float pickingX, float pickingY)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (DoorArr[i].active)
+		{
+			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 2)
+			{
+				if (sqrt((DoorArr[i].xPos - pickingX) * (DoorArr[i].xPos - pickingX) + (DoorArr[i].yPos - pickingY) * (DoorArr[i].yPos - pickingY)) <= 1.0f)
+				{
+					return DoorArr[i].side;
+				}
+			}
+		}
+	}
+
+
+	return SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE;
 }
 
 void SE::Gameplay::Room::CreateEnemies()
@@ -1150,6 +1186,18 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	*/
 
 	ProfileReturnConst(true);
+}
+
+bool SE::Gameplay::Room::GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float & posX, float & posY)
+{
+	if (DoorArr[int(door)].active)
+	{
+		posX = DoorArr[int(door)].xPos;
+		posY = DoorArr[int(door)].yPos;
+		return true;
+	}
+	else
+		return false;
 }
 
 void Room::loadfromFile(Utilz::GUID fileName)
@@ -1257,6 +1305,10 @@ float Room::FloorCheck(int x, int y)
 
 void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
-	DoorArr[int(DoorNr)] = false;
+	if (DoorArr[int(DoorNr)].active)
+	{
+		DoorArr[int(DoorNr)].active = false;
+		//Turn it into a wall
+	}
 
 }
