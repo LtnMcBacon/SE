@@ -65,6 +65,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.entity[index] = entity;
 	animationData.animInfo[index].nrOfLayers = 0;
 	animationData.playing[index] = 0u;
+	animationData.attacher[index] = {};
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
@@ -147,23 +148,67 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
 
+					ai.blendFactor[j] += ai.blendSpeed[j] * dt;
+					ai.blendFactor[j] = max(0.0f, min(ai.blendFactor[j], 1.0f));
+
 				}
-				updateJob.push({ animationData.entity[i], ai });
+				updateJob.push_back({ animationData.entity[i], ai });
 				//animationSystem->CalculateMatrices(animationData.entity[i], ai, true);
 			}
 
 		}
 		auto UpdateLoop = [this]()
 		{
-			for (int i = updateJob.size(); i > 0; --i)
+			for (size_t i = 0; i < updateJob.size(); i++)
 			{
-				animationSystem->CalculateMatrices(updateJob.top().ent, updateJob.top().animInfo, true);
-				updateJob.pop();
+				animationSystem->CalculateMatrices(updateJob[i].ent, updateJob[i].animInfo, true);
+
+				for (size_t k = 0; k < Attacher::maxSlots; k++) {
+
+					auto& att = animationData.attacher[i];
+
+					// If an entity is attached to this entity...
+					if (att.slots[k].attached == true) {
+
+						// Get the joint transformation matrix
+						DirectX::XMFLOAT4X4 matrix;
+						animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+
+						DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(animationData.entity[i]));
+						DirectX::XMFLOAT3 entityPos = initInfo.transformManager->GetPosition(animationData.entity[i]);
+
+						// Decompose the joint transformation matrix
+						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, XMLoadFloat4x4(&matrix));
+
+						// Store in these
+						DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
+
+						//// Multiply model scale with joint scale
+						//DirectX::XMStoreFloat3(&attachScale, jointScale);
+						//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
+
+						//// Multiply model quaternion with joint quaternion
+						//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
+						//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
+
+						// Multiply model translation with joint translation
+						DirectX::XMStoreFloat3(&attachTrans, jointTrans);
+						initInfo.transformManager->SetPosition(att.slots[k].entity, { attachTrans.x + entityPos.x, attachTrans.y + entityPos.y,attachTrans.z + entityPos.z });
+
+						
+					}
+				}
+
+				
 			}
+
+			updateJob.clear();
 			return true;
 		};
 
-		lambda = initInfo.threadPool->Enqueue(UpdateLoop);
+		UpdateLoop();
+		//lambda = initInfo.threadPool->Enqueue(UpdateLoop);
 		aniUpdateTime = 0.0f;
 	}
 
@@ -193,13 +238,53 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
 			if(found != -1){
 
-				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].attached = true;
+				at.slots[slotIndex].entity = initInfo.entityManager->Create();
 				at.slots[slotIndex].jointIndex = found;
+
+				DirectX::XMFLOAT4X4 matrix;
+				animationSystem->GetJointMatrix(source, found, matrix);
+
+				DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(source));
+
+
+				// Decompose the joint transformation matrix
+				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, XMLoadFloat4x4(&matrix) * entityTransform);
+
+				// Store in these
+				DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
+
+				//// Multiply model scale with joint scale
+				//DirectX::XMStoreFloat3(&attachScale, jointScale);
+				//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
+
+				//// Multiply model quaternion with joint quaternion
+				//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
+				//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
+
+				// Multiply model translation with joint translation
+				DirectX::XMStoreFloat3(&attachTrans, jointTrans);
+
+				initInfo.transformManager->Create(at.slots[slotIndex].entity);
+				initInfo.transformManager->SetPosition(entityToAttach, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+				initInfo.transformManager->SetPosition(at.slots[slotIndex].entity, attachTrans);
+				initInfo.transformManager->BindChild(at.slots[slotIndex].entity, entityToAttach, true, true);
 
 			}
 
 		}
 	}
+}
+
+void SE::Core::AnimationManager::Start(const Entity & entity, GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+{
+	StartProfile;
+
+
+
+	StopProfile;
+
 }
 
 void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
@@ -222,7 +307,6 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 				ai.animation[i] = playInfo.animations[i];
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
-				ai.blendFactor[i] = playInfo.blendFactor[i];
 				ai.blendSpeed[i] = playInfo.blendSpeed[i];
 				ai.timePos[i] = playInfo.timePos[i];
 
@@ -457,6 +541,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 	animationData.entity[index] = last_entity;
 	animationData.animInfo[index] = animationData.animInfo[last];
 	animationData.playing[index] = animationData.playing[last];
+	animationData.attacher[index] = animationData.attacher[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;

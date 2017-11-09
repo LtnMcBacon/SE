@@ -248,6 +248,24 @@ int SE::Core::AnimationSystem::FindJointIndex(Utilz::GUID skeleton, Utilz::GUID 
 	return -1;
 }
 
+void SE::Core::AnimationSystem::GetJointMatrix(const Entity& entity, int jointIndex, DirectX::XMFLOAT4X4& matrix) {
+
+	auto find = entityToBucketAndIndexInBucket.find(entity);
+
+	if (find != entityToBucketAndIndexInBucket.end()) {
+
+		// Get all the entity matrices
+		auto& matrices = ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->matrices[mapingIndex][find->second.index];
+
+		// Get the transposed matrix
+		DirectX::XMFLOAT4X4 transposed = matrices.jointMatrix[jointIndex];
+
+		// Transpose it back so we can work with it
+		XMStoreFloat4x4(&matrix, XMMatrixTranspose(XMLoadFloat4x4(&transposed)));
+	
+	}
+}
+
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 	

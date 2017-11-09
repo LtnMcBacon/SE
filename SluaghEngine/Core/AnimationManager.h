@@ -36,6 +36,7 @@ namespace SE
 
 			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
 
+			void Start(const Entity& entity, GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
@@ -78,8 +79,9 @@ namespace SE
 
 			struct AttacherSlot {
 
+				bool attached = false;
 				Entity entity;
-				int jointIndex;
+				int jointIndex = -1;
 			};
 
 			struct Attacher {
@@ -109,7 +111,7 @@ namespace SE
 				AnimationInfo& animInfo;
 			};
 
-			std::stack<updateInfo> updateJob;
+			std::vector<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;
