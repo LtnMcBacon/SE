@@ -206,7 +206,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 {	
 	StartProfile;
 
-	_ASSERT(playInfo.nrOfLayers < AnimationPlayInfo::maxLayers);
+	_ASSERT(playInfo.nrOfLayers <= AnimationPlayInfo::maxLayers);
 
 	// Get the entity register from the animationManager
 	auto &entityIndex = entityToIndex.find(entity);

@@ -130,12 +130,6 @@
     <Filter Include="Header Files\AI\Sluagh">
       <UniqueIdentifier>{081777a4-bda3-40ba-86f8-8537773b4caa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\AI\Sluagh\RandomForest">
-      <UniqueIdentifier>{475c989b-f0f0-4e8f-8429-f5e5fe9dd348}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\AI\Sluagh\RandomForest\DecisionTree">
-      <UniqueIdentifier>{42ab7291-5b8b-4bdc-8063-105e61e032a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AI\Slaugh">
       <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
     </Filter>
@@ -294,9 +288,6 @@
     <ClCompile Include="RestartingSequence.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClCompile>
-    <ClCompile Include="ForestTrainer.cpp">
-      <Filter>Source Files\AI\Slaugh</Filter>
-    </ClCompile>
     <ClCompile Include="ChannelingCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
@@ -449,15 +440,6 @@
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\DecisionTree.h">
-      <Filter>Header Files\AI\Sluagh\RandomForest\DecisionTree</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\RandomForest.h">
-      <Filter>Header Files\AI\Sluagh\RandomForest</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h">
-      <Filter>Header Files\AI\Sluagh</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h">
       <Filter>Header Files\AI\Sluagh</Filter>
     </ClInclude>
@@ -538,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="Slaugh.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

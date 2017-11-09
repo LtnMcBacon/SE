@@ -33,18 +33,20 @@ namespace SE
 			enum AvailableAnimations
 			{
 				PLAYER_IDLE_ANIMATION,
-				PLAYER_MOVE_ANIMATION,
+				PLAYER_RUN_ANIMATION,
 				PLAYER_ATTACK_ANIMATION,
-				PLAYER_HIT_ANIMATION,
-				PLAYER_DEATH_ANIMATION
+				PLAYER_ON_HIT_ANIMATION,
+				PLAYER_ON_DEATH_ANIMATION
 			};
+			bool currentlyBlending = false;
 			AvailableAnimations currentAnimation = PLAYER_IDLE_ANIMATION;
+			AvailableAnimations blendingTo = PLAYER_IDLE_ANIMATION;
 			std::map<AvailableAnimations, Core::IAnimationManager::AnimationPlayInfo> animationPlayInfos;
 
 			void InitializeAnimationInfo();
 
 			void AnimationUpdate(AvailableAnimations animationToRun);
-			void BlendToAnimation(AvailableAnimations animationToRun);
+			bool BlendToAnimation(AvailableAnimations blendTo);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
