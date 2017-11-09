@@ -1017,7 +1017,7 @@ void SE::Gameplay::Room::CreateEntities()
 				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
 
-					if (DoorArr[DoorCounter] == true)
+					if (DoorArr[DoorCounter].active == true)
 					{
 						auto entFloor = CoreInit::managers.entityManager->Create();
 						cubeInfo.materialFile = FloorMat;

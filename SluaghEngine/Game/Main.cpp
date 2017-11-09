@@ -20,6 +20,12 @@
 #pragma comment(lib, "Utilz.lib")
 #endif
 
+#ifdef _DEBUG
+#pragma comment(lib, "WindowD.lib")
+#else
+#pragma comment(lib, "Window.lib")
+#endif
+
 
 using namespace SE;
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -29,7 +35,13 @@ int WINAPI WinMain(HINSTANCE hInstance,
 {
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
-	auto result= engine->Init();
+	Window::InitializationInfo initInfo;
+	initInfo.winState = Window::WindowState::Record;
+	initInfo.file = "Recordings/RecordingThursday Thu Nov  9 161020 2017.bin";
+	Core::IEngine::InitializationInfo engineInit;
+	engineInit.subSystems.window = Window::CreateNewWindow();
+	engineInit.subSystems.window->Initialize(initInfo);
+	auto result= engine->Init(engineInit);
 	if (result < 0)
 		return -1;
 	game.Initiate(engine);

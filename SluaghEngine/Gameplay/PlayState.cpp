@@ -358,21 +358,37 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			{
 				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
 				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet - 1);
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
 			{
 				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
 				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet + 1);
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
 			{
 				currentRoom = rooms[currentRoomIndex - 1];
 				currentRoomIndex = currentRoomIndex - 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
+				player->PositionEntity(xToSet + 1, yToSet);
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
 			{
 				currentRoom = rooms[currentRoomIndex + 1];
 				currentRoomIndex = currentRoomIndex + 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
+				player->PositionEntity(xToSet - 1, yToSet);
 			}
 
 			currentRoom->RenderRoom(true);
