@@ -204,6 +204,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	ProfileReturn(collision);
 }
 
+
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
 	StartProfile;
@@ -962,6 +963,15 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(floorEnt);
 				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
+				if (IsOutside)
+				{
+					if (tileValues[i][j] == (char)13)
+					{
+					auto& props = propVectors[PropTypes::BUSHES];
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+					}
+				}
+
 				if (tileValues[i][j] == (char)0)
 				{
 					cubeInfo.materialFile = FloorMat;
@@ -986,7 +996,7 @@ void SE::Gameplay::Room::CreateEntities()
 
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
 				}
-				else if (tileValues[i][j] == (char)225 )
+				else if (tileValues[i][j] == (char)225 ) // Pillar
 				{
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
 				}
@@ -1091,7 +1101,7 @@ Room::Room(Utilz::GUID fileName)
 	propVectors[PropTypes::TORCHES_FLOOR] = {"FloorTorch.mesh"};
 	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
 	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
-
+	propVectors[PropTypes::BUSHES] = { "Bush.mesh" };
 
 	pos start;
 	loadfromFile(fileName);
@@ -1156,6 +1166,10 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			for (int x = 0; x < 25; x++)
 			{
 				tileValues[x][y] = (char)(in[counter]);
+				if (in[counter] == (char)13)
+				{
+					IsOutside = true;
+				}
 				counter++; 
 			}
 		}
@@ -1191,25 +1205,32 @@ float Room::WallCheck(int x, int y)
 
 const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 {
+	StartProfile;
 
-	//// if we find a prop on the right side of the prop 2x1
-	//if (tileValues[x + 1][y] == (char)137 )
-	//{
-	//	// big prop
-	//}
-	//else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1]) {
+	// if we find a prop on the right side of the prop and not beneeth its a 2x1
+	if (tileValues[x + 1][y] == (char)137 && tileValues[x][y - 1] != (char)137 )
+	{
+		// medium prop 2x1
+	}
+	// Else we check if its a 1x2 by checking if a prop is beneeth and not on the right side
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y] != (char)137)
+	{
+		//medium prop 1x2
+	}
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1] == (char)137) {
+		// big prop 2x2
+	}
 
-	//}
 
 
-	auto& test = propVectors[PropTypes::TABLES];
+	auto& propList = propVectors[PropTypes::TABLES];
 
 	auto rand = CoreInit::subSystems.window->GetRand();
-	auto randNr = (rand % test.size());
+	auto randNr = (rand % propList.size());
 
 
-	return test[randNr];
 
+	ProfileReturnConst(propList[randNr]);
 }
 
 float Room::FloorCheck(int x, int y)

@@ -35,12 +35,14 @@ namespace SE
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
+			bool IsOutside = false;
 			enum class PropTypes
 			{
 				TABLES,
 				CHAIRS,
 				TORCHES_FLOOR,
-				TORCHES_WALL
+				TORCHES_WALL,
+				BUSHES
 			};
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
@@ -408,8 +410,11 @@ namespace SE
 			*/
 			float WallCheck(int x, int y);
 
-
+			/**
+			* @brief	Generates random props
+			*/
 			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+
 
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
