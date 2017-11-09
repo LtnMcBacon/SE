@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <Gameplay\Game.h>
+#include "../Gameplay/CoreInit.h"
+
 SE::Test::SkillTest::SkillTest()
 {
 }
@@ -21,17 +23,16 @@ auto as_integer(Enumeration const value)
 
 bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 {
-	Gameplay::Game game;
 	auto engine = Core::CreateEngine();
 	engine->Init();
-	game.Initiate(engine);
+	Gameplay::CoreInit::Init(engine);
 
 
 
 
 	SE::Gameplay::SkillFactory SF;
 
-	SE::Gameplay::PlayerUnit::Skill skill;
+	SE::Gameplay::Skill skill;
 
 	unsigned short int tempEnumHolder[6];
 	float floatValues[7];
@@ -58,7 +59,6 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 
 
 	getchar();
-	game.Shutdown();
 	engine->Release();
 	delete engine;
 	return true;

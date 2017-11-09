@@ -8,10 +8,38 @@
 #include <algorithm>
 
 
+
 using namespace SE;
 using namespace Gameplay;
 #undef max
 #undef min
+
+//meshes
+static const SE::Utilz::GUID HighWall("HighWall.mesh");
+static const SE::Utilz::GUID Passage("HighWall_Passage.mesh");
+static const SE::Utilz::GUID OneSide("HighWall_OneSide.mesh");
+static const SE::Utilz::GUID Corner("HighWall_Corner.mesh");
+static const SE::Utilz::GUID Top("HighWall_Top.mesh");
+static const SE::Utilz::GUID ThreeSides("HighWall_ThreeSides.mesh");
+static const SE::Utilz::GUID Door("Door.mesh");
+static const SE::Utilz::GUID Floor("floorTest.mesh");
+static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
+static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
+
+
+// Random props
+std::vector<SE::Utilz::GUID> randomProps;
+
+
+
+
+//materials
+static const SE::Utilz::GUID Stone("Cube.mat");
+static const SE::Utilz::GUID FloorMat("floorTest.mat");
+static const SE::Utilz::GUID DoorMat("Cube.mat");
+//shaders
+static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
 
 void Room::UpdateFlowField(float playerX, float playerY)
 {
@@ -175,6 +203,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	}
 	ProfileReturn(collision);
 }
+
 
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
@@ -557,9 +586,523 @@ bool Room::PointInsideWall(float x, float y)
 {
 	return !tileValues[int(x)][int(y)];
 }
+
+bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
+{
+	int right = tileValues[x + 1][y];
+	int left = tileValues[x - 1][y];
+	int up = tileValues[x][y + 1];
+	int down = tileValues[x][y - 1];
+	if (x == 24 || y == 24 || x == 0 || y == 0)
+	{
+		
+		if ((x == 24 && y != 0))
+		{
+			int side = 1;
+			if (left == (char)255)
+				side = side * 2;
+			if (up == (char)255)
+				side = side * 3;
+			if (down == (char)255)
+				side = side * 7;
+			if (side == 42)
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+			}
+			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
+			{
+				if (side != 2 || side != 6)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 2)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 6)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+				}
+			}
+			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
+			{			
+				if (side != 2 || side != 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+				else if (side == 2)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+			}
+			else
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+				CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+			}
+		}
+		else if ((y == 24 && x != 0))
+		{
+			int side = 1;
+			if (right == (char)255)
+				side = side * 5;
+			if (left == (char)255)
+				side = side * 2;
+			if (down == (char)255)
+				side = side * 7;
+			if (side == 70)
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+			}
+			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
+			{
+				if (side != 7 || side != 35)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 7)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 35)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+				}	
+			}
+			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
+			{			
+				if (side != 7 || side != 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+				}
+				else if (side == 7)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+			}
+			else
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+				CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+			}
+		}
+		else if ((x == 0 && y != 24))
+		{
+			int side = 1;
+			if (right == (char)255)
+				side = side * 5;
+			if (up == (char)255)
+				side = side * 3;
+			if (down == (char)255)
+				side = side * 7;
+			if (side == (char)105)
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+			}
+			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
+			{	
+				if (side != 5 || side != 15)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+				}
+				else if (side == 5)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 15)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+				}
+			}
+			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
+			{
+				if (side != 5 || side != 35)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+				}
+				else if (side == 5)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 35)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+			}
+			else
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+				CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+			}
+		}
+		else if ((y == 0 && x != 24))
+		{
+			int side = 1;
+			if (right == (char)255)
+				side = side * 5;
+			if (left == (char)255)
+				side = side * 2;
+			if (up == (char)255)
+				side = side * 3;
+			if (side == 30)
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+			}
+			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
+			{
+				if (side != 3 || side != 15)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+				else if (side == 3)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 15)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+				}
+			}
+			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
+			{
+				if (side != 3 || side != 6)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+				}
+				else if (side == 3)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 6)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+			}
+			else
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+				CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+			}
+		}
+		else if ((x == 0 && y == 0) || (x == 24 && y == 0) || (x == 0 && y == 24) || (x == 24 && y == 24))
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+		}
+	}
+	else if (right + left + up + down == 40)
+	{
+		CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
+	}
+	else
+	{
+		int side = 1;
+		if (right == (char)255)
+			side = side * 5;
+		if (left == (char)255)
+			side = side * 2;
+		if (up == (char)255)
+			side = side * 3;
+		if (down == (char)255)
+			side = side * 7;
+		//    3
+		//  2/#/5
+		//    7
+
+		switch (side) {
+		case 1:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { HighWall });
+			break;
+		}
+		case 2:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { ThreeSides });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+			break;
+		}
+		case 3:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { ThreeSides });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 5:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { ThreeSides });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+			break;
+		}
+		case 7:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { ThreeSides });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 10:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 21:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Passage });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+			break;
+		}
+		case 6:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 15:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+			break;
+		}
+		case 35:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 14:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Corner });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+			break;
+		}
+		case 30:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 105:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
+			break;
+		}
+		case 70:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
+			break;
+		}
+		case 42:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { OneSide });
+			CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+			break;
+		}
+		default:
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(ent, { HighWall });
+			break;
+		}
+		}
+	}
+	if (!(x == 24 || y == 24) && (right == 0 || up == 0 || tileValues[x + 1][y + 1] == 0 || tileValues[x - 1][y + 1] == 0 || tileValues[x + 1][y - 1] == 0))
+		return true;
+	return false;
+}
+
+void SE::Gameplay::Room::CreateEntities()
+{
+	int numberOfEntitesPlaced = 0;
+	int DoorCounter = 0; 
+	Core::IMaterialManager::CreateInfo cubeInfo;
+	
+
+	for (int i = 0; i < 25; i++)
+	{
+		for (int j = 0; j < 25; j++)
+		{
+			if (tileValues[i][j] != (char)76)
+			{
+				auto ent = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.transformManager->Create(ent);
+				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+
+				auto floorEnt = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.transformManager->Create(floorEnt);
+				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+
+				if (IsOutside)
+				{
+					if (tileValues[i][j] == (char)13)
+					{
+					auto& props = propVectors[PropTypes::BUSHES];
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+					}
+				}
+
+				if (tileValues[i][j] == (char)0)
+				{
+					cubeInfo.materialFile = FloorMat;
+					cubeInfo.shader = Norm;
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
+				}
+				// Torch
+				else if (tileValues[i][j] == (char)203)
+				{
+					// Create torch
+					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+
+					// Create floor
+					cubeInfo.materialFile = FloorMat;
+					cubeInfo.shader = Norm;
+					CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
+				}
+				// Other
+				else if (tileValues[i][j] == (char)137 )
+				{
+
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
+				}
+				else if (tileValues[i][j] == (char)225 ) // Pillar
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
+				}
+				else if (tileValues[i][j] == (char)255 )
+				{
+					cubeInfo.materialFile = Stone;
+					if (CreateWall(ent, i, j) == true)
+					{						
+						cubeInfo.shader = Trans;
+						CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+					}
+					else
+					{
+						cubeInfo.shader = Norm;
+					}			
+					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
+				}
+				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
+				{
+
+					if (DoorArr[DoorCounter] == true)
+					{
+						auto entFloor = CoreInit::managers.entityManager->Create();
+						cubeInfo.materialFile = FloorMat;
+						cubeInfo.shader = Norm;
+						CoreInit::managers.transformManager->Create(entFloor);
+						CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+						CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
+						CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
+						CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
+						roomEntities.push_back(entFloor);
+
+						cubeInfo.materialFile = DoorMat;
+						if ((tileValues[i][j + 1] == (char)0 || tileValues[i + 1][j] == (char)0 || tileValues[i + 1][j + 1] == (char)0 || tileValues[i - 1][j + 1] == (char)0 || tileValues[i + 1][j - 1] == (char)0))
+						{
+							cubeInfo.shader = Trans;
+							CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+						}
+						else
+						{
+							cubeInfo.shader = Norm;
+						}
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
+						CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+						DoorCounter++; 
+					}
+					else
+					{
+						cubeInfo.materialFile = FloorMat;
+						cubeInfo.shader = Norm;
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
+					}
+					
+				}
+				CoreInit::managers.materialManager->Create(ent, cubeInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
+				roomEntities.push_back(ent);
+
+				CoreInit::managers.materialManager->Create(floorEnt, cubeInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(floorEnt, true);
+				roomEntities.push_back(floorEnt);
+			}
+		}
+	}
+}
+
+void SE::Gameplay::Room::RenderRoom(bool render)
+{
+	for (int i = 0; i < roomEntities.size(); i++)
+	{
+		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
+	}
+	for(auto enemy : enemyUnits)
+	{
+		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
+	}
+	beingRendered = render;
+}
+
+void SE::Gameplay::Room::CreateEnemies()
+{
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	pos enemyPos;
+	//	do
+	//	{
+	//		enemyPos.x = subSystem.window->GetRand() % 25;
+	//		enemyPos.y = subSystem.window->GetRand() % 25;
+	//	} while (tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+	//	Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+	//	enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
+
+	//	testRoom->AddEnemyToRoom(enemy);
+	//}
+}
+
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
+	propVectors[PropTypes::TORCHES_FLOOR] = {"FloorTorch.mesh"};
+	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
+	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
+	propVectors[PropTypes::BUSHES] = { "Bush.mesh" };
+
 	pos start;
 	loadfromFile(fileName);
 
@@ -579,8 +1122,8 @@ Room::Room(Utilz::GUID fileName)
 	//}
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
+	CreateEntities();
 
-	
 	StopProfile;
 }
 
@@ -592,13 +1135,16 @@ Room::~Room()
 		enemy->DestroyEntity();
 		delete enemy;
 	}
+
+
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
-
+	CoreInit::managers.animationManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
@@ -619,35 +1165,98 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		{
 			for (int x = 0; x < 25; x++)
 			{
-				tileValues[x][y] = (float)(in[counter] / 25); 
+				tileValues[x][y] = (char)(in[counter]);
+				if (in[counter] == (char)13)
+				{
+					IsOutside = true;
+				}
 				counter++; 
 			}
 		}
 
 	
-		return ResourceHandler::InvokeReturn::Success;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	
 	StopProfile; 
 }
 
+float Room::WallCheck(int x, int y)
+{
+	StartProfile;
+	float rotation = 0;
+
+
+	if (x - 1 >= 0 && ( tileValues[x - 1][y] == (char)255 || tileValues[x - 1][y] == (char)225  ))
+		rotation = 180;
+	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == (char)255 || tileValues[x][y - 1] == (char)225 ))
+		rotation = 90;																
+	else if (y + 1 < 25 && ( tileValues[x][y + 1] == (char)255 || tileValues[x][y + 1] == (char)225 ))
+		rotation = -90;																
+	else if (x + 1 < 25 && ( tileValues[x + 1][y] == (char)255 || tileValues[x + 1][y] == (char)225 ))
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+	ProfileReturnConst(rotation);
+}
+
+const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
+{
+	StartProfile;
+
+	// if we find a prop on the right side of the prop and not beneeth its a 2x1
+	if (tileValues[x + 1][y] == (char)137 && tileValues[x][y - 1] != (char)137 )
+	{
+		// medium prop 2x1
+	}
+	// Else we check if its a 1x2 by checking if a prop is beneeth and not on the right side
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y] != (char)137)
+	{
+		//medium prop 1x2
+	}
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1] == (char)137) {
+		// big prop 2x2
+	}
+
+
+
+	auto& propList = propVectors[PropTypes::TABLES];
+
+	auto rand = CoreInit::subSystems.window->GetRand();
+	auto randNr = (rand % propList.size());
+
+
+
+	ProfileReturnConst(propList[randNr]);
+}
+
 float Room::FloorCheck(int x, int y)
 {
 	StartProfile;
-	float rotation = 0; 
+	float rotation = 0;
 
 
-	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
+	if (x - 1 >= 0 && tileValues[x - 1][y] == (char)0)
 		rotation = 270;
-	else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == (char)0)
 		rotation = 180;
-	else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+	else if (y + 1 < 25 && tileValues[x][y + 1] == (char)0)
 		rotation = 0;
-	else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
+	else if (x + 1 < 25 && tileValues[x + 1][y] == (char)0)
 		rotation = 90;
 
 	rotation += 270;
 
-	rotation *= 3.1416 / 180; 
+	rotation *= 3.1416 / 180;
 	ProfileReturnConst(rotation);
+}
+
+
+void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
+{
+	DoorArr[int(DoorNr)] = false;
+
 }

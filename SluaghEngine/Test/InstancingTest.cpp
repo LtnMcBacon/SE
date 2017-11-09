@@ -46,8 +46,8 @@ bool SE::Test::InstancingTest::Run(DevConsole::IConsole* console)
 
 	}
 
-	managers.renderableManager->ToggleRenderableObject(ents[2], false);
-	managers.renderableManager->ToggleRenderableObject(ents[2], true);
+	/*managers.renderableManager->ToggleRenderableObject(ents[2], false);
+	managers.renderableManager->ToggleRenderableObject(ents[2], true);*/
 	const auto camera = managers.entityManager->Create();
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);

@@ -5,6 +5,8 @@
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
+#include <Core\IEngine.h>
+#include <Gameplay/PlayerUnit.h>
 namespace SE
 {
 	namespace Gameplay
@@ -27,19 +29,30 @@ namespace SE
 		class Room
 		{
 		private:
+
 			Room* adjacentRooms[4] = {};
-			char map[25][25];
+			bool DoorArr[4] = { true, true, true,true };
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
+			std::vector<SE::Core::Entity> roomEntities;
+			bool IsOutside = false;
+			enum class PropTypes
+			{
+				TABLES,
+				CHAIRS,
+				TORCHES_FLOOR,
+				TORCHES_WALL,
+				BUSHES
+			};
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+
 			
-
-
 			/*Needed:
 			 * Representation of the room module(s) that build the room
 			 * The enemies that are represented in the room
 			 * FlowField map and calculations
 			 * Function(s) to build the room
-			 */
+			 */	
 
 			struct LinePoint
 			{
@@ -54,9 +67,18 @@ namespace SE
 
 		public:
 
+			enum class DirectionToAdjacentRoom
+			{
+
+				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
+				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
+				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
+				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
+			};
+
+			void CloseDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
-			char tileValues[25][25];
 
 			/**
 			*
@@ -69,16 +91,9 @@ namespace SE
 			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-			enum class DirectionToAdjacentRoom
-			{
-
-				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
-				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
-				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
-				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
-			};
 		private:
 
+			char tileValues[25][25];
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -243,13 +258,31 @@ namespace SE
 			 */
 			inline bool PointInsideWall(float x, float y);
 
+			/**
+			* @brief Creates enteties for the room 
+			*/
+			void CreateEntities();
+
+			/**
+			* @brief Places enemies in the room on free tiles
+			*/
+			void CreateEnemies();
+			/**
+			* @brief Creates wall ent for the room
+			*/
+			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
 
+
 			float FloorCheck(int x, int y); 
 			
+			/**
+			* @brief Sets the enteties in the room to render or not
+			*/
+			void RenderRoom(bool render);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -373,6 +406,17 @@ namespace SE
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
 
 			/**
+			* @brief	Checks the wall to rotate the torch in that direction
+			*/
+			float WallCheck(int x, int y);
+
+			/**
+			* @brief	Generates random props
+			*/
+			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+
+
+			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
 			void CheckProjectileCollision(std::vector<Projectile>& projectiles);
@@ -398,17 +442,21 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
+			/**
+			* @brief set Room door pointer to values
+			*/
+			
 			inline void GetMap(char toReturn[25][25])
 			{
 				for (int i = 0; i < 25; i++)
 				{
 					for (int j = 0; j < 25; j++)
 					{
-						toReturn[i][j] = map[i][j];
+						toReturn[i][j] = tileValues[i][j];
 					}
 				}
 			}
-
+			bool beingRendered = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 

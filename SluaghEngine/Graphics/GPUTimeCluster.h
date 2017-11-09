@@ -14,8 +14,8 @@ namespace SE
 			GPUTimeCluster(ID3D11Device* device, ID3D11DeviceContext* dc);
 			~GPUTimeCluster();
 
-			void Start(const Utilz::IDHash& id)override;
-			void Stop(const Utilz::IDHash& id)override;
+			void Start(const Utilz::ConstexprStringAndHash& id)override;
+			void Stop(const Utilz::ConstexprStringAndHash& id)override;
 			
 			void GetMap(Utilz::TimeMap& map)override;
 
@@ -63,7 +63,7 @@ namespace SE
 			float GetTime(TimerSet& timer);
 
 
-			std::unordered_map<Utilz::IDHash, TimerSet, Utilz::IDHash::Hasher> timers;
+			std::unordered_map<Utilz::ConstexprStringAndHash, TimerSet, Utilz::ConstexprStringAndHash::Hasher> timers;
 		};
 	}
 }

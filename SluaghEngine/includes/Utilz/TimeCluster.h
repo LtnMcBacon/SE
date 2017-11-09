@@ -7,7 +7,7 @@ namespace SE
 {
 	namespace Utilz
 	{
-		typedef std::unordered_map<Utilz::IDHash, float, Utilz::IDHash::Hasher> TimeMap;
+		typedef std::unordered_map<Utilz::ConstexprStringAndHash, float, Utilz::ConstexprStringAndHash::Hasher> TimeMap;
 
 
 		class TimeCluster
@@ -18,13 +18,13 @@ namespace SE
 			*
 			* @brief Start the timing
 			**/
-			virtual void Start(const Utilz::IDHash& id) = 0;
+			virtual void Start(const Utilz::ConstexprStringAndHash& id) = 0;
 
 			/**
 			*
 			* @brief Stop the timing
 			**/
-			virtual void Stop(const Utilz::IDHash& id) = 0;
+			virtual void Stop(const Utilz::ConstexprStringAndHash& id) = 0;
 
 			/**
 			*

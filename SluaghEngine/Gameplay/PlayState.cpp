@@ -2,6 +2,8 @@
 #include <Profiler.h>
 #include <Utilz\Tools.h>
 #include "CoreInit.h"
+#include "EnemyFactory.h"
+#include <GameBlackboard.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -17,14 +19,15 @@ PlayState::PlayState()
 
 }
 
-PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
+PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	this->input = Input;
 	this->engine = engine;
 
-	/*InitializeRooms();
-	InitializePlayer();
-	InitializeOther();*/
+	InitializeRooms();
+	InitializePlayer(passedInfo);
+	InitializeEnemies();
+	InitializeOther();
 
 	BehaviourPointers temp;
 	temp.currentRoom = &currentRoom;
@@ -36,8 +39,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine)
 PlayState::~PlayState()
 {
 	delete projectileManager;
-	/*delete player;
-	delete currentRoom;*/
+	delete player;
+	//delete currentRoom;
+	for (auto room : rooms)
+		delete room;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -88,47 +93,121 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 		action.skill2Button = true;
 	}
 
+	if (input->ButtonDown(uint32_t(GameInput::ACTION)))
+	{
+		action.actionButton = true;
+	}
+
 }
 
 void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& newProjectiles)
 {
 	projectileManager->AddProjectiles(newProjectiles);
 
-	projectileManager->UpdateProjectilePositions(1 / 60.0f);
+	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
-	projectileManager->UpdateProjectileActions(1 / 60.0f);
+	projectileManager->UpdateProjectileActions(input->GetDelta());
 }
 
 void PlayState::InitializeRooms()
 {
-	uint32_t nrOfRooms;
+	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
+	int sideLength = 3;
+	int nrOfRoomsToCreate = sideLength * sideLength;
+	int nrOfRoomsCreated = 0;
+	
 
 	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
 	{
 		nrOfRooms = *(uint32_t *)data;
 		RoomArr = new Utilz::GUID[nrOfRooms];
 		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::DecreaseRefcount;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
-	int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+	while (nrOfRoomsCreated < nrOfRoomsToCreate)
+	{
+		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
 
-	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
-	currentRoom = testRoom;
+		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		
+		
+		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+
+		rooms.push_back(temp);
+		nrOfRoomsCreated++;
+		temp->RenderRoom(false);
+
+	}
+
+	for (int i = 0; i < nrOfRoomsToCreate; i++)
+	{
+		if (i < sideLength)
+		{
+			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+		}
+	}
+
+	blackBoard.currentRoom = currentRoom = rooms[0];
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
+
 }
-void PlayState::InitializePlayer()
+void SE::Gameplay::PlayState::InitializeEnemies()
 {
 	char map[25][25];
+
+	EnemyCreationStruct eStruct;
+	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+	for(auto room : rooms)
+	{
+		room->GetMap(map);
+		eStruct.information.clear();
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+
+			EnemyCreationData data;
+			data.type = ENEMY_TYPE_GLAISTIG;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
+		}
+		
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+		for (int i = 0; i < enemiesInEachRoom; i++)
+		{
+			room->AddEnemyToRoom(enemies[i]);
+		}
+
+	}
+	delete[] enemies;
+
+}
+
+void PlayState::InitializePlayer(void* playerInfo)
+{
+	start:
+	char map[25][25];
 	currentRoom->GetMap(map);
+	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
 
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (currentRoom->tileValues[x][y] == 1)
+			if (map[x][y] == 22)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -148,25 +227,33 @@ void PlayState::InitializePlayer()
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), currentRoom->tileValues);
-				player->SetZPosition(0.0f);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				
+				player->SetZPosition(0.9f);
+				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
+
+				//CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 0.9f, 1.5f));
 				break;
 			}
 		}
 	}
 
-	CoreInit::managers.transformManager->SetPosition(player->GetEntity(), DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f));
+	if (!player)
+	{
+		CoreInit::subSystems.devConsole->Print("Player could not find an empty spot");
+		currentRoom = rooms[1];
+		goto start;
+	}
+	//CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
 
-	CoreInit::managers.transformManager->SetScale(player->GetEntity(), 1.f);
-	CoreInit::managers.renderableManager->CreateRenderableObject(player->GetEntity(), { "MCModell.mesh" });
+	//Core::IMaterialManager::CreateInfo materialInfo;
+	//materialInfo.shader = "SimpleLightPS.hlsl";
+	//Utilz::GUID material = Utilz::GUID("MCModell.mat");
+	//materialInfo.materialFile = material;
+	//CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
 
-	Core::IMaterialManager::CreateInfo materialInfo;
-	materialInfo.shader = "SimpleLightPS.hlsl";
-	Utilz::GUID material = Utilz::GUID("MCModell.mat");
-	materialInfo.materialFile = material;
-	CoreInit::managers.materialManager->Create(player->GetEntity(), materialInfo);
-
-	CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(player->GetEntity(), true);
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
@@ -185,7 +272,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false);
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
 	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
 	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
@@ -216,11 +303,38 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	UpdateInput(movementInput, actionInput);
 
-	player->UpdateMovement(1 / 60.0f, movementInput);
-	player->UpdateActions(1 / 60.0f, newProjectiles, actionInput);
+	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
+	player->UpdateMovement(input->GetDelta(), movementInput);
+	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
+	//projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+	//blackBoard.enemyProjectiles.clear();
 
 	UpdateProjectiles(newProjectiles);
+
+	blackBoard.playerPositionX = player->GetXPosition();
+	blackBoard.playerPositionY = player->GetYPosition();
+	blackBoard.deltaTime = input->GetDelta();
+	blackBoard.playerHealth = player->GetHealth();
+	
+
+	/**
+	 *	Must be put in change room once the function is done!
+	 */
+	blackBoard.currentRoom = currentRoom;
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+
+	/**
+	 * End of must
+	 */
+
+	currentRoom->Update(input->GetDelta(), player->GetXPosition(), player->GetYPosition());
+
+
+	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
+	blackBoard.enemyProjectiles.clear();
+
 
 	ProfileReturn(returnValue);
 
 }
+

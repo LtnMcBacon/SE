@@ -57,8 +57,8 @@ VS_OUT VS_main(VS_IN input)
 	}
 	
 	output.Pos = mul(mul(float4(position, 1), World[input.InstanceId]), ViewProj);
-	output.PosInW = mul(float4(normal, 1), World[input.InstanceId]);
-	output.NormalInW = normalize(mul(float4(normal, 1), World[input.InstanceId]));
+	output.PosInW = mul(float4(position, 1), World[input.InstanceId]);
+	output.NormalInW = normalize(mul(float4(normal, 0), World[input.InstanceId]));
 	output.Tex = input.Tex;
 	
 	return output;

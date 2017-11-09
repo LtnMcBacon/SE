@@ -32,6 +32,7 @@ int SE::Core::AnimationSystem::AddSkeleton(const Utilz::GUID& guid, JointAttribu
 
 			joint.parentIndex = jointData[i].ParentIndex;
 			joint.inverseBindPoseMatrix = XMLoadFloat4x4((XMFLOAT4X4*)&jointData[i].bindposeMatrix);
+			joint.jointName = jointData[i].jointName;
 
 			skeleton.Hierarchy.push_back(joint);
 
@@ -57,6 +58,10 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 	if (nrOfJoints > 0) {
 		auto& currentAnimation = animations[guid];
 		currentAnimation.Length = nrOfKeyframes;
+
+		currentAnimation.jointToActualJoint.resize(nrOfJoints);
+
+		memcpy(currentAnimation.jointToActualJoint.data(), joints, sizeof(uint32_t) * nrOfJoints);
 
 		for (size_t i = 0; i < nrOfJoints; i++) {
 
@@ -87,7 +92,8 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 			}
 
 			// Push back the animation at the corresponding joint index in the given skeleton
-			currentAnimation.Joints[joints[i]] = jointKeyFrame;
+			currentAnimation.Joints.push_back( jointKeyFrame);
+			
 		}
 
 		return 0;
@@ -102,161 +108,161 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
-void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, AnimationInfo& info)
+void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, AnimationInfo& info, bool threaded)
 {
+	// Get the animation bucket
 	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
 	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
 
+	// Get the skeleton
 	auto& skeleton = skeletons[info.skeleton];
 
-	for (size_t i = 0; i < info.nrOfLayers; i++) {
+	// Create vector of identity matrices with the same size as the skeleton
+	DirectX::XMFLOAT4X4* bucketTransform;
+	DirectX::XMFLOAT4X4* bucketTransformUnThreaded = nullptr;
+	if (!threaded)
+	{
+		bucketTransformUnThreaded = bucket->matrices[mapingIndex][bucketAndID.index].jointMatrix;
+		memcpy(bucketTransformUnThreaded, &mats, sizeof(XMFLOAT4X4));
+	}	
+	bucketTransform = bucket->matrices[updateIndex][bucketAndID.index].jointMatrix;
+	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4) * 30);
 
-		auto& animation = animations[info.animation[i]];
+	// Create vector of bools to check blending status at each joint
+	std::vector<bool> blendCheck;
+	blendCheck.resize(skeleton.Hierarchy.size());
 
-		UpdateAnimation(animation, skeleton, info.timePos[i], bucket->matrices[bucketAndID.index].jointMatrix);
+	// Fill bool vector with false
+	memset(&blendCheck[0], false, sizeof(bool) * blendCheck.size());
 
-		if (info.looping[i] == true) {
+	// Loop through each animation
+	for (size_t layerIndex = 0; layerIndex < info.nrOfLayers; layerIndex++) {
 
-			if (info.timePos[i] > (float)animation.Length)
-				info.timePos[i] = 0.0f;
+		auto& animation = animations[info.animation[layerIndex]];
 
+		// Loop through each joint in the animation
+		for (size_t jointIndex = 0; jointIndex < animation.Joints.size(); jointIndex++) {
+			
+			// Get the actual index to the animated joint
+			uint32_t actualIndex = animation.jointToActualJoint[jointIndex];
+
+			// The actual index must be lower than the hierarchy size
+			if (actualIndex < skeleton.Hierarchy.size()) {
+
+				// Calculate the transformation
+				XMMATRIX tempMatrix;
+				CalculateJointMatrix(jointIndex, animation, info.timePos[layerIndex], tempMatrix);
+
+				if (blendCheck[actualIndex] == true) {
+
+						CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
+						if (!threaded)
+							CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransformUnThreaded[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransformUnThreaded[actualIndex]);
+				}
+
+				else {
+
+					XMStoreFloat4x4(&bucketTransform[actualIndex], tempMatrix);
+					if (!threaded)
+						XMStoreFloat4x4(&bucketTransformUnThreaded[actualIndex], tempMatrix);
+				}
+
+				blendCheck[actualIndex] = true;
+			}
 		}
 
+		if (info.looping[layerIndex] == true) {
+
+			if (info.timePos[layerIndex] > (float)animation.Length)
+				info.timePos[layerIndex] = 0.0f;
+
+		}
+	}
+
+	for (size_t i = 0; i < skeleton.Hierarchy.size(); i++) {
+
+		// Create a reference to the currenct joint to be processed
+		const Joint &b = skeleton.Hierarchy[i];
+
+		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
+		
+		if(blendCheck[i] == true){
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
+		}
+		else {
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
+		}
+		if (!threaded)
+		{
+			if (blendCheck[i] == true) {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransformUnThreaded[i])));
+			}
+			else {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixIdentity());
+			}
+		}
 	}
 }
 
-void SE::Core::AnimationSystem::CalculateBlendMatrices(const Entity& entity, AnimationInfo& animInfo) {
+void SE::Core::AnimationSystem::CalculateBlendMatrices(const XMMATRIX& matrix1, const XMMATRIX& matrix2, float blendFactor, XMFLOAT4X4& out) {
 
-	//float blendFactor = 0.5f;
+	XMVECTOR mesh1_quaternion, mesh1_translation, mesh1_scale;
+	XMVECTOR mesh2_quaternion, mesh2_translation, mesh2_scale;
 
-	//// Declare the matrices arrays for both animations
-	//DirectX::XMFLOAT4X4 anim1_Joints[30];
-	//DirectX::XMFLOAT4X4 anim2_Joints[30];
+	XMMatrixDecompose(&mesh1_scale, &mesh1_quaternion, &mesh1_translation, matrix1);
+	XMMatrixDecompose(&mesh2_scale, &mesh2_quaternion, &mesh2_translation, matrix2);
 
-	//auto& animation1 = animations[animInfo.animation[0]];
-	//auto& animation2 = animations[animInfo.animation[1]];
-	//auto& skel = skeletons[animInfo.skeleton];
+	XMVECTOR kFirstScale = mesh1_scale;
+	XMVECTOR kLastScale = mesh2_scale;
 
-	//// Get animation bucket
-	//const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	//auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+	XMVECTOR kFirstTranslation = mesh1_translation;
+	XMVECTOR kLastTranslation = mesh2_translation;
 
-	//// Update and interpolate the first animation
-	//UpdateAnimation(animInfo, anim1_Joints);
+	XMVECTOR kFirstQuaternion = mesh1_quaternion;
+	XMVECTOR kLastQuaternion = mesh2_quaternion;
 
-	//// Update and interpolate the second animation
-	//UpdateAnimation(animInfo, anim2_Joints);
+	XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, blendFactor);
+	XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, blendFactor);
+	XMVECTOR Q = XMQuaternionSlerp(kFirstQuaternion, kLastQuaternion, blendFactor);
 
-	//// Perform the third linear interpolation between the calculated matrices of each animation
+	XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//// LAYERING EXAMPLE
-	//for (int i = 0; i < skel.Hierarchy.size(); i++) {
-
-	//	if(i < 12){
-
-	//	XMMATRIX transform;
-	//	CalculateJointMatrix(i, animation1, animInfo.timePos[0], transform);
-
-	//	Joint &b = skel.Hierarchy[i];
-
-	//	// Get the current joint GLOBAL transformation at the current animation time pose
-	//	b.GlobalTx = transform;
-
-	//	// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-	//	XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-
-	//	}
-
-	//	else {
-
-	//		XMMATRIX transform;
-	//		CalculateJointMatrix(i, animation2, animInfo.timePos[1], transform);
-
-	//		Joint &b = skel.Hierarchy[i];
-
-	//		// Get the current joint GLOBAL transformation at the current animation time pose
-	//		b.GlobalTx = transform;
-
-	//		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-	//		XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-	//	}
-	//}
-
-	/*for (int i = 0; i < skeletons[skeleton].Hierarchy.size(); i++){
-
-		XMMATRIX mesh1_matrix = XMLoadFloat4x4(&anim1_Joints[i]);
-		XMVECTOR mesh1_quaternion, mesh1_translation, mesh1_scale;
-		XMVECTOR mesh2_quaternion, mesh2_translation, mesh2_scale;
-
-		XMMATRIX mesh2_matrix = XMLoadFloat4x4(&anim2_Joints[i]);
-
-		XMMatrixDecompose(&mesh1_scale, &mesh1_quaternion, &mesh1_translation, mesh1_matrix);
-		XMMatrixDecompose(&mesh2_scale, &mesh2_quaternion, &mesh2_translation, mesh2_matrix);
-
-		XMVECTOR kFirstScale = mesh1_scale;
-		XMVECTOR kLastScale = mesh2_scale;
-
-		XMVECTOR kFirstTranslation = mesh1_translation;
-		XMVECTOR kLastTranslation = mesh2_translation;
-
-		XMVECTOR kFirstQuaternion = mesh1_quaternion;
-		XMVECTOR kLastQuaternion = mesh2_quaternion;
-
-		XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, blendFactor);
-		XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, blendFactor);
-		XMVECTOR Q = XMQuaternionSlerp(kFirstQuaternion, kLastQuaternion, blendFactor);
-
-		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-
-		XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(XMMatrixAffineTransformation(S, zero, Q, T)));
-
-	}*/
+	XMStoreFloat4x4(&out, XMMatrixAffineTransformation(S, zero, Q, T));
 
 }
 
-void SE::Core::AnimationSystem::CalculateLayering(const Entity& entity, AnimationInfo& animInfo1) {
+int SE::Core::AnimationSystem::FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind) {
 
-	auto& animation1 = animations[animInfo1.animation[0]];
+	// Get the skeleton
+	auto& skel = skeletons[skeleton];
 
-	animation1.Joints.size();
-	auto& animation2 = animations[animInfo1.animation[1]];
-	auto& skel = skeletons[animInfo1.skeleton];
+	// Loop through the hierarchy
+	for (size_t jointIndex = 0; jointIndex < skel.Hierarchy.size(); jointIndex++) {
 
-	// Get animation bucket
-	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
+		if (skel.Hierarchy[jointIndex].jointName == jointNameToFind) {
 
-	// LAYERING EXAMPLE
-	for (int i = 0; i < skel.Hierarchy.size(); i++) {
-
-		if (i < 12) {
-
-			XMMATRIX transform;
-			CalculateJointMatrix(i, animation1, animInfo1.timePos[0], transform);
-
-			Joint &b = skel.Hierarchy[i];
-
-			// Get the current joint GLOBAL transformation at the current animation time pose
-			b.GlobalTx = transform;
-
-			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-
+			return jointIndex;
 		}
+	}
+	
+	return -1;
+}
 
-		else {
+void SE::Core::AnimationSystem::GetJointMatrix(const Entity& entity, int jointIndex, DirectX::XMFLOAT4X4& matrix) {
 
-			XMMATRIX transform;
-			CalculateJointMatrix(i, animation2, animInfo1.timePos[1], transform);
+	auto find = entityToBucketAndIndexInBucket.find(entity);
 
-			Joint &b = skel.Hierarchy[i];
+	if (find != entityToBucketAndIndexInBucket.end()) {
 
-			// Get the current joint GLOBAL transformation at the current animation time pose
-			b.GlobalTx = transform;
+		// Get all the entity matrices
+		auto& matrices = ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->matrices[mapingIndex][find->second.index];
 
-			// Create the matrix by multiplying the joint global transformation with the inverse bind pose
-			XMStoreFloat4x4(&bucket->matrices[bucketAndID.index].jointMatrix[i], XMMatrixTranspose(b.inverseBindPoseMatrix * b.GlobalTx));
-		}
+		// Get the transposed matrix
+		DirectX::XMFLOAT4X4 transposed = matrices.jointMatrix[jointIndex];
+
+		// Transpose it back so we can work with it
+		XMStoreFloat4x4(&matrix, XMMatrixTranspose(XMLoadFloat4x4(&transposed)));
+	
 	}
 }
 
@@ -293,6 +299,12 @@ void SE::Core::AnimationSystem::CalculateJointMatrix(int jointIndex,const Animat
 	StartProfile;
 	// Animation has just started, so return the first keyframe
 	int animationLength = animation.Length - 1;
+	/*Something was called without any animation loaded*/
+	if(animationLength == -1)
+	{
+		StopProfile;
+		return;
+	}
 	auto& joint = animation.Joints[jointIndex];
 
 	if(joint.Keyframes.size() > 0){
@@ -330,7 +342,7 @@ SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::AnimationSystem:
 		renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
 	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
-		renderer->GetPipelineHandler()->UpdateConstantBuffer(VS_SKINNED_DATA, &bucket->matrices[a], sizeof(JointMatrices) * b);
+		renderer->GetPipelineHandler()->UpdateConstantBuffer(VS_SKINNED_DATA, &bucket->matrices[mapingIndex][a], sizeof(JointMatrices) * b);
 	});
 	ProfileReturnConst( bucket);
 }
@@ -400,14 +412,18 @@ void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity
 {
 	RenderBucket::AddEntity(entity, transform, bucketAndID);
 
-  matrices.push_back(mats);
+	matrices[0].push_back(mats);
+	matrices[1].push_back(mats);
 }
 
 void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
 {
-	const auto last = matrices.size() - 1;
-	matrices[index] = matrices[last];
-	matrices.pop_back();
+	const auto last = matrices[0].size() - 1;
+	matrices[1][index] = matrices[1][last];
+	matrices[0][index] = matrices[0][last];
+	
+	matrices[0].pop_back();
+	matrices[1].pop_back();
 
 	RenderBucket::RemoveFromBucket(rm, index, transform);
 

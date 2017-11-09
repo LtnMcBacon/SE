@@ -14,18 +14,27 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::DOWN), Window::KeyS);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::LEFT), Window::KeyA);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::RIGHT), Window::KeyD);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::CONSOLE), Window::KeyTab);
 
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL1), Window::Key1);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
-	state = new PlayState(CoreInit::subSystems.window, engine);
+	CoreInit::subSystems.window->BindKeyPressCallback(uint32_t(GameInput::CONSOLE), []()
+	{
+		CoreInit::subSystems.devConsole->Toggle();
+	});
+
+	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
+	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
+	state = new CharacterCreationState(CoreInit::subSystems.window);
+	currentState = SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE;
 }
 
 void SE::Gameplay::Game::Run()
 {
 	void* data = nullptr;
-	SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
+	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState;
 
 	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
@@ -53,9 +62,11 @@ void SE::Gameplay::Game::Run()
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
-					state = new SE::Gameplay::PlayState(input, engine);
+					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 				}
 			 }
+
+			currentState = newState;
 		 }
 
 		 CoreInit::engine->BeginFrame();

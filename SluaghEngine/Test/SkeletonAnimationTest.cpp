@@ -35,8 +35,8 @@ enum ActionButton
 	Fullscreen,
 	Rise,
 	Sink,
-	Stop,
-	Start
+	Increase,
+	Lower
 };
 
 
@@ -61,12 +61,17 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	
 	subSystem.devConsole->Toggle();
 
-
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
+	auto& box = managers.entityManager->Create();
 
 	managers.transformManager->Create(mainC);
 	managers.transformManager->Create(mainC2);
+	managers.transformManager->Create(box);
+
+	managers.renderableManager->CreateRenderableObject(box, {});
+	managers.renderableManager->ToggleRenderableObject(box, true);
+	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
@@ -92,8 +97,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
 	subSystem.window->MapActionButton(Window::MouseLeft, Window::MouseLeft);
 
-	subSystem.window->MapActionButton(ActionButton::Stop, Window::KeyP);
-	subSystem.window->MapActionButton(ActionButton::Start, Window::KeyO);
+	subSystem.window->MapActionButton(ActionButton::Increase, Window::KeyUp);
+	subSystem.window->MapActionButton(ActionButton::Lower, Window::KeyDown);
 
 
 	subSystem.window->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
@@ -111,11 +116,13 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
-	sai.animationCount = 1;
-	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim"};
+	sai.animationCount = 4;
+	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
+
+	managers.animationManager->AttachToEntity(mainC, box, "LHand", 0);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
 	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
@@ -124,12 +131,25 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC2, true);
 
 	Core::IAnimationManager::AnimationPlayInfo playInfo;
-	playInfo.animations[0] = "BottomRunAnim_MCModell.anim";
+	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
 	playInfo.animationSpeed[0] = 1.0f;
 	playInfo.timePos[0] = 0.0f;
 	playInfo.looping[0] = true;
+	playInfo.blendSpeed[0] = 0.00f;
 
-	playInfo.nrOfLayers = 1;
+	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
+	playInfo.animationSpeed[1] = 1.0f;
+	playInfo.timePos[1] = 0.0f;
+	playInfo.looping[1] = true;
+	playInfo.blendSpeed[1] = 0.00f;
+
+	playInfo.animations[2] = "DeathAnim_MCModell.anim";
+	playInfo.animationSpeed[2] = 1.0f;
+	playInfo.timePos[2] = 0.0f;
+	playInfo.looping[2] = true;
+	playInfo.blendSpeed[2] = 0.00f;
+
+	playInfo.nrOfLayers = 3;
 
 	managers.animationManager->Start(mainC, playInfo);
 
@@ -139,9 +159,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
 	d.pos = { 5.0f, 10.0f, -5.0f };
-	d.color = { 1, 1,1 };
-	d.castShadow = false;
-	d.isOrtographic = false;
+	d.color = { 1, 1, 1 };
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
@@ -151,9 +169,10 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::Timer timer;
 	float radians = (180 * 3.14) / 180;
 
-	//managers.transformManager->Rotate(mainC, 0.0f, radians, 0.01f);
+	// managers.transformManager->Rotate(mainC, 0.0f, radians, 0.01f);
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
+	static float blendFactorSpeed = 0.00f;
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
@@ -187,7 +206,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, -0.01f*dt, 0.0f });
 		if (subSystem.window->ButtonDown(ActionButton::Sink))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
-
+		
 		engine->BeginFrame();
 	
 		ImGui::Begin("Animation Stuff");
@@ -202,6 +221,12 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 			
 			managers.animationManager->SetSpeed(mainC, speed);
 			managers.animationManager->SetSpeed(mainC2, speed);
+
+		}
+
+		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -10.0f, 10.0f)) {
+
+			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 
 		}
 
