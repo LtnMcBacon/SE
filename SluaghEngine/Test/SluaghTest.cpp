@@ -342,9 +342,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 			movX /= totMov;
 			movY /= totMov;
 		}
-
-		player->UpdateMovement(dt * 5, input);
-		player->UpdateActions(dt, newProjectiles, actionInput);
+		player->Update(dt * 5, input,  newProjectiles, actionInput);
 
 		projectileManager->AddProjectiles(newProjectiles);
 

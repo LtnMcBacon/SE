@@ -314,10 +314,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateInput(movementInput, actionInput);
 
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
-	player->UpdateMovement(input->GetDelta(), movementInput);
-	player->UpdateActions(input->GetDelta(), newProjectiles, actionInput);
-	//projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
-	//blackBoard.enemyProjectiles.clear();
+	player->Update(input->GetDelta(), movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
 
@@ -325,14 +322,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	blackBoard.playerPositionY = player->GetYPosition();
 	blackBoard.deltaTime = input->GetDelta();
 	blackBoard.playerHealth = player->GetHealth();
-
-
-	/**
-	 * End of must
-	 */
-
+	
 	currentRoom->Update(input->GetDelta(), player->GetXPosition(), player->GetYPosition());
-
 
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();

@@ -310,8 +310,7 @@ bool SE::Test::ProjectileTest::Run(SE::DevConsole::IConsole* console)
 		/*Only thing needed right now*/
 		blackBoard.deltaTime = dt;
 
-		player->UpdateMovement(dt * 5, input);
-		player->UpdateActions(dt, newProjectiles, actionInput);
+		player->Update(dt, input, newProjectiles, actionInput);
 
 		projectileManager->AddProjectiles(newProjectiles);
 

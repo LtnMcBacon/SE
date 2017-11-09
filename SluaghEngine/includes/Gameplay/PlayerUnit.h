@@ -105,19 +105,6 @@ namespace SE
 				}
 			};
 
-			/**
-			* @brief	Update the players movement
-			*
-			* @details	This function updates the position of the player and checks so that it is a legal position,
-			* if not it tries to retain as much of the movement as possible
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in] MovementInput input data
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateMovement(float dt, const MovementInput& inputs);
 
 			struct ActionInput
 			{
@@ -137,20 +124,6 @@ namespace SE
 					actionButton = action;
 				}
 			};
-
-			/**
-			* @brief	Update the players actions
-			*
-			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
-			* and perks then check new events that are created before they are deployed
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [out] newProjectiles Data to create new projectiles from
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 			/**
 			* @brief To be documented
@@ -174,6 +147,8 @@ namespace SE
 			**/
 			void UpdatePlayerRotation(float camAngleX, float camAngleY);
 
+			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
+
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
@@ -183,6 +158,36 @@ namespace SE
 			char map[25][25] = { {} };
 			float forcesToApply[2] = {};
 			float rotMov[2] = {};
+
+
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the position of the player and checks so that it is a legal position,
+			* if not it tries to retain as much of the movement as possible
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in] MovementInput input data
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateMovement(float dt, const MovementInput& inputs);
+
+
+			/**
+			* @brief	Update the players actions
+			*
+			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
+			* and perks then check new events that are created before they are deployed
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [out] newProjectiles Data to create new projectiles from
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
 			struct Stats

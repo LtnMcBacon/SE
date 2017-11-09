@@ -38,7 +38,7 @@ void SE::Gameplay::Game::Run()
 	void* data = nullptr;
 	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState = state->PLAY_STATE;
-
+	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 	{
 
@@ -47,26 +47,32 @@ void SE::Gameplay::Game::Run()
 
 		if (newState != currentState)
 		{
+			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
+				return;
 			switch (newState)
 			{
 			case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
 			{
 				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 					CoreInit::subSystems.window->StopRecording();
+				break;
 			}
 			case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
 			{
 				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 					CoreInit::subSystems.window->StopRecording();
+				break;
 			}
 			case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
 			{
 				CoreInit::subSystems.window->StartRecording();
+				break;
 			}
 			case SE::Gameplay::IGameState::State::PLAY_STATE:
 			{
 				delete state;
 				state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+				break;
 			}
 			}
 
