@@ -127,6 +127,17 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 	info.addressV = Graphics::AddressingMode::WRAP;
 	info.addressW = Graphics::AddressingMode::WRAP;
 	initInfo.renderer->GetPipelineHandler()->CreateSamplerState(defaultSampler, info);
+
+	Graphics::SamplerState pointSampler;
+	pointSampler.filter = Graphics::Filter::POINT;
+	pointSampler.addressU = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressV = Graphics::AddressingMode::CLAMP;
+	pointSampler.addressW = Graphics::AddressingMode::CLAMP;
+	pointSampler.maxAnisotropy = 0;
+
+	res = this->initInfo.renderer->GetPipelineHandler()->CreateSamplerState("shadowPointSampler", pointSampler);
+	if (res < 0)
+		throw std::exception("Could not create shadowpointsampler");
 }
 
 SE::Core::MaterialManager::~MaterialManager()
@@ -320,6 +331,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 	auto find = entityToMaterialInfo.find(entity);
 	if (find != entityToMaterialInfo.end())
 	{
+		
 		auto& mdata = *materialInfo.material[find->second];
 		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
 		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
@@ -348,6 +360,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("MaterialAttributes", (void*)&attrib, sizeof(attrib));
 		});
 
+		
 
 	}
 	else
@@ -356,4 +369,9 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		info->pipeline.PSStage.textureCount = 0;
 		info->pipeline.PSStage.samplerCount = 0;
 	}
+	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "DepthCube";
+	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount] = "ShadowMap";
+	++info->pipeline.PSStage.textureCount;
+	info->pipeline.PSStage.samplers[1] = "shadowPointSampler";
+	info->pipeline.PSStage.samplerCount = 2;
 }

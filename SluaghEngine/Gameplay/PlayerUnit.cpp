@@ -180,12 +180,17 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
 		{
 			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.animations[0] = "RunAnimation_MCModell.anim";
+			playInfo.animations[0] = "TopRunAnim_MCModell.anim";
 			playInfo.animationSpeed[0] = 20.0f;
 			playInfo.timePos[0] = 0.0f;
 			playInfo.looping[0] = true;
 
-			playInfo.nrOfLayers = 1;
+			playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
+			playInfo.animationSpeed[1] = 20.0f;
+			playInfo.timePos[1] = 0.0f;
+			playInfo.looping[1] = true;
+
+			playInfo.nrOfLayers = 2;
 
 			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
 		}
@@ -451,18 +456,27 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Run.mesh";
-	sai.skeleton = "Run.skel";
-	sai.animationCount = 1;
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
+	sai.animationCount = 4;
 
-	Utilz::GUID anims[] = { "RunAnimation_Run.anim" };
+	Utilz::GUID anims[] = { "TopIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim" , "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
 	sai.animations = anims;
 
-	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
 
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(unitEntity, { "MCModell.mesh" });
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(unitEntity, true);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

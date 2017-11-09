@@ -35,6 +35,17 @@ namespace SE
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
+			bool IsOutside = false;
+			enum class PropTypes
+			{
+				TABLES,
+				CHAIRS,
+				TORCHES_FLOOR,
+				TORCHES_WALL,
+				BUSHES
+			};
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -70,7 +81,6 @@ namespace SE
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
-			char tileValues[25][25];
 
 			/**
 			*
@@ -94,6 +104,7 @@ namespace SE
 			};
 			DoorData DoorArr[4];
 
+			char tileValues[25][25];
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -421,6 +432,17 @@ namespace SE
 			*
 			*/
 			bool CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositionBefore, float xCenterPositionAfter, float yCenterPositionAfter, float xExtent, float yExtent, int &xCollision, int &yCollision);
+
+			/**
+			* @brief	Checks the wall to rotate the torch in that direction
+			*/
+			float WallCheck(int x, int y);
+
+			/**
+			* @brief	Generates random props
+			*/
+			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+
 
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
