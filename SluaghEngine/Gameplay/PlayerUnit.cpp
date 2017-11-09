@@ -143,6 +143,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 			stunDuration = 0.f;
 		ProfileReturnVoid;
 	}
+	dt *= newStat.movementSpeed;
 	float xMovement = 0.f;
 	float yMovement = 0.f;
 
@@ -176,6 +177,27 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
+		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
+		{
+			Core::IAnimationManager::AnimationPlayInfo playInfo;
+			playInfo.animations[0] = "TopRunAnim_MCModell.anim";
+			playInfo.animationSpeed[0] = 20.0f;
+			playInfo.timePos[0] = 0.0f;
+			playInfo.looping[0] = true;
+
+			playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
+			playInfo.animationSpeed[1] = 20.0f;
+			playInfo.timePos[1] = 0.0f;
+			playInfo.looping[1] = true;
+
+			playInfo.nrOfLayers = 2;
+
+			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+		}
+	}
+	else
+	{
+		CoreInit::managers.animationManager->SetKeyFrame(unitEntity, 0);
 	}
 
 	//------------------------
@@ -206,7 +228,55 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-	if (input.skill1Button && attackCooldown <= 0.f) 
+
+	int nrOfSKills = skills.size();
+	
+	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
+	{
+		ProjectileData temp;
+
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
+		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
+		//temp.healingEvent = skills[0]->GetHealingEvent();
+		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = skills[0].projectileFileGUID;
+
+		newProjectiles.push_back(temp);
+		skills[0].currentCooldown = skills[0].coolDown;
+	}
+
+	if (nrOfSKills > 1 && skills[1].currentCooldown <= 0.0f && input.skill2Button)
+	{
+		ProjectileData temp;
+
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
+		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
+		//temp.healingEvent = skills[1]->GetHealingEvent();
+		//temp.conditionEvent = skills[1]->GetConditionEvent();
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = skills[1].projectileFileGUID;
+
+		newProjectiles.push_back(temp);
+		skills[1].currentCooldown = skills[1].coolDown;
+	}
+
+	if (nrOfSKills > 0 && skills[0].currentCooldown > 0.0f)
+	{
+		skills[0].currentCooldown -= dt;
+	}
+	if (nrOfSKills > 1 && skills[1].currentCooldown > 0.0f)
+	{
+		skills[1].currentCooldown -= dt;
+	}
+
+	/*if (input.skill1Button) 
 	{
 		ProjectileData temp;
 
@@ -216,12 +286,28 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "NuckelaveeMeleeProjectile.SEP";
+		temp.fileNameGuid = "turretProjectile.SEP";
+
+		newProjectiles.push_back(temp);
+	}*/
+
+	if (input.actionButton && attackCooldown <= 0.0f)
+	{
+		ProjectileData temp;
+
+		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+		temp.startPosX = this->xPos;
+		temp.startPosY = this->yPos;
+		temp.target = ValidTarget::ENEMIES;
+		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.ownerUnit = mySelf;
+		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
 		newProjectiles.push_back(temp);
 
-		attackCooldown = 0.2f * attackSpeed;
+		attackCooldown = 1.0f / attackSpeed;
 	}
+
 	if (attackCooldown > 0.f)
 	{
 		attackCooldown -= dt;
@@ -351,11 +437,40 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 	skills.clear();
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+
+	if (skills != nullptr)
+	{
+		this->skills.push_back(skills[0]);
+		this->skills.push_back(skills[1]);
+	}
+
+	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
+	sai.animationCount = 4;
+
+	Utilz::GUID anims[] = { "TopIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim" , "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
+	sai.animations = anims;
+
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(unitEntity, { "MCModell.mesh" });
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "Run.mesh");
+
+	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(unitEntity, true);
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

@@ -54,6 +54,5 @@ float4 PS_main(VS_OUT input) : SV_Target
 	float opac = ((float[4])(opacities[input.instanceID / 4]))[input.instanceID % 4];
 	decalColor.a *= opac;
 	clip(decalColor.a - 0.05f); //If the decal is very transparent right here, we dont need to do any blending.
-	
 	return decalColor;
 }

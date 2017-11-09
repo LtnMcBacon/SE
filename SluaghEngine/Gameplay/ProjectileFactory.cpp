@@ -199,7 +199,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		}
 
 		Core::IMaterialManager::CreateInfo projectileInfo;
-		Utilz::GUID material = Utilz::GUID("Placeholder_Block.mat");
+		Utilz::GUID material = Utilz::GUID("Cube.mat");
 		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		projectileInfo.shader = shader;
 		projectileInfo.materialFile = material;
@@ -698,14 +698,20 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::TimeConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
-	BehaviourData data;
-	float startTime = data.f = std::get<float>(parameters[0].data);
-	bool repeat = std::get<bool>(parameters[1].data);
-	int dataIndex = std::get<Projectile*>(parameters[2].data)->AddBehaviourData(data);
+	BehaviourData data1, data2;
+	float startTime = data1.f = std::get<float>(parameters[0].data);
+	data2.i = std::get<int>(parameters[1].data);
+	int dataIndexTimer = std::get<Projectile*>(parameters[2].data)->AddBehaviourData(data1);
+	int dataIndexRepeat = std::get<Projectile*>(parameters[2].data)->AddBehaviourData(data2);
 
-	auto timer = [startTime, dataIndex, repeat](Projectile* p, float dt) -> bool
+	auto timer = [startTime, dataIndexTimer, dataIndexRepeat](Projectile* p, float dt) -> bool
 	{
-		float& timer = p->GetBehaviourData(dataIndex).f;
+		int& timesToRepeat = p->GetBehaviourData(dataIndexRepeat).i;
+
+		if (timesToRepeat <= 0)
+			return false;
+
+		float& timer = p->GetBehaviourData(dataIndexTimer).f;
 
 		if (timer > 0.0f)
 		{
@@ -715,8 +721,11 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		}
 		else
 		{
-			if (repeat)
+			if (timesToRepeat > 0)
+			{
 				timer = startTime;
+				timesToRepeat--;
+			}
 
 			return false;
 		}
@@ -898,7 +907,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		temp.startPosX = p->GetXPosition();
 		temp.startPosY = p->GetYPosition();
 		temp.target = p->GetValidTarget();
-		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = p->GetDamageEvent();
 		temp.ownerUnit = p->GetSharedPtr();
 		temp.fileNameGuid = fileName;
 
@@ -998,6 +1007,42 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(CollisionCheck);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetDamageBasedOnDTBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto DamageDTModifier = [](Projectile* p, float dt) -> bool
+	{
+		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
+		temp.amount = dt * temp.originalAmount;
+		p->SetDamageEvent(temp);
+
+		return false;
+	};
+
+	ProfileReturnConst(DamageDTModifier);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float minHealth = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> owner = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto AboveHealth = [minHealth, owner](Projectile* p, float dt) -> bool
+	{
+		if (auto target = owner.lock())
+		{
+			auto ownerPtr = *target.get();
+
+			if (ownerPtr->GetHealth() >= minHealth)
+				return true;
+		}
+		
+		return false;
+	};
+
+	ProfileReturnConst(AboveHealth);
+}
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
@@ -1054,7 +1099,7 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RotationInvertionBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeTimeAddStaticBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetClosestEnemyBehaviour, this, std::placeholders::_1)); // f
-	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionBehaviour, this, std::placeholders::_1)); // f, b, p
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TimeConditionBehaviour, this, std::placeholders::_1)); // f, i, p
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::StunOwnerUnitBehaviour, this, std::placeholders::_1)); // o, f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LifeStealBehaviour, this, std::placeholders::_1)); // o, f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IFCaseBehaviour, this, std::placeholders::_1)); // v, v, v
@@ -1074,6 +1119,9 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithEnemyConditionBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithObjectConditionBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithPlayerConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDamageBasedOnDTBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::UserHealthAboveConditionBehaviour, this, std::placeholders::_1)); // f, o
+
 
 }
 
