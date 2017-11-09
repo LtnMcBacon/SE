@@ -179,20 +179,8 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 		yMovement /= moveTot;
 		if (!CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity))
 		{
-			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.animations[0] = "TopRunAnim_MCModell.anim";
-			playInfo.animationSpeed[0] = 20.0f;
-			playInfo.timePos[0] = 0.0f;
-			playInfo.looping[0] = true;
-
-			playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
-			playInfo.animationSpeed[1] = 20.0f;
-			playInfo.timePos[1] = 0.0f;
-			playInfo.looping[1] = true;
-
-			playInfo.nrOfLayers = 2;
-
-			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+			Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
+			CoreInit::managers.animationManager->Start(unitEntity, mainAnim, 2, 1.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
 		}
 	}
 	else
