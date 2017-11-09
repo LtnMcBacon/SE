@@ -35,11 +35,11 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 	SE::Gameplay::Skill skill;
 
 	unsigned short int tempEnumHolder[6];
-	float floatValues[7];
+	float floatValues[8];
 
 	unsigned int index = 0;
 	index = SF.readSkillInfo(skill.skillName, tempEnumHolder);
-	SF.readAttributesFromFile(index, floatValues);
+	SF.readAttributesFromFile(index, skill.projectileFileGUID, floatValues);
 
 	std::cout << skill.skillName << std::endl;
 	std::cout << tempEnumHolder[0] << std::endl;
