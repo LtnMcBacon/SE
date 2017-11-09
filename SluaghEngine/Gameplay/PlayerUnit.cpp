@@ -190,7 +190,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 
 void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags | Core::AnimationFlags::CURRENT);
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags);
 }
 
 void SE::Gameplay::PlayerUnit::ResolveEvents()

@@ -258,12 +258,13 @@ void PlayState::InitializePlayer(void* playerInfo)
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
-				
+
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
 			}
 		}
+	}
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
@@ -389,8 +390,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			char newMap[25][25];
 			currentRoom->GetMap(newMap);
 
-			char** tempPtr;
-			tempPtr = new char*[25];
+			char** tempPtr = new char*[25];
 
 			for (int i = 0; i < 25; i++)
 			{
