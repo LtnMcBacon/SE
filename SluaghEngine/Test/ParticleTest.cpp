@@ -1,5 +1,6 @@
 #include "ParticleTest.h"
 #include <Core\IEngine.h>
+#include <Imgui\imgui.h>
 
 bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 {
@@ -8,21 +9,36 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 
 	auto subSystems = engine->GetSubsystems();
 	auto managers = engine->GetManagers();
-	auto particleEnt = managers.entityManager->Create();
-	auto particleEnt2 = managers.entityManager->Create();
+	ImGui::SetCurrentContext((ImGuiContext*)subSystems.devConsole->GetContext());
+	auto frost = managers.entityManager->Create();
+	auto fire = managers.entityManager->Create();
+	auto torch = managers.entityManager->Create();
 	Core::IParticleSystemManager::CreateInfo particleInfo;
 	particleInfo.systemFile;
-	managers.particleSystemManager->CreateSystem(particleEnt, { "frostBall.txt" });
-	managers.particleSystemManager->CreateSystem(particleEnt2, { "fireBall.txt" });
+	managers.transformManager->Create(frost, {1, 0.5, 1});
+	managers.transformManager->Create(fire, { 0, 0, 0});
+	managers.renderableManager->CreateRenderableObject(torch, { "Cube.mesh" });
+	managers.transformManager->Create(torch);
+	managers.transformManager->BindChild(torch, fire);
+	managers.renderableManager->ToggleRenderableObject(torch, true);
+	managers.particleSystemManager->CreateSystem(frost, { "frostBall.txt" });
+	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
 	Core::ICameraManager::CreateInfo camInfo;
-	camInfo.posistion = { 0.0f, 0.0f, -5.0f };
-	managers.cameraManager->UpdateCamera(camInfo);
+	camInfo.posistion = { 0.0f, 0.0f, -20.0f };
+	
+	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
+	
+	float pos[3] = {0, 0, 0};
 
 	while (true)
 	{
 		engine->BeginFrame();
 
+		if (ImGui::InputFloat3("Pos", pos))
+		{
+			managers.transformManager->SetPosition(torch, { pos[0], pos[1], pos[2] });
 
+		}
 
 		engine->EndFrame();
 	}

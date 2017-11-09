@@ -157,10 +157,14 @@ int main()
 	float emitRangeY[2] = { 0.0f, 0.0f };
 	float emitRangeZ[2] = { 0.0f, 0.0f };
 
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4(&identity, XMMatrixIdentity());
+
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
-	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer](int a, int b) {
+	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer, &identity](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &movBuffer, sizeof(ParticleDataStruct));
+		pipelineHandler->UpdateConstantBuffer("ParticleTransform", &identity, sizeof(XMFLOAT4X4));
 	});
 	updateParticleJob.vertexCount = 1;
 	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob, SE::Graphics::RenderGroup::PRE_PASS_0);
@@ -208,12 +212,11 @@ int main()
 	cameraMatrices.view = view;
 	cameraMatrices.viewProj = cameraMatrix;
 
-	XMFLOAT4X4 identity;
-	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 
-	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer, &identity](int a, int b) {
+
+	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrices, sizeof(CameraMatrices));
-		pipelineHandler->UpdateConstantBuffer("ParticleTransform", &identity, sizeof(XMFLOAT4X4));
+		
 		pipelineHandler->UpdateConstantBuffer("CameraPos", &constantBuffer, sizeof(PCB));
 	});
 	int RPPID = Renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
