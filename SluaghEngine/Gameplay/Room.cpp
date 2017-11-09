@@ -26,11 +26,11 @@ static const SE::Utilz::GUID Floor("floorTest.mesh");
 static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
 static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
 
+
 // Random props
-static const SE::Utilz::GUID FloorTorch("FloorTorch.mesh");
-static const SE::Utilz::GUID Chair("Chair.mesh");
-static const SE::Utilz::GUID Table_small("Table_small.mesh");
-static const SE::Utilz::GUID Table_round("Table_round.mesh");
+std::vector<SE::Utilz::GUID> randomProps;
+
+
 
 
 //materials
@@ -984,7 +984,7 @@ void SE::Gameplay::Room::CreateEntities()
 				else if (tileValues[i][j] == (char)137 )
 				{
 
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp() });
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
 				}
 				else if (tileValues[i][j] == (char)225 )
 				{
@@ -1065,6 +1065,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
+	propVectors[PropTypes::TORCHES_FLOOR] = {"FloorTorch.mesh"};
+	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
+	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
+
+
 	pos start;
 	loadfromFile(fileName);
 
@@ -1085,7 +1090,7 @@ Room::Room(Utilz::GUID fileName)
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
 	CreateEntities();
-	
+
 	StopProfile;
 }
 
@@ -1158,28 +1163,26 @@ float Room::WallCheck(int x, int y)
 	ProfileReturnConst(rotation);
 }
 
-const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp()
+const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 {
 
-	int rand = CoreInit::subSystems.window->GetRand();
+	//// if we find a prop on the right side of the prop 2x1
+	//if (tileValues[x + 1][y] == (char)137 )
+	//{
+	//	// big prop
+	//}
+	//else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1]) {
 
-	int randNr = (rand % 4) + 1;
+	//}
 
-	switch (randNr)
-	{
-	case 1:
-		return FloorTorch;
-		break;
-	case 2:
-		return Chair;
-		break;
-	case 3:
-		return Table_small;
-		break;
-	case 4:
-		return Table_round;
-		break;
-	}
+
+	auto& test = propVectors[PropTypes::TABLES];
+
+	auto rand = CoreInit::subSystems.window->GetRand();
+	auto randNr = (rand % test.size());
+
+
+	return test[randNr];
 
 }
 
