@@ -45,7 +45,7 @@ struct ParticleDataStruct {
 	unsigned int emit;
 };
 ParticleDataStruct createParticleBuffer();
-void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
+void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
 
 int main()
 {
@@ -213,16 +213,22 @@ int main()
 	cameraMatrices.view = view;
 	cameraMatrices.viewProj = cameraMatrix;
 
-	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer](int a, int b) {
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4(&identity, XMMatrixIdentity());
+
+	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer, &identity](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrices, sizeof(CameraMatrices));
+		pipelineHandler->UpdateConstantBuffer("ParticleTransform", &identity, sizeof(XMFLOAT4X4));
 		pipelineHandler->UpdateConstantBuffer("CameraPos", &constantBuffer, sizeof(PCB));
 	});
 	int RPPID = Renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 	 
 	window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
 	float value = 0;
+	Utilz::GUID texName = renderParticleJob.pipeline.PSStage.textures[0];//Default texture for exporting
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
+		
 		time.Tick();
 		if (changedTexture)
 		{
@@ -234,6 +240,7 @@ int main()
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			renderParticleJob.pipeline.PSStage.textures[0] = tempText;
+			texName = tempText;
 		
 			changedTexture = 0;
 		}
@@ -323,7 +330,7 @@ int main()
 			ImGui::InputText("File name", particleName, 100);
 			
 			if (ImGui::Button("Export"))
-				exportParticleInfo(RPP, movBuffer, particleName, RandVelocity, velocityRange, emitRange);
+				exportParticleInfo(texName, movBuffer, particleName, RandVelocity, velocityRange, emitRange);
 			ImGui::End();
 		}
 		//** swapping renderjobs for particle outstream
@@ -374,7 +381,7 @@ ParticleDataStruct createParticleBuffer()
 
 	return movBuffer;
 }
-void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[])
+void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[])
 {
 	FS::create_directory("Particle_Systems");
 	std::string file = fileName;
@@ -388,12 +395,12 @@ void exportParticleInfo(Pipeline particleJobInfo, ParticleDataStruct pInfo, char
 	}
 
 	file += ".txt";
-	Utilz::GUID textureName = particleJobInfo.PSStage.textures[0];
+	
 	std::ofstream toFile;
 	
 	toFile.open("Particle_Systems/" + file, std::ios::out | std::ios::binary);
 	toFile.write((char*)&randomVelocity, sizeof(bool));
-	toFile.write((char*)&textureName, sizeof(Utilz::GUID));
+	toFile.write((char*)&texName, sizeof(Utilz::GUID));
 	toFile.write((char*)&pInfo, sizeof(ParticleDataStruct));
 	toFile.write((char*)velocityRange, sizeof(XMFLOAT2) * 3);
 	toFile.write((char*)emitRange, sizeof(XMFLOAT2) * 3);

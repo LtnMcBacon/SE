@@ -59,6 +59,11 @@ namespace SE
 			* @brief	Look for dead entities.
 			*/
 			void GarbageCollection()override;
+			/**
+			* @brief	Updates emit position for the particles
+			*/
+			void UpdateDirtyPos(const Entity& entity, size_t index);
+
 			std::default_random_engine generator;
 
 			struct ParticleSystemFileInfo
@@ -85,6 +90,8 @@ namespace SE
 			};
 			struct ParticleSystemData
 			{
+				bool firstRun;
+				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
 				ParticleSystemFileInfo particleFileInfo;
@@ -98,6 +105,11 @@ namespace SE
 				DirectX::XMFLOAT2 velocityRange[3];
 				DirectX::XMFLOAT2 emitRange[3];
 			};
+			struct DirtyEntityInfo {
+				size_t transformIndex;
+				Entity entity;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;
 			std::unordered_map<Entity, size_t, Core::EntityHasher> entityToIndex;
