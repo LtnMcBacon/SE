@@ -120,13 +120,18 @@ namespace SE
 				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
-			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job);
+			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job);
 
 			
 			/****************	END Loading		*****************/
 
 
 			/****************	Unloading		*****************/
+
+			void EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed);
+
+
+
 			/*void LinearEvict(std::vector<Utilz::GUID>& evictOrder, size_t addedSize, UnloadFlags flags);
 			typedef void(ResourceHandler::*UnloadingStrategy)(size_t addedSize);
 			UnloadingStrategy Unload = &ResourceHandler::LinearUnload;*/

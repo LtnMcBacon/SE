@@ -186,7 +186,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 {
 	StartProfile;
 	_ASSERT_EXPR(callbacks.invokeCallback, "An invokeCallback must be provided");
-	const auto load = [this, &guid, &callbacks, loadFlags](auto& map)
+	const auto load = [this, &guid, &callbacks, loadFlags](auto& map, auto& evictInfo)
 	{
 		bool load = false;
 		bool error = false;
@@ -206,14 +206,14 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 						throw std::runtime_error("enqueue on stopped ThreadPool");
 
 					LoadJob c = { guid, callbacks, loadFlags };
-					auto asd = [this, &map, c]()->void { Load(&map, c); } ;
+					auto asd = [this, &map, &evictInfo, c]()->void { Load(map, evictInfo, c); } ;
 					tasks.emplace(asd);
 				}
 				condition.notify_one();		
 			}
 				//load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
 			else
-				return Load(&map, { guid, callbacks, loadFlags });
+				return Load(map,evictInfo, { guid, callbacks, loadFlags });
 		}
 		else
 		{
@@ -225,10 +225,10 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		return 0;
 	};
 	if (loadFlags & LoadFlags::LOAD_FOR_RAM) {
-		ProfileReturn(load(guidToRAMEntry));
+		ProfileReturn(load(guidToRAMEntry, initInfo.RAM));
 	}
 	else if (loadFlags & LoadFlags::LOAD_FOR_VRAM) {
-		ProfileReturn(load(guidToVRAMEntry));
+		ProfileReturn(load(guidToVRAMEntry, initInfo.VRAM));
 	}
 
 	
@@ -261,13 +261,13 @@ static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& er
 		error = false;
 };
 
-int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>* map, LoadJob job)
+int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job)
 {
 
 	// Do some checks
 	{	
 		bool error = false;
-		Utilz::OperateSingle(*map, job.guid, checkStillLoad, job.guid, error, errors);
+		Utilz::OperateSingle(map, job.guid, checkStillLoad, job.guid, error, errors);
 		if (error)
 			return -1;
 	}
@@ -276,57 +276,67 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	// Load the resource
 	Data data;
 	{
-		Data rawData;
-		if (!diskLoader->Exist(job.guid, &rawData.size))
-		{
-			Utilz::OperateSingle(*map, job.guid, setFail);
-			errors.Push_Back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
-			return -1;
-		}
-		loadLock.lock();
-		auto result = diskLoader->LoadResource(job.guid, &rawData.data);
-		if (result < 0)
-		{
-			loadLock.unlock();
-			Utilz::OperateSingle(*map, job.guid, setFail);
-			errors.Push_Back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
-			return -1;
-		}
+	Data rawData;
+	if (!diskLoader->Exist(job.guid, &rawData.size))
+	{
+		Utilz::OperateSingle(map, job.guid, setFail);
+		errors.Push_Back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
+		return -1;
+	}
+	loadLock.lock();
 
+	auto mem = evictInfo.getCurrentMemoryUsage();
+	auto limit = evictInfo.max * evictInfo.tryUnloadWhenOver;
+	auto total = mem + rawData.size;
+	if (total >= limit)
+	{
+		auto needed = total - limit;
+		EvictResources(map, rawData.size, needed);
+	}
+
+	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
+	if (result < 0)
+	{
 		loadLock.unlock();
-		if (job.callbacks.loadCallback)
+		Utilz::OperateSingle(map, job.guid, setFail);
+		errors.Push_Back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
+		return -1;
+	}
+
+	loadLock.unlock();
+	if (job.callbacks.loadCallback)
+	{
+		loadCallbackLock.lock();
+		auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
+		loadCallbackLock.unlock();
+
+		bool error = false;
+		Utilz::OperateSingle(map, job.guid, [lresult, &error, &rawData](auto& resource)
 		{
-			loadCallbackLock.lock();
-			auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-			loadCallbackLock.unlock();
-		
-			bool error = false;
-			Utilz::OperateSingle(*map, job.guid, [lresult,&error,&rawData](auto& resource)
+			if (lresult & LoadReturn::NO_DELETE)
+				resource.state |= State::RAW;
+			else
+				operator delete (rawData.data);
+			if (lresult & LoadReturn::FAIL)
 			{
-				if (lresult & LoadReturn::NO_DELETE)
-					resource.state |= State::RAW;
-				else
-					operator delete (rawData.data);
-				if (lresult & LoadReturn::FAIL)
-				{
-					resource.state = State::FAIL;
-					
-					error = true;
-				}
-			});
-			if (error)
-			{
-				errors.Push_Back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
-				return -1;
+				resource.state = State::FAIL;
+
+				error = true;
 			}
-		}
-		else
+		});
+		if (error)
 		{
-			data = rawData;
+			errors.Push_Back("Resource failed in LoadCallback, GUID: " + std::to_string(job.guid.id));
+			return -1;
 		}
 	}
+	else
 	{
-		Utilz::OperateSingle(*map, job.guid, [&job, data](auto& resource)
+		data = rawData;
+	}
+	}
+	{
+		Utilz::OperateSingle(map, job.guid, [&job, data](auto& resource)
 		{
 			resource.state = resource.state ^ State::LOADING | State::LOADED;
 			if (!job.callbacks.destroyCallback)
@@ -337,18 +347,63 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 			resource.state |= State::LOADED;
 
 		});
-		
-	
+
+
 	}
 
 	// Invoke the invoke callback
-	auto res = invoke(*map, job.guid, data, job.callbacks.invokeCallback, errors);
+	auto res = invoke(map, job.guid, data, job.callbacks.invokeCallback, errors);
 	if (res < 0)
 	{
 		return -1;
 	}
 
 	return 0;
+}
+static const auto linearEvict = [](auto& map, auto& out)
+{
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) &&  resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			out.push_back(resource.first);
+		}
+	}
+};
+
+static const auto evictResources = [](auto& map, auto& order, size_t needed)
+{
+	size_t total = 0;
+	for (auto& r : order)
+	{
+		auto& re = map[r];
+		if (!(re.state & SE::ResourceHandler::State::IMMUTABLE) && re.state & SE::ResourceHandler::State::DEAD && re.state & SE::ResourceHandler::State::LOADED && re.ref == 0)
+		{
+			total += re.data.size;
+			re.state = re.state ^ SE::ResourceHandler::State::LOADED;
+			if (re.state & SE::ResourceHandler::State::RAW)
+			{
+				operator delete(re.data.data);
+				re.data.data = nullptr;
+				re.data.size = 0;
+			}
+			else	
+				re.destroyCallback(r, re.data.data, re.data.size);
+			
+		}
+	}
+};
+
+void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed)
+{
+	int i = 0;
+	std::vector<Utilz::GUID> order;
+	Utilz::Operate(map, linearEvict, order);
+
+	if(order.size())
+		Utilz::Operate(map, evictResources, order, needed);
+
+
+
 }
 //
 //void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
