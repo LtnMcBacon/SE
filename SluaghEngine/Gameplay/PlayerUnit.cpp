@@ -190,7 +190,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 
 void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 10.f, animationFlags);
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags | Core::AnimationFlags::CURRENT);
 }
 
 void SE::Gameplay::PlayerUnit::ResolveEvents()
@@ -201,7 +201,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 	
 	for (int i = 0; i < DamageEventVector.size(); i++)
 	{
-		this->health -= DamageEventVector[i].amount;
+		//this->health -= DamageEventVector[i].amount;
 	}
 	
 	for(auto condition : ConditionEventVector)
@@ -214,7 +214,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 
 	for(auto healing : HealingEventVector)
 	{
-		health += healing.amount;
+		//health += healing.amount;
 	}
 	
 	ProfileReturnVoid;
@@ -365,12 +365,12 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
-		AnimationUpdate(PLAYER_RUN_ANIMATION, Core::AnimationFlags::BLENDTO);
+		AnimationUpdate(PLAYER_RUN_ANIMATION, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
 		
 	}
 	else
 	{
-		AnimationUpdate(PLAYER_IDLE_ANIMATION, Core::AnimationFlags::BLENDTO);
+		AnimationUpdate(PLAYER_IDLE_ANIMATION, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
 	}
 
 	//------------------------
@@ -480,7 +480,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 		attackCooldown = 1.0f / attackSpeed;
 
-		AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTO);
+		AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK);
 	}
 
 	if (attackCooldown > 0.f)
@@ -649,7 +649,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	InitializeAnimationInfo();
 
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP);
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
 
 }
 
