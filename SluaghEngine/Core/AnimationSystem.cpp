@@ -266,6 +266,29 @@ void SE::Core::AnimationSystem::GetJointMatrix(const Entity& entity, int jointIn
 	}
 }
 
+unsigned int SE::Core::AnimationSystem::GetAnimationLength(const Utilz::GUID& guid) {
+
+	auto find = animations.find(guid);
+
+	if (find != animations.end()) {
+
+		return animations[find->first].Length;
+	}
+
+	return 0;
+}
+
+void SE::Core::AnimationSystem::GetJointInverseBindPose(const Utilz::GUID& guid, int jointIndex, DirectX::XMMATRIX& matrix) {
+
+	auto find = skeletons.find(guid);
+
+	if (find != skeletons.end()) {
+
+		matrix = skeletons[find->first].Hierarchy[jointIndex].inverseBindPoseMatrix;
+	}
+
+}
+
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 	

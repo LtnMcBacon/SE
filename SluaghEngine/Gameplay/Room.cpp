@@ -23,10 +23,19 @@ static const SE::Utilz::GUID Top("HighWall_Top.mesh");
 static const SE::Utilz::GUID ThreeSides("HighWall_ThreeSides.mesh");
 static const SE::Utilz::GUID Door("Door.mesh");
 static const SE::Utilz::GUID Floor("floorTest.mesh");
+static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
+static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
+
+
+// Random props
+std::vector<SE::Utilz::GUID> randomProps;
+
+
+
 
 //materials
 static const SE::Utilz::GUID Stone("Cube.mat");
-static const SE::Utilz::GUID FloorMat("Cube.mat");
+static const SE::Utilz::GUID FloorMat("floorTest.mat");
 static const SE::Utilz::GUID DoorMat("Cube.mat");
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
@@ -194,6 +203,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	}
 	ProfileReturn(collision);
 }
+
 
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
@@ -589,17 +599,17 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 		if ((x == 24 && y != 0))
 		{
 			int side = 1;
-			if (left == 10)
+			if (left == (char)255)
 				side = side * 2;
-			if (up == 10)
+			if (up == (char)255)
 				side = side * 3;
-			if (down == 10)
+			if (down == (char)255)
 				side = side * 7;
 			if (side == 42)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
 			}
-			else if (tileValues[x][y - 1] == 1 || tileValues[x][y - 1] == 2)
+			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
 			{
 				if (side != 2 || side != 6)
 				{
@@ -617,7 +627,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
 				}
 			}
-			else if (tileValues[x][y + 1] == 1 || tileValues[x][y + 1] == 2)
+			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
 			{			
 				if (side != 2 || side != 14)
 				{
@@ -644,17 +654,17 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 		else if ((y == 24 && x != 0))
 		{
 			int side = 1;
-			if (right == 10)
+			if (right == (char)255)
 				side = side * 5;
-			if (left == 10)
+			if (left == (char)255)
 				side = side * 2;
-			if (down == 10)
+			if (down == (char)255)
 				side = side * 7;
 			if (side == 70)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
 			}
-			else if (tileValues[x - 1][y] == 1 || tileValues[x - 1][y] == 2)
+			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
 			{
 				if (side != 7 || side != 35)
 				{
@@ -672,7 +682,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
 				}	
 			}
-			else if (tileValues[x + 1][y] == 1 || tileValues[x + 1][y] == 2)
+			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
 			{			
 				if (side != 7 || side != 14)
 				{
@@ -699,17 +709,17 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 		else if ((x == 0 && y != 24))
 		{
 			int side = 1;
-			if (right == 10)
+			if (right == (char)255)
 				side = side * 5;
-			if (up == 10)
+			if (up == (char)255)
 				side = side * 3;
-			if (down == 10)
+			if (down == (char)255)
 				side = side * 7;
-			if (side == 105)
+			if (side == (char)105)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
 			}
-			else if (tileValues[x][y - 1] == 1 || tileValues[x][y - 1] == 2)
+			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
 			{	
 				if (side != 5 || side != 15)
 				{
@@ -727,7 +737,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
 				}
 			}
-			else if (tileValues[x][y + 1] == 1 || tileValues[x][y + 1] == 2)
+			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
 			{
 				if (side != 5 || side != 35)
 				{
@@ -754,17 +764,17 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 		else if ((y == 0 && x != 24))
 		{
 			int side = 1;
-			if (right == 10)
+			if (right == (char)255)
 				side = side * 5;
-			if (left == 10)
+			if (left == (char)255)
 				side = side * 2;
-			if (up == 10)
+			if (up == (char)255)
 				side = side * 3;
 			if (side == 30)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Top });
 			}
-			else if (tileValues[x - 1][y] == 1 || tileValues[x - 1][y] == 2)
+			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
 			{
 				if (side != 3 || side != 15)
 				{
@@ -782,7 +792,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
 				}
 			}
-			else if (tileValues[x + 1][y] == 1 || tileValues[x + 1][y] == 2)
+			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
 			{
 				if (side != 3 || side != 6)
 				{
@@ -818,13 +828,13 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 	else
 	{
 		int side = 1;
-		if (right == 10)
+		if (right == (char)255)
 			side = side * 5;
-		if (left == 10)
+		if (left == (char)255)
 			side = side * 2;
-		if (up == 10)
+		if (up == (char)255)
 			side = side * 3;
-		if (down == 10)
+		if (down == (char)255)
 			side = side * 7;
 		//    3
 		//  2/#/5
@@ -935,7 +945,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 void SE::Gameplay::Room::CreateEntities()
 {
 	int numberOfEntitesPlaced = 0;
-
+	int DoorCounter = 0; 
 	Core::IMaterialManager::CreateInfo cubeInfo;
 	
 
@@ -943,19 +953,54 @@ void SE::Gameplay::Room::CreateEntities()
 	{
 		for (int j = 0; j < 25; j++)
 		{
-			if (tileValues[i][j] != 3)
+			if (tileValues[i][j] != (char)76)
 			{
 				auto ent = CoreInit::managers.entityManager->Create();
 				CoreInit::managers.transformManager->Create(ent);
 				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
-				if (tileValues[i][j] == 0)
+				auto floorEnt = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.transformManager->Create(floorEnt);
+				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+
+				if (IsOutside)
+				{
+					if (tileValues[i][j] == (char)13)
+					{
+					auto& props = propVectors[PropTypes::BUSHES];
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+					}
+				}
+
+				if (tileValues[i][j] == (char)0)
 				{
 					cubeInfo.materialFile = FloorMat;
 					cubeInfo.shader = Norm;
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
 				}
-				else if (tileValues[i][j] == 10)
+				// Torch
+				else if (tileValues[i][j] == (char)203)
+				{
+					// Create torch
+					CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+
+					// Create floor
+					cubeInfo.materialFile = FloorMat;
+					cubeInfo.shader = Norm;
+					CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
+				}
+				// Other
+				else if (tileValues[i][j] == (char)137 )
+				{
+
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
+				}
+				else if (tileValues[i][j] == (char)225 ) // Pillar
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
+				}
+				else if (tileValues[i][j] == (char)255 )
 				{
 					cubeInfo.materialFile = Stone;
 					if (CreateWall(ent, i, j) == true)
@@ -969,34 +1014,51 @@ void SE::Gameplay::Room::CreateEntities()
 					}			
 					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
 				}
-				else if (tileValues[i][j] == 1 || tileValues[i][j] == 2)
+				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
-					auto entFloor = CoreInit::managers.entityManager->Create();
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
-					CoreInit::managers.transformManager->Create(entFloor);
-					CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
-					CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
-					CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
-					CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
-					roomEntities.push_back(entFloor);
 
-					cubeInfo.materialFile = DoorMat;
-					if ((tileValues[i][j + 1] == 0 || tileValues[i + 1][j] == 0 || tileValues[i + 1][j + 1] == 0 || tileValues[i - 1][j + 1] == 0 || tileValues[i + 1][j - 1] == 0))
+					if (DoorArr[DoorCounter] == true)
 					{
-						cubeInfo.shader = Trans;
-						CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+						auto entFloor = CoreInit::managers.entityManager->Create();
+						cubeInfo.materialFile = FloorMat;
+						cubeInfo.shader = Norm;
+						CoreInit::managers.transformManager->Create(entFloor);
+						CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
+						CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
+						CoreInit::managers.materialManager->Create(entFloor, cubeInfo);
+						CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
+						roomEntities.push_back(entFloor);
+
+						cubeInfo.materialFile = DoorMat;
+						if ((tileValues[i][j + 1] == (char)0 || tileValues[i + 1][j] == (char)0 || tileValues[i + 1][j + 1] == (char)0 || tileValues[i - 1][j + 1] == (char)0 || tileValues[i + 1][j - 1] == (char)0))
+						{
+							cubeInfo.shader = Trans;
+							CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+						}
+						else
+						{
+							cubeInfo.shader = Norm;
+						}
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
+						CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+
+						DoorCounter++; 
 					}
 					else
 					{
+						cubeInfo.materialFile = FloorMat;
 						cubeInfo.shader = Norm;
+						CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
 					}
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Door });
-					CoreInit::managers.transformManager->SetRotation(ent, 0.0f, FloorCheck(i, j), 0.0f);
+					
 				}
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 				roomEntities.push_back(ent);
+
+				CoreInit::managers.materialManager->Create(floorEnt, cubeInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(floorEnt, true);
+				roomEntities.push_back(floorEnt);
 			}
 		}
 	}
@@ -1036,6 +1098,11 @@ void SE::Gameplay::Room::CreateEnemies()
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
+	propVectors[PropTypes::TORCHES_FLOOR] = {"FloorTorch.mesh"};
+	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
+	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
+	propVectors[PropTypes::BUSHES] = { "Bush.mesh" };
+
 	pos start;
 	loadfromFile(fileName);
 
@@ -1056,7 +1123,7 @@ Room::Room(Utilz::GUID fileName)
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
 	CreateEntities();
-	
+
 	StopProfile;
 }
 
@@ -1098,7 +1165,11 @@ void Room::loadfromFile(Utilz::GUID fileName)
 		{
 			for (int x = 0; x < 25; x++)
 			{
-				tileValues[x][y] = (float)(in[counter] / 25); 
+				tileValues[x][y] = (char)(in[counter]);
+				if (in[counter] == (char)13)
+				{
+					IsOutside = true;
+				}
 				counter++; 
 			}
 		}
@@ -1110,19 +1181,71 @@ void Room::loadfromFile(Utilz::GUID fileName)
 	StopProfile; 
 }
 
+float Room::WallCheck(int x, int y)
+{
+	StartProfile;
+	float rotation = 0;
+
+
+	if (x - 1 >= 0 && ( tileValues[x - 1][y] == (char)255 || tileValues[x - 1][y] == (char)225  ))
+		rotation = 180;
+	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == (char)255 || tileValues[x][y - 1] == (char)225 ))
+		rotation = 90;																
+	else if (y + 1 < 25 && ( tileValues[x][y + 1] == (char)255 || tileValues[x][y + 1] == (char)225 ))
+		rotation = -90;																
+	else if (x + 1 < 25 && ( tileValues[x + 1][y] == (char)255 || tileValues[x + 1][y] == (char)225 ))
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+	ProfileReturnConst(rotation);
+}
+
+const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
+{
+	StartProfile;
+
+	// if we find a prop on the right side of the prop and not beneeth its a 2x1
+	if (tileValues[x + 1][y] == (char)137 && tileValues[x][y - 1] != (char)137 )
+	{
+		// medium prop 2x1
+	}
+	// Else we check if its a 1x2 by checking if a prop is beneeth and not on the right side
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y] != (char)137)
+	{
+		//medium prop 1x2
+	}
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1] == (char)137) {
+		// big prop 2x2
+	}
+
+
+
+	auto& propList = propVectors[PropTypes::TABLES];
+
+	auto rand = CoreInit::subSystems.window->GetRand();
+	auto randNr = (rand % propList.size());
+
+
+
+	ProfileReturnConst(propList[randNr]);
+}
+
 float Room::FloorCheck(int x, int y)
 {
 	StartProfile;
 	float rotation = 0;
 
 
-	if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
+	if (x - 1 >= 0 && tileValues[x - 1][y] == (char)0)
 		rotation = 270;
-	else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == (char)0)
 		rotation = 180;
-	else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+	else if (y + 1 < 25 && tileValues[x][y + 1] == (char)0)
 		rotation = 0;
-	else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
+	else if (x + 1 < 25 && tileValues[x + 1][y] == (char)0)
 		rotation = 90;
 
 	rotation += 270;

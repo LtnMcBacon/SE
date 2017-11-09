@@ -19,7 +19,10 @@ cbuffer LightDataBuffer : register(b2)
 
 cbuffer CameraPos : register(b3)
 {
-	float4 cameraPos;
+	float3 camUpVector;
+	float pad;
+	float3 eyePos;
+	float pad2;
 };
 
 cbuffer MaterialAttributes : register(b4)
@@ -63,7 +66,7 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		float3 calcDiffuse = normalDotLight * pointLights[i].colour.xyz * (DiffuseColor.Sample(sampAni, input.Tex).xyz * diffuse.xyz);
 		
 		//Calculate specular term
-		float3 V = cameraPos.xyz - input.PosInW.xyz;
+		float3 V = eyePos.xyz - input.PosInW.xyz;
 		float3 H = normalize(light + V);
 		float3 power = pow(saturate(dot(normalWorld, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;
@@ -73,5 +76,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
 	}
 	
-	return float4(totLight, 0.7f);
+	return float4(totLight, 1.0f);
 }

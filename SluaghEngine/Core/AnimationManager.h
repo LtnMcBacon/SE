@@ -71,6 +71,7 @@ namespace SE
 			
 			void CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info);
 
+			void OverwriteAnimation(AnimationInfo& info, size_t to, size_t from);
 
 			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;

@@ -37,7 +37,6 @@ namespace SE
 	{
 		enum class AnimationFlags {
 
-			MIX = 1,
 			BLENDTO = 1 << 1,
 			BLENDTOANDBACK = 1 << 2,
 			IMMEDIATE = 1 << 3,

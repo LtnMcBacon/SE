@@ -147,13 +147,12 @@ namespace SE {
 			// Copy the data
 			textEnt[index] = last_entity;
 			loadedTexts[index] = loadedTexts[last];
-			entID[last_entity] = entID[entity];
+			entID[last_entity].ID = entID[entity].ID;
 
 			// Remove last spot 
 			entID.erase(entity);
 			loadedTexts.pop_back();
 			textEnt.pop_back();
-
 			StopProfile;
 		}
 
@@ -186,15 +185,16 @@ namespace SE {
 				// Temp variables
 				size_t last = loadedTexts.size() - 1;
 				size_t index = entID[entity].ID;
+				const Entity currentEntity = textEnt[index];
 				const Entity last_entity = textEnt[last];
 
 				// Copy the data
 				textEnt[index] = last_entity;
 				loadedTexts[index] = loadedTexts[last];
-				entID[last_entity] = entID[entity];
+				entID[last_entity].ID = entID[currentEntity].ID;
 
 				// Remove last spot 
-				entID.erase(entity);
+				entID.erase(currentEntity);
 				loadedTexts.pop_back();
 				textEnt.pop_back();
 			}
