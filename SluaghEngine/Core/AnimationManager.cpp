@@ -238,13 +238,17 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						// Store in these
 						DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
 
+						DirectX::XMVECTOR euler;
+						float angle;
+						DirectX::XMQuaternionToAxisAngle(&euler, &angle, jointQuat);
+
 						//// Multiply model scale with joint scale
 						//DirectX::XMStoreFloat3(&attachScale, jointScale);
 						//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
 
-						//// Multiply model quaternion with joint quaternion
-						//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
-						//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
+						// Multiply model quaternion with joint quaternion
+						DirectX::XMStoreFloat3(&attachQuat, euler);
+						initInfo.transformManager->SetRotation(att.slots[k].entity, -attachQuat.x, attachQuat.y, -attachQuat.z);
 
 						// Multiply model translation with joint translation
 						DirectX::XMStoreFloat3(&attachTrans, jointTrans);
