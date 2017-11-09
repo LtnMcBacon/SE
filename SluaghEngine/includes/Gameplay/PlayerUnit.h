@@ -5,6 +5,8 @@
 #include <Gameplay\SkillFactory.h>
 #include <Utilz\GUID.h>
 #include <Gameplay\Skill.h>
+#include <map>
+#include "Core/IAnimationManager.h"
 
 namespace SE
 {
@@ -27,6 +29,20 @@ namespace SE
 		class PlayerUnit : public GameUnit
 		{
 		private:
+
+			enum AvailableAnimations
+			{
+				PLAYER_IDLE_ANIMATION,
+				PLAYER_RUN_ANIMATION,
+				PLAYER_ATTACK_ANIMATION,
+				PLAYER_ON_HIT_ANIMATION,
+				PLAYER_ON_DEATH_ANIMATION
+			};
+			std::map<AvailableAnimations, std::vector<Utilz::GUID>> animationPlayInfos;
+
+			void InitializeAnimationInfo();
+
+			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.

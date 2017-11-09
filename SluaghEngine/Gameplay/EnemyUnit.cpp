@@ -99,6 +99,7 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 {
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 	radius = sqrt(extents*extents + extents*extents);
+
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()

@@ -10,7 +10,6 @@
 #include <Utilz\Tools.h>
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyFactory.h"
-#include "Gameplay/ForestTrainer.h"
 #include "Gameplay/PlayerPossibleActions.h"
 #include "Gameplay/Game.h"
 #include "../Gameplay/CoreInit.h"

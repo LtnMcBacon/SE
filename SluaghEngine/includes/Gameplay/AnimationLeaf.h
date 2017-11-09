@@ -18,10 +18,7 @@ namespace SE
 			              std::string animationNames[], float animationSpeeds[], float startKeyFrame[], bool looping[]);
 			~AnimationLeaf();
 
-
 			Status Update() override;
-
-
 
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{
