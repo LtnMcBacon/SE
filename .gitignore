@@ -340,3 +340,6 @@ __pycache__/
 transformGarbageHist.txt
 /SluaghEngine/Test/FBXTemp
 *.ini
+ParsedAssets/
+!ParseFiles.bat
+!Build/Asset/Shaders/*
