@@ -29,6 +29,9 @@ namespace SE
 
 			virtual void RegisterToUpdateRenderableObject(const Utilz::Delegate<void(const Entity&)>&& callback) = 0;
 			virtual void TriggerUpdateRenderableObject(const Entity& entity) = 0;
+
+			virtual void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity&, bool)> && callback) = 0;
+			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
 		protected:
 			IEventManager() {};
 			

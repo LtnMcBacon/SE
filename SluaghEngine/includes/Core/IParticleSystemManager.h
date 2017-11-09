@@ -15,6 +15,8 @@
 #include "ITransformManager.h"
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
+#include "IEventManager.h"
+
 namespace SE
 {
 	namespace Core
@@ -30,6 +32,7 @@ namespace SE
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				IRenderableManager* renderableManager;
+				IEventManager* eventManager;
 			};
 
 			struct CreateInfo
