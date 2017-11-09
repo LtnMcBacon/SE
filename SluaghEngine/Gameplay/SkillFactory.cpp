@@ -7,7 +7,7 @@
 SE::Gameplay::SkillFactory::SkillFactory()
 {
 	auto rm = CoreInit::subSystems.resourceHandler;
-	rm->LoadResource("test.si", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("testSkill.si", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		this->skillAmounts = *((char*)(filePointer));
 
@@ -29,7 +29,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 	tempSkill = new SkillInfo;
 	
 	unsigned int index;
-	rm->LoadResource("test.si", [this, &index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("testSkill.si", [this, &index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		index = CoreInit::subSystems.window->GetRand() % this->skillAmounts;
 		int offset = sizeof(int);
@@ -89,7 +89,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 
 	return index;
 }
-void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, std::string projectileReference,float* attributes)
+void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, SE::Utilz::GUID &projectileReference, float* attributes)
 {
 	StartProfile;
 	auto rm = CoreInit::subSystems.resourceHandler;
@@ -97,7 +97,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, std:
 	SkillAttributes* tempSkill;
 	tempSkill = new SkillAttributes;
 
-	rm->LoadResource("test.sa", [this, index, &tempSkill](const Utilz::GUID& guid, void* filePointer, size_t fileSize) 
+	int res = rm->LoadResource("testSkill.sa", [this, index, &tempSkill](const Utilz::GUID& guid, void* filePointer, size_t fileSize) 
 	{
 		int offset = 0;
 		unsigned int stringSize;
@@ -135,7 +135,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, std:
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
-	projectileReference = tempSkill->projectileReference;
+	projectileReference = tempSkill->projectileReference + ".SEP";
  	attributes[0] = tempSkill->skillDamage;
 	attributes[1] = tempSkill->boonEffectValue;
 	attributes[2] = tempSkill->boonRange;
@@ -145,7 +145,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, std:
 	attributes[6] = tempSkill->baneDuration;
 	attributes[7] = tempSkill->cooldown;
 
-	delete[] tempSkill;
+	delete tempSkill;
 	StopProfile;
 }
 

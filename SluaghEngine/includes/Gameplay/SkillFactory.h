@@ -2,6 +2,7 @@
 #define SE_GAMEPLAY_SKILL_FACTORY_H_
 
 #include <string>
+#include <Utilz\GUID.h>
 
 namespace SE
 {
@@ -68,7 +69,7 @@ namespace SE
 			*
 			* @retval		Returns the skill index position in the file
 			**/
-			void readAttributesFromFile(unsigned int index, std::string projectileReference, float* attributes);
+			void readAttributesFromFile(unsigned int index, SE::Utilz::GUID &projectileReference, float* attributes);
 
 		};
 	}
