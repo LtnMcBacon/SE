@@ -7,6 +7,6 @@ copy /Y ".\rawLoaderEntries.txt" "%APPDATA%\Sluagh\rawLoaderEntries.txt" > nul
 robocopy "ParsedAssets" "%APPDATA%\Sluagh\ParsedAssets" /S > nul
 del libfbxsdk.dll > nul
 del .\rawLoaderEntries.txt > nul
-del /Q /S .\ParsedAssets > nul
+rd /Q /S .\ParsedAssets > nul
 echo Done
 pause

@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 	//AddTest(BehaviouralTreeFactoryTest);
 	//AddTest(EnemyFactoryTest);
 	//AddTest(GlaistigTest);
-	AddTest(SlaughTest);
+	//AddTest(SlaughTest);
 
 	AddTest(PickingTest);
 	AddTest(SkillTest);
