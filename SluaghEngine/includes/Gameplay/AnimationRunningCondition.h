@@ -1,6 +1,8 @@
 #ifndef SE_GAMEPLAY_ANIMATION_RUNNING_CONDITION_H
 #define SE_GAMEPLAY_ANIMATION_RUNNING_CONDITION_H
 #include "IBehaviour.h"
+#include <Utilz/GUID.h>
+#include <vector>
 
 namespace SE
 {
@@ -10,9 +12,10 @@ namespace SE
 		{
 		private:
 			AnimationRunningCondition() = delete;
+			std::vector<Utilz::GUID> animationsToCheck;
 			
 		public:
-			AnimationRunningCondition(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard);
+			AnimationRunningCondition(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, std::vector<Utilz::GUID> animations);
 			~AnimationRunningCondition();
 
 
@@ -22,7 +25,7 @@ namespace SE
 
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{
-				return new AnimationRunningCondition(enemyBlackboard, gameBlackboard);
+				return new AnimationRunningCondition(enemyBlackboard, gameBlackboard, animationsToCheck);
 			};
 		};
 	}
