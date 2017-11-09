@@ -71,7 +71,6 @@ int main()
 
 	char tempText[100] = "";//Used for finding texture
 
-
 	ResourceHandle->LoadResource("ParticleGS.hlsl", [&pipelineHandler](auto guid, void* data, size_t size) {
 		pipelineHandler->CreateGeometryShader(guid, data, size);
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
@@ -96,11 +95,6 @@ int main()
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
-	Particle p;
-	p.opacity = 1.0f;
-	
-
-	
 	//Setting blend state
 	Graphics::BlendState bs;
 	bs.enable = true;
@@ -122,6 +116,8 @@ int main()
 	sampState.maxAnisotropy = 0;
 	pipelineHandler->CreateSamplerState("ParticleSampler", sampState);
 
+	Particle p;
+	p.opacity = 1.0f;
 	//Pipeline for the update geometry shader
 	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
@@ -133,7 +129,6 @@ int main()
 	pipeline.SOStage.streamOutTarget = "OutStreamBuffer2";
 	
 	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON });
-	/*ComparisonOperation::NO_COMPARISON*/
 	XMFLOAT3 lookAt = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 eyePos = { 0.0f, 0.0f, -5.0f };
 	XMFLOAT3 upVec = { 0.0f, 1.0f, 0.0f };
@@ -246,7 +241,6 @@ int main()
 		}
 		engine->BeginFrame();
 		//Putting each separate window withing a Begin/End() section
-		//First window, main particle attributes
 		//Window for emit specific properties
 		ImGui::Begin("Emit Attributes");
 		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
@@ -280,13 +274,13 @@ int main()
 			movBuffer.vel[1] = r2;
 			movBuffer.vel[2] = r3;
 		}
+		
 		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 1.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.100f, "%.5f");
-		//ImGui::SliderFloat("Emit Rate", &movBuffer.emitRate, 0.00050, 0.0500, "%.5f");
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
@@ -342,9 +336,6 @@ int main()
 		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);
 		//*****
 		engine->EndFrame();
-		/*updateParticleJob.vertexCount = 0;
-		Renderer->ChangeRenderJob(updateParticleJobID, updateParticleJob);*/
-
 	}
 
 	engine->Release();
