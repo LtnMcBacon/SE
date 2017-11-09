@@ -1602,7 +1602,12 @@ void SE::Graphics::PipelineHandler::SetPipelineForced(const Pipeline& pipeline)
 	ForcedSetInputAssemblerStage(pipeline.IAStage);
 	ForcedSetVertexShaderStage(pipeline.VSStage);
 	ForcedSetGeometryShaderStage(pipeline.GSStage);
-	deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
+	if (pipeline.SOStage.streamOutTarget != Utilz::GUID())
+		deviceContext->SOSetTargets(1, &vertexBuffers[pipeline.SOStage.streamOutTarget].buffer, &offset);
+	else
+	{
+		deviceContext->SOSetTargets(0, nullptr, nullptr);
+	}
 	currentPipeline.SOStage.streamOutTarget = pipeline.SOStage.streamOutTarget;
 	ForcedSetRasterizerStage(pipeline.RStage);
 	ForcedSetPixelShaderStage(pipeline.PSStage);

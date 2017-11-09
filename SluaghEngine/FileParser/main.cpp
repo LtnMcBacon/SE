@@ -56,13 +56,8 @@ std::vector<Accepted> acceptedExt =
 } },
 
 	{ "txt", "txt", "Text", [](const char* filename, const char* outFilename) {
-	std::ifstream  src(filename, std::ios::binary);
-
-	std::ofstream  dst(outFilename, std::ios::binary | std::ios::trunc);
-
-	dst << src.rdbuf();
-	src.close();
-	dst.close(); } },
+	fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
+	} },
 	{ "spritefont", "spritefont", "Font", [](const char* filename, const char* outFilename) {
 		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
 	} },
