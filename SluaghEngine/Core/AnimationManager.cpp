@@ -16,6 +16,7 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	_ASSERT(initInfo.transformManager);
 
 	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::CreateRenderObjectInfo });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &AnimationManager::ToggleVisible });
 
 	animationSystem = new AnimationSystem(initInfo.renderer);
 
