@@ -33,14 +33,14 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 	{
 		index = CoreInit::subSystems.window->GetRand() % this->skillAmounts;
 		int offset = sizeof(int);
+		int usiSize = sizeof(unsigned short int);
+		int uiSize = sizeof(unsigned int);
 		for (int i = 0; i < index; i++)
 		{
 			unsigned int stringSize;
-			memcpy(&stringSize, (char*)filePointer + offset, sizeof(unsigned int));
-			offset += stringSize + sizeof(unsigned int);
+			memcpy(&stringSize, (char*)filePointer + offset, uiSize);
+			offset += stringSize + uiSize;
 			
-
-			int usiSize = sizeof(unsigned short int);
 			tempSkill->AtkType = *((char*)(filePointer)+offset);
 			offset += usiSize;
 			tempSkill->Element = *((char*)(filePointer)+offset);
@@ -55,13 +55,12 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 			offset += usiSize;
 		}
 		unsigned int stringSize;
-		memcpy(&stringSize, (char*)filePointer + offset, sizeof(unsigned int));
-		offset += sizeof(unsigned int);
+		memcpy(&stringSize, (char*)filePointer + offset, uiSize);
+		offset += uiSize;
 		auto thing = ((char*)(filePointer)+offset);
 		tempSkill->skillName = ((std::string)(thing)).substr(0, stringSize);
 		offset += stringSize;
 
-		int usiSize = sizeof(unsigned short int);
 		tempSkill->AtkType		= *((char*)(filePointer)+offset);
 		offset += usiSize;
 		tempSkill->Element		= *((char*)(filePointer)+offset);
@@ -90,7 +89,7 @@ unsigned int SE::Gameplay::SkillFactory::readSkillInfo(std::string& name, unsign
 
 	return index;
 }
-void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, float* attributes)
+void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, std::string projectileReference,float* attributes)
 {
 	StartProfile;
 	auto rm = CoreInit::subSystems.resourceHandler;
@@ -100,26 +99,43 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, floa
 
 	rm->LoadResource("test.sa", [this, index, &tempSkill](const Utilz::GUID& guid, void* filePointer, size_t fileSize) 
 	{
-		int offset = index * (sizeof(float) * 7);
-		float db = *((char*)(filePointer)+offset);
-		memcpy(&tempSkill->skillDamage, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->boonEffectValue, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->boonRange, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->boonDuration, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->baneEffectValue, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->baneRange, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
-		memcpy(&tempSkill->baneDuration, (char*)filePointer + offset, sizeof(float));
-		offset += sizeof(float);
+		int offset = 0;
+		unsigned int stringSize;
+		int usiSize = sizeof(unsigned short int);
+		int uiSize  = sizeof(unsigned int);
+		int fSize   = sizeof(float);
+		for (int i = 0; i < index; i++)
+		{
+			memcpy(&stringSize, (char*)filePointer + offset, uiSize);
+			offset += stringSize + uiSize * (fSize * 8);
+		}
+		memcpy(&stringSize, (char*)filePointer + offset, uiSize);
+		offset += uiSize;
+		auto thing = ((char*)(filePointer)+offset);
+		tempSkill->projectileReference = ((std::string)(thing)).substr(0, stringSize);
+		offset += stringSize;
+
+		memcpy(&tempSkill->skillDamage, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->boonEffectValue, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->boonRange, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->boonDuration, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->baneEffectValue, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->baneRange, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->baneDuration, (char*)filePointer + offset, fSize);
+		offset += fSize;
+		memcpy(&tempSkill->cooldown, (char*)filePointer + offset, fSize);
+		offset += fSize;
 
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
+	projectileReference = tempSkill->projectileReference;
  	attributes[0] = tempSkill->skillDamage;
 	attributes[1] = tempSkill->boonEffectValue;
 	attributes[2] = tempSkill->boonRange;
@@ -127,6 +143,8 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, floa
 	attributes[4] = tempSkill->baneEffectValue;
 	attributes[5] = tempSkill->baneRange;
 	attributes[6] = tempSkill->baneDuration;
+	attributes[7] = tempSkill->cooldown;
+
 	delete[] tempSkill;
 	StopProfile;
 }
