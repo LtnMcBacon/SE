@@ -63,15 +63,22 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
+	auto& box = managers.entityManager->Create();
 
 	managers.transformManager->Create(mainC);
 	managers.transformManager->Create(mainC2);
+	managers.transformManager->Create(box);
+
+	managers.renderableManager->CreateRenderableObject(box, {});
+	managers.renderableManager->ToggleRenderableObject(box, true);
+	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
+	//managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -114,9 +121,9 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
-	managers.animationManager->AttachToEntity(mainC, mainC2, "LHand", 0);
-
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
+
+	managers.animationManager->AttachToEntity(mainC, box, "LHand", 0);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
 	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
@@ -124,39 +131,16 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	Core::IAnimationManager::AnimationPlayInfo playInfo;
-	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 1.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.00f;
-	playInfo.blendFactor[0] = 0.0f;
+	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
+	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
+	managers.animationManager->Start(mainC2, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE);
 
-	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
-	playInfo.animationSpeed[1] = 1.0f;
-	playInfo.timePos[1] = 0.0f;
-	playInfo.looping[1] = true;
-	playInfo.blendSpeed[1] = 0.05f;
-	playInfo.blendFactor[1] = 0.0f;
-
-	playInfo.animations[2] = "DeathAnim_MCModell.anim";
-	playInfo.animationSpeed[2] = 1.0f;
-	playInfo.timePos[2] = 0.0f;
-	playInfo.looping[2] = true;
-	playInfo.blendSpeed[2] = 0.05f;
-	playInfo.blendFactor[2] = 0.0f;
-
-	playInfo.nrOfLayers = 3;
-
-	managers.animationManager->Start(mainC, playInfo);
-
-	managers.animationManager->Start(mainC2, playInfo);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
 	d.radius = 100.0f;
 	d.pos = { 5.0f, 10.0f, -5.0f };
-	d.color = { 1, 1,1 };
+	d.color = { 1, 1, 1 };
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
@@ -205,8 +189,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.01f*dt, 0.0f });
 		
 		engine->BeginFrame();
-
-		managers.animationManager->UpdateBlending(mainC, 2);
 	
 		ImGui::Begin("Animation Stuff");
 
@@ -223,10 +205,16 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		}
 
-		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -0.1f, 0.1f)) {
+		if (ImGui::SliderFloat("C1 Blend Speed ", &blendFactorSpeed, -10.0f, 10.0f)) {
 
 			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 
+		}
+
+		if (ImGui::Button("BlendToAndBack")) {
+
+			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
+			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
 		}
 
 		if (ImGui::Button("C1 Start")){

@@ -65,10 +65,13 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.entity[index] = entity;
 	animationData.animInfo[index].nrOfLayers = 0;
 	animationData.playing[index] = 0u;
+	animationData.attacher[index] = {};
 
 	for(size_t j = 0; j < AnimationPlayInfo::maxLayers; j++){
 
 	animationData.animInfo[index].timePos[j] = 0.0f;
+	animationData.animInfo[index].blendFactor[j] = -1.0f;
+	animationData.animInfo[index].blendSpeed[j] = 0.0f;
 
 	}
 
@@ -121,27 +124,149 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
-	
 	renderableManager->Frame(nullptr);
-
+	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-
-	for (size_t i = 0; i < animationData.used; i++)
+	
+	aniUpdateTime += dt;
+	if (aniUpdateTime > 0.033f)
 	{
-		if (animationData.playing[i] == 1u)
+		if (lambda.valid())
 		{
-			auto& ai = animationData.animInfo[i];
+			lambda.get();
+		}
 
-			for(size_t j = 0; j < ai.nrOfLayers; j++){
+		animationSystem->UpdateMatricesIndex();
+		for (size_t i = 0; i < animationData.used; i++)
+		{
+			if (animationData.playing[i] == 1u)
+			{
+				auto& ai = animationData.animInfo[i];
 
-				ai.timePos[j] += ai.animationSpeed[j] * dt;
+				for (size_t j = 0; j < ai.nrOfLayers; j++) {
 
+					if (ai.blendFactor[j] < 0.0) {
+					
+						if (ai.toBlendTarget == true) {
+
+							ai.blendSpeed[j] = 0.0f;
+							ai.blendFactor[j] = 0.0f;
+						}
+
+						else {
+
+							if (ai.toBlendSource == true) {
+
+								if (j == ai.blendBackInfo.animIndex) {
+
+									ai.toBlendSource = false;
+
+									for(size_t k = 0; k < ai.nrOfLayers - 1; k++){
+
+										ai.animationSpeed[k] = ai.blendBackInfo.previousSpeed[k];
+									}
+								}
+							}
+
+							OverwriteAnimation(ai, j, ai.nrOfLayers - 1);
+							ai.nrOfLayers--;
+
+						}
+						
+					}
+
+					if (ai.toBlendTarget == true) {
+
+						if (j == ai.blendBackInfo.animIndex) {
+
+							if (ai.timePos[j] >= ai.blendBackInfo.animLength) {
+
+								ai.toBlendTarget = false;
+								ai.toBlendSource = true;
+								ai.blendSpeed[j] = -10.0f;
+
+								for (size_t index = 0; index < ai.nrOfLayers; index++) {
+
+									if (index != j) {
+
+										ai.blendSpeed[index] = 10.0f;
+									}
+								}
+							}
+						}
+					}
+
+					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
+
+					ai.blendFactor[j] += ai.blendSpeed[j] * dt;
+					ai.blendFactor[j] = min(ai.blendFactor[j], 1.0f);
+
+				}
+				updateJob.push_back({ animationData.entity[i], ai });
+				//animationSystem->CalculateMatrices(animationData.entity[i], ai, true);
 			}
 
-			animationSystem->CalculateMatrices(animationData.entity[i], ai);
 		}
-			
+		auto UpdateLoop = [this]()
+		{
+			for (size_t i = 0; i < updateJob.size(); i++)
+			{
+				animationSystem->CalculateMatrices(updateJob[i].ent, updateJob[i].animInfo, true);
+
+				for (size_t k = 0; k < Attacher::maxSlots; k++) {
+
+					auto& att = animationData.attacher[i];
+
+					// If an entity is attached to this entity...
+					if (att.slots[k].attached == true) {
+						
+						// Get the joint transformation matrix
+						DirectX::XMFLOAT4X4 matrix;
+						animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+
+						DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
+						animationSystem->GetJointInverseBindPose(updateJob[i].animInfo.skeleton, att.slots[k].jointIndex, inverseBindPose);
+						inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
+
+						DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(animationData.entity[i]));
+						DirectX::XMFLOAT3 entityPos = initInfo.transformManager->GetPosition(animationData.entity[i]);
+
+						// Decompose the joint transformation matrix
+						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix));
+
+						// Store in these
+						DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
+
+						//// Multiply model scale with joint scale
+						//DirectX::XMStoreFloat3(&attachScale, jointScale);
+						//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
+
+						//// Multiply model quaternion with joint quaternion
+						//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
+						//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
+
+						// Multiply model translation with joint translation
+						DirectX::XMStoreFloat3(&attachTrans, jointTrans);
+						initInfo.transformManager->SetPosition(att.slots[k].entity, { -attachTrans.x + entityPos.x, attachTrans.y + entityPos.y, -attachTrans.z + entityPos.z });
+
+						
+					}
+				}
+
+				
+			}
+
+			updateJob.clear();
+			return true;
+		};
+
+		UpdateLoop();
+		//lambda = initInfo.threadPool->Enqueue(UpdateLoop);
+		aniUpdateTime = 0.0f;
 	}
+
+			
 	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
@@ -167,8 +292,41 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 			int found = animationSystem->FindJointIndex(ai.skeleton, jointGUID);
 			if(found != -1){
 
-				at.slots[slotIndex].entity = entityToAttach;
+				at.slots[slotIndex].attached = true;
+				at.slots[slotIndex].entity = initInfo.entityManager->Create();
 				at.slots[slotIndex].jointIndex = found;
+
+				DirectX::XMFLOAT4X4 matrix;
+				animationSystem->GetJointMatrix(source, found, matrix);
+				
+				DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
+				animationSystem->GetJointInverseBindPose(ai.skeleton, found, inverseBindPose);
+				inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
+
+				DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(source));
+
+				// Decompose the joint transformation matrix
+				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * entityTransform);
+
+				// Store in these
+				DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
+
+				//// Multiply model scale with joint scale
+				//DirectX::XMStoreFloat3(&attachScale, jointScale);
+				//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
+
+				//// Multiply model quaternion with joint quaternion
+				//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
+				//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
+
+				// Multiply model translation with joint translation
+				DirectX::XMStoreFloat3(&attachTrans, jointTrans);
+
+				initInfo.transformManager->Create(at.slots[slotIndex].entity);
+				initInfo.transformManager->SetPosition(entityToAttach, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+				initInfo.transformManager->SetPosition(at.slots[slotIndex].entity, attachTrans);
+				initInfo.transformManager->BindChild(at.slots[slotIndex].entity, entityToAttach, true, true);
 
 			}
 
@@ -176,12 +334,105 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 	}
 }
 
+void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+{
+	StartProfile;
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		if (flag & AnimationFlags::IMMEDIATE) {
+
+			for (size_t i = 0; i < nrOfAnims; i++) {
+
+				ai.animation[i] = animations[i];
+				unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[i]);
+				ai.animationSpeed[i] = animLength / duration;
+				ai.looping[i] = flag & AnimationFlags::LOOP ? true : false;
+				ai.blendSpeed[i] = 0.0f;
+				ai.timePos[i] = 0.0f;
+				ai.blendFactor[i] = 1.0f;
+				
+			}
+
+			ai.nrOfLayers = nrOfAnims;
+			animationData.playing[entityIndex->second] = true;
+		}
+
+		else {
+
+			if (flag & AnimationFlags::BLENDTOANDBACK) {
+
+				ai.toBlendTarget = true;
+				ai.blendBackInfo.animIndex = ai.nrOfLayers;
+				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(animations[0]);
+
+				flag |= AnimationFlags::BLENDTO;
+			}
+
+			if (flag & AnimationFlags::BLENDTO) {
+
+				// Set info for animations to blend from
+				for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+					//ai.animationSpeed[i] = 0.0f;
+					//ai.looping[i] = false;
+					ai.blendSpeed[i] = -10.0f;
+					ai.blendFactor[i] = 1.0f;
+					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+					ai.animationSpeed[i] = 0.0f;
+				}
+
+				// Set info for the new animations to blend to
+				for (size_t j = 0; j < nrOfAnims; j++) {
+
+					if (ai.nrOfLayers + j >= maxLayers) {
+
+						if(flag & AnimationFlags::FORCED){
+						
+							OverwriteAnimation(ai, ai.nrOfLayers - 1, ai.nrOfLayers);
+							ai.nrOfLayers--;
+						
+						}
+
+						else {
+
+							break;
+						}
+					}
+
+						ai.animation[ai.nrOfLayers + j] = animations[j];
+						unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[j]);
+						ai.animationSpeed[ai.nrOfLayers + j] = animLength / duration;
+						ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
+						ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
+						ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
+						ai.timePos[ai.nrOfLayers + j] = 0.0f;
+
+					}
+
+				}
+
+				ai.nrOfLayers += nrOfAnims;
+				animationData.playing[entityIndex->second] = true;
+			}
+
+		}
+
+
+	StopProfile;
+
+}
+
 void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
 {	
 	StartProfile;
 
 	_ASSERT(playInfo.nrOfLayers < AnimationPlayInfo::maxLayers);
-
+	
 	// Get the entity register from the animationManager
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
@@ -196,7 +447,6 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 				ai.animation[i] = playInfo.animations[i];
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
-				ai.blendFactor[i] = playInfo.blendFactor[i];
 				ai.blendSpeed[i] = playInfo.blendSpeed[i];
 				ai.timePos[i] = playInfo.timePos[i];
 
@@ -250,7 +500,7 @@ void SE::Core::AnimationManager::SetBlendSpeed(const Entity& entity, int index, 
 
 		else {
 
-			if(index < AnimationInfo::maxLayers){
+			if(index < maxLayers){
 
 				ai.blendSpeed[index] = speed;
 
@@ -274,7 +524,7 @@ void SE::Core::AnimationManager::SetKeyFrame(const Entity & entity, float keyFra
 
 			ai.timePos[i] = keyFrame;
 			animationData.playing[entityIndex->second] = 0u;
-			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai);
+			animationSystem->CalculateMatrices(animationData.entity[entityIndex->second], ai, false);
 
 		}
 	}
@@ -344,7 +594,7 @@ void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)
 
 		else {
 
-			if (index < AnimationInfo::maxLayers) {
+			if (index < maxLayers) {
 					
 				ai.blendFactor[index] += ai.blendSpeed[index] * dt;
 				ai.blendFactor[index] = max(0.0f, min(ai.blendFactor[index], 1.0f));
@@ -425,6 +675,7 @@ void SE::Core::AnimationManager::Destroy(size_t index)
 	animationData.entity[index] = last_entity;
 	animationData.animInfo[index] = animationData.animInfo[last];
 	animationData.playing[index] = animationData.playing[last];
+	animationData.attacher[index] = animationData.attacher[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
@@ -498,4 +749,15 @@ void SE::Core::AnimationManager::CreateRenderObjectInfo(const Entity& entity, Gr
 		info->specialHaxxor = SkinnedOncePerObject;
 	}
 	StopProfile;
+}
+
+void SE::Core::AnimationManager::OverwriteAnimation(AnimationInfo & info, size_t to, size_t from)
+{
+	info.animation[to] = info.animation[from];
+	info.animationSpeed[to] = info.animationSpeed[from];
+	info.blendFactor[to] = info.blendFactor[from];
+	info.blendSpeed[to] = info.blendSpeed[from];
+	info.looping[to] = info.looping[from];
+	info.timePos[to] = info.timePos[from];
+
 }

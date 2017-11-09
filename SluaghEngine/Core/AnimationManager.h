@@ -9,6 +9,7 @@
 #include <Utilz\CircularFiFo.h>
 #include "RenderableManager.h"
 #include "AnimationSystem.h"
+#include <stack>
 
 namespace SE
 {
@@ -35,6 +36,7 @@ namespace SE
 
 			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
 
+			void Start(const Entity& entity, Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
@@ -69,6 +71,7 @@ namespace SE
 			
 			void CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info);
 
+			void OverwriteAnimation(AnimationInfo& info, size_t to, size_t from);
 
 			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
@@ -77,8 +80,9 @@ namespace SE
 
 			struct AttacherSlot {
 
+				bool attached = false;
 				Entity entity;
-				int jointIndex;
+				int jointIndex = -1;
 			};
 
 			struct Attacher {
@@ -99,11 +103,20 @@ namespace SE
 				Attacher* attacher;
 
 			};
-			
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
+			struct updateInfo
+			{
+				Entity ent;
+				AnimationInfo& animInfo;
+			};
+
+			std::vector<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
+
+			float aniUpdateTime = 0.0;
+
 		};
 	}
 }

@@ -337,6 +337,33 @@ HRESULT SE::Graphics::GraphicResourceHandler::CreateComputeShader(ID3D11Device *
 	ProfileReturnConst(hr);
 }
 
+HRESULT SE::Graphics::GraphicResourceHandler::CreateGeometryShader(ID3D11Device * gDevice, void * data, size_t size, int * geometryShaderID)
+{
+	StartProfile;
+	HRESULT hr = S_OK;
+	ID3D11GeometryShader* tempGeometryShader = nullptr;
+	hr = gDevice->CreateGeometryShader(data, size, nullptr, &tempGeometryShader);
+
+	if (FAILED(hr))
+	{
+		//Utilz::Console::Print("Geometry Shader Error: Geometry Shader could not be created");
+		ProfileReturnConst(hr);
+	}
+	if (freeGeometryShaderLocations.size() == 0)
+	{
+		gShaders.push_back({ tempGeometryShader });
+		*geometryShaderID = gShaders.size() - 1;
+	}
+	else
+	{
+		auto top = freeGeometryShaderLocations.top();
+		gShaders[top].geometryShader = tempGeometryShader;
+		*geometryShaderID = top;
+		freeGeometryShaderLocations.pop();
+	}
+	ProfileReturnConst(hr);
+}
+
 void GraphicResourceHandler::UnbindShaders() {
 
 	StartProfile;
@@ -370,6 +397,11 @@ void GraphicResourceHandler::SetMaterial(int vertexID, int pixelID) {
 	gDeviceContext->VSSetShader(vShaders[vertexID].vertexShader, nullptr, 0);
 	gDeviceContext->PSSetShader(pShaders[pixelID].pixelShader, nullptr, 0);
 
+}
+
+void SE::Graphics::GraphicResourceHandler::SetGeometryShader(int geometryID)
+{
+	gDeviceContext->GSSetShader(gShaders[geometryID].geometryShader, nullptr, 0);
 }
 
 HRESULT GraphicResourceHandler::CreateVertexBuffer(void* inputData, size_t vertexCount, size_t stride, int *vertexBufferID)

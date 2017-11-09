@@ -108,7 +108,7 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 	return findA != animations.end();
 }
 
-void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, AnimationInfo& info)
+void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, AnimationInfo& info, bool threaded)
 {
 	// Get the animation bucket
 	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
@@ -118,7 +118,14 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 	auto& skeleton = skeletons[info.skeleton];
 
 	// Create vector of identity matrices with the same size as the skeleton
-	auto& bucketTransform = bucket->matrices[bucketAndID.index].jointMatrix;
+	DirectX::XMFLOAT4X4* bucketTransform;
+	DirectX::XMFLOAT4X4* bucketTransformUnThreaded = nullptr;
+	if (!threaded)
+	{
+		bucketTransformUnThreaded = bucket->matrices[mapingIndex][bucketAndID.index].jointMatrix;
+		memcpy(bucketTransformUnThreaded, &mats, sizeof(XMFLOAT4X4));
+	}	
+	bucketTransform = bucket->matrices[updateIndex][bucketAndID.index].jointMatrix;
 	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4) * 30);
 
 	// Create vector of bools to check blending status at each joint
@@ -148,13 +155,16 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 
 				if (blendCheck[actualIndex] == true) {
 
-					CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
-
+						CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransform[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransform[actualIndex]);
+						if (!threaded)
+							CalculateBlendMatrices(XMLoadFloat4x4(&bucketTransformUnThreaded[actualIndex]), tempMatrix, info.blendFactor[layerIndex], bucketTransformUnThreaded[actualIndex]);
 				}
 
 				else {
 
 					XMStoreFloat4x4(&bucketTransform[actualIndex], tempMatrix);
+					if (!threaded)
+						XMStoreFloat4x4(&bucketTransformUnThreaded[actualIndex], tempMatrix);
 				}
 
 				blendCheck[actualIndex] = true;
@@ -181,6 +191,15 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		}
 		else {
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
+		}
+		if (!threaded)
+		{
+			if (blendCheck[i] == true) {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransformUnThreaded[i])));
+			}
+			else {
+				XMStoreFloat4x4(&bucketTransformUnThreaded[i], XMMatrixIdentity());
+			}
 		}
 	}
 }
@@ -227,6 +246,47 @@ int SE::Core::AnimationSystem::FindJointIndex(Utilz::GUID skeleton, Utilz::GUID 
 	}
 	
 	return -1;
+}
+
+void SE::Core::AnimationSystem::GetJointMatrix(const Entity& entity, int jointIndex, DirectX::XMFLOAT4X4& matrix) {
+
+	auto find = entityToBucketAndIndexInBucket.find(entity);
+
+	if (find != entityToBucketAndIndexInBucket.end()) {
+
+		// Get all the entity matrices
+		auto& matrices = ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->matrices[mapingIndex][find->second.index];
+
+		// Get the transposed matrix
+		DirectX::XMFLOAT4X4 transposed = matrices.jointMatrix[jointIndex];
+
+		// Transpose it back so we can work with it
+		XMStoreFloat4x4(&matrix, XMMatrixTranspose(XMLoadFloat4x4(&transposed)));
+	
+	}
+}
+
+unsigned int SE::Core::AnimationSystem::GetAnimationLength(const Utilz::GUID& guid) {
+
+	auto find = animations.find(guid);
+
+	if (find != animations.end()) {
+
+		return animations[find->first].Length;
+	}
+
+	return 0;
+}
+
+void SE::Core::AnimationSystem::GetJointInverseBindPose(const Utilz::GUID& guid, int jointIndex, DirectX::XMMATRIX& matrix) {
+
+	auto find = skeletons.find(guid);
+
+	if (find != skeletons.end()) {
+
+		matrix = skeletons[find->first].Hierarchy[jointIndex].inverseBindPoseMatrix;
+	}
+
 }
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
@@ -305,7 +365,7 @@ SE::Core::RenderableManagerInstancing::RenderBucket * SE::Core::AnimationSystem:
 		renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, &bucket->transforms[a], sizeof(DirectX::XMFLOAT4X4) * b);
 	});
 	job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
-		renderer->GetPipelineHandler()->UpdateConstantBuffer(VS_SKINNED_DATA, &bucket->matrices[a], sizeof(JointMatrices) * b);
+		renderer->GetPipelineHandler()->UpdateConstantBuffer(VS_SKINNED_DATA, &bucket->matrices[mapingIndex][a], sizeof(JointMatrices) * b);
 	});
 	ProfileReturnConst( bucket);
 }
@@ -375,14 +435,18 @@ void SE::Core::AnimationSystem::AnimationBucket::AddEntity(const Entity & entity
 {
 	RenderBucket::AddEntity(entity, transform, bucketAndID);
 
-  matrices.push_back(mats);
+	matrices[0].push_back(mats);
+	matrices[1].push_back(mats);
 }
 
 void SE::Core::AnimationSystem::AnimationBucket::RemoveFromBucket(RenderableManagerInstancing * rm, size_t index, DirectX::XMFLOAT4X4 * transform)
 {
-	const auto last = matrices.size() - 1;
-	matrices[index] = matrices[last];
-	matrices.pop_back();
+	const auto last = matrices[0].size() - 1;
+	matrices[1][index] = matrices[1][last];
+	matrices[0][index] = matrices[0][last];
+	
+	matrices[0].pop_back();
+	matrices[1].pop_back();
 
 	RenderBucket::RemoveFromBucket(rm, index, transform);
 
