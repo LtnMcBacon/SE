@@ -37,7 +37,6 @@ namespace SE
 	{
 		enum class AnimationFlags {
 
-			MIX = 1,
 			BLENDTO = 1 << 1,
 			BLENDTOANDBACK = 1 << 2,
 			IMMEDIATE = 1 << 3,
@@ -87,7 +86,7 @@ namespace SE
 
 			virtual void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) = 0;
 
-			virtual void Start(const Entity& entity, GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
+			virtual void Start(const Entity& entity, Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
 			virtual void Start(const Entity& entity, const AnimationPlayInfo& playInfo) = 0;
 			virtual void Start(const Entity& entity, bool looping)const = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;

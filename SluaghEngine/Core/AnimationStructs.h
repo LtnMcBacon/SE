@@ -77,9 +77,17 @@ namespace SE
 			}
 		};
 
+		static const size_t maxLayers = 6;
+		struct BlendBackInfo {
+
+			int animIndex;
+			float animLength;
+			float previousSpeed[maxLayers];
+
+		};
+		
 		struct AnimationInfo
 		{
-			static const size_t maxLayers = 4;
 			size_t nrOfLayers = 0;
 			Utilz::GUID skeleton;
 			Utilz::GUID animation[maxLayers];
@@ -88,6 +96,8 @@ namespace SE
 			bool looping[maxLayers];
 			float blendFactor[maxLayers];
 			float blendSpeed[maxLayers];
+			bool toBlendBack = false;
+			BlendBackInfo blendBackInfo;
 		};
 
 	}
