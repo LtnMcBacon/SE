@@ -1,6 +1,11 @@
 #ifndef _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #define _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #include "IGameState.h"
+#include <Gameplay\HUD_Parsing.h>
+#include <string>
+#include <vector>
+//#include <SkillFactory.h>
+//#include <PlayerUnit.h>
 
 namespace SE
 {
@@ -41,6 +46,49 @@ namespace SE
 			*/
 
 			State Update(void* &passableInfo);
+			HUDParser fileParser;
+
+			/*void SkillBtns(int nrOfSkills);
+			void PerkBtns(int nrOfPerks);*/
+			void getSkills();
+			void importSkillButtons();
+
+			int selectedSkills;
+			int renewSkillList;
+			int nrOfSkills;
+		
+			
+			
+			std::vector<int> chosenSkills;
+			std::vector<int> chosenPerks;
+
+			//	every file to be parsed //
+			std::string skillButtonFiles[2]
+			{
+				"FireBallSkill.HuD",
+				"IceBallSkill.HuD"
+			};
+
+			std::string perkButtonFiles[2]
+			{
+				"LifeStealPerk.HuD",
+				"VenomBladesPerk.HuD"
+			};
+
+			/*std::string skillID[2];
+			{
+				"Fireball",
+				"IceBall"
+			};
+
+			std::string perkID[2];
+			{
+				"lifeSteal",
+				"venomblades"
+			};*/
+			
+			
+			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:
 
 		protected:
@@ -51,6 +99,4 @@ namespace SE
 
 	}
 }
-
-
 #endif

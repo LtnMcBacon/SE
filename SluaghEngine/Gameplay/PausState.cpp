@@ -14,6 +14,9 @@ PauseState::PauseState(Window::IWindow* Input)
 	this->input = Input;
 	fileParser.ParseFiles("PauseMenu.HuD");
 	fileParser.InitiateTextures();
+	//fileParser.SetFunctionOnPress("resumeBtn"; /*func*/ );
+	//fileParser.SetFunctionOnPress("optionsBtn"; /*func*/ );
+	////fileParser.SetFunctionOnPress("quitBtn"; /*func*/ );
 
 }
 

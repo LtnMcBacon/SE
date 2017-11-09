@@ -27,6 +27,7 @@ namespace SE
 		public:
 
 			MainMenuState();
+			MainMenuState(Window::IWindow* Input, std::function<void()> shutDown);
 			MainMenuState(Window::IWindow* Input);
 			~MainMenuState();
 

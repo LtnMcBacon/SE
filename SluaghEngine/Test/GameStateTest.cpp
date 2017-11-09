@@ -56,16 +56,24 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 
 	
 
-	IGameState* Game = new PauseState(subSystem.window);
-	
+	IGameState* Game = nullptr;
+	auto shutDown = [&running]()
+	{
+		running = false;
+	}; std::function<void()> stopGame = shutDown;
 
+
+	Game =	new MainMenuState(subSystem.window,shutDown);
+	
 	
 	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
 	void* passableInfo = nullptr;
+
+	
 	while (running)
 	{
-		//if (subSystem.window->ButtonPressed(Exit))
-			//running = false;
+		if (subSystem.window->ButtonPressed(Exit))
+			running = false;
 		
 		SwitchState = Game->Update(passableInfo);
 		if (SwitchState != OldState)
@@ -76,9 +84,8 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 			case IGameState::MAIN_MENU_STATE:
 				console->Print("Making Main Menu State!\n");
 				delete Game;
-				Game = new MainMenuState(subSystem.window);
+				Game = new MainMenuState(subSystem.window,shutDown);
 				//std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
-	
 				break;
 			case IGameState::PLAY_STATE:
 				console->Print("Making Play State!\n");
