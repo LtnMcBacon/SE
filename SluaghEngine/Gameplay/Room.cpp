@@ -37,9 +37,11 @@ static const SE::Utilz::GUID Table_round("Table_round.mesh");
 static const SE::Utilz::GUID Stone("Cube.mat");
 static const SE::Utilz::GUID FloorMat("floorTest.mat");
 static const SE::Utilz::GUID DoorMat("Cube.mat");
+static const SE::Utilz::GUID BasicWall("HighWall.mat");
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
 static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
+static const SE::Utilz::GUID Light("SimpleLightPS.hlsl");
 
 void Room::UpdateFlowField(float playerX, float playerY)
 {
@@ -992,8 +994,9 @@ void SE::Gameplay::Room::CreateEntities()
 				}
 				else if (tileValues[i][j] == (char)255 )
 				{
-					cubeInfo.materialFile = Stone;
-					if (CreateWall(ent, i, j) == true)
+					cubeInfo.materialFile = BasicWall;
+					//cubeInfo.materialFile = Stone;
+					/*if (CreateWall(ent, i, j) == true)
 					{						
 						cubeInfo.shader = Trans;
 						CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
@@ -1001,9 +1004,11 @@ void SE::Gameplay::Room::CreateEntities()
 					else
 					{
 						cubeInfo.shader = Norm;
-					}			
+					}*/	
+					cubeInfo.shader = Light;
 					CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
 				}
+
 				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
 
