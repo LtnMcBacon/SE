@@ -420,6 +420,7 @@ void SE::Core::RenderableManager::Init()
 	_ASSERT(initInfo.console);
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
 
 
 	ResourceHandler::Callbacks meshCallbacks;

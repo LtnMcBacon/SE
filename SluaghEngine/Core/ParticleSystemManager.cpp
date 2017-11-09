@@ -12,6 +12,8 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.console);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &ParticleSystemManager::UpdateDirtyPos });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &ParticleSystemManager::ToggleVisible });
+
 
 	auto res = initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
 			auto res = initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);

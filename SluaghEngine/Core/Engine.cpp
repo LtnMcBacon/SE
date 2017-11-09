@@ -296,6 +296,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.eventManager = managers.eventManager;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
 	}
 	managersVec.push_back(managers.particleSystemManager);

@@ -38,11 +38,19 @@ namespace SE
 			{
 				UpdateRenderableObject(entity);
 			}
+			void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity&, bool)> && callback)
+			{
+				ToggleVisibleEvent += callback;
+			}
+			void ToggleVisible(const Entity& entity, bool visible)
+			{
+				ToggleVisibleEvent(entity, visible);
+			}
 		private:
 			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetRenderObjectInfo;
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 			Utilz::Event<void(const Entity& entity)> UpdateRenderableObject;
-
+			Utilz::Event<void(const Entity&, bool)> ToggleVisibleEvent;
 		};
 	}
 }
