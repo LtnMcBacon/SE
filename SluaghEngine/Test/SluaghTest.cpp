@@ -82,11 +82,13 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
 	Gameplay::PlayerUnit* player = nullptr;
+	char map[25][25];
+	testRoom->GetMap(map);
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (testRoom->tileValues[x][y] == 1)
+			if (map[x][y] == 32)
 			{
 				float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -106,7 +108,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				player->SetZPosition(1.5f);
 				break;
 			}
@@ -179,7 +181,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 		{
 			enemyPos.x = subSystem.window->GetRand() % 25;
 			enemyPos.y = subSystem.window->GetRand() % 25;
-		} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 		Gameplay::EnemyCreationData data;
 		data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
@@ -237,6 +239,8 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 	{
 		if(testRoom->NumberOfEnemiesInRoom() < 2)
 		{
+			char map[25][25];
+			testRoom->GetMap(map);
 			Gameplay::EnemyCreationStruct eStruct;
 			blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 
@@ -252,7 +256,7 @@ bool SE::Test::SlaughTest::Run(SE::DevConsole::IConsole* console)
 				{
 					enemyPos.x = subSystem.window->GetRand() % 25;
 					enemyPos.y = subSystem.window->GetRand() % 25;
-				} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+				} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 				Gameplay::EnemyCreationData data;
 				data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;

@@ -33,6 +33,8 @@ namespace SE
 			void CalculateBlendMatrices(const DirectX::XMMATRIX& matrix1, const DirectX::XMMATRIX& matrix2, float blendFactor, DirectX::XMFLOAT4X4& out);
 
 			int FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind);
+
+			void GetJointMatrix(const Entity& entity, int jointIndex, DirectX::XMFLOAT4X4& matrix);
 			
 			inline void UpdateMatricesIndex() {
 				updateIndex = (updateIndex + 1) % 2;

@@ -199,16 +199,17 @@ namespace SE {
 				// Temp variables
 				size_t last = textureInfo.size() - 1;
 				size_t index = entTextureID[entity].ID;
+				const Entity currentEntity = textureEnt[index];
 				const Entity last_entity = textureEnt[last];
 
 				// Copy the data
 				textureEnt[index] = last_entity;
 				textureInfo[index] = textureInfo[last];
-				textureGUID[entTextureID[entity].GUID].refCount--;
-				entTextureID[last_entity].ID = entTextureID[entity].ID;
+				textureGUID[entTextureID[currentEntity].GUID].refCount--;
+				entTextureID[last_entity].ID = entTextureID[currentEntity].ID;
 
 				// Remove last spot 
-				entTextureID.erase(entity);
+				entTextureID.erase(currentEntity);
 				textureInfo.pop_back();
 				textureEnt.pop_back();
 			}

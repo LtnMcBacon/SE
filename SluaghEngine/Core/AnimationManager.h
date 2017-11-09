@@ -78,8 +78,9 @@ namespace SE
 
 			struct AttacherSlot {
 
+				bool attached = false;
 				Entity entity;
-				int jointIndex;
+				int jointIndex = -1;
 			};
 
 			struct Attacher {
@@ -109,7 +110,7 @@ namespace SE
 				AnimationInfo& animInfo;
 			};
 
-			std::stack<updateInfo> updateJob;
+			std::vector<updateInfo> updateJob;
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;
