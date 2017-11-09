@@ -31,6 +31,8 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	state = new CharacterCreationState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE;
+	CoreInit::engine->BeginFrame();
+	CoreInit::engine->EndFrame();
 }
 
 void SE::Gameplay::Game::Run()
@@ -39,6 +41,8 @@ void SE::Gameplay::Game::Run()
 	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState = state->PLAY_STATE;
 
+	CoreInit::engine->BeginFrame();
+	CoreInit::engine->EndFrame();
 	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 	{
 

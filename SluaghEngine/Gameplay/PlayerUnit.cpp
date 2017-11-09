@@ -18,7 +18,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	playInfo.blendSpeed[0] = 0.0f;
 	playInfo.blendFactor[0] = 0.0f;
 
-	animationPlayInfos[PLAYER_ON_DEATH_ANIMATION] = playInfo;
+	animationPlayInfos[PLAYER_ON_DEATH_ANIMATION].push_back("DeathAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize On Hit animation*/
 	playInfo.animations[0] = "TopHitAnim_MCModell.anim";
@@ -28,7 +28,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	playInfo.blendSpeed[0] = 0.0f;
 	playInfo.blendFactor[0] = 0.0f;
 
-	animationPlayInfos[PLAYER_ON_HIT_ANIMATION] = playInfo;
+	animationPlayInfos[PLAYER_ON_HIT_ANIMATION].push_back("TopHitAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize Attack animation*/
 	playInfo.animations[0] = "TopAttackAnim_MCModell.anim";
@@ -38,7 +38,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	playInfo.blendSpeed[0] = 0.0f;
 	playInfo.blendFactor[0] = 0.0f;
 
-	animationPlayInfos[PLAYER_ATTACK_ANIMATION] = playInfo;
+	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopAttackAnim_MCModell.anim"); //= playInfo;
 
 
 	/*Initialize Idle Animation*/
@@ -56,7 +56,8 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	playInfo.blendFactor[1] = 0.0f;
 	playInfo.nrOfLayers = 2;
 
-	animationPlayInfos[PLAYER_IDLE_ANIMATION] = playInfo;
+	animationPlayInfos[PLAYER_IDLE_ANIMATION].push_back("TopIdleAnim_MCModell.anim");
+	animationPlayInfos[PLAYER_IDLE_ANIMATION].push_back("BottomIdleAnim_MCModell.anim");// = playInfo;
 
 	/*Initialize Run animation*/
 	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
@@ -73,126 +74,123 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	playInfo.blendFactor[1] = 0.0f;
 	playInfo.nrOfLayers = 2;
 
-	animationPlayInfos[PLAYER_RUN_ANIMATION] = playInfo;
-
+	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("TopRunAnim_MCModell.anim");
+	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("BottomRunAnim_MCModell.anim"); //= playInfo;
+		
 
 	StopProfile;
 	
 }
 
-bool SE::Gameplay::PlayerUnit::BlendToAnimation(AvailableAnimations blendTo)
+//void SE::Gameplay::PlayerUnit::BlendToAnimation(AvailableAnimations blendTo)
+//{
+//	StartProfile;
+//	//if(blendTo != currentAnimation)
+//	//{
+//	//	if (currentlyBlending && blendTo != blendingTo)
+//	//	{
+//	//		/*We are currently blending, but we are blending to another animation*/
+//
+//	//		const auto& playInfoTarget = animationPlayInfos[blendTo];
+//	//		const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
+//	//		const auto& playInfoCurrentTarget = animationPlayInfos[blendingTo];
+//
+//	//		Core::IAnimationManager::AnimationPlayInfo playInfo;
+//	//		playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers + playInfoCurrentTarget.nrOfLayers;
+//	//		if (playInfo.nrOfLayers > playInfo.maxLayers)
+//	//			ProfileReturnConst(false); /*ABORT! ABORT!*/
+//
+//	//		blendingTo = blendTo;
+//	//		int currentLayer = 0;
+//
+//	//		/*Current animation info*/
+//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
+//	//		{
+//	//			playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
+//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
+//	//			playInfo.timePos[currentLayer] = -1; /*Time pos must be found in the current running animation!*/
+//	//			playInfo.looping[currentLayer] = false;
+//	//			playInfo.blendSpeed[currentLayer] = -1;
+//	//			currentLayer++;
+//	//		}
+//	//		/*Target animation info*/
+//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
+//	//		{
+//	//			playInfo.animations[currentLayer] = playInfoTarget.animations[i];
+//	//			playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
+//	//			playInfo.timePos[currentLayer] = 0;
+//	//			playInfo.looping[currentLayer] = playInfoTarget.looping[i];
+//	//			playInfo.blendSpeed[currentLayer] = 0;
+//	//			currentLayer++;
+//	//		}
+//	//		
+//	//		/*Add the current blending target*/
+//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
+//	//		{
+//	//			playInfo.animations[currentLayer] = playInfoCurrentTarget.animations[i];
+//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrentTarget.animationSpeed[i];
+//	//			playInfo.timePos[currentLayer] = -1;
+//	//			playInfo.looping[currentLayer] = false;
+//	//			playInfo.blendSpeed[currentLayer] = -1;
+//	//			currentLayer++;
+//	//		}
+//	//		
+//	//		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+//
+//	//	}
+//	//	else if(!currentlyBlending)
+//	//	{
+//	//		/*We are not currently blending*/
+//
+//	//		const auto& playInfoTarget = animationPlayInfos[blendTo];
+//	//		const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
+//
+//	//		Core::IAnimationManager::AnimationPlayInfo playInfo;
+//	//		playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers;
+//	//		if (playInfo.nrOfLayers > playInfo.maxLayers)
+//	//			ProfileReturnConst(false); /*ABORT! ABORT!*/
+//
+//	//		blendingTo = blendTo;
+//	//		currentlyBlending = true;
+//	//		int currentLayer = 0;
+//
+//	//		/*Current animation info*/
+//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
+//	//		{
+//	//			playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
+//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
+//	//			playInfo.timePos[currentLayer] = 0; /*Time pos must be found in the current running animation!*/
+//	//			playInfo.looping[currentLayer] = false;
+//	//			playInfo.blendSpeed[currentLayer] = 0;
+//	//			playInfo.blendFactor[currentLayer] = 0;
+//	//			currentLayer++;
+//	//		}
+//	//		/*Target animation info*/
+//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
+//	//		{
+//	//			playInfo.animations[currentLayer] = playInfoTarget.animations[i];
+//	//			playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
+//	//			playInfo.timePos[currentLayer] = 0;
+//	//			playInfo.looping[currentLayer] = playInfoTarget.looping[i];
+//	//			playInfo.blendSpeed[currentLayer] = 0;
+//	//			playInfo.blendFactor[currentLayer] = 0;
+//	//			currentLayer++;
+//	//		}
+//
+//	//		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
+//	//	}
+//	//	else
+//	//	{
+//	//		/*We are currently blending to the animation we want to blend to. Ignore.*/
+//
+//	//	}
+//	//}
+//	ProfileReturnConst(true);
+//}
+
+void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
-	StartProfile;
-	if(blendTo != currentAnimation)
-	{
-		if (currentlyBlending && blendTo != blendingTo)
-		{
-			/*We are currently blending, but we are blending to another animation*/
-
-			const auto& playInfoTarget = animationPlayInfos[blendTo];
-			const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
-			const auto& playInfoCurrentTarget = animationPlayInfos[blendingTo];
-
-			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers + playInfoCurrentTarget.nrOfLayers;
-			if (playInfo.nrOfLayers > playInfo.maxLayers)
-				ProfileReturnConst(false); /*ABORT! ABORT!*/
-
-			blendingTo = blendTo;
-			int currentLayer = 0;
-
-			/*Current animation info*/
-			for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-			{
-				playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
-				playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
-				playInfo.timePos[currentLayer] = -1; /*Time pos must be found in the current running animation!*/
-				playInfo.looping[currentLayer] = false;
-				playInfo.blendSpeed[currentLayer] = -1;
-				currentLayer++;
-			}
-			/*Target animation info*/
-			for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-			{
-				playInfo.animations[currentLayer] = playInfoTarget.animations[i];
-				playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
-				playInfo.timePos[currentLayer] = 0;
-				playInfo.looping[currentLayer] = playInfoTarget.looping[i];
-				playInfo.blendSpeed[currentLayer] = 0;
-				currentLayer++;
-			}
-			
-			/*Add the current blending target*/
-			for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-			{
-				playInfo.animations[currentLayer] = playInfoCurrentTarget.animations[i];
-				playInfo.animationSpeed[currentLayer] = playInfoCurrentTarget.animationSpeed[i];
-				playInfo.timePos[currentLayer] = -1;
-				playInfo.looping[currentLayer] = false;
-				playInfo.blendSpeed[currentLayer] = -1;
-				currentLayer++;
-			}
-			
-			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-
-		}
-		else if(!currentlyBlending)
-		{
-			/*We are not currently blending*/
-
-			const auto& playInfoTarget = animationPlayInfos[blendTo];
-			const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
-
-			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers;
-			if (playInfo.nrOfLayers > playInfo.maxLayers)
-				ProfileReturnConst(false); /*ABORT! ABORT!*/
-
-			blendingTo = blendTo;
-			currentlyBlending = true;
-			int currentLayer = 0;
-
-			/*Current animation info*/
-			for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-			{
-				playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
-				playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
-				playInfo.timePos[currentLayer] = 0; /*Time pos must be found in the current running animation!*/
-				playInfo.looping[currentLayer] = false;
-				playInfo.blendSpeed[currentLayer] = 0;
-				playInfo.blendFactor[currentLayer] = 0;
-				currentLayer++;
-			}
-			/*Target animation info*/
-			for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-			{
-				playInfo.animations[currentLayer] = playInfoTarget.animations[i];
-				playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
-				playInfo.timePos[currentLayer] = 0;
-				playInfo.looping[currentLayer] = playInfoTarget.looping[i];
-				playInfo.blendSpeed[currentLayer] = 0;
-				playInfo.blendFactor[currentLayer] = 0;
-				currentLayer++;
-			}
-
-			CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-		}
-		else
-		{
-			/*We are currently blending to the animation we want to blend to. Ignore.*/
-
-		}
-	}
-	ProfileReturnConst(true);
-}
-
-void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun)
-{
-	if (currentAnimation != animationToRun)
-	{
-		CoreInit::managers.animationManager->Start(unitEntity, animationPlayInfos[animationToRun]);
-		currentAnimation = animationToRun;
-	}
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 10.f, animationFlags);
 }
 
 void SE::Gameplay::PlayerUnit::ResolveEvents()
@@ -219,7 +217,6 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		health += healing.amount;
 	}
 	
-	this->health = 100.f;
 	ProfileReturnVoid;
 
 }
@@ -368,12 +365,12 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	{
 		xMovement /= moveTot;
 		yMovement /= moveTot;
-		AnimationUpdate(PLAYER_RUN_ANIMATION);
+		AnimationUpdate(PLAYER_RUN_ANIMATION, Core::AnimationFlags::BLENDTO);
 		
 	}
 	else
 	{
-		BlendToAnimation(PLAYER_IDLE_ANIMATION);
+		AnimationUpdate(PLAYER_IDLE_ANIMATION, Core::AnimationFlags::BLENDTO);
 	}
 
 	//------------------------
@@ -482,6 +479,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newProjectiles.push_back(temp);
 
 		attackCooldown = 1.0f / attackSpeed;
+
+		AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTO);
 	}
 
 	if (attackCooldown > 0.f)
@@ -650,7 +649,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	InitializeAnimationInfo();
 
-	CoreInit::managers.animationManager->Start(unitEntity, animationPlayInfos[PLAYER_IDLE_ANIMATION]);
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP);
 
 }
 

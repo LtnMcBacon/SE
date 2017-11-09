@@ -332,6 +332,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
 
+	if (!player->IsAlive())
+		returnValue = State::GAME_OVER_STATE;
 
 	ProfileReturn(returnValue);
 

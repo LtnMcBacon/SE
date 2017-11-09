@@ -38,15 +38,11 @@ namespace SE
 				PLAYER_ON_HIT_ANIMATION,
 				PLAYER_ON_DEATH_ANIMATION
 			};
-			bool currentlyBlending = false;
-			AvailableAnimations currentAnimation = PLAYER_IDLE_ANIMATION;
-			AvailableAnimations blendingTo = PLAYER_IDLE_ANIMATION;
-			std::map<AvailableAnimations, Core::IAnimationManager::AnimationPlayInfo> animationPlayInfos;
+			std::map<AvailableAnimations, std::vector<Utilz::GUID>> animationPlayInfos;
 
 			void InitializeAnimationInfo();
 
-			void AnimationUpdate(AvailableAnimations animationToRun);
-			bool BlendToAnimation(AvailableAnimations blendTo);
+			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
