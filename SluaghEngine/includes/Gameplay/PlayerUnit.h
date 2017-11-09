@@ -149,7 +149,7 @@ namespace SE
 			* @retval void No value
 			*
 			*/
-			void UpdateMap(const char** mapForRoom);
+			void UpdateMap(char** mapForRoom);
 
 			/**
 			* @brief Updates the players rotation with given rotation

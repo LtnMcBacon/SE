@@ -325,10 +325,16 @@ void SE::Gameplay::PlayerUnit::AddForce(float force[2])
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::UpdateMap(const char** mapForRoom)
+void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 {
 	StartProfile;
-	//map = mapForRoom;
+	for (int i = 0; i < 25; i++)
+	{
+		for (int j = 0; j < 25; j++)
+		{
+			map[i][j] = mapForRoom[i][j];
+		}
+	}
 	StopProfile;
 }
 

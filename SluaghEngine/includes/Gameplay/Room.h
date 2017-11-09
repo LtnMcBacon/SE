@@ -30,15 +30,7 @@ namespace SE
 		{
 		private:
 			
-			struct DoorData
-			{
-				int doorEntityPos = -1;
-				bool active = true;
-				float xPos, yPos;
-			};
-			
 			Room* adjacentRooms[4] = {};
-			DoorData DoorArr[4];
 			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
@@ -70,7 +62,9 @@ namespace SE
 				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
 				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
 				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
-				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
+				DIRECTION_ADJACENT_ROOM_WEST,	/**<The room lies to the West (3) */
+				DIRECTION_ADJACENT_ROOM_NONE	/**<There is no room (2) */
+
 			};
 
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
@@ -90,6 +84,15 @@ namespace SE
 			*
 			**/
 		private:
+
+			struct DoorData
+			{
+				int doorEntityPos = -1;
+				bool active = true;
+				float xPos, yPos;
+				DirectionToAdjacentRoom side;
+			};
+			DoorData DoorArr[4];
 
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
@@ -282,6 +285,18 @@ namespace SE
 			void RenderRoom(bool render);
 
 			/**
+			* @brief	This function is used to see if the player should transition between rooms
+			*
+			* @details	This function will check if the player is close enough to a door, and if the user clicked close enough to the door with the mouse
+			* if they are then a corresponding value will be returned indicating what room to transition into
+			*
+			*
+			* @retval What direction the room to transition into is, if DIRECTION_ADJACENT_ROOM_NONE then no transition should be done
+			*
+			*/
+			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY, float pickingX, float pickingY);
+
+			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
 			*
 			* @details	Adds a refernce to an adjacent room to the specified room's adjacency list. This list will later be used
@@ -345,6 +360,11 @@ namespace SE
 			{
 				return adjacentRooms[int(direction)];
 			}
+
+			/**
+			* @brief	Sets the reference paramters to the position of the door, the return value indicates if the door is active or not
+			*/
+			bool GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float &posX, float &posY);
 
 			/**
 			* @brief	Update the room
@@ -438,7 +458,7 @@ namespace SE
 				{
 					for (int j = 0; j < 25; j++)
 					{
-						toReturn[i][j] = map[i][j];
+						toReturn[i][j] = tileValues[i][j];
 					}
 				}
 			}

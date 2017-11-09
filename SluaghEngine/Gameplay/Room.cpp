@@ -1008,6 +1008,7 @@ void SE::Gameplay::Room::CreateEntities()
 					DoorArr[arrPos].xPos = i + 0.5f;
 					DoorArr[arrPos].yPos = j + 0.5f;
 					DoorArr[arrPos].active = true;
+					DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
 
 				}
 				CoreInit::managers.materialManager->Create(ent, cubeInfo);
@@ -1029,6 +1030,26 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
 	}
 	beingRendered = render;
+}
+
+SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY, float pickingX, float pickingY)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (DoorArr[i].active)
+		{
+			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 1)
+			{
+				if (sqrt((DoorArr[i].xPos - pickingX) * (DoorArr[i].xPos - pickingX) + (DoorArr[i].yPos - pickingY) * (DoorArr[i].yPos - pickingY)) <= 0.5f)
+				{
+					return DoorArr[i].side;
+				}
+			}
+		}
+	}
+
+
+	return SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE;
 }
 
 void SE::Gameplay::Room::CreateEnemies()
@@ -1101,6 +1122,18 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	ProfileReturnConst(true);
 }
 
+bool SE::Gameplay::Room::GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float & posX, float & posY)
+{
+	if (DoorArr[int(door)].active)
+	{
+		posX = DoorArr[int(door)].xPos;
+		posY = DoorArr[int(door)].yPos;
+		return true;
+	}
+	else
+		return false;
+}
+
 void Room::loadfromFile(Utilz::GUID fileName)
 {
 	StartProfile;
@@ -1152,6 +1185,7 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
 	if (DoorArr[int(DoorNr)].active)
 	{
+		DoorArr[int(DoorNr)].active = false;
 		//Turn it into a wall
 	}
 
