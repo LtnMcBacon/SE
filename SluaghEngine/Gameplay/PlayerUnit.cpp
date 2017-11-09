@@ -460,7 +460,7 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
-	GameUnit(xPos, yPos, 100)
+	GameUnit(xPos, yPos, 1000)
 {
 	StartProfile;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
