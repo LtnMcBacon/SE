@@ -29,8 +29,8 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
 	
 	float pos[3] = {0, 0, 0};
-
-	while (true)
+	subSystems.window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
+	while (!subSystems.window->ButtonPressed(Window::KeyEscape))
 	{
 		engine->BeginFrame();
 

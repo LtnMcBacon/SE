@@ -313,7 +313,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 		attackCooldown = 1.0f / attackSpeed;
 
-		AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK);
+		//AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK);
 	}
 
 	if (attackCooldown > 0.f)
@@ -494,7 +494,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.materialManager->Create(unitEntity, info);
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
-
+	
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);

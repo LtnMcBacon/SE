@@ -6,6 +6,7 @@
 #include <Gameplay\IGameState.h>
 #include <Gameplay\PlayState.h>
 #include <Gameplay\CharacterCreationState.h>
+#include <Gameplay\MainMenuState.h>
 
 #include <Gameplay\KeyBindings.h>
 
