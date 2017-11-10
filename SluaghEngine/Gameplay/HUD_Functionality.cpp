@@ -1,7 +1,7 @@
 #include "HUD_Functionality.h"
 #include <HUD_Parsing.h>
 #include "CoreInit.h"
-
+#include <Profiler.h>
 using namespace std;
 namespace SE
 {
@@ -17,6 +17,7 @@ namespace SE
 
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
 		{
+			StartProfile;
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -32,10 +33,12 @@ namespace SE
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
 			Buttons.push_back(tempElement);
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string hoverTex, string PressTex, string buttonText)
 		{
+			StartProfile;
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -51,12 +54,13 @@ namespace SE
 			tempElement.PressTex = PressTex;
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
-			
-			
+
 			Buttons.push_back(tempElement);
+			ProfileReturnVoid;
 		}
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string textName, string hoverTex, string PressTex, string buttonText)
 		{
+			StartProfile;
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -83,10 +87,12 @@ namespace SE
 			}
 
 			Buttons.push_back(tempElement);
+			ProfileReturnVoid;
 		}
 
 		std::string HUDButtons::printSkillDesc(ButtonElement button)
 		{
+			StartProfile;
 			std::string description = "";
 			description += "Damage Source: ";
 			switch (button.skillDesc[0])
@@ -216,11 +222,13 @@ namespace SE
 				break;
 			}
 
-			return description;
+			
+			ProfileReturnConst(description);
 		}
 
 		void HUDButtons::DrawButtons()
 		{
+			StartProfile;
 			for (auto& ButtonElement : Buttons)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
@@ -249,10 +257,12 @@ namespace SE
 					DrawButtonText(ButtonElement);
 				}
 			}
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::ButtonHover(int mouseX, int mouseY, bool pressed, bool released)
 		{
+			StartProfile;
 			bool inside = false;
 			ButtonElement skillDescBtn;
 		
@@ -360,39 +370,46 @@ namespace SE
 				}
 				inside = false;
 			}
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::DeleteButtons()
 		{
+			StartProfile;
 			for (auto& entity: ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
 				CoreInit::managers.entityManager->Destroy(entity);
 			}
 			
-
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::HideButtons()
 		{
+			StartProfile;
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
 				
 			}
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::ShowButtons()
 		{
+			StartProfile;
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
 				
 			}
+			ProfileReturnVoid;
 		}
 
 		void HUDButtons::DrawButtonText(ButtonElement button)
 		{
+			StartProfile;
 			auto entText = CoreInit::managers.entityManager->Create();
 
 			std::wstring text;
@@ -421,6 +438,7 @@ namespace SE
 
 			button.textEntityIndex = entityIndex;
 			entityIndex++;
+			ProfileReturnVoid;
 		}
 
 	}

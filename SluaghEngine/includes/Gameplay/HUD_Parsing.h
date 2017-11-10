@@ -70,15 +70,6 @@ namespace SE
 			void ParseOptionMenu(Utilz::GUID fileName);
 			void InitiateTextures();
 			
-			void checkPressed(bool pressed, int mousePosX, int mousePosY);
-	
-
-			void HoverButton(bool pressed, int mousePosX, int mousePosY, HUDElement HUDButton);
-			void texHovered( HUDElement HUDButton);
-			void texPressed(HUDElement HUDButton);
-			void texIdle(HUDElement HUDButton);
-
-			void SetFunctionOnPress(std::string identifier, std::function<void()> func);
 			
 			
 			Core::IGUIManager::CreateInfo GuiManager;

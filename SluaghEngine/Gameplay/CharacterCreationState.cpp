@@ -14,6 +14,7 @@ CharacterCreationState::CharacterCreationState()
 }
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
+	StartProfile;
 	nrOfSkills = 1;
 	selectedSkills = 0;
 	renewSkillList = 0;
@@ -56,10 +57,13 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 
 	getSkills();
 	this->input = Input;
+	ProfileReturnVoid;
 }
 CharacterCreationState::~CharacterCreationState()
 {
+	StartProfile;
 	fileParser.GUIButtons.DeleteButtons();
+	ProfileReturnVoid;
 	
 }
 IGameState::State CharacterCreationState::Update(void* &passableInfo)
@@ -227,7 +231,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 void SE::Gameplay::CharacterCreationState::getSkills()
 {
-	
+	StartProfile;
 	int offset = 225;
 	int borderOffset = 200;
 	int rectSize = 100;
@@ -367,14 +371,15 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	}
 	fileParser.GUIButtons.DrawButtons();
 	OtherSkills.clear();
-
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::CharacterCreationState::importSkillButtons()
 {
-
+	StartProfile;
 	for (auto& fileName : skillButtonFiles)
 	{
 		fileParser.ParseSkillButtons(fileName);
 	}
+	ProfileReturnVoid;
 }

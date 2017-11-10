@@ -1,5 +1,6 @@
 #include <HUD_Parsing.h>
 #include "CoreInit.h"
+#include <Profiler.h>
 using namespace std;
 
 
@@ -9,23 +10,27 @@ namespace SE
 	{
 		HUDParser::HUDParser()
 		{
+			StartProfile;
 			std::function<void()> test = std::bind(&HUDParser::InitiateTextures, this);
 			test();
 			this->InitiateTextures();
+			ProfileReturnVoid;
 		}
 
 		HUDParser::~HUDParser()
 		{
+			StartProfile;
 			for (auto& entities: texEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entities, false);
 				CoreInit::managers.entityManager->Destroy(entities);
 			}
+			ProfileReturnVoid;
 		}
 
 		void HUDParser::ParseFiles(Utilz::GUID fileName)
 		{
-		
+			StartProfile;
 
 			int nrOfRects = 0;
 			int nrOfTexts = 0;
@@ -205,12 +210,12 @@ namespace SE
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
-
+			ProfileReturnVoid;
 		}
 
 		void HUDParser::InitiateTextures()
 		{
-			
+			StartProfile;
 			
 			for (auto& HUDElement : MainMenuElmVec)
 			{
@@ -236,98 +241,12 @@ namespace SE
 				entityIndex++;
 
 			}
-			for (auto& HUDText : MainMenuTextVec)
-			{
-
-			}
-		}
-
-		void HUDParser::checkPressed(bool pressed, int mousePosX, int mousePosY)
-		{
-			for (size_t i = 0; i < MainMenuElmVec.size(); i++)
-			{
-				HUDElement HUDs = MainMenuElmVec.at(i);
-
-				if (HUDs.Btn)
-				{
-					HoverButton(pressed,mousePosX, mousePosY,HUDs);
-				}
-			}
-
-			
-		}
-
-		void HUDParser::HoverButton(bool pressed, int mousePosX, int mousePosY,HUDElement HUDButton)
-		{
-			bool inside = false;
-
-			if (mousePosX < HUDButton.PositionX + HUDButton.Width && mousePosX > HUDButton.PositionX)
-			{
-				if (mousePosY < HUDButton.PositionY + HUDButton.Height && mousePosY > HUDButton.PositionY)
-				{
-					inside = true;
-				}
-			}
-
-			if (inside)
-			{
-				if (pressed)
-				{
-					texPressed(HUDButton);
-				}
-				else
-				{
-					texHovered(HUDButton);
-				}
-			}
-			else
-			{
-				texIdle(HUDButton);
-			}
-		}
-
-		void HUDParser::texHovered(HUDElement HUDButton)
-		{
-			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
-			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.hoverTex);
-			
-			
-		}
-
-		void HUDParser::texPressed(HUDElement HUDButton)
-		{
-			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
-			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.PressTex);
-			if (HUDButton.bindButton != NULL)
-			{
-				HUDButton.bindButton();
-			}
-		}
-
-		void HUDParser::texIdle(HUDElement HUDButton)
-		{
-			auto& entity = texEntityVec.at(HUDButton.EntityIndex);
-			CoreInit::managers.guiManager->SetTexture(entity, HUDButton.textName);
-			
-		}
-
-		void HUDParser::SetFunctionOnPress(string identifier, function<void()> func)
-		{
-			for (auto& HUDElements : MainMenuElmVec)
-			{
-
-				if (HUDElements.rectName == identifier)
-				{
-					HUDElements.bindButton = func;
-				}
-
-
-			}
+			ProfileReturnVoid;
 		}
 
 		void HUDParser::ParseSkillButtons(Utilz::GUID fileName)
 		{
-			
+			StartProfile;
 			int nrOfRects = 0;
 			int nrOfTexts = 0;
 
@@ -499,10 +418,12 @@ namespace SE
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
+			ProfileReturnVoid;
 		}
 
 		void HUDParser::ParsePerks(Utilz::GUID fileName)
 		{
+			StartProfile;
 			int nrOfRects = 0;
 			int nrOfTexts = 0;
 
@@ -674,12 +595,13 @@ namespace SE
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
+			ProfileReturnVoid;
 		}
 
 		void HUDParser::ParseOptionMenu(Utilz::GUID fileName)
 		{
 
-
+			StartProfile;
 			int nrOfRects = 0;
 			int nrOfTexts = 0;
 
@@ -857,6 +779,7 @@ namespace SE
 
 				return ResourceHandler::InvokeReturn::SUCCESS| ResourceHandler::InvokeReturn::DEC_RAM;
 			});
+			ProfileReturnVoid;
 
 		}
 		

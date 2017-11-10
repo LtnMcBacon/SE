@@ -13,8 +13,7 @@ MainMenuState::MainMenuState()
 
 MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shutDown)
 {
-	
-
+	StartProfile;
 	auto PausChange = [this]()->void
 	{
 		this->CurrentState = State::PAUSE_STATE;
@@ -60,10 +59,12 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 	fileParser.GUIButtons.DrawButtons();
 
 	this->input = Input;
+	ProfileReturnVoid;
 	
 }
 MainMenuState::MainMenuState(Window::IWindow * Input)
 {
+	StartProfile;
 	auto PausChange = [this]()->void
 	{
 		this->CurrentState = State::PAUSE_STATE;
@@ -110,11 +111,14 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 
 	this->input = Input;
 
+	ProfileReturnVoid;
 }
 
 MainMenuState::~MainMenuState()
 {
+	StartProfile;
 	fileParser.GUIButtons.DeleteButtons();
+	ProfileReturnVoid;
 }
 
 IGameState::State MainMenuState::Update(void* &passableInfo)
