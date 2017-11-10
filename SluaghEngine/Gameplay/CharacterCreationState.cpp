@@ -68,12 +68,12 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	if (selectedSkills != 0)
-	{
-		
-		getSkills();
-		renewSkillList = selectedSkills;
-	}
+	//if (selectedSkills != 0)
+	//{
+	//	
+	//	getSkills();
+	//	renewSkillList = selectedSkills;
+	//}
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
 	bool released = input->ButtonUp(uint32_t(GameInput::ACTION));
