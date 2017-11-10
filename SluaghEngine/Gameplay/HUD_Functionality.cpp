@@ -302,7 +302,7 @@ namespace SE
 					}
 					else if (released)
 					{
-						// func
+						// function body
 						if (button.skillButton)
 						{
 							wasHovering = true;
