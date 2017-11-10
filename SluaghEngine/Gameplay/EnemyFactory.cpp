@@ -82,6 +82,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
 
+
 			/*Fix with managers*/
 			Core::IAnimationManager::CreateInfo cInfo;
 			cInfo.animationCount = 0;
@@ -185,6 +186,7 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+
 
 		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
 			return ResourceHandler::InvokeReturn::FAIL;
