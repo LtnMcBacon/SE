@@ -78,8 +78,8 @@ namespace SE
 			/*Should these enum classes be put in a seperate header?*/
 
 			/*Int/Float for amount?*/
-			float amount;
-			float originalAmount;
+			float amount = 0;
+			float originalAmount = 0;
 			DamageSources source;
 			DamageTypes type;
 
@@ -102,7 +102,7 @@ namespace SE
 		struct HealingEvent
 		{
 			/*What is needed?*/
-			float amount;
+			float amount = 0;
 			enum class SourceType
 			{
 				SOURCE_TYPE_ENEMY_DEATH,
