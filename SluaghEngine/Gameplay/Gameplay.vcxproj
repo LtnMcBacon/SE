@@ -39,6 +39,8 @@
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
     <ClCompile Include="GlaistigAttackLeaf.cpp" />
+    <ClCompile Include="HUD_Functionality.cpp" />
+    <ClCompile Include="HUD_Parsing.cpp" />
     <ClCompile Include="IBehaviour.cpp" />
     <ClCompile Include="IComposite.cpp" />
     <ClCompile Include="IDecorator.cpp" />
@@ -102,6 +104,8 @@
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
     <ClInclude Include="..\includes\Gameplay\GlaistigAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h" />
+    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h" />
     <ClInclude Include="..\includes\Gameplay\IBehaviour.h" />
     <ClInclude Include="..\includes\Gameplay\IComposite.h" />
     <ClInclude Include="..\includes\Gameplay\IDecorator.h" />
