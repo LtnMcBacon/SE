@@ -296,7 +296,14 @@ IBehaviour* BehaviouralTreeFactory::CreateInTheSameRoomAsThePlayerConditionLeaf(
 IBehaviour* BehaviouralTreeFactory::CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
-	ProfileReturn(new AnimationRunningCondition(nullptr, nullptr));
+	int counter = 0;
+	int nrOfGUIDs = stoi(dataArray->nodeData[counter++]);
+	std::vector<Utilz::GUID> guids;
+	for(int i = 0; i < nrOfGUIDs; i++)
+	{
+		guids.push_back(dataArray->nodeData[counter++]);
+	}
+	ProfileReturn(new AnimationRunningCondition(nullptr, nullptr, guids));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateMakeInvulnerableLeaf(NodeData* dataArray, int nodeID)
@@ -357,8 +364,21 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 	for(int i = 0; i < numberOfLayers; i++)
 	{
 		animations[i] = dataArray->nodeData[counter++];
+	
+	}
+	counter++;
+	for (int i = 0; i < numberOfLayers; i++)
+	{
 		animationSpeeds[i] = std::stof(dataArray->nodeData[counter++]);
+	}
+	counter++;
+	for (int i = 0; i < numberOfLayers; i++)
+	{
 		startKeyFrame[i] = std::stof(dataArray->nodeData[counter++]);
+	}
+	counter++;
+	for (int i = 0; i < numberOfLayers; i++)
+	{
 		if(dataArray->nodeData[counter++] == "True")
 		{
 			looping[i] = true;
@@ -367,8 +387,8 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 		{
 			looping[i] = false;
 		}
-	}
 
+	}
 
 	ProfileReturn(new AnimationLeaf(nullptr, nullptr, numberOfLayers, animations, animationSpeeds, startKeyFrame, looping));
 }

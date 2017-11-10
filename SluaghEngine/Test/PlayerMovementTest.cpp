@@ -401,8 +401,9 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 			}
 
 		}
-
-		player->UpdateMovement(dt*5, input);
+		std::vector<Gameplay::ProjectileData> a;
+		Gameplay::PlayerUnit::ActionInput actionInputs(false, false, false);
+		player->Update(dt*5, input, a, actionInputs);
 
 		playerPos.x = player->GetXPosition();
 		playerPos.y = player->GetYPosition();

@@ -108,7 +108,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		if(i == 0)
 			infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
 		if(i == 1)
-			infoToPass->skills[i].projectileFileGUID = "dnaProjectiles.SEP";
+			infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";
 
 		infoToPass->skills[i].skillDamage = 5;
 		infoToPass->skills[i].skillName = "skill1";
