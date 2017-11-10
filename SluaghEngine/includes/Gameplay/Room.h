@@ -49,7 +49,6 @@ namespace SE
 			struct CreationArguments
 			{
 				SE::Core::Entity ent;
-				SE::Core::Entity floorEnt;
 				int i;
 				int j;
 				Core::IMaterialManager::CreateInfo mat;
@@ -508,6 +507,7 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
+			void ResetTempTileValues();
 		
 			/**
 			* @brief set Room door pointer to values
