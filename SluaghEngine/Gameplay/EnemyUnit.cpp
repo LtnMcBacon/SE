@@ -15,8 +15,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
 			this->health -= DamageEventVector[i].amount;
-			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
-			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
