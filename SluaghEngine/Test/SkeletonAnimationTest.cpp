@@ -63,17 +63,17 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
-	auto& box = managers.entityManager->Create();
+	auto& attachable = managers.entityManager->Create();
 
 	managers.transformManager->Create(mainC);
 	managers.transformManager->Create(mainC2);
-	managers.transformManager->Create(box);
+	managers.transformManager->Create(attachable);
 
 	Core::IRenderableManager::CreateInfo arrow;
 	arrow.meshGUID = "Placeholder_Arrow.mesh";
-	managers.renderableManager->CreateRenderableObject(box, arrow);
-	managers.renderableManager->ToggleRenderableObject(box, true);
-	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
+	managers.renderableManager->CreateRenderableObject(attachable, arrow);
+	managers.renderableManager->ToggleRenderableObject(attachable, true);
+	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
@@ -128,7 +128,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->AttachToEntity(mainC, box, "LHand", 0);
+	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
 	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
@@ -155,6 +155,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
 	static float blendFactorSpeed = 0.00f;
+	static float rot = 0.0f;
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
@@ -175,6 +176,9 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		timer.Tick();
 		float dt = timer.GetDelta();
+
+		rot += 0.001;
+		managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
 	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
