@@ -997,9 +997,9 @@ void SE::Gameplay::Room::CreateEntities()
 
 					auto entFire = CoreInit::managers.entityManager->Create();
 					CoreInit::managers.transformManager->Create(entFire);
-					CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(i + 1.0f, 2.0f, j - 0.5f));
+					CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(i + 0.54, 2.18f, j + 0.21));
 					SE::Core::IParticleSystemManager::CreateInfo info;
-					info.systemFile = Utilz::GUID("fireBall.txt");
+					info.systemFile = Utilz::GUID("torchParticles.txt");
 					CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 					CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 					roomEntities.push_back(entFire);
