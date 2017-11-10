@@ -34,7 +34,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	
 	CoreInit::managers.textManager->MakeFont(Utilz::GUID("CloisterBlack.spritefont"));
 
-	state = new MainMenuState(CoreInit::subSystems.window);
+	state =  new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 }
 
