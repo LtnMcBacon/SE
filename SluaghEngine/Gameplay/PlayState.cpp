@@ -358,9 +358,9 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	//-----------------------------------------------
 
-	if (actionInput.actionButton)
+	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
-		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition(), movementInput.mousePosX, movementInput.mousePosY);
+		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
 
 		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{

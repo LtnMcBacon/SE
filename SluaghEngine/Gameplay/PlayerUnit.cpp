@@ -60,7 +60,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 
 	for(auto healing : HealingEventVector)
 	{
-		//health += healing.amount; For some reason, this get's called. Find the reason!
+		health += healing.amount;
 	}
 	
 	ProfileReturnVoid;

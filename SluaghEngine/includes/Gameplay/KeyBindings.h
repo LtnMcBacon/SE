@@ -12,7 +12,8 @@ enum class GameInput
 	SKILL2,
 	ACTION,
 	CONSOLE,
-	STEP
+	STEP,
+	INTERACT
 
 };
 
