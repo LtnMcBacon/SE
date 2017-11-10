@@ -185,6 +185,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="LightTest.cpp" />
     <ClCompile Include="MaterialManagerTest.cpp" />
     <ClCompile Include="ObjLoaderTest.cpp" />
+    <ClCompile Include="ParticleTest.cpp" />
     <ClCompile Include="PickingTest.cpp" />
     <ClCompile Include="PlaybackProjectileTest.cpp" />
     <ClCompile Include="PlayerMovementTest.cpp" />

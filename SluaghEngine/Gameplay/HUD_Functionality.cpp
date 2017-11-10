@@ -348,9 +348,13 @@ namespace SE
 					CoreInit::managers.guiManager->SetTexture(entity, button.textName);
 					if (wasHovering)
 					{
-						CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
-						CoreInit::managers.entityManager->Destroy(skillDescEntity);
-						entityIndex--;
+						if (skillDescEntity.id != 0)
+						{
+
+							CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
+							CoreInit::managers.entityManager->Destroy(skillDescEntity);
+							entityIndex--;
+						}
 						wasHovering = false;
 					}
 				}
