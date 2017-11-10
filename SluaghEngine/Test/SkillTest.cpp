@@ -58,7 +58,7 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 	std::cout << floatValues[6] << std::endl;
 
 
-	getchar();
+
 	engine->Release();
 	delete engine;
 	return true;
