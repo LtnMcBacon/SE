@@ -36,7 +36,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (res < 0)
-		return res;
+		return -1;
 	res = subSystem.resourceHandler->LoadResource("VerticalBloomPass.hlsl", [subSystem](auto guid, auto data, auto size) {
 		auto res = subSystem.renderer->GetPipelineHandler()->CreateComputeShader(guid, data, size);
 		if (res < 0)
@@ -44,9 +44,9 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 	if (res < 0)
-		return res;
+		return -2;
 
-	float bloomP[4] = { 4.1f, 2.0f, 0.8f, 0.8f };
+	float bloomP[4] = { 5.f, 2.0f, 0.8f, 0.1f };
 	subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 	Graphics::BlendState bs;
@@ -60,7 +60,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 
 	res = subSystem.renderer->GetPipelineHandler()->CreateBlendState("BloomBS", bs);
 	if (res < 0)
-		return res;
+		return -3;
 
 
 	Graphics::Viewport vp;
@@ -106,7 +106,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	rt.height = 360;
 	res = subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("bloomDownTarget", rt);
 	if (res < 0)
-		return res;
+		return -4;
 
 	drawBloomTexture.pipeline.RStage.viewport = "bloomDownVP";
 	drawBloomTexture.pipeline.OMStage.renderTargets[0] = "bloomDownTarget";
@@ -134,11 +134,11 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 
 	res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV1", uav);
 	if (res < 0)
-		return res;
+		return -5;
 
 	res = subSystem.renderer->GetPipelineHandler()->CreateUnorderedAccessView("BloomUAV2", uav);
 	if (res < 0)
-		return res;
+		return -6;
 
 	Graphics::RenderJob horizontalPass;
 	horizontalPass.pipeline.CSStage.shader = "HorizontalBloomPass.hlsl";
@@ -183,6 +183,8 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
 	drawBloomTexture.pipeline.OMStage.blendState = "BloomBS";
 	subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+
+	return 0;
 }
 
 using namespace SE;
@@ -208,7 +210,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	auto m = engine->GetManagers();
 	result = InitBloom(s,m );
 	if (result < 0)
-		return -1;
+		return result;
 
 
 	game.Initiate(engine);
