@@ -23,6 +23,8 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.renderableManager->ToggleRenderableObject(torch, true);
 	managers.particleSystemManager->CreateSystem(frost, { "frostBall.txt" });
 	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
+	managers.particleSystemManager->ToggleVisible(fire, true);
+	managers.particleSystemManager->ToggleVisible(frost, true);
 	
 	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
 	
