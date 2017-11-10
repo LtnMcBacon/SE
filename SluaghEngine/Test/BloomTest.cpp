@@ -278,9 +278,9 @@ namespace SE
 				managers.entityManager->Destroy(e3);
 
 				auto p = managers.entityManager->Create();
-				managers.particleSystemManager->CreateSystem(p, { "fireBall.txt" });
+				managers.particleSystemManager->CreateSystem(p, { "torchParticles.txt" });
 			managers.particleSystemManager->ToggleVisible(p, true);
-
+			managers.transformManager->Create(p, { -2,0,0 });
 
 				while (running)
 				{
@@ -309,6 +309,7 @@ namespace SE
 
 					engine->BeginFrame();
 	
+
 					if (ImGui::SliderFloat("Base Muliplier", &bloomP[0], 0.0f, 20.0f))
 						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 					if (ImGui::SliderFloat("Fade Exponent", &bloomP[1], 0.0f, 10.0f))

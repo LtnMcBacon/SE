@@ -26,6 +26,12 @@
 #pragma comment(lib, "Window.lib")
 #endif
 
+#ifdef _DEBUG
+#pragma comment(lib, "ImGuiDX11SDLD.lib")
+#else
+#pragma comment(lib, "ImGuiDX11SDL.lib")
+#endif
+#include <Imgui\imgui.h>
 using namespace SE;
 int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::ManagerWrapper& ma)
 {
@@ -46,7 +52,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	if (res < 0)
 		return -2;
 
-	float bloomP[4] = { 5.f, 2.0f, 0.8f, 0.1f };
+	static float bloomP[4] = { 10.f, 2.0f, 0.8f, 0.2f };
 	subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 	Graphics::BlendState bs;
@@ -183,6 +189,36 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	drawBloomTexture.pipeline.OMStage.renderTargets[0] = "backbuffer";
 	drawBloomTexture.pipeline.OMStage.blendState = "BloomBS";
 	subSystem.renderer->AddRenderJob(drawBloomTexture, Graphics::RenderGroup::POST_PASS_3);
+	auto bp = &bloomP;
+	subSystem.devConsole->AddFrameCallback([subSystem, bp]() {
+		
+		auto& b = *bp;
+		ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
+
+
+		static bool bloom_set;
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Settings"))
+			{
+				ImGui::MenuItem("Bloom Settings", nullptr, &bloom_set);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		if (bloom_set)
+		{
+			if (ImGui::SliderFloat("Base Muliplier", &b[0], 0.0f, 20.0f))
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", b, sizeof(bloomP));
+			if (ImGui::SliderFloat("Fade Exponent", &b[1], 0.0f, 10.0f))
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", b, sizeof(bloomP));
+			if (ImGui::SliderFloat("Additive Color Strength Multiplier", &b[2], 0.0f, 2.0f))
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", b, sizeof(bloomP));
+			if (ImGui::SliderFloat("Bloom Color Threshold", &b[3], 0.0f, 1.0f))
+				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", b, sizeof(bloomP));
+		}
+	});
 
 	return 0;
 }
