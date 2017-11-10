@@ -31,9 +31,11 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
-	state = new CharacterCreationState(CoreInit::subSystems.window);
-	currentState = SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE;
-	StopProfile;
+	
+	CoreInit::managers.textManager->MakeFont(Utilz::GUID("CloisterBlack.spritefont"));
+
+	state = new MainMenuState(CoreInit::subSystems.window);
+	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 }
 
 void SE::Gameplay::Game::Run()
@@ -59,32 +61,36 @@ void SE::Gameplay::Game::Run()
 			}
 			switch (newState)
 			{
-			case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
-			{
-				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+				case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
 				{
-					CoreInit::subSystems.window->StopRecording();
+					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+						CoreInit::subSystems.window->StopRecording();*/
+					delete state;
+					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+					break;
 				}
-				break;
-			}
-			case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
-			{
-				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
-					CoreInit::subSystems.window->StopRecording();
-				break;
-			}
-			case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
-			{
-				CoreInit::subSystems.window->StartRecording();
-				break;
-			}
-			case SE::Gameplay::IGameState::State::PLAY_STATE:
-			{
-				delete state;
-				state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
-				break;
-			}
-			}
+				case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
+				{
+					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+						CoreInit::subSystems.window->StopRecording();*/
+					delete state;
+					state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
+					break;
+				}
+				case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
+				{
+					/*CoreInit::subSystems.window->StartRecording();*/
+					delete state;
+					state = new SE::Gameplay::CharacterCreationState(CoreInit::subSystems.window);
+					break;
+				}
+				case SE::Gameplay::IGameState::State::PLAY_STATE:
+				{
+					delete state;
+					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+					break;
+				}
+			 }
 
 			currentState = newState;
 		}
