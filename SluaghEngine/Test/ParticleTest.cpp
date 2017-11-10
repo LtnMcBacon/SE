@@ -29,10 +29,11 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
 	
 	float pos[3] = {0, 0, 0};
-
-	while (true)
+	int i = 0;
+	while (i++ < 2000)
 	{
 		engine->BeginFrame();
+		ImGui::ProgressBar((float)i / 2000.0f, { 400, 30 }, "Testing");
 
 		if (ImGui::InputFloat3("Pos", pos))
 		{
@@ -45,7 +46,7 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 
 	engine->Release();
 	delete engine;
-	return false;
+	return true;
 }
 
 SE::Test::ParticleTest::ParticleTest()
