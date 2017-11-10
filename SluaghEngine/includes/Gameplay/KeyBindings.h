@@ -11,7 +11,8 @@ enum class GameInput
 	SKILL1,
 	SKILL2,
 	ACTION,
-	CONSOLE
+	CONSOLE,
+	STEP
 
 };
 

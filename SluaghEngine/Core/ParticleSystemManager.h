@@ -7,6 +7,7 @@
 #include <Utilz\CircularFiFo.h>
 #include <unordered_map>
 #include <random>
+#include <Particle_Editor\ParticleEmitter.h>
 namespace SE
 {
 	namespace Core
@@ -43,6 +44,7 @@ namespace SE
 
 		private:
 			InitializationInfo initInfo;
+			Graphics::Pipeline updatePipeline;
 
 			/**
 			* @brief	Remove an enitity entry
@@ -57,18 +59,57 @@ namespace SE
 			* @brief	Look for dead entities.
 			*/
 			void GarbageCollection()override;
+			/**
+			* @brief	Updates emit position for the particles
+			*/
+			void UpdateDirtyPos(const Entity& entity, size_t index);
+
 			std::default_random_engine generator;
 
 			struct ParticleSystemFileInfo
 			{
-
+	
+				float vel[3];
+				float pad;
+				float emitPos[3];
+				float pad1;
+				float emitRange[3];
+				float pad5;
+				float gravity[3];
+				float pad4;
+				float speed;
+				float emitRate;
+				float lifeTime;
+				float tangentValue;
+				float radialValue;
+				float gravityValue;
+				float pSize;
+				unsigned int circular;
+				unsigned int gravityCheck;
+				unsigned int emit;
 			};
 			struct ParticleSystemData
 			{
+				bool firstRun;
+				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
 				ParticleSystemFileInfo particleFileInfo;
+				bool randVelocity;
+				Utilz::GUID textureName;
+				Graphics::RenderJob updateJob;
+				Graphics::RenderJob renderJob;
+				int updateJobID;
+				int renderJobID;
+				//Each index contains a XMFLOAT2 with min and max values for velocity and emit in the order of x, y and z. X and Y is Max and Min respectively in each vector
+				DirectX::XMFLOAT2 velocityRange[3];
+				DirectX::XMFLOAT2 emitRange[3];
 			};
+			struct DirtyEntityInfo {
+				size_t transformIndex;
+				Entity entity;
+			};
+			std::vector<DirtyEntityInfo> dirtyEntites;
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;
 			std::unordered_map<Entity, size_t, Core::EntityHasher> entityToIndex;

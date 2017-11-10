@@ -83,6 +83,8 @@ namespace SE
 			{
 				return projectiles;
 			};
+
+			void RemoveAllProjectiles();
 		};
 
 	}

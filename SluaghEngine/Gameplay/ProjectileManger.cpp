@@ -115,3 +115,15 @@ SE::Gameplay::ProjectileManager::~ProjectileManager()
 
 	ProfileReturnVoid;
 }
+
+void SE::Gameplay::ProjectileManager::RemoveAllProjectiles()
+{
+
+	for (int i = 0; i < projectiles.size(); i++)
+	{
+		projectiles[i].DestroyEntity();
+	}
+
+	projectiles.clear();
+	
+}
