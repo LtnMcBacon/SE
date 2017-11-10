@@ -306,14 +306,11 @@
     <ClCompile Include="SkillFactory.cpp">
       <Filter>Source Files\Skills</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationLeaf.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    <ClCompile Include="HUD_Parsing.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationRunningCondition.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClCompile>
-    <ClCompile Include="InTheSameRoomAsThePlayerCondition.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    <ClCompile Include="HUD_Functionality.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -500,26 +497,17 @@
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\InTheSameRoomAsThePlayerCondition.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
       <Filter>Header Files\Skills</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\Skill.h">
-      <Filter>Header Files\Skills</Filter>
+    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Slaugh.h">
       <Filter>Header Files\AI\Sluagh</Filter>

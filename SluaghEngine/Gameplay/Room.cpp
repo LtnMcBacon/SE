@@ -39,7 +39,7 @@ static const SE::Utilz::GUID FloorMat("floorTest.mat");
 static const SE::Utilz::GUID DoorMat("Cube.mat");
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
-static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleLightPS.hlsl");
 
 void Room::UpdateFlowField(float playerX, float playerY)
 {
@@ -960,13 +960,13 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(ent);
 				CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
-				auto floorLambda = [this](int i, int j)
+				auto floorLambda = [this](int i, int j,const Utilz::GUID& mat, const Utilz::GUID& shad)
 				{
 					Core::IMaterialManager::CreateInfo cubeInfo;
 					// Create floor
 					auto entFloor = CoreInit::managers.entityManager->Create();
-					cubeInfo.materialFile = FloorMat;
-					cubeInfo.shader = Norm;
+					cubeInfo.materialFile = mat;
+					cubeInfo.shader = shad;
 					CoreInit::managers.transformManager->Create(entFloor);
 					CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 					CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Floor });
@@ -979,8 +979,13 @@ void SE::Gameplay::Room::CreateEntities()
 				{
 					if (tileValues[i][j] == (char)13)
 					{
+						floorLambda(i, j, Utilz::GUID("brownPlane.mat"), "SimpleLightPS.hlsl");
 					auto& props = propVectors[PropTypes::BUSHES];
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0], true });
+					Core::IMaterialManager::CreateInfo mi;
+					mi.materialFile = "Bush.mat";
+					mi.shader = "SimpleLightPS.hlsl";
+					CoreInit::managers.materialManager->Create(ent, mi);
 					}
 				}
 
@@ -993,13 +998,13 @@ void SE::Gameplay::Room::CreateEntities()
 				// Torch
 				else if (tileValues[i][j] == (char)203)
 				{
-					floorLambda(i, j);
+					floorLambda(i, j, FloorMat, Norm);
 
 					auto entFire = CoreInit::managers.entityManager->Create();
 					CoreInit::managers.transformManager->Create(entFire);
-					CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(i + 1.0f, 2.0f, j - 0.5f));
+					CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(i + 0.54, 2.18f, j + 0.21));
 					SE::Core::IParticleSystemManager::CreateInfo info;
-					info.systemFile = Utilz::GUID("fireBall.txt");
+					info.systemFile = Utilz::GUID("torchParticles.txt");
 					CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 					CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 					roomEntities.push_back(entFire);
@@ -1012,13 +1017,13 @@ void SE::Gameplay::Room::CreateEntities()
 				// Other
 				else if (tileValues[i][j] == (char)137 )
 				{
-					floorLambda(i, j);
+					floorLambda(i, j, FloorMat, Norm);
 
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
 				}
 				else if (tileValues[i][j] == (char)225 ) // Pillar
 				{
-					floorLambda(i, j);
+					floorLambda(i, j, FloorMat, Norm);
 
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
 				}
@@ -1042,7 +1047,7 @@ void SE::Gameplay::Room::CreateEntities()
 
 					if (DoorArr[DoorCounter].active == true)
 					{
-						floorLambda(i, j);
+						floorLambda(i, j, FloorMat, Norm);
 
 						cubeInfo.materialFile = DoorMat;
 						if ((tileValues[i][j + 1] == (char)0 || tileValues[i + 1][j] == (char)0 || tileValues[i + 1][j + 1] == (char)0 || tileValues[i - 1][j + 1] == (char)0 || tileValues[i + 1][j - 1] == (char)0))
