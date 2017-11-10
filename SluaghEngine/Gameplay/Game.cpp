@@ -28,7 +28,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	{
 		CoreInit::subSystems.devConsole->Toggle();
 	});
-
+	void* data = nullptr;
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	

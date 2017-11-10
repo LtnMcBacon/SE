@@ -29,8 +29,6 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 
 	auto startGame = [this]()->void
 	{
-		
-
 			this->CurrentState = State::PLAY_STATE;
 		
 	}; std::function<void()> begin = startGame;
@@ -241,7 +239,6 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	int nrOfOtherSkills = 0;
 	for (size_t i = 0; i < nrOfSkills; i++)
 	{
-
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
 
