@@ -960,34 +960,23 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(floorEnt);
 				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
+				CreationArguments args{ent, floorEnt, i, j, cubeInfo};
+
+
+				auto exists = propItemToFunction.find(tileValues[i][j]);
+				if (exists != propItemToFunction.end())
+				{
+					exists->second(args);
+				}
+
 				if (IsOutside)
 				{
 					if (tileValues[i][j] == (char)13) // Bush
 					{
-						CreateBush(ent, i, j, cubeInfo);
+						CreateBush(args);
 					}
 				}
 
-				if (tileValues[i][j] == (char)0) // Floor
-				{
-					CreateFloor(ent, i, j, cubeInfo);
-				}
-				else if (tileValues[i][j] == (char)203) // Torch
-				{
-					CreateTorch(ent, floorEnt, i, j, cubeInfo);
-				}
-				else if (tileValues[i][j] == (char)137 ) // Other
-				{
-					CreateProp(ent, i, j, cubeInfo);
-				}
-				else if (tileValues[i][j] == (char)225 ) // Pillar
-				{
-					CreatePillar(ent, i, j, cubeInfo);
-				}
-				else if (tileValues[i][j] == (char)255 ) // Wall
-				{
-					CreateWall2(ent, i, j, cubeInfo);
-				}
 				else if (tileValues[i][j] == (char)22 || tileValues[i][j] == (char)48 )
 				{
 
@@ -1077,6 +1066,26 @@ Room::Room(Utilz::GUID fileName)
 	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
 	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
 	propVectors[PropTypes::BUSHES] = { "Bush.mesh" };
+
+	/*propItemToFunction[13] = [this](CreationArguments &args) {
+		this->CreateBush(args);
+	};*/
+	propItemToFunction[0] = [this](CreationArguments &args) {
+		this->CreateFloor(args);
+	};
+	propItemToFunction[203] = [this](CreationArguments &args) {
+		this->CreateTorch(args);
+	};
+	propItemToFunction[137] = [this](CreationArguments &args) {
+		this->CreateProp(args);
+	};
+	propItemToFunction[225] = [this](CreationArguments &args) {
+		this->CreatePillar(args);
+	};
+	propItemToFunction[255] = [this](CreationArguments &args) {
+		this->CreateWall2(args);
+	};
+
 
 	pos start;
 	loadfromFile(fileName);
@@ -1208,60 +1217,64 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 	ProfileReturnConst(propList[randNr]);
 }
 
-void SE::Gameplay::Room::CreateBush(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+
+
+
+void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
 	auto& props = propVectors[PropTypes::BUSHES];
-	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { props[0] });
 
-	mat.materialFile = BushMat;
-	mat.shader = Trans;
-	CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+	args.mat.materialFile = BushMat;
+	args.mat.shader = Trans;
+	CoreInit::managers.renderableManager->ToggleTransparency(args.ent, true);
 }
 
-void SE::Gameplay::Room::CreateFloor(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 {
-	mat.materialFile = FloorMat;
-	mat.shader = Norm;
-	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Floor });
+	args.mat.materialFile = FloorMat;
+	args.mat.shader = Norm;
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.floorEnt, { Floor });
+	if (tileValues[args.i][args.j] == (char)203 )
+	{
+		tileValues[args.i][args.j] = (char)0;
+	}
 }
 
-void SE::Gameplay::Room::CreateTorch(SE::Core::Entity ent, SE::Core::Entity floorEnt, int i, int j, Core::IMaterialManager::CreateInfo mat)
+void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 {
 	// Create torch
-	CoreInit::managers.transformManager->SetRotation(ent, 0, WallCheck(i, j), 0);
-	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Torch });
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0, WallCheck(args.i, args.j), 0);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Torch });
 
-	// Create floor
-	mat.materialFile = FloorMat;
-	mat.shader = Norm;
-	CoreInit::managers.renderableManager->CreateRenderableObject(floorEnt, { Floor });
-
-	tileValues[i][j] = (char)0;
+	CreateFloor(args);
 }
 
-void SE::Gameplay::Room::CreatePillar(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+void SE::Gameplay::Room::CreatePillar(CreationArguments &args)
 {
-	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Pillar_short });
+	CreateFloor(args);
 }
 
-void SE::Gameplay::Room::CreateProp(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 {
-	CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { GenerateRandomProp(args.i, args.j) });
+	CreateFloor(args);
 }
 
-void SE::Gameplay::Room::CreateWall2(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat)
+void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 {
-	mat.materialFile = HighWallMat;
-	if (CreateWall(ent, i, j) == true)
+	args.mat.materialFile = HighWallMat;
+	if (CreateWall(args.ent, args.i, args.j) == true)
 	{
-		mat.shader = Trans;
-		CoreInit::managers.renderableManager->ToggleTransparency(ent, true);
+		args.mat.shader = Trans;
+		CoreInit::managers.renderableManager->ToggleTransparency(args.ent, true);
 	}
 	else
 	{
-		mat.shader = Norm;
+		args.mat.shader = Norm;
 	}
-	CoreInit::managers.transformManager->SetPosition(ent, DirectX::XMFLOAT3(i + 0.5f, 1.0f, j + 0.5f));
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.0f, args.j + 0.5f));
 }
 
 float Room::FloorCheck(int x, int y)

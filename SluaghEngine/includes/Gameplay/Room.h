@@ -46,7 +46,18 @@ namespace SE
 			};
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
-			//std::map<char, std::function<void()>> propItemToFunction;
+			struct CreationArguments
+			{
+				SE::Core::Entity ent;
+				SE::Core::Entity floorEnt;
+				int i;
+				int j;
+				Core::IMaterialManager::CreateInfo mat;
+			};
+
+			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
+
+			//std::map<char, std::function<void(Room::*)(std::vector<CreationArguments>)>> propItemToFunction;
 
 			
 			/*Needed:
@@ -420,27 +431,27 @@ namespace SE
 			/**
 			* @brief
 			*/
-			void CreateBush(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreateBush(CreationArguments &args);
 			/**
 			* @brief	
 			*/
-			void CreateFloor(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreateFloor(CreationArguments &args);
 			/**
 			* @brief
 			*/
-			void CreateTorch(SE::Core::Entity ent, SE::Core::Entity floorEnt, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreateTorch(CreationArguments &args);
 			/**
 			* @brief
 			*/
-			void CreatePillar(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreatePillar(CreationArguments &args);
 			/**
 			* @brief
 			*/
-			void CreateProp(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreateProp(CreationArguments &args);
 			/**
 			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
 			*/
-			void CreateWall2(SE::Core::Entity ent, int i, int j, Core::IMaterialManager::CreateInfo mat);
+			void CreateWall2(CreationArguments &args);
 
 
 			/**
@@ -469,6 +480,7 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
+		
 			/**
 			* @brief set Room door pointer to values
 			*/
