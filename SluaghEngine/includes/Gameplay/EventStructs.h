@@ -41,6 +41,12 @@ namespace SE
 			CONDITIONAL_BANES_SLOW
 		};
 
+		union Condition
+		{
+			Boons boon;
+			Banes bane;
+		};
+
 		enum class DamageSources
 		{
 			DAMAGE_SOURCE_SELFCAST,
@@ -52,6 +58,7 @@ namespace SE
 		enum class DamageTypes
 		{
 			DAMAGE_TYPE_PHYSICAL,
+			DAMAGE_TYPE_RANGED,
 			DAMAGE_TYPE_MAGICAL,
 			DAMAGE_TYPE_FIRE,
 			DAMAGE_TYPE_WATER,
@@ -112,21 +119,36 @@ namespace SE
 
 		struct ConditionEvent
 		{
-			enum class ConditionTypes
+			struct ConditionType
 			{
-				CONDITION_TYPE_NONE,
-				CONDITION_TYPE_STUN,
-				CONDITION_TYPE_ROOT,
-				CONDITION_TYPE_HEALTH_SET /*How the hell do we fix this?*/
-			} type;
+				int unionType;
+				Condition condition;
+			};
+
+			bool isBane;
+			Boons boon;
+			Banes bane;
 			float duration;
-			ConditionEvent(ConditionTypes conditionType = ConditionTypes::CONDITION_TYPE_NONE, float d = 0.f)
+			ConditionEvent() 
 			{
-				type = conditionType;
+
+			}
+			ConditionEvent(ConditionType conditionType, float d = 0.f)
+			{
+				if (conditionType.unionType == 0)
+				{
+					isBane = false;
+					boon = conditionType.condition.boon;
+				}
+				if (conditionType.unionType == 1)
+				{
+					isBane = true;
+					bane = conditionType.condition.bane;
+				}
+				
 				duration = d;
 			}
 		};
-
 	}
 }
 

@@ -19,11 +19,11 @@ void SE::Gameplay::EnemyUnit::ResolveEvents()
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
 		{
-			if(ConditionEventVector[i].type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
-			{
-				myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
-				this->stunDuration += ConditionEventVector[i].duration;
-			}
+			//if(ConditionEventVector[i].type == Boons::CONDITIONAL_BOONS_STUN)
+			//{
+			//	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_STUN;
+			//	this->stunDuration += ConditionEventVector[i].duration;
+			//}
 		}
 	}
 	DamageEventVector.clear();
@@ -76,7 +76,7 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		stunDuration -= dt;
 		if(stunDuration <= 0.f)
 		{
-			myBlackboard->activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 			stunDuration = 0.f;
 		}
 	}

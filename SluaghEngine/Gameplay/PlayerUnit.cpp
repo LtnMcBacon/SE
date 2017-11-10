@@ -15,13 +15,45 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		this->health -= DamageEventVector[i].amount;
 	}
 	
-	for(auto condition : ConditionEventVector)
-	{
-		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
-		{
-			stunDuration += condition.duration;
-		}
-	}
+	//for(auto condition : ConditionEventVector)
+	//{
+	//	if (condition.isBane == false)
+	//	{
+	//		switch (condition.boon)
+	//		{
+	//		case Boons::CONDITIONAL_BOONS_NONE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_DAMAGE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_KNOCKBACK:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_STUN:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_ROOT:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_PROTECTION:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_PHYSICAL_RESISTANCE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_MAGICAL_RESISTANCE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_FIRE_RESISTANCE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_WATER_RESISTANCE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_NATURE_RESISTANCE:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_CASTSPEED:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_SWIFTNESS:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_SLOW:
+	//			break;
+	//		case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
+	//			break;
+	//		}
+	//	}
+	//}
 
 	for(auto healing : HealingEventVector)
 	{
