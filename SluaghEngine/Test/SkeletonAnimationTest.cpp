@@ -74,7 +74,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
+	managers.transformManager->SetRotation(mainC, 0.0f, 3.14, 0.0f);
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
@@ -123,18 +123,17 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
+	managers.animationManager->ToggleVisible(mainC, true);
+	managers.animationManager->ToggleVisible(mainC2, true);
+
 	managers.animationManager->AttachToEntity(mainC, box, "LHand", 0);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
 	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
 
-	managers.animationManager->ToggleVisible(mainC, true);
-	managers.animationManager->ToggleVisible(mainC2, true);
-
 	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
 	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
 	managers.animationManager->Start(mainC2, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE);
-
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
