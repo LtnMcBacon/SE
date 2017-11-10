@@ -35,7 +35,6 @@
     <ClCompile Include="FailUntilSuccess.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="FlowFieldMovementLeaf.cpp" />
-    <ClCompile Include="ForestTrainer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
@@ -90,7 +89,6 @@
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
-    <ClInclude Include="..\includes\Gameplay\DecisionTree.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
@@ -100,7 +98,6 @@
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\Game.h" />
-    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h" />
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
     <ClInclude Include="..\includes\Gameplay\GameUnit.h" />
@@ -127,7 +124,6 @@
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
     <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
-    <ClInclude Include="..\includes\Gameplay\RandomForest.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSequence.h" />
     <ClInclude Include="..\includes\Gameplay\RangeToPlayerCondition.h" />
@@ -151,6 +147,7 @@
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
+    <ClInclude Include="Slaugh.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

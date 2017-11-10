@@ -20,13 +20,36 @@
 #include <DevConsole\IConsole.h>
 #include "IEventManager.h"
 
+#define ENUM_FLAG_OPERATOR(T,X) inline T operator X (T lhs, T rhs) { return (T) (static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
+#define ENUM_FLAG_OPERATOR2(T,X) inline void operator X= (T& lhs, T rhs) { lhs = (T)(static_cast<std::underlying_type_t <T>>(lhs) X static_cast<std::underlying_type_t <T>>(rhs)); } 
+#define ENUM_FLAGS(T) \
+enum class T; \
+inline T operator ~ (T t) { return (T) (~static_cast<std::underlying_type_t <T>>(t)); } \
+inline bool operator & (T lhs, T rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs));  } \
+ENUM_FLAG_OPERATOR2(T,|) \
+ENUM_FLAG_OPERATOR2(T,&) \
+ENUM_FLAG_OPERATOR(T,|) \
+ENUM_FLAG_OPERATOR(T,^)
+
 namespace SE
 {
 	namespace Core
 	{
+		enum class AnimationFlags {
+
+			BLENDTO = 1 << 1,
+			BLENDTOANDBACK = 1 << 2,
+			IMMEDIATE = 1 << 3,
+			LOOP = 1 << 4,
+			CURRENT = 1 << 5,
+			FORCED = 1 << 6
+
+		};
+
 		class IAnimationManager : public IManager
 		{
 		public:
+
 			struct InitializationInfo
 			{
 				ResourceHandler::IResourceHandler* resourceHandler;
@@ -51,10 +74,11 @@ namespace SE
 				static const size_t maxLayers = 4;
 				size_t nrOfLayers = 0;
 				Utilz::GUID animations[maxLayers];
-				float timePos[maxLayers];
-				float animationSpeed[maxLayers];
-				bool looping[maxLayers];
-				float blendSpeed[maxLayers];
+				float timePos[maxLayers] = { 0.0f };
+				float animationSpeed[maxLayers] = { 10.0f };
+				bool looping[maxLayers] = { false };
+				float blendSpeed[maxLayers] = { 0.0f };
+				float blendFactor[maxLayers] = { 0.0f };
 			};
 
 			virtual ~IAnimationManager() {};
@@ -63,13 +87,14 @@ namespace SE
 
 			virtual void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) = 0;
 
+			virtual void Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
 			virtual void Start(const Entity& entity, const AnimationPlayInfo& playInfo) = 0;
 			virtual void Start(const Entity& entity, bool looping)const = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
 			virtual void SetBlendSpeed(const Entity& entity, int index, float speed) = 0;
 			virtual void Pause(const Entity& entity)const = 0;
-			virtual bool IsAnimationPlaying(const Entity& entity) const = 0;
+			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const = 0;
 			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
@@ -90,5 +115,7 @@ namespace SE
 		DECLDIR_CORE IAnimationManager* CreateAnimationManager(const IAnimationManager::InitializationInfo& initInfo);
 	}
 }
+
+ENUM_FLAGS(SE::Core::AnimationFlags);
 
 #endif //SE_INTERFACE_ANIMATION_MANAGER_H_

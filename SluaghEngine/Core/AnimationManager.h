@@ -36,13 +36,14 @@ namespace SE
 
 			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
 
+			void Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
 			void SetBlendSpeed(const Entity& entity, int index, float speed)override;
 			void Pause(const Entity& entity)const override;
-			bool IsAnimationPlaying(const Entity& entity) const override;
+			bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const override;
 			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
@@ -70,6 +71,7 @@ namespace SE
 			
 			void CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info);
 
+			void OverwriteAnimation(AnimationInfo& info, size_t to, size_t from);
 
 			IAnimationManager::InitializationInfo initInfo;
 			std::default_random_engine generator;

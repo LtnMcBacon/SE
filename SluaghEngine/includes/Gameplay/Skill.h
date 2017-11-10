@@ -19,6 +19,7 @@ namespace SE
 			unsigned short int animation = 0;
 			unsigned short int particle = 0;
 
+			Utilz::GUID projectileFileGUID;
 			float skillDamage = 0.f;
 			float boonEffectValue = 0.f;
 			float boonRange = 0.f;
@@ -28,7 +29,6 @@ namespace SE
 			float baneDuration = 0.f;
 			float coolDown = 0.f;
 			float currentCooldown = 0.f;
-			Utilz::GUID projectileFileGUID;
 		};
 
 	}

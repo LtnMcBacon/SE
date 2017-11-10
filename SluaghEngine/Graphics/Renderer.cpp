@@ -271,7 +271,9 @@ int SE::Graphics::Renderer::Render()
 		ID3D11ShaderResourceView* nullSRVS[8] = { nullptr };
 		ID3D11RenderTargetView* nullRTVS[8] = { nullptr };
 		ID3D11UnorderedAccessView* nullUAVS[8] = { nullptr };
-
+		ID3D11Buffer* nullBuffers[8] = { nullptr };
+		UINT32 offset = 0;
+		device->GetDeviceContext()->SOSetTargets(0, nullptr,nullptr);
 		device->GetDeviceContext()->OMSetRenderTargets(8, nullRTVS, nullptr);
 		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
