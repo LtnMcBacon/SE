@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 	//AddTest(PickingTest);
 	AddTest(ShadowTest);
   
-	AddTest(ProjectileTest);
+	//AddTest(ProjectileTest);
 	//AddTest(GarbageTest);
 	//AddTest(ConsoleTest);
 	//AddTest(TransformTest);
