@@ -309,6 +309,7 @@ namespace SE
 
 					engine->BeginFrame();
 	
+
 					if (ImGui::SliderFloat("Base Muliplier", &bloomP[0], 0.0f, 20.0f))
 						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 					if (ImGui::SliderFloat("Fade Exponent", &bloomP[1], 0.0f, 10.0f))
