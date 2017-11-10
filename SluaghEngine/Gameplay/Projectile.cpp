@@ -192,8 +192,6 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
-	this->onCollision = other.onCollision;
-	this->onDeath = other.onDeath;
 	this->rect = other.rect;
 	this->rotation = other.rotation;
 	this->rotData = other.rotData;
@@ -216,8 +214,6 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
-	this->onCollision = other.onCollision;
-	this->onDeath = other.onDeath;
 	this->rect = other.rect;
 	this->rotation = other.rotation;
 	this->rotData = other.rotData;
@@ -241,8 +237,6 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->tempStorage = other.tempStorage;
 	this->behaviourData = other.behaviourData;
 	this->lifeTime = other.lifeTime;
-	this->onCollision = other.onCollision;
-	this->onDeath = other.onDeath;
 	this->rect = other.rect;
 	this->rotation = other.rotation;
 	this->rotData = other.rotData;
