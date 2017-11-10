@@ -29,6 +29,21 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	InitializeEnemies();
 	InitializeOther();
 
+	/* Play sounds */
+	amountOfSounds = 3u;
+	currentSound = 0u;
+	sounds = new SE::Utilz::GUID[amountOfSounds];
+	sounds[0] = Utilz::GUID("BLoop.wav");
+	sounds[1] = Utilz::GUID("BLoop2.wav");
+	sounds[2] = Utilz::GUID("BLoop3.wav");
+
+	soundEnt = CoreInit::managers.entityManager->Create();
+	for (int i = 0; i < amountOfSounds; ++i)
+	{
+		CoreInit::managers.audioManager->Create(soundEnt, { sounds[i], SE::Audio::BakgroundLoopSound });
+	}
+	CoreInit::managers.audioManager->PlaySound(soundEnt, sounds[0]);
+
 	BehaviourPointers temp;
 	temp.currentRoom = &currentRoom;
 	temp.player = player;
@@ -40,6 +55,7 @@ PlayState::~PlayState()
 {
 	delete projectileManager;
 	delete player;
+	delete[] sounds;
 	//delete currentRoom;
 	for (auto room : rooms)
 		delete room;
@@ -327,6 +343,21 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
+
+	//-----sound update
+	soundTime += input->GetDelta();
+	if (soundTime > 60.0f)
+	{
+		uint8_t newSound = input->GetRand() % amountOfSounds;
+		if (currentSound != newSound)
+		{
+			CoreInit::managers.audioManager->StopSound(soundEnt, sounds[currentSound]);
+			CoreInit::managers.audioManager->PlaySound(soundEnt, sounds[newSound]);
+			currentSound = newSound;
+		}
+		soundTime = 0.0f;
+	}
+	//-----end sound update
 
 	//-----------------------------------------------
 

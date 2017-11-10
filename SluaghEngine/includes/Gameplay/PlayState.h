@@ -68,6 +68,14 @@ namespace SE
 
 			ProjectileManager* projectileManager;
 
+			/* game sounds*/
+			SE::Core::Entity soundEnt;
+			uint8_t amountOfSounds;
+			uint8_t currentSound;
+			float soundTime = 0.0f;
+			SE::Utilz::GUID* sounds;
+
+
 		protected:
 
 		};
