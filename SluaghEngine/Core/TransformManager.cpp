@@ -158,9 +158,45 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 {
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-	data.rotations[index].x += pitch;
-	data.rotations[index].y += yaw;
-	data.rotations[index].z += roll;
+
+	float a, b, c;
+	a = data.rotations[index].x+ pitch;
+	b = data.rotations[index].y+ yaw;
+	c = data.rotations[index].z+ roll;
+
+	
+	
+	
+
+	if (a > XM_2PI) {
+
+		a -= XM_2PI;
+	}
+	if (b > XM_2PI) {
+
+		b -= XM_2PI;
+	}
+	if (c > XM_2PI) {
+
+		c -= XM_2PI;
+	}
+
+	if (a < -XM_2PI) {
+
+		a += XM_2PI;
+	}
+	if (b < -XM_2PI) {
+
+		b += XM_2PI;
+	}
+	if (c < -XM_2PI) {
+
+		c += XM_2PI;
+	}
+
+	data.rotations[index].x = a;
+	data.rotations[index].y = b;
+	data.rotations[index].z = c;
 	data.flags[index] |= TransformFlags::DIRTY;
 
 	int32_t child = data.childIndex[index];

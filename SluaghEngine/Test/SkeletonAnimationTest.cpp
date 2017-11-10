@@ -69,12 +69,14 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->Create(mainC2);
 	managers.transformManager->Create(box);
 
-	managers.renderableManager->CreateRenderableObject(box, {});
+	Core::IRenderableManager::CreateInfo arrow;
+	arrow.meshGUID = "Placeholder_Arrow.mesh";
+	managers.renderableManager->CreateRenderableObject(box, arrow);
 	managers.renderableManager->ToggleRenderableObject(box, true);
 	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	managers.transformManager->SetRotation(mainC, 0.0f, 3.14, 0.0f);
+	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);

@@ -253,8 +253,8 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						DirectX::XMStoreFloat3(&at, jointTrans);
 						DirectX::XMStoreFloat3(&as, jointScale);
 
-						initInfo.transformManager->SetPosition(att.slots[k].entity, at);
 						initInfo.transformManager->SetRotation(att.slots[k].entity, aq.x, aq.y, aq.z);
+						initInfo.transformManager->SetPosition(att.slots[k].entity, at);
 
 						
 					}
