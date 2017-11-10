@@ -190,9 +190,10 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.PSStage.samplerCount = 1;
 		RPP.OMStage.blendState = "ParticleBlend";
 		RPP.OMStage.renderTargets[0] = "backbuffer";
+		RPP.OMStage.renderTargets[1] = "bloomTarget";
 		RPP.OMStage.depthStencilView = "backbuffer";
-		RPP.OMStage.depthStencilState = "noDepth";
-		RPP.OMStage.renderTargetCount = 1;
+		RPP.OMStage.depthStencilState = "backbuffer";
+		RPP.OMStage.renderTargetCount = 2;
 		
 		Particle p;
 		p.opacity = 1.0f;
