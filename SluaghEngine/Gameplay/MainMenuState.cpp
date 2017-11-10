@@ -85,14 +85,28 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	};
 
 	std::function<void()> func = PausChange;
+	std::function<void()> begin = startGame;
 
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
-	
 
+	for (auto& button : fileParser.ButtonVector)
+	{
+		if (button.rectName == "startGameBtn")
+		{
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex, "start Game");
+		}
+		/*else if (button.rectName == "quitBtn")
+		{
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Quit Game");
+		}*/
+		/*else if (button.rectName == "optionsBtn")
+		{
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Options");
+		}*/
 
-
-
+	}
+	fileParser.GUIButtons.DrawButtons();
 
 	this->input = Input;
 

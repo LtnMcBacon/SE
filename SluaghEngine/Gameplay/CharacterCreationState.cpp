@@ -3,6 +3,7 @@
 #include "CoreInit.h"
 #include <SkillFactory.h>
 #include <PlayerUnit.h>
+#include <Skill.h>
 using namespace SE;
 using namespace Gameplay;
 
@@ -25,6 +26,14 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		this->CurrentState = State::MAIN_MENU_STATE;
 	}; std::function<void()> back = returnToMain;
 
+	auto startGame = [this]()->void
+	{
+		
+
+			this->CurrentState = State::PLAY_STATE;
+		
+	}; std::function<void()> begin = startGame;
+
 
 	for (auto& button : fileParser.ButtonVector)
 	{
@@ -34,7 +43,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		}
 		else if (button.rectName == "confirmBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, back, button.textName, button.hoverTex, button.PressTex, "Confirm");
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex, "Confirm");
 		}
 		else if (button.rectName == "skillDescription")
 		{
@@ -107,12 +116,12 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	passableInfo = infoToPass;
 
 
+	ProfileReturn(CurrentState);
 	
 }
 	
 
-	ProfileReturn(CurrentState);
-}
+
 //void CharacterCreationState::SkillBtns(int nrOfSkills)
 //{
 //	int width = 1280;
@@ -223,7 +232,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	int borderOffset = 200;
 	int rectSize = 100;
 	SkillFactory sf;
-	PlayerUnit::Skill s1;
+	Skill s1;
 	std::vector<int> OtherSkills;
 	int nrOfOtherSkills = 0;
 	for (size_t i = 0; i < nrOfSkills; i++)

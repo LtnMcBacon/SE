@@ -203,7 +203,7 @@ namespace SE
 					this->MainMenuTextVec.push_back(currentText);
 				}
 
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 
 		}
@@ -497,7 +497,7 @@ namespace SE
 					this->skillTextVec.push_back(currentText);
 				}
 
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 		}
 
@@ -672,7 +672,7 @@ namespace SE
 					this->perkTextVec.push_back(currentText);
 				}
 
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 		}
 
@@ -855,7 +855,7 @@ namespace SE
 				//	this->MainMenuTextVec.push_back(currentText);
 				//}
 
-				return ResourceHandler::InvokeReturn::DecreaseRefcount;
+				return ResourceHandler::InvokeReturn::SUCCESS| ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 
 		}

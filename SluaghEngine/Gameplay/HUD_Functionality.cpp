@@ -85,6 +85,140 @@ namespace SE
 			Buttons.push_back(tempElement);
 		}
 
+		std::string HUDButtons::printSkillDesc(ButtonElement button)
+		{
+			std::string description = "";
+			description += "Damage Source: ";
+			switch (button.skillDesc[0])
+			{
+			case 0:
+				description += "Selfcast\n";
+				break;
+			case 1:
+				description += "Melee\n";
+				break;
+			case 2:
+				description += "Ranged\n";
+				break;
+			case 3:
+				description += "Area\n";
+				break;
+			}
+
+			description += "Damage Types: ";
+			switch (button.skillDesc[1])
+			{
+			case 0:
+				description += "Physical\n";
+				break;
+			case 1:
+				description += "Magical\n";
+				break;
+			case 2:
+				description += "Fire\n";
+				break;
+			case 3:
+				description += "Water\n";
+				break;
+			case 4:
+				description += "Nature\n";
+				break;
+			}
+			description += "Boon: ";
+
+			switch (button.skillDesc[2])
+			{
+			case 0:
+				description += "None\n";
+				break;
+			case 1:
+				description += "Damage\n";
+				break;
+			case 2:
+				description += "Knockback\n";
+				break;
+			case 3:
+				description += "Stun\n";
+				break;
+			case 4:
+				description += "Root\n";
+				break;
+			case 5:
+				description += "Protection\n";
+				break;
+			case 6:
+				description += "Physical Resistance\n";
+				break;
+			case 7:
+				description += "Magical Resistance\n";
+				break;
+			case 8:
+				description += "Fire Resistance\n";
+				break;
+			case 9:
+				description += "Water Resistance";
+				break;
+			case 10:
+				description += "Nature Resistance\n";
+				break;
+			case 11:
+				description += "Cast Speed\n";
+				break;
+			case 12:
+				description += "Swiftness\n";
+				break;
+			case 13:
+				description += "Slow\n";
+				break;
+			case 14:
+				description += "Invoulnerability\n";
+				break;
+			}
+
+			description += "Banes: ";
+
+			switch (button.skillDesc[3])
+			{
+			case 0:
+				description += "None\n";
+				break;
+			case 1:
+				description += "Damage\n";
+				break;
+			case 2:
+				description += "Stun\n";
+				break;
+			case 3:
+				description += "Root\n";
+				break;
+			case 4:
+				description += "Bloodletting\n";
+				break;
+			case 5:
+				description += "Uncover\n";
+				break;
+			case 6: 
+				description += "Physical Weakness\n";
+			case 7:
+				description += "Magical Weakness\n";
+				break;
+			case 8:
+				description += "Fire Weakness\n";
+				break;
+			case 9:
+				description += "Water Weakness\n";
+				break;
+			case 10:
+				description += "Nature Weakness\n";
+				break;
+			case 11:
+				description += "Slow\n";
+				break;
+			}
+
+			return description;
+		}
+
 		void HUDButtons::DrawButtons()
 		{
 			for (auto& ButtonElement : Buttons)
@@ -172,30 +306,31 @@ namespace SE
 						{
 							if (wasHovering == false)
 							{
-
-
+							std::string holder = printSkillDesc(button);
 								auto entText = CoreInit::managers.entityManager->Create();
 
 								std::wstring text;
-								std::string habla = "ayy lmao";
-								text.assign(habla.begin(), habla.end());
+								
+								text.assign(holder.begin(), holder.end());
 
 								Graphics::TextGUI guiText;
-								guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+								guiText.colour = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 1.0);
 								guiText.effect = Graphics::Effect::NoEffect;
 								guiText.text = text;
+								
 								guiText.hashString = std::hash<std::wstring>()(guiText.text);
 								guiText.layerDepth = 0;
 								guiText.anchor = DirectX::XMFLOAT2(0, 0);
 								guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
 								guiText.posX = skillDescBtn.PositionX;
 								guiText.posY = skillDescBtn.PositionY;
-								guiText.width = button.Width - 5;
-								guiText.height = button.Height - 5;
+								guiText.width = skillDescBtn.Width;
+								guiText.height = skillDescBtn.Height;
 								guiText.rotation = 0;
+								
 								guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
-								CoreInit::managers.textManager->Create(entText, { Utilz::GUID(), guiText });
+								CoreInit::managers.textManager->Create(entText, { Utilz::GUID("CloisterBlack.spritefont"), guiText });
 								CoreInit::managers.textManager->ToggleRenderableText(entText, true);
 
 								skillDescEntity = entText;
