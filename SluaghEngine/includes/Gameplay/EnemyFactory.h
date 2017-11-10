@@ -75,6 +75,9 @@ namespace SE
 				int natureResistance;
 				int fireResistance;
 				int waterResistance;
+				/*Sound files for enemy*/
+				Utilz::GUID attackSoundGUID[3];
+				Utilz::GUID takingDamageSoundGUID[3];
 			};
 
 

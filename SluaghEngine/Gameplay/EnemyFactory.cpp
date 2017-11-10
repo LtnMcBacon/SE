@@ -82,6 +82,17 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
 
+			/* Enemy Sound */
+			for (int i = 0; i < 3; ++i)
+			{
+				CoreInit::managers.audioManager->Create(createdEnemy->GetEntity(), { enemyCreationData->second.attackSoundGUID[i], SE::Audio::StereoPanSound });
+			}
+			for (int i = 0; i < 3; ++i)
+			{
+				CoreInit::managers.audioManager->Create(createdEnemy->GetEntity(), { enemyCreationData->second.takingDamageSoundGUID[i], SE::Audio::StereoPanSound });
+			}
+
+
 			/*Fix with managers*/
 			Core::IAnimationManager::CreateInfo cInfo;
 			cInfo.animationCount = 0;
@@ -185,6 +196,27 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+		/* attackSounds */
+		++line;
+		line->pop_back();
+		loadedEnemy.attackSoundGUID[0] = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.attackSoundGUID[1] = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.attackSoundGUID[2] = Utilz::GUID(GetLineData(line));
+		/* takingDamageSounds */
+		++line;
+		line->pop_back();
+		loadedEnemy.takingDamageSoundGUID[0] = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.takingDamageSoundGUID[1] = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.takingDamageSoundGUID[2] = Utilz::GUID(GetLineData(line));
+
 
 		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
 			return ResourceHandler::InvokeReturn::FAIL;
