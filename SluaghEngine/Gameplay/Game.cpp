@@ -1,8 +1,10 @@
 #include <Game.h>
 #include "CoreInit.h"
+#include <Profiler.h>
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
+	StartProfile;
 	CoreInit::Init(engine);
 	this->engine = engine;
 
@@ -31,14 +33,16 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	state = new CharacterCreationState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE;
+	StopProfile;
 }
 
 void SE::Gameplay::Game::Run()
 {
+	StartProfile;
 	void* data = nullptr;
 	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState = state->PLAY_STATE;
-
+	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 	{
 
@@ -47,26 +51,38 @@ void SE::Gameplay::Game::Run()
 
 		if (newState != currentState)
 		{
+			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
+			{
+				CoreInit::subSystems.window->StopRecording();
+				CoreInit::engine->EndFrame();
+				return;
+			}
 			switch (newState)
 			{
 			case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
 			{
 				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+				{
 					CoreInit::subSystems.window->StopRecording();
+				}
+				break;
 			}
 			case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
 			{
 				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 					CoreInit::subSystems.window->StopRecording();
+				break;
 			}
 			case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
 			{
 				CoreInit::subSystems.window->StartRecording();
+				break;
 			}
 			case SE::Gameplay::IGameState::State::PLAY_STATE:
 			{
 				delete state;
 				state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+				break;
 			}
 			}
 
@@ -75,6 +91,7 @@ void SE::Gameplay::Game::Run()
 
 		CoreInit::engine->EndFrame();
 	}
+	StopProfile;
 }
 
 void SE::Gameplay::Game::Shutdown()

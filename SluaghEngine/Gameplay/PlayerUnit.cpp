@@ -7,73 +7,22 @@
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
 	StartProfile;
-	/*TOP ANIMATION ALWAYS AT INDEX 0*/
-	Core::IAnimationManager::AnimationPlayInfo playInfo;
 
 	/*Initialize On Death animation*/
-	playInfo.animations[0] = "DeathAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 10.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = false;
-	playInfo.blendSpeed[0] = 0.0f;
-	playInfo.blendFactor[0] = 0.0f;
-
 	animationPlayInfos[PLAYER_ON_DEATH_ANIMATION].push_back("DeathAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize On Hit animation*/
-	playInfo.animations[0] = "TopHitAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 10.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = false;
-	playInfo.blendSpeed[0] = 0.0f;
-	playInfo.blendFactor[0] = 0.0f;
-
 	animationPlayInfos[PLAYER_ON_HIT_ANIMATION].push_back("TopHitAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize Attack animation*/
-	playInfo.animations[0] = "TopAttackAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 10.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = false;
-	playInfo.blendSpeed[0] = 0.0f;
-	playInfo.blendFactor[0] = 0.0f;
-
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopAttackAnim_MCModell.anim"); //= playInfo;
 
 
 	/*Initialize Idle Animation*/
-	playInfo.animations[0] = "TopIdleAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 10.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.0f;
-	playInfo.blendFactor[0] = 0.0f;
-	playInfo.animations[1] = "BottomIdleAnim_MCModell.anim";
-	playInfo.animationSpeed[1] = 10.0f;
-	playInfo.timePos[1] = 0.0f;
-	playInfo.looping[1] = true;
-	playInfo.blendSpeed[1] = 0.0f;
-	playInfo.blendFactor[1] = 0.0f;
-	playInfo.nrOfLayers = 2;
-
 	animationPlayInfos[PLAYER_IDLE_ANIMATION].push_back("TopIdleAnim_MCModell.anim");
 	animationPlayInfos[PLAYER_IDLE_ANIMATION].push_back("BottomIdleAnim_MCModell.anim");// = playInfo;
 
 	/*Initialize Run animation*/
-	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 10.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.0f;
-	playInfo.blendFactor[0] = 0.0f;
-	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
-	playInfo.animationSpeed[1] = 10.0f;
-	playInfo.timePos[1] = 0.0f;
-	playInfo.looping[1] = true;
-	playInfo.blendSpeed[1] = 0.0f;
-	playInfo.blendFactor[1] = 0.0f;
-	playInfo.nrOfLayers = 2;
-
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("TopRunAnim_MCModell.anim");
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("BottomRunAnim_MCModell.anim"); //= playInfo;
 		
@@ -82,115 +31,12 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	
 }
 
-//void SE::Gameplay::PlayerUnit::BlendToAnimation(AvailableAnimations blendTo)
-//{
-//	StartProfile;
-//	//if(blendTo != currentAnimation)
-//	//{
-//	//	if (currentlyBlending && blendTo != blendingTo)
-//	//	{
-//	//		/*We are currently blending, but we are blending to another animation*/
-//
-//	//		const auto& playInfoTarget = animationPlayInfos[blendTo];
-//	//		const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
-//	//		const auto& playInfoCurrentTarget = animationPlayInfos[blendingTo];
-//
-//	//		Core::IAnimationManager::AnimationPlayInfo playInfo;
-//	//		playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers + playInfoCurrentTarget.nrOfLayers;
-//	//		if (playInfo.nrOfLayers > playInfo.maxLayers)
-//	//			ProfileReturnConst(false); /*ABORT! ABORT!*/
-//
-//	//		blendingTo = blendTo;
-//	//		int currentLayer = 0;
-//
-//	//		/*Current animation info*/
-//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-//	//		{
-//	//			playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
-//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
-//	//			playInfo.timePos[currentLayer] = -1; /*Time pos must be found in the current running animation!*/
-//	//			playInfo.looping[currentLayer] = false;
-//	//			playInfo.blendSpeed[currentLayer] = -1;
-//	//			currentLayer++;
-//	//		}
-//	//		/*Target animation info*/
-//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-//	//		{
-//	//			playInfo.animations[currentLayer] = playInfoTarget.animations[i];
-//	//			playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
-//	//			playInfo.timePos[currentLayer] = 0;
-//	//			playInfo.looping[currentLayer] = playInfoTarget.looping[i];
-//	//			playInfo.blendSpeed[currentLayer] = 0;
-//	//			currentLayer++;
-//	//		}
-//	//		
-//	//		/*Add the current blending target*/
-//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-//	//		{
-//	//			playInfo.animations[currentLayer] = playInfoCurrentTarget.animations[i];
-//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrentTarget.animationSpeed[i];
-//	//			playInfo.timePos[currentLayer] = -1;
-//	//			playInfo.looping[currentLayer] = false;
-//	//			playInfo.blendSpeed[currentLayer] = -1;
-//	//			currentLayer++;
-//	//		}
-//	//		
-//	//		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-//
-//	//	}
-//	//	else if(!currentlyBlending)
-//	//	{
-//	//		/*We are not currently blending*/
-//
-//	//		const auto& playInfoTarget = animationPlayInfos[blendTo];
-//	//		const auto& playInfoCurrent = animationPlayInfos[currentAnimation];
-//
-//	//		Core::IAnimationManager::AnimationPlayInfo playInfo;
-//	//		playInfo.nrOfLayers = playInfoTarget.nrOfLayers + playInfoCurrent.nrOfLayers;
-//	//		if (playInfo.nrOfLayers > playInfo.maxLayers)
-//	//			ProfileReturnConst(false); /*ABORT! ABORT!*/
-//
-//	//		blendingTo = blendTo;
-//	//		currentlyBlending = true;
-//	//		int currentLayer = 0;
-//
-//	//		/*Current animation info*/
-//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-//	//		{
-//	//			playInfo.animations[currentLayer] = playInfoCurrent.animations[i];
-//	//			playInfo.animationSpeed[currentLayer] = playInfoCurrent.animationSpeed[i];
-//	//			playInfo.timePos[currentLayer] = 0; /*Time pos must be found in the current running animation!*/
-//	//			playInfo.looping[currentLayer] = false;
-//	//			playInfo.blendSpeed[currentLayer] = 0;
-//	//			playInfo.blendFactor[currentLayer] = 0;
-//	//			currentLayer++;
-//	//		}
-//	//		/*Target animation info*/
-//	//		for (int i = 0; i < playInfoCurrent.nrOfLayers; i++)
-//	//		{
-//	//			playInfo.animations[currentLayer] = playInfoTarget.animations[i];
-//	//			playInfo.animationSpeed[currentLayer] = playInfoTarget.animationSpeed[i];
-//	//			playInfo.timePos[currentLayer] = 0;
-//	//			playInfo.looping[currentLayer] = playInfoTarget.looping[i];
-//	//			playInfo.blendSpeed[currentLayer] = 0;
-//	//			playInfo.blendFactor[currentLayer] = 0;
-//	//			currentLayer++;
-//	//		}
-//
-//	//		CoreInit::managers.animationManager->Start(unitEntity, playInfo);
-//	//	}
-//	//	else
-//	//	{
-//	//		/*We are currently blending to the animation we want to blend to. Ignore.*/
-//
-//	//	}
-//	//}
-//	ProfileReturnConst(true);
-//}
 
 void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags | Core::AnimationFlags::CURRENT);
+	StartProfile;
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags);
+	StopProfile;
 }
 
 void SE::Gameplay::PlayerUnit::ResolveEvents()
@@ -201,7 +47,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 	
 	for (int i = 0; i < DamageEventVector.size(); i++)
 	{
-		//this->health -= DamageEventVector[i].amount;
+		this->health -= DamageEventVector[i].amount;
 	}
 	
 	for(auto condition : ConditionEventVector)
@@ -214,7 +60,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 
 	for(auto healing : HealingEventVector)
 	{
-		//health += healing.amount;
+		//health += healing.amount; For some reason, this get's called. Find the reason!
 	}
 	
 	ProfileReturnVoid;
@@ -236,10 +82,6 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	}
 	xMovementTot *= dt;
 	yMovementTot *= dt;
-
-
-	/*float sampleX = 0.f;
-	float sampleY = 0.f;*/
 
 	float localExtent = extents + 0.15;
 
@@ -317,8 +159,10 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
+	StartProfile;
 	this->rotMov[0] = cosf(camAngleX);
 	this->rotMov[1] = sinf(camAngleY);
+	StopProfile;
 }
 
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
@@ -449,21 +293,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown -= dt;
 	}
 
-	/*if (input.skill1Button) 
-	{
-		ProjectileData temp;
-
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "turretProjectile.SEP";
-
-		newProjectiles.push_back(temp);
-	}*/
-
 	if (input.actionButton && attackCooldown <= 0.0f)
 	{
 		ProjectileData temp;
@@ -505,10 +334,28 @@ void SE::Gameplay::PlayerUnit::AddForce(float force[2])
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::UpdateMap(const char** mapForRoom)
+void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 {
 	StartProfile;
-	//map = mapForRoom;
+	for (int i = 0; i < 25; i++)
+	{
+		for (int j = 0; j < 25; j++)
+		{
+			map[i][j] = mapForRoom[i][j];
+		}
+	}
+	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
+{
+	StartProfile;
+	UpdateMovement(dt, mInputs);
+	UpdateActions(dt, newProjectiles, aInput);
+
+	ClearConditionEvents();
+	ClearDamageEvents();
+	ClearHealingEvents();
 	StopProfile;
 }
 
@@ -613,8 +460,9 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
-	GameUnit(xPos, yPos, 100)
+	GameUnit(xPos, yPos, 1000)
 {
+	StartProfile;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
@@ -650,7 +498,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	InitializeAnimationInfo();
 
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
-
+	StopProfile;
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

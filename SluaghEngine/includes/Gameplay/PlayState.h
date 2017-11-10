@@ -61,7 +61,8 @@ namespace SE
 			PlayerUnit* player;
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
-			const int enemiesInEachRoom = 1;
+			int currentRoomIndex = -1;
+			const int enemiesInEachRoom = 10;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 

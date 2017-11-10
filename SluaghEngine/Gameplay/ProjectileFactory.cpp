@@ -94,6 +94,12 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 		startPos++;
 	}
 
+	if (file[startPos] != '\r' && startPos < file.size())
+	{
+		nrOfLetters++;
+		startPos++;
+	}
+
 	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
 	pos += nrOfLetters + 2;
 
