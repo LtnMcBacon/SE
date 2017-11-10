@@ -295,10 +295,18 @@ namespace SE
 						{
 							CoreInit::managers.guiManager->SetTexture(entity, button.PressTex);
 						}
+						if (button.skillButton)
+						{
+							wasHovering = true;
+						}
 					}
 					else if (released)
 					{
 						// func
+						if (button.skillButton)
+						{
+							wasHovering = true;
+						}
 						if (button.bindButton != NULL)
 						{
 							button.bindButton();
@@ -356,16 +364,20 @@ namespace SE
 					// Idle
 					auto& entity = ButtonEntityVec.at(button.EntityIndex);
 					CoreInit::managers.guiManager->SetTexture(entity, button.textName);
-					if (wasHovering)
+					if (button.skillButton)
 					{
-						if (skillDescEntity.id != 0)
-						{
 
-							CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
-							CoreInit::managers.entityManager->Destroy(skillDescEntity);
-							entityIndex--;
+						if (wasHovering)
+						{
+							if (skillDescEntity.id != 0)
+							{
+
+								CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
+								CoreInit::managers.entityManager->Destroy(skillDescEntity);
+								entityIndex--;
+							}
+							wasHovering = false;
 						}
-						wasHovering = false;
 					}
 				}
 				inside = false;
