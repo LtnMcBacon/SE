@@ -259,6 +259,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
@@ -277,6 +279,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
@@ -478,7 +482,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	sai.animationCount = 4;
 
 	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim", "TopIdleAnim_MCModell.anim",
-		"DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim", "TopHitAnim_MCModell.anim"};
+		"DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim", "TopHitAnim_MCModell.anim" };
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
@@ -494,6 +498,8 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+
+	CoreInit::managers.audioManager->Create(unitEntity, { Utilz::GUID("DefaultAttackSound.wav"), SE::Audio::StereoPanSound });
 
 	InitializeAnimationInfo();
 
