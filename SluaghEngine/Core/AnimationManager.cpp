@@ -24,12 +24,24 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 		initInfo.eventManager, initInfo.transformManager },
 		10, animationSystem);
 
-	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
+	ResourceHandler::Callbacks sC;
+	sC.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
-			return ResourceHandler::InvokeReturn::FAIL;
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	sC.destroyCallback = [this](auto guid, auto data, auto size)
+	{
+		this->initInfo.renderer->GetPipelineHandler()->DestroyVertexShader(guid);
+	};
+	sC.invokeCallback = [](auto guid, auto data, auto size)
+	{
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, sC, ResourceHandler::LoadFlags::IMMUTABLE | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
 
@@ -77,7 +89,6 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
-
 	// Load skeleton
 	if (!animationSystem->IsSkeletonLoaded(info.skeleton))
 	{
@@ -97,6 +108,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	}
 
 	animationData.animInfo[index].skeleton = info.skeleton;
+
 
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
@@ -342,7 +354,28 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		if (!nrOfAnims)
 			ProfileReturnConst(false);
 
-		// If the animation flag is not set to force blending...
+
+		for (size_t i = 0; i < nrOfAnims; i++)
+		{
+			if (!animationSystem->IsAnimationLoaded(GUIDTemporaryStorage[i]))
+			{
+				auto result = initInfo.resourceHandler->LoadResource(GUIDTemporaryStorage[i], [this](auto guid, auto data, auto size) {
+					auto result = LoadAnimation(guid, data, size);
+					if (result < 0)
+						return ResourceHandler::InvokeReturn::FAIL;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				if (result < 0)
+				{
+					initInfo.console->PrintChannel("Resources", "Could not load animation %u. Error: %d", GUIDTemporaryStorage[i], result);
+					GUIDTemporaryStorage[i] = GUIDTemporaryStorage[nrOfAnims - 1];
+					i--;
+					nrOfAnims--;
+				}
+			}
+		}
+
+				// If the animation flag is set to force blending...
 		if (!(flag & AnimationFlags::FORCEBLENDING)) {
 
 			// Loop through all layers in the animation info for this entity
