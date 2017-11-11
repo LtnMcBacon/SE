@@ -42,7 +42,9 @@ namespace SE
 			IMMEDIATE = 1 << 3,
 			LOOP = 1 << 4,
 			CURRENT = 1 << 5,
-			FORCED = 1 << 6
+			FORCED = 1 << 6,
+			BLOCKBLENDING = 1 << 7,
+			FORCEBLENDING = 1 << 8
 
 		};
 
@@ -77,6 +79,7 @@ namespace SE
 				float timePos[maxLayers] = { 0.0f };
 				float animationSpeed[maxLayers] = { 10.0f };
 				bool looping[maxLayers] = { false };
+				bool blockBlending[maxLayers] = { false };
 				float blendSpeed[maxLayers] = { 0.0f };
 				float blendFactor[maxLayers] = { 0.0f };
 			};
@@ -87,7 +90,7 @@ namespace SE
 
 			virtual void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex) = 0;
 
-			virtual void Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
+			virtual bool Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
 			virtual void Start(const Entity& entity, const AnimationPlayInfo& playInfo) = 0;
 			virtual void Start(const Entity& entity, bool looping)const = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;
