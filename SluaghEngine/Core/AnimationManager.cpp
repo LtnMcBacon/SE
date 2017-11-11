@@ -33,8 +33,21 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
 
-
 	Allocate(10);
+
+	
+	std::vector<Utilz::GUID> guids;
+	std::vector<std::string> names;
+	initInfo.resourceHandler->GetAllGUIDsWithExtension("anim", guids, names);
+	for(auto &guid : guids)
+	{
+		auto result = initInfo.resourceHandler->LoadResource(guid, [this](auto guid, auto data, auto size) {
+			auto result = LoadAnimation(guid, data, size);
+			if (result < 0)
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		});
+	}
 }
 
 SE::Core::AnimationManager::~AnimationManager()
