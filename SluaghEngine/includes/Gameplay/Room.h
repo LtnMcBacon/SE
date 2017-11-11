@@ -46,20 +46,7 @@ namespace SE
 				BIGPROPS,
 				GENERIC
 			};
-			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
-			struct CreationArguments
-			{
-				SE::Core::Entity ent;
-				int i;
-				int j;
-				Core::IMaterialManager::CreateInfo mat;
-				int doorCounter;
-			};
-
-			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
-
-			
 			enum class Meshes {
 				HighWall,
 				Bush,
@@ -80,6 +67,19 @@ namespace SE
 				FloorTorch
 			};
 
+
+			struct CreationArguments
+			{
+				SE::Core::Entity ent;
+				int i;
+				int j;
+				Core::IMaterialManager::CreateInfo mat;
+				int doorCounter;
+			};
+
+
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
 			std::map<Meshes, SE::Utilz::GUID> Meshes;
 			
 			/*Needed:
