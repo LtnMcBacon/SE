@@ -28,8 +28,8 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
 			return ResourceHandler::InvokeReturn::FAIL;
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	}, ResourceHandler::LoadFlags::IMMUTABLE | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
 
@@ -342,6 +342,10 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		nrOfAnims = animationsNotRunning;
 		if (!nrOfAnims)
 			ProfileReturnConst(false);
+
+
+
+
 
 		// If the animation flag is set to force blending...
 		if (flag & AnimationFlags::FORCEBLENDING) {
