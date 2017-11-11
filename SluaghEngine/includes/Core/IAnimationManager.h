@@ -99,6 +99,7 @@ namespace SE
 			virtual void Pause(const Entity& entity)const = 0;
 			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const = 0;
 			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID *animationToCheck, size_t nrOfAnims) const = 0;
+			virtual bool CurrentAnimationAllowsBlending(const Entity& entity) const = 0;
 			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;

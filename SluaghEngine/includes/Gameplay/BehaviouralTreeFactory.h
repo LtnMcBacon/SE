@@ -161,6 +161,15 @@ namespace SE
 			*/
 			IBehaviour* CreateInTheSameRoomAsThePlayerConditionLeaf(NodeData* dataArray, int nodeID);
 
+
+			/**
+			* @brief	Create a InTheSameRoomAsThePlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CurrentAnimationAllowsBlendingConditionLeaf(NodeData* dataArray, int nodeID);
+			
 			/**
 			* @brief	Create a AnimiationRunningCondition Node with the data given on position nodeID in dataArray.
 			*

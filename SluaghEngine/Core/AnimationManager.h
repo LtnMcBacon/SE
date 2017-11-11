@@ -45,6 +45,7 @@ namespace SE
 			void Pause(const Entity& entity)const override;
 			bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const override;
 			bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID *animationToCheck, size_t nrOfAnims) const override;
+			bool CurrentAnimationAllowsBlending(const Entity& entity) const override;
 			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;

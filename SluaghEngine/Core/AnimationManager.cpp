@@ -72,6 +72,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.animInfo[index].timePos[j] = 0.0f;
 	animationData.animInfo[index].blendFactor[j] = -1.0f;
 	animationData.animInfo[index].blendSpeed[j] = 0.0f;
+	animationData.animInfo[index].blockBlending[j] = false;
 
 	}
 
@@ -342,8 +343,8 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		if (!nrOfAnims)
 			ProfileReturnConst(false);
 
-		// If the animation flag is set to force blending...
-		if (flag & AnimationFlags::FORCEBLENDING) {
+		// If the animation flag is not set to force blending...
+		if (!(flag & AnimationFlags::FORCEBLENDING)) {
 
 			// Loop through all layers in the animation info for this entity
 			for (size_t i = 0; i < ai.nrOfLayers; i++) {
@@ -464,6 +465,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
 				ai.blendSpeed[i] = playInfo.blendSpeed[i];
+				ai.blockBlending[i] = playInfo.blockBlending[i];
 				ai.timePos[i] = playInfo.timePos[i];
 
 				animationData.playing[entityIndex->second] = 1u;
@@ -667,6 +669,27 @@ bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const 
 	ProfileReturnConst(false);
 }
 
+bool SE::Core::AnimationManager::CurrentAnimationAllowsBlending(const Entity& entity) const
+{
+	StartProfile;
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		// If this animation layer doesn't allow blending, simply return. 
+		// All layers must support blending for this. 
+		for(int i = 0; i < ai.nrOfLayers; i++)
+			if (ai.blockBlending[i]) {
+				ProfileReturnConst(false);
+			}
+	}
+
+	ProfileReturnConst(true);
+}
+
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
@@ -804,6 +827,7 @@ void SE::Core::AnimationManager::OverwriteAnimation(AnimationInfo & info, size_t
 	info.animationSpeed[to] = info.animationSpeed[from];
 	info.blendFactor[to] = info.blendFactor[from];
 	info.blendSpeed[to] = info.blendSpeed[from];
+	info.blockBlending[to] = info.blockBlending[from];
 	info.looping[to] = info.looping[from];
 	info.timePos[to] = info.timePos[from];
 

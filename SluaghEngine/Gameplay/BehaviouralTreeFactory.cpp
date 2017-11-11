@@ -88,6 +88,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateInTheSameRoomAsThePlayerConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "CurrentAnimationAllowsBlendingCondition")
+	{
+		finishedBehaviour = CurrentAnimationAllowsBlendingConditionLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
@@ -293,15 +297,21 @@ IBehaviour* BehaviouralTreeFactory::CreateInTheSameRoomAsThePlayerConditionLeaf(
 	ProfileReturn(new InTheSameRoomAsThePlayerCondition(nullptr, nullptr));
 }
 
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CurrentAnimationAllowsBlendingConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new CurrentAnimationAllowsBlendingCondition(nullptr, nullptr));
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
 	int counter = 0;
-	int nrOfGUIDs = stoi(dataArray->nodeData[counter++]);
+	int nrOfGUIDs = stoi(dataArray[nodeID].nodeData[counter++]);
 	std::vector<Utilz::GUID> guids;
 	for(int i = 0; i < nrOfGUIDs; i++)
 	{
-		guids.push_back(dataArray->nodeData[counter++]);
+		guids.push_back(dataArray[nodeID].nodeData[counter++]);
 	}
 	ProfileReturn(new AnimationRunningCondition(nullptr, nullptr, guids));
 }
@@ -354,28 +364,56 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 	StartProfile;
 
 	std::vector<Utilz::GUID> animations;
-	Core::AnimationFlags definedFlags;
+	Core::AnimationFlags definedFlags = Core::AnimationFlags::CURRENT;
 
 	int counter = 0;
-	int numberOfLayers = stoi(dataArray->nodeData[counter++]);
+	int numberOfLayers = stoi(dataArray[nodeID].nodeData[counter++]);
 
 	for(int i = 0; i < numberOfLayers; i++)
 	{
-		animations.push_back(dataArray->nodeData[counter++]);
+		animations.push_back(dataArray[nodeID].nodeData[counter++]);
 	
 	}
-	float duration = std::stof(dataArray->nodeData[counter++]);
-	int numberOfAnimationFlags = std::stoi(dataArray->nodeData[counter++]);
+	float duration = std::stof(dataArray[nodeID].nodeData[counter++]);
+	int numberOfAnimationFlags = std::stoi(dataArray[nodeID].nodeData[counter++]);
 	for (int i = 0; i < numberOfAnimationFlags; i++)
 	{
-		std::string flag = dataArray->nodeData[counter++];
-		if("")
+		std::string flag = dataArray[nodeID].nodeData[counter++];
+		std::transform(flag.begin(), flag.end(), flag.begin(), toupper);
+		if(flag == "BLENDTO")
 		{
-			
+			definedFlags |= Core::AnimationFlags::BLENDTO;
+		}
+		else if(flag == "BLENDTOANDBACK")
+		{
+			definedFlags |= Core::AnimationFlags::BLENDTOANDBACK;
+		}
+		else if(flag == "IMMEDIATE")
+		{
+			definedFlags |= Core::AnimationFlags::IMMEDIATE;
+		}
+		else if (flag == "LOOP")
+		{
+			definedFlags |= Core::AnimationFlags::LOOP;
+		}
+		else if (flag == "CURRENT")
+		{
+			definedFlags |= Core::AnimationFlags::CURRENT;
+		}
+		else if (flag == "FORCED")
+		{
+			definedFlags |= Core::AnimationFlags::FORCED;
+		}
+		else if (flag == "BLOCKBLENDING")
+		{
+			definedFlags |= Core::AnimationFlags::BLOCKBLENDING;
+		}
+		else if (flag == "FORCEBLENDING")
+		{
+			definedFlags |= Core::AnimationFlags::FORCEBLENDING;
 		}
 	}
 	
-
 	ProfileReturn(new AnimationLeaf(nullptr, nullptr, animations, duration, definedFlags));
 }
 
