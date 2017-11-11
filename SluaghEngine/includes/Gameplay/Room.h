@@ -52,6 +52,7 @@ namespace SE
 				int i;
 				int j;
 				Core::IMaterialManager::CreateInfo mat;
+				int doorCounter;
 			};
 
 			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
@@ -479,6 +480,8 @@ namespace SE
 			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
 			*/
 			void CreateWall2(CreationArguments &args);
+
+			void CreateDoor(CreationArguments &args);
 
 
 			/**
