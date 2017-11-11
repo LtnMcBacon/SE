@@ -42,7 +42,9 @@ namespace SE
 				CHAIRS,
 				TORCHES_FLOOR,
 				TORCHES_WALL,
-				BUSHES
+				BUSHES,
+				BIGPROPS,
+				GENERIC
 			};
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
@@ -57,8 +59,28 @@ namespace SE
 
 			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
 
-			//std::map<char, std::function<void(Room::*)(std::vector<CreationArguments>)>> propItemToFunction;
+			
+			enum class Meshes {
+				HighWall,
+				Bush,
+				Chair,
+				Passage,
+				OneSide,
+				Corner,
+				Top,
+				ThreeSides,
+				Door,
+				Floor,
+				Torch,
+				Pillar_short,
+				Table_long,
+				Table_small,
+				Table_round,
+				Grass,
+				FloorTorch
+			};
 
+			std::map<Meshes, SE::Utilz::GUID> Meshes;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
