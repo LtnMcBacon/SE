@@ -282,9 +282,9 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	const Entity last_entity = materialInfo.entity[last];
 
 	for (uint32_t i = 0; i < materialInfo.material[index]->textureInfo.numTextures; i++)
-		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::UnloadFlags::VRAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::UnloadFlags::RAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::UnloadFlags::VRAM);
+		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::ResourceType::VRAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::ResourceType::RAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::ResourceType::VRAM);
 	
 	// Copy the data
 	materialInfo.entity[index] = last_entity;

@@ -391,7 +391,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
 
-	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
+	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::ResourceType::VRAM);
 
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
