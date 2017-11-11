@@ -45,6 +45,7 @@
 #include "ShadowTest.h"
 #include "ComputeTest.h"
 #include "SkillTest.h"
+#include "HUDTest.h"
 #include "ThreadPoolTest.h"
 #include "ParticleTest.h"
 
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
 	//AddTest(EnemyMovementTest);
 	//AddTest(RoomCreationTest);
 	//AddTest(PlayerMovementTest);
-	//AddTest(GameStateTest);
+	AddTest(GameStateTest);
 	//AddTest(BehavioursTest);
 	//AddTest(BehaviouralTreeFactoryTest);
 	//AddTest(EnemyFactoryTest);
@@ -106,20 +107,18 @@ int main(int argc, char** argv)
 	//AddTest(SlaughTest);
 
 	//AddTest(PickingTest);
-	//AddTest(SkillTest);
-
-	////AddTest(PickingTest);
-	//AddTest(ShadowTest);
- // 
-	////AddTest(ProjectileTest);
-	////AddTest(GarbageTest);
-	////AddTest(ConsoleTest);
-	////AddTest(TransformTest);
-	//AddTest(DecalTest);
-	//AddTest(BloomTest);
-	////AddTest(RandRoomTest); 
-	//AddTest(ThreadPoolTest);
-	//AddTest(ParticleTest);
+	AddTest(ShadowTest);
+  
+	//AddTest(ProjectileTest);
+	//AddTest(GarbageTest);
+	//AddTest(ConsoleTest);
+	//AddTest(TransformTest);
+	AddTest(DecalTest);
+	AddTest(BloomTest);
+	//AddTest(RandRoomTest); 
+	AddTest(ThreadPoolTest);
+	AddTest(ParticleTest);
+	AddTest(HUDTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

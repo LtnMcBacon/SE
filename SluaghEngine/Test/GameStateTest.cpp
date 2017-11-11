@@ -48,15 +48,28 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 
 	IGameState::State OldState = SwitchState;
 
-	subSystem.window->MapActionButton(0, Window::KeyEscape);
+	subSystem.window->MapActionButton(0, Window::Key1);
 	subSystem.window->MapActionButton(1, Window::KeyW);
 	subSystem.window->MapActionButton(2, Window::KeyS);
 	subSystem.window->MapActionButton(3, Window::KeyA);
 	subSystem.window->MapActionButton(4, Window::KeyD);
-	IGameState* Game = new MainMenuState(subSystem.window);
+
+	
+
+	IGameState* Game = nullptr;
+	auto shutDown = [&running]()
+	{
+		running = false;
+	}; std::function<void()> stopGame = shutDown;
+
+
+	Game =	new MainMenuState(subSystem.window,shutDown);
+	
 	
 	subSystem.window->MapActionButton(Exit, Window::KeyEscape);
 	void* passableInfo = nullptr;
+
+	
 	while (running)
 	{
 		if (subSystem.window->ButtonPressed(Exit))
@@ -71,13 +84,11 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 			case IGameState::MAIN_MENU_STATE:
 				console->Print("Making Main Menu State!\n");
 				delete Game;
-				Game = new MainMenuState(subSystem.window);
-				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
-	
+				Game = new MainMenuState(subSystem.window,shutDown);
+				//std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 				break;
 			case IGameState::PLAY_STATE:
-				console->Print("Making Pause State!\n");
-				
+				console->Print("Making Play State!\n");
 				break;
 			case IGameState::GAME_OVER_STATE:
 				console->Print("Making Game over State!\n");
@@ -94,7 +105,7 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 				console->Print("Making Pause State!\n");
 				delete Game;
 				Game = new PauseState(subSystem.window);
-				std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
+				//std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 		
 				break;
 			default:
@@ -102,7 +113,7 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 			}
 			
 		}
-		delete passableInfo;
+		//delete passableInfo;
 		OldState = SwitchState;
 		engine->BeginFrame();
 		engine->EndFrame();
