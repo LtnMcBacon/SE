@@ -34,20 +34,6 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 		throw std::exception("Could not load SkinnedVertexShader.");
 
 	Allocate(10);
-
-	
-	std::vector<Utilz::GUID> guids;
-	std::vector<std::string> names;
-	initInfo.resourceHandler->GetAllGUIDsWithExtension("anim", guids, names);
-	for(auto &guid : guids)
-	{
-		auto result = initInfo.resourceHandler->LoadResource(guid, [this](auto guid, auto data, auto size) {
-			auto result = LoadAnimation(guid, data, size);
-			if (result < 0)
-				return ResourceHandler::InvokeReturn::FAIL;
-			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-		});
-	}
 }
 
 SE::Core::AnimationManager::~AnimationManager()
@@ -586,6 +572,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, bool looping)const
 
 			}
 		}
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::StopAllAnimations(const Entity & entity) const
+{
+	StartProfile;
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		animationData.playing[entityIndex->second] = 0u;
+		animationData.animInfo[entityIndex->second].nrOfLayers = 0;
 	}
 	StopProfile;
 }

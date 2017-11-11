@@ -39,6 +39,7 @@ namespace SE
 			bool Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;
 			void Start(const Entity& entity, bool looping)const override;
+			void StopAllAnimations(const Entity& entity) const override;
 			void SetSpeed(const Entity& entity, float speed)override;
 			void SetKeyFrame(const Entity& entity, float keyFrame)override;
 			void SetBlendSpeed(const Entity& entity, int index, float speed)override;

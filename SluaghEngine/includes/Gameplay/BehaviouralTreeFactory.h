@@ -250,7 +250,21 @@ namespace SE
 			*/
 			IBehaviour* CreateStopChannelingLeaf(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create an AnimationLeaf Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateStopAnimationsLeaf(NodeData* dataArray, int nodeID);
 
+			/**
+			* @brief	Create an AnimationLeaf Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreatePauseAnimationsLeaf(NodeData* dataArray, int nodeID);
 
 			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.

@@ -152,6 +152,14 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateStopChannelingLeaf(dataArray, nodeID);
 	}
+	else if (dataArray[nodeID].Type == "StopAnimationsLeaf")
+	{
+		finishedBehaviour = CreateStopAnimationsLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PauseAnimationsLeaf")
+	{
+		finishedBehaviour = CreatePauseAnimationsLeaf(dataArray, nodeID);
+	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
 	{
@@ -421,6 +429,18 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopChannelingLeaf(Node
 {
 	StartProfile;
 	ProfileReturn(new StopChannelingLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopAnimationsLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new StopAnimationsLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreatePauseAnimationsLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PauseAnimationsLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)

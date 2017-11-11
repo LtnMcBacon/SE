@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
     <ClCompile Include="AnimationRunningCondition.cpp" />
@@ -30,6 +29,7 @@
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="CoreInit.cpp" />
+    <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="FaceThePlayerLeaf.cpp" />
@@ -56,6 +56,7 @@
     <ClCompile Include="MakeVulnerableLeaf.cpp" />
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
+    <ClCompile Include="PauseAnimationsLeaf.cpp" />
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
@@ -144,6 +146,8 @@
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
+    <ClInclude Include="..\includes\Gameplay\Slaugh.h" />
+    <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
@@ -153,7 +157,6 @@
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
-    <ClInclude Include="Slaugh.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
