@@ -375,7 +375,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 			}
 		}
 
-				// If the animation flag is set to force blending...
+		// If the animation flag is set to force blending...
 		if (!(flag & AnimationFlags::FORCEBLENDING)) {
 
 			// Loop through all layers in the animation info for this entity
