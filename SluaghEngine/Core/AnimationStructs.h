@@ -94,6 +94,7 @@ namespace SE
 			float timePos[maxLayers] = {0.0};
 			float animationSpeed[maxLayers] = {0.0};
 			bool looping[maxLayers] = {false};
+			bool blockBlending[maxLayers] = {false};
 			float blendFactor[maxLayers] = {0.0};
 			float blendSpeed[maxLayers] = {0.0};
 			bool toBlendTarget = false;

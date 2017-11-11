@@ -19,13 +19,10 @@ SE::Gameplay::Status SE::Gameplay::AnimationRunningCondition::Update()
 {
 	myStatus = Status::BEHAVIOUR_FAILURE;
 	StartProfile;
-	for (auto guid : animationsToCheck)
-	{
-		if (CoreInit::managers.animationManager->IsAnimationPlaying(enemyBlackboard->ownerPointer->GetEntity(), guid))
-		{
-			myStatus = Status::BEHAVIOUR_SUCCESS;
-		}
-	}
+	if (CoreInit::managers.animationManager->IsAnimationPlaying(enemyBlackboard->ownerPointer->GetEntity(), &animationsToCheck[0], animationsToCheck.size()))
+		myStatus = Status::BEHAVIOUR_SUCCESS;
+	else
+		myStatus = Status::BEHAVIOUR_FAILURE;
 	ProfileReturnConst(myStatus);
 }
 

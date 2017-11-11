@@ -62,11 +62,18 @@ namespace SE
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
 			int currentRoomIndex = -1;
-			const int enemiesInEachRoom = 10;
+			static const int enemiesInEachRoom = 1;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 
 			ProjectileManager* projectileManager;
+
+			/* game sounds*/
+			SE::Core::Entity soundEnt;
+			uint8_t currentSound;
+			float soundTime = 0.0f;
+			SE::Utilz::GUID sounds[3];
+
 
 		protected:
 

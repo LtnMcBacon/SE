@@ -62,7 +62,9 @@ namespace SE
 				const Callbacks& callbacks,
 				LoadFlags loadFlags)override;
 
-			void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags)override;
+			void UnloadResource(const Utilz::GUID& guid, ResourceType type)override;
+
+			bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) override;
 
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
