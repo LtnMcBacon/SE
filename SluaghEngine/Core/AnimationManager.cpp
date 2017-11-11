@@ -310,7 +310,7 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 	}
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
 {
 	StartProfile;
 
@@ -339,10 +339,24 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 
 		}
 		
-
 		nrOfAnims = animationsNotRunning;
 		if (!nrOfAnims)
-			ProfileReturnVoid;
+			ProfileReturnConst(false);
+
+		// If the animation flag is set to force blending...
+		if (flag & AnimationFlags::FORCEBLENDING) {
+
+			// Loop through all layers in the animation info for this entity
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				// If this animation layer doesn't allow blending, simply return. 
+				// All layers must support blending for this. 
+				if (ai.blockBlending[i]) {
+
+					ProfileReturnConst(false);
+				}
+			}
+		}
 
 		if (flag & AnimationFlags::IMMEDIATE) {
 
@@ -352,6 +366,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 				unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[i]);
 				ai.animationSpeed[i] = animLength / duration;
 				ai.looping[i] = flag & AnimationFlags::LOOP ? true : false;
+				ai.blockBlending[i] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 				ai.blendSpeed[i] = 0.0f;
 				ai.timePos[i] = 0.0f;
 				ai.blendFactor[i] = 1.0f;
@@ -413,6 +428,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
 					ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
 					ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
+					ai.blockBlending[ai.nrOfLayers + j] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 					ai.timePos[ai.nrOfLayers + j] = 0.0f;
 
 				}
@@ -424,7 +440,8 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		}
 
 	}
-	StopProfile;
+
+	ProfileReturnConst(true);
 
 }
 
