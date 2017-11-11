@@ -54,6 +54,7 @@ bool SE::Core::AnimationSystem::IsSkeletonLoaded(const Utilz::GUID & guid) const
 
 int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, uint32_t* joints, size_t nrOfKeyframes, size_t nrOfJoints) {
 
+
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0) {
 		auto& currentAnimation = animations[guid];
