@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
     <ClCompile Include="AnimationRunningCondition.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />

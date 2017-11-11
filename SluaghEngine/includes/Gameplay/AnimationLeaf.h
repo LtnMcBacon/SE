@@ -11,18 +11,18 @@ namespace SE
 		{
 		private:
 			AnimationLeaf() = delete;
-			Core::IAnimationManager::AnimationPlayInfo playInfo;
-			AnimationLeaf(EnemyBlackboard* enemyBlackbodar, GameBlackboard* gameBlackboard, const Core::IAnimationManager::AnimationPlayInfo &playInfo);
+			std::vector<Utilz::GUID> animationGUID;
+			Core::AnimationFlags animationFlags;
+			float animationDuration = 0.f;
 		public:
-			AnimationLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, int numberOfLayers,
-			              std::string animationNames[], float animationSpeeds[], float startKeyFrame[], bool looping[]);
+			AnimationLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard, const std::vector<Utilz::GUID> &animations, float animationDuration, const Core::AnimationFlags &animationFlags);
 			~AnimationLeaf();
 
 			Status Update() override;
 
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{
-				return new AnimationLeaf(enemyBlackboard, gameBlackboard, playInfo);
+				return new AnimationLeaf(enemyBlackboard, gameBlackboard, animationGUID, animationDuration, animationFlags);
 			};
 		};
 	}

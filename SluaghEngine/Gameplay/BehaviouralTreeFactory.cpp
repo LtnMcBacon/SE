@@ -353,44 +353,30 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 {
 	StartProfile;
 
-	std::string animations[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	float animationSpeeds[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	float startKeyFrame[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	bool looping[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+	std::vector<Utilz::GUID> animations;
+	Core::AnimationFlags definedFlags;
 
 	int counter = 0;
 	int numberOfLayers = stoi(dataArray->nodeData[counter++]);
 
 	for(int i = 0; i < numberOfLayers; i++)
 	{
-		animations[i] = dataArray->nodeData[counter++];
+		animations.push_back(dataArray->nodeData[counter++]);
 	
 	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
+	float duration = std::stof(dataArray->nodeData[counter++]);
+	int numberOfAnimationFlags = std::stoi(dataArray->nodeData[counter++]);
+	for (int i = 0; i < numberOfAnimationFlags; i++)
 	{
-		animationSpeeds[i] = std::stof(dataArray->nodeData[counter++]);
-	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
-	{
-		startKeyFrame[i] = std::stof(dataArray->nodeData[counter++]);
-	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
-	{
-		if(dataArray->nodeData[counter++] == "True")
+		std::string flag = dataArray->nodeData[counter++];
+		if("")
 		{
-			looping[i] = true;
+			
 		}
-		else
-		{
-			looping[i] = false;
-		}
-
 	}
+	
 
-	ProfileReturn(new AnimationLeaf(nullptr, nullptr, numberOfLayers, animations, animationSpeeds, startKeyFrame, looping));
+	ProfileReturn(new AnimationLeaf(nullptr, nullptr, animations, duration, definedFlags));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopChannelingLeaf(NodeData * dataArray, int nodeID)

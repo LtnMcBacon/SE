@@ -342,7 +342,7 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 	}
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
 {
 	StartProfile;
 
@@ -368,13 +368,10 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 			}
 			if (!alreadyRunning)
 				GUIDTemporaryStorage[animationsNotRunning++] = animations[i];
-
 		}
-		
-
 		nrOfAnims = animationsNotRunning;
 		if (!nrOfAnims)
-			ProfileReturnVoid;
+			ProfileReturnConst(false);
 
 		if (flag & AnimationFlags::IMMEDIATE) {
 
@@ -387,7 +384,6 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 				ai.blendSpeed[i] = 0.0f;
 				ai.timePos[i] = 0.0f;
 				ai.blendFactor[i] = 1.0f;
-
 			}
 
 			ai.nrOfLayers = nrOfAnims;
@@ -456,7 +452,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		}
 
 	}
-	StopProfile;
+	ProfileReturnConst(true);
 
 }
 
@@ -653,6 +649,30 @@ bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const 
 			if (animationToCheck == ai.animation[i])
 				ProfileReturnConst(true);
 
+		}
+	}
+
+
+	ProfileReturnConst(false);
+}
+
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const Utilz::GUID* animationToCheck,
+	size_t nrOfAnims) const
+{
+	StartProfile;
+
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+		for (size_t j = 0; j < nrOfAnims; j++)
+		{
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				if (animationToCheck[j] == ai.animation[i])
+					ProfileReturnConst(true);
+
+			}
 		}
 	}
 
