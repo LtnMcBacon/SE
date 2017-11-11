@@ -42,7 +42,9 @@ namespace SE
 			IMMEDIATE = 1 << 3,
 			LOOP = 1 << 4,
 			CURRENT = 1 << 5,
-			FORCED = 1 << 6
+			FORCED = 1 << 6,
+			BLOCKBLENDING = 1 << 7,
+			FORCEBLENDING = 1 << 8
 
 		};
 
@@ -77,6 +79,7 @@ namespace SE
 				float timePos[maxLayers] = { 0.0f };
 				float animationSpeed[maxLayers] = { 10.0f };
 				bool looping[maxLayers] = { false };
+				bool blockBlending[maxLayers] = { false };
 				float blendSpeed[maxLayers] = { 0.0f };
 				float blendFactor[maxLayers] = { 0.0f };
 			};

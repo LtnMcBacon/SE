@@ -5,7 +5,6 @@
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID SkinnedOncePerObject("SkinnedOncePerObject");
 
-
 SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo)
 {
 	_ASSERT(initInfo.renderer);
@@ -227,36 +226,35 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						// Get the joint transformation matrix
 						DirectX::XMFLOAT4X4 matrix;
 						animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+						DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
 
+						// Get the joint inversed inverse bindpose
 						DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
 						animationSystem->GetJointInverseBindPose(updateJob[i].animInfo.skeleton, att.slots[k].jointIndex, inverseBindPose);
 						inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
 
-						DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(animationData.entity[i]));
-						DirectX::XMFLOAT3 entityPos = initInfo.transformManager->GetPosition(animationData.entity[i]);
-
 						// Decompose the joint transformation matrix
 						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix));
+						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
 
-						// Store in these
-						DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
-
-						DirectX::XMVECTOR euler;
+						// Get the axis of rotation of the quaternion
+						DirectX::XMVECTOR axis;
 						float angle;
-						DirectX::XMQuaternionToAxisAngle(&euler, &angle, jointQuat);
+						DirectX::XMQuaternionToAxisAngle(&axis, &angle, jointQuat);
 
-						//// Multiply model scale with joint scale
-						//DirectX::XMStoreFloat3(&attachScale, jointScale);
-						//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
+						// Scale the axis of rotation with the angle
+						DirectX::XMVECTOR eulerRot = DirectX::XMVectorScale(axis, angle);
+
+						// Store the resulted vectors
+						DirectX::XMFLOAT3 at, as, aq;
 
 						// Multiply model quaternion with joint quaternion
-						DirectX::XMStoreFloat3(&attachQuat, euler);
-						initInfo.transformManager->SetRotation(att.slots[k].entity, -attachQuat.x, attachQuat.y, -attachQuat.z);
+						DirectX::XMStoreFloat3(&aq, eulerRot);
+						DirectX::XMStoreFloat3(&at, jointTrans);
+						DirectX::XMStoreFloat3(&as, jointScale);
 
-						// Multiply model translation with joint translation
-						DirectX::XMStoreFloat3(&attachTrans, jointTrans);
-						initInfo.transformManager->SetPosition(att.slots[k].entity, { -attachTrans.x + entityPos.x, attachTrans.y + entityPos.y, -attachTrans.z + entityPos.z });
+						initInfo.transformManager->SetRotation(att.slots[k].entity, aq.x, aq.y, aq.z);
+						initInfo.transformManager->SetPosition(att.slots[k].entity, at);
 
 						
 					}
@@ -301,40 +299,10 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 			if(found != -1){
 
 				at.slots[slotIndex].attached = true;
-				at.slots[slotIndex].entity = initInfo.entityManager->Create();
+				at.slots[slotIndex].entity = entityToAttach;
 				at.slots[slotIndex].jointIndex = found;
 
-				DirectX::XMFLOAT4X4 matrix;
-				animationSystem->GetJointMatrix(source, found, matrix);
-				
-				DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
-				animationSystem->GetJointInverseBindPose(ai.skeleton, found, inverseBindPose);
-				inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
-
-				DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(source));
-
-				// Decompose the joint transformation matrix
-				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * entityTransform);
-
-				// Store in these
-				DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
-
-				//// Multiply model scale with joint scale
-				//DirectX::XMStoreFloat3(&attachScale, jointScale);
-				//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
-
-				//// Multiply model quaternion with joint quaternion
-				//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
-				//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
-
-				// Multiply model translation with joint translation
-				DirectX::XMStoreFloat3(&attachTrans, jointTrans);
-
 				initInfo.transformManager->Create(at.slots[slotIndex].entity);
-				initInfo.transformManager->SetPosition(entityToAttach, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-				initInfo.transformManager->SetPosition(at.slots[slotIndex].entity, attachTrans);
-				initInfo.transformManager->BindChild(at.slots[slotIndex].entity, entityToAttach, true, true);
 
 			}
 
@@ -369,9 +337,25 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 			if (!alreadyRunning)
 				GUIDTemporaryStorage[animationsNotRunning++] = animations[i];
 		}
+		
 		nrOfAnims = animationsNotRunning;
 		if (!nrOfAnims)
 			ProfileReturnConst(false);
+
+		// If the animation flag is set to force blending...
+		if (flag & AnimationFlags::FORCEBLENDING) {
+
+			// Loop through all layers in the animation info for this entity
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				// If this animation layer doesn't allow blending, simply return. 
+				// All layers must support blending for this. 
+				if (ai.blockBlending[i]) {
+
+					ProfileReturnConst(false);
+				}
+			}
+		}
 
 		if (flag & AnimationFlags::IMMEDIATE) {
 
@@ -381,6 +365,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 				unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[i]);
 				ai.animationSpeed[i] = animLength / duration;
 				ai.looping[i] = flag & AnimationFlags::LOOP ? true : false;
+				ai.blockBlending[i] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 				ai.blendSpeed[i] = 0.0f;
 				ai.timePos[i] = 0.0f;
 				ai.blendFactor[i] = 1.0f;
@@ -441,6 +426,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
 					ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
 					ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
+					ai.blockBlending[ai.nrOfLayers + j] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 					ai.timePos[ai.nrOfLayers + j] = 0.0f;
 
 				}
@@ -452,6 +438,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		}
 
 	}
+
 	ProfileReturnConst(true);
 
 }
