@@ -93,11 +93,14 @@ namespace SE
 			virtual bool Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag) = 0;
 			virtual void Start(const Entity& entity, const AnimationPlayInfo& playInfo) = 0;
 			virtual void Start(const Entity& entity, bool looping)const = 0;
+			virtual void StopAllAnimations(const Entity& entity) const = 0;
 			virtual void SetSpeed(const Entity& entity, float speed) = 0;
 			virtual void SetKeyFrame(const Entity& entity, float keyFrame) = 0;
 			virtual void SetBlendSpeed(const Entity& entity, int index, float speed) = 0;
 			virtual void Pause(const Entity& entity)const = 0;
 			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const = 0;
+			virtual bool IsAnimationPlaying(const Entity& entity, const Utilz::GUID *animationToCheck, size_t nrOfAnims) const = 0;
+			virtual bool CurrentAnimationAllowsBlending(const Entity& entity) const = 0;
 			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
