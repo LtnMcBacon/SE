@@ -24,9 +24,9 @@ namespace SE
 				IEntityManager* entityManager;
 			};
 
-			typedef std::variant<bool, uint32_t, float, std::string>  values;
+			typedef std::variant<bool, int32_t, float, std::string>  values;
 
-			virtual void AddValue(const Entity entity, const Utilz::GUID key, const values value) = 0;
+			virtual void SetValue(const Entity entity, const Utilz::GUID key, const values value) = 0;
 			virtual values GetValue(const Entity entity, const Utilz::GUID key, const values default_value) = 0;
 
 		protected:

@@ -1,5 +1,5 @@
 #include "EventManager.h"
-
+#include <Profiler.h>
 
 
 SE::Core::EventManager::EventManager(const IEventManager::InitializationInfo& info)
@@ -23,6 +23,14 @@ void SE::Core::EventManager::SetLifetime(const Entity entity, float lifetime)
 
 void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 {
+	StartProfile;
+	_ASSERT(timer);
+	timer->Start("EventManager");
+
+
+
+	timer->Stop("EventManager");
+	StopProfile;
 }
 
 void SE::Core::EventManager::Destroy(size_t index)

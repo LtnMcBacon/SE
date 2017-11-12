@@ -2,6 +2,7 @@
 #define SE_CORE_DATA_MANAGER_H_
 
 #include <IDataManager.h>
+#include <random>
 
 namespace SE
 {
@@ -10,10 +11,10 @@ namespace SE
 		class DataManager : public IDataManager
 		{
 		public:
-			DataManager();
+			DataManager(const IDataManager::InitializationInfo& info);
 			~DataManager();
 
-			void AddValue(const Entity entity, const Utilz::GUID key, const values value)override;
+			void SetValue(const Entity entity, const Utilz::GUID key, const values value)override;
 			values GetValue(const Entity entity, const Utilz::GUID key, const values default_value) override;
 
 			/**
@@ -21,13 +22,6 @@ namespace SE
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
 		private:
-			/**
-			* @brief	Allocate more memory
-			*/
-			void Allocate(size_t size);
-			/**
-			* @brief	Remove an enitity entry
-			*/
 			void Destroy(size_t index)override;
 			/**
 			* @brief	Remove an enitity entry
@@ -37,6 +31,21 @@ namespace SE
 			* @brief	Look for dead entities.
 			*/
 			void GarbageCollection()override;
+
+			void CreateData(const Entity entity);
+			
+			struct Entry
+			{
+				Entity entity;
+				values value;
+			};
+
+			std::vector<Entry> entries;
+			std::unordered_map<Entity, size_t, EntityHasher> entityToIndex;
+
+			IDataManager::InitializationInfo initInfo;
+			std::default_random_engine generator;
+
 		};
 	}
 }
