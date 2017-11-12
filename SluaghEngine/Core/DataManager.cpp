@@ -20,7 +20,7 @@ void SE::Core::DataManager::SetValue(const Entity entity, const Utilz::GUID key,
 	if (find == entityToIndex.end())
 		CreateData(entity);
 	
-	entries[entityToIndex[entity]].value = value;
+	entries[entityToIndex[entity]].values[key] = value;
 	
 	StopProfile;
 }
@@ -31,7 +31,10 @@ SE::Core::DataManager::values SE::Core::DataManager::GetValue(const Entity entit
 	const auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 		ProfileReturnConst(default_value);
-	ProfileReturnConst(entries[find->second].value);
+	auto const findV = entries[find->second].values.find(key);
+	if (findV == entries[find->second].values.end())
+		ProfileReturnConst(default_value);
+	ProfileReturnConst(findV->second);
 }
 
 void SE::Core::DataManager::Frame(Utilz::TimeCluster * timer)
@@ -53,7 +56,7 @@ void SE::Core::DataManager::Destroy(size_t index)
 	const Entity last_e = entries[last].entity;
 
 	entries[index].entity = entries[last].entity;
-	entries[index].value = entries[last].value;
+	entries[index].values = entries[last].values;
 
 	entityToIndex[last_e] = index;
 	entityToIndex.erase(e);

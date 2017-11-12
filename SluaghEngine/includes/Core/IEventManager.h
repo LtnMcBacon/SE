@@ -12,7 +12,8 @@
 #include <Utilz\Delegate.h>
 #include <Graphics\RenderJob.h>
 #include "IManager.h"
-
+#include "IDataManager.h"
+#include <Window\IWindow.h>
 namespace SE
 {
 	namespace Core
@@ -22,7 +23,9 @@ namespace SE
 		public:
 			struct InitializationInfo
 			{
+				Window::IWindow* window;
 				IEntityManager* entityManager;
+				IDataManager* dataManager;
 			};
 
 			virtual ~IEventManager() {};

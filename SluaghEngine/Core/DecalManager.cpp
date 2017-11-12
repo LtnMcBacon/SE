@@ -288,6 +288,12 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	bucket->second.owners.pop_back();
 	
 	entityToTransformIndex.erase(entity);
+
+	if (bucket->second.world.size() == 0)
+	{
+		initInfo.renderer->RemoveRenderJob(decalToJobID[texture]);
+		decalToJobID.erase(texture);
+	}
 	ProfileReturnVoid;
 }
 

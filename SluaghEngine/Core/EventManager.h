@@ -3,6 +3,8 @@
 #include <IEventManager.h>
 #include <Utilz\Event.h>
 #include <unordered_map>
+#include <random>
+
 namespace SE
 {
 	namespace Core
@@ -63,7 +65,10 @@ namespace SE
 			Utilz::Event<void(const Entity& entity)> UpdateRenderableObject;
 			Utilz::Event<void(const Entity&, bool)> ToggleVisibleEvent;
 
-
+			/**
+			* @brief	Allocate more memory
+			*/
+			void Allocate(size_t size);
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -76,20 +81,28 @@ namespace SE
 			* @brief	Look for dead entities.
 			*/
 			void GarbageCollection() override;
+			struct Events
+			{
+				static const uint8_t MAX = 8;
+				uint8_t nrOfEvents;
+				Utilz::GUID event_[MAX];
 
+			};
 			struct EventData
 			{
-				static const size_t size = sizeof(Entity);
+				static const size_t size = sizeof(Entity) + sizeof(Events);
 				size_t allocated = 0;
 				size_t used = 0;
 				void* data = nullptr;
 				Entity* entity;
+				Events* events;
 			};
 
 			EventData eventData;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToIndex;
 
-
+			IEventManager::InitializationInfo initInfo;
+			std::default_random_engine generator;
 
 		};
 	}

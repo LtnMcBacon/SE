@@ -128,7 +128,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			Core::DecalCreateInfo ci;
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
-
+			CoreInit::managers.eventManager->SetLifetime(bs, 10);
 
 			delete enemyUnits[i];
 			enemyUnits[i] = enemyUnits.back();

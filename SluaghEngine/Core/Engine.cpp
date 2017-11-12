@@ -237,12 +237,12 @@ void SE::Core::Engine::InitManagers()
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
 
+	InitDataManager();
+
 	if (!managers.eventManager)
-		managers.eventManager = CreateEventManager({managers.entityManager});
+		managers.eventManager = CreateEventManager({ subSystems.window, managers.entityManager, managers.dataManager });
 	managersVec.push_back(managers.eventManager);
 
-
-	InitDataManager();
 	InitTransformManager();
 	InitAudioManager();
 	InitParticleSystemManager();

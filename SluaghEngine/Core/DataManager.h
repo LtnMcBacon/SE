@@ -37,7 +37,7 @@ namespace SE
 			struct Entry
 			{
 				Entity entity;
-				values value;
+				std::unordered_map<Utilz::GUID, values, Utilz::GUID::Hasher> values;
 			};
 
 			std::vector<Entry> entries;
