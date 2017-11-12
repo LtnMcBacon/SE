@@ -119,10 +119,20 @@ void Room::Update(float dt, float playerX, float playerY)
 	{
 		if (!enemyUnits[i]->IsAlive())
 		{
+			// Blood spatter
+			auto bs = CoreInit::managers.entityManager->Create();
+			
+			CoreInit::managers.transformManager->Create(bs, { enemyUnits[i]->GetXPosition(), enemyUnits[i]->GetYPosition(), enemyUnits[i]->GetZPosition() }, { DirectX::XM_PIDIV2, 0,0 });
+			Core::DecalCreateInfo ci;
+			ci.textureName = "BlackPink.sei";			
+			CoreInit::managers.decalManager->Create(bs, ci);
+
+
 			delete enemyUnits[i];
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
+
 	}
 
 	StopProfile;
