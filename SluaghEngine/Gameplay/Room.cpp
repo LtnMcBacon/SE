@@ -131,7 +131,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
-			if (spw > 50000)
+			if (true)//spw > 50000)
 			{
 				auto wep = CoreInit::managers.entityManager->Create();
 				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });

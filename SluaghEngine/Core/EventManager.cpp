@@ -34,8 +34,6 @@ void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Ut
 		size_t index = entityToIndex[entity] = eventData.used++;
 		eventData.entity[index] = entity;
 
-		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
-
 		eventData.events[index].nrOfEvents = 0;
 		eventData.events[index].event_[eventData.events[index].nrOfEvents++] = _event;
 

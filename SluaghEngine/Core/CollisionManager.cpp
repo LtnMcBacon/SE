@@ -62,6 +62,8 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 
 		initInfo.transformManager->Create(entity);
 
+		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &CollisionManager::Destroy });
+
 		// Load the mesh
 		{
 			auto findHi = guidToBoudningIndex.find(mesh); // Is the bounding hierarchy created for this mesh?
@@ -330,6 +332,9 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 
 void SE::Core::CollisionManager::Destroy(const Entity & entity)
 {
+	auto const find = entityToCollisionData.find(entity);
+	if (find != entityToCollisionData.end())
+		Destroy(find->second);
 }
 
 void SE::Core::CollisionManager::GarbageCollection()
