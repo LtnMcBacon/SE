@@ -163,20 +163,19 @@ bool SE::Core::CollisionManager::CheckCollision(const Entity ent1, const Entity 
 	auto find1 = entityToCollisionData.find(ent1);
 	if (find1 != entityToCollisionData.end())
 	{
-		auto find2 = entityToCollisionData.find(ent1);
+		auto find2 = entityToCollisionData.find(ent2);
 		if (find2 != entityToCollisionData.end())
 		{
 			auto& sphere1 = collisionData.sphereWorld[find1->second];
 			auto& sphere2 = collisionData.sphereWorld[find2->second];
 			if (sphere1.Intersects(sphere2))
 			{
-				auto& AABB1 = collisionData.AABBWorld[find1->second];
-				auto& AABB2 = collisionData.AABBWorld[find1->second];
-				float distBox;
-				if (AABB1.Intersects(AABB2))
-				{
+				//auto& AABB1 = collisionData.AABBWorld[find1->second];
+				//auto& AABB2 = collisionData.AABBWorld[find2->second];
+				//if (AABB1.Intersects(AABB2))
+				//{
 					return true;
-				}
+				//}
 			}
 		}
 	}
