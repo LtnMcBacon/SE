@@ -199,8 +199,8 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.window = Window::CreateNewWindow();
 		Window::InitializationInfo info;
 		info.fullScreen = false;
-		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
 		auto res = subSystems.window->Initialize(info);
