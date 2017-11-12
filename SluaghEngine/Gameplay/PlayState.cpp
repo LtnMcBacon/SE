@@ -47,6 +47,27 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	temp.player = player;
 	
 	projectileManager = new ProjectileManager(temp);
+
+
+
+
+	Core::IEventManager::EventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [](const Core::Entity ent, const std::vector<void*>& args) {
+
+	};
+	auto pe = player->GetEntity();
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, std::vector<void*>& args) {
+
+
+		CoreInit::managers.collisionManager->CheckCollision(ent, pe);
+
+		return false;
+	};
+	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
+
+
+
+
 }
 
 PlayState::~PlayState()
