@@ -11,15 +11,29 @@
 #include "Entity.h"
 #include <Utilz\Delegate.h>
 #include <Graphics\RenderJob.h>
+#include "IManager.h"
 
 namespace SE
 {
 	namespace Core
 	{
-		class IEventManager
+		class IEventManager : public IManager
 		{
 		public:
+			struct InitializationInfo
+			{
+				IEntityManager* entityManager;
+			};
+
 			virtual ~IEventManager() {};
+
+			virtual void RegisterEventCallback(const Utilz::GUID _event,
+				const std::function<void(const Entity, const std::vector<void*>& args)> _eventTriggerCallback,
+				const std::function<bool(const Entity, std::vector<void*>& args)> _eventTriggerCheck) = 0;
+
+
+			virtual void SetLifetime(const Entity entity, float lifetime) = 0;
+
 
 			virtual void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
 			virtual void TriggerSetRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) = 0;
@@ -43,7 +57,7 @@ namespace SE
 		/**
 		* @brief Create an instance of the EventManager
 		**/
-		DECLDIR_CORE IEventManager* CreateEventManager();
+		DECLDIR_CORE IEventManager* CreateEventManager(const IEventManager::InitializationInfo& info);
 	}
 }
 

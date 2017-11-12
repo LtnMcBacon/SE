@@ -239,10 +239,11 @@ void SE::Core::Engine::InitManagers()
 		managers.entityManager = CreateEntityManager();
 
 	if (!managers.eventManager)
-		managers.eventManager = CreateEventManager();
+		managers.eventManager = CreateEventManager({managers.entityManager});
+	managersVec.push_back(managers.eventManager);
 
 
-	
+	InitDataManager();
 	InitTransformManager();
 	InitAudioManager();
 	InitParticleSystemManager();
@@ -256,6 +257,7 @@ void SE::Core::Engine::InitManagers()
 	InitTextManager();
 	InitGUIManager();
 	InitDecalManager();
+
 	StopProfile;
 }
 
@@ -450,6 +452,17 @@ void SE::Core::Engine::InitDecalManager()
 		managers.decalManager = CreateDecalManager(info);
 	}
 	managersVec.push_back(managers.decalManager);
+}
+
+void SE::Core::Engine::InitDataManager()
+{
+	if (!managers.dataManager)
+	{
+		IDataManager::InitializationInfo info;
+		info.entityManager = managers.entityManager;
+		managers.dataManager = CreateDataManager(info);
+	}
+	managersVec.push_back(managers.dataManager);
 }
 
 void SE::Core::Engine::SetupDebugConsole()

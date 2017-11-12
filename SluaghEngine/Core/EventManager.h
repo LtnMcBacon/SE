@@ -2,6 +2,7 @@
 #define SE_CORE_EVENT_MANAGER_H_
 #include <IEventManager.h>
 #include <Utilz\Event.h>
+#include <unordered_map>
 namespace SE
 {
 	namespace Core
@@ -9,8 +10,15 @@ namespace SE
 		class EventManager : public IEventManager
 		{
 		public:
-			EventManager();
+			EventManager(const IEventManager::InitializationInfo& info);
 			~EventManager();
+
+
+			void RegisterEventCallback(const Utilz::GUID _event,
+				const std::function<void(const Entity, const std::vector<void*>& args)> _eventTriggerCallback,
+				const std::function<bool(const Entity, std::vector<void*>& args)> _eventTriggerCheck)override;
+
+			void SetLifetime(const Entity entity, float lifetime)override;
 
 			void RegisterToSetRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) override
 			{
@@ -46,11 +54,43 @@ namespace SE
 			{
 				ToggleVisibleEvent(entity, visible);
 			}
+
+			void Frame(Utilz::TimeCluster* timer) override;
+
 		private:
 			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetRenderObjectInfo;
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 			Utilz::Event<void(const Entity& entity)> UpdateRenderableObject;
 			Utilz::Event<void(const Entity&, bool)> ToggleVisibleEvent;
+
+
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(size_t index) override;
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity) override;
+			/**
+			* @brief	Look for dead entities.
+			*/
+			void GarbageCollection() override;
+
+			struct EventData
+			{
+				static const size_t size = sizeof(Entity);
+				size_t allocated = 0;
+				size_t used = 0;
+				void* data = nullptr;
+				Entity* entity;
+			};
+
+			EventData eventData;
+			std::unordered_map<Entity, size_t, EntityHasher> entityToIndex;
+
+
+
 		};
 	}
 }
