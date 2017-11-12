@@ -30,10 +30,16 @@ namespace SE
 
 			virtual ~IEventManager() {};
 
-			virtual void RegisterEventCallback(const Utilz::GUID _event,
-				const std::function<void(const Entity, const std::vector<void*>& args)> _eventTriggerCallback,
-				const std::function<bool(const Entity, std::vector<void*>& args)> _eventTriggerCheck) = 0;
+			struct EventCallbacks
+			{
+				std::function<void(const Entity, const std::vector<void*>& args)> triggerCallback;
+				std::function<bool(const Entity, std::vector<void*>& args)> triggerCheck;
+			};
 
+			virtual void RegisterEventCallback(const Utilz::GUID _event,
+				const EventCallbacks& callbacks) = 0;
+
+			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) = 0;
 
 			virtual void SetLifetime(const Entity entity, float lifetime) = 0;
 

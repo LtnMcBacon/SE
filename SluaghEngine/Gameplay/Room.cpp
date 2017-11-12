@@ -130,6 +130,19 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 10);
 
+			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
+			if (spw > 50000)
+			{
+				auto wep = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "Cube.mesh" });
+				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
+				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
+				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
+				CoreInit::managers.dataManager->SetValue(wep, "Type", 0);
+				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Blaster_xXx");
+
+			}
+			
 			delete enemyUnits[i];
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();

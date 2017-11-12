@@ -17,8 +17,9 @@ namespace SE
 
 
 			void RegisterEventCallback(const Utilz::GUID _event,
-				const std::function<void(const Entity, const std::vector<void*>& args)> _eventTriggerCallback,
-				const std::function<bool(const Entity, std::vector<void*>& args)> _eventTriggerCheck)override;
+				const EventCallbacks& callbacks)override;
+		
+			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) override;
 
 			void SetLifetime(const Entity entity, float lifetime)override;
 
@@ -84,7 +85,7 @@ namespace SE
 			struct Events
 			{
 				static const uint8_t MAX = 8;
-				uint8_t nrOfEvents;
+				uint8_t nrOfEvents = 0;
 				Utilz::GUID event_[MAX];
 
 			};
@@ -103,6 +104,8 @@ namespace SE
 
 			IEventManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
+
+			std::unordered_map<Utilz::GUID, EventCallbacks, Utilz::GUID::Hasher> eventToCallbacks;
 
 		};
 	}

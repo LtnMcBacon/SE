@@ -12,21 +12,59 @@ SE::Core::EventManager::~EventManager()
 {
 }
 
-void SE::Core::EventManager::RegisterEventCallback(const Utilz::GUID _event, 
-	const std::function<void(const Entity, const std::vector<void*>&args)> _eventTriggerCallback,
-	const std::function<bool(const Entity, std::vector<void*>&args)> _eventTriggerCheck)
+void SE::Core::EventManager::RegisterEventCallback(const Utilz::GUID _event, const EventCallbacks& callbacks)
 {
+	eventToCallbacks[_event] = callbacks;
+}
+
+void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event)
+{
+	StartProfile;
+	if (!initInfo.entityManager->Alive(entity))
+		ProfileReturnVoid;
+	auto const find = entityToIndex.find(entity);
+	if (find == entityToIndex.end())
+	{
+		auto const findE = eventToCallbacks.find(_event);
+		if (findE == eventToCallbacks.end())
+			ProfileReturnVoid;
+
+		if (eventData.used + 1 > eventData.allocated)
+			Allocate(eventData.allocated * 2);
+		size_t index = entityToIndex[entity] = eventData.used++;
+		eventData.entity[index] = entity;
+
+		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
+
+		eventData.events[index].nrOfEvents = 0;
+		eventData.events[index].event_[eventData.events[index].nrOfEvents++] = _event;
+
+	}
+	else
+	{
+		size_t index = entityToIndex[entity];
+		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
+		eventData.events[index].event_[eventData.events[index].nrOfEvents++] = _event;
+	}
+	StopProfile;
 }
 
 void SE::Core::EventManager::SetLifetime(const Entity entity, float lifetime)
 {
+	StartProfile;
+	if (!initInfo.entityManager->Alive(entity))
+		ProfileReturnVoid;
 	auto const find = entityToIndex.find(entity);
 	if (find == entityToIndex.end())
 	{
+		if (eventData.used + 1 > eventData.allocated)
+			Allocate(eventData.allocated * 2);
 		size_t index = entityToIndex[entity] = eventData.used++;
 		eventData.entity[index] = entity;
-		initInfo.dataManager->SetValue(entity, "TimeToDeath", lifetime);
+		eventData.events[index].nrOfEvents = 0;
 	}
+	initInfo.dataManager->SetValue(entity, "TimeToDeath", lifetime);
+	StopProfile;
 }
 
 void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
@@ -48,6 +86,16 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 				continue;
 			}
 			initInfo.dataManager->SetValue(eventData.entity[i], "TimeToDeath", timeToDeath);
+		}
+
+		for(uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
+		{
+			const auto& cb = eventToCallbacks[eventData.events[i].event_[e]];
+			std::vector<void*> args;
+			if (cb.triggerCheck(eventData.entity[i], args))
+			{
+				cb.triggerCallback(eventData.entity[i], args);
+			}
 		}
 	}
 
