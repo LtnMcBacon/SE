@@ -43,8 +43,33 @@ void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Ut
 	{
 		size_t index = entityToIndex[entity];
 		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
+
+		for (uint8_t i = 0; i < eventData.events[index].nrOfEvents; i++)
+			if (eventData.events[index].event_[i] == _event)
+				ProfileReturnVoid;
+
 		eventData.events[index].event_[eventData.events[index].nrOfEvents] = _event;
 		eventData.events[index].userData[eventData.events[index].nrOfEvents++] = userData;
+	}
+	StopProfile;
+}
+
+void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const Utilz::GUID _event)
+{
+	StartProfile;
+	const auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		auto& e = eventData.events[find->second];
+		for (uint8_t i = 0; i < e.nrOfEvents; i++)
+		{
+			if (e.event_[i] == _event)
+			{
+				e.event_[i] = e.event_[e.nrOfEvents - 1];
+				e.nrOfEvents--;
+				break;
+			}
+		}
 	}
 	StopProfile;
 }
@@ -88,12 +113,15 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 			initInfo.dataManager->SetValue(eventData.entity[i], "TimeToDeath", timeToDeath);
 		}
 
+		uint8_t fs = eventData.events[i].nrOfEvents;
 		for(uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
 		{
 			const auto& cb = eventToCallbacks[eventData.events[i].event_[e]];
 			if (cb.triggerCheck(eventData.entity[i], eventData.events[i].userData[e]))
 			{
 				cb.triggerCallback(eventData.entity[i], eventData.events[i].userData[e]);
+				if (fs > eventData.events[i].nrOfEvents)
+					e--;
 			}
 		}
 	}

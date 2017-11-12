@@ -73,13 +73,22 @@ namespace SE
 			*
 			* @param[in] entity The entity to bind the event to.
 			* @param[in] _event The event identifier.
-			* @param[in] args to be sent The event identifier.
+			* @param[in] userData User specified data.
 			*
 			*/
 			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData = nullptr) = 0;
+			
+			/**
+			* @brief	UnRegister an event to an entity
+			*
+			* @param[in] entity The entity to unbind the event from.
+			* @param[in] _event The event identifier.
+			*
+			*/
+			virtual void UnregisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) = 0;
 
 			/**
-			* @brief	Set the lifetime of an entity. When the time reaches 0 the entity will be destroyed
+			* @brief	Set the lifetime of an entity. When the time reaches 0 the entity will be destroyed, if you set the lifetime to -1 it will be immortal
 			*
 			* @param[in] entity The entity to bind the event to.
 			* @param[in] lifetime The lifetime of the entity

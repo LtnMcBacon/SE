@@ -20,6 +20,15 @@ namespace SE
 				const EventCallbacks& callbacks)override;
 		
 			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData) override;
+			
+			/**
+			* @brief	UnRegister an event to an entity
+			*
+			* @param[in] entity The entity to unbind the event from.
+			* @param[in] _event The event identifier.
+			*
+			*/
+			void UnregisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) override;
 
 			void SetLifetime(const Entity entity, float lifetime)override;
 
