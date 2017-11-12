@@ -64,7 +64,22 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	auto pe = player->GetEntity();
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, std::vector<void*>& args) {
 		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
-			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);		
+		{
+			Core::ITextManager::CreateInfo ci;
+			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
+			ci.info.text.assign(s.begin(), s.end());
+			ci.info.posX = -50;
+			ci.info.posY = -100;
+			ci.info.screenAnchor = { 0.5f, 0.5f };
+			ci.info.anchor = { 1,0.5f };
+			ci.info.scale = { 0.4f,0.4f };
+			CoreInit::managers.textManager->Create(ent, ci);
+			CoreInit::managers.textManager->ToggleRenderableText(ent, true);
+
+			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
+		}
+		else
+			CoreInit::managers.textManager->ToggleRenderableText(ent, false);
 		return false;
 	};
 	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
