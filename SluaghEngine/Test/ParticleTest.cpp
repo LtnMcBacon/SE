@@ -23,16 +23,17 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.renderableManager->ToggleRenderableObject(torch, true);
 	managers.particleSystemManager->CreateSystem(frost, { "frostBall.txt" });
 	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
-	Core::ICameraManager::CreateInfo camInfo;
-	camInfo.posistion = { 0.0f, 0.0f, -20.0f };
+	managers.particleSystemManager->ToggleVisible(fire, true);
+	managers.particleSystemManager->ToggleVisible(frost, true);
 	
 	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
 	
 	float pos[3] = {0, 0, 0};
-	subSystems.window->MapActionButton(Window::KeyEscape, Window::KeyEscape);
-	while (!subSystems.window->ButtonPressed(Window::KeyEscape))
+	int i = 0;
+	while (i++ < 2000)
 	{
 		engine->BeginFrame();
+		ImGui::ProgressBar((float)i / 2000.0f, { 400, 30 }, "Testing");
 
 		if (ImGui::InputFloat3("Pos", pos))
 		{
@@ -45,7 +46,7 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 
 	engine->Release();
 	delete engine;
-	return false;
+	return true;
 }
 
 SE::Test::ParticleTest::ParticleTest()
