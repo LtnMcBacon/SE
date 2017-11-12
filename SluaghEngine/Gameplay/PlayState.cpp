@@ -346,7 +346,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::ITextManager::CreateInfo citype;
 	citype.info.posX = -35;
-	citype.info.posY = -70;
+	citype.info.posY = -80;
 	citype.info.screenAnchor = { 0.5f, 0.5f };
 	citype.info.anchor = { 1,0.0f };
 	citype.info.scale = { 0.4f,0.4f };
@@ -356,7 +356,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::ITextManager::CreateInfo cielement;
 	cielement.info.posX = -35;
-	cielement.info.posY = -15;
+	cielement.info.posY = -25;
 	cielement.info.screenAnchor = { 0.5f, 0.5f };
 	cielement.info.anchor = { 1,0.0f };
 	cielement.info.scale = { 0.4f,0.4f };
@@ -364,6 +364,17 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	cielement.info.colour = { 0.7f,0.7f,0.7f,1 };
 	auto weaponElement = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponElement, cielement);
+
+
+	Core::ITextManager::CreateInfo cidamage;
+	cidamage.info.posX = -35;
+	cidamage.info.posY = 40;
+	cidamage.info.screenAnchor = { 0.5f, 0.5f };
+	cidamage.info.anchor = { 1,0.0f };
+	cidamage.info.scale = { 0.4f,0.4f };
+	cidamage.info.height = 50;
+	auto weaponDamage = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
 
 	Core::IGUIManager::CreateInfo ciback;
 	ciback.texture = "Crossbow_texture_metal.jpg";
@@ -376,7 +387,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
 
-	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack](const Core::Entity ent, void* data) {
+	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack, weaponDamage](const Core::Entity ent, void* data) {
 		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
 		{
 			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
@@ -394,6 +405,10 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 			CoreInit::managers.textManager->SetTextColour(weaponElement, (element == 0 ? DirectX::XMFLOAT4{ 0.7f, 0.7f, 0.7f, 1.0f } : DirectX::XMFLOAT4{ 0.8f, 0.3f, 0.2f, 1.0f }));
 			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
 
+			auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Damage", -1));
+			CoreInit::managers.textManager->SetText(weaponDamage, std::to_wstring(damage));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
+
 			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
 
 			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
@@ -403,6 +418,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 			CoreInit::managers.textManager->ToggleRenderableText(weaponName, false);
 			CoreInit::managers.textManager->ToggleRenderableText(weaponType, false);
 			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, false);
 			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, false);
 		}
 
