@@ -27,7 +27,26 @@ namespace SE
 
 			typedef std::variant<bool, int32_t, float, std::string>  values;
 
+			/**
+			* @brief	Set the value of a variable. If new variable it will be created.
+			*
+			* @param[in] entity The entity.
+			* @param[in] key The variable name.
+			* @param[in] value The value.
+			* @warning String must be passed with the suffix s, "A String"s. Otherwise it will be casted to a bool.
+			*
+			*/
 			virtual void SetValue(const Entity entity, const Utilz::GUID key, const values value) = 0;
+
+			/**
+			* @brief	Get the value of a variable, if it does not exist return a default.
+			*
+			* @param[in] entity The entity.
+			* @param[in] key The variable name.
+			* @param[in] default_value The default value if not found.
+			* @warning String must be passed with the suffix s, "A String"s. Otherwise it will be casted to a bool.
+			*
+			*/
 			virtual values GetValue(const Entity entity, const Utilz::GUID key, const values default_value) = 0;
 
 		protected:
