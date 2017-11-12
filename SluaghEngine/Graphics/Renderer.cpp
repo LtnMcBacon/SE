@@ -139,26 +139,18 @@ void SE::Graphics::Renderer::ChangeRenderJob(uint32_t jobID, const std::function
 size_t SE::Graphics::Renderer::EnableTextRendering(const TextJob& handles)
 {
 	StartProfile;
-	int job = (int)renderTextJobs.size();
+	size_t job = renderTextJobs.size();
 	renderTextJobs.push_back(handles);
-	/*if (!renderTextJobs[job].anchor)
-	{
-		D3D11_TEXTURE2D_DESC	gBB_Desc = device->GetTexDesc();
-		size_t height = gBB_Desc.Height;
-		size_t width = gBB_Desc.Width;
-		renderTextJobs[job].scale = DirectX::XMFLOAT2(renderTextJobs[job].scale.x * width, renderTextJobs[job].scale.y * height);
-		renderTextJobs[job].pos = DirectX::XMFLOAT2(renderTextJobs[job].pos.x * width, renderTextJobs[job].pos.y * height);
-	}*/
 	ProfileReturn(job);
 }
 
 size_t SE::Graphics::Renderer::DisableTextRendering(const size_t & jobID)
 {
+	_ASSERT(jobID < renderTextJobs.size());
 	StartProfile;
-	size_t job = renderTextJobs.size() - 1;
-	renderTextJobs[jobID] = renderTextJobs[job];
+	renderTextJobs[jobID] = renderTextJobs[renderTextJobs.size() - 1];
 	renderTextJobs.pop_back();
-	ProfileReturn(job);
+	ProfileReturnConst(0);
 }
 
 size_t SE::Graphics::Renderer::EnableTextureRendering(const GUIJob & handles)
