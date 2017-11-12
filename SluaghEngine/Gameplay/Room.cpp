@@ -121,10 +121,12 @@ void Room::Update(float dt, float playerX, float playerY)
 		{
 			// Blood spatter
 			auto bs = CoreInit::managers.entityManager->Create();
-			
-			CoreInit::managers.transformManager->Create(bs, { enemyUnits[i]->GetXPosition(), enemyUnits[i]->GetYPosition(), enemyUnits[i]->GetZPosition() }, { DirectX::XM_PIDIV2, 0,0 });
+			auto p = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
+			p.y = 0;
+			CoreInit::managers.transformManager->Create(bs, p, { DirectX::XM_PIDIV2, 0,0 }, {1,1, 0.05f});
+		
 			Core::DecalCreateInfo ci;
-			ci.textureName = "BlackPink.sei";			
+			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 
 
