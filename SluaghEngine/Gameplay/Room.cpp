@@ -131,10 +131,13 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.eventManager->SetLifetime(bs, 10);
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
-			if (spw > 50000)
+			if (true)//spw > 50000)
 			{
 				auto wep = CoreInit::managers.entityManager->Create();
-				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "Cube.mesh" });
+				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
+				CoreInit::managers.transformManager->Create(wep, p, {}, { 0.2f,0.2f,0.2f });
+				CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, "default.mesh");
 				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
 				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
