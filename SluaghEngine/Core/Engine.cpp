@@ -131,7 +131,6 @@ int SE::Core::Engine::Release()
 		delete *rit;
 
 	delete managers.entityManager;
-	delete managers.eventManager;
 
 	if(subSystems.devConsole)
 		subSystems.devConsole->Shutdown();
