@@ -76,7 +76,7 @@ namespace SE
 			* @param[in] args to be sent The event identifier.
 			*
 			*/
-			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData) = 0;
+			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData = nullptr) = 0;
 
 			/**
 			* @brief	Set the lifetime of an entity. When the time reaches 0 the entity will be destroyed

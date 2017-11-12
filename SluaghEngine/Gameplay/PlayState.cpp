@@ -51,20 +51,6 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EventCallbacks removeGUIEvent;
-	removeGUIEvent.triggerCheck = [pe](const Core::Entity ent, void* data)
-	{
-		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
-			return false;
-		return true;
-	};
-	removeGUIEvent.triggerCallback = [](const Core::Entity ent, void* data)
-	{
-
-	};
-
-
-
 	Core::IEventManager::EventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
 		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
@@ -75,29 +61,79 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		CoreInit::managers.entityManager->DestroyNow(ent);
 	};
 
-	
+	Core::ITextManager::CreateInfo ciname;
+	ciname.info.posX = -35;
+	ciname.info.posY = -125;
+	ciname.info.screenAnchor = { 0.5f, 0.5f };
+	ciname.info.anchor = { 1,0.0f };
+	ciname.info.scale = { 0.4f,0.4f };
+	ciname.info.height = 50;
+	auto weaponName = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponName, ciname);
 
-	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+	Core::ITextManager::CreateInfo citype;
+	citype.info.posX = -35;
+	citype.info.posY = -70;
+	citype.info.screenAnchor = { 0.5f, 0.5f };
+	citype.info.anchor = { 1,0.0f };
+	citype.info.scale = { 0.4f,0.4f };
+	citype.info.height = 50;
+	auto weaponType = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponType, citype);
+
+	Core::ITextManager::CreateInfo cielement;
+	cielement.info.posX = -35;
+	cielement.info.posY = -15;
+	cielement.info.screenAnchor = { 0.5f, 0.5f };
+	cielement.info.anchor = { 1,0.0f };
+	cielement.info.scale = { 0.4f,0.4f };
+	cielement.info.height = 50;
+	cielement.info.colour = { 0.7f,0.7f,0.7f,1 };
+	auto weaponElement = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponElement, cielement);
+
+	Core::IGUIManager::CreateInfo ciback;
+	ciback.texture = "Crossbow_texture_metal.jpg";
+	ciback.textureInfo.width = 200;
+	ciback.textureInfo.height = 200;
+	ciback.textureInfo.posX = -30;
+	ciback.textureInfo.posY = -130;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0, 0.0f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+
+	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack](const Core::Entity ent, void* data) {
 		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
 		{
-			Core::ITextManager::CreateInfo ci;
 			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
-			ci.info.text.assign(s.begin(), s.end());
-			ci.info.posX = -50;
-			ci.info.posY = -100;
-			ci.info.screenAnchor = { 0.5f, 0.5f };
-			ci.info.anchor = { 1,0.5f };
-			ci.info.scale = { 0.4f,0.4f };
-			CoreInit::managers.textManager->Create(ent, ci);
-			CoreInit::managers.textManager->ToggleRenderableText(ent, true);
+			std::wstring ws;
+			ws.assign(s.begin(), s.end());
+			CoreInit::managers.textManager->SetText(weaponName, ws);		
+			CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
 
+			auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+			CoreInit::managers.textManager->SetText(weaponType,( type == 0 ? L"Sword" : L"None"));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
 
-		
+			auto element = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1));
+			CoreInit::managers.textManager->SetText(weaponElement, (element == 0 ? L"Physical" : L"Fire"));
+			CoreInit::managers.textManager->SetTextColour(weaponElement, (element == 0 ? DirectX::XMFLOAT4{ 0.7f, 0.7f, 0.7f, 1.0f } : DirectX::XMFLOAT4{0.8f, 0.3f, 0.2f, 1.0f}));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
+
+			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
 
 			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
 		}
 		else
-			CoreInit::managers.textManager->ToggleRenderableText(ent, false);
+		{
+			CoreInit::managers.textManager->ToggleRenderableText(weaponName, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponType, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, false);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, false);
+		}
+			
 		return false;
 	};
 	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);

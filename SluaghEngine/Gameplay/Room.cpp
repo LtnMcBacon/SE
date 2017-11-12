@@ -142,7 +142,7 @@ void Room::Update(float dt, float playerX, float playerY)
 				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
 				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
 				CoreInit::managers.dataManager->SetValue(wep, "Type", 0/*0 is sword*/);
-				CoreInit::managers.dataManager->SetValue(wep, "Element", 0/*0 is physical*/);
+				CoreInit::managers.dataManager->SetValue(wep, "Element",1/*0 is physical*/);
 				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
 			}
 			

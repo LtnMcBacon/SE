@@ -10,6 +10,7 @@ SE::Core::EventManager::EventManager(const IEventManager::InitializationInfo& in
 
 SE::Core::EventManager::~EventManager()
 {
+	operator delete(eventData.data);
 }
 
 void SE::Core::EventManager::RegisterEventCallback(const Utilz::GUID _event, const EventCallbacks& callbacks)
