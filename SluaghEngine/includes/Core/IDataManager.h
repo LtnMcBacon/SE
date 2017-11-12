@@ -11,6 +11,7 @@
 #include "IManager.h"
 #include <Utilz\GUID.h>
 #include <variant>
+using namespace std::literals;
 
 namespace SE
 {

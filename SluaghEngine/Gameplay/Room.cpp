@@ -131,7 +131,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.eventManager->SetLifetime(bs, 10);
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
-			if (true)//spw > 50000)
+			if (spw > 50000)
 			{
 				auto wep = CoreInit::managers.entityManager->Create();
 				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });
@@ -141,9 +141,9 @@ void Room::Update(float dt, float playerX, float playerY)
 				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
 				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
-				CoreInit::managers.dataManager->SetValue(wep, "Type", 0);
-				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Blaster_xXx");
-
+				CoreInit::managers.dataManager->SetValue(wep, "Type", 0/*0 is sword*/);
+				CoreInit::managers.dataManager->SetValue(wep, "Element", 0/*0 is physical*/);
+				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
 			}
 			
 			delete enemyUnits[i];
