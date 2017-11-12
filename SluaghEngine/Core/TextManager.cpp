@@ -48,16 +48,14 @@ namespace SE {
 					}
 				}
 			}
-			
 
-			entityToEntry[entity].info = info.info;
-			entityToEntry[entity].font = font;
-			indexToEntity.push_back(entity);
-		/*	if (!loadedTexts[loadedTexts.size() - 1].anchor)
+			auto const find = entityToEntry.find(entity);
+			if (find == entityToEntry.end())
 			{
-				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
-				loadedTexts[loadedTexts.size() - 1].scale = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].scale.x / width, loadedTexts[loadedTexts.size() - 1].scale.y / height);
-			}*/
+				entityToEntry[entity].info = info.info;
+				entityToEntry[entity].font = font;
+				indexToEntity.push_back(entity);
+			}
 			ProfileReturnVoid;
 		}
 

@@ -54,8 +54,8 @@ namespace SE
 
 			struct EventCallbacks
 			{
-				std::function<void(const Entity, const std::vector<void*>& args)> triggerCallback; 
-				std::function<bool(const Entity, std::vector<void*>& args)> triggerCheck;
+				std::function<void(const Entity, void* userData)> triggerCallback; 
+				std::function<bool(const Entity, void* userData)> triggerCheck;
 			};
 
 			/**
@@ -73,9 +73,10 @@ namespace SE
 			*
 			* @param[in] entity The entity to bind the event to.
 			* @param[in] _event The event identifier.
+			* @param[in] args to be sent The event identifier.
 			*
 			*/
-			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) = 0;
+			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData) = 0;
 
 			/**
 			* @brief	Set the lifetime of an entity. When the time reaches 0 the entity will be destroyed

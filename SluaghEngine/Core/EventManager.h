@@ -19,7 +19,7 @@ namespace SE
 			void RegisterEventCallback(const Utilz::GUID _event,
 				const EventCallbacks& callbacks)override;
 		
-			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) override;
+			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData) override;
 
 			void SetLifetime(const Entity entity, float lifetime)override;
 
@@ -87,7 +87,7 @@ namespace SE
 				static const uint8_t MAX = 8;
 				uint8_t nrOfEvents = 0;
 				Utilz::GUID event_[MAX];
-
+				void* userData[MAX];
 			};
 			struct EventData
 			{

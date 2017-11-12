@@ -17,7 +17,7 @@ void SE::Core::EventManager::RegisterEventCallback(const Utilz::GUID _event, con
 	eventToCallbacks[_event] = callbacks;
 }
 
-void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event)
+void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData)
 {
 	StartProfile;
 	if (!initInfo.entityManager->Alive(entity))
@@ -35,14 +35,15 @@ void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Ut
 		eventData.entity[index] = entity;
 
 		eventData.events[index].nrOfEvents = 0;
-		eventData.events[index].event_[eventData.events[index].nrOfEvents++] = _event;
-
+		eventData.events[index].event_[eventData.events[index].nrOfEvents] = _event;
+		eventData.events[index].userData[eventData.events[index].nrOfEvents++] = userData;
 	}
 	else
 	{
 		size_t index = entityToIndex[entity];
 		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
-		eventData.events[index].event_[eventData.events[index].nrOfEvents++] = _event;
+		eventData.events[index].event_[eventData.events[index].nrOfEvents] = _event;
+		eventData.events[index].userData[eventData.events[index].nrOfEvents++] = userData;
 	}
 	StopProfile;
 }
@@ -89,10 +90,9 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 		for(uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
 		{
 			const auto& cb = eventToCallbacks[eventData.events[i].event_[e]];
-			std::vector<void*> args;
-			if (cb.triggerCheck(eventData.entity[i], args))
+			if (cb.triggerCheck(eventData.entity[i], eventData.events[i].userData[e]))
 			{
-				cb.triggerCallback(eventData.entity[i], args);
+				cb.triggerCallback(eventData.entity[i], eventData.events[i].userData[e]);
 			}
 		}
 	}

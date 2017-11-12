@@ -49,10 +49,24 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	projectileManager = new ProjectileManager(temp);
 
 
+	auto pe = player->GetEntity();
+
+	Core::IEventManager::EventCallbacks removeGUIEvent;
+	removeGUIEvent.triggerCheck = [pe](const Core::Entity ent, void* data)
+	{
+		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
+			return false;
+		return true;
+	};
+	removeGUIEvent.triggerCallback = [](const Core::Entity ent, void* data)
+	{
+
+	};
+
 
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
-	pickUpEvent.triggerCallback = [this](const Core::Entity ent, const std::vector<void*>& args) {		
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
 		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
 		if (isWep)
 		{
@@ -61,8 +75,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		CoreInit::managers.entityManager->DestroyNow(ent);
 	};
 
-	auto pe = player->GetEntity();
-	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, std::vector<void*>& args) {
+	
+
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
 		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
 		{
 			Core::ITextManager::CreateInfo ci;
@@ -75,6 +90,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			ci.info.scale = { 0.4f,0.4f };
 			CoreInit::managers.textManager->Create(ent, ci);
 			CoreInit::managers.textManager->ToggleRenderableText(ent, true);
+
+
+		
 
 			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
 		}
