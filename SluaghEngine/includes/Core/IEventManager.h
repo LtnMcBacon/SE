@@ -18,6 +18,28 @@ namespace SE
 {
 	namespace Core
 	{
+		/** The Eventmanager is used to register events to entities and to trigger events. The managers also use this for some communication
+		* Example code:
+		* @code
+		* Core::IEventManager::EventCallbacks pickUpEvent;
+		* pickUpEvent.triggerCallback = [this](const Core::Entity ent, const std::vector<void*>& args) {
+		* bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
+		* if (isWep)
+		* {
+		* CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
+		* }
+		* CoreInit::managers.entityManager->DestroyNow(ent);
+		* };
+		*
+		* auto pe = player->GetEntity();
+		* pickUpEvent.triggerCheck = [pe](const Core::Entity ent, std::vector<void*>& args) {
+		* if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
+		* return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
+		* return false;
+		* };
+		* CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
+		* @endcode
+		*/
 		class IEventManager : public IManager
 		{
 		public:
