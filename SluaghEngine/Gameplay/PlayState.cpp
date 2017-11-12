@@ -52,9 +52,13 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
-	pickUpEvent.triggerCallback = [](const Core::Entity ent, const std::vector<void*>& args) {
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent, const std::vector<void*>& args) {		
+		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
+		if (isWep)
+		{
+			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
+		}
 		CoreInit::managers.entityManager->DestroyNow(ent);
-
 	};
 
 	auto pe = player->GetEntity();
