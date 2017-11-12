@@ -331,7 +331,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
 		}
-		CoreInit::managers.entityManager->DestroyNow(ent);
+		CoreInit::managers.entityManager->DestroyNow(ent); // Just save the entity instead and use it as the picket up weapon as well.
 	};
 
 	Core::ITextManager::CreateInfo ciname;
