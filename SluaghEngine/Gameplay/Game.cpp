@@ -23,6 +23,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::STEP), Window::KeyF1);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::INTERACT), Window::KeyE);
 
 	CoreInit::subSystems.window->BindKeyPressCallback(uint32_t(GameInput::CONSOLE), []()
 	{
@@ -93,6 +94,7 @@ void SE::Gameplay::Game::Run()
 				{
 					delete state;
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
 				case SE::Gameplay::IGameState::State::QUIT_GAME:
