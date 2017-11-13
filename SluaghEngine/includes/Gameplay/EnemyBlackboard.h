@@ -48,8 +48,7 @@ namespace SE
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
 			bool channeling = false;
-			Boons activeBoon = Boons::CONDITIONAL_BOONS_NONE;
-			Banes activeBane = Banes::CONDITIONAL_BANES_NONE;
+			Boons activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 			float attackCooldown = 0.f;
 
 		};

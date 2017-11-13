@@ -22,7 +22,6 @@ GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 GameUnit::~GameUnit()
 {
 	//Core::Engine::GetInstance().GetEntityManager().Destroy(unitEntity);
-
 }
 
 void GameUnit::DestroyEntity()
