@@ -1217,7 +1217,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			for (int x = 0; x < 25; x++)
 			{
 				tileValues[x][y] = (char)(in[counter]);
-				if (in[counter] == (char)13)
+				if (in[counter] == id_Bush)
 				{
 					IsOutside = true;
 				}
@@ -1238,13 +1238,13 @@ float Room::WallCheck(int x, int y)
 	float rotation = 0;
 
 
-	if (x - 1 >= 0 && ( tileValues[x - 1][y] == (char)255 || tileValues[x - 1][y] == (char)225  ))
+	if (x - 1 >= 0 && ( tileValues[x - 1][y] == id_Wall || tileValues[x - 1][y] == id_Pillar  ))
 		rotation = 180;
-	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == (char)255 || tileValues[x][y - 1] == (char)225 ))
+	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == id_Wall || tileValues[x][y - 1] == id_Pillar))
 		rotation = 90;																
-	else if (y + 1 < 25 && ( tileValues[x][y + 1] == (char)255 || tileValues[x][y + 1] == (char)225 ))
+	else if (y + 1 < 25 && ( tileValues[x][y + 1] == id_Wall || tileValues[x][y + 1] == id_Pillar))
 		rotation = -90;																
-	else if (x + 1 < 25 && ( tileValues[x + 1][y] == (char)255 || tileValues[x + 1][y] == (char)225 ))
+	else if (x + 1 < 25 && ( tileValues[x + 1][y] == id_Wall || tileValues[x + 1][y] == id_Pillar))
 		rotation = 0;
 
 
@@ -1259,7 +1259,7 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 	StartProfile;
 
 	// if we find a prop on the right side of the prop and not beneeth its a 1xx
-	if (tileValues[x + 1][y] == (char)137 && tileValues[x][y + 1] != (char)137 )
+	if (tileValues[x + 1][y] == id_Props && tileValues[x][y + 1] != id_Props)
 	{
 		// medium prop 1x2
 		CreationArguments args2 = args;
@@ -1269,7 +1269,7 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		ProfileReturnConst(Meshes[Meshes::Table_long]);
 	}
 	// Else we check if its a 2x1 by checking if a prop is beneeth and not on the right side
-	else if (tileValues[x][y + 1] == (char)137 && tileValues[x + 1][y] != (char)137)
+	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y] != id_Props)
 	{
 		//medium prop 2x1
 		CreationArguments args2 = args;
@@ -1278,7 +1278,7 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		CreateFloor(args2);
 		ProfileReturnConst(Meshes[Meshes::Table_long]);
 	}
-	else if (tileValues[x][y + 1] == (char)137 && tileValues[x + 1][y + 1] == (char)137) {
+	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y + 1] == id_Props) {
 		// big prop 2x2
 		CreationArguments args2 = args;
 
@@ -1335,7 +1335,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	Core::IMaterialManager::CreateInfo matInfo;
 	// Create floor
 	auto entFloor = CoreInit::managers.entityManager->Create();
-	if (tileValues[args.i][args.j] == (char) 13) // bush 
+	if (tileValues[args.i][args.j] == id_Bush) // bush 
 	{
 		matInfo.materialFile = Materials[Materials::Dirt];
 	}
@@ -1357,9 +1357,9 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	roomEntities.push_back(entFloor);
 
 
-	if (tileValues[args.i][args.j] == (char)203 )
+	if (tileValues[args.i][args.j] == id_Torch )
 	{
-		tileValues[args.i][args.j] = (char)0;
+		tileValues[args.i][args.j] = id_Floor;
 	}
 }
 
@@ -1418,14 +1418,14 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 
 	CreateFloor(args);
 
-	if (tileValues[i + 1][j] == (char)137 && tileValues[i][j + 1] != (char)137)
+	if (tileValues[i + 1][j] == id_Props && tileValues[i][j + 1] != id_Props)
 	{
 		// medium prop 2x1
 		CoreInit::managers.transformManager->Create(args.ent);
 		CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(i + 1.0f, 0.0f, j + 0.5f));
 		tileValues[i + 1][j] = 100;
 	}
-	else if (tileValues[i][j + 1] == (char)137 && tileValues[i + 1][j] != (char)137)
+	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j] != id_Props)
 	{
 		//medium prop 1x2
 		CoreInit::managers.transformManager->Create(args.ent);
@@ -1433,7 +1433,7 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0, 1.5708, 0.0); // 90 degrees
 		tileValues[i][j + 1] = 100; // temporary 
 	}
-	else if (tileValues[i][j + 1] == (char)137 && tileValues[i + 1][j + 1] == (char)137) {
+	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j + 1] == id_Props) {
 		// big prop 2x2
 		tileValues[i][j + 1] = 100;
 		tileValues[i + 1 ][j] = 100;
@@ -1473,7 +1473,7 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		CreateFloor(args);
 
 		matInfo.materialFile = Materials[Materials::DoorMat];
-		if ((tileValues[i][j + 1] == (char)0 || tileValues[i + 1][j] == (char)0 || tileValues[i + 1][j + 1] == (char)0 || tileValues[i - 1][j + 1] == (char)0 || tileValues[i + 1][j - 1] == (char)0))
+		if ((tileValues[i][j + 1] == id_Floor || tileValues[i + 1][j] == id_Floor || tileValues[i + 1][j + 1] == id_Floor || tileValues[i - 1][j + 1] == id_Floor || tileValues[i + 1][j - 1] == id_Floor))
 		{
 			matInfo.shader = Trans;
 			CoreInit::managers.renderableManager->ToggleTransparency(args.ent, true);
@@ -1518,13 +1518,13 @@ float Room::FloorCheck(int x, int y)
 	float rotation = 0;
 
 
-	if (x - 1 >= 0 && tileValues[x - 1][y] == (char)0)
+	if (x - 1 >= 0 && tileValues[x - 1][y] == id_Floor)
 		rotation = 270;
-	else if (y - 1 >= 0 && tileValues[x][y - 1] == (char)0)
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == id_Floor)
 		rotation = 180;
-	else if (y + 1 < 25 && tileValues[x][y + 1] == (char)0)
+	else if (y + 1 < 25 && tileValues[x][y + 1] == id_Floor)
 		rotation = 0;
-	else if (x + 1 < 25 && tileValues[x + 1][y] == (char)0)
+	else if (x + 1 < 25 && tileValues[x + 1][y] == id_Floor)
 		rotation = 90;
 
 	rotation += 270;
@@ -1540,7 +1540,7 @@ void SE::Gameplay::Room::ResetTempTileValues()
 		{
 			if (tileValues[x][y] == (char)100)
 			{
-				tileValues[x][y] == (char)137;
+				tileValues[x][y] == id_Props;
 			}
 			
 		}
