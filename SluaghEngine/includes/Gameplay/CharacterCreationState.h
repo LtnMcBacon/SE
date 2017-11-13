@@ -57,11 +57,11 @@ namespace SE
 			int selectedSkills;
 			int renewSkillList;
 			int nrOfSkills;
-		
-			
-			
-			std::vector<int> chosenSkills;
-			std::vector<int> chosenPerks;
+
+			std::vector<int> chosenSkillsIndex;
+			std::vector<Skill> chosenSkills;
+			std::vector<int> chosenPerksIndex;
+			std::vector<Skill> chosenPerks;
 
 			//	every file to be parsed //
 			std::string skillButtonFiles[2]

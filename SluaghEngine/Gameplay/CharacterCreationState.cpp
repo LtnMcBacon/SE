@@ -68,13 +68,6 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	//if (selectedSkills != 0)
-	//{
-	//	
-	//	getSkills();
-	//	renewSkillList = selectedSkills;
-	//}
-
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
 	bool released = input->ButtonUp(uint32_t(GameInput::ACTION));
 	int mousePosX, mousePosY;
@@ -82,44 +75,37 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	
 	
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
-	
-	
-
 
 	if (input->ButtonPressed(0))
 	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 	
 	PlayStateData* infoToPass = new PlayStateData;
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		infoToPass->skills[i].animation = 0;
-		infoToPass->skills[i].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
-		infoToPass->skills[i].bane = Banes::CONDITIONAL_BANES_NONE;
-		infoToPass->skills[i].baneDuration = 0;
-		infoToPass->skills[i].baneEffectValue = 0;
-		infoToPass->skills[i].baneRange = 0;
-		infoToPass->skills[i].boon = Boons::CONDITIONAL_BOONS_NONE;
-		infoToPass->skills[i].boonDuration = 0;
-		infoToPass->skills[i].boonEffectValue = 0;
-		infoToPass->skills[i].boonRange = 0;
-		infoToPass->skills[i].coolDown = 1.0f;
-		infoToPass->skills[i].element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-		infoToPass->skills[i].particle = 0;
+		infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
+		infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
+		infoToPass->skills[i].element	= chosenSkills.at(i).element;
+		infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
+		infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
+		infoToPass->skills[i].animation = chosenSkills.at(i).animation;
+		infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
+		
+		infoToPass->skills[i].projectileFileGUID	= chosenSkills.at(i).projectileFileGUID;
+		infoToPass->skills[i].skillDamage			= chosenSkills.at(i).skillDamage;
+		infoToPass->skills[i].boonEffectValue		= chosenSkills.at(i).boonEffectValue;
+		infoToPass->skills[i].boonRange				= chosenSkills.at(i).boonRange;
+		infoToPass->skills[i].boonDuration			= chosenSkills.at(i).boonDuration;
+		infoToPass->skills[i].baneEffectValue		= chosenSkills.at(i).baneEffectValue;
+		infoToPass->skills[i].baneRange				= chosenSkills.at(i).baneRange;
+		infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
+		infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;
 
-		if(i == 0)
-			infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
-		if(i == 1)
-			infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";
-
-		infoToPass->skills[i].skillDamage = 5;
-		infoToPass->skills[i].skillName = "skill1";
 	}
 	passableInfo = infoToPass;
 
 
 	ProfileReturn(CurrentState);
-	
 }
 	
 
@@ -234,7 +220,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	int borderOffset = 200;
 	int rectSize = 100;
 	SkillFactory sf;
-	Skill s1;
+	Skill skill;
 	std::vector<int> OtherSkills;
 	int nrOfOtherSkills = 0;
 	for (size_t i = 0; i < nrOfSkills; i++)
@@ -242,17 +228,18 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
 
-		std::string skillName = "Fireball";
-		unsigned short int skillInfo1[7] = {1,2,3,4,5,6,7};
+		std::string skillName;
+		unsigned short int skillInfo[8];
 		unsigned int indexPLaceHolder = 2;
-		//unsigned int index = sf.readSkillInfo(skillName1, skillInfo1);
+		unsigned int index = sf.getRandomSkillIndex();
+		sf.readSkillInfo(index, skillName, skillInfo);
 
 	
 		int count = 0;
 		int j = 0;
 		int p = 0;
 		
-		if (nrOfOtherSkills > chosenSkills.size())
+		if (nrOfOtherSkills > chosenSkillsIndex.size())
 		{
 			while (j < nrOfOtherSkills)
 			{
@@ -261,20 +248,22 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 				{
 					j = 0;
 					p = 0;
-					//index = sf.readSkillInfo(skillName1, skillInfo1);
+					index = sf.getRandomSkillIndex();
+					sf.readSkillInfo(index, skillName, skillInfo);
 				}
 				else
 				{
 					j++;
 				}
 
-				while (p < chosenSkills.size())
+				while (p < chosenSkillsIndex.size())
 				{
-					if (indexPLaceHolder == chosenSkills[p])
+					if (indexPLaceHolder == chosenSkillsIndex[p])
 					{
 						j = 0;
 						p = 0;
-						//index = sf.readSkillInfo(skillName1, skillInfo1);
+						index = sf.getRandomSkillIndex();
+						sf.readSkillInfo(index, skillName, skillInfo);
 					}
 					else
 					{
@@ -286,14 +275,15 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		}
 		else
 		{
-			while (j < chosenSkills.size())
+			while (j < chosenSkillsIndex.size())
 			{
 
-				if (indexPLaceHolder == chosenSkills[j])
+				if (indexPLaceHolder == chosenSkillsIndex[j])
 				{
 					j = 0;
 					p = 0;
-					//index = sf.readSkillInfo(skillName1, skillInfo1);
+					index = sf.getRandomSkillIndex();
+					sf.readSkillInfo(index, skillName, skillInfo);
 				}
 				else
 				{
@@ -306,7 +296,8 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					{
 						j = 0;
 						p = 0;
-						//index = sf.readSkillInfo(skillName1, skillInfo1);
+						index = sf.getRandomSkillIndex();
+						sf.readSkillInfo(index, skillName, skillInfo);
 					}
 					else
 					{
@@ -321,19 +312,20 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	
 		OtherSkills.push_back(indexPLaceHolder);
 		nrOfOtherSkills++;
-		//s1.skillName = skillName1;
-		//s1.atkType = static_cast<DamageSources>(skillInfo1[0]);
-		//s1.element = static_cast<DamageTypes>(skillInfo1[1]);
-		//s1.boon = static_cast<Boons>(skillInfo1[2]);
-		//s1.bane = static_cast<Banes>(skillInfo1[3]);
-		//s1.animation = 0;
-		//s1.particle = 0;
+		skill.skillName = skillName;
+		skill.atkType	= static_cast<DamageSources>(skillInfo[0]);
+		skill.element	= static_cast<DamageTypes>(skillInfo[1]);
+		skill.boon		= static_cast<Boons>(skillInfo[2]);
+		skill.bane		= static_cast<Banes>(skillInfo[3]);
+		skill.animation = 0;
+		skill.particle	= 0;
 	
-		auto SkillIndexReturn = [this, indexPLaceHolder]()->void
+		auto SkillIndexReturn = [this, indexPLaceHolder, skill]()->void
 		{
 			if (selectedSkills < nrOfSkills)
 			{
-				this->chosenSkills.push_back(indexPLaceHolder);
+				this->chosenSkillsIndex.push_back(indexPLaceHolder);
+				this->chosenSkills.push_back(skill);
 				this->selectedSkills++;
 			}
 		}; std::function<void()> skillChoice = SkillIndexReturn;
@@ -353,7 +345,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					0,
 					skillButton.rectName,
 					SkillIndexReturn,
-					skillInfo1,
+					skillInfo,
 					skillButton.textName,
 					skillButton.hoverTex,
 					skillButton.PressTex,
@@ -361,10 +353,6 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					);
 			}
 		}
-	
-
-
-		//PlayerUnit::addPlayerSkills(s1);
 	}
 	fileParser.GUIButtons.DrawButtons();
 	OtherSkills.clear();

@@ -37,8 +37,8 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 	unsigned short int tempEnumHolder[6];
 	float floatValues[8];
 
-	unsigned int index = 0;
-	index = SF.readSkillInfo(skill.skillName, tempEnumHolder);
+	unsigned int index = SF.getRandomSkillIndex();
+	SF.readSkillInfo(index, skill.skillName, tempEnumHolder);
 	SF.readAttributesFromFile(index, skill.projectileFileGUID, floatValues);
 
 	std::cout << skill.skillName << std::endl;
