@@ -47,12 +47,14 @@ namespace SE
 			std::vector<SE::Core::Entity> ButtonEntityVec;
 			SE::Core::Entity skillDescEntity;
 			
+			std::vector<SE::Core::Entity> SkillNPerkEntityVec;
+
 			// counter for every entity drawn
 			int entityIndex;
 
 			Core::IGUIManager::CreateInfo ButtonGuiManager;
 
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
+			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[] ,std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 
@@ -64,6 +66,7 @@ namespace SE
 			void DeleteButtons();
 			void HideButtons();
 			void ShowButtons();
+			void deleteSkillPerkBtns();
 		private:
 
 		};

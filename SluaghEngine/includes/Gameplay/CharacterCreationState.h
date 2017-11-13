@@ -52,11 +52,16 @@ namespace SE
 			/*void SkillBtns(int nrOfSkills);
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
+			void getPerks();
 			void importSkillButtons();
 
 			int selectedSkills;
 			int renewSkillList;
+			int selectedPerks;
+			int renewPerks;
+
 			int nrOfSkills;
+			int nrOfPerks;
 		
 			
 			
@@ -76,18 +81,7 @@ namespace SE
 				"VenomBladesPerk.HuD"
 			};
 
-			/*std::string skillID[2];
-			{
-				"Fireball",
-				"IceBall"
-			};
-
-			std::string perkID[2];
-			{
-				"lifeSteal",
-				"venomblades"
-			};*/
-			
+				
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:

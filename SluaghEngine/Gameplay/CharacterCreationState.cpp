@@ -70,11 +70,11 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
 
-	if (selectedSkills != 0)
+	if (selectedSkills != renewSkillList)
 	{
-		
-		/*getSkills();
-		renewSkillList = selectedSkills;*/
+		fileParser.GUIButtons.deleteSkillPerkBtns();
+		//getSkills();
+		renewSkillList = selectedSkills;
 	}
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
@@ -124,111 +124,6 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	
 }
 	
-
-
-//void CharacterCreationState::SkillBtns(int nrOfSkills)
-//{
-//	int width = 1280;
-//	int height = 720;
-//	int offset = 225;
-//	int borderOffset = 200;
-//	int rectSize = 100;
-//	SkillSpots = new anchorPos[nrOfSkills];
-//
-//	while (borderOffset + offset*nrOfSkills > width - rectSize && borderOffset > 0 && offset > 0)
-//	{
-//		borderOffset -= 10;
-//		offset -= 10;
-//	}
-//
-//	for (size_t i = 0; i < nrOfSkills; i++)
-//	{
-//		
-//		SkillSpots[i].x = (borderOffset + offset*i);
-//		SkillSpots[i].y = 100;
-//	}
-//	Skillindex = new int[nrOfSkills];
-//
-//	for (size_t i = 0; i < nrOfSkills; i++)
-//	{
-//		int randomIndex = CoreInit::subSystems.window->GetRand() % fileParser.skillButtonVec.size();
-//		int count = 0;
-//		while ( count < nrOfSkills)
-//		{
-//			if (randomIndex == Skillindex[count])
-//			{
-//				randomIndex = CoreInit::subSystems.window->GetRand() % fileParser.skillButtonVec.size();
-//				int count = 0;
-//			}
-//			else
-//			{
-//				count++;
-//			}
-//		}
-//		Skillindex[i] = randomIndex;
-//	}
-//
-//	for (size_t k = 0; k < nrOfSkills; k++)
-//	{
-//		fileParser.skillButtonVec[Skillindex[k]].PositionX = SkillSpots[k].x;
-//		fileParser.skillButtonVec[Skillindex[k]].PositionY = SkillSpots[k].y;
-//	}
-//
-//	fileParser.InitiateSkillsNperks(Skillindex, nrOfSkills, true);
-//
-//}
-//void CharacterCreationState::PerkBtns(int nrOfPerks)
-//{
-//	int width = 1280;
-//	int height = 720;
-//	int offset = 225;
-//	int borderOffset = 200;
-//	int rectSize = 100;
-//	perkSpots = new anchorPos[nrOfPerks];
-//
-//	while (borderOffset + offset*nrOfPerks > width - rectSize && borderOffset > 0 && offset > 0)
-//	{
-//		borderOffset -= 10;
-//		offset -= 10;
-//	}
-//
-//	for (size_t i = 0; i < nrOfPerks; i++)
-//	{
-//
-//		perkSpots[i].x = (borderOffset + offset*i);
-//		perkSpots[i].y = 400;
-//	}
-//	perkIndex = new int[nrOfPerks];
-//
-//	for (size_t i = 0; i < nrOfPerks; i++)
-//	{
-//		int randomIndex = CoreInit::subSystems.window->GetRand() % fileParser.skillButtonVec.size();
-//		int count = 0;
-//		while (count < nrOfPerks)
-//		{
-//			if (randomIndex == perkIndex[count])
-//			{
-//				randomIndex =  CoreInit::subSystems.window->GetRand() % fileParser.perkButtonVec.size();
-//				int count = 0;
-//			}
-//			else
-//			{
-//				count++;
-//			}
-//		}
-//		perkIndex[i] = randomIndex;
-//	}
-//
-//	for (size_t k = 0; k < nrOfPerks; k++)
-//	{
-//		fileParser.perkButtonVec[perkIndex[k]].PositionX = perkSpots[k].x;
-//		fileParser.perkButtonVec[perkIndex[k]].PositionY = perkSpots[k].y;
-//	}
-//
-//	//	draws the selected buttons on the screen
-//	fileParser.InitiateSkillsNperks(perkIndex, nrOfPerks, false);
-//}
-
 void SE::Gameplay::CharacterCreationState::getSkills()
 {
 	StartProfile;
@@ -348,6 +243,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 			{
 				skillButton.skillIndex = indexPLaceHolder;
 				skillButton.bindButton = skillChoice;
+
 				fileParser.GUIButtons.CreateButton(
 					anchorX,
 					anchorY,
@@ -362,16 +258,23 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					skillButton.PressTex,
 					""
 					);
+							
 			}
 		}
-	
-
-
-		//PlayerUnit::addPlayerSkills(s1);
 	}
 	fileParser.GUIButtons.DrawButtons();
 	OtherSkills.clear();
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::CharacterCreationState::getPerks()
+{
+	StartProfile;
+	int offset = 225;
+	int borderOffset = 200;
+	int rectSize = 100;
+
+
 }
 
 void SE::Gameplay::CharacterCreationState::importSkillButtons()

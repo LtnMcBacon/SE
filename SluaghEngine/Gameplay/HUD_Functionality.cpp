@@ -15,7 +15,7 @@ namespace SE
 		{
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
+	/*	void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
 		{
 			StartProfile;
 			ButtonElement tempElement;
@@ -34,7 +34,7 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
-		}
+		}*/
 
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string hoverTex, string PressTex, string buttonText)
 		{
@@ -257,6 +257,11 @@ namespace SE
 
 					DrawButtonText(ButtonElement);
 				}
+
+				if (ButtonElement.skillButton)
+				{
+					SkillNPerkEntityVec.push_back(entity);
+				}
 			}
 			ProfileReturnVoid;
 		}
@@ -417,6 +422,20 @@ namespace SE
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
 				
 			}
+			ProfileReturnVoid;
+		}
+
+		void HUDButtons::deleteSkillPerkBtns()
+		{
+			StartProfile;
+
+			for (auto& entity : SkillNPerkEntityVec)
+			{
+				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
+				CoreInit::managers.entityManager->Destroy(entity);
+			}
+			SkillNPerkEntityVec.clear();
+
 			ProfileReturnVoid;
 		}
 
