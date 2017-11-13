@@ -110,6 +110,7 @@ namespace SE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			FbxAMatrix				 GetGeometryTransformation(FbxNode* node);
+			FbxVector4				 GetChannelValues(FbxAnimCurve* X, FbxAnimCurve* Y, FbxAnimCurve* Z, int timeIndex);
 			unsigned int			 FindJointIndexByName(std::string& jointName, Skeleton skeleton);
 			void					 ConvertToLeftHanded(FbxAMatrix &matrix);
 			FbxMesh*				 GetMeshFromRoot(FbxNode* node, string meshName);

@@ -978,22 +978,18 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	beingRendered = render;
 }
 
-SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY, float pickingX, float pickingY)
+SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY)
 {
 	for (int i = 0; i < 4; i++)
 	{
 		if (DoorArr[i].active)
 		{
-			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 2)
+			if (sqrt((DoorArr[i].xPos - playerX) * (DoorArr[i].xPos - playerX) + (DoorArr[i].yPos - playerY) * (DoorArr[i].yPos - playerY)) <= 1.5f)
 			{
-				if (sqrt((DoorArr[i].xPos - pickingX) * (DoorArr[i].xPos - pickingX) + (DoorArr[i].yPos - pickingY) * (DoorArr[i].yPos - pickingY)) <= 1.0f)
-				{
 					return DoorArr[i].side;
-				}
 			}
 		}
 	}
-
 
 	return SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE;
 }

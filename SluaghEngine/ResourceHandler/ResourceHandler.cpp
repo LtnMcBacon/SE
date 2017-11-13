@@ -237,16 +237,33 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 
 
-void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid, UnloadFlags unloadFlags)
+void SE::ResourceHandler::ResourceHandler::UnloadResource(const Utilz::GUID & guid, ResourceType type)
 {
 	StartProfile;
 
-	if(unloadFlags & UnloadFlags::RAM)
+	if(type & ResourceType::RAM)
 		Utilz::OperateSingle(guidToRAMEntry, guid, decRef);
-	if (unloadFlags & UnloadFlags::VRAM)
+	else if (type & ResourceType::VRAM)
 		Utilz::OperateSingle(guidToVRAMEntry, guid, decRef);
 
 	StopProfile;
+}
+
+bool SE::ResourceHandler::ResourceHandler::IsResourceLoaded(const Utilz::GUID & guid, ResourceType type)
+{
+	bool found = false;
+	if (type & ResourceType::RAM)
+		Utilz::Find(guidToRAMEntry, guid, [&found](auto& r) {
+		if (r->second.state & State::LOADED)
+			found = true;
+	});
+	else if (type & ResourceType::VRAM)
+		Utilz::Find(guidToVRAMEntry, guid, [&found](auto& r) {
+		if (r->second.state & State::LOADED)
+			found = true;
+	});
+
+	return found;
 }
 
 static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& errors)
@@ -316,7 +333,10 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 			if (lresult & LoadReturn::NO_DELETE)
 				resource.state |= State::RAW;
 			else
-				operator delete (rawData.data);
+			{
+				operator delete(rawData.data);
+				rawData.size = 0;
+			}
 			if (lresult & LoadReturn::FAIL)
 			{
 				resource.state = State::FAIL;

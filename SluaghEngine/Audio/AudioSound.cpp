@@ -144,15 +144,25 @@ namespace SE {
 			{
 				case MasterVol:
 				{
+					if (masterVol != 0)
+					{
+						bakgroundVol = bakgroundVol * (10000 / masterVol);
+						effectVol = effectVol * (10000 / masterVol);
+					}
 					masterVol = newVol;
+					bakgroundVol = (masterVol * newVol) / 10000;
+					effectVol = (masterVol * newVol) / 10000;
+					break;
 				}
 				case BakgroundVol:
 				{
 					bakgroundVol = (masterVol * newVol) / 10000;
+					break;
 				}
 				case EffectVol:
 				{
-					effectVol = (masterVol * newVol) / 10000;;
+					effectVol = (masterVol * newVol) / 10000;
+					break;
 				}
 			}
 		}

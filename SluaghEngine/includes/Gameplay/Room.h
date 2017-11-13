@@ -349,7 +349,7 @@ namespace SE
 			* @retval What direction the room to transition into is, if DIRECTION_ADJACENT_ROOM_NONE then no transition should be done
 			*
 			*/
-			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY, float pickingX, float pickingY);
+			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
