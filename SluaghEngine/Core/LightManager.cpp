@@ -90,7 +90,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		}
 		anyTogglesThisFrame = true;
 	}
-
+	dirtyEntites.clear();
 
 	
 	if (anyTogglesThisFrame)

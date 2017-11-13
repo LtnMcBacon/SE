@@ -998,6 +998,7 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(roomEntities[i], render);
+		CoreInit::managers.eventManager->ToggleShadow(roomEntities[i], render);
 	}
 	for(auto enemy : enemyUnits)
 	{

@@ -359,12 +359,16 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
 
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
-			Graphics::RenderJob info;
-			CreateShadowRenderObjectInfo(find->second, &info);
-			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
-			if (shadowInstancing)
+			if (shadow)
 			{
+				Graphics::RenderJob info;
+				CreateShadowRenderObjectInfo(find->second, &info);
+				shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
 				shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			}
+			else
+			{
+				shadowInstancing->RemoveEntity(entity);
 			}
 
 		}
@@ -445,7 +449,7 @@ void SE::Core::RenderableManager::Init()
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
 	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
-
+	initInfo.eventManager->RegisterToToggleShadow({ this, &RenderableManager::ToggleShadow });
 
 	ResourceHandler::Callbacks meshCallbacks;
 	meshCallbacks.loadCallback = loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize) 

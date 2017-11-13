@@ -67,7 +67,7 @@ for (int i = 0; i < nrOfLights.x; i++)
 	light = pointLights[i].pos.xyz - input.PosInW;
 	distance = length(light);
 	float divby = (distance / pointLights[i].pos.w) + 1.0f;
-	attenuation = 1.0f / (divby * divby);
+	attenuation = (1.0f / (divby * divby)) - 0.25f;
 
 	light /= distance;
 
@@ -91,6 +91,6 @@ for (int i = 0; i < nrOfLights.x; i++)
 	diffuseContribution += normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 }
 
-return saturate(float4(textureColor.rgb * (diffuseContribution + specularContribution + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
+return saturate(float4(textureColor.rgb * (attenuation * (diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
 
 }

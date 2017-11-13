@@ -330,14 +330,15 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
-	CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 1.2f, 0.0f });
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
-	lightInfo.color = { 1.0f, 1.0f, 1.0f };
-	lightInfo.radius = 100.0f;
+	lightInfo.color = { 0.94f, 0.82f, 0.15f };
+	lightInfo.radius = 20.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
