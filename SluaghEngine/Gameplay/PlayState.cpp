@@ -227,7 +227,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_GLAISTIG;
+			data.type = ENEMY_TYPE_RANDOM;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
