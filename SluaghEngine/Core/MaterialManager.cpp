@@ -148,27 +148,6 @@ SE::Core::MaterialManager::~MaterialManager()
 void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
 {
 	StartProfile;
-	auto find = entityToMaterialInfo.find(entity);
-	if (find != entityToMaterialInfo.end())
-		ProfileReturnVoid;
-	
-	// Check if the entity is alive
-	if (!initInfo.entityManager->Alive(entity))
-		ProfileReturnVoid;
-
-	// Make sure we have enough memory.
-	if (materialInfo.used + 1 > materialInfo.allocated)
-		Allocate(materialInfo.allocated * 2);
-
-	// Register the entity
-	size_t newEntry = materialInfo.used++;
-	entityToMaterialInfo[entity] = newEntry;
-	materialInfo.entity[newEntry] = entity;
-	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
-	materialInfo.shader[newEntry] = defaultPixelShader; 
-	materialInfo.material[newEntry] = defaultMaterialInfo;
-	materialInfo.materialGUID[newEntry] = defaultMaterial;
-
 
 	ResourceHandler::Callbacks shaderCallbacks;
 	shaderCallbacks.loadCallback = shaderLoadCallback;
@@ -206,15 +185,43 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 				mdata->textureInfo.textures[i] = defaultTexture;
 		}
 
-		if (!toUpdate.push({guid, info.materialFile, mdata, entity }))
+		if (!toUpdate.push({ guid, info.materialFile, mdata, entity }))
 			return ResourceHandler::InvokeReturn::FAIL;
 
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 
-	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks,  ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	auto find = entityToMaterialInfo.find(entity);
+	if (find == entityToMaterialInfo.end())
+	{
+		// Check if the entity is alive
+		if (!initInfo.entityManager->Alive(entity))
+			ProfileReturnVoid;
+
+		// Make sure we have enough memory.
+		if (materialInfo.used + 1 > materialInfo.allocated)
+			Allocate(materialInfo.allocated * 2);
+
+		// Register the entity
+		size_t newEntry = materialInfo.used++;
+		entityToMaterialInfo[entity] = newEntry;
+		materialInfo.entity[newEntry] = entity;
+		materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
+		materialInfo.shader[newEntry] = defaultPixelShader;
+		materialInfo.material[newEntry] = defaultMaterialInfo;
+		materialInfo.materialGUID[newEntry] = defaultMaterial;
 
 
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	}
+	else
+	{
+		materialInfo.bloom[find->second] = info.bloom ? 1u : 0u;
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	}
 	StopProfile;
 }
 
@@ -282,9 +289,9 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	const Entity last_entity = materialInfo.entity[last];
 
 	for (uint32_t i = 0; i < materialInfo.material[index]->textureInfo.numTextures; i++)
-		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::UnloadFlags::VRAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::UnloadFlags::RAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::UnloadFlags::VRAM);
+		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::ResourceType::VRAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::ResourceType::RAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::ResourceType::VRAM);
 	
 	// Copy the data
 	materialInfo.entity[index] = last_entity;

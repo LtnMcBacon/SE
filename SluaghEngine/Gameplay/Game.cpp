@@ -89,6 +89,7 @@ void SE::Gameplay::Game::Run()
 				{
 					delete state;
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
 			 }
