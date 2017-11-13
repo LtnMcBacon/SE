@@ -37,13 +37,14 @@ namespace SE
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
-			 enum  State
+			enum  State
 			{
 				MAIN_MENU_STATE = 0,
 				PLAY_STATE = 1,
 				GAME_OVER_STATE = 2,
 				CHARACTER_CREATION_STATE = 3,
-				PAUSE_STATE = 4
+				PAUSE_STATE = 4,
+				QUIT_GAME = 5
 			};
 
 			 
