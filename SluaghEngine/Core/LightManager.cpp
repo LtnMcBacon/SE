@@ -188,6 +188,17 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 
 }
 
+void SE::Core::LightManager::SetColor(const Entity& entity, float rgb[3])
+{
+	auto exists = entityToLightData.find(entity);
+	if (exists == entityToLightData.end())
+		return;
+
+	exists->second.colour.x = rgb[0];
+	exists->second.colour.y = rgb[1];
+	exists->second.colour.z = rgb[2];
+}
+
 void SE::Core::LightManager::Destroy(size_t index)
 {
 	StartProfile;

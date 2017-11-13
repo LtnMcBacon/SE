@@ -140,6 +140,8 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
+
+
 }
 
 void PlayState::InitializeRooms()
@@ -330,15 +332,15 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 1.2f, 0.0f });
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 2.05f, 0.0f });
 	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
 	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
-	lightInfo.color = { 0.94f, 0.82f, 0.15f };
-	lightInfo.radius = 20.0f;
+	lightInfo.color = { 0.74f, 0.92f, 0.95f };
+	lightInfo.radius = 15.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
