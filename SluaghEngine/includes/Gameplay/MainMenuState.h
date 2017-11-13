@@ -43,9 +43,11 @@ namespace SE
 			* @warning Not fully implemented.
 			*
 			*/
+
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
 			IGameState::State CurrentState;
+
 			
 
 		private:
