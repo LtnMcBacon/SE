@@ -249,7 +249,6 @@ int main()
 		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
-		ImGui::SliderFloat3("Emit position", &movBuffer.emitPos[0], -5.0f, 5.0f);
 		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
