@@ -21,7 +21,7 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.transformManager->Create(torch);
 	managers.transformManager->BindChild(torch, fire);
 	managers.renderableManager->ToggleRenderableObject(torch, true);
-	managers.particleSystemManager->CreateSystem(frost, { "frostBall.txt" });
+	managers.particleSystemManager->CreateSystem(frost, { "frostBall.pts" });
 	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
 	Core::ICameraManager::CreateInfo camInfo;
 	camInfo.posistion = { 0.0f, 0.0f, -20.0f };
