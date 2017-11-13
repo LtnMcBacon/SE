@@ -125,6 +125,8 @@
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkData.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
@@ -158,7 +160,6 @@
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
-    <ClInclude Include="PerkImporter.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
