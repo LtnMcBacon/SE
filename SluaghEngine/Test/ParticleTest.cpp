@@ -21,7 +21,7 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.transformManager->Create(torch);
 	managers.transformManager->BindChild(torch, fire);
 	managers.renderableManager->ToggleRenderableObject(torch, true);
-	managers.particleSystemManager->CreateSystem(frost, { "frostBall.txt" });
+	managers.particleSystemManager->CreateSystem(frost, { "frostBall.pts" });
 	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
 	managers.particleSystemManager->ToggleVisible(fire, true);
 	managers.particleSystemManager->ToggleVisible(frost, true);
