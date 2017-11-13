@@ -146,6 +146,8 @@ void PlayState::InitializeRooms()
 
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
+		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
+
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
