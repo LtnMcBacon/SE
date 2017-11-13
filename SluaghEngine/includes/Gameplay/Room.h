@@ -65,31 +65,45 @@ namespace SE
 				Grass,
 				FloorTorch
 			};
-
+			enum class Materials {
+				Stone,
+				FloorStone,
+				FloorWood,
+				DoorMat,
+				WallStone,
+				WallWood,
+				Bush,
+				Dirt,
+				Grass
+			};
 
 			struct CreationArguments
 			{
 				SE::Core::Entity ent;
 				int i;
 				int j;
-				Core::IMaterialManager::CreateInfo mat;
 				int doorCounter;
+				Core::IMaterialManager::CreateInfo mat;
+				SE::Utilz::GUID wallMat;
+				SE::Utilz::GUID floorMat;
 			};
 
 
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
 			std::map<Meshes, SE::Utilz::GUID> Meshes;
+			std::map<Materials, SE::Utilz::GUID> Materials;
 
-			static const char id_Props = 137;
-			static const char id_Torch = 203;
-			static const char id_Floor = 0;
+
+			static const char id_Props    = 137;
+			static const char id_Torch    = 203;
+			static const char id_Floor    = 0;
 			static const char id_DeadArea = 76;
-			static const char id_Door1 = 22;
-			static const char id_Door2 = 48;
-			static const char id_Wall = 255;
-			static const char id_Pillar = 225;
-			static const char id_Bush = 13;
+			static const char id_Door1    = 22;
+			static const char id_Door2    = 48;
+			static const char id_Wall     = 255;
+			static const char id_Pillar   = 225;
+			static const char id_Bush     = 13;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -327,6 +341,8 @@ namespace SE
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
+			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
+
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
@@ -485,7 +501,7 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+			const SE::Utilz::GUID GenerateRandomProp(int x, int y, CreationArguments &args);
 
 			/**
 			* @brief
