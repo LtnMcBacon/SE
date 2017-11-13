@@ -16,7 +16,7 @@ SE::Gameplay::Status SE::Gameplay::StunnedCondition::Update()
 {
 	StartProfile;
 
-	if (enemyBlackboard->activeCondition == Boons::CONDITIONAL_BOONS_STUN)
+	if (enemyBlackboard->activeBoon == Boons::CONDITIONAL_BOONS_STUN)
 	{
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 		enemyBlackboard->channeling = false;
