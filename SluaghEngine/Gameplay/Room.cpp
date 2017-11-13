@@ -1091,10 +1091,11 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Table_round]  = { "Table_round.mesh"         };
 	Meshes[Meshes::Chair]        = { "Chair.mesh"               };
 	Meshes[Meshes::Bush]         = { "Bush.mesh"                };
-
+	Meshes[Meshes::TableGroup1] = { "Table_group1.mesh" };
 
 	// 4x4 tile props - add more here
-	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch] };
+	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch], Meshes[Meshes::TableGroup1] };
+
 
 	propVectors[PropTypes::TABLES]   = { Meshes[Meshes::Table_small], Meshes[Meshes::Table_round] };
 	propVectors[PropTypes::CHAIRS]   = { Meshes[Meshes::Chair] };
@@ -1314,7 +1315,7 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
-	auto nrOfProps = propVectors[PropTypes::BIGPROPS].size();
+	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto propId = (rand % nrOfProps);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId], true });
@@ -1438,6 +1439,8 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	}
 	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j + 1] == id_Props) {
 		// big prop 2x2
+		CoreInit::managers.transformManager->Create(args.ent);
+		CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(i + 1.0f, 0.0f, j + 1.0f));
 		tileValues[i][j + 1] = 100;
 		tileValues[i + 1 ][j] = 100;
 		tileValues[i + 1 ][j + 1] = 100;

@@ -63,7 +63,8 @@ namespace SE
 				Table_small,
 				Table_round,
 				Grass,
-				FloorTorch
+				FloorTorch,
+				TableGroup1
 			};
 			enum class Materials {
 				Stone,
