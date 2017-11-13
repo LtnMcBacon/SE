@@ -18,7 +18,7 @@ namespace SE
 		struct Weapon
 		{
 			static Core::Entity CreateWeapon(DirectX::XMFLOAT3 pos);
-
+			static void ToggleRenderPickupInfo(Core::Entity ent);
 
 			static int GetRandStr();
 			static int GetRandAgi();

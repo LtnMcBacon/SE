@@ -319,6 +319,8 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	// Copy the data
 	collisionData.entity[index] = last_entity;
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
+	collisionData.sphereWorld[index] = collisionData.sphereWorld[last];
+	collisionData.AABBWorld[index] = collisionData.AABBWorld[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
 
 	// Replace the index for the last_entity 

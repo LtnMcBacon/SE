@@ -119,7 +119,6 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 
 void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& newProjectiles)
 {
-	noShow = false;
 	projectileManager->AddProjectiles(newProjectiles);
 
 	projectileManager->UpdateProjectilePositions(input->GetDelta());
@@ -336,123 +335,53 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		CoreInit::managers.entityManager->DestroyNow(ent); // Just save the entity instead and use it as the picket up weapon as well.
 	};
 
-	long offset = -125;
-	long he = 35;
-	Core::ITextManager::CreateInfo ciname;
-	ciname.font = "CloisterBlack.spritefont";
-	ciname.info.posX = -35;
-	ciname.info.posY = offset;
-	ciname.info.screenAnchor = { 0.5f, 0.5f };
-	ciname.info.anchor = { 1,0.0f };
-	ciname.info.scale = { 0.4f, 1.0f };
-	ciname.info.height = he;
-	auto weaponName = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponName, ciname);
-	offset += he + 3;
-	
-	Core::ITextManager::CreateInfo citype;
-	citype.font = "CloisterBlack.spritefont";
-	citype.info.posX = -35;
-	citype.info.posY = offset;
-	citype.info.screenAnchor = { 0.5f, 0.5f };
-	citype.info.anchor = { 1,0.0f };
-	citype.info.scale = { 0.4f, 1.0f };
-	citype.info.height = he;
-	auto weaponType = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponType, citype);
-	offset += he + 3;
-
-
-	Core::ITextManager::CreateInfo cielement;
-	cielement.font = "CloisterBlack.spritefont";
-	cielement.info.posX = -35;
-	cielement.info.posY = offset;
-	cielement.info.screenAnchor = { 0.5f, 0.5f };
-	cielement.info.anchor = { 1,0.0f };
-	cielement.info.scale = { 0.4f, 1.0f };
-	cielement.info.height = he;
-	cielement.info.colour = { 0.7f,0.7f,0.7f,1 };
-	auto weaponElement = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponElement, cielement);
-	offset += he + 3;
-
-
-	Core::ITextManager::CreateInfo cidamage;
-	cidamage.font = "CloisterBlack.spritefont";
-	cidamage.info.posX = -35;
-	cidamage.info.posY = offset;
-	cidamage.info.screenAnchor = { 0.5f, 0.5f };
-	cidamage.info.anchor = { 1,0.0f };
-	cidamage.info.scale = { 0.4f, 1.0f };
-	cidamage.info.height = he;
-	auto weaponDamage = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
-	offset += he + 3;
-
-	cidamage.font = "CloisterBlack.spritefont";
-	cidamage.info.posX = -35;
-	cidamage.info.posY = offset;
-	cidamage.info.screenAnchor = { 0.5f, 0.5f };
-	cidamage.info.anchor = { 1,0.0f };
-	cidamage.info.scale = { 0.4f, 1.0f };
-	cidamage.info.height = he;
-	auto weaponHealth = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponHealth, cidamage);
-	offset += he + 3;
-
-	Core::IGUIManager::CreateInfo ciback;
-	ciback.texture = "Crossbow_texture_wood.jpg";
-	ciback.textureInfo.width = 200;
-	ciback.textureInfo.height = 200;
-	ciback.textureInfo.posX = -30;
-	ciback.textureInfo.posY = -130;
-	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
-	ciback.textureInfo.anchor = { 1.0, 0.0f };
-	auto weaponBack = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.guiManager->Create(weaponBack, ciback);
-
-	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack, weaponDamage, weaponHealth, this](const Core::Entity ent, void* data) {
-		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT))
 		{
-			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
-			std::wstring ws;
-			ws.assign(s.begin(), s.end());
-			CoreInit::managers.textManager->SetText(weaponName, ws);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
-
-			auto type = WeaponType( std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1)));
-			CoreInit::managers.textManager->SetText(weaponType, Weapon::GetWString(type));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
-
-			auto element = Element(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
-			CoreInit::managers.textManager->SetText(weaponElement, Weapon::GetWString(element));
-			CoreInit::managers.textManager->SetTextColour(weaponElement, Weapon::GetElementColor(element));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
-
-			auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Damage", -1));
-			CoreInit::managers.textManager->SetText(weaponDamage, L"Damage: " + std::to_wstring(damage));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
-
-			auto hp = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Health", -1));
-			CoreInit::managers.textManager->SetText(weaponHealth, L"Health: " + std::to_wstring(hp));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponHealth, true);
-
-			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
-			noShow = true;
-			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
+			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 		}
-		else if(!noShow)
-		{
-			CoreInit::managers.textManager->ToggleRenderableText(weaponName, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponType, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponHealth, false);
-			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, false);
-		}
-
 		return false;
 	};
+
+	Core::IEventManager::EventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	{
+		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
+		if (vis)
+			return false;
+		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
+	};
+
+	startrenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	{
+	//	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
+		Weapon::ToggleRenderPickupInfo(ent);
+
+	};
+
+	Core::IEventManager::EventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	{
+		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
+		{
+			if (!CoreInit::managers.collisionManager->CheckCollision(*parent, pe)) {
+				return true;
+			}	
+		}
+		return false;
+	};
+
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	{
+		CoreInit::managers.entityManager->DestroyNow(ent);	
+		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
+		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
+		//CoreInit::managers.eventManager->RegisterEntitytoEvent(parent, "StartRenderWIC");
+
+	};
+	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
+	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
 	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
 
 }

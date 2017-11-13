@@ -104,6 +104,120 @@ SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int(ele));
 	CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
 
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 	return wep;
+}
+
+void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
+{
+	long offset = -125;
+	long he = 35;
+	Core::ITextManager::CreateInfo ciname;
+	auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
+	ciname.font = "CloisterBlack.spritefont";
+	ciname.info.posX = -35;
+	ciname.info.text = L"Test";
+	ciname.info.posY = offset;
+	ciname.info.screenAnchor = { 0.5f, 0.5f };
+	ciname.info.anchor = { 1,0.0f };
+	ciname.info.scale = { 0.4f, 1.0f };
+	ciname.info.height = he;
+	ciname.info.text.assign(s.begin(), s.end());
+	auto weaponName = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponName, ciname);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponName, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponName, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
+
+	offset += he + 3;
+
+	Core::ITextManager::CreateInfo citype;
+	citype.font = "CloisterBlack.spritefont";
+	citype.info.posX = -35;
+	citype.info.posY = offset;
+	citype.info.screenAnchor = { 0.5f, 0.5f };
+	citype.info.anchor = { 1,0.0f };
+	citype.info.scale = { 0.4f, 1.0f };
+	citype.info.height = he;
+	auto type = WeaponType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1)));
+	citype.info.text = Weapon::GetWString(type);
+	auto weaponType = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponType, citype);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponType, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponType, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
+
+	offset += he + 3;
+
+	Core::ITextManager::CreateInfo cielement;
+	cielement.font = "CloisterBlack.spritefont";
+	cielement.info.posX = -35;
+	cielement.info.posY = offset;
+	cielement.info.screenAnchor = { 0.5f, 0.5f };
+	cielement.info.anchor = { 1,0.0f };
+	cielement.info.scale = { 0.4f, 1.0f };
+	cielement.info.height = he;
+	auto element = Element(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
+	cielement.info.colour = Weapon::GetElementColor(element);
+	cielement.info.text = Weapon::GetWString(element);
+	auto weaponElement = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponElement, cielement);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponElement, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponElement, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
+
+	offset += he + 3;
+
+
+	Core::ITextManager::CreateInfo cidamage;
+	cidamage.font = "CloisterBlack.spritefont";
+	cidamage.info.posX = -35;
+	cidamage.info.posY = offset;
+	cidamage.info.screenAnchor = { 0.5f, 0.5f };
+	cidamage.info.anchor = { 1,0.0f };
+	cidamage.info.scale = { 0.4f, 1.0f };
+	cidamage.info.height = he;
+	auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Damage", -1));
+	cidamage.info.text = L"Damage: " + std::to_wstring(damage);
+	auto weaponDamage = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponDamage, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponDamage, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
+	offset += he + 3;
+
+	cidamage.font = "CloisterBlack.spritefont";
+	cidamage.info.posX = -35;
+	cidamage.info.posY = offset;
+	cidamage.info.screenAnchor = { 0.5f, 0.5f };
+	cidamage.info.anchor = { 1,0.0f };
+	cidamage.info.scale = { 0.4f, 1.0f };
+	cidamage.info.height = he;
+	auto hp = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Health", -1));
+	cidamage.info.text = L"Health: " + std::to_wstring(hp);
+	auto weaponHealth = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponHealth, cidamage);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponHealth, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponHealth, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponHealth, true);
+	offset += he + 3;
+
+
+	Core::IGUIManager::CreateInfo ciback;
+	ciback.texture = "Crossbow_texture_wood.jpg";
+	ciback.textureInfo.width = 200;
+	ciback.textureInfo.height = 200;
+	ciback.textureInfo.posX = -30;
+	ciback.textureInfo.posY = -130;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0, 0.0f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", ent);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
 }
