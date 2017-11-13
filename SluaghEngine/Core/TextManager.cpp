@@ -48,17 +48,14 @@ namespace SE {
 					}
 				}
 			}
-			
 
-			entID[entity].ID = loadedTexts.size();
-			entID[entity].font = font;
-			textEnt.push_back(entity);
-			loadedTexts.push_back(info.info);
-		/*	if (!loadedTexts[loadedTexts.size() - 1].anchor)
+			auto const find = entityToEntry.find(entity);
+			if (find == entityToEntry.end())
 			{
-				loadedTexts[loadedTexts.size() - 1].pos = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].pos.x / width, loadedTexts[loadedTexts.size() - 1].pos.y / height);
-				loadedTexts[loadedTexts.size() - 1].scale = DirectX::XMFLOAT2(loadedTexts[loadedTexts.size() - 1].scale.x / width, loadedTexts[loadedTexts.size() - 1].scale.y / height);
-			}*/
+				entityToEntry[entity].info = info.info;
+				entityToEntry[entity].font = font;
+				indexToEntity.push_back(entity);
+			}
 			ProfileReturnVoid;
 		}
 
@@ -66,22 +63,23 @@ namespace SE {
 		{
 			StartProfile;
 			// chexk if entity exist in text 
-			auto fileLoaded = entID.find(entity);
-			if (fileLoaded != entID.end())
+			auto entry = entityToEntry.find(entity);
+			if (entry != entityToEntry.end())
 			{
-				if (show && !fileLoaded->second.show)
+				if (show && !entry->second.show)
 				{
-					fileLoaded->second.jobID = initInfo.renderer->EnableTextRendering({ guidToFont[fileLoaded->second.font], originalScreenWidth, originalScreenHeight,  loadedTexts[fileLoaded->second.ID] });
-					textJobobToEnt[fileLoaded->second.jobID] = entity;
-					fileLoaded->second.show = true;
+					Graphics::TextJob tj;
+					tj.fontID = guidToFont[entry->second.font];
+					tj.originalScreenHeight = originalScreenHeight;
+					tj.originalScreenWidth = originalScreenWidth;
+					tj.info = entry->second.info;
+					entry->second.jobID = initInfo.renderer->EnableTextRendering(tj);
+					entry->second.show = true;
 				}
-				else if (!show && fileLoaded->second.show)
+				else if (!show && entry->second.show)
 				{
-					size_t tempJobID = initInfo.renderer->DisableTextRendering(fileLoaded->second.jobID);
-					fileLoaded->second.show = false;
-					entID[textJobobToEnt[tempJobID]].jobID = fileLoaded->second.jobID;
-					textJobobToEnt[fileLoaded->second.jobID] = textJobobToEnt[tempJobID];
-					textJobobToEnt.erase(tempJobID);
+					initInfo.renderer->DisableTextRendering(entry->second.jobID);
+					entry->second.show = false;
 				}
 			}
 			StopProfile;
@@ -106,7 +104,7 @@ namespace SE {
 				// Check if the entity is alive
 				if (!initInfo.entityManager->Alive(dirt.first))
 					continue;
-				if (dirt.second == true && entID[dirt.first].show == true)
+				if (dirt.second == true && entityToEntry[dirt.first].show == true)
 				{
 					ToggleRenderableText(dirt.first, false);
 					ToggleRenderableText(dirt.first, true);
@@ -122,17 +120,16 @@ namespace SE {
 		void TextManager::updateText()
 		{
 			StartProfile;
-			if (loadedTexts.size() > 0)
+
+			for (auto& entity : entityToEntry)
 			{
-				for (auto& entity : textEnt)
+				if (entity.second.show)
 				{
-					if (entID[entity].show)
-					{
-						ToggleRenderableText(entity, false);
-						ToggleRenderableText(entity, true);
-					}
+					ToggleRenderableText(entity.first, false);
+					ToggleRenderableText(entity.first, true);
 				}
 			}
+
 			StopProfile;
 		}
 
@@ -140,19 +137,13 @@ namespace SE {
 		{
 			StartProfile;
 			// Temp variables
-			size_t last = loadedTexts.size() - 1;
-			const Entity entity = textEnt[index];
-			const Entity last_entity = textEnt[last];
+			size_t last = indexToEntity.size() - 1;
 
-			// Copy the data
-			textEnt[index] = last_entity;
-			loadedTexts[index] = loadedTexts[last];
-			entID[last_entity].ID = entID[entity].ID;
+			entityToEntry.erase(indexToEntity[index]);
+			indexToEntity[index] = indexToEntity[last];
 
 			// Remove last spot 
-			entID.erase(entity);
-			loadedTexts.pop_back();
-			textEnt.pop_back();
+			indexToEntity.pop_back();
 			StopProfile;
 		}
 
@@ -160,17 +151,17 @@ namespace SE {
 		{
 			StartProfile;
 			uint32_t alive_in_row = 0;
-			while (loadedTexts.size() > 0 && alive_in_row < 4U)
+			while (indexToEntity.size() > 0 && alive_in_row < 4U)
 			{
-				std::uniform_int_distribution<uint32_t> distribution(0U, loadedTexts.size() - 1U);
+				std::uniform_int_distribution<uint32_t> distribution(0U, indexToEntity.size() - 1U);
 				uint32_t i = distribution(generator);
-				if (initInfo.entityManager->Alive(textEnt[i]))
+				if (initInfo.entityManager->Alive(indexToEntity[i]))
 				{
 					alive_in_row++;
 					continue;
 				}
 				alive_in_row = 0;
-				ToggleRenderableText(textEnt[i], false);
+				ToggleRenderableText(indexToEntity[i], false);
 				Destroy(i);
 			}
 			StopProfile;
@@ -179,25 +170,25 @@ namespace SE {
 		void TextManager::Destroy(const Entity & entity)
 		{
 			StartProfile;
-			auto fileLoaded = entID.find(entity);
-			if (fileLoaded != entID.end())
-			{
-				// Temp variables
-				size_t last = loadedTexts.size() - 1;
-				size_t index = entID[entity].ID;
-				const Entity currentEntity = textEnt[index];
-				const Entity last_entity = textEnt[last];
+			//auto entry = entityToEntry.find(entity);
+			//if (entry != entityToEntry.end())
+			//{
+			//	// Temp variables
+			//	size_t last = loadedTexts.size() - 1;
+			//	size_t index = entID[entity].ID;
+			//	const Entity currentEntity = textEnt[index];
+			//	const Entity last_entity = textEnt[last];
 
-				// Copy the data
-				textEnt[index] = last_entity;
-				loadedTexts[index] = loadedTexts[last];
-				entID[last_entity].ID = entID[currentEntity].ID;
+			//	// Copy the data
+			//	textEnt[index] = last_entity;
+			//	loadedTexts[index] = loadedTexts[last];
+			//	entID[last_entity].ID = entID[currentEntity].ID;
 
-				// Remove last spot 
-				entID.erase(currentEntity);
-				loadedTexts.pop_back();
-				textEnt.pop_back();
-			}
+			//	// Remove last spot 
+			//	entID.erase(currentEntity);
+			//	loadedTexts.pop_back();
+			//	textEnt.pop_back();
+			//}
 
 			StopProfile;
 		}

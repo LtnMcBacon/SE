@@ -60,7 +60,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 
 	for(auto healing : HealingEventVector)
 	{
-		//health += healing.amount; For some reason, this get's called. Find the reason!
+		health += healing.amount;
 	}
 	
 	ProfileReturnVoid;
@@ -259,13 +259,29 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
+
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+		if (/*SkillType == Damage*/true)
+			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+		else
+			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+		
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
 		skills[0].currentCooldown = skills[0].coolDown;
+	}
+	else if (nrOfSKills > 0 && input.skill1Button)
+	{
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+		if (/*SkillType == Damage*/true)
+			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+		else
+			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 	}
 
 	if (nrOfSKills > 1 && skills[1].currentCooldown <= 0.0f && input.skill2Button)
@@ -279,13 +295,30 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, Utilz::GUID("DefaultAttackSound.wav"));
+
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+		uint8_t soundToPlay;
+		if (/*SkillType == Damage*/true)
+			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+		else
+			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
 		skills[1].currentCooldown = skills[1].coolDown;
+	}
+	else if (nrOfSKills > 1 && input.skill2Button)
+	{
+		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+		if (/*SkillType == Damage*/true)
+			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+		else
+			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+
+		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 	}
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown > 0.0f)
@@ -463,6 +496,42 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 	skills.clear();
 }
 
+void SE::Gameplay::PlayerUnit::PlayerSounds()
+{
+	playerAggroSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[3] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[4] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[5] = Utilz::GUID("DefaultAttackSound.wav");
+	playerHealingSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+	playerHealingSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
+	playerHealingSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroColdSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroColdSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
+	playerHealingColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+
+
+	for (int i = 0; i < nrAggroSounds; ++i)
+	{
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::StereoPanSound });
+	}
+	for (int i = 0; i < nrHealingSounds; ++i)
+	{
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::StereoPanSound });
+	}
+	for (int i = 0; i < nrAggroColdSounds; ++i)
+	{
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::StereoPanSound });
+	}
+	for (int i = 0; i < nrHealingColdSounds; ++i)
+	{
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::StereoPanSound });
+	}
+
+}
+
 SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 1000)
 {
@@ -499,9 +568,10 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
 
-	CoreInit::managers.audioManager->Create(unitEntity, { Utilz::GUID("DefaultAttackSound.wav"), SE::Audio::StereoPanSound });
-
+	PlayerSounds();
 	InitializeAnimationInfo();
+
+
 
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
 	StopProfile;

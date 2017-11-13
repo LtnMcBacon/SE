@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 28283;
+//	_crtBreakAlloc = 5817;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	//AddTest(LightTest);
 	//AddTest(RecordingTest);
 	//AddTest(DebugRenderManagerTest);
-	AddTest(InstancingTest);
+	//AddTest(InstancingTest);
 
 	//AddTest(FlowFieldTest);
 	//AddTest(EnemyMovementTest);
@@ -105,9 +105,6 @@ int main(int argc, char** argv)
 	//AddTest(EnemyFactoryTest);
 	//AddTest(GlaistigTest);
 	//AddTest(SlaughTest);
-
-	AddTest(PickingTest);
-	AddTest(SkillTest);
 
 	//AddTest(PickingTest);
 	AddTest(ShadowTest);

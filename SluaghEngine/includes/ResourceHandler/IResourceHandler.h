@@ -53,7 +53,7 @@ namespace SE
 			IMMUTABLE = 1 << 3
 		};
 
-		enum class UnloadFlags {
+		enum class ResourceType {
 			VRAM = 1 << 0,
 			RAM = 1 << 1
 		};
@@ -173,11 +173,12 @@ namespace SE
 			* Either by dumping the memory to disk, or just discarding it.
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
-			* @param[in] unloadFlags See UnloadFlags.
+			* @param[in] type See ResourceType.
 			* @warning This does not force the resource to unload!
 			**/
-			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
+			virtual void UnloadResource(const Utilz::GUID& guid, ResourceType type) = 0;
 
+			virtual bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) = 0;
 
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
@@ -199,7 +200,7 @@ namespace SE
 ENUM_FLAGS(SE::ResourceHandler::LoadReturn);
 ENUM_FLAGS(SE::ResourceHandler::InvokeReturn);
 ENUM_FLAGS(SE::ResourceHandler::LoadFlags);
-ENUM_FLAGS(SE::ResourceHandler::UnloadFlags);
+ENUM_FLAGS(SE::ResourceHandler::ResourceType);
 
 
 #endif //SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_

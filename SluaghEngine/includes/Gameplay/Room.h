@@ -40,12 +40,56 @@ namespace SE
 			{
 				TABLES,
 				CHAIRS,
-				TORCHES_FLOOR,
 				TORCHES_WALL,
-				BUSHES
+				BUSHES,
+				BIGPROPS,
+				GENERIC
 			};
-			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
+			enum class Meshes {
+				HighWall,
+				Bush,
+				Chair,
+				Passage,
+				OneSide,
+				Corner,
+				Top,
+				ThreeSides,
+				Door,
+				Floor,
+				Torch,
+				Pillar_short,
+				Table_long,
+				Table_small,
+				Table_round,
+				Grass,
+				FloorTorch
+			};
+
+
+			struct CreationArguments
+			{
+				SE::Core::Entity ent;
+				int i;
+				int j;
+				Core::IMaterialManager::CreateInfo mat;
+				int doorCounter;
+			};
+
+
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
+			std::map<Meshes, SE::Utilz::GUID> Meshes;
+
+			static const char id_Props = 137;
+			static const char id_Torch = 203;
+			static const char id_Floor = 0;
+			static const char id_DeadArea = 76;
+			static const char id_Door1 = 22;
+			static const char id_Door2 = 48;
+			static const char id_Wall = 255;
+			static const char id_Pillar = 225;
+			static const char id_Bush = 13;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -305,7 +349,7 @@ namespace SE
 			* @retval What direction the room to transition into is, if DIRECTION_ADJACENT_ROOM_NONE then no transition should be done
 			*
 			*/
-			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY, float pickingX, float pickingY);
+			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -443,6 +487,35 @@ namespace SE
 			*/
 			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
 
+			/**
+			* @brief
+			*/
+			void CreateBush(CreationArguments &args);
+			/**
+			* @brief	
+			*/
+			void CreateFloor(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateTorch(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreatePillar(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateProp(CreationArguments &args);
+			/**
+			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
+			*/
+			void CreateWall2(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateDoor(CreationArguments &args);
+
 
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
@@ -469,7 +542,14 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
-
+			/**
+			* @brief Resets the tilevalues from 100 to 0
+			*
+			* @details When we find two tiles next to each other we create an object for both of those tiles even though we are still on only one of the tiles.
+			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
+			*/
+			void ResetTempTileValues();
+		
 			/**
 			* @brief set Room door pointer to values
 			*/

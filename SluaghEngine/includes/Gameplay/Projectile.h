@@ -169,9 +169,6 @@ namespace SE
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> tempStorage;
 
-			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
-			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
-
 			std::vector<BehaviourData> behaviourData;
 
 			float extentX;
