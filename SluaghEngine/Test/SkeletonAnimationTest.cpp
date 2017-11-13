@@ -117,10 +117,10 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC2, info);
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "MCModell.mesh";
-	sai.skeleton = "MCModell.skel";
+	sai.mesh = "Bodach.mesh";
+	sai.skeleton = "Bodach.skel";
 	sai.animationCount = 4;
-	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
+	Utilz::GUID anims[] = { "RunAnim_Bodach.anim", "LeapAnim_Bodach.anim", "DeathAnim_Bodach.anim", "AttackAnim_Bodach.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
@@ -128,14 +128,14 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
+	managers.animationManager->AttachToEntity(mainC, attachable, "Hand_Left", 0);
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
-	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "Bodach.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Bodach.mesh");
 
-	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
-	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
-	managers.animationManager->Start(mainC2, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE);
+	Utilz::GUID mainAnim[] = { "RunAnim_Bodach.anim" };
+	managers.animationManager->Start(mainC, mainAnim, 2, 10.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
+	managers.animationManager->Start(mainC2, mainAnim, 2, 10.0f, Core::AnimationFlags::IMMEDIATE);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -218,7 +218,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if (ImGui::Button("BlendToAndBack")) {
 
-			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
+			Utilz::GUID deathAnim = "RunAnim_Bodach.anim";
 			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
 		}
 
