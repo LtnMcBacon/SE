@@ -55,6 +55,7 @@ namespace SE
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
+			void CheckForRoomTransition();
 
 			Core::Entity cam;
 			Core::Entity dummy;
