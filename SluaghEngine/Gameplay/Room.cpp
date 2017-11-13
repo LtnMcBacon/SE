@@ -1074,31 +1074,33 @@ Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
 	// Every prop here:
-	Meshes[Meshes::HighWall]     = { "HighWall.mesh"            };
-	Meshes[Meshes::Passage]      = { "HighWall_Passage.mesh"    };
-	Meshes[Meshes::OneSide]      = { "HighWall_OneSide.mesh"    };
-	Meshes[Meshes::Corner]       = { "HighWall_Corner.mesh"     };
-	Meshes[Meshes::Top]          = { "HighWall_Top.mesh"        };
-	Meshes[Meshes::ThreeSides]   = { "HighWall_ThreeSides.mesh" };
-	Meshes[Meshes::Door]         = { "Door.mesh"                };
-	Meshes[Meshes::Floor]        = { "floorTest.mesh"           };
-	Meshes[Meshes::Torch]        = { "Torch_fbx.mesh"           };
-	Meshes[Meshes::Pillar_short] = { "Pillar_short.mesh"        };
-	Meshes[Meshes::Table_long]   = { "Table_long_fbx.mesh"      };
-	Meshes[Meshes::Grass]        = { "GreenPlane.mesh"          };
-	Meshes[Meshes::FloorTorch]   = { "FloorTorch.mesh"          };
-	Meshes[Meshes::Table_small]  = { "Table_small.mesh"         };
-	Meshes[Meshes::Table_round]  = { "Table_round.mesh"         };
-	Meshes[Meshes::Chair]        = { "Chair.mesh"               };
-	Meshes[Meshes::Bush]         = { "Bush.mesh"                };
-	Meshes[Meshes::TableGroup1] = { "Table_group1.mesh" };
+	Meshes[Meshes::HighWall]        = { "HighWall.mesh"            };
+	Meshes[Meshes::Passage]         = { "HighWall_Passage.mesh"    };
+	Meshes[Meshes::OneSide]         = { "HighWall_OneSide.mesh"    };
+	Meshes[Meshes::Corner]          = { "HighWall_Corner.mesh"     };
+	Meshes[Meshes::Top]             = { "HighWall_Top.mesh"        };
+	Meshes[Meshes::ThreeSides]      = { "HighWall_ThreeSides.mesh" };
+	Meshes[Meshes::Door]            = { "Door.mesh"                };
+	Meshes[Meshes::Floor]           = { "floorTest.mesh"           };
+	Meshes[Meshes::Torch]           = { "Torch_fbx.mesh"           };
+	Meshes[Meshes::Pillar_short]    = { "Pillar_short.mesh"        };
+	Meshes[Meshes::Table_long]      = { "Table_long_fbx.mesh"      };
+	Meshes[Meshes::Grass]           = { "GreenPlane.mesh"          };
+	Meshes[Meshes::FloorTorch]      = { "FloorTorch.mesh"          };
+	Meshes[Meshes::Table_small]     = { "Table_small.mesh"         };
+	Meshes[Meshes::Table_round]     = { "Table_round.mesh"         };
+	Meshes[Meshes::Chair]           = { "Chair.mesh"               };
+	Meshes[Meshes::Bush]            = { "Bush.mesh"                };
+	Meshes[Meshes::TableGroup1]     = { "Table_group1.mesh"        };
+	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
+
+
+
 
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch], Meshes[Meshes::TableGroup1] };
-
-
 	propVectors[PropTypes::TABLES]   = { Meshes[Meshes::Table_small], Meshes[Meshes::Table_round] };
-	propVectors[PropTypes::CHAIRS]   = { Meshes[Meshes::Chair] };
+	propVectors[PropTypes::MEDIUM]   = { Meshes[Meshes::Table_long], Meshes[Meshes::Candlestick_tri] };
 	propVectors[PropTypes::BUSHES]   = { Meshes[Meshes::Bush] };
 	// 1x1 tile props // Add more props here
 	propVectors[PropTypes::GENERIC]  =
@@ -1270,7 +1272,12 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		args2.i = x + 1;
 		args2.j = y;
 		CreateFloor(args2);
-		ProfileReturnConst(Meshes[Meshes::Table_long]);
+
+		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
+		auto rand = CoreInit::subSystems.window->GetRand();
+		auto propId = (rand % nrOfProps);
+
+		ProfileReturnConst(propVectors[PropTypes::MEDIUM][propId]);
 	}
 	// Else we check if its a 2x1 by checking if a prop is beneeth and not on the right side
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y] != id_Props)
@@ -1280,7 +1287,11 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		args2.i = x;
 		args2.j = y + 1;
 		CreateFloor(args2);
-		ProfileReturnConst(Meshes[Meshes::Table_long]);
+		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
+		auto rand = CoreInit::subSystems.window->GetRand();
+		auto propId = (rand % nrOfProps);
+
+		ProfileReturnConst(propVectors[PropTypes::MEDIUM][propId]);
 	}
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y + 1] == id_Props) {
 		// big prop 2x2

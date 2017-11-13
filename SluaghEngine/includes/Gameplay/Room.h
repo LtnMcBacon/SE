@@ -43,7 +43,8 @@ namespace SE
 				TORCHES_WALL,
 				BUSHES,
 				BIGPROPS,
-				GENERIC
+				GENERIC,
+				MEDIUM
 			};
 
 			enum class Meshes {
@@ -64,7 +65,8 @@ namespace SE
 				Table_round,
 				Grass,
 				FloorTorch,
-				TableGroup1
+				TableGroup1,
+				Candlestick_tri
 			};
 			enum class Materials {
 				Stone,
