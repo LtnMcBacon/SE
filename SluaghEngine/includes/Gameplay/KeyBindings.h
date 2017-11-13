@@ -1,7 +1,7 @@
 #ifndef _SE_GAMEPLAY_KEYBINDINGS_H
 #define _SE_GAMEPLAY_KEYBINDINGS_H
 
-enum class GameInput
+enum GameInput : uint32_t
 {
 	EXIT_GAME,
 	LEFT,
@@ -12,8 +12,11 @@ enum class GameInput
 	SKILL2,
 	ACTION,
 	CONSOLE,
-	STEP
+	STEP,
+	INTERACT
 
 };
+
+
 
 #endif

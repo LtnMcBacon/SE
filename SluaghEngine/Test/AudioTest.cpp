@@ -127,14 +127,14 @@ namespace SE
 				Graphics::GUITextureInfo guiTexture;
 				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture.effect = Graphics::Effect::BothFlipEffect;
-				guiTexture.layerDepth = 0.1;
+				guiTexture.layerDepth = 0;
 				guiTexture.posX = 0;
 				guiTexture.posY = 0;
 				guiTexture.rotation = 0;
-				guiTexture.width = -1;
-				guiTexture.height = -1;
-				guiTexture.screenAnchor = { 0.25f ,0.25f };
-				guiTexture.anchor = { 0.5f, 0.5f };
+				guiTexture.width = 100;
+				guiTexture.height = 100;
+				guiTexture.screenAnchor = { 0.5f ,0.5f };
+				guiTexture.anchor = { 1.0f, 0.5f };
 				guiTexture.scale = { 1.0f, 1.0f };
 				//guiTexture.rect = nullptr;	//not needed default nullptr
 
