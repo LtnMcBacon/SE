@@ -39,22 +39,28 @@ namespace SE
 		public:
 			SkillFactory();
 			int skillAmounts = 0;
+
+			/**
+			* @brief		Returns an array of 3 skill index positions
+			*
+			* @retval		return_value_1 unsigned int index array.
+			**/
+			unsigned int getRandomSkillIndex();
 			/**
 			* @brief		Returns the skill description.
 			* 
-			* @details		Function will give you only the skill description and return
-			*				the index from where the skill is placed in the file.
+			* @details		Function will give you only the skill description for the given
+			*				skill index.
 			*
+			* @param[in]	The index of the skill.
 			* @param[out]	name will return you the name of the skill.
 			* @param[out]	typeList The input must be an array of 6 unsigned short ints. 
 			*				Will return the description of the skill, must be manually
 			*				converted to the enum types in skill found in player.
 			*
 			* @Warning		Output value typeList must be manually converted into skill enums found in player.
-			*
-			* @retval		Returns the skill index position in the file
 			**/
-			unsigned int readSkillInfo(std::string& name, unsigned short int* typeList);
+			void readSkillInfo(unsigned int index, std::string& name, unsigned short int* typeList);
 			/**
 			* @brief		Returns the skills attributes.
 			*
