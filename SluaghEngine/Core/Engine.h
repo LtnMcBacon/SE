@@ -127,6 +127,7 @@ namespace SE
 			void InitTextManager();
 			void InitGUIManager();
 			void InitDecalManager();
+			void InitDataManager();
 
 			void SetupDebugConsole();
 

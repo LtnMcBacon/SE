@@ -63,6 +63,14 @@ namespace SE
 			*/
 			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const override;
 
+			/**
+			* @brief	Check collision between two entities
+			* @param[in] ent1 The first entity
+			* @param[in] ent2 The second entity
+			* @retval true If they intersect
+			* @retval false If they do not intersect
+			*/
+			bool CheckCollision(const Entity ent1, const Entity ent2)const override;
 
 			inline void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback)override
 			{

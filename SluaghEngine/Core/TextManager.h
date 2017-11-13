@@ -60,12 +60,12 @@ namespace SE
 
 			inline void SetText(const Entity& entity, std::wstring text)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].text = text;
-					loadedTexts[fileLoaded->second.ID].hashString = std::hash<std::wstring>()(text);
-					if (fileLoaded->second.show == true)
+					entry->second.info.text = text;
+					entry->second.info.hashString = std::hash<std::wstring>()(text);
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -87,11 +87,11 @@ namespace SE
 
 			inline void SetTextColour(const Entity& entity, DirectX::XMFLOAT4 colour) override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].colour = colour;
-					if (fileLoaded->second.show == true)
+					entry->second.info.colour = colour;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -100,12 +100,12 @@ namespace SE
 
 			inline void SetTextPos(const Entity& entity, long x, long y)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].posX = x;
-					loadedTexts[fileLoaded->second.ID].posY = y;
-					if (fileLoaded->second.show == true)
+					entry->second.info.posX = x;
+					entry->second.info.posY = y;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -114,11 +114,11 @@ namespace SE
 
 			inline void SetTextScreenAnchor(const Entity& entity, DirectX::XMFLOAT2 anchor)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].screenAnchor = anchor;
-					if (fileLoaded->second.show == true)
+					entry->second.info.screenAnchor = anchor;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -127,11 +127,11 @@ namespace SE
 
 			inline void SetTextScale(const Entity& entity, DirectX::XMFLOAT2 scale)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].scale = scale;
-					if (fileLoaded->second.show == true)
+					entry->second.info.scale = scale;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -140,11 +140,11 @@ namespace SE
 
 			inline void SetTextEffect(const Entity& entity, Graphics::Effect effect)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].effect = effect;
-					if (fileLoaded->second.show == true)
+					entry->second.info.effect = effect;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -153,11 +153,11 @@ namespace SE
 
 			inline void SetTextRotation(const Entity& entity, float rotation)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].rotation = rotation;
-					if (fileLoaded->second.show == true)
+					entry->second.info.rotation = rotation;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -166,11 +166,11 @@ namespace SE
 
 			inline void SetTextLayerDepth(const Entity& entity, float layerDepth)override {
 				// chexk if entity exist in text 
-				auto fileLoaded = entID.find(entity);
-				if (fileLoaded != entID.end())
+				auto entry = entityToEntry.find(entity);
+				if (entry != entityToEntry.end())
 				{
-					loadedTexts[fileLoaded->second.ID].layerDepth = layerDepth;
-					if (fileLoaded->second.show == true)
+					entry->second.info.layerDepth = layerDepth;
+					if (entry->second.show == true)
 					{
 						dirtyEnt[entity] = true;
 					}
@@ -200,20 +200,19 @@ namespace SE
 			void Destroy(size_t index)override;
 			void Destroy(const Entity& entity)override;
 
-			struct showID
+			struct Entry
 			{
 				Utilz::GUID font;
-				size_t ID;
+				Graphics::TextGUI info;
 				size_t jobID;
 				bool show = false;
 			};
 
 			// Text variables
+			std::unordered_map<Entity, Entry, EntityHasher> entityToEntry;
 			std::map<Utilz::GUID, size_t, Utilz::GUID::Compare> guidToFont;
-			std::unordered_map<Entity, showID, EntityHasher> entID;
-			std::vector<Graphics::TextGUI> loadedTexts;
-			std::vector<Entity> textEnt;
-			std::map<size_t, Entity> textJobobToEnt;
+			std::vector<Entity> indexToEntity;
+
 			std::unordered_map<Entity, bool, EntityHasher> dirtyEnt;
 
 			std::default_random_engine generator;

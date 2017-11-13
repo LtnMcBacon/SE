@@ -119,10 +119,38 @@ void Room::Update(float dt, float playerX, float playerY)
 	{
 		if (!enemyUnits[i]->IsAlive())
 		{
+			// Blood spatter
+			auto bs = CoreInit::managers.entityManager->Create();
+			auto p = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
+			p.y = 0;
+			CoreInit::managers.transformManager->Create(bs, p, { DirectX::XM_PIDIV2, 0,0 }, {1,1, 0.05f});
+		
+			Core::DecalCreateInfo ci;
+			ci.textureName = "bloodSpatt.png";			
+			CoreInit::managers.decalManager->Create(bs, ci);
+			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+
+			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
+			if (true)//spw > 50000)
+			{
+				auto wep = CoreInit::managers.entityManager->Create();
+				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
+				CoreInit::managers.transformManager->Create(wep, p, {}, { 0.2f,0.2f,0.2f });
+				CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, "default.mesh");
+				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
+				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
+				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
+				CoreInit::managers.dataManager->SetValue(wep, "Type", 0/*0 is sword*/);
+				CoreInit::managers.dataManager->SetValue(wep, "Element",1/*0 is physical*/);
+				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
+			}
+			
 			delete enemyUnits[i];
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
+
 	}
 
 	StopProfile;
