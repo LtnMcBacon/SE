@@ -52,6 +52,7 @@ namespace SE
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
+			void InitWeaponPickups();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);

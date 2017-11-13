@@ -131,7 +131,6 @@ int SE::Core::Engine::Release()
 		delete *rit;
 
 	delete managers.entityManager;
-	delete managers.eventManager;
 
 	if(subSystems.devConsole)
 		subSystems.devConsole->Shutdown();
@@ -200,8 +199,8 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.window = Window::CreateNewWindow();
 		Window::InitializationInfo info;
 		info.fullScreen = false;
-		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
 		auto res = subSystems.window->Initialize(info);
@@ -238,11 +237,12 @@ void SE::Core::Engine::InitManagers()
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
 
+	InitDataManager();
+
 	if (!managers.eventManager)
-		managers.eventManager = CreateEventManager();
+		managers.eventManager = CreateEventManager({ subSystems.window, managers.entityManager, managers.dataManager });
+	managersVec.push_back(managers.eventManager);
 
-
-	
 	InitTransformManager();
 	InitAudioManager();
 	InitParticleSystemManager();
@@ -256,6 +256,7 @@ void SE::Core::Engine::InitManagers()
 	InitTextManager();
 	InitGUIManager();
 	InitDecalManager();
+
 	StopProfile;
 }
 
@@ -450,6 +451,17 @@ void SE::Core::Engine::InitDecalManager()
 		managers.decalManager = CreateDecalManager(info);
 	}
 	managersVec.push_back(managers.decalManager);
+}
+
+void SE::Core::Engine::InitDataManager()
+{
+	if (!managers.dataManager)
+	{
+		IDataManager::InitializationInfo info;
+		info.entityManager = managers.entityManager;
+		managers.dataManager = CreateDataManager(info);
+	}
+	managersVec.push_back(managers.dataManager);
 }
 
 void SE::Core::Engine::SetupDebugConsole()
