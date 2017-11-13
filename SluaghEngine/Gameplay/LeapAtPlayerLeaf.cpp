@@ -141,7 +141,7 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 			newProjectile.startPosX = xTarget;
 			newProjectile.startPosY = yTarget;
 			newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
-				DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
+				Element::NATURE, 10);
 
 			gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

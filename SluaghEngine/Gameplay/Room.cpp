@@ -107,7 +107,7 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
-
+#include <Weapons.h>
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -132,18 +132,9 @@ void Room::Update(float dt, float playerX, float playerY)
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
 			if (true)//spw > 50000)
-			{
-				auto wep = CoreInit::managers.entityManager->Create();
-				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });
-				CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
-				CoreInit::managers.transformManager->Create(wep, p, {}, { 0.2f,0.2f,0.2f });
-				CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, "default.mesh");
-				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
-				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
-				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
-				CoreInit::managers.dataManager->SetValue(wep, "Type", 0/*0 is sword*/);
-				CoreInit::managers.dataManager->SetValue(wep, "Element",1/*0 is physical*/);
-				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
+			{	
+				Weapon::CreateWeapon(p);
+				
 			}
 			
 			delete enemyUnits[i];

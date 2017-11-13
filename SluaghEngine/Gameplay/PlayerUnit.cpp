@@ -305,7 +305,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, Element::PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
@@ -453,7 +453,7 @@ void SE::Gameplay::PlayerUnit::changeWeaponType(DamageSources weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(DamageTypes element)
+void SE::Gameplay::PlayerUnit::changeElementType(Element element)
 {
 	newStat.element = element;
 }

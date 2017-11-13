@@ -139,6 +139,9 @@
     <Filter Include="Source Files\Skills">
       <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Weapon">
+      <UniqueIdentifier>{6fee08b4-f42f-4e00-8f9d-9f0f7deff4e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -326,6 +329,9 @@
     </ClCompile>
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapons.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -550,6 +556,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Weapons.h">
+      <Filter>Header Files\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
