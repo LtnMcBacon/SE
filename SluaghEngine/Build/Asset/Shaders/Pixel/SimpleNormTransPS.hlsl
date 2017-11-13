@@ -76,5 +76,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
 		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
 	}
 	
-	return float4(totLight, 0.7f);
+	return float4(totLight, DiffuseColor.Sample(sampAni, input.Tex).a);
 }
