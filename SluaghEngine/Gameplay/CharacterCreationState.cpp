@@ -28,8 +28,11 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	}; std::function<void()> back = returnToMain;
 
 	auto startGame = [this]()->void
-	{
-			this->CurrentState = State::PLAY_STATE;
+	{	
+		if (selectedSkills == nrOfSkills)
+		{
+			allSkillsSelected = true;
+		}
 		
 	}; std::function<void()> begin = startGame;
 
@@ -80,29 +83,31 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 	
 	PlayStateData* infoToPass = new PlayStateData;
-
-	for (int i = 0; i < 3; i++)
+	if (selectedSkills  == true)
 	{
-		infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
-		infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
-		infoToPass->skills[i].element	= chosenSkills.at(i).element;
-		infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
-		infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
-		infoToPass->skills[i].animation = chosenSkills.at(i).animation;
-		infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
-		
-		infoToPass->skills[i].projectileFileGUID	= chosenSkills.at(i).projectileFileGUID;
-		infoToPass->skills[i].skillDamage			= chosenSkills.at(i).skillDamage;
-		infoToPass->skills[i].boonEffectValue		= chosenSkills.at(i).boonEffectValue;
-		infoToPass->skills[i].boonRange				= chosenSkills.at(i).boonRange;
-		infoToPass->skills[i].boonDuration			= chosenSkills.at(i).boonDuration;
-		infoToPass->skills[i].baneEffectValue		= chosenSkills.at(i).baneEffectValue;
-		infoToPass->skills[i].baneRange				= chosenSkills.at(i).baneRange;
-		infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
-		infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;
+		for (int i = 0; i < 3; i++)
+		{
+			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
+			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
+			infoToPass->skills[i].element	= chosenSkills.at(i).element;
+			infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
+			infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
+			infoToPass->skills[i].animation = chosenSkills.at(i).animation;
+			infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
+			
+			infoToPass->skills[i].projectileFileGUID	= chosenSkills.at(i).projectileFileGUID;
+			infoToPass->skills[i].skillDamage			= chosenSkills.at(i).skillDamage;
+			infoToPass->skills[i].boonEffectValue		= chosenSkills.at(i).boonEffectValue;
+			infoToPass->skills[i].boonRange				= chosenSkills.at(i).boonRange;
+			infoToPass->skills[i].boonDuration			= chosenSkills.at(i).boonDuration;
+			infoToPass->skills[i].baneEffectValue		= chosenSkills.at(i).baneEffectValue;
+			infoToPass->skills[i].baneRange				= chosenSkills.at(i).baneRange;
+			infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
+			infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;
 
+		}
+		passableInfo = infoToPass;
 	}
-	passableInfo = infoToPass;
 
 
 	ProfileReturn(CurrentState);
@@ -306,9 +311,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 				}
 
 			}
-		}
-
-		
+		}		
 	
 		OtherSkills.push_back(indexPLaceHolder);
 		nrOfOtherSkills++;
