@@ -109,7 +109,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
-	auto material = Utilz::GUID("MCModell.mat");
+	auto material = Utilz::GUID("Bodach.mat");
 	info.shader = shader;	
 	info.materialFile = material;
 
