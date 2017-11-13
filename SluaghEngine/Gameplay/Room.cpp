@@ -955,7 +955,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid, SE::Utilz::GUID &floorGuid)
 {
 	auto rand = CoreInit::subSystems.window->GetRand();
-	auto randNr = (rand % 2);
+	auto randNr = (rand % 3);
 
 	switch (randNr)
 	{
@@ -964,6 +964,9 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		break;
 	case 1:
 		wallGuid = Materials[Materials::Dirt];
+		break;
+	case 2:
+		wallGuid = Materials[Materials::Stone];
 		break;
 	}
 	
