@@ -10,6 +10,8 @@
 #include <Gameplay\ProjectileData.h>
 #include "GameBlackboard.h"
 #include "EnemyFactory.h"
+#include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\HUD_Functionality.h>
 
 namespace SE 
 {
@@ -52,9 +54,12 @@ namespace SE
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
+			void InitWeaponPickups();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
+
+			HUDParser playStateGUI;
 
 			Core::Entity cam;
 			Core::Entity dummy;

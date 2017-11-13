@@ -64,10 +64,11 @@ namespace SE
 			std::vector<int> chosenPerks;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[2]
+			std::string skillButtonFiles[3]
 			{
 				"FireBallSkill.HuD",
-				"IceBallSkill.HuD"
+				"IceBallSkill.HuD",
+				"EarthRiftSkill.HuD"
 			};
 
 			std::string perkButtonFiles[2]
