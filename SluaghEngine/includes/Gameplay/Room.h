@@ -40,7 +40,6 @@ namespace SE
 			{
 				TABLES,
 				CHAIRS,
-				TORCHES_FLOOR,
 				TORCHES_WALL,
 				BUSHES,
 				BIGPROPS,
@@ -81,6 +80,16 @@ namespace SE
 			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
 			std::map<Meshes, SE::Utilz::GUID> Meshes;
+
+			static const char id_Props = 137;
+			static const char id_Torch = 203;
+			static const char id_Floor = 0;
+			static const char id_DeadArea = 76;
+			static const char id_Door1 = 22;
+			static const char id_Door2 = 48;
+			static const char id_Wall = 255;
+			static const char id_Pillar = 225;
+			static const char id_Bush = 13;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -502,7 +511,9 @@ namespace SE
 			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
 			*/
 			void CreateWall2(CreationArguments &args);
-
+			/**
+			* @brief
+			*/
 			void CreateDoor(CreationArguments &args);
 
 
@@ -531,7 +542,12 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
-
+			/**
+			* @brief Resets the tilevalues from 100 to 0
+			*
+			* @details When we find two tiles next to each other we create an object for both of those tiles even though we are still on only one of the tiles.
+			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
+			*/
 			void ResetTempTileValues();
 		
 			/**

@@ -30,16 +30,6 @@ static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
 static const SE::Utilz::GUID Norm("SimpleLightPS.hlsl");
 static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 
-static const char id_Props = 137;
-static const char id_Torch = 203;
-static const char id_Floor = 0;
-static const char id_DeadArea = 76;
-static const char id_Door1 = 22;
-static const char id_Door2 = 48;
-static const char id_Wall = 255;
-static const char id_Pillar = 225;
-static const char id_Bush = 13;
-
 
 
 void Room::UpdateFlowField(float playerX, float playerY)
@@ -1049,8 +1039,9 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Bush] =			{ "Bush.mesh" };
 
 
-	// 4x4 tile props
-	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch], Meshes[Meshes::Door] };
+	// 4x4 tile props - add more here
+	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch] };
+
 	propVectors[PropTypes::TABLES] = { Meshes[Meshes::Table_small], Meshes[Meshes::Table_round] };
 	propVectors[PropTypes::CHAIRS] = { Meshes[Meshes::Chair] };
 	propVectors[PropTypes::BUSHES] = { Meshes[Meshes::Bush] };
@@ -1245,9 +1236,9 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 		
 		auto nrOfProps = propVectors[PropTypes::BIGPROPS].size();
 		auto rand = CoreInit::subSystems.window->GetRand();
-		auto randNr = (rand % nrOfProps);
+		auto propId = (rand % nrOfProps);
 
-		ProfileReturnConst(propVectors[PropTypes::BIGPROPS][randNr]);
+		ProfileReturnConst(propVectors[PropTypes::BIGPROPS][propId]);
 	}
 
 	// 1x1 tile props
@@ -1260,8 +1251,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
-	auto& props = propVectors[PropTypes::BUSHES];
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { props[0], true });
+	auto nrOfProps = propVectors[PropTypes::BIGPROPS].size();
+	auto rand = CoreInit::subSystems.window->GetRand();
+	auto propId = (rand % nrOfProps);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId], true });
 
 	Core::IMaterialManager::CreateInfo mi;
 	mi.materialFile = BushMat;
@@ -1489,8 +1482,6 @@ void SE::Gameplay::Room::ResetTempTileValues()
 		}
 	}
 }
-
-
 
 void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
