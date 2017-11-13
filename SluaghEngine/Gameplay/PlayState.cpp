@@ -310,10 +310,11 @@ void SE::Gameplay::PlayState::InitializeOther()
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 1.0f, 1.0f, 1.0f };
-	lightInfo.radius = 10000.0f;
+	lightInfo.radius = 100.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+	CoreInit::managers.lightManager->SetShadowCaster(dummy);
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)

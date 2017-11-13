@@ -122,8 +122,9 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 
 	if (hasShadowCaster) {
 		const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, entityToLightData[shadowCaster].pos.w);
-		const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
+		const DirectX::XMVECTOR looks[] = { 
 		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		{ -1.0f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 1.0f, 0.0f, 0.0f },
 		{ 0.0f, -1.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 1.0f, 0.0f },

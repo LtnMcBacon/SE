@@ -494,7 +494,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.materialManager->Create(unitEntity, info);
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
-	
+	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);

@@ -38,7 +38,8 @@ SE::Core::RenderableManager::RenderableManager(const IRenderableManager::Initial
 {
 	Init();
 
-	shadowInstancing = nullptr;
+	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	
 
 	Allocate(allocsize);
 }
@@ -239,7 +240,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 	info->vertexCount = renderableObjectInfo.mesh[index].vertexCount;
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
-
+	initInfo.eventManager->TriggerSetShadowRenderObjectInfo(renderableObjectInfo.entity[index], info);
 }
 //
 //void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
@@ -351,7 +352,7 @@ bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 
 void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
 
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 
@@ -361,8 +362,10 @@ void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow
 			Graphics::RenderJob info;
 			CreateShadowRenderObjectInfo(find->second, &info);
 			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
-			if(shadowInstancing)
+			if (shadowInstancing)
+			{
 				shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			}
 
 		}
 	}
