@@ -52,6 +52,7 @@ namespace SE
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
+			void InitWeaponPickups();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
@@ -62,7 +63,7 @@ namespace SE
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
 			int currentRoomIndex = -1;
-			const int enemiesInEachRoom = 10;
+			static const int enemiesInEachRoom = 1;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 

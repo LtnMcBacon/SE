@@ -47,6 +47,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	temp.player = player;
 	
 	projectileManager = new ProjectileManager(temp);
+
+
+	InitWeaponPickups();
+
 }
 
 PlayState::~PlayState()
@@ -142,6 +146,8 @@ void PlayState::InitializeRooms()
 
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
+		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
+
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
@@ -314,6 +320,114 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+}
+
+void SE::Gameplay::PlayState::InitWeaponPickups()
+{
+	auto pe = player->GetEntity();
+
+	Core::IEventManager::EventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
+		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
+		if (isWep)
+		{
+			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
+		}
+		CoreInit::managers.entityManager->DestroyNow(ent); // Just save the entity instead and use it as the picket up weapon as well.
+	};
+
+	Core::ITextManager::CreateInfo ciname;
+	ciname.info.posX = -35;
+	ciname.info.posY = -125;
+	ciname.info.screenAnchor = { 0.5f, 0.5f };
+	ciname.info.anchor = { 1,0.0f };
+	ciname.info.scale = { 0.4f,0.4f };
+	ciname.info.height = 50;
+	auto weaponName = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponName, ciname);
+
+	Core::ITextManager::CreateInfo citype;
+	citype.info.posX = -35;
+	citype.info.posY = -80;
+	citype.info.screenAnchor = { 0.5f, 0.5f };
+	citype.info.anchor = { 1,0.0f };
+	citype.info.scale = { 0.4f,0.4f };
+	citype.info.height = 50;
+	auto weaponType = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponType, citype);
+
+	Core::ITextManager::CreateInfo cielement;
+	cielement.info.posX = -35;
+	cielement.info.posY = -25;
+	cielement.info.screenAnchor = { 0.5f, 0.5f };
+	cielement.info.anchor = { 1,0.0f };
+	cielement.info.scale = { 0.4f,0.4f };
+	cielement.info.height = 50;
+	cielement.info.colour = { 0.7f,0.7f,0.7f,1 };
+	auto weaponElement = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponElement, cielement);
+
+
+	Core::ITextManager::CreateInfo cidamage;
+	cidamage.info.posX = -35;
+	cidamage.info.posY = 40;
+	cidamage.info.screenAnchor = { 0.5f, 0.5f };
+	cidamage.info.anchor = { 1,0.0f };
+	cidamage.info.scale = { 0.4f,0.4f };
+	cidamage.info.height = 50;
+	auto weaponDamage = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
+
+	Core::IGUIManager::CreateInfo ciback;
+	ciback.texture = "Crossbow_texture_metal.jpg";
+	ciback.textureInfo.width = 200;
+	ciback.textureInfo.height = 200;
+	ciback.textureInfo.posX = -30;
+	ciback.textureInfo.posY = -130;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0, 0.0f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+
+	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack, weaponDamage](const Core::Entity ent, void* data) {
+		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
+		{
+			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
+			std::wstring ws;
+			ws.assign(s.begin(), s.end());
+			CoreInit::managers.textManager->SetText(weaponName, ws);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
+
+			auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+			CoreInit::managers.textManager->SetText(weaponType, (type == 0 ? L"Sword" : L"None"));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
+
+			auto element = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1));
+			CoreInit::managers.textManager->SetText(weaponElement, (element == 0 ? L"Physical" : L"Fire"));
+			CoreInit::managers.textManager->SetTextColour(weaponElement, (element == 0 ? DirectX::XMFLOAT4{ 0.7f, 0.7f, 0.7f, 1.0f } : DirectX::XMFLOAT4{ 0.8f, 0.3f, 0.2f, 1.0f }));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
+
+			auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Damage", -1));
+			CoreInit::managers.textManager->SetText(weaponDamage, std::to_wstring(damage));
+			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
+
+			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+
+			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
+		}
+		else
+		{
+			CoreInit::managers.textManager->ToggleRenderableText(weaponName, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponType, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, false);
+			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, false);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, false);
+		}
+
+		return false;
+	};
+	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
+
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)

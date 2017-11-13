@@ -88,6 +88,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateInTheSameRoomAsThePlayerConditionLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "CurrentAnimationAllowsBlendingCondition")
+	{
+		finishedBehaviour = CurrentAnimationAllowsBlendingConditionLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
 		finishedBehaviour = CreateMakeInvulnerableLeaf(dataArray, nodeID);
@@ -147,6 +151,14 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if(dataArray[nodeID].Type == "StopChannelingLeaf")
 	{
 		finishedBehaviour = CreateStopChannelingLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "StopAnimationsLeaf")
+	{
+		finishedBehaviour = CreateStopAnimationsLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PauseAnimationsLeaf")
+	{
+		finishedBehaviour = CreatePauseAnimationsLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -293,15 +305,21 @@ IBehaviour* BehaviouralTreeFactory::CreateInTheSameRoomAsThePlayerConditionLeaf(
 	ProfileReturn(new InTheSameRoomAsThePlayerCondition(nullptr, nullptr));
 }
 
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CurrentAnimationAllowsBlendingConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new CurrentAnimationAllowsBlendingCondition(nullptr, nullptr));
+}
+
 IBehaviour* BehaviouralTreeFactory::CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID)
 {
 	StartProfile;
 	int counter = 0;
-	int nrOfGUIDs = stoi(dataArray->nodeData[counter++]);
+	int nrOfGUIDs = stoi(dataArray[nodeID].nodeData[counter++]);
 	std::vector<Utilz::GUID> guids;
 	for(int i = 0; i < nrOfGUIDs; i++)
 	{
-		guids.push_back(dataArray->nodeData[counter++]);
+		guids.push_back(dataArray[nodeID].nodeData[counter++]);
 	}
 	ProfileReturn(new AnimationRunningCondition(nullptr, nullptr, guids));
 }
@@ -353,50 +371,76 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateAnimationLeaf(NodeData 
 {
 	StartProfile;
 
-	std::string animations[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	float animationSpeeds[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	float startKeyFrame[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
-	bool looping[Core::IAnimationManager::AnimationPlayInfo::maxLayers];
+	std::vector<Utilz::GUID> animations;
+	Core::AnimationFlags definedFlags = Core::AnimationFlags::CURRENT;
 
 	int counter = 0;
-	int numberOfLayers = stoi(dataArray->nodeData[counter++]);
+	int numberOfLayers = stoi(dataArray[nodeID].nodeData[counter++]);
 
 	for(int i = 0; i < numberOfLayers; i++)
 	{
-		animations[i] = dataArray->nodeData[counter++];
+		animations.push_back(dataArray[nodeID].nodeData[counter++]);
 	
 	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
+	float duration = std::stof(dataArray[nodeID].nodeData[counter++]);
+	int numberOfAnimationFlags = std::stoi(dataArray[nodeID].nodeData[counter++]);
+	for (int i = 0; i < numberOfAnimationFlags; i++)
 	{
-		animationSpeeds[i] = std::stof(dataArray->nodeData[counter++]);
-	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
-	{
-		startKeyFrame[i] = std::stof(dataArray->nodeData[counter++]);
-	}
-	counter++;
-	for (int i = 0; i < numberOfLayers; i++)
-	{
-		if(dataArray->nodeData[counter++] == "True")
+		std::string flag = dataArray[nodeID].nodeData[counter++];
+		std::transform(flag.begin(), flag.end(), flag.begin(), toupper);
+		if(flag == "BLENDTO")
 		{
-			looping[i] = true;
+			definedFlags |= Core::AnimationFlags::BLENDTO;
 		}
-		else
+		else if(flag == "BLENDTOANDBACK")
 		{
-			looping[i] = false;
+			definedFlags |= Core::AnimationFlags::BLENDTOANDBACK;
 		}
-
+		else if(flag == "IMMEDIATE")
+		{
+			definedFlags |= Core::AnimationFlags::IMMEDIATE;
+		}
+		else if (flag == "LOOP")
+		{
+			definedFlags |= Core::AnimationFlags::LOOP;
+		}
+		else if (flag == "CURRENT")
+		{
+			definedFlags |= Core::AnimationFlags::CURRENT;
+		}
+		else if (flag == "FORCED")
+		{
+			definedFlags |= Core::AnimationFlags::FORCED;
+		}
+		else if (flag == "BLOCKBLENDING")
+		{
+			definedFlags |= Core::AnimationFlags::BLOCKBLENDING;
+		}
+		else if (flag == "FORCEBLENDING")
+		{
+			definedFlags |= Core::AnimationFlags::FORCEBLENDING;
+		}
 	}
-
-	ProfileReturn(new AnimationLeaf(nullptr, nullptr, numberOfLayers, animations, animationSpeeds, startKeyFrame, looping));
+	
+	ProfileReturn(new AnimationLeaf(nullptr, nullptr, animations, duration, definedFlags));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopChannelingLeaf(NodeData * dataArray, int nodeID)
 {
 	StartProfile;
 	ProfileReturn(new StopChannelingLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStopAnimationsLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new StopAnimationsLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreatePauseAnimationsLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PauseAnimationsLeaf(nullptr, nullptr));
 }
 
 IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(NodeData * dataArray, int nodeID)
