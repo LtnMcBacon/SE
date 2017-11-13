@@ -429,10 +429,10 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					//ai.animationSpeed[i] = 0.0f;
 					if (!(flag & AnimationFlags::BLENDTOANDBACK))
 						ai.looping[i] = false;
-					ai.blendSpeed[i] = -10.0f;
-					ai.blendFactor[i] = 1.0f;
-					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
-					ai.animationSpeed[i] = 0.0f;
+						ai.blendSpeed[i] = -10.0f;
+						ai.blendFactor[i] = 1.0f;
+						ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+						ai.animationSpeed[i] = 0.0f;
 				}
 
 				// Set info for the new animations to blend to
