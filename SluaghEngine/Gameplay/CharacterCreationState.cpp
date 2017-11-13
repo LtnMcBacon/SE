@@ -242,7 +242,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
 
-		std::string skillName = "Fireball";
+		std::string skillName = "EarthRift";
 		unsigned short int skillInfo1[7] = {1,2,3,4,5,6,7};
 		unsigned int indexPLaceHolder = 2;
 		//unsigned int index = sf.readSkillInfo(skillName1, skillInfo1);

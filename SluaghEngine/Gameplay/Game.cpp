@@ -45,9 +45,14 @@ void SE::Gameplay::Game::Run()
 	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState = state->PLAY_STATE;
 	CoreInit::engine->GetSubsystems().window->UpdateTime();
-	while (!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
+	bool running = true;
+	//!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME))
+	while (running)
 	{
-
+		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
+		{
+			running = false;
+		}
 		CoreInit::engine->BeginFrame();
 		newState = state->Update(data);
 
@@ -90,6 +95,10 @@ void SE::Gameplay::Game::Run()
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					break;
 				}
+				case SE::Gameplay::IGameState::State::QUIT_GAME:
+					delete state;
+					running = false;
+					break;
 			 }
 
 			currentState = newState;
