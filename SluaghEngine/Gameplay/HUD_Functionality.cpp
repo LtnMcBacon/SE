@@ -58,6 +58,7 @@ namespace SE
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
+
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
