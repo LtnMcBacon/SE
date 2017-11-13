@@ -27,9 +27,6 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 	engine->Init();
 	Gameplay::CoreInit::Init(engine);
 
-
-
-
 	SE::Gameplay::SkillFactory SF;
 
 	SE::Gameplay::Skill skill;

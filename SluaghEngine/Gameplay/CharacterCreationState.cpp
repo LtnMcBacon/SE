@@ -28,7 +28,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	}; std::function<void()> back = returnToMain;
 
 	auto startGame = [this]()->void
-	{	
+	{
 		if (selectedSkills == nrOfSkills)
 		{
 			allSkillsSelected = true;
