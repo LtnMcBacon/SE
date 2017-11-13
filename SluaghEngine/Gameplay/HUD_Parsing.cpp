@@ -147,7 +147,7 @@ namespace SE
 					else
 					{
 
-						this->MainMenuElmVec.push_back(CurrentElm);
+						this->StaticGuiVec.push_back(CurrentElm);
 					}
 					
 				}
@@ -215,7 +215,7 @@ namespace SE
 		{
 			StartProfile;
 			
-			for (auto& HUDElement : MainMenuElmVec)
+			for (auto& HUDElement : StaticGuiVec)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
 				
