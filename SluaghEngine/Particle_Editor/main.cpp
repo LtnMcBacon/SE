@@ -24,6 +24,14 @@ using namespace Graphics;
 #else
 #pragma comment(lib, "Core.lib")
 #endif
+// Variables for randomization of particle attributes
+float velocityRangeX[2] = { -1.0f , 1.0f };
+float velocityRangeY[2] = { -1.0f , 1.0f };
+float velocityRangeZ[2] = { 0.0f , 0.0f };
+float emitRangeX[2] = { 0.0f, 0.0f };
+float emitRangeY[2] = { 0.0f, 0.0f };
+float emitRangeZ[2] = { 0.0f, 0.0f };
+bool RandVelocity = false;
 struct ParticleDataStruct {
 	float vel[3];
 	float pad;
@@ -46,7 +54,7 @@ struct ParticleDataStruct {
 };
 ParticleDataStruct createParticleBuffer();
 void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
-
+void ImportParticleSystem(char fileName[], RenderJob &renderJob, ParticleDataStruct &cbuffer);
 int main()
 {
 	Particle emitter;
@@ -63,6 +71,7 @@ int main()
 	auto ResourceHandle = subSystem.resourceHandler;
 	int changedTexture = 0;
 	char particleName[100] = "";
+	char loadSystem[100] = "";
 
 	bool exportWindow = false;
 	
@@ -146,16 +155,7 @@ int main()
 
 	ParticleDataStruct movBuffer = createParticleBuffer();
 
-	// Variables for randomization of particle attributes
-	
-	float minEmit = 0.0f;
-	float maxEmit = 0.0f;
-	float velocityRangeX[2] = { -1.0f , 1.0f };
-	float velocityRangeY[2] = { -1.0f , 1.0f };
-	float velocityRangeZ[2] = { 0.0f , 0.0f };
-	float emitRangeX[2] = { 0.0f, 0.0f };
-	float emitRangeY[2] = { 0.0f, 0.0f };
-	float emitRangeZ[2] = { 0.0f, 0.0f };
+
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
@@ -197,8 +197,7 @@ int main()
 		XMFLOAT3 eyePosition;
 		float pad2;
 	};
-	bool RandVelocity = false;
-	bool gravityOn = false;
+	
 
 	PCB constantBuffer;
 	constantBuffer.eyePosition = eyePos;
@@ -211,8 +210,6 @@ int main()
 	CameraMatrices cameraMatrices;
 	cameraMatrices.view = view;
 	cameraMatrices.viewProj = cameraMatrix;
-
-
 
 	renderParticleJob.mappingFunc.push_back([&renderParticleJob, &Renderer, &pipelineHandler, &cameraMatrices, &constantBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("OncePerFrame", &cameraMatrices, sizeof(CameraMatrices));
@@ -252,7 +249,6 @@ int main()
 		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
-		ImGui::SliderFloat3("Emit position", &movBuffer.emitPos[0], -5.0f, 5.0f);
 		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
@@ -280,10 +276,10 @@ int main()
 		
 		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
-		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 1.0f);
+		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 10.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.100f, "%.5f");
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.0000100f, 0.00100f, "%.7f");
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
@@ -299,7 +295,7 @@ int main()
 		ImGui::InputText("Texture file", tempText, 100);
 		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		
-		if (ImGui::Button("Export Settings")) exportWindow ^= 1;
+		if (ImGui::Button("Export/Import Settings")) exportWindow ^= 1;
 		ImGui::End();
 
 		if (exportWindow)//Exporting window
@@ -323,11 +319,13 @@ int main()
 			emitRange[2].x = emitRangeZ[1];
 			emitRange[2].y = emitRangeZ[0];
 
-			ImGui::Begin("Export Window");
-			ImGui::InputText("File name", particleName, 100);
-			
+			ImGui::Begin("Export/Import Window");
+			ImGui::InputText("Export file", particleName, 100);
 			if (ImGui::Button("Export"))
 				exportParticleInfo(texName, movBuffer, particleName, RandVelocity, velocityRange, emitRange);
+			ImGui::InputText("Load file", loadSystem, 100);
+			if (ImGui::Button("Import"))
+				ImportParticleSystem(loadSystem, renderParticleJob, movBuffer);
 			ImGui::End();
 		}
 		//** swapping renderjobs for particle outstream
@@ -388,7 +386,7 @@ void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char file
 		emitRange[i] = emitArr[i];
 	}
 
-	file += ".txt";
+	file += ".pts";
 	
 	std::ofstream toFile;
 	
@@ -400,4 +398,66 @@ void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char file
 	toFile.write((char*)emitRange, sizeof(XMFLOAT2) * 3);
 	toFile.close();
 
+}
+void ImportParticleSystem(char fileName[], RenderJob &renderJob, ParticleDataStruct &cbuffer)
+{
+
+	std::string filePath = fileName;
+	filePath += ".pts";
+	std::ifstream loadFile;
+	bool tempRandVeloctity = false;
+	Utilz::GUID texName;
+	ParticleDataStruct tempData;
+	XMFLOAT2 velocityRange[3] = {};
+	XMFLOAT2 emitRange[3] = {};
+
+	loadFile.seekg(0, std::ios::beg);
+	//char* memBlock = new char[loadFile.tellg()];
+	char* randVel = new char[sizeof(bool)];
+	char* charTexture = new char[sizeof(Utilz::GUID)];
+	char* buffer = new char[sizeof(ParticleDataStruct)];
+	char* velocityRangeBuf = new char[sizeof(XMFLOAT2) * 3];
+	char* emitRangeBuf = new char[sizeof(XMFLOAT2) * 3];
+
+	loadFile.open("Particle_Systems/" + filePath, std::ios::in | std::ios::binary);
+	loadFile.read(randVel, sizeof(bool));
+	loadFile.read(charTexture, sizeof(Utilz::GUID));
+	loadFile.read(buffer, sizeof(ParticleDataStruct));
+	loadFile.read(velocityRangeBuf, sizeof(XMFLOAT2) * 3);
+	loadFile.read(emitRangeBuf, sizeof(XMFLOAT2) * 3);
+
+	memcpy(&tempRandVeloctity, randVel, sizeof(bool));
+	memcpy(&texName, charTexture, sizeof(Utilz::GUID));
+	memcpy(&tempData, buffer, sizeof(ParticleDataStruct));
+	memcpy(&velocityRange, velocityRangeBuf, sizeof(XMFLOAT2) * 3);
+	memcpy(&emitRange, emitRangeBuf, sizeof(XMFLOAT2) * 3);
+
+	//Setting the global variables
+	RandVelocity = tempRandVeloctity;
+
+	velocityRangeX[1] = velocityRange[0].x;
+	velocityRangeX[0] = velocityRange[0].y;
+	velocityRangeY[1] = velocityRange[1].x;
+	velocityRangeY[0] = velocityRange[1].y;
+	velocityRangeZ[1] = velocityRange[2].x;
+	velocityRangeZ[0] = velocityRange[2].y;
+
+	emitRangeX[1] = emitRange[0].x;
+	emitRangeX[0] = emitRange[0].y;
+	emitRangeY[1] = emitRange[1].x;
+	emitRangeY[0] = emitRange[1].y;
+	emitRangeZ[1] = emitRange[2].x;
+	emitRangeZ[0] = emitRange[2].y;
+
+	//Changing the texture from the loaded file
+	renderJob.pipeline.PSStage.textures[0] = texName;
+
+	//Loading the the cbuffer for the UpdateParticleJob
+	cbuffer = tempData;
+
+	delete[] randVel;
+	delete[] charTexture;
+	delete[] buffer;
+	delete[] velocityRangeBuf;
+	delete[] emitRangeBuf;
 }

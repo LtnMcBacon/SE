@@ -29,6 +29,7 @@
 #include "ITextManager.h"
 #include "IEventManager.h"
 #include "Utilz/ThreadPool.h"
+#include "IDataManager.h"
 
 namespace SE
 {
@@ -58,6 +59,7 @@ namespace SE
 				IGUIManager* guiManager = nullptr;
 				IDecalManager* decalManager = nullptr;
 				IEventManager* eventManager = nullptr;
+				IDataManager* dataManager = nullptr;
 			};
 			struct Subsystems
 			{

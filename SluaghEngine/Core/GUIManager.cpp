@@ -62,10 +62,27 @@ namespace SE {
 				
 				auto& ti = textureInfo[textureInfo.size() - 1];
 				if (ti.width == -1)
+				{
 					ti.width = textureGUID[info.texture].width;
-				if (ti.height == -1)
-					ti.height = textureGUID[info.texture].height;
 
+				}
+				else
+				{
+					ti.scale.x = ti.width / (float)textureGUID[info.texture].width;
+					ti.width = textureGUID[info.texture].width;
+
+				}
+				
+				if (ti.height == -1)
+				{
+					ti.height = textureGUID[info.texture].height;
+				}
+				else
+				{
+					ti.scale.y = ti.height / (float)textureGUID[info.texture].height;
+					ti.height = textureGUID[info.texture].height;
+				}
+				
 				//ti.origin = { ti.posX + ti.origin.x, ti.posY + ti.origin.y };
 
 				/*if (!textureInfo[textureInfo.size() - 1].anchor)
