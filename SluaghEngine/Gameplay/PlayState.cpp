@@ -21,8 +21,21 @@ PlayState::PlayState()
 
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
+	StartProfile;
+
 	this->input = Input;
 	this->engine = engine;
+	playStateGUI.ParseFiles("PlayStateGui.HuD");
+	playStateGUI.InitiateTextures();
+	for (auto& button : playStateGUI.ButtonVector)
+	{
+		if (button.rectName == "HealthBar")
+		{
+			// here's the health bar.
+			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+		}
+	}
+	playStateGUI.GUIButtons.DrawButtons();
 
 	InitializeRooms();
 	InitializePlayer(passedInfo);
@@ -50,20 +63,23 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 	InitWeaponPickups();
-
+	ProfileReturnVoid;
 }
 
 PlayState::~PlayState()
 {
+	StartProfile;
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
 	for (auto room : rooms)
 		delete room;
+	ProfileReturnVoid;
 }
 
 void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
+	StartProfile;
 	if (input->ButtonDown(uint32_t(GameInput::UP)))
 	{
 		movement.upButton = true;
@@ -114,7 +130,7 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	{
 		action.actionButton = true;
 	}
-
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& newProjectiles)
@@ -128,6 +144,7 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void PlayState::InitializeRooms()
 {
+	StartProfile;
 	uint32_t nrOfRooms = 0;
 	Utilz::GUID* RoomArr;
 	auto subSystem = engine->GetSubsystems();
@@ -204,15 +221,16 @@ void PlayState::InitializeRooms()
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
 	delete[] RoomArr;
-
+	ProfileReturnVoid;
 }
 void SE::Gameplay::PlayState::InitializeEnemies()
 {
+	StartProfile;
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
 	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
-	for(auto room : rooms)
+	for(auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
@@ -227,7 +245,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_GLAISTIG;
+			data.type = ENEMY_TYPE_RANDOM;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -243,11 +261,12 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	}
 	delete[] enemies;
-
+	ProfileReturnVoid;
 }
 
 void PlayState::InitializePlayer(void* playerInfo)
 {
+	StartProfile;
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
@@ -284,10 +303,12 @@ void PlayState::InitializePlayer(void* playerInfo)
 			}
 		}
 	}
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::PlayState::InitializeOther()
 {
+	StartProfile;
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
@@ -320,10 +341,12 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
+	StartProfile;
 	auto pe = player->GetEntity();
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
@@ -427,7 +450,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return false;
 	};
 	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
-
+	ProfileReturnVoid;
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)

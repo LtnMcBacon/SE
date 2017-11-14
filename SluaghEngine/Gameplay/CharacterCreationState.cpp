@@ -35,8 +35,6 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 
 	auto startGame = [this]()->void
 	{
-		
-
 			this->CurrentState = State::PLAY_STATE;
 		
 	}; std::function<void()> begin = startGame;
@@ -247,11 +245,10 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	int nrOfOtherSkills = 0;
 	for (size_t i = 0; i < nrOfSkills; i++)
 	{
-
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
 
-		std::string skillName = "Fireball";
+		std::string skillName = "EarthRift";
 		unsigned short int skillInfo1[7] = {1,2,3,4,5,6,7};
 		unsigned int indexPLaceHolder = 2;
 		//unsigned int index = sf.readSkillInfo(skillName1, skillInfo1);

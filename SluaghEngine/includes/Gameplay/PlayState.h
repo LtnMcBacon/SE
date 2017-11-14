@@ -10,6 +10,8 @@
 #include <Gameplay\ProjectileData.h>
 #include "GameBlackboard.h"
 #include "EnemyFactory.h"
+#include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\HUD_Functionality.h>
 
 namespace SE 
 {
@@ -57,13 +59,15 @@ namespace SE
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
 
+			HUDParser playStateGUI;
+
 			Core::Entity cam;
 			Core::Entity dummy;
 			PlayerUnit* player;
 			std::vector<Room*> rooms;
 			Room* currentRoom = nullptr;
 			int currentRoomIndex = -1;
-			static const int enemiesInEachRoom = 1;
+			static const int enemiesInEachRoom = 5;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 

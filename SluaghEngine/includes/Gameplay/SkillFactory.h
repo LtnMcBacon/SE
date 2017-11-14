@@ -39,6 +39,9 @@ namespace SE
 		public:
 			SkillFactory();
 			int skillAmounts = 0;
+
+
+			unsigned int getRandomSkillIndex();
 			/**
 			* @brief		Returns the skill description.
 			* 
@@ -54,7 +57,7 @@ namespace SE
 			*
 			* @retval		Returns the skill index position in the file
 			**/
-			unsigned int readSkillInfo(std::string& name, unsigned short int* typeList);
+			void readSkillInfo(int index, std::string& name, unsigned short int* typeList);
 			/**
 			* @brief		Returns the skills attributes.
 			*
