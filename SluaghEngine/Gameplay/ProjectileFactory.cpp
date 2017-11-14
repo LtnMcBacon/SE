@@ -49,6 +49,12 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
+			if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
+			{
+				CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), { loaded.particleEffect });
+				CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
+			}
+
 			auto owner = data.ownerUnit.lock();
 			if (loaded.boundToOwner && owner)
 			{
@@ -197,6 +203,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 		CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
+
+		if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
+		{
+			CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), { loaded.particleEffect });
+			CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
+		}
 
 		auto owner = data.ownerUnit.lock();
 		if (loaded.boundToOwner && owner)
@@ -915,6 +927,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		temp.startPosY = p->GetYPosition();
 		temp.target = p->GetValidTarget();
 		temp.eventDamage = p->GetDamageEvent();
+		temp.eventDamage.amount = temp.eventDamage.originalAmount;
 		temp.ownerUnit = p->GetSharedPtr();
 		temp.fileNameGuid = fileName;
 
@@ -1022,6 +1035,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
 		temp.amount = dt * temp.originalAmount;
 		p->SetDamageEvent(temp);
+		p->EmptyHitVector();
 
 		return false;
 	};
@@ -1049,6 +1063,24 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	};
 
 	ProfileReturnConst(AboveHealth);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+
+	float toSetTo = std::get<float>(parameters[0].data);
+
+	auto DamageSetter = [toSetTo](Projectile* p, float dt) -> bool
+	{
+		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
+		temp.amount = toSetTo;
+		p->SetDamageEvent(temp);
+
+		return false;
+	};
+
+	ProfileReturnConst(DamageSetter);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
@@ -1128,7 +1160,7 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithPlayerConditionBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDamageBasedOnDTBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::UserHealthAboveConditionBehaviour, this, std::placeholders::_1)); // f, o
-
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetActualDamageBehaviour, this, std::placeholders::_1)); // f
 
 }
 

@@ -31,7 +31,6 @@ namespace SE
 		private:
 			
 			Room* adjacentRooms[4] = {};
-			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
@@ -310,7 +309,7 @@ namespace SE
 			*/
 			void ProjectileAgainstWalls(Projectile& projectile);
 
-			int PointCollisionWithEnemy(float x, float y);
+			int PointCollisionWithEnemy(float x, float y, Projectile& projectile);
 
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy

@@ -196,6 +196,7 @@ namespace SE
 			typedef void(WindowSDL::*FrameStrategy)();
 			FrameStrategy currentFrameStrategy;
 			size_t frame = 0;
+			bool firstFrame = true;
 			Utilz::Timer time;
 		};
 
