@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #include "IGameState.h"
 #include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\PerkImporter.h>
 #include <string>
 #include <vector>
 //#include <SkillFactory.h>
@@ -48,7 +49,7 @@ namespace SE
 
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
-
+			PerkImporter perks;
 			/*void SkillBtns(int nrOfSkills);
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();

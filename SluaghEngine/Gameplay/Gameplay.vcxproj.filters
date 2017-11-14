@@ -139,6 +139,12 @@
     <Filter Include="Source Files\Skills">
       <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Perks">
+      <UniqueIdentifier>{5d66253d-08a0-4897-86fc-906cf3686401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Perks">
+      <UniqueIdentifier>{ae18b683-1a04-47df-b06d-326c5d3c82b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -323,6 +329,18 @@
     </ClCompile>
     <ClCompile Include="PauseAnimationsLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationRunningCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseAnimationsLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="PerkImporter.cpp">
+      <Filter>Source Files\Perks</Filter>
     </ClCompile>
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
@@ -550,6 +568,12 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PerkData.h">
+      <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PerkImporter.h">
+      <Filter>Header Files\Perks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
