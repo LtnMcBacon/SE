@@ -136,6 +136,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 	fileVersion = (float)atof(line.c_str());
 	GetLine(fileData, line, position);
 	nrOfProjectilesToParse = atoi(line.c_str());
+	auto tempTest = this->ptrs.player;
 
 	for (int i = 0; i < nrOfProjectilesToParse; i++)
 	{

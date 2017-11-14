@@ -336,6 +336,9 @@
     <ClCompile Include="PerkImporter.cpp">
       <Filter>Source Files\Perks</Filter>
     </ClCompile>
+    <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -565,6 +568,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h">
       <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
