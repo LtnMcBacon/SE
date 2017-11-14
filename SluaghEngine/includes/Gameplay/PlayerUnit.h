@@ -251,14 +251,14 @@ namespace SE
 			int getSkillVectorSize();
 
 			std::string getSkillName(int skillNumber);
-			unsigned short int getAttackType(int skillNumber);
-			unsigned short int getElement(int skillNumber);
-			unsigned short int getBoon(int skillNumber);
-			unsigned short int  getBanes(int skillNumber);
+			DamageSources getAttackType(int skillNumber);
+			DamageTypes getElement(int skillNumber);
+			Boons getBoon(int skillNumber);
+			Banes getBanes(int skillNumber);
 			unsigned short int getAnimation(int skillNumber);
 			unsigned short int getParticle(int skillNumber);
 
-			void getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference);
+			Utilz::GUID getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference);
 			float getSkillDamage(int skillNumber);
 			float getBoonEffectValue(int skillNumber);
 			float getBoonRange(int skillNumber);

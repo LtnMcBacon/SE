@@ -587,24 +587,24 @@ std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
 	return skills.at(skillNumber).skillName;
 }
 
-unsigned short int SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
+SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
 {
-	return (unsigned short int)skills.at(skillNumber).atkType;
+	return skills.at(skillNumber).atkType;
 }
 
-unsigned short int SE::Gameplay::PlayerUnit::getElement(int skillNumber)
+SE::Gameplay::DamageTypes SE::Gameplay::PlayerUnit::getElement(int skillNumber)
 {
-	return (unsigned short int)skills.at(skillNumber).element;
+	return skills.at(skillNumber).element;
 }
 
-unsigned short int SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
+SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
 {
-	return (unsigned short int)skills.at(skillNumber).boon;
+	return skills.at(skillNumber).boon;
 }
 
-unsigned short int  SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
+SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
 {
-	return (unsigned short int)skills.at(skillNumber).bane;
+	return skills.at(skillNumber).bane;
 }
 
 unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
@@ -617,7 +617,7 @@ unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
 	return (unsigned short int)skills.at(skillNumber).particle;
 }
 
-void SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference)
+SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference)
 {
 	projectileReference = skills.at(skillNumber).projectileFileGUID;
 }
