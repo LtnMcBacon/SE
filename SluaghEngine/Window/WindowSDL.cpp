@@ -11,6 +11,34 @@
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
 
+static std::ofstream dtFile;
+
+// temp dt print
+void OpenDTRec()
+{
+	static bool recordDT = false;
+	if (recordDT == false)
+	{
+		std::time_t currentTime = std::time(nullptr);
+		char timeChar[100];
+		std::strftime(timeChar, sizeof(timeChar), "%A %c", std::localtime(&currentTime));
+		std::string currentStringTime = timeChar;
+		currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
+		
+		dtFile.open("Recordings/deltaT" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
+		recordDT = true;
+	}
+}
+
+void SaveDT(float dt)
+{
+	dtFile.write(reinterpret_cast<const char*>(&dt), sizeof(float));
+}
+
+void close()
+{
+	dtFile.close();
+}
 
 
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
@@ -131,18 +159,10 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 void SE::Window::WindowSDL::Shutdown()
 {
-	if (record.recordState)
-	{
-		record.recordState = false;
-		while (!record.recThread.joinable())
-		{
-
-		}
-		record.recThread.join();
-		record.recFile.close();
-	}
+	StopRecording();
 	if (playRecord.playback)
 	{
+		close();
 		playRecord.playbackData.clear();
 	}
 	SDL_Quit();
@@ -182,6 +202,7 @@ void SE::Window::WindowSDL::RecordFrame()
 	SDL_Event ev;
 	inputRecData inData;
 	inData.dTime = time.GetDelta<std::ratio<1, 1>>();
+	SaveDT(inData.dTime);
 	while (SDL_PollEvent(&ev))
 	{
 		for (auto& onEvent : onEventCallbacks)
@@ -203,6 +224,7 @@ void SE::Window::WindowSDL::PlaybackFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
+	SaveDT(playRecord.playbackData[frame].dTime);
 	for (auto& ev : playRecord.playbackData[frame].events)
 	{
 		for (auto& onEvent : onEventCallbacks)
@@ -236,6 +258,9 @@ void SE::Window::WindowSDL::StartRecording()
 		record.recFile.write((char*)&posY, sizeof(int));
 		std::srand(currentTime);
 		record.recThread = std::thread(&Window::WindowSDL::RecordToFile, this);
+
+		//temp rec
+		OpenDTRec();
 	}
 	StopProfile;
 }
@@ -244,6 +269,7 @@ void SE::Window::WindowSDL::StopRecording()
 {
 	if (record.recordState)
 	{
+		close();
 		record.recordState = false;
 		while (!record.recThread.joinable())
 		{
@@ -251,6 +277,8 @@ void SE::Window::WindowSDL::StopRecording()
 		}
 		record.recThread.join();
 		record.recFile.close();
+		frame;
+		int i = 0;
 	}
 }
 
@@ -272,11 +300,11 @@ void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 		while (!playRecord.playbackfile.eof())
 		{
 			inputRecData tempRecData;
-			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
-			playRecord.playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			playRecord.playbackfile.read(reinterpret_cast<char*>(&tempRecData.dTime), sizeof(float));
+			playRecord.playbackfile.read(reinterpret_cast<char*>(&tempRecData.nrOfEvent), sizeof(size_t));
 			for (int i = 0; i < tempRecData.nrOfEvent; i++)
 			{
-				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				playRecord.playbackfile.read(reinterpret_cast<char*>(&ev), sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
 			playRecord.playbackData.push_back(tempRecData);
@@ -284,6 +312,9 @@ void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 		playRecord.playbackfile.close();
 		playRecord.playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
+
+		//temp rec
+		OpenDTRec();
 	}
 	StopProfile;
 }
@@ -521,9 +552,9 @@ void SE::Window::WindowSDL::RecordToFile()
 		while (!record.circFiFo.wasEmpty())
 		{
 			const inputRecData& evData = record.circFiFo.top();
-			record.recFile.write((char*)&evData.dTime, sizeof(float));
-			record.recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
-			record.recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
+			record.recFile.write(reinterpret_cast<const char*>(&evData.dTime), sizeof(float));
+			record.recFile.write(reinterpret_cast<const char*>(&evData.nrOfEvent), sizeof(size_t));
+			record.recFile.write(reinterpret_cast<const char*>(evData.events.data()), sizeof(SDL_Event) * evData.events.size());
 			record.circFiFo.pop();
 		}
 		using namespace std::chrono_literals;

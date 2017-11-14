@@ -232,8 +232,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
 	Window::InitializationInfo initInfo;
-	initInfo.winState = Window::WindowState::Record;
-	initInfo.file = "Recordings/shadowCreep.bin";
+	//initInfo.winState = Window::WindowState::Record;
+	initInfo.winState = Window::WindowState::Playback;
+	initInfo.file = "Recordings/hej.bin";
 	Core::IEngine::InitializationInfo engineInit;
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
