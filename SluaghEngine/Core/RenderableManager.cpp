@@ -44,6 +44,13 @@ SE::Core::RenderableManager::RenderableManager(const IRenderableManager::Initial
 	Allocate(allocsize);
 }
 
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize,
+	RenderableManagerInstancing* rmI, RenderableManagerInstancing* anShadow) : initInfo(initInfo), rmInstancing(rmI), shadowInstancing(anShadow)
+{
+	Init();
+	Allocate(allocsize);
+}
+
 
 SE::Core::RenderableManager::~RenderableManager()
 {

@@ -160,6 +160,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationShadowSystem.cpp" />
     <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="..\includes\Core\IParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
+    <ClInclude Include="AnimationShadowSystem.h" />
     <ClInclude Include="AnimationStructs.h" />
     <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="DataManager.h" />

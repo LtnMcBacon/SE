@@ -1,4 +1,5 @@
 #include "AnimationManager.h"
+#include "AnimationShadowSystem.h"
 #include <Profiler.h>
 #include <Graphics\VertexStructs.h>
 
@@ -20,11 +21,12 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	initInfo.eventManager->RegisterToToggleShadow({ this, &AnimationManager::ToggleShadow });
 
 	animationSystem = new AnimationSystem(initInfo.renderer);
+	auto animShadow = new AnimationShadowSystem(initInfo.renderer, animationSystem);
 
 	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
 		initInfo.console, initInfo.entityManager,
 		initInfo.eventManager, initInfo.transformManager },
-		10, animationSystem);
+		10, animationSystem, animShadow);
 	
 	ResourceHandler::Callbacks sC;
 	sC.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
@@ -750,7 +752,6 @@ void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visib
 void SE::Core::AnimationManager::ToggleShadow(const Entity& entity, bool on)
 {
 	StartProfile;
-	renderableManager->ToggleRenderableObject(entity, on);
 	renderableManager->ToggleShadow(entity, on);
 	ProfileReturnVoid;
 }

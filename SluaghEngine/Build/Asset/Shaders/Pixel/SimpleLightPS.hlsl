@@ -78,7 +78,7 @@ for (int i = 0; i < nrOfLights.x; i++)
 	{
 		float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
 		float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
-		if (mapDepth + 0.0001f < distance / pointLights[i].pos.w)
+		if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
 			shadowFactor = 0.25f;
 	}
 
