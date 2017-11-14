@@ -17,7 +17,7 @@ using namespace Gameplay;
 
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
-static const SE::Utilz::GUID Norm("SimpleLightPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
 static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 
 
