@@ -69,11 +69,12 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->Create(mainC2);
 	managers.transformManager->Create(attachable);
 
-	Core::IRenderableManager::CreateInfo arrow;
-	arrow.meshGUID = "Placeholder_Arrow.mesh";
-	managers.renderableManager->CreateRenderableObject(attachable, arrow);
+	Core::IRenderableManager::CreateInfo sword;
+	sword.meshGUID = "Sword.mesh";
+	managers.renderableManager->CreateRenderableObject(attachable, sword);
 	managers.renderableManager->ToggleRenderableObject(attachable, true);
-	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
+	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
+	managers.transformManager->SetPosition(attachable, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
@@ -109,7 +110,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	Core::IMaterialManager::CreateInfo info;
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
-	auto material = Utilz::GUID("Bodach.mat");
+	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;	
 	info.materialFile = material;
 
@@ -117,10 +118,10 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC2, info);
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "Bodach.mesh";
-	sai.skeleton = "Bodach.skel";
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 4;
-	Utilz::GUID anims[] = { "RunAnim_Bodach.anim", "LeapAnim_Bodach.anim", "DeathAnim_Bodach.anim", "AttackAnim_Bodach.anim" };
+	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopSwordAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
@@ -128,14 +129,14 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	managers.animationManager->AttachToEntity(mainC, attachable, "Hand_Left", 0);
+	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
 
 	managers.collisionManager->CreateBoundingHierarchy(mainC, "Bodach.mesh");
 	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Bodach.mesh");
 
-	Utilz::GUID mainAnim[] = { "RunAnim_Bodach.anim" };
-	managers.animationManager->Start(mainC, mainAnim, 2, 10.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
-	managers.animationManager->Start(mainC2, mainAnim, 2, 10.0f, Core::AnimationFlags::IMMEDIATE);
+	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
+	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
+	managers.animationManager->Start(mainC2, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -156,6 +157,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	static float speed = 0.0f;
 	static float blendFactorSpeed = 0.00f;
 	static float rot = 0.0f;
+	static float localRot[3] = { 0 };
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
@@ -218,8 +220,14 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if (ImGui::Button("BlendToAndBack")) {
 
-			Utilz::GUID deathAnim = "RunAnim_Bodach.anim";
+			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
 			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
+		}
+
+		
+		if (ImGui::SliderFloat3("Object Local Transform", localRot, 0.0f, 6.28f)) {
+
+			managers.transformManager->SetRotation(attachable, localRot[0], localRot[1], localRot[2]);
 		}
 
 		if (ImGui::Button("C1 Start")){
