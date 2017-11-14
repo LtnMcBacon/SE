@@ -220,6 +220,7 @@ void PlayState::InitializeRooms()
 	blackBoard.currentRoom = currentRoom = rooms[0];
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
 	delete[] RoomArr;
 	ProfileReturnVoid;
 }
@@ -245,7 +246,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			data.type = ENEMY_TYPE_NUCKELAVEE;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -565,7 +566,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			}
 
 			delete tempPtr;
-
+			currentRoom->InitializeAdjacentFlowFields();
 			/**
 			*	Must be put in change room once the function is done!
 			*/

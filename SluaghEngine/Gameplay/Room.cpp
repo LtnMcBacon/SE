@@ -1201,6 +1201,20 @@ Room::~Room()
 
 }
 
+void SE::Gameplay::Room::InitializeAdjacentFlowFields()
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if(DoorArr[i].active)
+		{
+			adjacentRooms[i]->UpdateFlowField(
+				adjacentRooms[i]->DoorArr[int(ReverseDirection(DirectionToAdjacentRoom(i)))].xPos,
+				adjacentRooms[i]->DoorArr[int(ReverseDirection(DirectionToAdjacentRoom(i)))].yPos
+			);
+		}
+	}
+}
+
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;

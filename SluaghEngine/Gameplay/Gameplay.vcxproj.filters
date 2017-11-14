@@ -333,6 +333,9 @@
     <ClCompile Include="ChangeRoomLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
+    <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -562,6 +565,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

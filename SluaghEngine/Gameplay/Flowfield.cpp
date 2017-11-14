@@ -47,6 +47,7 @@ void FlowField::Update(const pos & playerPos)
 	data[(int)playerPos.x][(int)playerPos.y].cost = 0;
 	RecursiveLeifUpdate((int)playerPos.x, (int)playerPos.y);
 	SetDirectionsBasedOnCosts();
+	data[(int)playerPos.x][(int)playerPos.y].dir = Direction::NONE;
 	StopProfile;
 }
 
@@ -105,7 +106,6 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 		break;
 
 	}
-
 
 	StopProfile;
 }

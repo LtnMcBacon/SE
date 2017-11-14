@@ -15,7 +15,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	animationPlayInfos[PLAYER_ON_HIT_ANIMATION].push_back("TopHitAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize Attack animation*/
-	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopAttackAnim_MCModell.anim"); //= playInfo;
+	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopSwordAttackAnim_MCModell.anim"); //= playInfo;
 
 
 	/*Initialize Idle Animation*/
@@ -32,11 +32,11 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 }
 
 
-void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
+bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
 	StartProfile;
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags);
-	StopProfile;
+	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
+	
 }
 
 void SE::Gameplay::PlayerUnit::ResolveEvents()
@@ -332,21 +332,23 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (input.actionButton && attackCooldown <= 0.0f)
 	{
-		ProjectileData temp;
 
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+		if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+		{
+			ProjectileData temp;
 
-		newProjectiles.push_back(temp);
+			temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+			temp.startPosX = this->xPos;
+			temp.startPosY = this->yPos;
+			temp.target = ValidTarget::ENEMIES;
+			temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
+			temp.ownerUnit = mySelf;
+			temp.fileNameGuid = "NuckelaveeMeleeProjectile.SEP";
 
-		attackCooldown = 1.0f / attackSpeed;
+			newProjectiles.push_back(temp);
 
-		//AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK);
+			attackCooldown = 1.0f / attackSpeed;
+		}
 	}
 
 	if (attackCooldown > 0.f)

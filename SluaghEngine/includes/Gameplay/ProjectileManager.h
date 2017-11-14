@@ -72,7 +72,7 @@ namespace SE
 			/**
 			 * @brief HelperFunction for collision checks
 			 */
-			bool CheckCollisionHelperFunction(GameUnit* unit, BoundingRect projectileRect);
+			bool CheckCollisionHelperFunction(GameUnit* unit, Projectile &projectile);
 
 		public:
 

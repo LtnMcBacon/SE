@@ -42,7 +42,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
