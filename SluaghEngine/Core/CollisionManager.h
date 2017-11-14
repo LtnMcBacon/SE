@@ -39,6 +39,15 @@ namespace SE
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
+			* @details	The bounding Hierarchy will be created from the sphere radius.
+			* @param[in] entity The entity to create the bounding Hierarchy for.
+			* @param[in] radius The radius of the boundingSphere
+			*/
+			void CreateBoundingHierarchy(const Entity& entity, const float radius);
+
+			/**
+			* @brief	Create a bounding Hierarchy for the entity.
+			*
 			* @details	The bounding Hierarchy will be created from mesh asset given.
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.

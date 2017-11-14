@@ -90,7 +90,7 @@ SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
 	CoreInit::managers.transformManager->Create(wep, pos);
 	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
 	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { wet[size_t(type)].mesh });
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, wet[size_t(type)].mesh);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, 0.2);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
 
 
