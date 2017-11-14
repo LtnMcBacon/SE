@@ -15,7 +15,7 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
-	nrOfSkills = 1;
+	nrOfSkills = 3;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -31,7 +31,10 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	{
 		if (selectedSkills == nrOfSkills)
 		{
-			allSkillsSelected = true;
+			if (selectedPerks == nrOfPerks)
+			{
+				this->CurrentState = State::PLAY_STATE;
+			}
 		}
 		
 	}; std::function<void()> begin = startGame;
@@ -74,8 +77,14 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills != renewSkillList)
 	{
 		fileParser.GUIButtons.deleteSkillPerkBtns();
-		//getSkills();
+		getSkills();
 		renewSkillList = selectedSkills;
+	}
+	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
+	{
+		allSkillsSelected = true;
+		fileParser.GUIButtons.deleteSkillPerkBtns();
+		getPerks();
 	}
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
@@ -92,7 +101,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	PlayStateData* infoToPass = new PlayStateData;
 	if (selectedSkills  == true)
 	{
-		for (int i = 0; i < 3; i++)
+		/*for (int i = 0; i < 3; i++)
 		{
 			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
 			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
@@ -112,7 +121,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
 			infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;
 
-		}
+		}*/
 		passableInfo = infoToPass;
 	}
 
@@ -123,7 +132,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 void SE::Gameplay::CharacterCreationState::getSkills()
 {
 	StartProfile;
-	int offset = 225;
+	int offset = 300;
 	int borderOffset = 200;
 	int rectSize = 100;
 	SkillFactory sf;
@@ -137,7 +146,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 
 		std::string skillName;
 		unsigned short int skillInfo[8];
-		unsigned int indexPLaceHolder = 2;
+		
 		unsigned int index = sf.getRandomSkillIndex();
 		sf.readSkillInfo(index, skillName, skillInfo);
 
@@ -151,7 +160,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 			while (j < nrOfOtherSkills)
 			{
 
-				if (indexPLaceHolder == OtherSkills[j])
+				if (index == OtherSkills[j])
 				{
 					j = 0;
 					p = 0;
@@ -165,7 +174,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 
 				while (p < chosenSkillsIndex.size())
 				{
-					if (indexPLaceHolder == chosenSkillsIndex[p])
+					if (index == chosenSkillsIndex[p])
 					{
 						j = 0;
 						p = 0;
@@ -185,7 +194,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 			while (j < chosenSkillsIndex.size())
 			{
 
-				if (indexPLaceHolder == chosenSkillsIndex[j])
+				if (index == chosenSkillsIndex[j])
 				{
 					j = 0;
 					p = 0;
@@ -199,7 +208,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 
 				while (p < nrOfOtherSkills)
 				{
-					if (indexPLaceHolder == OtherSkills[p])
+					if (index == OtherSkills[p])
 					{
 						j = 0;
 						p = 0;
@@ -215,7 +224,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 			}
 		}		
 	
-		OtherSkills.push_back(indexPLaceHolder);
+		OtherSkills.push_back(index);
 		nrOfOtherSkills++;
 		skill.skillName = skillName;
 		skill.atkType	= static_cast<DamageSources>(skillInfo[0]);
@@ -225,11 +234,11 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		skill.animation = 0;
 		skill.particle	= 0;
 	
-		auto SkillIndexReturn = [this, indexPLaceHolder, skill]()->void
+		auto SkillIndexReturn = [this, index, skill]()->void
 		{
 			if (selectedSkills < nrOfSkills)
 			{
-				this->chosenSkillsIndex.push_back(indexPLaceHolder);
+				this->chosenSkillsIndex.push_back(index);
 				this->chosenSkills.push_back(skill);
 				this->selectedSkills++;
 			}
@@ -240,7 +249,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		{
 			if (skillButton.rectName == skillName)
 			{
-				skillButton.skillIndex = indexPLaceHolder;
+				skillButton.skillIndex = index;
 				skillButton.bindButton = skillChoice;
 
 				fileParser.GUIButtons.CreateButton(

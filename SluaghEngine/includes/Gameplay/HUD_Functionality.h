@@ -43,6 +43,7 @@ namespace SE
 
 			// vector to store buttons
 			std::vector<ButtonElement> Buttons;
+			std::vector<std::string> ButtonsToDelete;
 			// vector to store buttons drawing entities
 			std::vector<SE::Core::Entity> ButtonEntityVec;
 			SE::Core::Entity skillDescEntity;

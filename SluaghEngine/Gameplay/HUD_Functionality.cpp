@@ -54,7 +54,7 @@ namespace SE
 			tempElement.PressTex = PressTex;
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
-
+			tempElement.EntityIndex = -1;
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
@@ -78,6 +78,7 @@ namespace SE
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
+			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 7; i++)
 			{
 				if (skillDesc[i] != 0u)
@@ -232,6 +233,10 @@ namespace SE
 			StartProfile;
 			for (auto& ButtonElement : Buttons)
 			{
+				if (ButtonElement.EntityIndex != -1)
+				{
+					continue;
+				}
 				auto entity = CoreInit::managers.entityManager->Create();
 
 				ButtonGuiManager.textureInfo.width = ButtonElement.Width;
@@ -261,6 +266,7 @@ namespace SE
 				if (ButtonElement.skillButton)
 				{
 					SkillNPerkEntityVec.push_back(entity);
+					ButtonsToDelete.push_back(ButtonElement.rectName);
 				}
 			}
 			ProfileReturnVoid;
@@ -277,6 +283,7 @@ namespace SE
 					if (button.rectName == "skillDescription")
 					{
 						skillDescBtn = button;
+						break;
 					}
 				}
 			
@@ -359,10 +366,11 @@ namespace SE
 
 								skillDescEntity = entText;
 								
-								entityIndex++;
+								
 							}
 						}
 						wasHovering = true;
+						break;
 					}
 				}
 				else
@@ -380,7 +388,7 @@ namespace SE
 
 								CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
 								CoreInit::managers.entityManager->Destroy(skillDescEntity);
-								entityIndex--;
+								
 							}
 							wasHovering = false;
 						}
@@ -428,7 +436,19 @@ namespace SE
 		void HUDButtons::deleteSkillPerkBtns()
 		{
 			StartProfile;
+			for (int i = 0; i < Buttons.size(); i++)
+			{
 
+				for (auto& name : ButtonsToDelete)
+				{
+					if (name == Buttons[i].rectName)
+					{
+						Buttons.erase(Buttons.begin()+i);
+						
+					}
+				}
+			}
+			
 			for (auto& entity : SkillNPerkEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
@@ -436,6 +456,11 @@ namespace SE
 			}
 			SkillNPerkEntityVec.clear();
 
+			if (skillDescEntity.id != 0)
+			{
+				CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
+				CoreInit::managers.entityManager->Destroy(skillDescEntity);
+			}
 			ProfileReturnVoid;
 		}
 
