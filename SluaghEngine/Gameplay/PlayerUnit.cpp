@@ -241,10 +241,53 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
 }
-
+#include <KeyBindings.h>
+#include <Items.h>
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
+
+	auto w = CoreInit::subSystems.window;
+	bool ci = false;
+	auto pi = currentItem;
+	if (w->ButtonPressed(GameInput::ONE))
+	{
+		currentItem = 0;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::TWO))
+	{
+		currentItem = 1;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::THREE))
+	{
+		currentItem = 2;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::FOUR))
+	{
+		currentItem = 3;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::FIVE))
+	{
+		currentItem = 4;;
+		ci = true;
+	}
+
+	if (ci)
+	{
+		if(auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
+		{
+			auto type = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Type", false)));
+
+		}
+		else
+		{
+			currentItem = pi;		
+		}
+	}
 
 	int nrOfSKills = skills.size();
 	

@@ -85,7 +85,7 @@ SE::Gameplay::Element SE::Gameplay::Item::GetRandElement()
 SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
 	auto wep = CoreInit::managers.entityManager->Create();
-	auto type = WeaponType::MELEE;// GetRandType();
+	auto type = ItemType::WEAPON;// GetRandType();
 	auto ele = GetRandElement();
 	CoreInit::managers.transformManager->Create(wep);
 	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
@@ -107,8 +107,8 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", Item::GetRandAgi());
 	CoreInit::managers.dataManager->SetValue(wep, "Wis", Item::GetRandWil());
 	CoreInit::managers.dataManager->SetValue(wep, "Damage", Item::GetRandDamage());
-	CoreInit::managers.dataManager->SetValue(wep, "Type", int(type));
-	CoreInit::managers.dataManager->SetValue(wep, "Element", int(ele));
+	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(type));
+	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(ele));
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
@@ -188,7 +188,7 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 
 	offset += he + 3;
 
-	Core::ITextManager::CreateInfo citype;
+	/*Core::ITextManager::CreateInfo citype;
 	citype.font = "CloisterBlack.spritefont";
 	citype.info.posX = -35;
 	citype.info.posY = offset;
@@ -203,7 +203,7 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponType, "StopRenderWIC");
 	CoreInit::managers.dataManager->SetValue(weaponType, "Parent", ent);
-	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
+	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);*/
 
 	offset += he + 3;
 

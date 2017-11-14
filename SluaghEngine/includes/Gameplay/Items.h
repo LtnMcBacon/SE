@@ -14,7 +14,11 @@ namespace SE
 			RANGED,
 			MAGIC
 		};
-
+		enum class ItemType
+		{
+			WEAPON,
+			CONSUMABLE
+		};
 		struct Item
 		{
 			static Core::Entity Create();
