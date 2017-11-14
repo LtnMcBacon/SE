@@ -42,6 +42,8 @@ namespace SE
 			
 			static void Drop(Core::Entity ent, DirectX::XMFLOAT3 pos);
 			static void Pickup(Core::Entity ent);
+			static void Equip(Core::Entity to, Core::Entity ent);
+			static void Unequip(Core::Entity from, Core::Entity ent);
 			static void ToggleRenderPickupInfo(Core::Entity ent);
 			static void ToggleRenderEquiuppedInfo(Core::Entity item, Core::Entity parent);
 

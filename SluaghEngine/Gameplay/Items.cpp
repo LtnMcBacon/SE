@@ -7,12 +7,16 @@ struct WeaponInfo
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
+	SE::Utilz::GUID equipJoint;
+	int slotIndex;
+	DirectX::XMFLOAT3 equipPos;
+	DirectX::XMFLOAT3 equipRot;
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl"},
-	{"Fireball_NSMB.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" },
-	{"sweating towelguy.jpg", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl" }
+	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
+	{"Fireball_NSMB.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" , "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
+	{"sweating towelguy.jpg", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } }
 } };
 
 
@@ -293,6 +297,7 @@ SE::Core::Entity SE::Gameplay::Item::Create()
 void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 {
 	CoreInit::managers.transformManager->SetPosition(ent, pos);
+	CoreInit::managers.transformManager->SetRotation(ent, 0,0,0);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
@@ -309,6 +314,27 @@ void SE::Gameplay::Item::Pickup(Core::Entity ent)
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 }
 
+void SE::Gameplay::Item::Equip(Core::Entity to, Core::Entity ent)
+{
+	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+	if (wType != -1)
+	{
+		CoreInit::managers.transformManager->SetPosition(ent, weaponInfo[wType].equipPos);
+		CoreInit::managers.transformManager->SetRotation(ent, weaponInfo[wType].equipRot.x, weaponInfo[wType].equipRot.y, weaponInfo[wType].equipRot.z);
+		CoreInit::managers.animationManager->AttachToEntity(to, ent, weaponInfo[wType].equipJoint, weaponInfo[wType].slotIndex);
+		CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
+	}
+
+}
+
+void SE::Gameplay::Item::Unequip(Core::Entity from ,Core::Entity ent)
+{
+	//CoreInit::managers.transformManager->SetPosition(ent, { 0.07f,0.15f,0.5f });
+	//CoreInit::managers.transformManager->SetRotation(ent, -0.25f, 0.2f, 1.5f);
+	//CoreInit::managers.animationManager->AttachToEntity(to, ent, "LHand", 0);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
+}
+
 void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 {
 	Weapon::ToggleRenderPickupInfo(ent);
@@ -316,10 +342,11 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 
 void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent)
 {
-	if (auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false)))
+	auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Item", -1)));
+	if (item == ItemType::WEAPON)
 	{
-		if (item)
-			Weapon::ToggleRenderEquiuppedInfo(ent, parent);
+
+		Weapon::ToggleRenderEquiuppedInfo(ent, parent);
 	}
 }
 

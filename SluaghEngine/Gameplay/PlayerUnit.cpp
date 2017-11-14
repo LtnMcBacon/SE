@@ -281,7 +281,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
 		if(item != -1)
 		{
-			auto type = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Type", false)));
+			auto piitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[pi], "Item", -1));
+			if (ItemType(piitem) == ItemType::WEAPON)
+				Item::Unequip(unitEntity, items[pi]);
+
+			if (ItemType(item) == ItemType::WEAPON)
+				Item::Equip(unitEntity, items[currentItem]);
 			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 		}
 		else
@@ -453,7 +458,12 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		//CoreInit::managers.entityManager->Destroy(items[currentItem]);
 		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
 		p.y = 0;
+
+		if (ItemType(isitem) == ItemType::WEAPON)
+			Item::Unequip(unitEntity, items[slot]);
+
 		Item::Drop(items[slot], p);
+
 	}
 	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
 	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
@@ -461,10 +471,9 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 	Item::Pickup(item);
 
-	CoreInit::managers.transformManager->SetPosition(item, { 0.07f,0.15f,0.5f });
-	CoreInit::managers.transformManager->SetRotation(item, -0.25f,0.2f,1.5f );
-	CoreInit::managers.animationManager->AttachToEntity(unitEntity, item, "LHand", 0);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(item, true);
+	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+	if(type == ItemType::WEAPON)
+		Item::Equip(unitEntity, item);
 
 
 	items[slot] = item;
@@ -664,8 +673,8 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	
 	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
 	{
-		auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false));
-		if (item)
+		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
+		if (item != -1)
 		{
 			CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 			Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
