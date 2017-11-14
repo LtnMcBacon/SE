@@ -20,19 +20,20 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 
 	for (size_t i = 0; i < perkCount; i++)
 	{
-		const char* file = new char[fileNames[i].length()];
+		
+	//	file[fileNames[i].length()] = 0;
 		
 		string fileString = fileNames[i];
-		file = fileNames[i].c_str();
 		
-		auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)file, [this](auto guid, auto data, auto size) {
+		
+		auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)fileString, [this](auto guid, auto data, auto size) {
 			PerkData tempData;
 			size_t head = 0;
 			int nameSize;
 			
 			memcpy(&nameSize, data, sizeof(int));
 			head += sizeof(int);
-			char* tempName = new char[nameSize];
+			char* tempName = new char[nameSize + 1];
 			tempName[nameSize] = 0;
 			
 			memcpy(tempName, (char*)data + head, sizeof(char) * nameSize);
@@ -73,7 +74,7 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 		{
 			throw exception("Failed to load perks");
 		}
-		delete[] file;
+		
 		
 	}
 	

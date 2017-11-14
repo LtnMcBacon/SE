@@ -23,9 +23,10 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	fileParser.ParseFiles("CharacterCreationMenu.HuD");
 	fileParser.InitiateTextures();
 	//Testing perk importer
-	std::string tempPath[1];
+	std::string tempPath[2];
 	tempPath[0] = "fuckYou.prk";
-	perks.loadPerkData(tempPath, 1);
+	tempPath[1] = "testPerkData.prk";
+	perks.loadPerkData(tempPath, 2);
 	//****************************
 	auto returnToMain = [this]()->void
 	{
