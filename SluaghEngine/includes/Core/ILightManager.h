@@ -43,6 +43,8 @@ namespace SE
 
 			virtual void SetShadowCaster(const Entity& entity) = 0;
 
+			virtual void SetColor(const Entity& entity, float rgb[3]) = 0;
+
 		protected:
 			ILightManager() {};
 	
