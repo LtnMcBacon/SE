@@ -24,12 +24,13 @@ static const std::array<WeaponInfo, 3> weaponInfo = { {
 struct ConsumableInfo
 {
 	SE::Utilz::GUID icon;
+	SE::Utilz::GUID backTex;
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
 };
 static const std::array<ConsumableInfo, 1> consInfo = { {
-	{"Water.png", "Bush.mesh", "Bush.mat", "SimpleLightPS.hlsl" }
+	{"Water.png","Water.png", "Bush.mesh", "Bush.mat", "SimpleLightPS.hlsl" }
 
 } };
 
@@ -365,17 +366,20 @@ void SE::Gameplay::Item::Unequip(Core::Entity from ,Core::Entity ent)
 
 void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 {
-	Weapon::ToggleRenderPickupInfo(ent);
+	auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Item", -1)));
+	if (item == ItemType::WEAPON)
+		Weapon::ToggleRenderPickupInfo(ent);
+	else if (item == ItemType::CONSUMABLE)
+		Consumable::ToggleRenderPickupInfo(ent);
 }
 
 void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent)
 {
 	auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Item", -1)));
 	if (item == ItemType::WEAPON)
-	{
-
 		Weapon::ToggleRenderEquiuppedInfo(ent, parent);
-	}
+	else if (item == ItemType::CONSUMABLE)
+		Consumable::ToggleRenderEquiuppedInfo(ent, parent);
 }
 
 SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
@@ -411,4 +415,69 @@ SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
 Core::Entity SE::Gameplay::Item::Consumable::Create(ConsumableType type)
 {
 	return Core::Entity();
+}
+
+static const auto renconsInfo = [](SE::Core::Entity ent, Core::Entity parent, long posX, bool stop)
+{
+	long offset = -125;
+	long he = 35;
+	
+	Core::ITextManager::CreateInfo ci;
+	ci.font = "CloisterBlack.spritefont";
+	ci.info.posX = posX;
+	ci.info.posY = offset;
+	ci.info.screenAnchor = { 0.5f, 0.5f };
+	ci.info.anchor = { 1,0.0f };
+	ci.info.scale = { 0.4f, 1.0f };
+	ci.info.height = he;
+	auto hp = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Health", -1));
+	ci.info.text = L"Health: " + std::to_wstring(hp);
+	auto hpEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(hpEnt, ci);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(hpEnt, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(hpEnt, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(hpEnt, "Parent", parent);
+	}
+	CoreInit::managers.textManager->ToggleRenderableText(hpEnt, true);
+	offset += he + 3;
+
+
+	Core::IGUIManager::CreateInfo ciback;
+
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+
+	ciback.texture = consInfo[type].backTex;
+	ciback.textureInfo.width = 200;
+	ciback.textureInfo.height = offset + 130;
+	ciback.textureInfo.posX = posX + 5;
+	ciback.textureInfo.posY = -130;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0, 0.0f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", parent);
+	}
+	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+};
+
+void SE::Gameplay::Item::Consumable::ToggleRenderPickupInfo(Core::Entity ent)
+{
+	renconsInfo(ent, ent, -40, false);
+}
+
+void SE::Gameplay::Item::Consumable::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent)
+{
+	renconsInfo(ent, parent, -245, true);
 }

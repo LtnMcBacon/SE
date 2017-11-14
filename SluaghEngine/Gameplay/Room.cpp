@@ -114,7 +114,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
 			if (true)//spw > 50000)
 			{	
-				Item::Drop(Item::Weapon::Create(), p);
+				Item::Drop(Item::Create(), p);
 				
 			}
 			

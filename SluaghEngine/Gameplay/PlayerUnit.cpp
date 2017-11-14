@@ -248,6 +248,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	StartProfile;
 
 	auto w = CoreInit::subSystems.window;
+
+
 	bool ci = false;
 	auto pi = currentItem;
 	if (w->ButtonPressed(GameInput::ONE))
@@ -279,7 +281,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	if (ci)
 	{
 		auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-		if(item == ItemType::WEAPON)
+		if (item == ItemType::WEAPON)
 		{
 			Item::Unequip(unitEntity, items[pi]);
 			Item::Equip(unitEntity, items[currentItem]);
@@ -287,11 +289,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 		else if (item == ItemType::CONSUMABLE)
 		{
-
+			Item::Unequip(unitEntity, items[pi]);
+			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 		}
 		else
 		{
-			currentItem = pi;		
+			currentItem = pi;
 		}
 	}
 
@@ -299,8 +302,10 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 
 
+
+
 	int nrOfSKills = skills.size();
-	
+
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
 	{
 		ProjectileData temp;
@@ -318,7 +323,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
 		else
 			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
-		
+
 		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
@@ -452,28 +457,34 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	_ASSERT(slot < MAX_ITEMS);
-	auto isitem = std::get<int32_t>( CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
 	if (isitem != -1)
 	{
-		//CoreInit::managers.entityManager->Destroy(items[currentItem]);
+
+		if ((ItemType)isitem == ItemType::WEAPON)
+			Item::Unequip(unitEntity, items[slot]);
+
 		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
 		p.y = 0;
-
-		if (ItemType(isitem) == ItemType::WEAPON)
-			Item::Unequip(unitEntity, items[slot]);
 
 		Item::Drop(items[slot], p);
 
 	}
-	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
-	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
-
-	Item::Pickup(item);
 
 	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-	if(type == ItemType::WEAPON)
+
+	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
+	Item::Pickup(item);
+
+
+
+	currentItem = slot;
+	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
+	if (type == ItemType::WEAPON)
 		Item::Equip(unitEntity, item);
+
+
 
 
 	items[slot] = item;

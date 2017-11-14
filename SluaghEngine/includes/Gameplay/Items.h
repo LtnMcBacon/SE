@@ -32,6 +32,8 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static Core::Entity Create(ConsumableType type);
+				static void ToggleRenderPickupInfo(Core::Entity ent);
+				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};
 			struct Weapon
 			{

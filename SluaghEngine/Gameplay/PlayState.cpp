@@ -440,34 +440,29 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
-		auto isItem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Item", -1));
-		if (isItem != -1)
+
+		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
+
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
 		{
-			CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
-		
-			if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
-			{
-				player->AddItem(ent, 0);
-			}
-			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
-			{
-				player->AddItem(ent, 1);
-			}
-			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
-			{
-				player->AddItem(ent, 2);
-			}
-			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
-			{
-				player->AddItem(ent, 3);
-			}
-			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
-			{
-				player->AddItem(ent, 4);
-			}
+			player->AddItem(ent, 0);
 		}
-	
-		
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
+		{
+			player->AddItem(ent, 1);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
+		{
+			player->AddItem(ent, 2);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
+		{
+			player->AddItem(ent, 3);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
+		{
+			player->AddItem(ent, 4);
+		}
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
@@ -491,11 +486,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	
 	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
 	{
-	//	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
 		Item::ToggleRenderPickupInfo(ent);
-		//Item::ToggleRenderEquiuppedInfo( player->GetCurrentItem(), pe);
-
 	};
 
 	Core::IEventManager::EventCallbacks stoprenderWIC;
@@ -516,8 +508,6 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		CoreInit::managers.entityManager->DestroyNow(ent);	
 		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
-		//CoreInit::managers.eventManager->RegisterEntitytoEvent(parent, "StartRenderWIC");
-
 	};
 	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
 	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
