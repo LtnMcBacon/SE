@@ -11,7 +11,8 @@ namespace SE
 		enum class ItemType
 		{
 			WEAPON,
-			CONSUMABLE
+			CONSUMABLE,
+			NUM_TYPES
 		};
 		enum class ConsumableType
 		{

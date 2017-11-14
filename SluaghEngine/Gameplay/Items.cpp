@@ -4,6 +4,7 @@
 struct WeaponInfo
 {
 	SE::Utilz::GUID icon;
+	SE::Utilz::GUID backTex;
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
@@ -14,11 +15,23 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
-	{"Fireball_NSMB.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" , "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
-	{"sweating towelguy.jpg", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } }
+	{"venomblades.jpg", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
+	{"Fireball_NSMB.png", "Range.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" , "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
+	{"sweating towelguy.jpg", "Magic.png", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } }
 } };
 
+
+struct ConsumableInfo
+{
+	SE::Utilz::GUID icon;
+	SE::Utilz::GUID mesh;
+	SE::Utilz::GUID mat;
+	SE::Utilz::GUID shader;
+};
+static const std::array<ConsumableInfo, 1> consInfo = { {
+	{"Water.png", "Bush.mesh", "Bush.mat", "SimpleLightPS.hlsl" }
+
+} };
 
 struct ElT
 {
@@ -255,7 +268,10 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 
 
 	Core::IGUIManager::CreateInfo ciback;
-	ciback.texture = "parchment.jpg";
+
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+
+	ciback.texture = weaponInfo[type].backTex;
 	ciback.textureInfo.width = 200;
 	ciback.textureInfo.height = offset + 130;
 	ciback.textureInfo.posX = posX+5;
@@ -291,6 +307,18 @@ void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity ent, Cor
 
 SE::Core::Entity SE::Gameplay::Item::Create()
 {
+	ItemType type = ItemType(std::rand() % size_t(ItemType::NUM_TYPES));
+	switch (type)
+	{
+	case SE::Gameplay::ItemType::WEAPON:
+		return Weapon::Create();
+		break;
+	case SE::Gameplay::ItemType::CONSUMABLE:
+		return Consumable::Create();
+		break;
+	default:
+		break;
+	}
 	return Core::Entity();
 }
 
@@ -352,7 +380,32 @@ void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entit
 
 SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
 {
-	return Core::Entity();
+	auto type = std::rand() % consInfo.size();
+	auto item = CoreInit::managers.entityManager->Create();
+	auto itype = ItemType::CONSUMABLE;// GetRandType();
+
+	CoreInit::managers.transformManager->Create(item);
+	CoreInit::managers.materialManager->Create(item, { consInfo[type].shader, consInfo[type].mat});
+	CoreInit::managers.renderableManager->CreateRenderableObject(item, { consInfo[type].mesh });
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = consInfo[type].icon;
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0.5f,0.5f };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 5;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
+
+	CoreInit::managers.guiManager->Create(item , icon);
+
+	CoreInit::managers.dataManager->SetValue(item, "Item", int32_t(itype));
+	CoreInit::managers.dataManager->SetValue(item, "Health", Item::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(item, "Type", int32_t(type));
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "WeaponPickUp");
+	return item;
 }
 
 Core::Entity SE::Gameplay::Item::Consumable::Create(ConsumableType type)

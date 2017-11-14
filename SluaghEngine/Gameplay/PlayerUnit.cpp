@@ -278,16 +278,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (ci)
 	{
-		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
-		if(item != -1)
+		auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+		if(item == ItemType::WEAPON)
 		{
-			auto piitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[pi], "Item", -1));
-			if (ItemType(piitem) == ItemType::WEAPON)
-				Item::Unequip(unitEntity, items[pi]);
-
-			if (ItemType(item) == ItemType::WEAPON)
-				Item::Equip(unitEntity, items[currentItem]);
+			Item::Unequip(unitEntity, items[pi]);
+			Item::Equip(unitEntity, items[currentItem]);
 			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+		}
+		else if (item == ItemType::CONSUMABLE)
+		{
+
 		}
 		else
 		{
