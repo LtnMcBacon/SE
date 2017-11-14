@@ -1,6 +1,7 @@
 #include "GameUnit.h"
 #include <Profiler.h>
 #include "CoreInit.h"
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -67,8 +68,6 @@ void GameUnit::ClearConditionEvents()
 void GameUnit::MoveEntity(float xMovement, float yMovement)
 {
 	StartProfile;
-	
-	
 	
 	CoreInit::managers.transformManager->Move(this->unitEntity, DirectX::XMFLOAT3{ xMovement, 0.f, yMovement });
 	DirectX::XMFLOAT3 pos = CoreInit::managers.transformManager->GetPosition(this->unitEntity);
