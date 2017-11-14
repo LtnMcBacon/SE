@@ -49,7 +49,7 @@ namespace SE
 			bool onObstacle = false;
 			bool checkedThisFrame = false;
 			bool channeling = false;
-			ConditionEvent::ConditionTypes activeCondition = ConditionEvent::ConditionTypes::CONDITION_TYPE_NONE;
+			Boons activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 			float attackCooldown = 0.f;
 			Room::DirectionToAdjacentRoom closestDoorDirection;
 
