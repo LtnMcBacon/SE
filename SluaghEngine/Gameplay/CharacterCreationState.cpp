@@ -24,7 +24,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	fileParser.InitiateTextures();
 	//Testing perk importer
 	std::string tempPath[1];
-	tempPath[0] = "peter likes to do stuff perk";
+	tempPath[0] = "fuckYou.prk";
 	perks.loadPerkData(tempPath, 1);
 	//****************************
 	auto returnToMain = [this]()->void
