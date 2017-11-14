@@ -104,7 +104,11 @@ std::vector<Accepted> acceptedExt =
 	{ "si", "si", "Skills", [](const char* filename, const char* outFilename) {
 		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "sa", "sa", "Skills", [](const char* filename, const char* outFilename) {
+			fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+
+	{ "pts", "pts", "Particle_Systems", [](const char* filename, const char* outFilename) {
 		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
+
 };
 
 std::vector<Accepted> fbxAccepted =

@@ -9,6 +9,7 @@ namespace SE
 	{
 		HUDButtons::HUDButtons()
 		{
+			CalculateScreenPositions();
 		}
 
 		HUDButtons::~HUDButtons()
@@ -18,9 +19,10 @@ namespace SE
 	/*	void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
 		{
 			StartProfile;
+			CalculateScreenPositions();
 			ButtonElement tempElement;
-			tempElement.PositionX = posX;
-			tempElement.PositionY = posY;
+			tempElement.PositionX = posX + additionalWidth;
+			tempElement.PositionY = posY + additionalHeight;
 
 			tempElement.Width = width;
 			tempElement.Height = height;
@@ -39,9 +41,10 @@ namespace SE
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
+			CalculateScreenPositions();
 			ButtonElement tempElement;
-			tempElement.PositionX = posX;
-			tempElement.PositionY = posY;
+			tempElement.PositionX = posX + additionalWidth;
+			tempElement.PositionY = posY + additionalHeight;
 
 			tempElement.Width = width;
 			tempElement.Height = height;
@@ -62,9 +65,10 @@ namespace SE
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
+			CalculateScreenPositions();
 			ButtonElement tempElement;
-			tempElement.PositionX = posX;
-			tempElement.PositionY = posY;
+			tempElement.PositionX = posX + additionalWidth;
+			tempElement.PositionY = posY + additionalHeight;
 
 			tempElement.Width = width;
 			tempElement.Height = height;
@@ -462,6 +466,25 @@ namespace SE
 				CoreInit::managers.entityManager->Destroy(skillDescEntity);
 			}
 			ProfileReturnVoid;
+		}
+
+		void HUDButtons::CalculateScreenPositions()
+		{
+			size_t height = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
+			size_t width = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+
+			size_t maxwidth = 1920;
+			size_t maxHeight = 1080;
+			size_t minWidth = 1280;
+			size_t minHeight = 720;
+			size_t widthDif = maxwidth - minWidth;
+			size_t heightDif = maxHeight - minHeight;
+
+			size_t scaledHeight = ((height - 720) * 1) / (1080 - 720);
+			size_t scaledWidth = ((width - 1280) * 1) / (1920 - 1280);
+
+			additionalWidth = widthDif*scaledWidth;
+			additionalHeight = heightDif*scaledHeight;
 		}
 
 		void HUDButtons::DrawButtonText(ButtonElement button)

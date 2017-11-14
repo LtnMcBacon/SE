@@ -40,7 +40,8 @@ namespace SE
 			};
 
 			bool wasHovering = false;
-
+			size_t additionalHeight = 0;
+			size_t additionalWidth = 0;
 			// vector to store buttons
 			std::vector<ButtonElement> Buttons;
 			std::vector<std::string> ButtonsToDelete;
@@ -57,7 +58,7 @@ namespace SE
 
 			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[] ,std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
+			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[], std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 
 			std::string printSkillDesc(ButtonElement button);
 
@@ -67,6 +68,7 @@ namespace SE
 			void DeleteButtons();
 			void HideButtons();
 			void ShowButtons();
+			void CalculateScreenPositions();
 			void deleteSkillPerkBtns();
 		private:
 
