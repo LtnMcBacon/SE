@@ -555,15 +555,16 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 	StopProfile;
 }
 
-int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
+int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y, Projectile& projectile)
 {
 	StartProfile;
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
 		
-		if(abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
+		if(!projectile.CheckIfAlreadyHit(enemyUnits[i]) && abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
 		{
+			projectile.AddToHit(enemyUnits[i]);
 			ProfileReturnConst(i);
 		}
 	}
@@ -584,12 +585,12 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	CollisionData cData;
 	int enemyCollidedWith = -1;
 
-	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY)) != -1) //check if front left corner of projectile is in a blocked square
+	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
 	{
 		collidedLeft = true;
 		cData.type = CollisionType::ENEMY;
 	}
-	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY)) != -1) //check if front right corner of projectile is in a blocked square
+	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
 	{
 		collidedRight = true;
 		cData.type = CollisionType::ENEMY;
@@ -1624,7 +1625,7 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 	if (DoorArr[int(DoorNr)].active)
 	{
 		DoorArr[int(DoorNr)].active = false;
-		//Turn it into a wall
+		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
 	}
 
 }

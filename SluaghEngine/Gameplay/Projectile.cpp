@@ -10,7 +10,6 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 	float xMovement = 0.0f;
 	float yMovement = 0.0f;
 
-	//rotation += rotData.force;
 	rotation = CoreInit::managers.transformManager->GetRotation(this->unitEntity).y + rotData.force * dt;
 
 	if (rotData.style == RotationStyle::NONE || rotData.style == RotationStyle::SELF)
@@ -18,11 +17,6 @@ void SE::Gameplay::Projectile::UpdateMovement(float dt)
 		xMovement = sinf(rotation);
 		yMovement = cosf(rotation);
 	}
-	//else if (rotData.style == RotationStyle::PLAYER)
-	//{
-	//	xMovement = cosf(rotation);
-	//	yMovement = sinf(rotation);
-	//}
 
 	/*Normalize the movement vector*/
 	float moveTot = abs(xMovement) + abs(yMovement);
@@ -64,12 +58,7 @@ void SE::Gameplay::Projectile::UpdateActions(float dt)
 	for (int i = 0; i < functionsToRun.size(); i++)
 	{
 		functionsToRun[i](this, dt);
-		//if (!functionsToRun[i](this, dt))
-		//{
-		//	std::swap(functionsToRun[i], functionsToRun[functionsToRun.size() - 1]);
-		//	functionsToRun.pop_back();
-		//	i--;
-		//}
+
 	}
 
 	collisionData = CollisionData();
@@ -198,6 +187,7 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->speed = other.speed;
 	this->target = other.target;
 	this->generation = other.generation;
+	this->targetsHit = other.targetsHit;
 }
 
 SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile & other)
@@ -220,6 +210,7 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->speed = other.speed;
 	this->target = other.target;
 	this->generation = other.generation;
+	this->targetsHit = other.targetsHit;
 
 	return *this;
 }
@@ -243,6 +234,7 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->speed = other.speed;
 	this->target = other.target;
 	this->generation = other.generation;
+	this->targetsHit = other.targetsHit;
 }
 
 SE::Gameplay::Projectile::~Projectile()
@@ -266,4 +258,15 @@ int SE::Gameplay::Projectile::AddBehaviourData(BehaviourData data)
 SE::Gameplay::BehaviourData& SE::Gameplay::Projectile::GetBehaviourData(int index)
 {
 	return behaviourData[index];
+}
+
+bool SE::Gameplay::Projectile::CheckIfAlreadyHit(GameUnit * unitToCheck)
+{
+	for (int i = 0; i < targetsHit.size(); i++)
+	{
+		if (unitToCheck == targetsHit[i])
+			return true;
+	}
+
+	return false;
 }
