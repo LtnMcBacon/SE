@@ -160,6 +160,10 @@ namespace SE
 
 
 			void AddWeapon(Core::Entity wep, uint8_t slot);
+			inline Core::Entity GetCurrentItem()const
+			{
+				return items[currentItem];
+			}
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;

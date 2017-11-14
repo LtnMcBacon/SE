@@ -486,12 +486,13 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 			return false;
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
-
-	startrenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	
+	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
 	{
 	//	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
 		Item::ToggleRenderPickupInfo(ent);
+		Item::ToggleRenderEquiuppedInfo(player->GetCurrentItem());
 
 	};
 

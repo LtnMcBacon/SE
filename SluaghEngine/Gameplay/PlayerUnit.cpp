@@ -456,6 +456,7 @@ void SE::Gameplay::PlayerUnit::AddWeapon(Core::Entity wep, uint8_t slot)
 	items[slot] = wep;
 }
 
+
 void SE::Gameplay::PlayerUnit::calcStrChanges()
 {
 	StartProfile;

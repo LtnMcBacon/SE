@@ -30,6 +30,9 @@ namespace SE
 			struct Weapon
 			{
 				static Core::Entity Create();
+				static void ToggleRenderPickupInfo(Core::Entity ent);
+				static void ToggleRenderEquiuppedInfo(Core::Entity ent);
+
 				static WeaponType GetRandWeaponType();
 				static std::wstring GetWString(WeaponType type);
 			};
@@ -37,6 +40,7 @@ namespace SE
 			static void Drop(Core::Entity ent, DirectX::XMFLOAT3 pos);
 			static void Pickup(Core::Entity ent);
 			static void ToggleRenderPickupInfo(Core::Entity ent);
+			static void ToggleRenderEquiuppedInfo(Core::Entity ent);
 
 			static int GetRandStr();
 			static int GetRandAgi();

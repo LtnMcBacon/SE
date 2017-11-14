@@ -115,38 +115,15 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	return wep;
 }
 
-SE::Core::Entity SE::Gameplay::Item::Create()
-{
-	return Core::Entity();
-}
-
-void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
-{
-	CoreInit::managers.transformManager->SetPosition(ent, pos);
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
-}
-
-void SE::Gameplay::Item::Pickup(Core::Entity ent)
-{
-	CoreInit::managers.collisionManager->Destroy(ent);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
-}
-
-void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
+using namespace SE;
+static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 {
 	long offset = -125;
 	long he = 35;
 	Core::ITextManager::CreateInfo ciStr;
 	auto s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Str", 0));
 	ciStr.font = "CloisterBlack.spritefont";
-	ciStr.info.posX = -35;
+	ciStr.info.posX = posX;
 	ciStr.info.posY = offset;
 	ciStr.info.screenAnchor = { 0.5f, 0.5f };
 	ciStr.info.anchor = { 1,0.0f };
@@ -203,13 +180,13 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponType, "StopRenderWIC");
 	CoreInit::managers.dataManager->SetValue(weaponType, "Parent", ent);
-	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);*/
+	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
 
-	offset += he + 3;
+	offset += he + 3;*/
 
 	Core::ITextManager::CreateInfo cielement;
 	cielement.font = "CloisterBlack.spritefont";
-	cielement.info.posX = -35;
+	cielement.info.posX = posX;
 	cielement.info.posY = offset;
 	cielement.info.screenAnchor = { 0.5f, 0.5f };
 	cielement.info.anchor = { 1,0.0f };
@@ -230,7 +207,7 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 
 	Core::ITextManager::CreateInfo cidamage;
 	cidamage.font = "CloisterBlack.spritefont";
-	cidamage.info.posX = -35;
+	cidamage.info.posX = posX;
 	cidamage.info.posY = offset;
 	cidamage.info.screenAnchor = { 0.5f, 0.5f };
 	cidamage.info.anchor = { 1,0.0f };
@@ -246,7 +223,7 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 	offset += he + 3;
 
 	cidamage.font = "CloisterBlack.spritefont";
-	cidamage.info.posX = -35;
+	cidamage.info.posX = posX;
 	cidamage.info.posY = offset;
 	cidamage.info.screenAnchor = { 0.5f, 0.5f };
 	cidamage.info.anchor = { 1,0.0f };
@@ -266,7 +243,7 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 	ciback.texture = "parchment.jpg";
 	ciback.textureInfo.width = 200;
 	ciback.textureInfo.height = offset + 130;
-	ciback.textureInfo.posX = -30;
+	ciback.textureInfo.posX = posX;
 	ciback.textureInfo.posY = -130;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0, 0.0f };
@@ -275,6 +252,55 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
 	CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", ent);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+};
+
+void SE::Gameplay::Item::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
+{
+	wepInfo(ent, -35);
+}
+
+void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity ent)
+{
+	if (auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false)))
+	{
+		if(item)
+			wepInfo(ent, -235);
+	}
+
+}
+
+SE::Core::Entity SE::Gameplay::Item::Create()
+{
+	return Core::Entity();
+}
+
+void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
+{
+	CoreInit::managers.transformManager->SetPosition(ent, pos);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
+}
+
+void SE::Gameplay::Item::Pickup(Core::Entity ent)
+{
+	CoreInit::managers.collisionManager->Destroy(ent);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+}
+
+void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
+{
+	Weapon::ToggleRenderPickupInfo(ent);
+}
+
+void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent)
+{
+	Weapon::ToggleRenderEquiuppedInfo(ent);
 }
 
 SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
