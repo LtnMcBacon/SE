@@ -1,18 +1,18 @@
 #include <Items.h>
 #include "CoreInit.h"
 
-struct WeT
+struct TypeInfo
 {
-	std::wstring str;
+	SE::Utilz::GUID icon;
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
 };
 
-static const WeT wet[3] = {
-	{L"Melee", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl"},
-	{L"Ranged", "default.mesh", "default.mat", "SimplePS.hlsl" },
-	{L"Magic", "default.mesh", "default.mat", "SimplePS.hlsl" }
+static const TypeInfo typeInfo[3] = {
+	{"venomblades.jpg", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl"},
+	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" },
+	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" }
 };
 
 
@@ -56,25 +56,6 @@ int SE::Gameplay::Item::GetRandDamage()
 	return (CoreInit::subSystems.window->GetRand() % 100);
 }
 
-SE::Gameplay::WeaponType SE::Gameplay::Item::Weapon::GetRandWeaponType()
-{
-	return WeaponType(CoreInit::subSystems.window->GetRand() % 3);
-}
-
-std::wstring SE::Gameplay::Item::Weapon::GetWString(WeaponType type)
-{
-	return wet[size_t(type)].str;
-}
-
-std::wstring SE::Gameplay::Item::GetWString(Element ele)
-{
-	return elt[size_t(ele)].str;
-}
-
-DirectX::XMFLOAT4 SE::Gameplay::Item::GetElementColor(Element ele)
-{
-	return elt[size_t(ele)].color;
-}
 
 SE::Gameplay::Element SE::Gameplay::Item::GetRandElement()
 {
@@ -88,10 +69,10 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	auto type = ItemType::WEAPON;// GetRandType();
 	auto ele = GetRandElement();
 	CoreInit::managers.transformManager->Create(wep);
-	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
-	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { wet[size_t(type)].mesh });
+	CoreInit::managers.materialManager->Create(wep, { typeInfo[size_t(type)].shader, typeInfo[size_t(type)].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { typeInfo[size_t(type)].mesh });
 	Core::IGUIManager::CreateInfo icon;
-	icon.texture = "venomblades.jpg";
+	icon.texture = typeInfo[size_t(type)].icon;
 	icon.textureInfo.width = 50;
 	icon.textureInfo.height = 50;
 	icon.textureInfo.anchor = {0.5f,0.5f };
@@ -196,8 +177,8 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	cielement.info.scale = { 0.4f, 1.0f };
 	cielement.info.height = he;
 	auto element = Element(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
-	cielement.info.colour = Item::GetElementColor(element);
-	cielement.info.text = Item::GetWString(element);
+	cielement.info.colour = elt[size_t(element)].color;
+	cielement.info.text = elt[size_t(element)].str;
 	auto weaponElement = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponElement, cielement);
 

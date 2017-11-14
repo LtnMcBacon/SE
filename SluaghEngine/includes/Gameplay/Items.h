@@ -8,12 +8,6 @@ namespace SE
 {
 	namespace Gameplay
 	{
-		enum class WeaponType
-		{
-			MELEE,
-			RANGED,
-			MAGIC
-		};
 		enum class ItemType
 		{
 			WEAPON,
@@ -32,9 +26,6 @@ namespace SE
 				static Core::Entity Create();
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
-
-				static WeaponType GetRandWeaponType();
-				static std::wstring GetWString(WeaponType type);
 			};
 			
 			static void Drop(Core::Entity ent, DirectX::XMFLOAT3 pos);
@@ -48,11 +39,6 @@ namespace SE
 			static int GetRandHealth();
 			static int GetRandDamage();
 
-			
-		
-			static std::wstring GetWString(Element ele);
-
-			static DirectX::XMFLOAT4 GetElementColor(Element ele);
 			static Element GetRandElement();
 		};
 	}

@@ -139,9 +139,6 @@
     <Filter Include="Source Files\Skills">
       <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Weapon">
-      <UniqueIdentifier>{6fee08b4-f42f-4e00-8f9d-9f0f7deff4e2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -591,7 +588,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\Items.h">
-      <Filter>Header Files\Weapon</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
