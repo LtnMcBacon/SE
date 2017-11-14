@@ -169,8 +169,7 @@ namespace SE
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> functionsToRun;
 			std::vector<std::function<bool(Projectile* projectile, float dt)>> tempStorage;
 
-			std::vector<std::function<bool(Projectile* projectile, float dt)>> onCollision;
-			std::vector<std::function<bool(Projectile* projectile, float dt)>> onDeath;
+			std::vector<GameUnit*> targetsHit;
 
 			std::vector<BehaviourData> behaviourData;
 
@@ -218,6 +217,18 @@ namespace SE
 
 			int AddBehaviourData(BehaviourData data);
 			BehaviourData& GetBehaviourData(int index);
+
+			bool CheckIfAlreadyHit(GameUnit* unitToCheck);
+
+			inline void AddToHit(GameUnit* unit)
+			{
+				targetsHit.push_back(unit);
+			};
+
+			inline void EmptyHitVector()
+			{
+				targetsHit.clear();
+			};
 
 			inline void SetRotation(float projectileRotation)
 			{

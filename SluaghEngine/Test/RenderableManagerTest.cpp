@@ -108,7 +108,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto material = Utilz::GUID("Cube.mat");
+	auto material = Utilz::GUID("default.mat");
 	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	info.shader = shader;
 	info.materialFile = material;
@@ -116,7 +116,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC, info);
 
 
-	managers.renderableManager->CreateRenderableObject(mainC, { "HighWall.mesh", true });
+	managers.renderableManager->CreateRenderableObject(mainC, { "HighWall.mesh"});
 	managers.renderableManager->ToggleRenderableObject(mainC, true);
 
 	auto& l = managers.entityManager->Create();

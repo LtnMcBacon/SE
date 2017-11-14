@@ -140,6 +140,7 @@ namespace SE {
 			GarbageCollection();
 			if (PanExist)
 				UpdateDirtyTransforms();
+			dirtyEntites.clear();
 			timer->Stop(("AudioManager"));
 		}
 

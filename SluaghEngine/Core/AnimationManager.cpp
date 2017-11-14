@@ -1,10 +1,10 @@
 #include "AnimationManager.h"
 #include <Profiler.h>
 #include <Graphics\VertexStructs.h>
+#include <Imgui\imgui.h>
 
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID SkinnedOncePerObject("SkinnedOncePerObject");
-
 
 SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo)
 {
@@ -16,6 +16,7 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	_ASSERT(initInfo.transformManager);
 
 	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::CreateRenderObjectInfo });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &AnimationManager::ToggleVisible });
 
 	animationSystem = new AnimationSystem(initInfo.renderer);
 
@@ -24,15 +25,26 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 		initInfo.eventManager, initInfo.transformManager },
 		10, animationSystem);
 
-	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, [this](auto guid, auto data, auto size) {
+	ResourceHandler::Callbacks sC;
+	sC.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
 		auto result = this->initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
 		if (result < 0)
-			return ResourceHandler::InvokeReturn::FAIL;
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	sC.destroyCallback = [this](auto guid, auto data, auto size)
+	{
+		this->initInfo.renderer->GetPipelineHandler()->DestroyVertexShader(guid);
+	};
+	sC.invokeCallback = [](auto guid, auto data, auto size)
+	{
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	auto result = initInfo.resourceHandler->LoadResource(SkinnedVertexShader, sC, ResourceHandler::LoadFlags::IMMUTABLE | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
-
 
 	Allocate(10);
 }
@@ -72,12 +84,12 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.animInfo[index].timePos[j] = 0.0f;
 	animationData.animInfo[index].blendFactor[j] = -1.0f;
 	animationData.animInfo[index].blendSpeed[j] = 0.0f;
+	animationData.animInfo[index].blockBlending[j] = false;
 
 	}
 
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
-
 	// Load skeleton
 	if (!animationSystem->IsSkeletonLoaded(info.skeleton))
 	{
@@ -97,6 +109,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	}
 
 	animationData.animInfo[index].skeleton = info.skeleton;
+
 
 	// Load animations
 	for (size_t i = 0; i < info.animationCount; i++)
@@ -118,6 +131,9 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 	}
 
+	// Set Playing to false
+	animationData.playing[index] = 0u;
+
 	StopProfile;
 }
 
@@ -127,7 +143,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	renderableManager->Frame(nullptr);
 	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-	
+
 	aniUpdateTime += dt;
 	if (aniUpdateTime > 0.033f)
 	{
@@ -223,34 +239,22 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						// Get the joint transformation matrix
 						DirectX::XMFLOAT4X4 matrix;
 						animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+						DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
 
+						// Get the joint inversed inverse bindpose
 						DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
 						animationSystem->GetJointInverseBindPose(updateJob[i].animInfo.skeleton, att.slots[k].jointIndex, inverseBindPose);
 						inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
 
-						DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(animationData.entity[i]));
-						DirectX::XMFLOAT3 entityPos = initInfo.transformManager->GetPosition(animationData.entity[i]);
-
 						// Decompose the joint transformation matrix
 						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix));
+						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
 
-						// Store in these
-						DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
+						DirectX::XMFLOAT4X4 transform;
+						DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
+						DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+						initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
 
-						//// Multiply model scale with joint scale
-						//DirectX::XMStoreFloat3(&attachScale, jointScale);
-						//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
-
-						//// Multiply model quaternion with joint quaternion
-						//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
-						//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
-
-						// Multiply model translation with joint translation
-						DirectX::XMStoreFloat3(&attachTrans, jointTrans);
-						initInfo.transformManager->SetPosition(att.slots[k].entity, { -attachTrans.x + entityPos.x, attachTrans.y + entityPos.y, -attachTrans.z + entityPos.z });
-
-						
 					}
 				}
 
@@ -293,40 +297,10 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 			if(found != -1){
 
 				at.slots[slotIndex].attached = true;
-				at.slots[slotIndex].entity = initInfo.entityManager->Create();
+				at.slots[slotIndex].entity = entityToAttach;
 				at.slots[slotIndex].jointIndex = found;
 
-				DirectX::XMFLOAT4X4 matrix;
-				animationSystem->GetJointMatrix(source, found, matrix);
-				
-				DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
-				animationSystem->GetJointInverseBindPose(ai.skeleton, found, inverseBindPose);
-				inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
-
-				DirectX::XMMATRIX entityTransform = DirectX::XMLoadFloat4x4(&initInfo.transformManager->GetTransform(source));
-
-				// Decompose the joint transformation matrix
-				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * entityTransform);
-
-				// Store in these
-				DirectX::XMFLOAT3 attachScale, attachQuat, attachTrans;
-
-				//// Multiply model scale with joint scale
-				//DirectX::XMStoreFloat3(&attachScale, jointScale);
-				//initInfo.transformManager->SetScale(att.slots[k].entity, attachScale);
-
-				//// Multiply model quaternion with joint quaternion
-				//DirectX::XMStoreFloat3(&attachQuat, jointQuat);
-				//initInfo.transformManager->SetRotation(att.slots[k].entity, attachQuat.x, attachQuat.y, attachQuat.z);
-
-				// Multiply model translation with joint translation
-				DirectX::XMStoreFloat3(&attachTrans, jointTrans);
-
 				initInfo.transformManager->Create(at.slots[slotIndex].entity);
-				initInfo.transformManager->SetPosition(entityToAttach, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-				initInfo.transformManager->SetPosition(at.slots[slotIndex].entity, attachTrans);
-				initInfo.transformManager->BindChild(at.slots[slotIndex].entity, entityToAttach, true, true);
 
 			}
 
@@ -334,7 +308,7 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 	}
 }
 
-void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
+bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
 {
 	StartProfile;
 
@@ -344,18 +318,76 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 	{
 		auto& ai = animationData.animInfo[entityIndex->second];
 
+		Utilz::GUID GUIDTemporaryStorage[maxLayers];
+		int animationsNotRunning = 0;
+		
+		for (int i = 0; i < nrOfAnims; i++)
+		{
+			bool alreadyRunning = false;
+			for (int j = 0; j < ai.nrOfLayers; j++)
+			{
+				if (ai.animation[j] == animations[i])
+				{
+					alreadyRunning = true;
+					break;
+				}
+			}
+			if (!alreadyRunning)
+				GUIDTemporaryStorage[animationsNotRunning++] = animations[i];
+		}
+		
+		nrOfAnims = animationsNotRunning;
+		if (!nrOfAnims)
+			ProfileReturnConst(false);
+
+
+		for (size_t i = 0; i < nrOfAnims; i++)
+		{
+			if (!animationSystem->IsAnimationLoaded(GUIDTemporaryStorage[i]))
+			{
+				auto result = initInfo.resourceHandler->LoadResource(GUIDTemporaryStorage[i], [this](auto guid, auto data, auto size) {
+					auto result = LoadAnimation(guid, data, size);
+					if (result < 0)
+						return ResourceHandler::InvokeReturn::FAIL;
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				if (result < 0)
+				{
+					initInfo.console->PrintChannel("Resources", "Could not load animation %u. Error: %d", GUIDTemporaryStorage[i], result);
+					GUIDTemporaryStorage[i] = GUIDTemporaryStorage[nrOfAnims - 1];
+					i--;
+					nrOfAnims--;
+				}
+			}
+		}
+
+		// If the animation flag is set to force blending...
+		if (!(flag & AnimationFlags::FORCEBLENDING)) {
+
+			// Loop through all layers in the animation info for this entity
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				// If this animation layer doesn't allow blending, simply return. 
+				// All layers must support blending for this. 
+				if (ai.blockBlending[i]) {
+
+					ProfileReturnConst(false);
+				}
+			}
+		}
+
 		if (flag & AnimationFlags::IMMEDIATE) {
 
 			for (size_t i = 0; i < nrOfAnims; i++) {
 
-				ai.animation[i] = animations[i];
+				ai.animation[i] = GUIDTemporaryStorage[i];
 				unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[i]);
 				ai.animationSpeed[i] = animLength / duration;
 				ai.looping[i] = flag & AnimationFlags::LOOP ? true : false;
+				ai.blockBlending[i] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 				ai.blendSpeed[i] = 0.0f;
 				ai.timePos[i] = 0.0f;
 				ai.blendFactor[i] = 1.0f;
-				
 			}
 
 			ai.nrOfLayers = nrOfAnims;
@@ -364,11 +396,13 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 
 		else {
 
+
+
 			if (flag & AnimationFlags::BLENDTOANDBACK) {
 
 				ai.toBlendTarget = true;
 				ai.blendBackInfo.animIndex = ai.nrOfLayers;
-				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(animations[0]);
+				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(GUIDTemporaryStorage[0]);
 
 				flag |= AnimationFlags::BLENDTO;
 			}
@@ -379,11 +413,12 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 				for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
 					//ai.animationSpeed[i] = 0.0f;
-					//ai.looping[i] = false;
-					ai.blendSpeed[i] = -10.0f;
-					ai.blendFactor[i] = 1.0f;
-					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
-					ai.animationSpeed[i] = 0.0f;
+					if (!(flag & AnimationFlags::BLENDTOANDBACK))
+						ai.looping[i] = false;
+						ai.blendSpeed[i] = -10.0f;
+						ai.blendFactor[i] = 1.0f;
+						ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+						ai.animationSpeed[i] = 0.0f;
 				}
 
 				// Set info for the new animations to blend to
@@ -391,11 +426,11 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 
 					if (ai.nrOfLayers + j >= maxLayers) {
 
-						if(flag & AnimationFlags::FORCED){
-						
+						if (flag & AnimationFlags::FORCED) {
+
 							OverwriteAnimation(ai, ai.nrOfLayers - 1, ai.nrOfLayers);
 							ai.nrOfLayers--;
-						
+
 						}
 
 						else {
@@ -404,35 +439,35 @@ void SE::Core::AnimationManager::Start(const Entity & entity, Utilz::GUID * anim
 						}
 					}
 
-						ai.animation[ai.nrOfLayers + j] = animations[j];
-						unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[j]);
-						ai.animationSpeed[ai.nrOfLayers + j] = animLength / duration;
-						ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
-						ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
-						ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
-						ai.timePos[ai.nrOfLayers + j] = 0.0f;
-
-					}
+					ai.animation[ai.nrOfLayers + j] = GUIDTemporaryStorage[j];
+					unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[j]);
+					ai.animationSpeed[ai.nrOfLayers + j] = animLength / duration;
+					ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
+					ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
+					ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
+					ai.blockBlending[ai.nrOfLayers + j] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
+					ai.timePos[ai.nrOfLayers + j] = 0.0f;
 
 				}
 
-				ai.nrOfLayers += nrOfAnims;
-				animationData.playing[entityIndex->second] = true;
 			}
 
+			ai.nrOfLayers += nrOfAnims;
+			animationData.playing[entityIndex->second] = true;
 		}
 
+	}
 
-	StopProfile;
+	ProfileReturnConst(true);
 
 }
 
 void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPlayInfo& playInfo)
-{	
+{
 	StartProfile;
 
-	_ASSERT(playInfo.nrOfLayers < AnimationPlayInfo::maxLayers);
-	
+	_ASSERT(playInfo.nrOfLayers <= AnimationPlayInfo::maxLayers);
+
 	// Get the entity register from the animationManager
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
@@ -440,7 +475,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 		auto& ai = animationData.animInfo[entityIndex->second];
 		ai.nrOfLayers = playInfo.nrOfLayers;
 
-		for(size_t i = 0; i < playInfo.nrOfLayers; i++){
+		for (size_t i = 0; i < playInfo.nrOfLayers; i++) {
 
 			if (animationSystem->IsAnimationLoaded(playInfo.animations[i]))
 			{
@@ -448,6 +483,7 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 				ai.animationSpeed[i] = playInfo.animationSpeed[i];
 				ai.looping[i] = playInfo.looping[i];
 				ai.blendSpeed[i] = playInfo.blendSpeed[i];
+				ai.blockBlending[i] = playInfo.blockBlending[i];
 				ai.timePos[i] = playInfo.timePos[i];
 
 				animationData.playing[entityIndex->second] = 1u;
@@ -455,10 +491,11 @@ void SE::Core::AnimationManager::Start(const Entity & entity, const AnimationPla
 
 			else
 				initInfo.console->PrintChannel("Resources", "Tried to start an unloaded animation. GUID: %u.", playInfo.animations[i]);
-		}	
+		}
 
+
+		StopProfile;
 	}
-	StopProfile;
 }
 
 void SE::Core::AnimationManager::SetSpeed(const Entity & entity, float speed)
@@ -500,14 +537,14 @@ void SE::Core::AnimationManager::SetBlendSpeed(const Entity& entity, int index, 
 
 		else {
 
-			if(index < maxLayers){
+			if (index < maxLayers) {
 
 				ai.blendSpeed[index] = speed;
 
 			}
 		}
-
 	}
+
 	StopProfile;
 }
 
@@ -554,6 +591,18 @@ void SE::Core::AnimationManager::Start(const Entity & entity, bool looping)const
 
 			}
 		}
+	}
+	StopProfile;
+}
+
+void SE::Core::AnimationManager::StopAllAnimations(const Entity & entity) const
+{
+	StartProfile;
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		animationData.playing[entityIndex->second] = 0u;
+		animationData.animInfo[entityIndex->second].nrOfLayers = 0;
 	}
 	StopProfile;
 }
@@ -606,18 +655,69 @@ void SE::Core::AnimationManager::UpdateBlending(const Entity& entity, int index)
 	StopProfile;
 }
 
-bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity) const
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const Utilz::GUID animationToCheck) const
 {
 	StartProfile;
 	
 	auto &entityIndex = entityToIndex.find(entity);
 	if (entityIndex != entityToIndex.end())
 	{
-		ProfileReturnConst(animationData.playing[entityIndex->second]);
+		auto& ai = animationData.animInfo[entityIndex->second];
+		for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+			if (animationToCheck == ai.animation[i])
+				ProfileReturnConst(true);
+
+		}
 	}
 
 
 	ProfileReturnConst(false);
+}
+
+bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const Utilz::GUID* animationToCheck,
+	size_t nrOfAnims) const
+{
+	StartProfile;
+
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+		for (size_t j = 0; j < nrOfAnims; j++)
+		{
+			for (size_t i = 0; i < ai.nrOfLayers; i++) {
+
+				if (animationToCheck[j] == ai.animation[i])
+					ProfileReturnConst(true);
+
+			}
+		}
+	}
+
+
+	ProfileReturnConst(false);
+}
+
+bool SE::Core::AnimationManager::CurrentAnimationAllowsBlending(const Entity& entity) const
+{
+	StartProfile;
+
+	// Get the entity register from the animationManager
+	auto &entityIndex = entityToIndex.find(entity);
+	if (entityIndex != entityToIndex.end())
+	{
+		auto& ai = animationData.animInfo[entityIndex->second];
+
+		// If this animation layer doesn't allow blending, simply return. 
+		// All layers must support blending for this. 
+		for(int i = 0; i < ai.nrOfLayers; i++)
+			if (ai.blockBlending[i]) {
+				ProfileReturnConst(false);
+			}
+	}
+
+	ProfileReturnConst(true);
 }
 
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
@@ -757,6 +857,7 @@ void SE::Core::AnimationManager::OverwriteAnimation(AnimationInfo & info, size_t
 	info.animationSpeed[to] = info.animationSpeed[from];
 	info.blendFactor[to] = info.blendFactor[from];
 	info.blendSpeed[to] = info.blendSpeed[from];
+	info.blockBlending[to] = info.blockBlending[from];
 	info.looping[to] = info.looping[from];
 	info.timePos[to] = info.timePos[from];
 

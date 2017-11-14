@@ -6,9 +6,13 @@ static const SE::Utilz::GUID defaultMaterial("default.mat");
 static const SE::Utilz::GUID defaultTexture("BlackPink.sei");
 static const SE::Utilz::GUID defaultPixelShader("SimplePS.hlsl");
 static const SE::Utilz::GUID defaultTextureBinding("DiffuseColor");
+static const SE::Utilz::GUID defaultNormalBinding("NormalMap");
 static const SE::Utilz::GUID defaultSampler("AnisotropicSampler");
 static const SE::Utilz::GUID backBuffer("backbuffer");
 static const SE::Utilz::GUID bloomTarget("bloomTarget");
+
+static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
 
 SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn) : initInfo(initInfoIn)//, mLoading(initInfo.renderer, initInfo.resourceHandler)
 {
@@ -102,9 +106,14 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 		initInfo.renderer->GetPipelineHandler()->DestroyTexture(guid);
 	};
 
-	res = initInfo.resourceHandler->LoadResource(defaultTexture, textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
-	if (res)
-		throw std::exception("Could not load default texture");
+	for (int nrTex = 0; nrTex < defaultMaterialInfo->textureInfo.numTextures; nrTex++)
+	{
+		res = initInfo.resourceHandler->LoadResource(defaultMaterialInfo->textureInfo.textures[nrTex], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+		if (res)
+			throw std::exception("Could not load default texture");
+	}
+
+	
 
 	Graphics::RenderTarget rt;
 	rt.bindAsShaderResource = true;
@@ -148,27 +157,6 @@ SE::Core::MaterialManager::~MaterialManager()
 void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& info)
 {
 	StartProfile;
-	auto find = entityToMaterialInfo.find(entity);
-	if (find != entityToMaterialInfo.end())
-		ProfileReturnVoid;
-	
-	// Check if the entity is alive
-	if (!initInfo.entityManager->Alive(entity))
-		ProfileReturnVoid;
-
-	// Make sure we have enough memory.
-	if (materialInfo.used + 1 > materialInfo.allocated)
-		Allocate(materialInfo.allocated * 2);
-
-	// Register the entity
-	size_t newEntry = materialInfo.used++;
-	entityToMaterialInfo[entity] = newEntry;
-	materialInfo.entity[newEntry] = entity;
-	materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
-	materialInfo.shader[newEntry] = defaultPixelShader; 
-	materialInfo.material[newEntry] = defaultMaterialInfo;
-	materialInfo.materialGUID[newEntry] = defaultMaterial;
-
 
 	ResourceHandler::Callbacks shaderCallbacks;
 	shaderCallbacks.loadCallback = shaderLoadCallback;
@@ -203,18 +191,46 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		{
 			res = initInfo.resourceHandler->LoadResource(mdata->textureInfo.textures[i], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 			if (res < 0)
-				mdata->textureInfo.textures[i] = defaultTexture;
+				mdata->textureInfo.textures[i] = defaultMaterialInfo->textureInfo.textures[i]; //defaultTexture;
 		}
 
-		if (!toUpdate.push({guid, info.materialFile, mdata, entity }))
+		if (!toUpdate.push({ guid, info.materialFile, mdata, entity }))
 			return ResourceHandler::InvokeReturn::FAIL;
 
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
 
-	auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks,  ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	auto find = entityToMaterialInfo.find(entity);
+	if (find == entityToMaterialInfo.end())
+	{
+		// Check if the entity is alive
+		if (!initInfo.entityManager->Alive(entity))
+			ProfileReturnVoid;
+
+		// Make sure we have enough memory.
+		if (materialInfo.used + 1 > materialInfo.allocated)
+			Allocate(materialInfo.allocated * 2);
+
+		// Register the entity
+		size_t newEntry = materialInfo.used++;
+		entityToMaterialInfo[entity] = newEntry;
+		materialInfo.entity[newEntry] = entity;
+		materialInfo.bloom[newEntry] = info.bloom ? 1u : 0u;
+		materialInfo.shader[newEntry] = defaultPixelShader;
+		materialInfo.material[newEntry] = defaultMaterialInfo;
+		materialInfo.materialGUID[newEntry] = defaultMaterial;
 
 
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	}
+	else
+	{
+		materialInfo.bloom[find->second] = info.bloom ? 1u : 0u;
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+
+	}
 	StopProfile;
 }
 
@@ -282,9 +298,9 @@ void SE::Core::MaterialManager::Destroy(size_t index)
 	const Entity last_entity = materialInfo.entity[last];
 
 	for (uint32_t i = 0; i < materialInfo.material[index]->textureInfo.numTextures; i++)
-		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::UnloadFlags::VRAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::UnloadFlags::RAM);
-	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::UnloadFlags::VRAM);
+		initInfo.resourceHandler->UnloadResource(materialInfo.material[index]->textureInfo.textures[i], ResourceHandler::ResourceType::VRAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.materialGUID[index], ResourceHandler::ResourceType::RAM);
+	initInfo.resourceHandler->UnloadResource(materialInfo.shader[index], ResourceHandler::ResourceType::VRAM);
 	
 	// Copy the data
 	materialInfo.entity[index] = last_entity;
@@ -334,7 +350,16 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		
 		auto& mdata = *materialInfo.material[find->second];
 		info->pipeline.PSStage.shader = materialInfo.shader[find->second];
-		info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
+		if (mdata.textureInfo.numTextures < 2 && (info->pipeline.PSStage.shader == Trans || info->pipeline.PSStage.shader == Norm))
+		{
+			info->pipeline.PSStage.textureCount = 2;
+			info->pipeline.PSStage.textureBindings[0] = defaultTextureBinding;
+			info->pipeline.PSStage.textures[0] = defaultMaterialInfo->textureInfo.textures[0];
+			info->pipeline.PSStage.textureBindings[1] = defaultNormalBinding;
+			info->pipeline.PSStage.textures[1] = defaultMaterialInfo->textureInfo.textures[1];
+		}
+		else
+			info->pipeline.PSStage.textureCount = mdata.textureInfo.numTextures;
 
 		for (uint8_t i = 0; i < mdata.textureInfo.numTextures; i++)
 		{

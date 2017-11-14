@@ -171,6 +171,7 @@ namespace SE
 				drawBloomTexture.pipeline.PSStage.samplers[0] = "AnisotropicSampler";
 				drawBloomTexture.pipeline.PSStage.samplerCount = 1;
 				drawBloomTexture.pipeline.RStage.viewport = "topleft";
+				drawBloomTexture.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 				drawBloomTexture.vertexCount = 3;
 				drawBloomTexture.indexCount = 0;
 				drawBloomTexture.maxInstances = 0;
@@ -275,6 +276,12 @@ namespace SE
 
 				auto e3 = managers.entityManager->Create();
 				managers.entityManager->Destroy(e3);
+
+				auto p = managers.entityManager->Create();
+				managers.particleSystemManager->CreateSystem(p, { "torchParticles.txt" });
+			managers.particleSystemManager->ToggleVisible(p, true);
+			managers.transformManager->Create(p, { -2,0,0 });
+
 				while (running)
 				{
 					if (subSystem.window->ButtonPressed(0))
@@ -302,6 +309,7 @@ namespace SE
 
 					engine->BeginFrame();
 	
+
 					if (ImGui::SliderFloat("Base Muliplier", &bloomP[0], 0.0f, 20.0f))
 						subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 					if (ImGui::SliderFloat("Fade Exponent", &bloomP[1], 0.0f, 10.0f))

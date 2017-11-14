@@ -53,7 +53,7 @@ namespace SE
 			IMMUTABLE = 1 << 3
 		};
 
-		enum class UnloadFlags {
+		enum class ResourceType {
 			VRAM = 1 << 0,
 			RAM = 1 << 1
 		};
@@ -80,18 +80,20 @@ namespace SE
 			Linear,
 			FIFO
 		};
+
+		struct EvictInfo
+		{
+			size_t max = 256_mb;
+			float tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
+			EvictPolicy nloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
+			EvictStrickness evictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
+			std::function<size_t()> getCurrentMemoryUsage = []()->size_t { return ~0; }; /**< The callback the resource handler will use to get the memory limit*/
+		};
+
 		struct InitializationInfo
 		{
-			size_t RAM_max = 256_mb;
-			float RAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
-			EvictPolicy RAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
-			EvictStrickness RAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
-
-			size_t VRAM_max = 512_mb;
-			float VRAM_tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage. */
-			EvictPolicy VRAM_UnloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
-			EvictStrickness VRAM_EvictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
-			std::function<size_t()> GetVRAMCurrentlyInUse_Callback; /**< The callback the resource handler will use when checking if under VRAM limit.*/
+			EvictInfo RAM = { 256_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
+			EvictInfo VRAM = { 512_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
 		};
 
 		/**
@@ -171,11 +173,12 @@ namespace SE
 			* Either by dumping the memory to disk, or just discarding it.
 			*
 			* @param[in] guid The GUID of the resource to be unloaded.
-			* @param[in] unloadFlags See UnloadFlags.
+			* @param[in] type See ResourceType.
 			* @warning This does not force the resource to unload!
 			**/
-			virtual void UnloadResource(const Utilz::GUID& guid, UnloadFlags unloadFlags) = 0;
+			virtual void UnloadResource(const Utilz::GUID& guid, ResourceType type) = 0;
 
+			virtual bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) = 0;
 
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
@@ -197,7 +200,7 @@ namespace SE
 ENUM_FLAGS(SE::ResourceHandler::LoadReturn);
 ENUM_FLAGS(SE::ResourceHandler::InvokeReturn);
 ENUM_FLAGS(SE::ResourceHandler::LoadFlags);
-ENUM_FLAGS(SE::ResourceHandler::UnloadFlags);
+ENUM_FLAGS(SE::ResourceHandler::ResourceType);
 
 
 #endif //SE_RESOURCE_HANDLER_IRESOURCE_HANDLER_H_

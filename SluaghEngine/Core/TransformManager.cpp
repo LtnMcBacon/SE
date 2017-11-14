@@ -158,9 +158,15 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 {
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-	data.rotations[index].x += pitch;
-	data.rotations[index].y += yaw;
-	data.rotations[index].z += roll;
+
+	float a, b, c;
+	a = data.rotations[index].x+ pitch;
+	b = data.rotations[index].y+ yaw;
+	c = data.rotations[index].z+ roll;
+
+	data.rotations[index].x = a;
+	data.rotations[index].y = b;
+	data.rotations[index].z = c;
 	data.flags[index] |= TransformFlags::DIRTY;
 
 	int32_t child = data.childIndex[index];
@@ -225,7 +231,7 @@ void SE::Core::TransformManager::SetRotation(const Entity& e, float pitch, float
 	const int32_t index = lookUpTable[e.Index()];
 	const float pitchDiff = pitch - data.rotations[index].x;
 	const float yawDiff = yaw - data.rotations[index].y;
-	const float rollDiff = roll -data.rotations[index].z;
+	const float rollDiff = roll - data.rotations[index].z;
 	Rotate(e, pitchDiff, yawDiff, rollDiff);
 }
 
@@ -277,6 +283,16 @@ const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity&
 	XMStoreFloat4x4(&transform, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x, pos.y, pos.z));
 	return transform;
 
+}
+
+void SE::Core::TransformManager::SetTransform(const Entity& entity, const DirectX::XMFLOAT4X4 & matrix)
+{
+	_ASSERT(entity.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[entity.Index()];
+	_ASSERT(index >= 0);
+
+	dirtyTransforms[index] = matrix;
+	SetDirty(entity, index);
 }
 
 const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e) const

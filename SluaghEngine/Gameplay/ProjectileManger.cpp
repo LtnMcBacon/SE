@@ -23,11 +23,8 @@ void SE::Gameplay::ProjectileManager::UpdateProjectileActions(float dt)
 
 		if (projectiles[i].GetActive() == false)
 		{
-			//SE::Core::Engine::GetInstance().GetRenderableManager().ToggleRenderableObject(projectiles[i].GetEntity(), false);
 			projectiles[i].DestroyEntity();
-			//std::swap(projectiles[i], projectiles[projectiles.size() - 1]);
 			projectiles[i] = projectiles.back();
-			//projectiles[projectiles.size() - 1].DestroyEntity();
 			projectiles.pop_back();
 		}
 	}
@@ -53,10 +50,10 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 {
 	StartProfile;
 
-	for (auto projectile : projectiles)
+	for (auto& projectile : projectiles)
 	{
 		if (projectile.GetValidTarget() == ValidTarget::EVERYONE ||
-			projectile.GetValidTarget() == unitTarget)
+			projectile.GetValidTarget() == unitTarget && !projectile.CheckIfAlreadyHit(unit))
 		{
 			if (CheckCollisionHelperFunction(unit, projectile.GetBoundingRect()))
 			{
@@ -71,6 +68,7 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 				unit->AddDamageEvent(projectile.GetProjectileDamageEvent());
 				unit->AddHealingEvent(projectile.GetProjectileHealingEvent());
 				unit->AddConditionEvent(projectile.GetProjectileConditionEvent());
+				projectile.AddToHit(unit);
 			}
 		}
 	}
@@ -114,4 +112,16 @@ SE::Gameplay::ProjectileManager::~ProjectileManager()
 	}
 
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::ProjectileManager::RemoveAllProjectiles()
+{
+
+	for (int i = 0; i < projectiles.size(); i++)
+	{
+		projectiles[i].DestroyEntity();
+	}
+
+	projectiles.clear();
+	
 }

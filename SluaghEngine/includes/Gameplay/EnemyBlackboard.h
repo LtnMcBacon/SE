@@ -1,6 +1,7 @@
 #ifndef SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 #define SE_GAMEPLAY_ENEMY_BLACKBOARD_H
 #include "EventStructs.h"
+#include "Room.h"
 
 namespace SE
 {
@@ -50,6 +51,7 @@ namespace SE
 			bool channeling = false;
 			Boons activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 			float attackCooldown = 0.f;
+			Room::DirectionToAdjacentRoom closestDoorDirection;
 
 		};
 	}

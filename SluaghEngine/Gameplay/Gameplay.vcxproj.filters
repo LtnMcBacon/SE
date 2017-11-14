@@ -130,12 +130,6 @@
     <Filter Include="Header Files\AI\Sluagh">
       <UniqueIdentifier>{081777a4-bda3-40ba-86f8-8537773b4caa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\AI\Sluagh\RandomForest">
-      <UniqueIdentifier>{475c989b-f0f0-4e8f-8429-f5e5fe9dd348}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\AI\Sluagh\RandomForest\DecisionTree">
-      <UniqueIdentifier>{42ab7291-5b8b-4bdc-8063-105e61e032a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AI\Slaugh">
       <UniqueIdentifier>{fa2bd90b-3085-4617-82d9-6fe5dd15dd82}</UniqueIdentifier>
     </Filter>
@@ -144,6 +138,12 @@
     </Filter>
     <Filter Include="Source Files\Skills">
       <UniqueIdentifier>{24d5254a-5fce-45e8-86b1-30095ad725ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Perks">
+      <UniqueIdentifier>{5d66253d-08a0-4897-86fc-906cf3686401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Perks">
+      <UniqueIdentifier>{ae18b683-1a04-47df-b06d-326c5d3c82b1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -294,9 +294,6 @@
     <ClCompile Include="RestartingSequence.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Composites</Filter>
     </ClCompile>
-    <ClCompile Include="ForestTrainer.cpp">
-      <Filter>Source Files\AI\Slaugh</Filter>
-    </ClCompile>
     <ClCompile Include="ChannelingCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
@@ -315,14 +312,29 @@
     <ClCompile Include="SkillFactory.cpp">
       <Filter>Source Files\Skills</Filter>
     </ClCompile>
+    <ClCompile Include="HUD_Parsing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_Functionality.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="AnimationLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="InTheSameRoomAsThePlayerCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
     <ClCompile Include="AnimationRunningCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
-    <ClCompile Include="InTheSameRoomAsThePlayerCondition.cpp">
+    <ClCompile Include="PauseAnimationsLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="PerkImporter.cpp">
+      <Filter>Source Files\Perks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -449,15 +461,6 @@
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\DecisionTree.h">
-      <Filter>Header Files\AI\Sluagh\RandomForest\DecisionTree</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\RandomForest.h">
-      <Filter>Header Files\AI\Sluagh\RandomForest</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\ForestTrainer.h">
-      <Filter>Header Files\AI\Sluagh</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h">
       <Filter>Header Files\AI\Sluagh</Filter>
     </ClInclude>
@@ -518,26 +521,50 @@
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\InTheSameRoomAsThePlayerCondition.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h">
       <Filter>Header Files\GameUnits</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
       <Filter>Header Files\Skills</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\Skill.h">
-      <Filter>Header Files\Skills</Filter>
+    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\InTheSameRoomAsThePlayerCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Skill.h">
+      <Filter>Header Files\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Slaugh.h">
+      <Filter>Header Files\AI\Sluagh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PerkData.h">
+      <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PerkImporter.h">
+      <Filter>Header Files\Perks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

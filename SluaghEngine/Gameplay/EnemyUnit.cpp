@@ -146,6 +146,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
 		myBlackboard->checkedThisFrame = false;
+		
 		myBehaviouralTree->Tick();
 	}
 
@@ -190,13 +191,13 @@ void SE::Gameplay::EnemyUnit::AddForce(float force[2])
 
 SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
-	flowFieldForRoom(roomFlowField),
 	extraSampleCoords{xPos, yPos},
 	previousMovement{0,0},
 	sample(0)
 {
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 	radius = sqrt(extents*extents + extents*extents);
+
 }
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()

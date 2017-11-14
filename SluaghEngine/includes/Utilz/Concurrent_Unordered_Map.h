@@ -29,6 +29,10 @@ namespace SE
 			friend void Clear(CON& con);
 			template<class CON, class OBJ>
 			friend void Move(CON& con, OBJ& copy_to);
+			
+			template<class CON, class KEY, class F>
+			friend bool Find(CON& con, const KEY& key, const F& cFunc);
+
 
 			Concurrent_Unordered_Map() {};
 			Concurrent_Unordered_Map(const Concurrent_Unordered_Map& other) = delete;
@@ -36,6 +40,21 @@ namespace SE
 			void operator=(const Concurrent_Unordered_Map& other) = delete;
 			void operator=(const Concurrent_Unordered_Map&& other) = delete;
 		};
+
+		template<class CON, class KEY, class F>
+		bool Find(CON& con, const KEY& key, const F& cFunc)
+		{
+			con.lock.lock();
+			const auto find = con.object.find(key);
+			if (find != con.object.end())
+			{
+				cFunc(find);
+				con.lock.unlock();
+				return true;
+			}
+			con.lock.unlock();
+			return false;
+		}
 	}
 }
 

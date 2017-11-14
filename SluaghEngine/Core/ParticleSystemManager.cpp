@@ -12,6 +12,8 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.console);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &ParticleSystemManager::UpdateDirtyPos });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &ParticleSystemManager::ToggleVisible });
+
 
 	auto res = initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
 			auto res = initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
@@ -131,7 +133,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
 
 		particleSystemData[newEntry].visible = 0u;
-		particleSystemData[newEntry].loaded = 0u;
+		particleSystemData[newEntry].loaded = 1u;
 		particleSystemData[newEntry].firstRun = true;
 		DirectX::XMStoreFloat4x4(&particleSystemData[newEntry].transform, DirectX::XMMatrixIdentity());
 
@@ -150,11 +152,11 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 			if (res)
 				initInfo.console->PrintChannel("Resources", "Could not load particle system file. GUID: %u, Error: %d",  info.systemFile, res);
 		}
-		Graphics::RenderJob updateParticleJob;
+
 		updatePipeline.IAStage.vertexBuffer = "OutStreamBuffer1_" + std::to_string(entity.id);
 		updatePipeline.SOStage.streamOutTarget = "OutStreamBuffer2_" + std::to_string(entity.id);
-		updateParticleJob.pipeline = updatePipeline;
-		updateParticleJob.mappingFunc.push_back([this, entity](int a, int b) {
+		particleSystemData[newEntry].updateJob.pipeline = updatePipeline;
+		particleSystemData[newEntry].updateJob.mappingFunc.push_back([this, entity](int a, int b) {
 			auto const entityIndex = entityToIndex.find(entity);
 			if (entityIndex != entityToIndex.end())
 			{
@@ -171,9 +173,8 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform, sizeof(DirectX::XMFLOAT4X4));
 			}
 		});
-		updateParticleJob.vertexCount = 1;
-		int updateParticleJobID = initInfo.renderer->AddRenderJob(updateParticleJob, SE::Graphics::RenderGroup::PRE_PASS_0);
-
+		particleSystemData[newEntry].updateJob.vertexCount = 1;
+		
 		//Pipeline for each particle system
 		Graphics::Pipeline RPP;
 		RPP.IAStage.topology = Graphics::PrimitiveTopology::POINT_LIST;
@@ -189,9 +190,10 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.PSStage.samplerCount = 1;
 		RPP.OMStage.blendState = "ParticleBlend";
 		RPP.OMStage.renderTargets[0] = "backbuffer";
+		RPP.OMStage.renderTargets[1] = "bloomTarget";
 		RPP.OMStage.depthStencilView = "backbuffer";
-		RPP.OMStage.depthStencilState = "noDepth";
-		RPP.OMStage.renderTargetCount = 1;
+		RPP.OMStage.depthStencilState = "backbuffer";
+		RPP.OMStage.renderTargetCount = 2;
 		
 		Particle p;
 		p.opacity = 1.0f;
@@ -224,16 +226,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 			throw std::exception("Failed to load particle texture");
 		}
 
-		Graphics::RenderJob renderParticleJob;
-		renderParticleJob.pipeline = RPP;
-
-		int renderParticleJobID = initInfo.renderer->AddRenderJob(renderParticleJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
-
-		//Storing render jobs and job IDs
-		particleSystemData[newEntry].updateJob = updateParticleJob;
-		particleSystemData[newEntry].updateJobID = updateParticleJobID;
-		particleSystemData[newEntry].renderJob = renderParticleJob;
-		particleSystemData[newEntry].renderJobID = renderParticleJobID;
+		particleSystemData[newEntry].renderJob.pipeline = RPP;
 	}
 
 	StopProfile;
@@ -245,27 +238,33 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 	{
-		//If the visibility state is switched to what it already is we dont do anything.
-		if ((bool)particleSystemData[find->second].visible == visible)
-		{
-			ProfileReturnVoid;
-		}
 		if (particleSystemData[find->second].loaded == 1u) // Only show the system if it has been loaded. Otherwise wait.
 		{
+			//If the visibility state is switched to what it already is we dont do anything.
+			if ((bool)particleSystemData[find->second].visible == visible)
+			{
+				ProfileReturnVoid;
+			}
+
 			// Tell renderer.
 			if (visible)
 			{
+				particleSystemData[find->second].firstRun = true;
+				particleSystemData[find->second].updateJob.vertexCount = 1;
+				particleSystemData[find->second].updateJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].updateJob, SE::Graphics::RenderGroup::PRE_PASS_0);
+				particleSystemData[find->second].renderJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].renderJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 
 			}
 			else
 			{
-
+				initInfo.renderer->RemoveRenderJob(particleSystemData[find->second].updateJobID);
+				initInfo.renderer->RemoveRenderJob(particleSystemData[find->second].renderJobID);
 			}
+
+
+			particleSystemData[find->second].visible = visible ? 1u : 0u;
 		}
 
-		particleSystemData[find->second].visible = visible ? 1u : 0u;
-		
-		
 	}
 	StopProfile;
 }
@@ -274,7 +273,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
-	GarbageCollection();
+//	GarbageCollection();
 
 	//while (!toUpdate.wasEmpty())
 	//{
@@ -312,20 +311,18 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 	//Swapping the buffers for the update and render particle jobs
 	for (size_t i = 0; i < particleSystemData.size(); i++)
 	{
-
-		if (!particleSystemData[i].firstRun)
+		if (particleSystemData[i].visible)
 		{
-			particleSystemData[i].updateJob.vertexCount = 0;
-			initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+			if (!particleSystemData[i].firstRun)
+			{
+				particleSystemData[i].updateJob.vertexCount = 0;
+				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
+				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
+				initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
+				initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
+			}
+			particleSystemData[i].firstRun = false;
 		}
-		if (!particleSystemData[i].firstRun)
-		{
-			std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
-			particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
-			initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
-			initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
-		}
-		particleSystemData[i].firstRun = false;
 	}
 
 	timer->Stop(("ParticleSystemManager"));
@@ -335,23 +332,25 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 void SE::Core::ParticleSystemManager::Destroy(size_t index)
 {
 	StartProfile;
-	size_t last = particleSystemData.size() - 1;
-	const Entity entity = indexToEntity[index];
-	const Entity last_entity = indexToEntity[last];
 
-	if(particleSystemData[index].visible == 1u)
-		ToggleVisible(entity, false);
-
-	// Copy the data
-	indexToEntity[index] = last_entity;
-	particleSystemData[index].visible = particleSystemData[last].visible;
+	uint32_t last = particleSystemData.size() - 1;
+	const Entity e = indexToEntity[index];
+	const Entity last_e = indexToEntity[last];
 
 
-	// Replace the index for the last_entity 
-	entityToIndex[last_entity] = index;
-	entityToIndex.erase(entity);
+	if (particleSystemData[index].visible == 1u)
+		ToggleVisible(e, false);
 
+
+	indexToEntity[index] = last_e;
+	particleSystemData[index] = particleSystemData[last];
+
+	entityToIndex[last_e] = index;
+	entityToIndex.erase(e);
+
+	indexToEntity.pop_back();
 	particleSystemData.pop_back();
+
 	StopProfile;
 }
 

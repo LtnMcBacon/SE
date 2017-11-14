@@ -53,7 +53,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		EnemyType type;
 		if(desc.type == ENEMY_TYPE_RANDOM)
 		{
-			type = EnemyType(CoreInit::subSystems.window->GetRand() % 5);
+			type = EnemyType(CoreInit::subSystems.window->GetRand() % 3);
 		}
 		else
 		{
@@ -82,6 +82,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
 
+
 			/*Fix with managers*/
 			Core::IAnimationManager::CreateInfo cInfo;
 			cInfo.animationCount = 0;
@@ -109,8 +110,8 @@ EnemyFactory::EnemyFactory()
 	this->enemyTypes["Bodach.SEC"] = ENEMY_TYPE_BODACH;
 	this->enemyTypes["Glaistig.SEC"] = ENEMY_TYPE_GLAISTIG;
 	this->enemyTypes["Nuckelavee.SEC"] = ENEMY_TYPE_NUCKELAVEE;
-	this->enemyTypes["PechMelee.SEC"] = ENEMY_TYPE_PECH_MELEE;
-	this->enemyTypes["PechRanged.SEC"] = ENEMY_TYPE_PECH_RANGED;
+	/*this->enemyTypes["PechMelee.SEC"] = ENEMY_TYPE_PECH_MELEE;
+	this->enemyTypes["PechRanged.SEC"] = ENEMY_TYPE_PECH_RANGED;*/
 	this->LoadEnemyIntoMemory("Bodach.SEC");
 	this->LoadEnemyIntoMemory("Glaistig.SEC");
 	this->LoadEnemyIntoMemory("Nuckelavee.SEC");
@@ -185,6 +186,7 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+
 
 		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))
 			return ResourceHandler::InvokeReturn::FAIL;

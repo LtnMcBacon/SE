@@ -82,13 +82,36 @@ std::vector<Accepted> acceptedExt =
 					}},
 
 					{ "SEP", "SEP", "Projectiles", [](const char* filename, const char* outFilename) {
-					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
+
+					{ "HuD", "HuD", "HuDElements", [](const char* filename, const char* outFilename) {
+						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+
+					{ "jpg", "jpg", "HuDElements", [](const char* filename, const char* outFilename) {
+					if (ImageParse(filename, outFilename))
+						printf("Could not parse: %s\n", filename); } },
+
+					{ "png", "png", "HuDElements", [](const char* filename, const char* outFilename) {
+					if (ImageParse(filename, outFilename))
+						printf("Could not parse: %s\n", filename); } },
+						
+
+					
+
+				//	fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 
 	
 	{ "si", "si", "Gameplay", [](const char* filename, const char* outFilename) {
 		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
 	{ "sa", "sa", "Gameplay", [](const char* filename, const char* outFilename) {
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+
+	{ "pts", "pts", "Particle_Systems", [](const char* filename, const char* outFilename) {
+		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } },
+
+	{ "prk", "prk", "Perks", [](const char* filename, const char* outFilename) {
 		fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); } }
+
 };
 
 std::vector<Accepted> fbxAccepted =

@@ -54,6 +54,8 @@ SE::Core::RenderableManager::~RenderableManager()
 
 void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info)
 {
+
+
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
 	auto& find = entityToRenderableObjectInfoIndex.find(entity);
@@ -94,9 +96,28 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	}
+	else
+	{
+		// Register the entity
 
+		renderableObjectInfo.wireframe[find->second] = info.wireframe ? 1u : 0u;
+		renderableObjectInfo.transparency[find->second] = info.transparent ? 1u : 0u;
+		renderableObjectInfo.shadow[find->second] = info.shadow ? 1u : 0u;
 
-	
+		// Load the model
+		ResourceHandler::Callbacks callbacks;
+		callbacks.loadCallback = loadCallback;
+		callbacks.destroyCallback = destroyCallback;
+		callbacks.invokeCallback = [this, entity](auto guid, auto data, auto size)
+		{
+			MeshData md = { guid, *(size_t*)data };
+
+			if (!toUpdate.push({ md, entity }))
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS;
+		};
+		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 
 	}
 	StopProfile;
@@ -122,7 +143,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		if (visible)
 		{		
 			if (renderableObjectInfo.transparency[find->second] == 1u)
-				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 			else
 				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
@@ -267,7 +288,7 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			if(renderableObjectInfo.transparency[find->second] == 1u)
-				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 			else
 				rmInstancing->AddEntity(entity, info);
 			
@@ -312,7 +333,7 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
-			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 		}
 		
 	}
@@ -391,7 +412,7 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
 
-	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
+	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::ResourceType::VRAM);
 
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
@@ -420,6 +441,7 @@ void SE::Core::RenderableManager::Init()
 	_ASSERT(initInfo.console);
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
+	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
 
 
 	ResourceHandler::Callbacks meshCallbacks;

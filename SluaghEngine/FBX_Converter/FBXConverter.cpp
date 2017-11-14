@@ -1086,60 +1086,71 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 	logFile.open(logFileName, ofstream::out);
 
-	unsigned int clusterCount = pMesh.skinNode->GetClusterCount();	// Every joint is technically a deformer, so we must process through each one in the hierarchy
+	// Every joint is technically a deformer, so we must process through each one in the hierarchy
+	unsigned int clusterCount = pMesh.skinNode->GetClusterCount();	
 
-	size_t index = 0;
+	// Must start on index 1 since we don't want the base layer
+	size_t index = 1;
 
-	for (unsigned int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) // loops trough every joint
+	// loops trough every joint
+	for (unsigned int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) 
 	{
+		// Current joint being processed in the hierarchy
+		FbxCluster* currentCluster = pMesh.skinNode->GetCluster(clusterIndex); 
 
-		FbxCluster* currentCluster = pMesh.skinNode->GetCluster(clusterIndex); // Current joint being processed in the hierarchy
-		string currentJointName = currentCluster->GetLink()->GetName();	// Here is the direct link to the joint required to retrieve its name and other attributes
-		unsigned int currentJointIndex = FindJointIndexByName(currentJointName, pMesh.skeleton);	// Call to function to retrieve joint index from skeleton hierarchy
+		// Here is the direct link to the joint required to retrieve its name and other attributes
+		string currentJointName = currentCluster->GetLink()->GetName();	
+
+		// Call to function to retrieve joint index from skeleton hierarchy
+		unsigned int currentJointIndex = FindJointIndexByName(currentJointName, pMesh.skeleton);
 
 		// Get the number of animation stacks (Should only be one in our case)
 		for (int i = 0; i < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); i++) // for every stack
 		{
 			// Get the current animation stack
 			FbxAnimStack* AnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
+			
+			// Get the stack name
 			FbxString animStackName = AnimStack->GetName();
 
+			// Get the number of layers on the current stack
 			int numLayers = AnimStack->GetMemberCount<FbxAnimLayer>();
 
-			// For every layer / every animation
-			for (int j = 0; j < numLayers; j++)
+			// For every layer except the base layer/ every animation
+			for (int j = 1; j < numLayers; j++)
 			{
 				FbxAnimLayer* currentAnimLayer = AnimStack->GetMember<FbxAnimLayer>(j);
+				string layerName = currentAnimLayer->GetName();
 
 				// Skip the base animation layer
-				if (currentAnimLayer->GetName() != "BaseLayer")
+				if (layerName != "BaseLayer")
 				{
 					if (j == index) {
 						pMesh.animations.push_back({});
 					}
 
-					Animation& CurrentAnimation = pMesh.animations[j];
-					CurrentAnimation.Name = currentAnimLayer->GetName();
+					Animation& CurrentAnimation = pMesh.animations[j - 1];
+					CurrentAnimation.Name = layerName;
 
 					// From the current joint, get the animation curves
-
+					
 					// Translation curves
-					FbxAnimCurve* translationCurveX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-					FbxAnimCurve* translationCurveY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-					FbxAnimCurve* translationCurveZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
+					FbxAnimCurve* tCX = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* tCY = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* tCZ = currentCluster->GetLink()->LclTranslation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+					
 					// Rotation curves
-					FbxAnimCurve* rotationCurveX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-					FbxAnimCurve* rotationCurveY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-					FbxAnimCurve* rotationCurveZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
+					FbxAnimCurve* rCX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* rCY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* rCZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+					
 					// Scaling curves (Should always be 1)
-					FbxAnimCurve* scalingCurveX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-					FbxAnimCurve* scalingCurveY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-					FbxAnimCurve* scalingCurveZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+					FbxAnimCurve* sCX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+					FbxAnimCurve* sCY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+					FbxAnimCurve* sCZ = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 
 					// Find out how many keyframes there are on the curve (Must subtract with 1 to not go out of range)
-					const int numKeys = (translationCurveY) ? translationCurveY->KeyGetCount() : 0;
+					const int numKeys = (tCY) ? tCY->KeyGetCount() : 0;
 
 					if (j == index)
 					{
@@ -1169,29 +1180,17 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 							/*FbxTime currentTime;
 							currentTime.SetFrame(timeIndex + 1, FbxTime::eFrames24);*/
-
+							
 							logFile << "Time: " << timeIndex + 1 << endl;
-
+							
 							// Get the values on each channel
 							//translationCurveX->Evaluate(currentTime, 0);
 							//translationCurveX->KeyGetValue(timeIndex);
 
-							float translationX = translationCurveX->KeyGetValue(timeIndex);
-							float translationY = translationCurveY->KeyGetValue(timeIndex);
-							float translationZ = translationCurveZ->KeyGetValue(timeIndex);
-
-							float rotationX = rotationCurveX->KeyGetValue(timeIndex);
-							float rotationY = rotationCurveY->KeyGetValue(timeIndex);
-							float rotationZ = rotationCurveZ->KeyGetValue(timeIndex);
-
-							float scalingX = scalingCurveX->KeyGetValue(timeIndex);
-							float scalingY = scalingCurveY->KeyGetValue(timeIndex);
-							float scalingZ = scalingCurveZ->KeyGetValue(timeIndex);
-
 							// Build the vectors for the global transform matrix
-							FbxVector4 translationVector = { translationX, translationY, translationZ, 1.0f };
-							FbxVector4 rotationVector = { rotationX, rotationY, rotationZ, 1.0f };
-							FbxVector4 scalingVector = { scalingX, scalingY, scalingZ, 1.0f };
+							FbxVector4 translationVector = GetChannelValues(tCX, tCY, tCZ, timeIndex);
+							FbxVector4 rotationVector = GetChannelValues(rCX, rCY, rCZ, timeIndex);
+							FbxVector4 scalingVector = GetChannelValues(sCX, sCY, sCZ, timeIndex);
 
 							// Compose the quaternion from euler angles
 							FbxQuaternion quaternion;
@@ -1199,7 +1198,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 							// Set the vectors for the global transform matrix (Build the keyframe)
 							FbxAMatrix localTransform;
-							localTransform.SetTQS(translationVector, quaternion, scalingVector);
+							localTransform.SetTRS(translationVector, rotationVector, scalingVector);
 
 							// The root joint uses its local transform as global. It has no parents. 
 							if (currentJointIndex == 0) {
@@ -1801,6 +1800,23 @@ FbxAMatrix SE::FBX::FBXConverter::GetGeometryTransformation(FbxNode* node) {
 	const FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
 
 	return FbxAMatrix(T, R, S);
+}
+
+FbxVector4 SE::FBX::FBXConverter::GetChannelValues(FbxAnimCurve* X, FbxAnimCurve* Y, FbxAnimCurve* Z, int timeIndex) {
+
+	float x = 0.0f;
+	if (X != NULL)
+		x = X->KeyGetValue(timeIndex);
+
+	float y = 0.0f;
+	if (Y != NULL)
+		y = Y->KeyGetValue(timeIndex);
+
+	float z = 0.0f;
+	if (Z != NULL)
+		z = Z->KeyGetValue(timeIndex);
+
+	return FbxVector4(x, y, z, 1.0f);
 }
 
 unsigned int SE::FBX::FBXConverter::FindJointIndexByName(string& jointName, Skeleton skeleton) {

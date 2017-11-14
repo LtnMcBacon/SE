@@ -5,6 +5,8 @@
 #include <Gameplay\SkillFactory.h>
 #include <Utilz\GUID.h>
 #include <Gameplay\Skill.h>
+#include <map>
+#include "Core/IAnimationManager.h"
 
 namespace SE
 {
@@ -27,6 +29,20 @@ namespace SE
 		class PlayerUnit : public GameUnit
 		{
 		private:
+
+			enum AvailableAnimations
+			{
+				PLAYER_IDLE_ANIMATION,
+				PLAYER_RUN_ANIMATION,
+				PLAYER_ATTACK_ANIMATION,
+				PLAYER_ON_HIT_ANIMATION,
+				PLAYER_ON_DEATH_ANIMATION
+			};
+			std::map<AvailableAnimations, std::vector<Utilz::GUID>> animationPlayInfos;
+
+			void InitializeAnimationInfo();
+
+			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
@@ -89,19 +105,6 @@ namespace SE
 				}
 			};
 
-			/**
-			* @brief	Update the players movement
-			*
-			* @details	This function updates the position of the player and checks so that it is a legal position,
-			* if not it tries to retain as much of the movement as possible
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in] MovementInput input data
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateMovement(float dt, const MovementInput& inputs);
 
 			struct ActionInput
 			{
@@ -123,20 +126,6 @@ namespace SE
 			};
 
 			/**
-			* @brief	Update the players actions
-			*
-			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
-			* and perks then check new events that are created before they are deployed
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [out] newProjectiles Data to create new projectiles from
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
-
-			/**
 			* @brief To be documented
 			*/
 			void AddForce(float force[2]);
@@ -149,7 +138,7 @@ namespace SE
 			* @retval void No value
 			*
 			*/
-			void UpdateMap(const char** mapForRoom);
+			void UpdateMap(char** mapForRoom);
 
 			/**
 			* @brief Updates the players rotation with given rotation
@@ -157,6 +146,13 @@ namespace SE
 			* @param [in] The new y angle in radians
 			**/
 			void UpdatePlayerRotation(float camAngleX, float camAngleY);
+
+			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
+
+			inline float GetMaxHealth()
+			{
+				return baseStat.health;
+			}
 
 		private:
 			PlayerUnit() {};
@@ -167,6 +163,54 @@ namespace SE
 			char map[25][25] = { {} };
 			float forcesToApply[2] = {};
 			float rotMov[2] = {};
+
+			/* Sound */
+			uint8_t nrAggroSounds = 6;
+			SE::Utilz::GUID playerAggroSounds[6];
+			uint8_t nrHealingSounds = 3;
+			SE::Utilz::GUID playerHealingSounds[3];
+			uint8_t nrAggroColdSounds = 3;
+			SE::Utilz::GUID playerAggroColdSounds[3];
+			uint8_t nrHealingColdSounds = 1;
+			SE::Utilz::GUID playerHealingColdSounds[1];
+			SE::Utilz::GUID currentSound;
+			
+			/**
+			* @brief	Sets the sounds for the player
+			*
+			*/
+			void PlayerSounds();
+
+
+
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the position of the player and checks so that it is a legal position,
+			* if not it tries to retain as much of the movement as possible
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in] MovementInput input data
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateMovement(float dt, const MovementInput& inputs);
+
+
+			/**
+			* @brief	Update the players actions
+			*
+			* @details	This function updates the players actions and adds new projectiles to the game, skills should be checked for use in here
+			* and perks then check new events that are created before they are deployed
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [out] newProjectiles Data to create new projectiles from
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
 			/**

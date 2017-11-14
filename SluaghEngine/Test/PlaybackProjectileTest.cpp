@@ -901,9 +901,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 				}
 
 			}
-
-			player->UpdateMovement(dt * 5, input);
-			player->UpdateActions(dt, newProjectiles, actionInput);
+			player->Update(dt, input, newProjectiles, actionInput);
 
 			projectileManager->AddProjectiles(newProjectiles);
 
