@@ -47,7 +47,7 @@ namespace SE
 				int PosX;
 				int PosY;
 			};
-			std::vector<HUDElement> MainMenuElmVec;
+			std::vector<HUDElement> StaticGuiVec;
 			std::vector<SE::Core::Entity> texEntityVec;
 
 			std::vector <HUDElement> ButtonVector;

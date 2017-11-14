@@ -40,12 +40,70 @@ namespace SE
 			{
 				TABLES,
 				CHAIRS,
-				TORCHES_FLOOR,
 				TORCHES_WALL,
-				BUSHES
+				BUSHES,
+				BIGPROPS,
+				GENERIC
 			};
-			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
+			enum class Meshes {
+				HighWall,
+				Bush,
+				Chair,
+				Passage,
+				OneSide,
+				Corner,
+				Top,
+				ThreeSides,
+				Door,
+				Floor,
+				Torch,
+				Pillar_short,
+				Table_long,
+				Table_small,
+				Table_round,
+				Grass,
+				FloorTorch
+			};
+			enum class Materials {
+				Stone,
+				FloorStone,
+				FloorWood,
+				DoorMat,
+				WallStone,
+				WallWood,
+				Bush,
+				Dirt,
+				Grass
+			};
+
+			struct CreationArguments
+			{
+				SE::Core::Entity ent;
+				int i;
+				int j;
+				int doorCounter;
+				Core::IMaterialManager::CreateInfo mat;
+				SE::Utilz::GUID wallMat;
+				SE::Utilz::GUID floorMat;
+			};
+
+
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
+			std::map<Meshes, SE::Utilz::GUID> Meshes;
+			std::map<Materials, SE::Utilz::GUID> Materials;
+
+
+			static const char id_Props    = 137;
+			static const char id_Torch    = 203;
+			static const char id_Floor    = 0;
+			static const char id_DeadArea = 76;
+			static const char id_Door1    = 22;
+			static const char id_Door2    = 48;
+			static const char id_Wall     = 255;
+			static const char id_Pillar   = 225;
+			static const char id_Bush     = 13;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -283,6 +341,8 @@ namespace SE
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
+			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
+
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
@@ -441,7 +501,36 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+			const SE::Utilz::GUID GenerateRandomProp(int x, int y, CreationArguments &args);
+
+			/**
+			* @brief
+			*/
+			void CreateBush(CreationArguments &args);
+			/**
+			* @brief	
+			*/
+			void CreateFloor(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateTorch(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreatePillar(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateProp(CreationArguments &args);
+			/**
+			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
+			*/
+			void CreateWall2(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateDoor(CreationArguments &args);
 
 
 			/**
@@ -469,7 +558,14 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
-
+			/**
+			* @brief Resets the tilevalues from 100 to 0
+			*
+			* @details When we find two tiles next to each other we create an object for both of those tiles even though we are still on only one of the tiles.
+			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
+			*/
+			void ResetTempTileValues();
+		
 			/**
 			* @brief set Room door pointer to values
 			*/

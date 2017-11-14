@@ -91,6 +91,8 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
 
+	
+
 	for (auto& button : fileParser.ButtonVector)
 	{
 		if (button.rectName == "startGameBtn")
@@ -133,7 +135,7 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 
 	
 
-	
+
 	IGameState::State empty = State::MAIN_MENU_STATE;
 			
 	
@@ -149,3 +151,5 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 	ProfileReturn(CurrentState);
 	
 }
+
+

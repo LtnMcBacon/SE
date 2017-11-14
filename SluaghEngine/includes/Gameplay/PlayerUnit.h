@@ -160,6 +160,24 @@ namespace SE
 			float forcesToApply[2] = {};
 			float rotMov[2] = {};
 
+			/* Sound */
+			uint8_t nrAggroSounds = 6;
+			SE::Utilz::GUID playerAggroSounds[6];
+			uint8_t nrHealingSounds = 3;
+			SE::Utilz::GUID playerHealingSounds[3];
+			uint8_t nrAggroColdSounds = 3;
+			SE::Utilz::GUID playerAggroColdSounds[3];
+			uint8_t nrHealingColdSounds = 1;
+			SE::Utilz::GUID playerHealingColdSounds[1];
+			SE::Utilz::GUID currentSound;
+			
+			/**
+			* @brief	Sets the sounds for the player
+			*
+			*/
+			void PlayerSounds();
+
+
 
 			/**
 			* @brief	Update the players movement
