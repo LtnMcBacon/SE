@@ -258,7 +258,7 @@ namespace SE
 			unsigned short int getAnimation(int skillNumber);
 			unsigned short int getParticle(int skillNumber);
 
-			Utilz::GUID getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference);
+			Utilz::GUID getProjectileReferemce(int skillNumber);
 			float getSkillDamage(int skillNumber);
 			float getBoonEffectValue(int skillNumber);
 			float getBoonRange(int skillNumber);

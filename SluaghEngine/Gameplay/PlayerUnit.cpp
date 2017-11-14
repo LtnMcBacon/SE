@@ -619,9 +619,9 @@ unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
 	return (unsigned short int)skills.at(skillNumber).particle;
 }
 
-SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference)
+SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber)
 {
-	projectileReference = skills.at(skillNumber).projectileFileGUID;
+	return skills.at(skillNumber).projectileFileGUID;
 }
 
 float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
