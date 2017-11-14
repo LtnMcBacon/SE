@@ -151,6 +151,8 @@ namespace SE
 			*/
 			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const override;
 
+			void SetTransform(const Entity& entity, const DirectX::XMFLOAT4X4& matrix)override;
+
 			/**
 			* @brief    Returns the forward vector of the entity.
 			* @param[in] e The entity.

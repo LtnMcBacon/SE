@@ -4,6 +4,7 @@
 #include <SkillFactory.h>
 #include <PlayerUnit.h>
 #include <Skill.h>
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -21,7 +22,12 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	fileParser.entityIndex = 0;
 	fileParser.ParseFiles("CharacterCreationMenu.HuD");
 	fileParser.InitiateTextures();
-
+	//Testing perk importer
+	std::string tempPath[2];
+	tempPath[0] = "fuckYou.prk";
+	tempPath[1] = "testPerkData.prk";
+	perks.loadPerkData(tempPath, 2);
+	//****************************
 	auto returnToMain = [this]()->void
 	{
 		this->CurrentState = State::MAIN_MENU_STATE;
