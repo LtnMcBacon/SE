@@ -1,6 +1,7 @@
 #include "AnimationManager.h"
 #include <Profiler.h>
 #include <Graphics\VertexStructs.h>
+#include <Imgui\imgui.h>
 
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID SkinnedOncePerObject("SkinnedOncePerObject");
@@ -142,7 +143,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 	renderableManager->Frame(nullptr);
 	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
-	
+
 	aniUpdateTime += dt;
 	if (aniUpdateTime > 0.033f)
 	{
@@ -249,26 +250,11 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
 						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
 
-						// Get the axis of rotation of the quaternion
-						DirectX::XMVECTOR axis;
-						float angle;
-						DirectX::XMQuaternionToAxisAngle(&axis, &angle, jointQuat);
+						DirectX::XMFLOAT4X4 transform;
+						DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
+						DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+						initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
 
-						// Scale the axis of rotation with the angle
-						DirectX::XMVECTOR eulerRot = DirectX::XMVectorScale(axis, angle);
-
-						// Store the resulted vectors
-						DirectX::XMFLOAT3 at, as, aq;
-
-						// Multiply model quaternion with joint quaternion
-						DirectX::XMStoreFloat3(&aq, eulerRot);
-						DirectX::XMStoreFloat3(&at, jointTrans);
-						DirectX::XMStoreFloat3(&as, jointScale);
-
-						initInfo.transformManager->SetRotation(att.slots[k].entity, aq.x, aq.y, aq.z);
-						initInfo.transformManager->SetPosition(att.slots[k].entity, at);
-
-						
 					}
 				}
 
