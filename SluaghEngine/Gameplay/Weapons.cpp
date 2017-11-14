@@ -10,7 +10,7 @@ struct WeT
 };
 
 static const WeT wet[3] = {
-	{L"Melee", "default.mesh", "default.mat", "SimplePS.hlsl"},
+	{L"Melee", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl"},
 	{L"Ranged", "default.mesh", "default.mat", "SimplePS.hlsl" },
 	{L"Magic", "default.mesh", "default.mat", "SimplePS.hlsl" }
 };
@@ -85,9 +85,9 @@ SE::Gameplay::Element SE::Gameplay::Weapon::GetRandElement()
 SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
 {
 	auto wep = CoreInit::managers.entityManager->Create();
-	auto type = GetRandType();
+	auto type = WeaponType::MELEE;// GetRandType();
 	auto ele = GetRandElement();
-	CoreInit::managers.transformManager->Create(wep, pos, {}, { 0.2f,0.2f,0.2f });
+	CoreInit::managers.transformManager->Create(wep, pos);
 	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
 	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { wet[size_t(type)].mesh });
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, wet[size_t(type)].mesh);

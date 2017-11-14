@@ -357,7 +357,9 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
 		}
-		CoreInit::managers.entityManager->DestroyNow(ent); // Just save the entity instead and use it as the picket up weapon as well.
+		CoreInit::managers.collisionManager->Destroy(ent);
+		CoreInit::managers.renderableManager->Destroy(ent);
+		CoreInit::managers.materialManager->Destroy(ent);
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {

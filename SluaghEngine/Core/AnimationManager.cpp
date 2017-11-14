@@ -198,13 +198,13 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 								ai.toBlendTarget = false;
 								ai.toBlendSource = true;
-								ai.blendSpeed[j] = -10.0f;
+								ai.blendSpeed[j] = -15.0f;
 
 								for (size_t index = 0; index < ai.nrOfLayers; index++) {
 
 									if (index != j) {
 
-										ai.blendSpeed[index] = 10.0f;
+										ai.blendSpeed[index] = 15.0f;
 									}
 								}
 							}
@@ -429,7 +429,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					//ai.animationSpeed[i] = 0.0f;
 					if (!(flag & AnimationFlags::BLENDTOANDBACK))
 						ai.looping[i] = false;
-						ai.blendSpeed[i] = -10.0f;
+						ai.blendSpeed[i] = -15.0f;
 						ai.blendFactor[i] = 1.0f;
 						ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
 						ai.animationSpeed[i] = 0.0f;
@@ -457,7 +457,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[j]);
 					ai.animationSpeed[ai.nrOfLayers + j] = animLength / duration;
 					ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
-					ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
+					ai.blendSpeed[ai.nrOfLayers + j] = 15.0f;
 					ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
 					ai.blockBlending[ai.nrOfLayers + j] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 					ai.timePos[ai.nrOfLayers + j] = 0.0f;

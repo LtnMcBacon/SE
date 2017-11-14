@@ -28,10 +28,11 @@ namespace SE
 			void Frame(Utilz::TimeCluster* timer)override;
 
 			void SetShadowCaster(const Entity& entity) override;
+			void Destroy(const Entity& entity)override;
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
+
 			void UpdateDirtyPos(const Entity& entity, size_t index);
 			struct DirtyEntityInfo
 			{

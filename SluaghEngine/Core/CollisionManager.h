@@ -92,6 +92,11 @@ namespace SE
 			 *
 			 */
 			bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
+
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(const Entity& entity)override;
 		private:
 			void SetDirty(const Entity& entity, size_t index);
 
@@ -103,10 +108,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(const Entity& entity)override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/
