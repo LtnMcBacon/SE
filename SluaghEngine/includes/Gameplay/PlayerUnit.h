@@ -78,6 +78,7 @@ namespace SE
 			static const uint8_t MAX_ITEMS = 5;
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
+			Core::Entity itemSelectedEntity;
 		public:
 
 			struct MovementInput

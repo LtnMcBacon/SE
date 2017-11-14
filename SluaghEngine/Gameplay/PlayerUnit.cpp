@@ -281,7 +281,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		if(auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
 		{
 			auto type = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Type", false)));
-			
+			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 		}
 		else
 		{
@@ -454,7 +454,10 @@ void SE::Gameplay::PlayerUnit::AddWeapon(Core::Entity wep, uint8_t slot)
 		p.y = 0;
 		Item::Drop(items[slot], p);
 	}
-	CoreInit::managers.guiManager->SetTexturePos(wep, 5 + slot * 55, -5);
+	CoreInit::managers.guiManager->SetTexturePos(wep, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
+
 	Item::Pickup(wep);
 
 	items[slot] = wep;
@@ -654,9 +657,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	
 	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
 	{
-		CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
-		Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
-		
+		auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false));
+		if (item)
+		{
+			CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+			Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
+		}
 	};
 
 
@@ -677,6 +683,19 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderItemInfo", stopRenderItemInfo);
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+
+
+	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	Core::IGUIManager::CreateInfo ise;
+	ise.texture = "Fire.png";
+	ise.textureInfo.width = 60;
+	ise.textureInfo.height = 60;
+	ise.textureInfo.layerDepth = 0.001;
+	ise.textureInfo.anchor = { 0.5f, 0.5f };
+	ise.textureInfo.screenAnchor = { 0, 1 };
+	ise.textureInfo.posX = currentItem * 55 + 40;
+	ise.textureInfo.posY = -55;
+	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
 
 	StopProfile;
 }

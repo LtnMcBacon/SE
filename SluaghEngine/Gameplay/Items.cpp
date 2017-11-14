@@ -91,13 +91,14 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
 	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { wet[size_t(type)].mesh });
 	Core::IGUIManager::CreateInfo icon;
-	icon.texture = "TestTexture.png";
+	icon.texture = "venomblades.jpg";
 	icon.textureInfo.width = 50;
 	icon.textureInfo.height = 50;
-	icon.textureInfo.anchor = { 0, 1 };
+	icon.textureInfo.anchor = {0.5f,0.5f };
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 5;
-	icon.textureInfo.posY = -5;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 
