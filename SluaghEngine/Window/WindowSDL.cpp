@@ -12,7 +12,6 @@
 #pragma comment(lib, "SDL2main.lib")
 
 
-
 SE::Window::WindowSDL::WindowSDL() : window(nullptr), width(1280), height(720), fullScreen(false), windowTitle(""), hwnd(nullptr), curMouseX(0), curMouseY(0), relMouseX(0), relMouseY(0)
 {
 	currentFrameStrategy = &WindowSDL::RegFrame;
@@ -131,16 +130,7 @@ int SE::Window::WindowSDL::Initialize(const InitializationInfo& info)
 
 void SE::Window::WindowSDL::Shutdown()
 {
-	if (record.recordState)
-	{
-		record.recordState = false;
-		while (!record.recThread.joinable())
-		{
-
-		}
-		record.recThread.join();
-		record.recFile.close();
-	}
+	StopRecording();
 	if (playRecord.playback)
 	{
 		playRecord.playbackData.clear();
@@ -192,12 +182,15 @@ void SE::Window::WindowSDL::RecordFrame()
 	inData.nrOfEvent = inData.events.size();
 	record.circFiFo.push(inData);
 
-	frame++;
 	StopProfile;
 }
 
 void SE::Window::WindowSDL::PlaybackFrame()
 {
+	if (!firstFrame)
+		frame++;
+	else
+		firstFrame = false;
 	StartProfile;
 	for (auto& ks : actionToKeyState)
 	{
@@ -208,8 +201,8 @@ void SE::Window::WindowSDL::PlaybackFrame()
 		for (auto& onEvent : onEventCallbacks)
 			onEvent(&ev, SE::Window::WindowImplementation::WINDOW_IMPLEMENTATION_SDL);
 		EventSwitch(ev);
-	}		
-	frame++;
+	}	
+	
 	StopProfile;
 }
 
@@ -226,14 +219,14 @@ void SE::Window::WindowSDL::StartRecording()
 		std::strftime(timeChar, sizeof(timeChar), "%A %c", std::localtime(&currentTime));
 		std::string currentStringTime = timeChar;
 		currentStringTime.erase(std::remove(currentStringTime.begin(), currentStringTime.end(), ':'), currentStringTime.end());
-		record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
-		record.recFile.write((char*)&currentTime, sizeof(std::time_t));
+		record.recFile.open("Recordings/Recording" + currentStringTime + ".bin", /*std::ofstream::out |*/ std::ofstream::binary | std::ofstream::trunc);
+		record.recFile.write(reinterpret_cast<const char*>(&currentTime), sizeof(std::time_t));
 		record.recordState = true;
 		int posX;
 		int posY;
 		SDL_GetMouseState(&posX, &posY);
-		record.recFile.write((char*)&posX, sizeof(int));
-		record.recFile.write((char*)&posY, sizeof(int));
+		record.recFile.write(reinterpret_cast<const char*>(&posX), sizeof(int));
+		record.recFile.write(reinterpret_cast<const char*>(&posY), sizeof(int));
 		std::srand(currentTime);
 		record.recThread = std::thread(&Window::WindowSDL::RecordToFile, this);
 	}
@@ -257,7 +250,7 @@ void SE::Window::WindowSDL::StopRecording()
 void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 {
 	StartProfile;
-	playRecord.playbackfile.open(file, std::ios::in | std::ios::binary);
+	playRecord.playbackfile.open(file,/* std::ifstream::in |*/ std::ifstream::binary);
 	if (playRecord.playbackfile.is_open())
 	{
 		std::time_t currentTime;
@@ -269,14 +262,18 @@ void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 		playRecord.playbackfile.read((char*)&posY, sizeof(int));
 		SDL_WarpMouseInWindow(window, posX, posY);
 		SDL_Event ev;
+		char inDT[sizeof(float)];
 		while (!playRecord.playbackfile.eof())
 		{
 			inputRecData tempRecData;
-			playRecord.playbackfile.read((char*)&tempRecData.dTime, sizeof(float));
-			playRecord.playbackfile.read((char*)&tempRecData.nrOfEvent, sizeof(size_t));
+			//playRecord.playbackfile.precision(8);
+			playRecord.playbackfile.read(reinterpret_cast<char*>(&tempRecData.dTime), sizeof(float));
+			//playRecord.playbackfile.read(inDT, sizeof(float));//  reinterpret_cast<char*>(&tempRecData.dTime), sizeof(float));
+			//tempRecData.dTime = std::strtof(inDT, NULL);
+			playRecord.playbackfile.read(reinterpret_cast<char*>(&tempRecData.nrOfEvent), sizeof(size_t));
 			for (int i = 0; i < tempRecData.nrOfEvent; i++)
 			{
-				playRecord.playbackfile.read((char*)&ev, sizeof(SDL_Event));
+				playRecord.playbackfile.read(reinterpret_cast<char*>(&ev), sizeof(SDL_Event));
 				tempRecData.events.push_back(ev);
 			}
 			playRecord.playbackData.push_back(tempRecData);
@@ -284,6 +281,8 @@ void SE::Window::WindowSDL::LoadRecording(const std::string& file)
 		playRecord.playbackfile.close();
 		playRecord.playback = true;
 		currentFrameStrategy = &WindowSDL::PlaybackFrame;
+
+		void OpenDTRead();
 	}
 	StopProfile;
 }
@@ -558,13 +557,13 @@ void SE::Window::WindowSDL::RecordToFile()
 		while (!record.circFiFo.wasEmpty())
 		{
 			const inputRecData& evData = record.circFiFo.top();
-			record.recFile.write((char*)&evData.dTime, sizeof(float));
-			record.recFile.write((char*)&evData.nrOfEvent, sizeof(size_t));
-			record.recFile.write((char*)evData.events.data(), sizeof(SDL_Event) * evData.events.size());
+			//record.recFile.precision(8);
+			record.recFile.write(reinterpret_cast<const char*>(&evData.dTime), sizeof(float));
+			record.recFile.write(reinterpret_cast<const char*>(&evData.nrOfEvent), sizeof(size_t));
+			record.recFile.write(reinterpret_cast<const char*>(evData.events.data()), sizeof(SDL_Event) * evData.events.size());
 			record.circFiFo.pop();
 		}
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(10ms);
 	}
-	frame = 0;
 }
