@@ -4,6 +4,7 @@
 #include "Gameplay/GameBlackboard.h"
 #include "Gameplay/EnemyBlackboard.h"
 #include "EnemyUnit.h"
+#include "Room.h"
 #include <Profiler.h>
 
 using namespace SE;
@@ -23,7 +24,7 @@ FlowFieldMovementLeaf::~FlowFieldMovementLeaf()
 void FlowFieldMovementLeaf::SampleFromMap(float &xMovementTot, float &yMovementTot)
 {
 	StartProfile;
-	const FlowField* flowField = gameBlackboard->roomFlowField;
+	const FlowField* flowField = enemyBlackboard->ownerPointer->GetCurrentRoom()->GetFlowFieldMap();
 	float yMovement = 0;
 	float xMovement = 0;
 
@@ -112,7 +113,7 @@ void FlowFieldMovementLeaf::SampleFromMap(float &xMovementTot, float &yMovementT
 Status FlowFieldMovementLeaf::Update()
 {
 	StartProfile;
-	const FlowField* flowField = gameBlackboard->roomFlowField;
+	const FlowField* flowField = enemyBlackboard->ownerPointer->GetCurrentRoom()->GetFlowFieldMap();
 	
 
 	float xMovement;
