@@ -46,13 +46,15 @@ namespace SE
 			* and thus this function is virtual. Note that an event is added
 			* through a fucntion in the "GameUnit" class.
 			* 
+			* @param[in] Delta time for this frame
+			*
 			* @retval void No return value
 			*
 			* @warning Not implemented at all yet! Will be called from the "Update" function,
 			* and resolved depending on the enemy type.
 			*
 			*/
-			virtual void ResolveEvents();
+			virtual void ResolveEvents(float dt);
 
 			/**
 			* @brief	Decide the action the EnemyUnit will perform this frame.

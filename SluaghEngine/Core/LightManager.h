@@ -28,6 +28,7 @@ namespace SE
 			void Frame(Utilz::TimeCluster* timer)override;
 
 			void SetShadowCaster(const Entity& entity) override;
+			void SetColor(const Entity& entity, float rgb[3]) override;
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;

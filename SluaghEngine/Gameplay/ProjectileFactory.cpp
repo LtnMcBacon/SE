@@ -1094,9 +1094,10 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 		if (auto owner = ownerPtr.lock())
 		{
 			auto unit = *owner.get();
-			ConditionEvent cEvent;
-			cEvent.type = ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN;
-			cEvent.duration = duration;
+			ConditionEvent::ConditionType conditionType;
+			conditionType.unionType = 0;
+			conditionType.condition.boon = Boons::CONDITIONAL_BOONS_STUN;
+			ConditionEvent cEvent(conditionType, duration);
 			unit->AddConditionEvent(cEvent);
 		}
 
