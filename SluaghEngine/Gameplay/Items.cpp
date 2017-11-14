@@ -10,7 +10,7 @@ struct TypeInfo
 };
 
 static const TypeInfo typeInfo[3] = {
-	{"venomblades.jpg", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl"},
+	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl"},
 	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" },
 	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" }
 };
