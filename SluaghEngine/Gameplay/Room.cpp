@@ -1512,7 +1512,7 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 	if (DoorArr[int(DoorNr)].active)
 	{
 		DoorArr[int(DoorNr)].active = false;
-		//Turn it into a wall
+		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
 	}
 
 }

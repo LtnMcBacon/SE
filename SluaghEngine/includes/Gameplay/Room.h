@@ -31,7 +31,6 @@ namespace SE
 		private:
 			
 			Room* adjacentRooms[4] = {};
-			char map[25][25];
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;

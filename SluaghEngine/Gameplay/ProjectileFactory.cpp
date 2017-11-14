@@ -914,6 +914,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 		temp.startPosY = p->GetYPosition();
 		temp.target = p->GetValidTarget();
 		temp.eventDamage = p->GetDamageEvent();
+		temp.eventDamage.amount = temp.eventDamage.originalAmount;
 		temp.ownerUnit = p->GetSharedPtr();
 		temp.fileNameGuid = fileName;
 
@@ -1050,6 +1051,24 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	ProfileReturnConst(AboveHealth);
 }
 
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+
+	float toSetTo = std::get<float>(parameters[0].data);
+
+	auto DamageSetter = [toSetTo](Projectile* p, float dt) -> bool
+	{
+		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
+		temp.amount = toSetTo;
+		p->SetDamageEvent(temp);
+
+		return false;
+	};
+
+	ProfileReturnConst(DamageSetter);
+}
+
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
@@ -1127,7 +1146,7 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithPlayerConditionBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDamageBasedOnDTBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::UserHealthAboveConditionBehaviour, this, std::placeholders::_1)); // f, o
-
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetActualDamageBehaviour, this, std::placeholders::_1)); // f
 
 }
 
