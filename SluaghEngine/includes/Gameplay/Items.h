@@ -13,6 +13,10 @@ namespace SE
 			WEAPON,
 			CONSUMABLE
 		};
+		enum class ConsumableType
+		{
+			HP
+		};
 		enum class WeaponType
 		{
 			SWORD,
@@ -26,6 +30,7 @@ namespace SE
 			struct Consumable
 			{
 				static Core::Entity Create();
+				static Core::Entity Create(ConsumableType type);
 			};
 			struct Weapon
 			{

@@ -1,6 +1,6 @@
 #include <Items.h>
 #include "CoreInit.h"
-
+#include <array>
 struct WeaponInfo
 {
 	SE::Utilz::GUID icon;
@@ -9,11 +9,11 @@ struct WeaponInfo
 	SE::Utilz::GUID shader;
 };
 
-static const WeaponInfo weaponInfo[3] = {
+static const std::array<WeaponInfo, 3> weaponInfo = { {
 	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl"},
-	{"venomblades.jpg", "Torch_fbx.mesh", "Torch_fbx.mat", "SimpleLightPS.hlsl" },
-	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" }
-};
+	{"Fireball_NSMB.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" },
+	{"sweating towelguy.jpg", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl" }
+} };
 
 
 struct ElT
@@ -67,13 +67,13 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
 	auto wep = CoreInit::managers.entityManager->Create();
 	auto type = ItemType::WEAPON;// GetRandType();
-	auto wType = WeaponType(std::rand() % 3);
+	auto wType = WeaponType(std::rand() % weaponInfo.size());
 	auto ele = GetRandElement();
 	CoreInit::managers.transformManager->Create(wep);
-	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(type)].shader, weaponInfo[size_t(type)].mat });
-	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(type)].mesh });
+	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(wType)].shader, weaponInfo[size_t(wType)].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(wType)].mesh });
 	Core::IGUIManager::CreateInfo icon;
-	icon.texture = weaponInfo[size_t(type)].icon;
+	icon.texture = weaponInfo[size_t(wType)].icon;
 	icon.textureInfo.width = 50;
 	icon.textureInfo.height = 50;
 	icon.textureInfo.anchor = {0.5f,0.5f };
@@ -324,6 +324,11 @@ void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entit
 }
 
 SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
+{
+	return Core::Entity();
+}
+
+Core::Entity SE::Gameplay::Item::Consumable::Create(ConsumableType type)
 {
 	return Core::Entity();
 }
