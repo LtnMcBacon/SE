@@ -153,6 +153,11 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
+			inline float GetMaxHealth()
+			{
+				return baseStat.health;
+			}
+
 
 			void AddWeapon(Core::Entity wep, uint8_t slot);
 		private:

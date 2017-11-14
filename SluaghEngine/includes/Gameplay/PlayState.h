@@ -58,9 +58,12 @@ namespace SE
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
+			void CheckForRoomTransition();
+			void UpdateHUD(float dt);
 
 			HUDParser playStateGUI;
 
+			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
 			PlayerUnit* player;
