@@ -168,8 +168,16 @@ namespace SE
 			*
 			* @sa CreateTreeFromNodeData
 			*/
-			IBehaviour* CurrentAnimationAllowsBlendingConditionLeaf(NodeData* dataArray, int nodeID);
-			
+			IBehaviour* CreateCurrentAnimationAllowsBlendingConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a InTheSameRoomAsThePlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateDistanceToDoorConditionLeaf(NodeData* dataArray, int nodeID);
+
 			/**
 			* @brief	Create a AnimiationRunningCondition Node with the data given on position nodeID in dataArray.
 			*
@@ -273,6 +281,14 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateWhileChannelingLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateChangeRoomLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
 

@@ -53,6 +53,7 @@ namespace SE
 			inline bool push(const Element& item)
 			{
 				auto current_tail = tail.load();
+				auto current_head = head.load();
 				auto next_tail = (current_tail + 1) % Capacity;
 				if (next_tail != head.load())
 				{
@@ -60,7 +61,7 @@ namespace SE
 					tail.store(next_tail);
 					return true;
 				}
-				assert(next_tail == head.load());
+				assert(next_tail == current_head);
 				return false;  // full queue
 			}
 
