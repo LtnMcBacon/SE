@@ -90,7 +90,7 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	}
 	else if(dataArray[nodeID].Type == "CurrentAnimationAllowsBlendingCondition")
 	{
-		finishedBehaviour = CurrentAnimationAllowsBlendingConditionLeaf(dataArray, nodeID);
+		finishedBehaviour = CreateCurrentAnimationAllowsBlendingConditionLeaf(dataArray, nodeID);
 	}
 	else if(dataArray[nodeID].Type == "MakeInvulnerableLeaf")
 	{
@@ -111,6 +111,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if(dataArray[nodeID].Type == "LineOfSightCondition")
 	{
 		finishedBehaviour = CreateLineOfSightConditionLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "DistanceToDoorCondition")
+	{
+		finishedBehaviour = CreateDistanceToDoorConditionLeaf(dataArray, nodeID);
 	}
 	else if(dataArray[nodeID].Type == "ResetAttackCooldownLeaf")
 	{
@@ -159,6 +163,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if (dataArray[nodeID].Type == "PauseAnimationsLeaf")
 	{
 		finishedBehaviour = CreatePauseAnimationsLeaf(dataArray, nodeID);
+	}
+	else if(dataArray[nodeID].Type == "ChangeRoomLeaf")
+	{
+		finishedBehaviour = CreateChangeRoomLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -305,10 +313,16 @@ IBehaviour* BehaviouralTreeFactory::CreateInTheSameRoomAsThePlayerConditionLeaf(
 	ProfileReturn(new InTheSameRoomAsThePlayerCondition(nullptr, nullptr));
 }
 
-IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CurrentAnimationAllowsBlendingConditionLeaf(NodeData * dataArray, int nodeID)
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateCurrentAnimationAllowsBlendingConditionLeaf(NodeData * dataArray, int nodeID)
 {
 	StartProfile;
 	ProfileReturn(new CurrentAnimationAllowsBlendingCondition(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateDistanceToDoorConditionLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new DistanceToDoorCondition(nullptr, nullptr, std::stof(dataArray[nodeID].nodeData[0])));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateAnimationRunningLeaf(NodeData* dataArray, int nodeID)
@@ -447,6 +461,12 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateWhileChannelingLeaf(Nod
 {
 	StartProfile;
 	ProfileReturn( new WhileChannelingLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateChangeRoomLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new ChangeRoomLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
