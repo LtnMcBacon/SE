@@ -26,10 +26,12 @@
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="BodachMeleeAttackLeaf.cpp" />
+    <ClCompile Include="ChangeRoomLeaf.cpp" />
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="CoreInit.cpp" />
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
+    <ClCompile Include="DistanceToDoorCondition.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="FaceThePlayerLeaf.cpp" />
@@ -91,9 +93,11 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ChangeRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
