@@ -160,6 +160,8 @@ namespace SE
 			*/
 			virtual const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const = 0;
 
+			virtual void SetTransform(const Entity& entity, const DirectX::XMFLOAT4X4& matrix) = 0;
+
 			/**
 			* @brief    Returns the forward vector of the entity.
 			* @param[in] e The entity.

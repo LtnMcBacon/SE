@@ -533,11 +533,12 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
-	GameUnit(xPos, yPos, 1000)
+	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+	this->health = baseStat.health;
 
 	if (skills != nullptr)
 	{
