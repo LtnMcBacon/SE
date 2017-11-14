@@ -210,7 +210,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 
 			player->UpdateMap(tempPtr);
-			currentRoom->
+			currentRoom->InitializeAdjacentFlowFields();
 			for (int i = 0; i < 25; i++)
 			{
 				delete tempPtr[i];
