@@ -49,6 +49,12 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
+			if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
+			{
+				CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), { loaded.particleEffect });
+				CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
+			}
+
 			auto owner = data.ownerUnit.lock();
 			if (loaded.boundToOwner && owner)
 			{
@@ -196,6 +202,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData & 
 		CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 		CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
+
+		if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
+		{
+			CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), { loaded.particleEffect });
+			CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
+		}
 
 		auto owner = data.ownerUnit.lock();
 		if (loaded.boundToOwner && owner)
@@ -1022,6 +1034,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
 		temp.amount = dt * temp.originalAmount;
 		p->SetDamageEvent(temp);
+		p->EmptyHitVector();
 
 		return false;
 	};

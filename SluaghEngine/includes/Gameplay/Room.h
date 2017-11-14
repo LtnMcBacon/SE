@@ -295,7 +295,7 @@ namespace SE
 			*/
 			void ProjectileAgainstWalls(Projectile& projectile);
 
-			int PointCollisionWithEnemy(float x, float y);
+			int PointCollisionWithEnemy(float x, float y, Projectile& projectile);
 
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
