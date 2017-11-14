@@ -13,8 +13,8 @@ enum GameInput : uint32_t
 	ACTION,
 	CONSOLE,
 	STEP,
-	INTERACT
-
+	INTERACT,
+	SHOWINFO
 };
 
 

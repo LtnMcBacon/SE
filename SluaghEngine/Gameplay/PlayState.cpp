@@ -349,6 +349,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
 		if (vis)
 			return false;
+		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			return false;
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
 
@@ -369,7 +371,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 				return true;
 			}	
 		}
-		return false;
+
+		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO);
 	};
 
 	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)

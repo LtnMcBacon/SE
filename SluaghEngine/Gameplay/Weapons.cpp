@@ -98,11 +98,10 @@ SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
 	CoreInit::managers.dataManager->SetValue(wep, "Health", Weapon::GetRandHealth());
 	CoreInit::managers.dataManager->SetValue(wep, "Str", Weapon::GetRandStr());
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", Weapon::GetRandAgi());
-	CoreInit::managers.dataManager->SetValue(wep, "Wil", Weapon::GetRandWil());
+	CoreInit::managers.dataManager->SetValue(wep, "Wis", Weapon::GetRandWil());
 	CoreInit::managers.dataManager->SetValue(wep, "Damage", Weapon::GetRandDamage());
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int(type));
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int(ele));
-	CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
@@ -113,23 +112,48 @@ void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 {
 	long offset = -125;
 	long he = 35;
-	Core::ITextManager::CreateInfo ciname;
-	auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
-	ciname.font = "CloisterBlack.spritefont";
-	ciname.info.posX = -35;
-	ciname.info.text = L"Test";
-	ciname.info.posY = offset;
-	ciname.info.screenAnchor = { 0.5f, 0.5f };
-	ciname.info.anchor = { 1,0.0f };
-	ciname.info.scale = { 0.4f, 1.0f };
-	ciname.info.height = he;
-	ciname.info.text.assign(s.begin(), s.end());
-	auto weaponName = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponName, ciname);
+	Core::ITextManager::CreateInfo ciStr;
+	auto s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Str", 0));
+	ciStr.font = "CloisterBlack.spritefont";
+	ciStr.info.posX = -35;
+	ciStr.info.posY = offset;
+	ciStr.info.screenAnchor = { 0.5f, 0.5f };
+	ciStr.info.anchor = { 1,0.0f };
+	ciStr.info.scale = { 0.4f, 1.0f };
+	ciStr.info.height = he;
+	ciStr.info.text = L"Str: " + std::to_wstring(s);
+	auto wStr = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(wStr, ciStr);
 
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponName, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponName, "Parent", ent);
-	CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
+
+	offset += he + 3;
+
+	s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Agi", 0));
+	ciStr.font = "CloisterBlack.spritefont";
+	ciStr.info.posY = offset;
+	ciStr.info.text = L"Agi: " + std::to_wstring(s);
+	wStr = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(wStr, ciStr);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
+
+	offset += he + 3;
+
+	s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Wis", 0));
+	ciStr.font = "CloisterBlack.spritefont";
+	ciStr.info.posY = offset;
+	ciStr.info.text = L"Wis: " + std::to_wstring(s);
+	wStr = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(wStr, ciStr);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
 
@@ -208,9 +232,9 @@ void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 
 
 	Core::IGUIManager::CreateInfo ciback;
-	ciback.texture = "Crossbow_texture_wood.jpg";
+	ciback.texture = "parchment.jpg";
 	ciback.textureInfo.width = 200;
-	ciback.textureInfo.height = 200;
+	ciback.textureInfo.height = offset + 130;
 	ciback.textureInfo.posX = -30;
 	ciback.textureInfo.posY = -130;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
