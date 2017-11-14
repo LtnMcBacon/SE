@@ -54,7 +54,6 @@ namespace SE
 				// PARSE TEXTURES
 				for (size_t i = 0; i < nrOfRects; i++)
 				{
-
 					// SIZE OF RECT NAME
 					memcpy(&strLength, (char*)data + head, sizeof(int));
 					head += sizeof(int);
@@ -68,7 +67,6 @@ namespace SE
 					head += strLength;
 					strLength = 0;
 					delete[] arr;
-
 
 					// SIZE OF TEXTURE NAME
 					memcpy(&strLength, (char*)data + head, sizeof(int));
@@ -149,7 +147,7 @@ namespace SE
 					else
 					{
 
-						this->MainMenuElmVec.push_back(CurrentElm);
+						this->StaticGuiVec.push_back(CurrentElm);
 					}
 					
 				}
@@ -217,7 +215,7 @@ namespace SE
 		{
 			StartProfile;
 			
-			for (auto& HUDElement : MainMenuElmVec)
+			for (auto& HUDElement : StaticGuiVec)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
 				

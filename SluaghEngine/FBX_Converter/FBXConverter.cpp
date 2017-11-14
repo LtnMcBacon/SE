@@ -1143,7 +1143,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 					FbxAnimCurve* rCX = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 					FbxAnimCurve* rCY = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 					FbxAnimCurve* rCZ = currentCluster->GetLink()->LclRotation.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-
+					
 					// Scaling curves (Should always be 1)
 					FbxAnimCurve* sCX = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 					FbxAnimCurve* sCY = currentCluster->GetLink()->LclScaling.GetCurve(currentAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -1198,7 +1198,7 @@ void SE::FBX::FBXConverter::GatherAnimationData(Mesh &pMesh) {
 
 							// Set the vectors for the global transform matrix (Build the keyframe)
 							FbxAMatrix localTransform;
-							localTransform.SetTQS(translationVector, quaternion, scalingVector);
+							localTransform.SetTRS(translationVector, rotationVector, scalingVector);
 
 							// The root joint uses its local transform as global. It has no parents. 
 							if (currentJointIndex == 0) {
