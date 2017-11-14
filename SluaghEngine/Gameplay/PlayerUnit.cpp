@@ -460,6 +460,11 @@ void SE::Gameplay::PlayerUnit::AddWeapon(Core::Entity wep, uint8_t slot)
 
 	Item::Pickup(wep);
 
+	CoreInit::managers.transformManager->SetPosition(wep, { 0,0,0 });
+	CoreInit::managers.animationManager->AttachToEntity(unitEntity, wep, "LHand", 0);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
+
+
 	items[slot] = wep;
 }
 

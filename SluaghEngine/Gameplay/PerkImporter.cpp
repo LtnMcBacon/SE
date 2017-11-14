@@ -72,7 +72,7 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 		});
 		if (res < 0)
 		{
-			throw exception("Failed to load perks");
+			//throw exception("Failed to load perks");
 		}
 		
 		
