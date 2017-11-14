@@ -202,8 +202,7 @@ void SE::Core::RenderableManager::Frame(Utilz::TimeCluster* timer)
 void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info)
 {
 	info->pipeline.OMStage.renderTargets[0] = "backbuffer";
-	info->pipeline.OMStage.renderTargets[1] = "bloomTarget";
-	info->pipeline.OMStage.renderTargetCount = 2;
+	info->pipeline.OMStage.renderTargetCount = 1;
 	info->pipeline.OMStage.depthStencilView = "backbuffer";
 
 	info->pipeline.VSStage.shader = defaultVertexShader;
