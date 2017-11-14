@@ -31,7 +31,7 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static void ToggleRenderPickupInfo(Core::Entity ent);
-				static void ToggleRenderEquiuppedInfo(Core::Entity ent);
+				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 
 				static WeaponType GetRandWeaponType();
 				static std::wstring GetWString(WeaponType type);
@@ -40,7 +40,7 @@ namespace SE
 			static void Drop(Core::Entity ent, DirectX::XMFLOAT3 pos);
 			static void Pickup(Core::Entity ent);
 			static void ToggleRenderPickupInfo(Core::Entity ent);
-			static void ToggleRenderEquiuppedInfo(Core::Entity ent);
+			static void ToggleRenderEquiuppedInfo(Core::Entity item, Core::Entity parent);
 
 			static int GetRandStr();
 			static int GetRandAgi();

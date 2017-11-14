@@ -116,7 +116,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 }
 
 using namespace SE;
-static const auto wepInfo = [](SE::Core::Entity ent, long posX)
+static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long posX,bool stop)
 {
 	long offset = -125;
 	long he = 35;
@@ -133,8 +133,16 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	auto wStr = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(wStr, ciStr);
 
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(wStr, "Parent", parent);
+	}
+	
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
@@ -146,8 +154,15 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	wStr = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(wStr, ciStr);
 
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(wStr, "Parent", parent);
+	}
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
@@ -158,31 +173,18 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	ciStr.info.text = L"Wis: " + std::to_wstring(s);
 	wStr = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(wStr, ciStr);
-
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(wStr, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(wStr, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(wStr, "Parent", parent);
+	}
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
-
-	/*Core::ITextManager::CreateInfo citype;
-	citype.font = "CloisterBlack.spritefont";
-	citype.info.posX = -35;
-	citype.info.posY = offset;
-	citype.info.screenAnchor = { 0.5f, 0.5f };
-	citype.info.anchor = { 1,0.0f };
-	citype.info.scale = { 0.4f, 1.0f };
-	citype.info.height = he;
-	auto type = WeaponType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1)));
-	citype.info.text = Item::Weapon::GetWString(type);
-	auto weaponType = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponType, citype);
-
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponType, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponType, "Parent", ent);
-	CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
-
-	offset += he + 3;*/
 
 	Core::ITextManager::CreateInfo cielement;
 	cielement.font = "CloisterBlack.spritefont";
@@ -198,8 +200,15 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	auto weaponElement = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponElement, cielement);
 
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponElement, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponElement, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponElement, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponElement, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(weaponElement, "Parent", parent);
+	}
 	CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
 
 	offset += he + 3;
@@ -217,8 +226,15 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	cidamage.info.text = L"Damage: " + std::to_wstring(damage);
 	auto weaponDamage = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponDamage, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponDamage, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponDamage, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponDamage, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(weaponDamage, "Parent", parent);
+	}
 	CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
 	offset += he + 3;
 
@@ -233,8 +249,15 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	cidamage.info.text = L"Health: " + std::to_wstring(hp);
 	auto weaponHealth = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponHealth, cidamage);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponHealth, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponHealth, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponHealth, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponHealth, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(weaponHealth, "Parent", parent);
+	}
 	CoreInit::managers.textManager->ToggleRenderableText(weaponHealth, true);
 	offset += he + 3;
 
@@ -243,29 +266,34 @@ static const auto wepInfo = [](SE::Core::Entity ent, long posX)
 	ciback.texture = "parchment.jpg";
 	ciback.textureInfo.width = 200;
 	ciback.textureInfo.height = offset + 130;
-	ciback.textureInfo.posX = posX;
+	ciback.textureInfo.posX = posX+5;
 	ciback.textureInfo.posY = -130;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0, 0.0f };
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
-	CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", ent);
+	if (stop)
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderItemInfo");
+	}
+	else
+	{
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
+		CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", parent);
+	}
 	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
 };
 
 void SE::Gameplay::Item::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 {
-	wepInfo(ent, -35);
+	wepInfo(ent, ent, -40, false);
 }
 
-void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity ent)
+void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent)
 {
-	if (auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false)))
-	{
-		if(item)
-			wepInfo(ent, -235);
-	}
+
+	wepInfo(ent, parent, -245, true);
+
 
 }
 
@@ -298,9 +326,13 @@ void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 	Weapon::ToggleRenderPickupInfo(ent);
 }
 
-void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent)
+void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent)
 {
-	Weapon::ToggleRenderEquiuppedInfo(ent);
+	if (auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false)))
+	{
+		if (item)
+			Weapon::ToggleRenderEquiuppedInfo(ent, parent);
+	}
 }
 
 SE::Core::Entity SE::Gameplay::Item::Consumable::Create()

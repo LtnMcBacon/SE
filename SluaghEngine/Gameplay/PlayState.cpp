@@ -480,7 +480,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
 	{
 		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis)
+		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
 			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
@@ -492,7 +492,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	//	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
 		Item::ToggleRenderPickupInfo(ent);
-		Item::ToggleRenderEquiuppedInfo(player->GetCurrentItem());
+		//Item::ToggleRenderEquiuppedInfo( player->GetCurrentItem(), pe);
 
 	};
 
@@ -506,7 +506,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 			}	
 		}
 
-		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO);
+		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
 	};
 
 	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)

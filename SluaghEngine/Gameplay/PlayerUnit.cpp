@@ -281,13 +281,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		if(auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
 		{
 			auto type = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Type", false)));
-
+			
 		}
 		else
 		{
 			currentItem = pi;		
 		}
 	}
+
+
+
+
 
 	int nrOfSKills = skills.size();
 	
@@ -636,6 +640,44 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	
+	
+	
+	
+	
+	
+	Core::IEventManager::EventCallbacks startRenderItemInfo;
+	startRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	{
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO);
+	};
+	
+	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	{
+		CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+		Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
+		
+	};
+
+
+	Core::IEventManager::EventCallbacks stopRenderItemInfo;
+	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	{
+		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+	};
+
+	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	{
+		CoreInit::managers.entityManager->DestroyNow(ent);
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+	};
+
+
+	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderItemInfo", startRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderItemInfo", stopRenderItemInfo);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+
 	StopProfile;
 }
 
