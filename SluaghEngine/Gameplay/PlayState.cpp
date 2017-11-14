@@ -440,32 +440,34 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
-		bool isItem = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false));
-		if (isItem)
+		auto isItem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Item", -1));
+		if (isItem != -1)
 		{
 			CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
+		
+			if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
+			{
+				player->AddItem(ent, 0);
+			}
+			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
+			{
+				player->AddItem(ent, 1);
+			}
+			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
+			{
+				player->AddItem(ent, 2);
+			}
+			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
+			{
+				player->AddItem(ent, 3);
+			}
+			else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
+			{
+				player->AddItem(ent, 4);
+			}
 		}
 	
-		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
-		{
-			player->AddWeapon(ent, 0);
-		}
-		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
-		{
-			player->AddWeapon(ent, 1);
-		}
-		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
-		{
-			player->AddWeapon(ent, 2);
-		}
-		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
-		{
-			player->AddWeapon(ent, 3);
-		}
-		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
-		{
-			player->AddWeapon(ent, 4);
-		}
+		
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {

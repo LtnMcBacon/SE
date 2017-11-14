@@ -13,6 +13,12 @@ namespace SE
 			WEAPON,
 			CONSUMABLE
 		};
+		enum class WeaponType
+		{
+			SWORD,
+			CROSSBOW,
+			STAFF
+		};
 		struct Item
 		{
 			static Core::Entity Create();
@@ -24,6 +30,7 @@ namespace SE
 			struct Weapon
 			{
 				static Core::Entity Create();
+				static Core::Entity Create(WeaponType type);
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};

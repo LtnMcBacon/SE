@@ -278,7 +278,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (ci)
 	{
-		if(auto item = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
+		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
+		if(item != -1)
 		{
 			auto type = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Type", false)));
 			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
@@ -443,30 +444,30 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 	StopProfile;
 }
 #include <Items.h>
-void SE::Gameplay::PlayerUnit::AddWeapon(Core::Entity wep, uint8_t slot)
+void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	_ASSERT(slot < MAX_ITEMS);
-	auto item = std::get<bool>( CoreInit::managers.dataManager->GetValue(items[slot], "Item", false));
-	if (item)
+	auto isitem = std::get<int32_t>( CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
 	{
 		//CoreInit::managers.entityManager->Destroy(items[currentItem]);
 		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
 		p.y = 0;
 		Item::Drop(items[slot], p);
 	}
-	CoreInit::managers.guiManager->SetTexturePos(wep, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
 	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
 
-	Item::Pickup(wep);
+	Item::Pickup(item);
 
-	CoreInit::managers.transformManager->SetPosition(wep, { 0.07f,0.15f,0.5f });
-	CoreInit::managers.transformManager->SetRotation(wep, -0.25f,0.2f,1.5f );
-	CoreInit::managers.animationManager->AttachToEntity(unitEntity, wep, "LHand", 0);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
+	CoreInit::managers.transformManager->SetPosition(item, { 0.07f,0.15f,0.5f });
+	CoreInit::managers.transformManager->SetRotation(item, -0.25f,0.2f,1.5f );
+	CoreInit::managers.animationManager->AttachToEntity(unitEntity, item, "LHand", 0);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(item, true);
 
 
-	items[slot] = wep;
+	items[slot] = item;
 }
 
 

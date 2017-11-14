@@ -160,7 +160,7 @@ namespace SE
 			}
 
 
-			void AddWeapon(Core::Entity wep, uint8_t slot);
+			void AddItem(Core::Entity item, uint8_t slot);
 			inline Core::Entity GetCurrentItem()const
 			{
 				return items[currentItem];

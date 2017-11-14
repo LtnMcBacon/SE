@@ -1,7 +1,7 @@
 #include <Items.h>
 #include "CoreInit.h"
 
-struct TypeInfo
+struct WeaponInfo
 {
 	SE::Utilz::GUID icon;
 	SE::Utilz::GUID mesh;
@@ -9,9 +9,9 @@ struct TypeInfo
 	SE::Utilz::GUID shader;
 };
 
-static const TypeInfo typeInfo[3] = {
+static const WeaponInfo weaponInfo[3] = {
 	{"venomblades.jpg", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl"},
-	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" },
+	{"venomblades.jpg", "Torch_fbx.mesh", "Torch_fbx.mat", "SimpleLightPS.hlsl" },
 	{"venomblades.jpg", "default.mesh", "default.mat", "SimplePS.hlsl" }
 };
 
@@ -67,12 +67,13 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
 	auto wep = CoreInit::managers.entityManager->Create();
 	auto type = ItemType::WEAPON;// GetRandType();
+	auto wType = WeaponType(std::rand() % 3);
 	auto ele = GetRandElement();
 	CoreInit::managers.transformManager->Create(wep);
-	CoreInit::managers.materialManager->Create(wep, { typeInfo[size_t(type)].shader, typeInfo[size_t(type)].mat });
-	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { typeInfo[size_t(type)].mesh });
+	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(type)].shader, weaponInfo[size_t(type)].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(type)].mesh });
 	Core::IGUIManager::CreateInfo icon;
-	icon.texture = typeInfo[size_t(type)].icon;
+	icon.texture = weaponInfo[size_t(type)].icon;
 	icon.textureInfo.width = 50;
 	icon.textureInfo.height = 50;
 	icon.textureInfo.anchor = {0.5f,0.5f };
@@ -83,18 +84,23 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 
-	CoreInit::managers.dataManager->SetValue(wep, "Item", true);
+	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(type));
 	CoreInit::managers.dataManager->SetValue(wep, "Health", Item::GetRandHealth());
 	CoreInit::managers.dataManager->SetValue(wep, "Str", Item::GetRandStr());
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", Item::GetRandAgi());
 	CoreInit::managers.dataManager->SetValue(wep, "Wis", Item::GetRandWil());
 	CoreInit::managers.dataManager->SetValue(wep, "Damage", Item::GetRandDamage());
-	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(type));
+	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(wType));
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(ele));
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 	return wep;
+}
+
+SE::Core::Entity SE::Gameplay::Item::Weapon::Create(WeaponType type)
+{
+	return Core::Entity();
 }
 
 using namespace SE;
