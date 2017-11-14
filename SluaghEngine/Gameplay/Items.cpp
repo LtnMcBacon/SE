@@ -1,4 +1,4 @@
-#include <Weapons.h>
+#include <Items.h>
 #include "CoreInit.h"
 
 struct WeT
@@ -31,75 +31,82 @@ static const ElT elt[4] = {
 
 using namespace SE::Gameplay;
 
-int SE::Gameplay::Weapon::GetRandStr()
+int SE::Gameplay::Item::GetRandStr()
 {
 	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
 }
 
-int SE::Gameplay::Weapon::GetRandAgi()
+int SE::Gameplay::Item::GetRandAgi()
 {
 	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
 }
 
-int SE::Gameplay::Weapon::GetRandWil()
+int SE::Gameplay::Item::GetRandWil()
 {
 	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
 }
 
-int SE::Gameplay::Weapon::GetRandHealth()
+int SE::Gameplay::Item::GetRandHealth()
 {
 	return (CoreInit::subSystems.window->GetRand() % 401) - 200;
 }
 
-int SE::Gameplay::Weapon::GetRandDamage()
+int SE::Gameplay::Item::GetRandDamage()
 {
 	return (CoreInit::subSystems.window->GetRand() % 100);
 }
 
-SE::Gameplay::WeaponType SE::Gameplay::Weapon::GetRandType()
+SE::Gameplay::WeaponType SE::Gameplay::Item::Weapon::GetRandWeaponType()
 {
 	return WeaponType(CoreInit::subSystems.window->GetRand() % 3);
 }
 
-std::wstring SE::Gameplay::Weapon::GetWString(WeaponType type)
+std::wstring SE::Gameplay::Item::Weapon::GetWString(WeaponType type)
 {
 	return wet[size_t(type)].str;
 }
 
-std::wstring SE::Gameplay::Weapon::GetWString(Element ele)
+std::wstring SE::Gameplay::Item::GetWString(Element ele)
 {
 	return elt[size_t(ele)].str;
 }
 
-DirectX::XMFLOAT4 SE::Gameplay::Weapon::GetElementColor(Element ele)
+DirectX::XMFLOAT4 SE::Gameplay::Item::GetElementColor(Element ele)
 {
 	return elt[size_t(ele)].color;
 }
 
-SE::Gameplay::Element SE::Gameplay::Weapon::GetRandElement()
+SE::Gameplay::Element SE::Gameplay::Item::GetRandElement()
 {
 	return Element(CoreInit::subSystems.window->GetRand() % 4);
 }
 
 
-SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
+SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
 	auto wep = CoreInit::managers.entityManager->Create();
 	auto type = WeaponType::MELEE;// GetRandType();
 	auto ele = GetRandElement();
-	CoreInit::managers.transformManager->Create(wep, pos);
+	CoreInit::managers.transformManager->Create(wep);
 	CoreInit::managers.materialManager->Create(wep, { wet[size_t(type)].shader, wet[size_t(type)].mat });
 	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { wet[size_t(type)].mesh });
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, 0.2);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = "TestTexture.png";
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0, 1 };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 5;
+	icon.textureInfo.posY = -5;
 
+	CoreInit::managers.guiManager->Create(wep, icon);
 
-	CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
-	CoreInit::managers.dataManager->SetValue(wep, "Health", Weapon::GetRandHealth());
-	CoreInit::managers.dataManager->SetValue(wep, "Str", Weapon::GetRandStr());
-	CoreInit::managers.dataManager->SetValue(wep, "Agi", Weapon::GetRandAgi());
-	CoreInit::managers.dataManager->SetValue(wep, "Wis", Weapon::GetRandWil());
-	CoreInit::managers.dataManager->SetValue(wep, "Damage", Weapon::GetRandDamage());
+	CoreInit::managers.dataManager->SetValue(wep, "Item", true);
+	CoreInit::managers.dataManager->SetValue(wep, "Health", Item::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(wep, "Str", Item::GetRandStr());
+	CoreInit::managers.dataManager->SetValue(wep, "Agi", Item::GetRandAgi());
+	CoreInit::managers.dataManager->SetValue(wep, "Wis", Item::GetRandWil());
+	CoreInit::managers.dataManager->SetValue(wep, "Damage", Item::GetRandDamage());
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int(type));
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int(ele));
 
@@ -108,7 +115,31 @@ SE::Core::Entity SE::Gameplay::Weapon::CreateWeapon(DirectX::XMFLOAT3 pos)
 	return wep;
 }
 
-void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
+SE::Core::Entity SE::Gameplay::Item::Create()
+{
+	return Core::Entity();
+}
+
+void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
+{
+	CoreInit::managers.transformManager->SetPosition(ent, pos);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
+}
+
+void SE::Gameplay::Item::Pickup(Core::Entity ent)
+{
+	CoreInit::managers.collisionManager->Destroy(ent);
+	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+}
+
+void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
 {
 	long offset = -125;
 	long he = 35;
@@ -166,7 +197,7 @@ void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 	citype.info.scale = { 0.4f, 1.0f };
 	citype.info.height = he;
 	auto type = WeaponType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1)));
-	citype.info.text = Weapon::GetWString(type);
+	citype.info.text = Item::Weapon::GetWString(type);
 	auto weaponType = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponType, citype);
 
@@ -185,8 +216,8 @@ void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 	cielement.info.scale = { 0.4f, 1.0f };
 	cielement.info.height = he;
 	auto element = Element(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
-	cielement.info.colour = Weapon::GetElementColor(element);
-	cielement.info.text = Weapon::GetWString(element);
+	cielement.info.colour = Item::GetElementColor(element);
+	cielement.info.text = Item::GetWString(element);
 	auto weaponElement = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponElement, cielement);
 
@@ -244,4 +275,9 @@ void SE::Gameplay::Weapon::ToggleRenderPickupInfo(Core::Entity ent)
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderWIC");
 	CoreInit::managers.dataManager->SetValue(weaponBack, "Parent", ent);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+}
+
+SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
+{
+	return Core::Entity();
 }

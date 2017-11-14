@@ -18,14 +18,26 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::RIGHT), Window::KeyD);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::CONSOLE), Window::KeyTab);
 
-	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL1), Window::Key1);
-	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::Key2);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL1), Window::KeyQ);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SKILL2), Window::KeyE);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::ACTION), Window::MouseLeft);
 
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::STEP), Window::KeyF1);
-	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::INTERACT), Window::KeyE);
+	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::INTERACT), Window::KeyF);
 	CoreInit::subSystems.window->MapActionButton(uint32_t(GameInput::SHOWINFO), Window::KeyShiftL);
-	
+	CoreInit::subSystems.window->MapActionButton(GameInput::PICKUP, Window::Key1);
+	CoreInit::subSystems.window->MapActionButton(GameInput::PICKUP, Window::Key2);
+	CoreInit::subSystems.window->MapActionButton(GameInput::PICKUP, Window::Key3);
+	CoreInit::subSystems.window->MapActionButton(GameInput::PICKUP, Window::Key4);
+	CoreInit::subSystems.window->MapActionButton(GameInput::PICKUP, Window::Key5);
+	CoreInit::subSystems.window->MapActionButton(GameInput::ONE, Window::Key1);
+	CoreInit::subSystems.window->MapActionButton(GameInput::TWO, Window::Key2);
+	CoreInit::subSystems.window->MapActionButton(GameInput::THREE, Window::Key3);
+	CoreInit::subSystems.window->MapActionButton(GameInput::FOUR, Window::Key4);
+	CoreInit::subSystems.window->MapActionButton(GameInput::FIVE, Window::Key5);
+
+
+
 	CoreInit::subSystems.window->BindKeyPressCallback(uint32_t(GameInput::CONSOLE), []()
 	{
 		CoreInit::subSystems.devConsole->Toggle();

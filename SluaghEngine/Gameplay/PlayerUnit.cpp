@@ -395,6 +395,23 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 	ClearHealingEvents();
 	StopProfile;
 }
+#include <Items.h>
+void SE::Gameplay::PlayerUnit::AddWeapon(Core::Entity wep, uint8_t slot)
+{
+	_ASSERT(slot < MAX_ITEMS);
+	auto item = std::get<bool>( CoreInit::managers.dataManager->GetValue(items[slot], "Item", false));
+	if (item)
+	{
+		//CoreInit::managers.entityManager->Destroy(items[currentItem]);
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+		Item::Drop(items[slot], p);
+	}
+	CoreInit::managers.guiManager->SetTexturePos(wep, 5 + slot * 55, -5);
+	Item::Pickup(wep);
+
+	items[slot] = wep;
+}
 
 void SE::Gameplay::PlayerUnit::calcStrChanges()
 {

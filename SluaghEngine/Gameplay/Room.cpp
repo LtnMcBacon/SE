@@ -88,7 +88,7 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
-#include <Weapons.h>
+#include <Items.h>
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -114,7 +114,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
 			if (true)//spw > 50000)
 			{	
-				Weapon::CreateWeapon(p);
+				Item::Drop(Item::Weapon::Create(), p);
 				
 			}
 			

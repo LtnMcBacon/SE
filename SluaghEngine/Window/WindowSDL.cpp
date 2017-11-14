@@ -306,12 +306,17 @@ bool SE::Window::WindowSDL::ButtonDown(uint32_t actionButton) const
 
 bool SE::Window::WindowSDL::ButtonPressed(uint32_t actionButton) const
 {
-	return !(GetKeyState(actionButton) ^ PRESSED);
+	return !(GetKeyState(actionButton) ^ PRESSED) || (GetKeyState(actionButton) & DOUBLE);
 }
 
 bool SE::Window::WindowSDL::ButtonUp(uint32_t actionButton) const
 {
 	return GetKeyState(actionButton) & UP;
+}
+
+bool SE::Window::WindowSDL::ButtonDouble(uint32_t actionButton) const
+{
+	return GetKeyState(actionButton) & DOUBLE;
 }
 
 void SE::Window::WindowSDL::GetMousePos(int& x, int& y) const
@@ -322,7 +327,7 @@ void SE::Window::WindowSDL::GetMousePos(int& x, int& y) const
 
 void SE::Window::WindowSDL::MapActionButton(uint32_t actionButton, KeyCode key)
 {
-	keyToAction[keyMapping[key]] = actionButton;
+	keyToAction[keyMapping[key]].push_back(actionButton);
 }
 
 void SE::Window::WindowSDL::BindMouseClickCallback(uint32_t actionButton, const MouseClickCallback& callback)
@@ -426,30 +431,55 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 		{
 			const auto state = keyToAction.find(ev.key.keysym.sym);
 			if (state != keyToAction.end())	// if key is bound sets its state
-				actionToKeyState[state->second] = UP;
+			{
+				for (auto& k : state->second)
+				{
+					actionToKeyState[k] = UP;
+					actionToKeyStateLastTime[k] = std::chrono::high_resolution_clock::now();
+				}
+					
+			}
+				
 			break;
 		}
 		case SDL_KEYDOWN:	// if type is KeyDown
 		{
+			auto nt = std::chrono::high_resolution_clock::now();
+
 			const auto state = keyToAction.find(ev.key.keysym.sym);
 			if (state != keyToAction.end())	// if key is bound sets its state
 			{
-				if (!(actionToKeyState[state->second] & DOWN))
+				for (auto& k : state->second)
 				{
-					actionToKeyState[state->second] = PRESSED;
-					auto pressCallbacks = actionToKeyPressCallback.find(state->second);
-					if (pressCallbacks != actionToKeyPressCallback.end())
+					if (!(actionToKeyState[k] & DOWN))
 					{
-						for (auto& cb : pressCallbacks->second)
+						actionToKeyState[k] = PRESSED;
+						
+						auto const find = actionToKeyStateLastTime.find(k);
+						if (find != actionToKeyStateLastTime.end())
+						{
+							auto diff = std::chrono::duration<float, std::milli>(nt - actionToKeyStateLastTime[k]).count();
+							if (diff < 300)
+							{
+								actionToKeyState[k] |= DOUBLE;
+							}
+						}
+						
+						auto pressCallbacks = actionToKeyPressCallback.find(k);
+						if (pressCallbacks != actionToKeyPressCallback.end())
+						{
+							for (auto& cb : pressCallbacks->second)
+								cb();
+						}
+					}
+					auto downCallbacks = actionToKeyDownCallback.find(k);
+					if (downCallbacks != actionToKeyDownCallback.end())
+					{
+						for (auto& cb : downCallbacks->second)
 							cb();
 					}
 				}
-				auto downCallbacks = actionToKeyDownCallback.find(state->second);
-				if (downCallbacks != actionToKeyDownCallback.end())
-				{
-					for (auto& cb : downCallbacks->second)
-						cb();
-				}
+				
 			}
 			break;
 		}
@@ -477,9 +507,10 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			const auto state = keyToAction.find(ev.button.button);
 			if (state != keyToAction.end())
 			{
-				if (!(actionToKeyState[state->second] & DOWN))
+				for (auto& k : state->second)
+				if (!(actionToKeyState[k] & DOWN))
 				{
-					actionToKeyState[state->second] = PRESSED;
+					actionToKeyState[k] = PRESSED;
 				}
 			}
 			break;
@@ -489,13 +520,19 @@ void SE::Window::WindowSDL::EventSwitch(SDL_Event ev)
 			const auto state = keyToAction.find(ev.button.button);
 			if (state != keyToAction.end())
 			{
-				auto mouseClickCallbacks = actionToMouseClickCallback.find(state->second);
-				if (mouseClickCallbacks != actionToMouseClickCallback.end())
+				for (auto& k : state->second)
 				{
-					for (auto& cb : mouseClickCallbacks->second)
-						cb(curMouseX, curMouseY);
+					auto mouseClickCallbacks = actionToMouseClickCallback.find(k);
+					if (mouseClickCallbacks != actionToMouseClickCallback.end())
+					{
+						for (auto& cb : mouseClickCallbacks->second)
+							cb(curMouseX, curMouseY);
+					}
+					actionToKeyState[k] = UP;
 				}
-				actionToKeyState[state->second] = UP;
+			
+				
+					
 			}
 			if (ev.button.button == SDL_BUTTON_LEFT)
 			{

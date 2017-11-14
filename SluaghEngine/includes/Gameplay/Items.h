@@ -15,9 +15,23 @@ namespace SE
 			MAGIC
 		};
 
-		struct Weapon
+		struct Item
 		{
-			static Core::Entity CreateWeapon(DirectX::XMFLOAT3 pos);
+			static Core::Entity Create();
+
+			struct Consumable
+			{
+				static Core::Entity Create();
+			};
+			struct Weapon
+			{
+				static Core::Entity Create();
+				static WeaponType GetRandWeaponType();
+				static std::wstring GetWString(WeaponType type);
+			};
+			
+			static void Drop(Core::Entity ent, DirectX::XMFLOAT3 pos);
+			static void Pickup(Core::Entity ent);
 			static void ToggleRenderPickupInfo(Core::Entity ent);
 
 			static int GetRandStr();
@@ -26,8 +40,8 @@ namespace SE
 			static int GetRandHealth();
 			static int GetRandDamage();
 
-			static WeaponType GetRandType();
-			static std::wstring GetWString(WeaponType type);
+			
+		
 			static std::wstring GetWString(Element ele);
 
 			static DirectX::XMFLOAT4 GetElementColor(Element ele);

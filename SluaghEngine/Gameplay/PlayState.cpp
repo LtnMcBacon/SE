@@ -343,7 +343,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	ProfileReturnVoid;
 }
-#include <Weapons.h>
+#include <Items.h>
 
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
@@ -352,18 +352,36 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
-		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
-		if (isWep)
+		bool isItem = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Item", false));
+		if (isItem)
 		{
-			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
+			CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
 		}
-		CoreInit::managers.collisionManager->Destroy(ent);
-		CoreInit::managers.renderableManager->Destroy(ent);
-		CoreInit::managers.materialManager->Destroy(ent);
+	
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
+		{
+			player->AddWeapon(ent, 0);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
+		{
+			player->AddWeapon(ent, 1);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
+		{
+			player->AddWeapon(ent, 2);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
+		{
+			player->AddWeapon(ent, 3);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
+		{
+			player->AddWeapon(ent, 4);
+		}
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
-		if (CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT))
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 		}
@@ -385,7 +403,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	{
 	//	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
-		Weapon::ToggleRenderPickupInfo(ent);
+		Item::ToggleRenderPickupInfo(ent);
 
 	};
 

@@ -75,6 +75,9 @@ namespace SE
 			*/
 			bool CorrectCollision(float dt, float &xMov, float &yMov);
 
+			static const uint8_t MAX_ITEMS = 5;
+			Core::Entity items[MAX_ITEMS];
+			uint8_t currentItem = 0;
 		public:
 
 			struct MovementInput
@@ -150,6 +153,8 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
+
+			void AddWeapon(Core::Entity wep, uint8_t slot);
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
