@@ -143,17 +143,12 @@ namespace SE
 				myBehaviouralTree = behaviouralTree;
 			}
 
-			inline void SetFlowField(const FlowField* roomFlowField)
-			{
-				flowFieldForRoom = roomFlowField;
-			}
-
-			inline void SetCurrentRoom(const Room* currentRoom)
+			inline void SetCurrentRoom(Room* currentRoom)
 			{
 				myRoom = currentRoom;
 			}
 
-			inline const Room* GetCurrentRoom() const
+			inline Room* GetCurrentRoom() const
 			{
 				return myRoom;
 			}
@@ -169,8 +164,7 @@ namespace SE
 			EnemyBlackboard* myBlackboard;
 			BehaviouralTree* myBehaviouralTree;
 
-			const FlowField* flowFieldForRoom = nullptr;
-			const Room* myRoom;
+			Room* myRoom;
 			float forcesToApply[2] = {}; /*HARDCODED RIGHT NOW!*/
 			float radius;
 			float extraSampleCoords[2] = {};
