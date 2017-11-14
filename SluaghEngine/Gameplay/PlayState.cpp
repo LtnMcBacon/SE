@@ -230,7 +230,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
-	for(auto room : rooms)
+	for(auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();

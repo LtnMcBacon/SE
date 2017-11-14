@@ -425,6 +425,26 @@ void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& 
 	StopProfile;
 }
 
+float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const
+{
+	float distance = 1000.0f;
+	for (int i = 0; i < 4; i++)
+	{
+		if(DoorArr[i].active)
+		{
+			float doorDist = sqrtf((startX - DoorArr[i].xPos)*(startX - DoorArr[i].xPos) +
+				(startY - DoorArr[i].yPos)*(startY - DoorArr[i].yPos));
+			if(doorDist < distance)
+			{
+				distance = doorDist;
+				direction = DoorArr[i].side;
+			}
+		}
+	}
+	
+	return distance;
+}
+
 
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
@@ -1145,6 +1165,7 @@ Room::~Room()
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+
 	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
@@ -1153,6 +1174,54 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	*/
 
 	ProfileReturnConst(true);
+}
+
+bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjacentRoom exitDirection)
+{
+	StartProfile;
+
+	DirectionToAdjacentRoom entranceDirection = ReverseDirection(exitDirection);
+	adjacentRooms[int(entranceDirection)]->RemoveEnemyFromRoom(enemyToAdd);
+	
+	enemyToAdd->SetCurrentRoom(this);
+
+	auto door = DoorArr[int(entranceDirection)];
+	if (door.side != entranceDirection)
+		int a = 0;
+
+	float newX = door.xPos, newY = door.yPos;
+
+	switch(entranceDirection)
+	{
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE: break;
+	default: ;
+	}
+
+	enemyToAdd->PositionEntity(newX, newY);
+
+	enemyUnits.push_back(enemyToAdd);
+	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
+
+	ProfileReturnConst(true);
+}
+
+void SE::Gameplay::Room::RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit * enemyToRemove)
+{
+	int counter = 0;
+	for(auto enemy : enemyUnits)
+	{
+		if(enemy == enemyToRemove)
+		{
+			std::swap(enemyUnits[counter], enemyUnits[enemyUnits.size() - 1]);
+			enemyUnits.pop_back();
+			break;
+		}
+		counter++;
+	}
 }
 
 bool SE::Gameplay::Room::GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float & posX, float & posY)
@@ -1500,7 +1569,7 @@ void SE::Gameplay::Room::ResetTempTileValues()
 		{
 			if (tileValues[x][y] == (char)100)
 			{
-				tileValues[x][y] == (char)137;
+				tileValues[x][y] = (char)137;
 			}
 			
 		}

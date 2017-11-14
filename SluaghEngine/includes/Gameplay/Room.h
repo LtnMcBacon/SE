@@ -392,7 +392,8 @@ namespace SE
 			* or when an enemy moves between two rooms. The flag "ignorePowerLevel" can be used to make sure that
 			* an enemy is added to a room, no matter the current powerlevel of that room.
 			*
-			* @param[in] toAdd The enemy to be added into the room.
+			* @param[in] enemyToAdd The enemy to be added into the room.
+			* @param[in] exitDirection The direction the enemy LEFT the previous room through.
 			*
 			* @retval true The enemy has been added to the room
 			* @retval false The powerlevel of the room is to high for the current enemy to be added to the room.
@@ -404,14 +405,36 @@ namespace SE
 			*	To be added when function is implemented
 			* @endcode
 			*/
-			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd/*bool ignorePowerLevel*/);
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjacentRoom exitDirection);
+
+			/**
+			* @brief	This function is used to add an enemy to the room.
+			*
+			* @details	This function can be used to add an enemy to a specific room either during room construction
+			* or when an enemy moves between two rooms. The flag "ignorePowerLevel" can be used to make sure that
+			* an enemy is added to a room, no matter the current powerlevel of that room.
+			*
+			* @param[in] enemyToAdd The enemy to be added into the room.
+			*
+			* @retval true The enemy has been added to the room
+			* @retval false The powerlevel of the room is to high for the current enemy to be added to the room.
+			*
+			* @warning Note that the room WILL take ownership of the AIs it contains. This means that they will delete them!
+			*
+			* Example code:
+			* @code
+			*	To be added when function is implemented
+			* @endcode
+			*/
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd);
+			void RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit *enemyToRemove);
 			
 			inline const FlowField *GetFlowFieldMap() const
 			{
 				return roomField;
 			};
 
-			inline const Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
+			inline Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
 			{
 				return adjacentRooms[int(direction)];
 			}
@@ -542,6 +565,12 @@ namespace SE
 			 * @brief Get distance to all enemies
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
+
+			/**
+			 * @brief Get distance to closest (open) door
+			 */
+			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
+
 			/**
 			* @brief Resets the tilevalues from 100 to 0
 			*
