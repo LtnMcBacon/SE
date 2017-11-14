@@ -56,6 +56,7 @@ bool SE::Test::SkillTest::Run(SE::DevConsole::IConsole* console)
 	std::cout << floatValues[4] << std::endl;
 	std::cout << floatValues[5] << std::endl;
 	std::cout << floatValues[6] << std::endl;
+	std::cout << floatValues[7] << std::endl;
 
 
 

@@ -50,6 +50,7 @@ namespace SE
 			void UpdateBlending(const Entity& entity, int index)override;
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
+			void ToggleShadow(const Entity& entity, bool on) override;
 
 		private:
 			/**
@@ -73,6 +74,7 @@ namespace SE
 			int LoadAnimation(const Utilz::GUID& guid, void * data, size_t size);
 			
 			void CreateRenderObjectInfo(const Entity& entity, Graphics::RenderJob * info);
+			void CreateShadowRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info);
 
 			void OverwriteAnimation(AnimationInfo& info, size_t to, size_t from);
 

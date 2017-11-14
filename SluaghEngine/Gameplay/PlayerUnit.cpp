@@ -39,7 +39,7 @@ void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRu
 	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::ResolveEvents()
+void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 {
 	StartProfile;
 
@@ -50,11 +50,97 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		this->health -= DamageEventVector[i].amount;
 	}
 	
-	for(auto condition : ConditionEventVector)
+	for (int i = 0; i < ConditionEventVector.size(); i++)
 	{
-		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+		ConditionEventVector[i].duration -= dt;
+
+		if (ConditionEventVector[i].isBane == false)
 		{
-			stunDuration += condition.duration;
+			switch (ConditionEventVector[i].boon)
+			{
+			case Boons::CONDITIONAL_BOONS_NONE:
+				break;
+			case Boons::CONDITIONAL_BOONS_DAMAGE:
+				newStat.meleeMultiplier += baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_STUN:
+				break;
+			case Boons::CONDITIONAL_BOONS_ROOT:
+				break;
+			case Boons::CONDITIONAL_BOONS_PROTECTION:
+				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_PHYSICAL_RESISTANCE:
+				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_MAGICAL_RESISTANCE:
+				this->newStat.magicResistance += this->baseStat.magicResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_FIRE_RESISTANCE:
+				this->newStat.fireResistance += this->baseStat.fireResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_WATER_RESISTANCE:
+				this->newStat.waterResistance += this->baseStat.waterResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_NATURE_RESISTANCE:
+				this->newStat.natureResistance += this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_CASTSPEED:
+				break;
+			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
+				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_SLOW:
+				break;
+			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
+				break;
+			}
+		}
+		else
+		{
+			/*switch (ConditionEventVector[i].bane)
+			{
+			case Banes::CONDITIONAL_BANES_NONE:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
+			break;
+			case Banes::CONDITIONAL_BANES_DAMAGE:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
+			break;
+			case Banes::CONDITIONAL_BANES_STUN:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
+			break;
+			case Banes::CONDITIONAL_BANES_ROOT:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
+			break;
+			case Banes::CONDITIONAL_BANES_BLOODLETTING:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
+			break;
+			case Banes::CONDITIONAL_BANES_UNCOVER:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
+			break;
+			case Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_FIRE_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_WATER_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_NATURE_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_SLOW:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
+			break;
+			}*/
+		}
+		if (ConditionEventVector[i].duration > 0.f)
+		{
+			NextFrameCondition.push_back(ConditionEventVector[i]);
 		}
 	}
 
@@ -168,13 +254,13 @@ void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAn
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
-	if(stunDuration > 0)
-	{
-		stunDuration -= dt;
-		if (stunDuration < 0)
-			stunDuration = 0.f;
-		ProfileReturnVoid;
-	}
+	//if(stunDuration)
+	//{
+	//	stunDuration -= dt;
+	//	if (stunDuration < 0)
+	//		stunDuration = 0.f;
+	//	ProfileReturnVoid;
+	//}
 	dt *= newStat.movementSpeed;
 	float xMovement = 0.f;
 	float yMovement = 0.f;
@@ -271,7 +357,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
-		skills[0].currentCooldown = skills[0].coolDown;
+		skills[0].currentCooldown = skills[0].cooldown;
 	}
 	else if (nrOfSKills > 0 && input.skill1Button)
 	{
@@ -308,7 +394,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
-		skills[1].currentCooldown = skills[1].coolDown;
+		skills[1].currentCooldown = skills[1].cooldown;
 	}
 	else if (nrOfSKills > 1 && input.skill2Button)
 	{
@@ -355,7 +441,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	if (attackCooldown < 0.f)
 		attackCooldown = 0.f;
-	ResolveEvents();
+	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
 	ClearHealingEvents();
@@ -491,6 +577,96 @@ void SE::Gameplay::PlayerUnit::changeElementType(DamageTypes element)
 	newStat.element = element;
 }
 
+int SE::Gameplay::PlayerUnit::getSkillVectorSize()
+{
+	return skills.size();
+}
+
+std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
+{
+	return skills.at(skillNumber).skillName;
+}
+
+SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
+{
+	return skills.at(skillNumber).atkType;
+}
+
+SE::Gameplay::DamageTypes SE::Gameplay::PlayerUnit::getElement(int skillNumber)
+{
+	return skills.at(skillNumber).element;
+}
+
+SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
+{
+	return skills.at(skillNumber).boon;
+}
+
+SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
+{
+	return skills.at(skillNumber).bane;
+}
+
+unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
+{
+	return (unsigned short int)skills.at(skillNumber).animation;
+}
+
+unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
+{
+	return (unsigned short int)skills.at(skillNumber).particle;
+}
+
+SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber, Utilz::GUID& projectileReference)
+{
+	projectileReference = skills.at(skillNumber).projectileFileGUID;
+}
+
+float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
+{
+	return skills.at(skillNumber).skillDamage;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonEffectValue(int skillNumber)
+{
+	return skills.at(skillNumber).boonEffectValue;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonRange(int skillNumber)
+{
+	return skills.at(skillNumber).boonRange;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonDuration(int skillNumber)
+{
+	return skills.at(skillNumber).boonDuration;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneEffetValue(int skillNumber)
+{
+	return skills.at(skillNumber).baneEffectValue;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneRange(int skillNumber)
+{
+	return skills.at(skillNumber).baneRange;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneDuration(int skillNumber)
+{
+	return skills.at(skillNumber).baneDuration;
+}
+
+float SE::Gameplay::PlayerUnit::getCooldown(int skillNumber)
+{
+	return skills.at(skillNumber).cooldown;
+}
+
+float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
+{
+	return skills.at(skillNumber).currentCooldown;
+}
+
 void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 {
 	skills.clear();
@@ -564,7 +740,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.materialManager->Create(unitEntity, info);
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
-	
+	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);

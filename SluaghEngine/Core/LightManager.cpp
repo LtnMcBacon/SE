@@ -90,7 +90,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		}
 		anyTogglesThisFrame = true;
 	}
-
+	dirtyEntites.clear();
 
 	
 	if (anyTogglesThisFrame)
@@ -122,8 +122,9 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 
 	if (hasShadowCaster) {
 		const DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1, 0.1f, entityToLightData[shadowCaster].pos.w);
-		const DirectX::XMVECTOR looks[] = { { -1.0f, 0.0f, 0.0f, 0.0f },
+		const DirectX::XMVECTOR looks[] = { 
 		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		{ -1.0f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 1.0f, 0.0f, 0.0f },
 		{ 0.0f, -1.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 1.0f, 0.0f },
@@ -185,6 +186,17 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 	shadowCaster = entity;
 
 
+}
+
+void SE::Core::LightManager::SetColor(const Entity& entity, float rgb[3])
+{
+	auto exists = entityToLightData.find(entity);
+	if (exists == entityToLightData.end())
+		return;
+
+	exists->second.colour.x = rgb[0];
+	exists->second.colour.y = rgb[1];
+	exists->second.colour.z = rgb[2];
 }
 
 void SE::Core::LightManager::Destroy(size_t index)
