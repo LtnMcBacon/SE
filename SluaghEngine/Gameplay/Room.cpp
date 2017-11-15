@@ -1546,7 +1546,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	{
 		matInfo.shader = Norm;
 	}
-	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.0f, args.j + 0.5f));
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.5f, args.j + 0.5f));
 
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 
