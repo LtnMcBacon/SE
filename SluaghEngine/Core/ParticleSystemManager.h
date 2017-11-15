@@ -77,6 +77,10 @@ namespace SE
 				float pad5;
 				float gravity[3];
 				float pad4;
+				float startPos[3];
+				float pad6;
+				float endPos[3];
+				float pad7;
 				float speed;
 				float emitRate;
 				float lifeTime;
@@ -87,6 +91,7 @@ namespace SE
 				unsigned int circular;
 				unsigned int gravityCheck;
 				unsigned int emit;
+				unsigned int particlePath;
 			};
 			struct ParticleSystemData
 			{

@@ -367,7 +367,7 @@ int main()
 ParticleDataStruct createParticleBuffer()
 {
 	float velocity[3] = { 0.0f, 1.0f , 0.0f };
-	float emitPosition[3] = { 0.0f, 0.0f, 1.0f };
+	float emitPosition[3] = { 0.0f, 0.0f, 0.0f };
 	ParticleDataStruct movBuffer;
 	movBuffer.vel[0] = velocity[0];
 	movBuffer.vel[1] = velocity[1];
