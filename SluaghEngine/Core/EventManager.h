@@ -86,7 +86,10 @@ namespace SE
 			}
 
 			void Frame(Utilz::TimeCluster* timer) override;
-
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity) override;
 		private:
 			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetRenderObjectInfo;
 			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetShadowRenderObjectInfo;
@@ -102,10 +105,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index) override;
-			/**
-			* @brief	Remove an enitity
-			*/
-			void Destroy(const Entity& entity) override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

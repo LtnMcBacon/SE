@@ -38,6 +38,8 @@ namespace SE
 			*/
 			int Remove(const Entity& entity) override;
 
+			void Destroy(const Entity& entity) override;
+
 		private:
 			IDecalManager::InitializationInfo initInfo;
 
@@ -72,8 +74,6 @@ namespace SE
 		protected:
 
 			void Destroy(size_t index) override;
-
-			void Destroy(const Entity& entity) override;
 
 			void GarbageCollection() override;
 		};

@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	Weapon weaponInfo;
 
-	weaponInfo.shader = "default.mat";
+	weaponInfo.shader = "MCModell.mat";
 	weaponInfo.mat = "SimpleLightPS.hlsl";
 
 	managers.materialManager->Create(weaponEnt, { weaponInfo.shader,weaponInfo.mat });

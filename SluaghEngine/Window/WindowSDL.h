@@ -42,7 +42,7 @@ namespace SE
 			bool ButtonDown(uint32_t actionButton) const override;
 			bool ButtonPressed(uint32_t actionButton) const override;
 			bool ButtonUp(uint32_t actionButton) const override;
-
+			bool ButtonDouble(uint32_t actionButton) const override;
 			void GetMousePos(int& x, int& y) const override;
 
 			void MapActionButton(uint32_t actionButton, KeyCode key) override;
@@ -141,7 +141,7 @@ namespace SE
 			bool mouseRightDown = false;
 
 			
-			std::map<uint32_t, uint32_t> keyToAction;
+			std::map<uint32_t, std::vector<uint32_t>> keyToAction;
 			/**<Maps generic keys defined in IWindow.h to key codes of SDL implementation*/
 			std::map<KeyCode, uint32_t> keyMapping;
 			
@@ -157,10 +157,12 @@ namespace SE
 				NIL = 0,
 				DOWN = 1 << 1,
 				PRESSED = 3,
-				UP = 4
+				UP = 4,
+				DOUBLE = 1 << 4
 			};
 			/**<Maps action button to keystate (up, down, pressed)*/
 			std::map<uint32_t, uint32_t> actionToKeyState;
+			std::map<uint32_t, std::chrono::high_resolution_clock::time_point> actionToKeyStateLastTime;
 			uint32_t GetKeyState(uint32_t actionButton) const;
 
 #pragma region Record
