@@ -75,9 +75,9 @@ int SE::Gameplay::Item::GetRandDamage()
 }
 
 
-SE::Gameplay::Element SE::Gameplay::Item::GetRandElement()
+SE::Gameplay::DamageType SE::Gameplay::Item::GetRandDamageType()
 {
-	return Element(CoreInit::subSystems.window->GetRand() % 4);
+	return DamageType(CoreInit::subSystems.window->GetRand() % 4);
 }
 
 
@@ -86,7 +86,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	auto wep = CoreInit::managers.entityManager->Create();
 	auto type = ItemType::WEAPON;// GetRandType();
 	auto wType = WeaponType(std::rand() % weaponInfo.size());
-	auto ele = GetRandElement();
+	auto ele = GetRandDamageType();
 	CoreInit::managers.transformManager->Create(wep);
 	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(wType)].shader, weaponInfo[size_t(wType)].mat });
 	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(wType)].mesh });
@@ -200,7 +200,7 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	cielement.info.anchor = { 1,0.0f };
 	cielement.info.scale = { 0.4f, 1.0f };
 	cielement.info.height = he;
-	auto element = Element(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
+	auto element = DamageType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
 	cielement.info.colour = elt[size_t(element)].color;
 	cielement.info.text = elt[size_t(element)].str;
 	auto weaponElement = CoreInit::managers.entityManager->Create();

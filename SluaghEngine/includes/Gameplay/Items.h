@@ -56,7 +56,7 @@ namespace SE
 			static int GetRandHealth();
 			static int GetRandDamage();
 
-			static Element GetRandElement();
+			static DamageType GetRandDamageType();
 		};
 	}
 }

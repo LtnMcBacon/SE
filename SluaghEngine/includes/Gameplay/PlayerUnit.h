@@ -7,7 +7,6 @@
 #include <Gameplay\Skill.h>
 #include <map>
 #include "Core/IAnimationManager.h"
-#include "Stats.h"
 
 namespace SE
 {
@@ -79,6 +78,7 @@ namespace SE
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
 			Core::Entity itemSelectedEntity;
+			Stats weaponStats;
 		public:
 
 			struct MovementInput
@@ -256,14 +256,14 @@ namespace SE
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(Element element);
+			void changeElementType(DamageType element);
 		
 		public:
 			int getSkillVectorSize();
 
 			std::string getSkillName(int skillNumber);
 			DamageSources getAttackType(int skillNumber);
-			DamageTypes getElement(int skillNumber);
+			DamageType getDamageType(int skillNumber);
 			Boons getBoon(int skillNumber);
 			Banes getBanes(int skillNumber);
 			unsigned short int getAnimation(int skillNumber);

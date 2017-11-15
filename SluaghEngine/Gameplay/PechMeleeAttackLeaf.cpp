@@ -25,7 +25,7 @@ SE::Gameplay::Status SE::Gameplay::PechMeleeAttackLeaf::Update()
 	newProjectile.startPosX = gameBlackboard->playerPositionX;
 	newProjectile.startPosY = gameBlackboard->playerPositionY;
 	newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
-		Element::NATURE, 10);
+		DamageType::NATURE, 10);
 
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

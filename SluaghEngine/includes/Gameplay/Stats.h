@@ -39,7 +39,7 @@ namespace SE
 
 			ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
 			DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;
-			Element element = Element::PHYSICAL;
+			DamageType damageType = DamageType::PHYSICAL;
 
 
 

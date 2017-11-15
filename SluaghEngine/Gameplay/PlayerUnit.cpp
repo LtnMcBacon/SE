@@ -372,11 +372,15 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			Item::Unequip(unitEntity, items[pi]);
 			Item::Equip(unitEntity, items[currentItem]);
 			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+
+			weaponStats.str = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Str", 0));
 		}
 		else if (item == ItemType::CONSUMABLE)
 		{
 			Item::Unequip(unitEntity, items[pi]);
 			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+
+			health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
 		}
 		else
 		{
@@ -400,7 +404,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
+		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
 
@@ -436,7 +440,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
+		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].damageType, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
 
@@ -485,7 +489,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, Element::PHYSICAL, 2);
+		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
@@ -677,9 +681,9 @@ void SE::Gameplay::PlayerUnit::changeWeaponType(DamageSources weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(Element element)
+void SE::Gameplay::PlayerUnit::changeElementType(DamageType dmgT)
 {
-	newStat.element = element;
+	newStat.damageType = dmgT;
 }
 
 int SE::Gameplay::PlayerUnit::getSkillVectorSize()
@@ -697,9 +701,9 @@ SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNum
 	return skills.at(skillNumber).atkType;
 }
 
-SE::Gameplay::DamageTypes SE::Gameplay::PlayerUnit::getElement(int skillNumber)
+SE::Gameplay::DamageType SE::Gameplay::PlayerUnit::getDamageType(int skillNumber)
 {
-	return skills.at(skillNumber).element;
+	return skills.at(skillNumber).damageType;
 }
 
 SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)

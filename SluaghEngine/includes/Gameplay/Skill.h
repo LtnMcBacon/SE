@@ -12,7 +12,7 @@ namespace SE
 		{
 			std::string skillName = "";
 			DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
-			Element element = Element::PHYSICAL;
+			DamageType damageType = DamageType::PHYSICAL;
 			Boons boon = Boons::CONDITIONAL_BOONS_NONE;
 			Banes bane = Banes::CONDITIONAL_BANES_NONE;
 			unsigned short int animation = 0;

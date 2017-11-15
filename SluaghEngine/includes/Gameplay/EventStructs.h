@@ -68,12 +68,14 @@ namespace SE
 			DAMAGE_SOURCE_AREA
 		};
 
-		enum class Element
+		enum class DamageType
 		{
-			PHYSICAL,
+			PHYSICAL,			
 			FIRE,
 			WATER,
-			NATURE
+			NATURE,
+			RANGED,
+			MAGIC,
 		};
 
 		/**
@@ -99,17 +101,17 @@ namespace SE
 			float amount = 0;
 			float originalAmount = 0;
 			DamageSources source;
-			Element type;
+			DamageType type;
 
 			DamageEvent()
 			{
 				source = DamageSources::DAMAGE_SOURCE_MELEE;
-				type = Element::PHYSICAL;
+				type = DamageType::PHYSICAL;
 				amount = 1;
 				originalAmount = amount;
 			}
 
-			DamageEvent(DamageSources damageSource, Element damageType, float damageAmount)
+			DamageEvent(DamageSources damageSource, DamageType damageType, float damageAmount)
 			{
 				source = damageSource;
 				type = damageType;

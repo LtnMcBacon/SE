@@ -109,7 +109,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		infoToPass->skills[i].boonDuration = 0;
 		infoToPass->skills[i].boonEffectValue = 0;
 		infoToPass->skills[i].boonRange = 0;
-		infoToPass->skills[i].element = Element::PHYSICAL;
+		infoToPass->skills[i].damageType = DamageType::PHYSICAL;
 		infoToPass->skills[i].cooldown = 1.0f;
 		infoToPass->skills[i].particle = 0;
 
