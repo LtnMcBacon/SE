@@ -38,7 +38,7 @@ SE::Core::RenderableManager::RenderableManager(const IRenderableManager::Initial
 {
 	Init();
 
-	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
+	shadowInstancing = nullptr;// new RenderableManagerInstancing(initInfo.renderer);
 	
 
 	Allocate(allocsize);
