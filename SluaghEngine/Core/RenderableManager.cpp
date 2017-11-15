@@ -3,7 +3,7 @@
 
 #include <Graphics\VertexStructs.h>
 #include <Graphics\FileHeaders.h>
-
+#undef max
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else
@@ -600,7 +600,8 @@ void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 50U)
+	const uint32_t quitWhenReached = std::max((uint32_t)(renderableObjectInfo.used * 0.005f), 40U);
+	while (renderableObjectInfo.used > 0 && alive_in_row < quitWhenReached)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);
