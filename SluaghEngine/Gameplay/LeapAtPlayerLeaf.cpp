@@ -120,8 +120,8 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 		
 		myStatus = Status::BEHAVIOUR_RUNNING;
 
-		enemyBlackboard->ownerPointer->MoveEntity((xMov*4*gameBlackboard->deltaTime),
-			(yMov*4*gameBlackboard->deltaTime));
+		enemyBlackboard->ownerPointer->MoveEntity((xMov*2.5*gameBlackboard->deltaTime),
+			(yMov*2.5*gameBlackboard->deltaTime));
 	}
 	else
 	{
@@ -140,18 +140,17 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 			newProjectile.target = ValidTarget::PLAYER;
 			newProjectile.startPosX = xTarget;
 			newProjectile.startPosY = yTarget;
-			newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
+			newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE,
 				Element::NATURE, 10);
 
 			gameBlackboard->enemyProjectiles.push_back(newProjectile);
-
 
 			myStatus = Status::BEHAVIOUR_SUCCESS;
 		}
 		else
 		{
-			enemyBlackboard->ownerPointer->MoveEntity((xMov*4*gameBlackboard->deltaTime),
-				(yMov*4*gameBlackboard->deltaTime));
+			enemyBlackboard->ownerPointer->MoveEntity((xMov*2.5*gameBlackboard->deltaTime),
+				(yMov*2.5*gameBlackboard->deltaTime));
 			
 		}
 	}

@@ -43,7 +43,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
@@ -56,7 +56,7 @@ namespace SE
 			* @warning Not implemented at all yet! Will be called from the "Update" function
 			*
 			*/
-			void ResolveEvents();
+			void ResolveEvents(float dt);
 
 			/**
 			* @brief	Hinder collision during movement
@@ -224,10 +224,6 @@ namespace SE
 			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
-	
-			Stats baseStat;
-			Stats newStat;
-
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
@@ -263,6 +259,30 @@ namespace SE
 			void changeElementType(Element element);
 		
 		public:
+			int getSkillVectorSize();
+
+			std::string getSkillName(int skillNumber);
+			DamageSources getAttackType(int skillNumber);
+			DamageTypes getElement(int skillNumber);
+			Boons getBoon(int skillNumber);
+			Banes getBanes(int skillNumber);
+			unsigned short int getAnimation(int skillNumber);
+			unsigned short int getParticle(int skillNumber);
+
+			Utilz::GUID getProjectileReferemce(int skillNumber);
+			float getSkillDamage(int skillNumber);
+			float getBoonEffectValue(int skillNumber);
+			float getBoonRange(int skillNumber);
+			float getBoonDuration(int skillNumber);
+			float getBaneEffetValue(int skillNumber);
+			float getBaneRange(int skillNumber);
+			float getBaneDuration(int skillNumber);
+			float getCooldown(int skillNumber);
+			float getCurrentCooldown(int skillNumber);
+
+
+
+
 
 
 		private:		
@@ -281,6 +301,7 @@ namespace SE
 
 			//void changeElementType(Gameplay::DamageTypes element);
 			
+			bool isStunned = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
 		public:

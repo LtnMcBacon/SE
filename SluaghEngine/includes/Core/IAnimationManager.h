@@ -105,6 +105,7 @@ namespace SE
 			virtual void UpdateBlending(const Entity& entity, int index) = 0;
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
+			virtual void ToggleShadow(const Entity& entity, bool on) = 0;
 
 		protected:
 			IAnimationManager() {};

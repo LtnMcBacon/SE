@@ -57,6 +57,7 @@
     <ClCompile Include="MakeInvulnerableLeaf.cpp" />
     <ClCompile Include="MakeVulnerableLeaf.cpp" />
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
+    <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp" />
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="PauseAnimationsLeaf.cpp" />
     <ClCompile Include="PausState.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />

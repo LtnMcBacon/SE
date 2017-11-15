@@ -34,6 +34,7 @@
 #include "StopAnimationsLeaf.h"
 #include "PauseAnimationsLeaf.h"
 #include "ChangeRoomLeaf.h"
+#include "NuckelaveeNormalAttackLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

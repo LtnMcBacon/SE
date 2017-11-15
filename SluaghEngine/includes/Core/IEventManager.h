@@ -108,6 +108,12 @@ namespace SE
 
 			virtual void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity&, bool)> && callback) = 0;
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
+
+			virtual void RegisterToToggleShadow(const Utilz::Delegate<void(const Entity&, bool)>&& callback) = 0;
+			virtual void ToggleShadow(const Entity& entity, bool on) = 0;
+
+			virtual void RegisterToSetShadowRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) = 0;
+			virtual void TriggerSetShadowRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) = 0;
 		protected:
 			IEventManager() {};
 			

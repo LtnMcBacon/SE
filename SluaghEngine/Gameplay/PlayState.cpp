@@ -143,6 +143,8 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
+
+
 }
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
@@ -210,7 +212,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 
 			player->UpdateMap(tempPtr);
-
+			currentRoom->InitializeAdjacentFlowFields();
 			for (int i = 0; i < 25; i++)
 			{
 				delete tempPtr[i];
@@ -308,6 +310,7 @@ void PlayState::InitializeRooms()
 	blackBoard.currentRoom = currentRoom = rooms[0];
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
 	delete[] RoomArr;
 	ProfileReturnVoid;
 }
@@ -333,7 +336,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			data.type = ENEMY_TYPE_NUCKELAVEE;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -418,17 +421,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
-	CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 2.05f, 0.0f });
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
-	lightInfo.color = { 1.0f, 1.0f, 1.0f };
-	lightInfo.radius = 10000.0f;
+	lightInfo.color = { 0.74f, 0.92f, 0.95f };
+	lightInfo.radius = 15.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+	CoreInit::managers.lightManager->SetShadowCaster(dummy);
 	ProfileReturnVoid;
 }
 #include <Items.h>

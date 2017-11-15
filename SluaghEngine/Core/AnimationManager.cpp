@@ -1,4 +1,5 @@
 #include "AnimationManager.h"
+#include "AnimationShadowSystem.h"
 #include <Profiler.h>
 #include <Graphics\VertexStructs.h>
 #include <Imgui\imgui.h>
@@ -16,15 +17,18 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	_ASSERT(initInfo.transformManager);
 
 	initInfo.eventManager->RegisterToSetRenderObjectInfo({ this, &AnimationManager::CreateRenderObjectInfo });
+	initInfo.eventManager->RegisterToSetShadowRenderObjectInfo({ this, &AnimationManager::CreateShadowRenderObjectInfo });
 	initInfo.eventManager->RegisterToToggleVisible({ this, &AnimationManager::ToggleVisible });
+	initInfo.eventManager->RegisterToToggleShadow({ this, &AnimationManager::ToggleShadow });
 
 	animationSystem = new AnimationSystem(initInfo.renderer);
+	auto animShadow = new AnimationShadowSystem(initInfo.renderer, animationSystem);
 
 	renderableManager = new RenderableManager({ initInfo.resourceHandler, initInfo.renderer,
 		initInfo.console, initInfo.entityManager,
 		initInfo.eventManager, initInfo.transformManager },
-		10, animationSystem);
-
+		10, animationSystem, animShadow);
+	
 	ResourceHandler::Callbacks sC;
 	sC.loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize)
 	{
@@ -46,6 +50,9 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	if (result < 0)
 		throw std::exception("Could not load SkinnedVertexShader.");
 
+	result = initInfo.resourceHandler->LoadResource("SkinnedCubeDepthVS.hlsl", sC, ResourceHandler::LoadFlags::IMMUTABLE | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	if (result < 0)
+		throw std::exception("Could not load SkinnedCubeDepthVS.hlsl");
 	Allocate(10);
 }
 
@@ -740,8 +747,14 @@ void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visib
 	StartProfile;
 
 	renderableManager->ToggleRenderableObject(entity, visible);
-	
 	StopProfile;
+}
+
+void SE::Core::AnimationManager::ToggleShadow(const Entity& entity, bool on)
+{
+	StartProfile;
+	renderableManager->ToggleShadow(entity, on);
+	ProfileReturnVoid;
 }
 
 void SE::Core::AnimationManager::Allocate(size_t size)
@@ -864,6 +877,20 @@ void SE::Core::AnimationManager::CreateRenderObjectInfo(const Entity& entity, Gr
 		info->specialHaxxor = SkinnedOncePerObject;
 	}
 	StopProfile;
+}
+
+void SE::Core::AnimationManager::CreateShadowRenderObjectInfo(const Entity& entity, Graphics::RenderJob* info)
+{
+	StartProfile;
+	const auto fe = entityToIndex.find(entity);
+	if (fe != entityToIndex.end())
+	{
+		info->pipeline.IAStage.inputLayout = "SkinnedCubeDepthVS.hlsl";
+		info->pipeline.VSStage.shader = "SkinnedCubeDepthVS.hlsl";
+		info->maxInstances = 8;
+		info->specialHaxxor = SkinnedOncePerObject;
+	}
+	ProfileReturnVoid;
 }
 
 void SE::Core::AnimationManager::OverwriteAnimation(AnimationInfo & info, size_t to, size_t from)
