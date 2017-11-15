@@ -21,12 +21,13 @@ namespace SE
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
-		private:
-			void Destroy(size_t index)override;
 			/**
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(const Entity& entity)override;
+		private:
+			void Destroy(size_t index)override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

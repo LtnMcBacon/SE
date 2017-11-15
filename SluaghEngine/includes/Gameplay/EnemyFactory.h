@@ -61,6 +61,7 @@ namespace SE
 			{
 				Utilz::GUID meshGUID;
 				Utilz::GUID skeletonGUID;
+				Utilz::GUID deathAnimationGUID;
 				Utilz::GUID behaviouralTreeGUID;
 				Utilz::GUID materialGUID;
 				Utilz::GUID shaderGUID;
