@@ -101,8 +101,26 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 			if(type == ENEMY_TYPE_NUCKELAVEE)
 			{
+				//Move up
+				createdEnemy->SetZPosition(1.5f);
+				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 1.5f, 0 });
+
 				//Insert entity for sword here.
-				//CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), , "LHand", 0);
+				auto swordEntity = CoreInit::managers.entityManager->Create();
+
+				Core::IRenderableManager::CreateInfo swordInfo;
+				swordInfo.meshGUID = "Sword.mesh";
+				swordInfo.shadow = false;
+				swordInfo.transparent = false;
+
+				CoreInit::managers.transformManager->Create(swordEntity);
+				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.07f, 0.15f, 0.5f });
+				CoreInit::managers.transformManager->Rotate(swordEntity, -0.25f, 0.2f, 1.5f);
+				CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), "Weapon", swordEntity);
+				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+				CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), swordEntity, "LHand", 0);
 			}
 
 			unitArray[numberOfCreatedEnemies++] = createdEnemy;
