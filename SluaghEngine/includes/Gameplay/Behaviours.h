@@ -29,9 +29,12 @@
 #include "InTheSameRoomAsThePlayerCondition.h"
 #include "AnimationRunningCondition.h"
 #include "CurrentAnimationAllowsBlendingCondition.h"
+#include "DistanceToDoorCondition.h"
 #include "StopChannelingLeaf.h"
 #include "StopAnimationsLeaf.h"
 #include "PauseAnimationsLeaf.h"
+#include "ChangeRoomLeaf.h"
+#include "NuckelaveeNormalAttackLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

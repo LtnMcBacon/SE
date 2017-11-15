@@ -26,10 +26,12 @@
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="BodachMeleeAttackLeaf.cpp" />
+    <ClCompile Include="ChangeRoomLeaf.cpp" />
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="CoreInit.cpp" />
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
+    <ClCompile Include="DistanceToDoorCondition.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyUnit.cpp" />
     <ClCompile Include="FaceThePlayerLeaf.cpp" />
@@ -55,11 +57,13 @@
     <ClCompile Include="MakeInvulnerableLeaf.cpp" />
     <ClCompile Include="MakeVulnerableLeaf.cpp" />
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
+    <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp" />
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="PauseAnimationsLeaf.cpp" />
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
+    <ClCompile Include="PerkImporter.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
     <ClCompile Include="RandomSelector.cpp" />
@@ -80,6 +84,7 @@
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
+    <ClCompile Include="Items.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -91,9 +96,11 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ChangeRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyFactory.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyUnit.h" />
@@ -120,10 +127,13 @@
     <ClInclude Include="..\includes\Gameplay\MakeInvulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MakeVulnerableLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkData.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
     <ClInclude Include="..\includes\Gameplay\IGameState.h" />
@@ -147,6 +157,7 @@
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Slaugh.h" />
+    <ClInclude Include="..\includes\Gameplay\Stats.h" />
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
@@ -154,6 +165,7 @@
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\Items.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />

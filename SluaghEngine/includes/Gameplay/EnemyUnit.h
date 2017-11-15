@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_ENEMY_UNIT_H_
 
 #include "GameUnit.h"
+#include "Utilz/GUID.h"
 
 namespace SE
 {
@@ -46,13 +47,15 @@ namespace SE
 			* and thus this function is virtual. Note that an event is added
 			* through a fucntion in the "GameUnit" class.
 			* 
+			* @param[in] Delta time for this frame
+			*
 			* @retval void No return value
 			*
 			* @warning Not implemented at all yet! Will be called from the "Update" function,
 			* and resolved depending on the enemy type.
 			*
 			*/
-			virtual void ResolveEvents();
+			virtual void ResolveEvents(float dt);
 
 			/**
 			* @brief	Decide the action the EnemyUnit will perform this frame.
@@ -143,17 +146,12 @@ namespace SE
 				myBehaviouralTree = behaviouralTree;
 			}
 
-			inline void SetFlowField(const FlowField* roomFlowField)
-			{
-				flowFieldForRoom = roomFlowField;
-			}
-
-			inline void SetCurrentRoom(const Room* currentRoom)
+			inline void SetCurrentRoom(Room* currentRoom)
 			{
 				myRoom = currentRoom;
 			}
 
-			inline const Room* GetCurrentRoom() const
+			inline Room* GetCurrentRoom() const
 			{
 				return myRoom;
 			}
@@ -169,13 +167,15 @@ namespace SE
 			EnemyBlackboard* myBlackboard;
 			BehaviouralTree* myBehaviouralTree;
 
-			const FlowField* flowFieldForRoom = nullptr;
-			const Room* myRoom;
+			Room* myRoom;
 			float forcesToApply[2] = {}; /*HARDCODED RIGHT NOW!*/
 			float radius;
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;
+
+			bool deathAnimationPlaying = false;
+			Utilz::GUID deathAnimation;
 
 		public:
 			//EnemyUnit(); <- Create a "real" constructor

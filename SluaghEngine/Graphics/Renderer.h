@@ -248,6 +248,9 @@ namespace SE
 			struct InternalTextJob
 			{
 				TextJob job;
+				RECT rect;
+				DirectX::XMFLOAT2 origin;
+				DirectX::XMFLOAT2 scale;
 				size_t index;
 			};
 			std::vector<InternalTextJob> renderTextJobs;

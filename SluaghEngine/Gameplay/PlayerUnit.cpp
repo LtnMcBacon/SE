@@ -3,6 +3,8 @@
 #include "Flowfield.h"
 #include "ProjectileData.h"
 #include "CoreInit.h"
+#include <KeyBindings.h>
+#include <Items.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -15,7 +17,7 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	animationPlayInfos[PLAYER_ON_HIT_ANIMATION].push_back("TopHitAnim_MCModell.anim"); //playInfo;
 
 	/*Initialize Attack animation*/
-	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopAttackAnim_MCModell.anim"); //= playInfo;
+	animationPlayInfos[PLAYER_ATTACK_ANIMATION].push_back("TopSwordAttackAnim_MCModell.anim"); //= playInfo;
 
 
 	/*Initialize Idle Animation*/
@@ -25,21 +27,22 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	/*Initialize Run animation*/
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("TopRunAnim_MCModell.anim");
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("BottomRunAnim_MCModell.anim"); //= playInfo;
-		
+	
+	this->deathAnimation = "DeathAnim_MCModell.anim";
 
 	StopProfile;
 	
 }
 
 
-void SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
+bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
 {
 	StartProfile;
-	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags);
-	StopProfile;
+	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
+	
 }
 
-void SE::Gameplay::PlayerUnit::ResolveEvents()
+void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 {
 	StartProfile;
 
@@ -50,11 +53,97 @@ void SE::Gameplay::PlayerUnit::ResolveEvents()
 		this->health -= DamageEventVector[i].amount;
 	}
 	
-	for(auto condition : ConditionEventVector)
+	for (int i = 0; i < ConditionEventVector.size(); i++)
 	{
-		if(condition.type == ConditionEvent::ConditionTypes::CONDITION_TYPE_STUN)
+		ConditionEventVector[i].duration -= dt;
+
+		if (ConditionEventVector[i].isBane == false)
 		{
-			stunDuration += condition.duration;
+			switch (ConditionEventVector[i].boon)
+			{
+			case Boons::CONDITIONAL_BOONS_NONE:
+				break;
+			case Boons::CONDITIONAL_BOONS_DAMAGE:
+				newStat.meleeMultiplier += baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_STUN:
+				break;
+			case Boons::CONDITIONAL_BOONS_ROOT:
+				break;
+			case Boons::CONDITIONAL_BOONS_PROTECTION:
+				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_PHYSICAL_RESISTANCE:
+				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_MAGICAL_RESISTANCE:
+				this->newStat.magicResistance += this->baseStat.magicResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_FIRE_RESISTANCE:
+				this->newStat.fireResistance += this->baseStat.fireResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_WATER_RESISTANCE:
+				this->newStat.waterResistance += this->baseStat.waterResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_NATURE_RESISTANCE:
+				this->newStat.natureResistance += this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_CASTSPEED:
+				break;
+			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
+				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				break;
+			case Boons::CONDITIONAL_BOONS_SLOW:
+				break;
+			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
+				break;
+			}
+		}
+		else
+		{
+			/*switch (ConditionEventVector[i].bane)
+			{
+			case Banes::CONDITIONAL_BANES_NONE:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
+			break;
+			case Banes::CONDITIONAL_BANES_DAMAGE:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
+			break;
+			case Banes::CONDITIONAL_BANES_STUN:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
+			break;
+			case Banes::CONDITIONAL_BANES_ROOT:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
+			break;
+			case Banes::CONDITIONAL_BANES_BLOODLETTING:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
+			break;
+			case Banes::CONDITIONAL_BANES_UNCOVER:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
+			break;
+			case Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_FIRE_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_WATER_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_NATURE_WEAKNESS:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
+			break;
+			case Banes::CONDITIONAL_BANES_SLOW:
+			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
+			break;
+			}*/
+		}
+		if (ConditionEventVector[i].duration > 0.f)
+		{
+			NextFrameCondition.push_back(ConditionEventVector[i]);
 		}
 	}
 
@@ -168,13 +257,13 @@ void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAn
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
-	if(stunDuration > 0)
-	{
-		stunDuration -= dt;
-		if (stunDuration < 0)
-			stunDuration = 0.f;
-		ProfileReturnVoid;
-	}
+	//if(stunDuration)
+	//{
+	//	stunDuration -= dt;
+	//	if (stunDuration < 0)
+	//		stunDuration = 0.f;
+	//	ProfileReturnVoid;
+	//}
 	dt *= newStat.movementSpeed;
 	float xMovement = 0.f;
 	float yMovement = 0.f;
@@ -246,8 +335,63 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
-	int nrOfSKills = skills.size();
+	auto w = CoreInit::subSystems.window;
+
+
+	bool ci = false;
+	auto pi = currentItem;
+	if (w->ButtonPressed(GameInput::ONE))
+	{
+		currentItem = 0;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::TWO))
+	{
+		currentItem = 1;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::THREE))
+	{
+		currentItem = 2;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::FOUR))
+	{
+		currentItem = 3;;
+		ci = true;
+	}
+	else if (w->ButtonPressed(GameInput::FIVE))
+	{
+		currentItem = 4;;
+		ci = true;
+	}
+
+	if (ci)
+	{
+		auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+		if (item == ItemType::WEAPON)
+		{
+			Item::Unequip(unitEntity, items[pi]);
+			Item::Equip(unitEntity, items[currentItem]);
+			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+
+			weaponStats.str = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Str", 0));
+		}
+		else if (item == ItemType::CONSUMABLE)
+		{
+			Item::Unequip(unitEntity, items[pi]);
+			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+
+			health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
+		}
+		else
+		{
+			currentItem = pi;
+		}
+	}
 	
+	int nrOfSKills = skills.size();
+
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
 	{
 		ProjectileData temp;
@@ -256,7 +400,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].element, skills[0].skillDamage);
+		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
 
@@ -265,13 +409,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
 		else
 			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
-		
+
 		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
-		skills[0].currentCooldown = skills[0].coolDown;
+		skills[0].currentCooldown = skills[0].cooldown;
 	}
 	else if (nrOfSKills > 0 && input.skill1Button)
 	{
@@ -292,7 +436,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
 		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].element, skills[1].skillDamage);
+		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].damageType, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
 
@@ -308,7 +452,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
 		newProjectiles.push_back(temp);
-		skills[1].currentCooldown = skills[1].coolDown;
+		skills[1].currentCooldown = skills[1].cooldown;
 	}
 	else if (nrOfSKills > 1 && input.skill2Button)
 	{
@@ -332,21 +476,23 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (input.actionButton && attackCooldown <= 0.0f)
 	{
-		ProjectileData temp;
 
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageTypes::DAMAGE_TYPE_PHYSICAL, 2);
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+		if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+		{
+			ProjectileData temp;
 
-		newProjectiles.push_back(temp);
+			temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+			temp.startPosX = this->xPos;
+			temp.startPosY = this->yPos;
+			temp.target = ValidTarget::ENEMIES;
+			temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
+			temp.ownerUnit = mySelf;
+			temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
-		attackCooldown = 1.0f / attackSpeed;
+			newProjectiles.push_back(temp);
 
-		//AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK);
+			attackCooldown = 1.0f / attackSpeed;
+		}
 	}
 
 	if (attackCooldown > 0.f)
@@ -355,7 +501,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	if (attackCooldown < 0.f)
 		attackCooldown = 0.f;
-	ResolveEvents();
+	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
 	ClearHealingEvents();
@@ -387,14 +533,57 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	UpdateMovement(dt, mInputs);
-	UpdateActions(dt, newProjectiles, aInput);
+	if (health > 0.f)
+	{
+		UpdateMovement(dt, mInputs);
+		UpdateActions(dt, newProjectiles, aInput);
 
-	ClearConditionEvents();
-	ClearDamageEvents();
-	ClearHealingEvents();
+		ClearConditionEvents();
+		ClearDamageEvents();
+		ClearHealingEvents();
+	}
 	StopProfile;
 }
+void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
+{
+	StartProfile;
+	_ASSERT(slot < MAX_ITEMS);
+
+
+	auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+
+	if (ctype == ItemType::WEAPON)
+		Item::Unequip(unitEntity, items[currentItem]);
+
+
+
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
+	{
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+
+		Item::Drop(items[slot], p);
+
+	}
+
+	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+
+	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
+	Item::Pickup(item);
+
+
+
+	currentItem = slot;
+	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
+	if (type == ItemType::WEAPON)
+		Item::Equip(unitEntity, item);
+
+	items[slot] = item;
+	StopProfile;
+}
+
 
 void SE::Gameplay::PlayerUnit::calcStrChanges()
 {
@@ -486,9 +675,99 @@ void SE::Gameplay::PlayerUnit::changeWeaponType(DamageSources weapon)
 {
 	newStat.weapon = weapon;
 }
-void SE::Gameplay::PlayerUnit::changeElementType(DamageTypes element)
+void SE::Gameplay::PlayerUnit::changeElementType(DamageType dmgT)
 {
-	newStat.element = element;
+	newStat.damageType = dmgT;
+}
+
+int SE::Gameplay::PlayerUnit::getSkillVectorSize()
+{
+	return skills.size();
+}
+
+std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
+{
+	return skills.at(skillNumber).skillName;
+}
+
+SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
+{
+	return skills.at(skillNumber).atkType;
+}
+
+SE::Gameplay::DamageType SE::Gameplay::PlayerUnit::getDamageType(int skillNumber)
+{
+	return skills.at(skillNumber).damageType;
+}
+
+SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
+{
+	return skills.at(skillNumber).boon;
+}
+
+SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
+{
+	return skills.at(skillNumber).bane;
+}
+
+unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
+{
+	return (unsigned short int)skills.at(skillNumber).animation;
+}
+
+unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
+{
+	return (unsigned short int)skills.at(skillNumber).particle;
+}
+
+SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber)
+{
+	return skills.at(skillNumber).projectileFileGUID;
+}
+
+float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
+{
+	return skills.at(skillNumber).skillDamage;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonEffectValue(int skillNumber)
+{
+	return skills.at(skillNumber).boonEffectValue;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonRange(int skillNumber)
+{
+	return skills.at(skillNumber).boonRange;
+}
+
+float SE::Gameplay::PlayerUnit::getBoonDuration(int skillNumber)
+{
+	return skills.at(skillNumber).boonDuration;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneEffetValue(int skillNumber)
+{
+	return skills.at(skillNumber).baneEffectValue;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneRange(int skillNumber)
+{
+	return skills.at(skillNumber).baneRange;
+}
+
+float SE::Gameplay::PlayerUnit::getBaneDuration(int skillNumber)
+{
+	return skills.at(skillNumber).baneDuration;
+}
+
+float SE::Gameplay::PlayerUnit::getCooldown(int skillNumber)
+{
+	return skills.at(skillNumber).cooldown;
+}
+
+float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
+{
+	return skills.at(skillNumber).currentCooldown;
 }
 
 void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
@@ -533,16 +812,18 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 }
 
 SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
-	GameUnit(xPos, yPos, 1000)
+	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+	this->health = baseStat.health;
 
 	if (skills != nullptr)
 	{
 		this->skills.push_back(skills[0]);
 		this->skills.push_back(skills[1]);
+		this->skills.push_back(skills[2]);
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
@@ -563,7 +844,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.materialManager->Create(unitEntity, info);
 
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
-	
+	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
 
 	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
@@ -574,6 +855,60 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	
+	
+	
+	
+	
+	
+	Core::IEventManager::EventCallbacks startRenderItemInfo;
+	startRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	{
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO);
+	};
+	
+	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	{
+		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
+		if (item != -1)
+		{
+			CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+			Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
+		}
+	};
+
+
+	Core::IEventManager::EventCallbacks stopRenderItemInfo;
+	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	{
+		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+	};
+
+	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	{
+		CoreInit::managers.entityManager->DestroyNow(ent);
+		CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+	};
+
+
+	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderItemInfo", startRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderItemInfo", stopRenderItemInfo);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+
+
+	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	Core::IGUIManager::CreateInfo ise;
+	ise.texture = "Fire.png";
+	ise.textureInfo.width = 60;
+	ise.textureInfo.height = 60;
+	ise.textureInfo.layerDepth = 0.001;
+	ise.textureInfo.anchor = { 0.5f, 0.5f };
+	ise.textureInfo.screenAnchor = { 0, 1 };
+	ise.textureInfo.posX = currentItem * 55 + 40;
+	ise.textureInfo.posY = -55;
+	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
+
 	StopProfile;
 }
 

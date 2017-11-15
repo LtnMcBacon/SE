@@ -19,8 +19,8 @@ namespace SE
 			ENEMY_TYPE_BODACH,
 			ENEMY_TYPE_GLAISTIG,
 			ENEMY_TYPE_NUCKELAVEE,
-			ENEMY_TYPE_PECH_MELEE,
-			ENEMY_TYPE_PECH_RANGED,
+			/*ENEMY_TYPE_PECH_MELEE,
+			ENEMY_TYPE_PECH_RANGED,*/
 			ENEMY_TYPE_RANDOM
 		};
 
@@ -61,6 +61,7 @@ namespace SE
 			{
 				Utilz::GUID meshGUID;
 				Utilz::GUID skeletonGUID;
+				Utilz::GUID deathAnimationGUID;
 				Utilz::GUID behaviouralTreeGUID;
 				Utilz::GUID materialGUID;
 				Utilz::GUID shaderGUID;

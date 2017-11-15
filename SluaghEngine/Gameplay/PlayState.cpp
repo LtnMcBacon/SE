@@ -22,19 +22,33 @@ PlayState::PlayState()
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
-
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
 	playStateGUI.InitiateTextures();
+	int tempPos = 0;
 	for (auto& button : playStateGUI.ButtonVector)
 	{
 		if (button.rectName == "HealthBar")
 		{
 			// here's the health bar.
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+			healthBarPos = tempPos;
 		}
+
+		tempPos++;
 	}
+	playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
+	playStateGUI.GUIButtons.CreateButton(125, 650, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(200, 650, 50, 50, 0, "tempButton", NULL);
+
+	playStateGUI.GUIButtons.CreateButton(930, 650, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(1030, 650, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(1130, 650, 50, 50, 0, "tempButton", NULL);
+
+	playStateGUI.GUIButtons.CreateButton(930, 575, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(1030, 575, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);
 	playStateGUI.GUIButtons.DrawButtons();
 
 	InitializeRooms();
@@ -140,6 +154,95 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
+
+
+}
+
+void SE::Gameplay::PlayState::CheckForRoomTransition()
+{
+	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
+	{
+		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+
+		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+		{
+			currentRoom->RenderRoom(false);
+
+			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
+			{
+				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
+				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet - 1);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
+			{
+				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
+				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet + 1);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			{
+				currentRoom = rooms[currentRoomIndex - 1];
+				currentRoomIndex = currentRoomIndex - 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
+				player->PositionEntity(xToSet + 1, yToSet);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
+			{
+				currentRoom = rooms[currentRoomIndex + 1];
+				currentRoomIndex = currentRoomIndex + 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
+				player->PositionEntity(xToSet - 1, yToSet);
+			}
+
+			currentRoom->RenderRoom(true);
+			projectileManager->RemoveAllProjectiles();
+
+			char newMap[25][25];
+			currentRoom->GetMap(newMap);
+
+			char** tempPtr = new char*[25];
+
+			for (int i = 0; i < 25; i++)
+			{
+				tempPtr[i] = new char[25];
+				for (int j = 0; j < 25; j++)
+				{
+					tempPtr[i][j] = newMap[i][j];
+				}
+			}
+
+			player->UpdateMap(tempPtr);
+			currentRoom->InitializeAdjacentFlowFields();
+			for (int i = 0; i < 25; i++)
+			{
+				delete tempPtr[i];
+			}
+
+			delete tempPtr;
+
+			/**
+			*	Must be put in change room once the function is done!
+			*/
+			blackBoard.currentRoom = currentRoom;
+			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::UpdateHUD(float dt)
+{
+	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width * player->GetHealth() / player->GetMaxHealth(), playStateGUI.GUIButtons.Buttons[healthBarPos].Height);
 }
 
 void PlayState::InitializeRooms()
@@ -163,8 +266,6 @@ void PlayState::InitializeRooms()
 
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
-		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
-
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
@@ -220,6 +321,7 @@ void PlayState::InitializeRooms()
 	blackBoard.currentRoom = currentRoom = rooms[0];
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
 	delete[] RoomArr;
 	ProfileReturnVoid;
 }
@@ -230,7 +332,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
-	for(auto room : rooms)
+	for(auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
@@ -245,7 +347,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_GLAISTIG;
+			data.type = ENEMY_TYPE_RANDOM;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -330,19 +432,22 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
-	CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 2.05f, 0.0f });
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
-	lightInfo.color = { 1.0f, 1.0f, 1.0f };
-	lightInfo.radius = 10000.0f;
+	lightInfo.color = { 0.74f, 0.92f, 0.95f };
+	lightInfo.radius = 15.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+	CoreInit::managers.lightManager->SetShadowCaster(dummy);
 	ProfileReturnVoid;
 }
+#include <Items.h>
 
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
@@ -351,104 +456,77 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 
 	Core::IEventManager::EventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
-		bool isWep = std::get<bool>(CoreInit::managers.dataManager->GetValue(ent, "Weapon", false));
-		if (isWep)
+
+		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
+
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
 		{
-			CoreInit::subSystems.devConsole->Print("Picked up weapon %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "Nan"s)).c_str());
+			player->AddItem(ent, 0);
 		}
-		CoreInit::managers.entityManager->DestroyNow(ent); // Just save the entity instead and use it as the picket up weapon as well.
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::TWO))
+		{
+			player->AddItem(ent, 1);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::THREE))
+		{
+			player->AddItem(ent, 2);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FOUR))
+		{
+			player->AddItem(ent, 3);
+		}
+		else if (CoreInit::subSystems.window->ButtonDouble(GameInput::FIVE))
+		{
+			player->AddItem(ent, 4);
+		}
 	};
 
-	Core::ITextManager::CreateInfo ciname;
-	ciname.info.posX = -35;
-	ciname.info.posY = -125;
-	ciname.info.screenAnchor = { 0.5f, 0.5f };
-	ciname.info.anchor = { 1,0.0f };
-	ciname.info.scale = { 0.4f,0.4f };
-	ciname.info.height = 50;
-	auto weaponName = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponName, ciname);
-
-	Core::ITextManager::CreateInfo citype;
-	citype.info.posX = -35;
-	citype.info.posY = -80;
-	citype.info.screenAnchor = { 0.5f, 0.5f };
-	citype.info.anchor = { 1,0.0f };
-	citype.info.scale = { 0.4f,0.4f };
-	citype.info.height = 50;
-	auto weaponType = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponType, citype);
-
-	Core::ITextManager::CreateInfo cielement;
-	cielement.info.posX = -35;
-	cielement.info.posY = -25;
-	cielement.info.screenAnchor = { 0.5f, 0.5f };
-	cielement.info.anchor = { 1,0.0f };
-	cielement.info.scale = { 0.4f,0.4f };
-	cielement.info.height = 50;
-	cielement.info.colour = { 0.7f,0.7f,0.7f,1 };
-	auto weaponElement = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponElement, cielement);
-
-
-	Core::ITextManager::CreateInfo cidamage;
-	cidamage.info.posX = -35;
-	cidamage.info.posY = 40;
-	cidamage.info.screenAnchor = { 0.5f, 0.5f };
-	cidamage.info.anchor = { 1,0.0f };
-	cidamage.info.scale = { 0.4f,0.4f };
-	cidamage.info.height = 50;
-	auto weaponDamage = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(weaponDamage, cidamage);
-
-	Core::IGUIManager::CreateInfo ciback;
-	ciback.texture = "Crossbow_texture_metal.jpg";
-	ciback.textureInfo.width = 200;
-	ciback.textureInfo.height = 200;
-	ciback.textureInfo.posX = -30;
-	ciback.textureInfo.posY = -130;
-	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
-	ciback.textureInfo.anchor = { 1.0, 0.0f };
-	auto weaponBack = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.guiManager->Create(weaponBack, ciback);
-
-	pickUpEvent.triggerCheck = [pe, weaponName, weaponType, weaponElement, weaponBack, weaponDamage](const Core::Entity ent, void* data) {
-		if (CoreInit::managers.collisionManager->CheckCollision(ent, pe))
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
-			auto s = std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s));
-			std::wstring ws;
-			ws.assign(s.begin(), s.end());
-			CoreInit::managers.textManager->SetText(weaponName, ws);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponName, true);
-
-			auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
-			CoreInit::managers.textManager->SetText(weaponType, (type == 0 ? L"Sword" : L"None"));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponType, true);
-
-			auto element = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1));
-			CoreInit::managers.textManager->SetText(weaponElement, (element == 0 ? L"Physical" : L"Fire"));
-			CoreInit::managers.textManager->SetTextColour(weaponElement, (element == 0 ? DirectX::XMFLOAT4{ 0.7f, 0.7f, 0.7f, 1.0f } : DirectX::XMFLOAT4{ 0.8f, 0.3f, 0.2f, 1.0f }));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
-
-			auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Damage", -1));
-			CoreInit::managers.textManager->SetText(weaponDamage, std::to_wstring(damage));
-			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, true);
-
-			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
-
-			return CoreInit::subSystems.window->ButtonDown(GameInput::INTERACT);
+			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 		}
-		else
-		{
-			CoreInit::managers.textManager->ToggleRenderableText(weaponName, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponType, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponElement, false);
-			CoreInit::managers.textManager->ToggleRenderableText(weaponDamage, false);
-			CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, false);
-		}
-
 		return false;
 	};
+
+	Core::IEventManager::EventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	{
+		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
+		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
+			return false;
+		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			return false;
+		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
+	};
+	
+	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
+	{
+		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
+		Item::ToggleRenderPickupInfo(ent);
+	};
+
+	Core::IEventManager::EventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	{
+		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
+		{
+			if (!CoreInit::managers.collisionManager->CheckCollision(*parent, pe)) {
+				return true;
+			}	
+		}
+
+		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+	};
+
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	{
+		CoreInit::managers.entityManager->DestroyNow(ent);	
+		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
+		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
+	};
+	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
+	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
 	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
 	ProfileReturnVoid;
 }
@@ -456,6 +534,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
+	rooms[0]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 	IGameState::State returnValue = State::PLAY_STATE;
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
@@ -492,89 +571,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		soundTime = 0.0f;
 	}
 	//-----end sound update
-
-	//-----------------------------------------------
-
-	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
-	{
-		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
-
-		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
-		{
-			currentRoom->RenderRoom(false);
-
-			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
-			{
-				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet - 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
-			{
-				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet + 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-			{
-				currentRoom = rooms[currentRoomIndex - 1];
-				currentRoomIndex = currentRoomIndex - 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-				player->PositionEntity(xToSet + 1, yToSet);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
-			{
-				currentRoom = rooms[currentRoomIndex + 1];
-				currentRoomIndex = currentRoomIndex + 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
-				player->PositionEntity(xToSet - 1, yToSet);
-			}
-
-			currentRoom->RenderRoom(true);
-			projectileManager->RemoveAllProjectiles();
-
-			char newMap[25][25];
-			currentRoom->GetMap(newMap);
-
-			char** tempPtr = new char*[25];
-
-			for (int i = 0; i < 25; i++)
-			{
-				tempPtr[i] = new char[25];
-				for (int j = 0; j < 25; j++)
-				{
-					tempPtr[i][j] = newMap[i][j];
-				}
-			}
-
-			player->UpdateMap(tempPtr);
-
-			for (int i = 0; i < 25; i++)
-			{
-				delete tempPtr[i];
-			}
-
-			delete tempPtr;
-
-			/**
-			*	Must be put in change room once the function is done!
-			*/
-			blackBoard.currentRoom = currentRoom;
-			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-		}
-	}
-
-	//-----------------------------------------------
+	CheckForRoomTransition();
+	UpdateHUD(input->GetDelta());
 
 	if (!player->IsAlive())
 		returnValue = State::GAME_OVER_STATE;

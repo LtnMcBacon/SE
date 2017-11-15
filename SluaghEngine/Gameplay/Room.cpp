@@ -6,6 +6,7 @@
 #include "CoreInit.h"
 #include <math.h>
 #include <algorithm>
+#include <Items.h>
 
 
 
@@ -17,7 +18,7 @@ using namespace Gameplay;
 
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
-static const SE::Utilz::GUID Norm("SimpleLightPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
 static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 
 
@@ -88,7 +89,6 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
-
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -113,18 +113,9 @@ void Room::Update(float dt, float playerX, float playerY)
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
 			if (true)//spw > 50000)
-			{
-				auto wep = CoreInit::managers.entityManager->Create();
-				CoreInit::managers.renderableManager->CreateRenderableObject(wep, { "default.mesh" });
-				CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
-				CoreInit::managers.transformManager->Create(wep, p, {}, { 0.2f,0.2f,0.2f });
-				CoreInit::managers.collisionManager->CreateBoundingHierarchy(wep, "default.mesh");
-				CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
-				CoreInit::managers.dataManager->SetValue(wep, "Weapon", true);
-				CoreInit::managers.dataManager->SetValue(wep, "Damage", 100);
-				CoreInit::managers.dataManager->SetValue(wep, "Type", 0/*0 is sword*/);
-				CoreInit::managers.dataManager->SetValue(wep, "Element",1/*0 is physical*/);
-				CoreInit::managers.dataManager->SetValue(wep, "Name", "xXx_Killer_Slasher_Naruto_Killer_xXx"s);
+			{	
+				Item::Drop(Item::Create(), p);
+				
 			}
 			
 			delete enemyUnits[i];
@@ -415,6 +406,26 @@ void Room::DistanceToAllEnemies(float startX, float startY, std::vector<float>& 
 	StopProfile;
 }
 
+float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const
+{
+	float distance = 1000.0f;
+	for (int i = 0; i < 4; i++)
+	{
+		if(DoorArr[i].active)
+		{
+			float doorDist = sqrtf((startX - DoorArr[i].xPos)*(startX - DoorArr[i].xPos) +
+				(startY - DoorArr[i].yPos)*(startY - DoorArr[i].yPos));
+			if(doorDist < distance)
+			{
+				distance = doorDist;
+				direction = DoorArr[i].side;
+			}
+		}
+	}
+	
+	return distance;
+}
+
 
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
@@ -535,15 +546,16 @@ void SE::Gameplay::Room::ProjectileAgainstWalls(Projectile & projectile)
 	StopProfile;
 }
 
-int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y)
+int SE::Gameplay::Room::PointCollisionWithEnemy(float x, float y, Projectile& projectile)
 {
 	StartProfile;
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
 		
-		if(abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
+		if(!projectile.CheckIfAlreadyHit(enemyUnits[i]) && abs(enemyUnits[i]->GetXPosition() - x) < enemyUnits[i]->GetExtent() && abs(enemyUnits[i]->GetYPosition() - y) < enemyUnits[i]->GetExtent())
 		{
+			projectile.AddToHit(enemyUnits[i]);
 			ProfileReturnConst(i);
 		}
 	}
@@ -564,12 +576,12 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	CollisionData cData;
 	int enemyCollidedWith = -1;
 
-	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY)) != -1) //check if front left corner of projectile is in a blocked square
+	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
 	{
 		collidedLeft = true;
 		cData.type = CollisionType::ENEMY;
 	}
-	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY)) != -1) //check if front right corner of projectile is in a blocked square
+	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
 	{
 		collidedRight = true;
 		cData.type = CollisionType::ENEMY;
@@ -1028,10 +1040,16 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(roomEntities[i], render);
+		CoreInit::managers.eventManager->ToggleShadow(roomEntities[i], render);
 	}
 	for(auto enemy : enemyUnits)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(enemy->GetEntity(), render);
+		if(auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
+		{
+			CoreInit::managers.eventManager->ToggleVisible(*weapon, render);
+		}
+
 	}
 	beingRendered = render;
 }
@@ -1181,17 +1199,87 @@ Room::~Room()
 
 }
 
+void SE::Gameplay::Room::InitializeAdjacentFlowFields()
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if(DoorArr[i].active)
+		{
+			adjacentRooms[i]->UpdateFlowField(
+				adjacentRooms[i]->DoorArr[int(ReverseDirection(DirectionToAdjacentRoom(i)))].xPos,
+				adjacentRooms[i]->DoorArr[int(ReverseDirection(DirectionToAdjacentRoom(i)))].yPos
+			);
+		}
+	}
+}
+
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+
 	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
 
 	ProfileReturnConst(true);
+}
+
+bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjacentRoom exitDirection)
+{
+	StartProfile;
+
+	DirectionToAdjacentRoom entranceDirection = ReverseDirection(exitDirection);
+	adjacentRooms[int(entranceDirection)]->RemoveEnemyFromRoom(enemyToAdd);
+	
+	enemyToAdd->SetCurrentRoom(this);
+
+	auto door = DoorArr[int(entranceDirection)];
+	if (door.side != entranceDirection)
+		int a = 0;
+
+	float newX = door.xPos, newY = door.yPos;
+
+	switch(entranceDirection)
+	{
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE: break;
+	default: ;
+	}
+
+	enemyToAdd->PositionEntity(newX, newY);
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
+	enemyUnits.push_back(enemyToAdd);
+	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
+
+	ProfileReturnConst(true);
+}
+
+void SE::Gameplay::Room::RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit * enemyToRemove)
+{
+	int counter = 0;
+	for(auto enemy : enemyUnits)
+	{
+		if(enemy == enemyToRemove)
+		{
+			std::swap(enemyUnits[counter], enemyUnits[enemyUnits.size() - 1]);
+			enemyUnits.pop_back();
+			break;
+		}
+		counter++;
+	}
 }
 
 bool SE::Gameplay::Room::GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float & posX, float & posY)
@@ -1543,7 +1631,7 @@ void SE::Gameplay::Room::ResetTempTileValues()
 		{
 			if (tileValues[x][y] == (char)100)
 			{
-				tileValues[x][y] == id_Props;
+				tileValues[x][y] = id_Props;
 			}
 			
 		}
@@ -1555,7 +1643,7 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 	if (DoorArr[int(DoorNr)].active)
 	{
 		DoorArr[int(DoorNr)].active = false;
-		//Turn it into a wall
+		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
 	}
 
 }

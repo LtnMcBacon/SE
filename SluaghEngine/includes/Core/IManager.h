@@ -19,6 +19,11 @@ namespace SE
 		public:
 			virtual ~IManager() {};
 			virtual void Frame(Utilz::TimeCluster* timer) = 0;
+
+			/**
+			* @brief	Remove an enitity
+			*/
+			virtual void Destroy(const Entity& entity) = 0;
 		protected:
 			IManager() {};
 	
@@ -31,10 +36,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			virtual void Destroy(size_t index) = 0;
-			/**
-			* @brief	Remove an enitity
-			*/
-			virtual void Destroy(const Entity& entity) = 0;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

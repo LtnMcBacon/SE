@@ -102,8 +102,27 @@ namespace SE
 				auto fileLoaded = entTextureID.find(entity);
 				if (fileLoaded != entTextureID.end())
 				{
-					textureInfo[fileLoaded->second.ID].width = x;
-					textureInfo[fileLoaded->second.ID].height = y;
+					auto& ti = textureInfo[fileLoaded->second.ID];
+					if (x == -1)
+					{
+						ti.width = textureGUID[fileLoaded->second.GUID].width;
+					}
+					else
+					{
+						ti.scale.x = x / (float)textureGUID[fileLoaded->second.GUID].width;
+						ti.width = textureGUID[fileLoaded->second.GUID].width;
+
+					}
+
+					if (y == -1)
+					{
+						ti.height = textureGUID[fileLoaded->second.GUID].height;
+					}
+					else
+					{
+						ti.scale.y = y / (float)textureGUID[fileLoaded->second.GUID].height;
+						ti.height = textureGUID[fileLoaded->second.GUID].height;
+					}
 					/*if (textureInfo[fileLoaded->second.ID].anchor == true)
 						textureInfo[fileLoaded->second.ID]. = scale;*/
 					/*else
@@ -231,11 +250,11 @@ namespace SE
 			* @endcode
 			*/
 			void updateGUI()override;
+			void Destroy(const Entity& entity)override;
 
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
 
 			struct EntBindIDGUID
 			{

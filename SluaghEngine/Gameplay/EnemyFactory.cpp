@@ -53,7 +53,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		EnemyType type;
 		if(desc.type == ENEMY_TYPE_RANDOM)
 		{
-			type = EnemyType(CoreInit::subSystems.window->GetRand() % 5);
+			type = EnemyType(CoreInit::subSystems.window->GetRand() % 3);
 		}
 		else
 		{
@@ -97,6 +97,32 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			enemyInfo.shader = enemyCreationData->second.shaderGUID;
 			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
 
+			createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
+
+			if(type == ENEMY_TYPE_NUCKELAVEE)
+			{
+				//Move up
+				createdEnemy->SetZPosition(1.5f);
+				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 1.5f, 0 });
+
+				//Insert entity for sword here.
+				auto swordEntity = CoreInit::managers.entityManager->Create();
+
+				Core::IRenderableManager::CreateInfo swordInfo;
+				swordInfo.meshGUID = "Sword.mesh";
+				swordInfo.shadow = false;
+				swordInfo.transparent = false;
+
+				CoreInit::managers.transformManager->Create(swordEntity);
+				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.07f, 0.15f, 0.5f });
+				CoreInit::managers.transformManager->Rotate(swordEntity, -0.25f, 0.2f, 1.5f);
+				CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), "Weapon", swordEntity);
+				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+				CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), swordEntity, "LHand", 0);
+			}
+
 			unitArray[numberOfCreatedEnemies++] = createdEnemy;
 		}
 	}
@@ -110,8 +136,8 @@ EnemyFactory::EnemyFactory()
 	this->enemyTypes["Bodach.SEC"] = ENEMY_TYPE_BODACH;
 	this->enemyTypes["Glaistig.SEC"] = ENEMY_TYPE_GLAISTIG;
 	this->enemyTypes["Nuckelavee.SEC"] = ENEMY_TYPE_NUCKELAVEE;
-	this->enemyTypes["PechMelee.SEC"] = ENEMY_TYPE_PECH_MELEE;
-	this->enemyTypes["PechRanged.SEC"] = ENEMY_TYPE_PECH_RANGED;
+	/*this->enemyTypes["PechMelee.SEC"] = ENEMY_TYPE_PECH_MELEE;
+	this->enemyTypes["PechRanged.SEC"] = ENEMY_TYPE_PECH_RANGED;*/
 	this->LoadEnemyIntoMemory("Bodach.SEC");
 	this->LoadEnemyIntoMemory("Glaistig.SEC");
 	this->LoadEnemyIntoMemory("Nuckelavee.SEC");
@@ -150,6 +176,9 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.skeletonGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.deathAnimationGUID = Utilz::GUID(GetLineData(line));
 		++line;
 		line->pop_back();
 		loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));

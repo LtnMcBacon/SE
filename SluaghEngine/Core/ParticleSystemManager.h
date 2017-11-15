@@ -41,6 +41,10 @@ namespace SE
 			* @brief	Called each frame, to update the state.
 			*/
 			void Frame(Utilz::TimeCluster* timer)override;
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity)override;
 
 		private:
 			InitializationInfo initInfo;
@@ -50,11 +54,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
-			/**
-			* @brief	Remove an enitity
-			*/
-			void Destroy(const Entity& entity)override;
-
+		
 			/**
 			* @brief	Look for dead entities.
 			*/
@@ -99,10 +99,10 @@ namespace SE
 				Utilz::GUID textureName;
 				Graphics::RenderJob updateJob;
 				Graphics::RenderJob renderJob;
-				int updateJobID;
-				int renderJobID;
+				uint32_t updateJobID;
+				uint32_t renderJobID;
 				//Each index contains a XMFLOAT2 with min and max values for velocity and emit in the order of x, y and z. X and Y is Max and Min respectively in each vector
-				DirectX::XMFLOAT2 velocityRange[3];
+				DirectX::XMFLOAT2 velocityRange[3]; 
 				DirectX::XMFLOAT2 emitRange[3];
 			};
 			struct DirtyEntityInfo {

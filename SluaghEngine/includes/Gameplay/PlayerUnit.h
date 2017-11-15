@@ -42,7 +42,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			void AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
@@ -55,7 +55,7 @@ namespace SE
 			* @warning Not implemented at all yet! Will be called from the "Update" function
 			*
 			*/
-			void ResolveEvents();
+			void ResolveEvents(float dt);
 
 			/**
 			* @brief	Hinder collision during movement
@@ -74,6 +74,11 @@ namespace SE
 			*/
 			bool CorrectCollision(float dt, float &xMov, float &yMov);
 
+			static const uint8_t MAX_ITEMS = 5;
+			Core::Entity items[MAX_ITEMS];
+			uint8_t currentItem = 0;
+			Core::Entity itemSelectedEntity;
+			Stats weaponStats;
 		public:
 
 			struct MovementInput
@@ -149,6 +154,17 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
+			inline float GetMaxHealth()
+			{
+				return baseStat.health;
+			}
+
+
+			void AddItem(Core::Entity item, uint8_t slot);
+			inline Core::Entity GetCurrentItem()const
+			{
+				return items[currentItem];
+			}
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
@@ -208,46 +224,6 @@ namespace SE
 			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
-			struct Stats
-			{
-				//std::string characterName;
-				int str = 5;
-				int agi = 5;
-				int whi = 5;
-
-				//str
-				float health			 = 100.f;
-				float damage			 = 1.f;
-				float meleeMultiplier	 = 1.f;
-				float physicalResistance = 1.f;
-
-				//agi
-				float rangedDamage		= 1.f;
-				float rangedMultiplier  = 1.f;
-				float movementSpeed		= 5.f;
-				//float healBonus			= 1.f;
-				//float attackSpeed		= 1.f;
-
-				//whi
-				float magicDamage		= 1.f;
-				float magicMultiplier	= 1.f;
-				float magicResistance	= 1.f;
-				float natureResistance	= 1.f;
-				float fireResistance	= 1.f;
-				float waterResistance	= 1.f;
-				
-				int armorCap			= 3;
-
-				ArmourType armour		= ArmourType::ARMOUR_TYPE_NONE;
-				DamageSources weapon	= DamageSources::DAMAGE_SOURCE_MELEE;
-				DamageTypes element		= DamageTypes::DAMAGE_TYPE_PHYSICAL;
-
-				
-
-			};
-			Stats baseStat;
-			Stats newStat;
-
 			/**
 			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
@@ -280,9 +256,33 @@ namespace SE
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(DamageTypes element);
+			void changeElementType(DamageType element);
 		
 		public:
+			int getSkillVectorSize();
+
+			std::string getSkillName(int skillNumber);
+			DamageSources getAttackType(int skillNumber);
+			DamageType getDamageType(int skillNumber);
+			Boons getBoon(int skillNumber);
+			Banes getBanes(int skillNumber);
+			unsigned short int getAnimation(int skillNumber);
+			unsigned short int getParticle(int skillNumber);
+
+			Utilz::GUID getProjectileReferemce(int skillNumber);
+			float getSkillDamage(int skillNumber);
+			float getBoonEffectValue(int skillNumber);
+			float getBoonRange(int skillNumber);
+			float getBoonDuration(int skillNumber);
+			float getBaneEffetValue(int skillNumber);
+			float getBaneRange(int skillNumber);
+			float getBaneDuration(int skillNumber);
+			float getCooldown(int skillNumber);
+			float getCurrentCooldown(int skillNumber);
+
+
+
+
 
 
 		private:		
@@ -301,6 +301,7 @@ namespace SE
 
 			//void changeElementType(Gameplay::DamageTypes element);
 			
+			bool isStunned = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
 		public:

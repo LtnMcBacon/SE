@@ -58,19 +58,41 @@ namespace SE
 			{
 				UpdateRenderableObject(entity);
 			}
-			void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity&, bool)> && callback)
+			void RegisterToToggleVisible(const Utilz::Delegate<void(const Entity&, bool)> && callback) override
 			{
 				ToggleVisibleEvent += callback;
 			}
-			void ToggleVisible(const Entity& entity, bool visible)
+			void ToggleVisible(const Entity& entity, bool visible) override
 			{
 				ToggleVisibleEvent(entity, visible);
 			}
+			void RegisterToToggleShadow(const Utilz::Delegate<void(const Entity&, bool)>&& callback) override
+			{
+				ToggleShadowEvent += callback;
+			}
+			void ToggleShadow(const Entity& entity, bool on) override
+			{
+				ToggleShadowEvent(entity, on);
+			}
+
+			void RegisterToSetShadowRenderObjectInfo(const Utilz::Delegate<void(const Entity& entity, SE::Graphics::RenderJob* info)>&& callback) override
+			{
+				SetShadowRenderObjectInfo += callback;
+			}
+
+			void TriggerSetShadowRenderObjectInfo(const Entity& entity, SE::Graphics::RenderJob* info) override
+			{
+				SetShadowRenderObjectInfo(entity, info);
+			}
 
 			void Frame(Utilz::TimeCluster* timer) override;
-
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity) override;
 		private:
 			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetRenderObjectInfo;
+			Utilz::Event<void(const Entity& entity, SE::Graphics::RenderJob* info)> SetShadowRenderObjectInfo;
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 			Utilz::Event<void(const Entity& entity)> UpdateRenderableObject;
 			Utilz::Event<void(const Entity&, bool)> ToggleVisibleEvent;
@@ -83,10 +105,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index) override;
-			/**
-			* @brief	Remove an enitity
-			*/
-			void Destroy(const Entity& entity) override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/
@@ -116,6 +135,7 @@ namespace SE
 
 			std::unordered_map<Utilz::GUID, EventCallbacks, Utilz::GUID::Hasher> eventToCallbacks;
 
+			Utilz::Event<void(const Entity&, bool)> ToggleShadowEvent;
 		};
 	}
 }

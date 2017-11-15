@@ -23,11 +23,8 @@ void SE::Gameplay::ProjectileManager::UpdateProjectileActions(float dt)
 
 		if (projectiles[i].GetActive() == false)
 		{
-			//SE::Core::Engine::GetInstance().GetRenderableManager().ToggleRenderableObject(projectiles[i].GetEntity(), false);
 			projectiles[i].DestroyEntity();
-			//std::swap(projectiles[i], projectiles[projectiles.size() - 1]);
 			projectiles[i] = projectiles.back();
-			//projectiles[projectiles.size() - 1].DestroyEntity();
 			projectiles.pop_back();
 		}
 	}
@@ -53,12 +50,12 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 {
 	StartProfile;
 
-	for (auto projectile : projectiles)
+	for (auto& projectile : projectiles)
 	{
 		if (projectile.GetValidTarget() == ValidTarget::EVERYONE ||
-			projectile.GetValidTarget() == unitTarget)
+			projectile.GetValidTarget() == unitTarget && !projectile.CheckIfAlreadyHit(unit))
 		{
-			if (CheckCollisionHelperFunction(unit, projectile.GetBoundingRect()))
+			if (CheckCollisionHelperFunction(unit, projectile))
 			{
 				CollisionData cData;
 				switch (unitTarget)
@@ -71,6 +68,7 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 				unit->AddDamageEvent(projectile.GetProjectileDamageEvent());
 				unit->AddHealingEvent(projectile.GetProjectileHealingEvent());
 				unit->AddConditionEvent(projectile.GetProjectileConditionEvent());
+				projectile.AddToHit(unit);
 			}
 		}
 	}
@@ -78,21 +76,16 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 	StopProfile;
 }
 
-bool SE::Gameplay::ProjectileManager::CheckCollisionHelperFunction(GameUnit* unit, BoundingRect projectileRect)
+bool SE::Gameplay::ProjectileManager::CheckCollisionHelperFunction(GameUnit* unit, Projectile &projectile)
 {
 	StartProfile;
 
 	bool collided = false;
-	if (abs(unit->GetXPosition() - projectileRect.upperLeftX) < unit->GetExtent() &&
-		abs(unit->GetYPosition() - projectileRect.upperLeftY) < unit->GetExtent())
-	{
+	float xDiff = projectile.GetXPosition() - unit->GetXPosition();
+	float yDiff = projectile.GetYPosition() - unit->GetYPosition();
+	
+	if (sqrtf((xDiff*xDiff) + (yDiff*yDiff)) <= projectile.GetBoundingRect().radius + sqrtf(2)*unit->GetExtent())
 		collided = true;
-	}
-	else if (abs(unit->GetXPosition() - projectileRect.upperRightX) < unit->GetExtent() &&
-		abs(unit->GetYPosition() - projectileRect.upperRightY) < unit->GetExtent())
-	{
-		collided = true;
-	}
 
 
 	ProfileReturnConst(collided);
