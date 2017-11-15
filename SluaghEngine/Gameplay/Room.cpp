@@ -1124,7 +1124,7 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush]       = { "Bush.mat"       };
 	Materials[Materials::Dirt]       = { "brownPlane.mat" };
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
-	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
+	Materials[Materials::Wood]		 = { "Cube.mat" };
 
 
 	Prop Chair;
