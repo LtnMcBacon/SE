@@ -396,10 +396,11 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 		return true;
 	};
 	
-	/*auto job1 = initInfo.threadPool->Enqueue(LoopDirty, 0, data.used / 2);
-	auto job2 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 4, data.used / 2);
+	auto job1 = initInfo.threadPool->Enqueue(LoopDirty, 0, data.used / 2);
+	/*auto job2 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 4, data.used / 2);
 	auto job3 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 2, (data.used / 4) * 3);*/
-	LoopDirty(0, data.used);//(data.used / 4) * 3, data.used);
+	LoopDirty(data.used / 2, data.used);//(data.used / 4) * 3, data.used);
+	job1.get();
 	/*job1.get();
 	job2.get();
 	job3.get();*/
