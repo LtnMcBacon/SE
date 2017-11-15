@@ -777,36 +777,36 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
-	playerAggroSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[3] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[4] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[5] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");
+	playerAggroSounds[1] = Utilz::GUID("ÄtJärn.wav");
+	playerAggroSounds[2] = Utilz::GUID("RedoEller.wav");
+	playerAggroSounds[3] = Utilz::GUID("FörHeder.wav");
+	playerAggroSounds[4] = Utilz::GUID("NuSkaDu.wav");
+	playerAggroSounds[5] = Utilz::GUID("SmakaPå.wav");
+	playerHealingSounds[0] = Utilz::GUID("FörGammal.wav");
+	playerHealingSounds[1] = Utilz::GUID("KännsBättre.wav");
+	playerHealingSounds[2] = Utilz::GUID("SätterPlåster.wav");
+	playerAggroColdSounds[0] = Utilz::GUID("VäntaLite.wav");
+	playerAggroColdSounds[1] = Utilz::GUID("IngenTrollformel.wav");
+	playerAggroColdSounds[2] = Utilz::GUID("Nedkyllning.wav");
+	playerHealingColdSounds[0] = Utilz::GUID("IngePlåster.wav");
 
 
 	for (int i = 0; i < nrAggroSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::BakgroundSound }); //SE::Audio::StereoPanSound
 	}
 	for (int i = 0; i < nrHealingSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrAggroColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrHealingColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::BakgroundSound });
 	}
 
 }
