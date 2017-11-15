@@ -135,8 +135,8 @@ int main()
 	Particle p;
 	p.opacity = 1.0f;
 	//Pipeline for the update geometry shader
-	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 100000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 100000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -260,7 +260,7 @@ int main()
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
-		ImGui::InputFloat3("Startpos", startPos);
+	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
 		if (ImGui::Button("Start/Stop Emit")) {
 			movBuffer.emit ^= 1;

@@ -43,7 +43,14 @@ struct ParticleInfo {
 	float age : AGE;
 	uint type : TYPE;
 };
-
+bool equal(float3 start, float3 end)
+{
+	
+	if(start.x == end.x && start.y == end.y && start.z == end.z)
+		return true;
+	else
+		return false;
+}
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
@@ -76,6 +83,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 	}
 	else
 	{
+		float3 startPosition = input[0].startEmitPos;
 		if (input[0].age <= lifeTime && !particlePath)
 		{
 			float3 radialVector = (input[0].pos - input[0].startEmitPos) * 1;
@@ -112,9 +120,9 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			ptStream.Append(input[0]);
 			ptStream.RestartStrip();
 		}
-		else if (input[0].pos.x != endPos.x && input[0].pos.y != endPos.y && input[0].pos.z != endPos.z)
+		else if (!equal(input[0].pos, endPos))
 		{
-			float3 finalDirection = endPos - startPos;
+			float3 finalDirection = endPos - startPosition;
 			input[0].velocity = finalDirection;
 			if (input[0].age < 0.25)
 			{
