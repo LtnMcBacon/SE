@@ -26,7 +26,7 @@ SE::Gameplay::Status SE::Gameplay::PechRangedAttackLeaf::Update()
 	newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
 	newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
 	newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
-		DamageTypes::DAMAGE_TYPE_MAGICAL, 10);
+		DamageType::NATURE, 10);
 
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

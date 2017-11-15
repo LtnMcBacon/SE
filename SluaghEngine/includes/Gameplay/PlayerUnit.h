@@ -74,6 +74,11 @@ namespace SE
 			*/
 			bool CorrectCollision(float dt, float &xMov, float &yMov);
 
+			static const uint8_t MAX_ITEMS = 5;
+			Core::Entity items[MAX_ITEMS];
+			uint8_t currentItem = 0;
+			Core::Entity itemSelectedEntity;
+			Stats weaponStats;
 		public:
 
 			struct MovementInput
@@ -154,6 +159,12 @@ namespace SE
 				return baseStat.health;
 			}
 
+
+			void AddItem(Core::Entity item, uint8_t slot);
+			inline Core::Entity GetCurrentItem()const
+			{
+				return items[currentItem];
+			}
 		private:
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
@@ -245,14 +256,14 @@ namespace SE
 			* @brief	  Changes the equipped element type.
 			* @param [in] The new given element type.
 			**/
-			void changeElementType(DamageTypes element);
+			void changeElementType(DamageType element);
 		
 		public:
 			int getSkillVectorSize();
 
 			std::string getSkillName(int skillNumber);
 			DamageSources getAttackType(int skillNumber);
-			DamageTypes getElement(int skillNumber);
+			DamageType getDamageType(int skillNumber);
 			Boons getBoon(int skillNumber);
 			Banes getBanes(int skillNumber);
 			unsigned short int getAnimation(int skillNumber);

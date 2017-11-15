@@ -56,7 +56,7 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 	{
 		delete engine;
 		return false;
-	}
+	}				
 		
 	auto managers = engine->GetManagers();
 	auto subSystem = engine->GetSubsystems();

@@ -67,6 +67,7 @@ namespace SE
 			* @param[in] b The second point
 			*/
 			void DrawLine(const Entity& entity, const Point3D& a, const Point3D& b)override;
+			void Destroy(const Entity& e)override;
 		private:
 			Graphics::Pipeline pipeline;
 			Utilz::GUID vertexBufferID;
@@ -99,7 +100,7 @@ namespace SE
 			std::default_random_engine generator;
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& e)override;
+
 		};
 	}
 }

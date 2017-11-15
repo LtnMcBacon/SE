@@ -3,6 +3,11 @@
 
 enum GameInput : uint32_t
 {
+	ONE,
+	TWO,
+	THREE,
+	FOUR,
+	FIVE,
 	EXIT_GAME,
 	LEFT,
 	RIGHT,
@@ -13,8 +18,9 @@ enum GameInput : uint32_t
 	ACTION,
 	CONSOLE,
 	STEP,
-	INTERACT
-
+	INTERACT,
+	SHOWINFO,
+	PICKUP
 };
 
 
