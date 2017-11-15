@@ -25,7 +25,8 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	/*Initialize Run animation*/
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("TopRunAnim_MCModell.anim");
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("BottomRunAnim_MCModell.anim"); //= playInfo;
-		
+	
+	this->deathAnimation = "DeathAnim_MCModell.anim";
 
 	StopProfile;
 	
@@ -475,12 +476,15 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	UpdateMovement(dt, mInputs);
-	UpdateActions(dt, newProjectiles, aInput);
+	if (health > 0.f)
+	{
+		UpdateMovement(dt, mInputs);
+		UpdateActions(dt, newProjectiles, aInput);
 
-	ClearConditionEvents();
-	ClearDamageEvents();
-	ClearHealingEvents();
+		ClearConditionEvents();
+		ClearDamageEvents();
+		ClearHealingEvents();
+	}
 	StopProfile;
 }
 

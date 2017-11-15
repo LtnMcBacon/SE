@@ -673,7 +673,16 @@ bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const 
 		for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
 			if (animationToCheck == ai.animation[i])
-				ProfileReturnConst(true);
+			{
+				if (ai.timePos[i] > animationSystem->GetAnimationLength(animationToCheck))
+				{
+					ProfileReturnConst(false);
+				}
+				else
+				{
+					ProfileReturnConst(true);
+				}
+			}
 
 		}
 	}
