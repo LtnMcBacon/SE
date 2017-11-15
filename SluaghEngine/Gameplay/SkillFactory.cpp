@@ -22,10 +22,9 @@ SE::Gameplay::SkillFactory::SkillFactory()
 
 unsigned int SE::Gameplay::SkillFactory::getRandomSkillIndex()
 {
-	int index = 0;
-	return index = CoreInit::subSystems.window->GetRand() % this->skillAmounts;;
+	return CoreInit::subSystems.window->GetRand() % this->skillAmounts;
 }
-void SE::Gameplay::SkillFactory::readSkillInfo(int index, std::string& name, unsigned short int* typeList)
+void SE::Gameplay::SkillFactory::readSkillInfo(unsigned int index, std::string& name, unsigned short int* typeList)
 {
 	StartProfile;
 	auto rm = CoreInit::subSystems.resourceHandler;
@@ -33,7 +32,7 @@ void SE::Gameplay::SkillFactory::readSkillInfo(int index, std::string& name, uns
 	SkillInfo* tempSkill;
 	tempSkill = new SkillInfo;
 	
-	rm->LoadResource("testSkill.si", [this, &index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("testSkill.si", [this, index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		int offset = sizeof(int);
 		int usiSize = sizeof(unsigned short int);

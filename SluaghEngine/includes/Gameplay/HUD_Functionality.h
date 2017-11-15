@@ -44,16 +44,19 @@ namespace SE
 			size_t additionalWidth = 0;
 			// vector to store buttons
 			std::vector<ButtonElement> Buttons;
+			std::vector<std::string> ButtonsToDelete;
 			// vector to store buttons drawing entities
 			std::vector<SE::Core::Entity> ButtonEntityVec;
 			SE::Core::Entity skillDescEntity;
 			
+			std::vector<SE::Core::Entity> SkillNPerkEntityVec;
+
 			// counter for every entity drawn
 			int entityIndex;
 
 			Core::IGUIManager::CreateInfo ButtonGuiManager;
 
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
+			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[], std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 
@@ -66,6 +69,7 @@ namespace SE
 			void HideButtons();
 			void ShowButtons();
 			void CalculateScreenPositions();
+			void deleteSkillPerkBtns();
 		private:
 
 		};
