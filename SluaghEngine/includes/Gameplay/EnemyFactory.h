@@ -64,6 +64,7 @@ namespace SE
 				Utilz::GUID behaviouralTreeGUID;
 				Utilz::GUID materialGUID;
 				Utilz::GUID shaderGUID;
+				Utilz::GUID deathSoundGUID;
 				
 				int baseDamage;
 				int baseDamageVariation;
