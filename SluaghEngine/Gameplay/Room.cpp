@@ -118,7 +118,14 @@ void Room::Update(float dt, float playerX, float playerY)
 				
 			}
 			
+			
+			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
+			{
+				CoreInit::managers.entityManager->DestroyNow(*enemyWep);
+			}
+			
 			delete enemyUnits[i];
+			
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
