@@ -3,6 +3,8 @@
 #include "Flowfield.h"
 #include "ProjectileData.h"
 #include "CoreInit.h"
+#include <KeyBindings.h>
+#include <Items.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -328,8 +330,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
 }
-#include <KeyBindings.h>
-#include <Items.h>
+
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
@@ -388,13 +389,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			currentItem = pi;
 		}
 	}
-
-
-
-
-
-
-
+	
 	int nrOfSKills = skills.size();
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
@@ -486,13 +481,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			ProjectileData temp;
 
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+			temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+			temp.startPosX = this->xPos;
+			temp.startPosY = this->yPos;
+			temp.target = ValidTarget::ENEMIES;
+			temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
+			temp.ownerUnit = mySelf;
+			temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
 			newProjectiles.push_back(temp);
 
@@ -549,9 +544,9 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 	}
 	StopProfile;
 }
-#include <Items.h>
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
+	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 
 
@@ -572,9 +567,6 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 	}
 
-
-
-
 	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
 	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
@@ -588,10 +580,8 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	if (type == ItemType::WEAPON)
 		Item::Equip(unitEntity, item);
 
-
-
-
 	items[slot] = item;
+	StopProfile;
 }
 
 

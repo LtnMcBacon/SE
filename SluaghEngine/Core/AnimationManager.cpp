@@ -94,7 +94,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.animInfo[index].blockBlending[j] = false;
 
 	}
-
+	animationData.animInfo[index].toBlendTarget = false;
+	animationData.animInfo[index].toBlendSource = false;
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
 	// Load skeleton
@@ -345,6 +346,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		
 		for (int i = 0; i < nrOfAnims; i++)
 		{
+
 			bool alreadyRunning = false;
 			for (int j = 0; j < ai.nrOfLayers; j++)
 			{
@@ -421,8 +423,19 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 
 
 			if (flag & AnimationFlags::BLENDTOANDBACK) {
+				
+				for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
-				ai.toBlendTarget = true;
+					if (ai.blendSpeed[i] < 0.0f)
+					{
+						OverwriteAnimation(ai, i, ai.nrOfLayers - 1);
+						ai.nrOfLayers--;
+						ai.blendSpeed[i] = 0.0f;
+						ai.blendFactor[i] = 1.0f;
+					}
+
+				}
+				
 				ai.blendBackInfo.animIndex = ai.nrOfLayers;
 				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(GUIDTemporaryStorage[0]);
 
@@ -431,16 +444,23 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 
 			if (flag & AnimationFlags::BLENDTO) {
 
+
+				if(ai.toBlendTarget)
+				{
+					ProfileReturnConst(false);
+				}
+				if (flag & AnimationFlags::BLENDTOANDBACK)
+					ai.toBlendTarget = true;
 				// Set info for animations to blend from
 				for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
 					//ai.animationSpeed[i] = 0.0f;
 					if (!(flag & AnimationFlags::BLENDTOANDBACK))
 						ai.looping[i] = false;
-						ai.blendSpeed[i] = -15.0f;
-						ai.blendFactor[i] = 1.0f;
-						ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
-						ai.animationSpeed[i] = 0.0f;
+					ai.blendSpeed[i] = -15.0f;
+					ai.blendFactor[i] = 1.0f;
+					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+				//	ai.animationSpeed[i] = 0.0f;
 				}
 
 				// Set info for the new animations to blend to
