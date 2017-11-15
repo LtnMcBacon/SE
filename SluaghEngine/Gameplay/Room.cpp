@@ -1114,7 +1114,7 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Bush]            = { "Bush.mesh"                };
 	Meshes[Meshes::TableGroup1]     = { "Table_group1.mesh"        };
 	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
-	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh" };
+	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh"		   };
 
 	// Materials
 	Materials[Materials::Stone]      = { "Cube.mat"       };
