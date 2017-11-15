@@ -30,10 +30,14 @@ void SE::Core::AnimationShadowSystem::AddEntity(const Entity& entity, Graphics::
 		bucket = CreateBucket(job);
 		auto hax = job.specialHaxxor;
 		job.mappingFunc.push_back([this, bucket, hax, entity](auto a, auto b) {
-			renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, this->animSys->GetBucketTransformPtr(entity), sizeof(DirectX::XMFLOAT4X4) * b);
+			auto t = this->animSys->GetBucketTransformPtr(entity);
+			if(t)
+				renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, t, sizeof(DirectX::XMFLOAT4X4) * b);
 		});
 		job.mappingFunc.push_back([this, bucket, hax, entity](auto a, auto b) {
-			renderer->GetPipelineHandler()->UpdateConstantBuffer("VS_SKINNED_DATA", this->animSys->GetBucketBonePtr(entity), sizeof(JointMatrices) * b);
+			auto bt = this->animSys->GetBucketBonePtr(entity);
+			if (bt)
+				renderer->GetPipelineHandler()->UpdateConstantBuffer("VS_SKINNED_DATA", bt, sizeof(JointMatrices) * b);
 		});
 	}
 	else

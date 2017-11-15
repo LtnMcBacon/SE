@@ -110,6 +110,8 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+			roomEntities.push_back(bs);
+
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
 			if (true)//spw > 50000)
@@ -117,8 +119,14 @@ void Room::Update(float dt, float playerX, float playerY)
 				Item::Drop(Item::Create(), p);
 				
 			}
+		
+			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
+			{
+				CoreInit::managers.entityManager->DestroyNow(*enemyWep);
+			}
 			
 			delete enemyUnits[i];
+			
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
