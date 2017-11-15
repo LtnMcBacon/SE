@@ -27,6 +27,7 @@ GameUnit::~GameUnit()
 
 void GameUnit::DestroyEntity()
 {
+	
 	CoreInit::managers.entityManager->DestroyNow(unitEntity);
 }
 
@@ -73,7 +74,6 @@ void GameUnit::MoveEntity(float xMovement, float yMovement)
 	DirectX::XMFLOAT3 pos = CoreInit::managers.transformManager->GetPosition(this->unitEntity);
 	xPos = pos.x;
 	yPos = pos.z;
-	zPos = pos.y;
 	StopProfile;
 }
 

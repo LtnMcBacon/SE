@@ -6,6 +6,7 @@
 #include "CoreInit.h"
 #include <math.h>
 #include <algorithm>
+#include <Items.h>
 
 
 
@@ -88,7 +89,6 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
-#include <Items.h>
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -1048,6 +1048,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	for(auto enemy : enemyUnits)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(enemy->GetEntity(), render);
+		if(auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
+		{
+			CoreInit::managers.eventManager->ToggleVisible(*weapon, render);
+		}
+
 	}
 	beingRendered = render;
 }
@@ -1225,6 +1230,10 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
 
 	ProfileReturnConst(true);
 }
@@ -1255,7 +1264,10 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	}
 
 	enemyToAdd->PositionEntity(newX, newY);
-
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 

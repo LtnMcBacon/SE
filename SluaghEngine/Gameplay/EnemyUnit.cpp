@@ -199,6 +199,10 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(unitEntity, "Weapon", false)))
+	{
+		CoreInit::managers.entityManager->DestroyNow(*weapon);
+	}
 	CoreInit::managers.entityManager->Destroy(this->unitEntity);
 	/*
 	* Code body
