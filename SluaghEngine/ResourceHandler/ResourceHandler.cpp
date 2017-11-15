@@ -6,11 +6,6 @@
 
 using namespace std::chrono_literals;
 
-void Push_(std::mutex& lock, const std::string&& msg)
-{
-	lock.lock();
-}
-
 SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr), stop(false)
 {
 	
@@ -26,18 +21,6 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 	StartProfile;
 	this->initInfo = initInfo;
 
-	//guidToResourceInfo.
-
-	/*switch (initInfo.RAM_UnloadingStrategy)
-	{
-	case EvictPolicy::Linear:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	default:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	}
-*/
 	diskLoader = new RawLoader;
 	auto res = diskLoader->Initialize();
 	if (res < 0)
@@ -196,23 +179,23 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 
 		if (load)
 		{
-			//if (loadFlags & LoadFlags::ASYNC)
-			//{
-			//	{
-			//		std::unique_lock<std::mutex> lock(queue_mutex);
+			if (loadFlags & LoadFlags::ASYNC)
+			{
+				{
+					std::unique_lock<std::mutex> lock(queue_mutex);
 
-			//		// don't allow enqueueing after stopping the pool
-			//		if (stop)
-			//			throw std::runtime_error("enqueue on stopped ThreadPool");
+					// don't allow enqueueing after stopping the pool
+					if (stop)
+						throw std::runtime_error("enqueue on stopped ThreadPool");
 
-			//		LoadJob c = { guid, callbacks, loadFlags };
-			//		auto asd = [this, &map, &evictInfo, c]()->void { Load(map, evictInfo, c); } ;
-			//		tasks.emplace(asd);
-			//	}
-			//	condition.notify_one();		
-			//}
-			//	//load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
-			//else
+					LoadJob c = { guid, callbacks, loadFlags };
+					auto asd = [this, &map, &evictInfo, c]()->void { Load(map, evictInfo, c); } ;
+					tasks.emplace(asd);
+				}
+				condition.notify_one();		
+			}
+				//load_threadPool->Enqueue(this, &ResourceHandler::Load, &map, { guid, callbacks, loadFlags });
+			else
 				return Load(map,evictInfo, { guid, callbacks, loadFlags });
 		}
 		else
