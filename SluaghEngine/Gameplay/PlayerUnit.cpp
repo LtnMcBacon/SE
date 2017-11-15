@@ -457,19 +457,27 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	_ASSERT(slot < MAX_ITEMS);
+
+
+	auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+
+	if (ctype == ItemType::WEAPON)
+		Item::Unequip(unitEntity, items[currentItem]);
+
+
+
 	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
 	if (isitem != -1)
 	{
-
-		if ((ItemType)isitem == ItemType::WEAPON)
-			Item::Unequip(unitEntity, items[slot]);
-
 		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
 		p.y = 0;
 
 		Item::Drop(items[slot], p);
 
 	}
+
+
+
 
 	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 

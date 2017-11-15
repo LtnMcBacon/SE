@@ -308,7 +308,21 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 		}
 	}
 }
+void SE::Core::AnimationManager::DettachFromEntity(const Entity& source, int slotIndex) {
 
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
+
+	// Find the source entity
+	auto &sourceEntityIndex = entityToIndex.find(source);
+	if (sourceEntityIndex != entityToIndex.end())
+	{
+		// Get animation info and attacher slots for the source entity
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+		at.slots[slotIndex].attached = false;
+
+	}
+}
 bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
 {
 	StartProfile;

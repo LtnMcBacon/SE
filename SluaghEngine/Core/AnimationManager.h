@@ -35,6 +35,7 @@ namespace SE
 			void Frame(Utilz::TimeCluster* timer)override;
 
 			void AttachToEntity(const Entity& source, const Entity& entityToAttach, const Utilz::GUID& jointGUID, int slotIndex)override;
+			void DettachFromEntity(const Entity& source, int slotIndex) override;
 
 			bool Start(const Entity& entity, const Utilz::GUID* animations, size_t nrOfAnims, float duration, AnimationFlags flag)override;
 			void Start(const Entity& entity, const AnimationPlayInfo& playInfo)override;

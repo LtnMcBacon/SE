@@ -358,10 +358,14 @@ void SE::Gameplay::Item::Equip(Core::Entity to, Core::Entity ent)
 
 void SE::Gameplay::Item::Unequip(Core::Entity from ,Core::Entity ent)
 {
-	//CoreInit::managers.transformManager->SetPosition(ent, { 0.07f,0.15f,0.5f });
-	//CoreInit::managers.transformManager->SetRotation(ent, -0.25f, 0.2f, 1.5f);
-	//CoreInit::managers.animationManager->AttachToEntity(to, ent, "LHand", 0);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
+	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
+	if (wType != -1)
+	{
+		//CoreInit::managers.transformManager->SetPosition(ent, { 0.07f,0.15f,0.5f });
+		//CoreInit::managers.transformManager->SetRotation(ent, -0.25f, 0.2f, 1.5f);
+		CoreInit::managers.animationManager->DettachFromEntity(from, weaponInfo[wType].slotIndex);
+		CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
+	}
 }
 
 void SE::Gameplay::Item::ToggleRenderPickupInfo(Core::Entity ent)
