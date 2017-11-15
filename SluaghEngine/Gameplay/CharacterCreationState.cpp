@@ -139,7 +139,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].boonEffectValue = 0;
 			infoToPass->skills[i].boonRange = 0;
 			infoToPass->skills[i].cooldown = 1.0f;
-			infoToPass->skills[i].element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+			infoToPass->skills[i].damageType = DamageType::PHYSICAL;
 			infoToPass->skills[i].particle = 0;
 
 			if(i == 0)
@@ -258,7 +258,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		nrOfOtherSkills++;
 		skill.skillName = skillName;
 		skill.atkType	= static_cast<DamageSources>(skillInfo[0]);
-		skill.element	= static_cast<DamageTypes>(skillInfo[1]);
+		skill.damageType	= static_cast<DamageType>(skillInfo[1]);
 		skill.boon		= static_cast<Boons>(skillInfo[2]);
 		skill.bane		= static_cast<Banes>(skillInfo[3]);
 		skill.animation = 0;
