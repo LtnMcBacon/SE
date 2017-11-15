@@ -108,9 +108,9 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills  == true)
 	{
 
-		/*for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
+			/*infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
 			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
 			infoToPass->skills[i].element	= chosenSkills.at(i).element;
 			infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
@@ -126,33 +126,33 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneEffectValue		= chosenSkills.at(i).baneEffectValue;
 			infoToPass->skills[i].baneRange				= chosenSkills.at(i).baneRange;
 			infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
-			infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;
+			infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;*/
 
+			infoToPass->skills[i].animation = 0;
+			infoToPass->skills[i].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
+			infoToPass->skills[i].bane = Banes::CONDITIONAL_BANES_NONE;
+			infoToPass->skills[i].baneDuration = 0;
+			infoToPass->skills[i].baneEffectValue = 0;
+			infoToPass->skills[i].baneRange = 0;
+			infoToPass->skills[i].boon = Boons::CONDITIONAL_BOONS_NONE;
+			infoToPass->skills[i].boonDuration = 0;
+			infoToPass->skills[i].boonEffectValue = 0;
+			infoToPass->skills[i].boonRange = 0;
+			infoToPass->skills[i].cooldown = 1.0f;
+			infoToPass->skills[i].element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+			infoToPass->skills[i].particle = 0;
+
+			if(i == 0)
+				infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
+			if(i == 1)
+				infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";
+
+			infoToPass->skills[i].skillDamage = 5;
+			infoToPass->skills[i].skillName = "skill1";
 		}
+
+
 		passableInfo = infoToPass;
-
-		infoToPass->skills[i].animation = 0;
-		infoToPass->skills[i].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
-		infoToPass->skills[i].bane = Banes::CONDITIONAL_BANES_NONE;
-		infoToPass->skills[i].baneDuration = 0;
-		infoToPass->skills[i].baneEffectValue = 0;
-		infoToPass->skills[i].baneRange = 0;
-		infoToPass->skills[i].boon = Boons::CONDITIONAL_BOONS_NONE;
-		infoToPass->skills[i].boonDuration = 0;
-		infoToPass->skills[i].boonEffectValue = 0;
-		infoToPass->skills[i].boonRange = 0;
-		infoToPass->skills[i].cooldown = 1.0f;
-		infoToPass->skills[i].element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-		infoToPass->skills[i].particle = 0;
-
-		if(i == 0)
-			infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
-		if(i == 1)
-			infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";
-
-		infoToPass->skills[i].skillDamage = 5;
-		infoToPass->skills[i].skillName = "skill1";*/
-
 	}
 
 
