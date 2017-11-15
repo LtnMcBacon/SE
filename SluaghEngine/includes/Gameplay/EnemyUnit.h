@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_ENEMY_UNIT_H_
 
 #include "GameUnit.h"
+#include "Utilz/GUID.h"
 
 namespace SE
 {
@@ -172,6 +173,9 @@ namespace SE
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;
+
+			bool deathAnimationPlaying = false;
+			Utilz::GUID deathAnimation;
 
 		public:
 			//EnemyUnit(); <- Create a "real" constructor
