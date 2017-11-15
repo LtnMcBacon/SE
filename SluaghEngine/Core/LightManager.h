@@ -29,10 +29,11 @@ namespace SE
 
 			void SetShadowCaster(const Entity& entity) override;
 			void SetColor(const Entity& entity, float rgb[3]) override;
+			void Destroy(const Entity& entity)override;
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
+
 			void UpdateDirtyPos(const Entity& entity, size_t index);
 			struct DirtyEntityInfo
 			{

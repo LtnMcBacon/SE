@@ -191,7 +191,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		{
 			res = initInfo.resourceHandler->LoadResource(mdata->textureInfo.textures[i], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 			if (res < 0)
-				mdata->textureInfo.textures[i] = defaultMaterialInfo->textureInfo.textures[i]; //defaultTexture;
+				mdata->textureInfo.textures[i] = defaultMaterialInfo->textureInfo.textures[i%defaultMaterialInfo->textureInfo.numTextures]; //defaultTexture;
 		}
 
 		if (!toUpdate.push({ guid, info.materialFile, mdata, entity }))

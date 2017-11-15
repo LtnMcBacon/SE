@@ -41,6 +41,59 @@ void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, 
 {
 }
 
+void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const float radius)
+{
+	StartProfile;
+	auto find = entityToCollisionData.find(entity);
+	if (find == entityToCollisionData.end())
+	{
+		// Check if the entity is alive
+		if (!initInfo.entityManager->Alive(entity))
+			ProfileReturnVoid;
+
+		// Make sure we have enough memory.
+		if (collisionData.used + 1 > collisionData.allocated)
+			Allocate(collisionData.allocated * 2);
+
+		// Register the entity
+		size_t newEntry = collisionData.used++;
+		entityToCollisionData[entity] = newEntry;
+		collisionData.entity[newEntry] = entity;
+
+		initInfo.transformManager->Create(entity);
+
+		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &CollisionManager::Destroy });
+
+
+		// Make sure we have enough memory.
+		if (boundingHierarchy.used + 1 > boundingHierarchy.allocated)
+			AllocateBH(boundingHierarchy.allocated * 2); // TODO: Make thread safe
+
+		auto bIndex = boundingInfo.size();
+		// Register the new hierarchy
+		auto newHI = boundingHierarchy.used++;
+
+
+		boundingInfo.push_back({ newHI }); // Setup the deafult info.
+
+
+		boundingHierarchy.sphere[newHI].Center = { 0,0,0 };
+		boundingHierarchy.sphere[newHI].Radius = radius;
+
+		BoundingBox::CreateFromSphere(boundingHierarchy.AABB[newHI], boundingHierarchy.sphere[newHI]);
+	
+		collisionData.boundingIndex[newEntry] = bIndex;
+		boundingInfo[bIndex].entities.push_back(entity);
+
+
+		initInfo.transformManager->SetAsDirty(entity);
+
+
+
+	}
+	StopProfile;
+}
+
 void SE::Core::CollisionManager::CreateBoundingHierarchy(const Entity & entity, const Utilz::GUID & mesh)
 {
 	StartProfile;
@@ -319,6 +372,8 @@ void SE::Core::CollisionManager::Destroy(size_t index)
 	// Copy the data
 	collisionData.entity[index] = last_entity;
 	collisionData.boundingIndex[index] = collisionData.boundingIndex[last];
+	collisionData.sphereWorld[index] = collisionData.sphereWorld[last];
+	collisionData.AABBWorld[index] = collisionData.AABBWorld[last];
 	collisionData.collisionWithAny[index] = collisionData.collisionWithAny[last];
 
 	// Replace the index for the last_entity 
