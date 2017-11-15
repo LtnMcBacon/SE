@@ -248,6 +248,11 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters); // f, o
 
+			/**
+			* @brief	Adds a behaviour to set the actual damage of a projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
+
 
 		public:
 

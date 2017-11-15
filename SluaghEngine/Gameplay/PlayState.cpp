@@ -22,18 +22,21 @@ PlayState::PlayState()
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
-
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
 	playStateGUI.InitiateTextures();
+	int tempPos = 0;
 	for (auto& button : playStateGUI.ButtonVector)
 	{
 		if (button.rectName == "HealthBar")
 		{
 			// here's the health bar.
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+			healthBarPos = tempPos;
 		}
+
+		tempPos++;
 	}
 	playStateGUI.GUIButtons.DrawButtons();
 
@@ -140,6 +143,95 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	projectileManager->UpdateProjectilePositions(input->GetDelta());
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
+
+
+}
+
+void SE::Gameplay::PlayState::CheckForRoomTransition()
+{
+	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
+	{
+		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+
+		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+		{
+			currentRoom->RenderRoom(false);
+
+			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
+			{
+				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
+				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet - 1);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
+			{
+				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
+				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet + 1);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			{
+				currentRoom = rooms[currentRoomIndex - 1];
+				currentRoomIndex = currentRoomIndex - 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
+				player->PositionEntity(xToSet + 1, yToSet);
+			}
+			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
+			{
+				currentRoom = rooms[currentRoomIndex + 1];
+				currentRoomIndex = currentRoomIndex + 1;
+				float xToSet, yToSet;
+				xToSet = yToSet = -999999;
+				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
+				player->PositionEntity(xToSet - 1, yToSet);
+			}
+
+			currentRoom->RenderRoom(true);
+			projectileManager->RemoveAllProjectiles();
+
+			char newMap[25][25];
+			currentRoom->GetMap(newMap);
+
+			char** tempPtr = new char*[25];
+
+			for (int i = 0; i < 25; i++)
+			{
+				tempPtr[i] = new char[25];
+				for (int j = 0; j < 25; j++)
+				{
+					tempPtr[i][j] = newMap[i][j];
+				}
+			}
+
+			player->UpdateMap(tempPtr);
+			currentRoom->InitializeAdjacentFlowFields();
+			for (int i = 0; i < 25; i++)
+			{
+				delete tempPtr[i];
+			}
+
+			delete tempPtr;
+
+			/**
+			*	Must be put in change room once the function is done!
+			*/
+			blackBoard.currentRoom = currentRoom;
+			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::UpdateHUD(float dt)
+{
+	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width * player->GetHealth() / player->GetMaxHealth(), playStateGUI.GUIButtons.Buttons[healthBarPos].Height);
 }
 
 void PlayState::InitializeRooms()
@@ -163,8 +255,6 @@ void PlayState::InitializeRooms()
 
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
-		//Skips nrOfOpenDoors for now since I don't know how many doors a room has got
-
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
@@ -220,6 +310,7 @@ void PlayState::InitializeRooms()
 	blackBoard.currentRoom = currentRoom = rooms[0];
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
 	delete[] RoomArr;
 	ProfileReturnVoid;
 }
@@ -245,7 +336,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			data.type = ENEMY_TYPE_NUCKELAVEE;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -330,17 +421,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 12.5, 3, 12.5 });
-	CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 2.05f, 0.0f });
+	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
+	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
-	lightInfo.color = { 1.0f, 1.0f, 1.0f };
-	lightInfo.radius = 10000.0f;
+	lightInfo.color = { 0.74f, 0.92f, 0.95f };
+	lightInfo.radius = 15.0f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
+	CoreInit::managers.lightManager->SetShadowCaster(dummy);
 	ProfileReturnVoid;
 }
 
@@ -456,6 +549,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
+	rooms[0]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 	IGameState::State returnValue = State::PLAY_STATE;
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
@@ -492,89 +586,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		soundTime = 0.0f;
 	}
 	//-----end sound update
-
-	//-----------------------------------------------
-
-	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
-	{
-		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
-
-		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
-		{
-			currentRoom->RenderRoom(false);
-
-			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
-			{
-				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet - 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
-			{
-				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet + 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-			{
-				currentRoom = rooms[currentRoomIndex - 1];
-				currentRoomIndex = currentRoomIndex - 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-				player->PositionEntity(xToSet + 1, yToSet);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
-			{
-				currentRoom = rooms[currentRoomIndex + 1];
-				currentRoomIndex = currentRoomIndex + 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
-				player->PositionEntity(xToSet - 1, yToSet);
-			}
-
-			currentRoom->RenderRoom(true);
-			projectileManager->RemoveAllProjectiles();
-
-			char newMap[25][25];
-			currentRoom->GetMap(newMap);
-
-			char** tempPtr = new char*[25];
-
-			for (int i = 0; i < 25; i++)
-			{
-				tempPtr[i] = new char[25];
-				for (int j = 0; j < 25; j++)
-				{
-					tempPtr[i][j] = newMap[i][j];
-				}
-			}
-
-			player->UpdateMap(tempPtr);
-
-			for (int i = 0; i < 25; i++)
-			{
-				delete tempPtr[i];
-			}
-
-			delete tempPtr;
-
-			/**
-			*	Must be put in change room once the function is done!
-			*/
-			blackBoard.currentRoom = currentRoom;
-			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-		}
-	}
-
-	//-----------------------------------------------
+	CheckForRoomTransition();
+	UpdateHUD(input->GetDelta());
 
 	if (!player->IsAlive())
 		returnValue = State::GAME_OVER_STATE;

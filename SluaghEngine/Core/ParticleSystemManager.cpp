@@ -249,6 +249,8 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 			// Tell renderer.
 			if (visible)
 			{
+				particleSystemData[find->second].firstRun = true;
+				particleSystemData[find->second].updateJob.vertexCount = 1;
 				particleSystemData[find->second].updateJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].updateJob, SE::Graphics::RenderGroup::PRE_PASS_0);
 				particleSystemData[find->second].renderJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].renderJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 
@@ -271,7 +273,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
-	GarbageCollection();
+//	GarbageCollection();
 
 	//while (!toUpdate.wasEmpty())
 	//{
@@ -314,10 +316,6 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 			if (!particleSystemData[i].firstRun)
 			{
 				particleSystemData[i].updateJob.vertexCount = 0;
-				initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
-			}
-			if (!particleSystemData[i].firstRun)
-			{
 				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
 				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
 				initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
@@ -334,23 +332,25 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 void SE::Core::ParticleSystemManager::Destroy(size_t index)
 {
 	StartProfile;
-	size_t last = particleSystemData.size() - 1;
-	const Entity entity = indexToEntity[index];
-	const Entity last_entity = indexToEntity[last];
 
-	if(particleSystemData[index].visible == 1u)
-		ToggleVisible(entity, false);
-
-	// Copy the data
-	indexToEntity[index] = last_entity;
-	particleSystemData[index].visible = particleSystemData[last].visible;
+	uint32_t last = particleSystemData.size() - 1;
+	const Entity e = indexToEntity[index];
+	const Entity last_e = indexToEntity[last];
 
 
-	// Replace the index for the last_entity 
-	entityToIndex[last_entity] = index;
-	entityToIndex.erase(entity);
+	if (particleSystemData[index].visible == 1u)
+		ToggleVisible(e, false);
 
+
+	indexToEntity[index] = last_e;
+	particleSystemData[index] = particleSystemData[last];
+
+	entityToIndex[last_e] = index;
+	entityToIndex.erase(e);
+
+	indexToEntity.pop_back();
 	particleSystemData.pop_back();
+
 	StopProfile;
 }
 
