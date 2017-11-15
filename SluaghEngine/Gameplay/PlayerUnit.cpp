@@ -794,19 +794,19 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 	for (int i = 0; i < nrAggroSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::BakgroundSound }); //SE::Audio::StereoPanSound
 	}
 	for (int i = 0; i < nrHealingSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrAggroColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrHealingColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::BakgroundSound });
 	}
 
 }
