@@ -246,6 +246,21 @@ bool SE::Gameplay::PlayerUnit::CorrectCollision(float dt, float &xMov, float &yM
 	ProfileReturnConst(collision);
 }
 
+void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
+{
+	auto cwe = items[currentItem];
+	auto dm = CoreInit::managers.dataManager;
+	weaponStats.str = std::get<int32_t>(dm->GetValue(cwe, "Str", 0));
+	weaponStats.agi = std::get<int32_t>(dm->GetValue(cwe, "Agi", 0));
+	weaponStats.whi = std::get<int32_t>(dm->GetValue(cwe, "Wis", 0));
+
+	weaponStats.damage = std::get<int32_t>(dm->GetValue(cwe, "Damage", 0));
+	weaponStats.health = std::get<int32_t>(dm->GetValue(cwe, "Health", 0));
+
+	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
+	weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -334,7 +349,6 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-
 	auto w = CoreInit::subSystems.window;
 
 
@@ -365,31 +379,34 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		currentItem = 4;;
 		ci = true;
 	}
-
 	if (ci)
 	{
-		auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-		if (item == ItemType::WEAPON)
+		if (!w->ButtonDown(GameInput::SHOWINFO))
 		{
-			Item::Unequip(unitEntity, items[pi]);
-			Item::Equip(unitEntity, items[currentItem]);
-			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 
-			weaponStats.str = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Str", 0));
-		}
-		else if (item == ItemType::CONSUMABLE)
-		{
-			Item::Unequip(unitEntity, items[pi]);
-			CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (item == ItemType::WEAPON)
+			{
+				Item::Unequip(unitEntity, items[pi]);
+				Item::Equip(unitEntity, items[currentItem]);
+				CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 
-			health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
-		}
-		else
-		{
-			currentItem = pi;
+				SetCurrentWeaponStats();
+			}
+			else if (item == ItemType::CONSUMABLE)
+			{
+				//Item::Unequip(unitEntity, items[pi]);
+				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+
+				health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
+			}
+			else
+			{
+				currentItem = pi;
+			}
 		}
 	}
-	
+
 	int nrOfSKills = skills.size();
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
@@ -550,37 +567,45 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	_ASSERT(slot < MAX_ITEMS);
 
 
-	auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-
-	if (ctype == ItemType::WEAPON)
-		Item::Unequip(unitEntity, items[currentItem]);
-
-
+	
+	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
 	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
 	if (isitem != -1)
 	{
 		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
 		p.y = 0;
-
+		if (currentItem == slot)
+		{
+			auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (ctype == ItemType::WEAPON)
+				Item::Unequip(unitEntity, items[currentItem]);
+		}
+		
 		Item::Drop(items[slot], p);
 
 	}
 
-	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-
 	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
 	Item::Pickup(item);
 
+	if (itype == ItemType::CONSUMABLE)
+	{
+		items[slot] = item;
+	}
+	else
+	{
+		currentItem = slot;
+		CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
 
+		//Item::Equip(unitEntity, item);
 
-	currentItem = slot;
-	CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
-	if (type == ItemType::WEAPON)
-		Item::Equip(unitEntity, item);
+		items[slot] = item;
 
-	items[slot] = item;
+		
+	}
+
 	StopProfile;
 }
 
@@ -864,30 +889,55 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	Core::IEventManager::EventCallbacks startRenderItemInfo;
 	startRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
 	{
-		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO);
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
 	};
 	
 	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
 	{
-		auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1));
-		if (item != -1)
+		auto slot = -1;
+		if (CoreInit::subSystems.window->ButtonPressed(GameInput::ONE))
 		{
-			CoreInit::managers.eventManager->UnregisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
-			Item::ToggleRenderEquiuppedInfo(items[currentItem], unitEntity);
+			slot = 0;
 		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::TWO))
+		{
+			slot = 1;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::THREE))
+		{
+			slot = 2;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FOUR))
+		{
+			slot = 3;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FIVE))
+		{
+			slot = 4;
+		}
+
+		if (slot != -1)
+		{
+
+			auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+			if (item != -1)
+			{
+				Item::ToggleRenderEquiuppedInfo(items[slot], unitEntity);				
+			}
+		}				
 	};
 
 
 	Core::IEventManager::EventCallbacks stopRenderItemInfo;
 	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
 	{
-		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) ||( CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && !CoreInit::subSystems.window->ButtonDown(GameInput::PICKUP));
 	};
 
 	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
 	{
 		CoreInit::managers.entityManager->DestroyNow(ent);
-		CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+		//CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 	};
 
 

@@ -70,7 +70,6 @@ namespace SE
 			void ShowButtons();
 			void CalculateScreenPositions();
 			void deleteSkillPerkBtns();
-		private:
 
 		};
 	}

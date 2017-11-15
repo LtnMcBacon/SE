@@ -79,6 +79,9 @@ namespace SE
 			uint8_t currentItem = 0;
 			Core::Entity itemSelectedEntity;
 			Stats weaponStats;
+			bool displaying = false;
+			bool hideP = false;
+			void SetCurrentWeaponStats();
 		public:
 
 			struct MovementInput
