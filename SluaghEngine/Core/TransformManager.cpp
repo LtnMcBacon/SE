@@ -385,12 +385,10 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 		{
 			if (data.flags[i] & TransformFlags::DIRTY)
 			{
-				XMFLOAT4X4 transform;
 				const auto& translation = XMMatrixTranslationFromVector(XMLoadFloat3(&data.positions[i]));
 				const auto& rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[i]));
 				const auto& scale = XMMatrixScalingFromVector(XMLoadFloat3(&data.scalings[i]));
-				XMStoreFloat4x4(&transform, scale*rotation*translation);
-				dirtyTransforms[i] = transform;
+				XMStoreFloat4x4(&dirtyTransforms[i], scale*rotation*translation);	
 			}
 		}
 		return true;
