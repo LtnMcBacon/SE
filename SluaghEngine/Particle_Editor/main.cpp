@@ -31,6 +31,8 @@ float velocityRangeZ[2] = { 0.0f , 0.0f };
 float emitRangeX[2] = { 0.0f, 0.0f };
 float emitRangeY[2] = { 0.0f, 0.0f };
 float emitRangeZ[2] = { 0.0f, 0.0f };
+float startPos[3] = { 0, 0, 0 };
+float endPos[3] = { 0, 0, 0 };
 bool RandVelocity = false;
 struct ParticleDataStruct {
 	float vel[3];
@@ -41,6 +43,10 @@ struct ParticleDataStruct {
 	float pad5;
 	float gravity[3];
 	float pad4;
+	float startPos[3];
+	float pad6;
+	float endPos[3];
+	float pad7;
 	float speed;
 	float emitRate;
 	float lifeTime;
@@ -51,6 +57,7 @@ struct ParticleDataStruct {
 	unsigned int circular;
 	unsigned int gravityCheck;
 	unsigned int emit;
+	unsigned int particlePath;
 };
 ParticleDataStruct createParticleBuffer();
 void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
@@ -72,7 +79,7 @@ int main()
 	int changedTexture = 0;
 	char particleName[100] = "";
 	char loadSystem[100] = "";
-
+	
 	bool exportWindow = false;
 	
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
@@ -252,19 +259,24 @@ int main()
 		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
+		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
+		ImGui::InputFloat3("Startpos", startPos);
+		ImGui::InputFloat3("Endpos", endPos);
 		if (ImGui::Button("Start/Stop Emit")) {
 			movBuffer.emit ^= 1;
 		}		
 		ImGui::End();
-		
+	
 		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1]/*Max*/ - emitRangeX[0]/*Min*/) + emitRangeX[0];
 		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
 		float randEmitZ = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeZ[1] - emitRangeZ[0]) + emitRangeZ[0];
+		
+
 		movBuffer.emitRange[0] = randEmitX;
 		movBuffer.emitRange[1] = randEmitY;
 		movBuffer.emitRange[2] = randEmitZ;
 
-		if (RandVelocity)
+		if (RandVelocity && !movBuffer.particlePath)
 		{
 			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1]/*Max*/ - velocityRangeX[0]/*Min*/) + velocityRangeX[0];
 			float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeY[1] - velocityRangeY[0]) + velocityRangeY[0];
@@ -273,13 +285,21 @@ int main()
 			movBuffer.vel[1] = r2;
 			movBuffer.vel[2] = r3;
 		}
+		if (movBuffer.particlePath)
+		{
+			for (size_t i = 0; i < 3; i++)
+			{
+				movBuffer.startPos[i] = startPos[i];
+				movBuffer.endPos[i] = endPos[i];
+			}
+		}
 		
 		ImGui::Begin("Particle Attributes");
 		ImGui::SliderFloat3("Gravity", &movBuffer.gravity[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 10.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.0000100f, 0.00100f, "%.7f");
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.7f");
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
@@ -340,6 +360,7 @@ int main()
 	}
 
 	engine->Release();
+
 	delete engine;
 	return 0;
 }
@@ -354,22 +375,24 @@ ParticleDataStruct createParticleBuffer()
 	movBuffer.emitPos[0] = emitPosition[0];
 	movBuffer.emitPos[1] = emitPosition[1];
 	movBuffer.emitPos[2] = emitPosition[2];
-	movBuffer.emitRange[0] = 0;
-	movBuffer.emitRange[1] = 0;
-	movBuffer.emitRange[2] = 0;
 	movBuffer.gravityCheck = 0;
-	movBuffer.gravity[0] = 0.0f;
-	movBuffer.gravity[1] = 0.0f;
-	movBuffer.gravity[2] = 0.0f;
+	for (size_t i = 0; i < 3; i++)
+	{
+		movBuffer.emitRange[i] = 0;
+		movBuffer.gravity[i] = 0;
+		movBuffer.startPos[i] = 0;
+		movBuffer.endPos[i] = 0;
+	}
 	movBuffer.gravityValue = 0.0f;
 	movBuffer.pSize = 0.1f;
-	movBuffer.speed = 0.005;
+	movBuffer.speed = 0.001;
 	movBuffer.emitRate = 0.01;
 	movBuffer.lifeTime = 5.0f;
 	movBuffer.circular = 0;
 	movBuffer.tangentValue = 0.0f;
 	movBuffer.radialValue = 0.0f;
 	movBuffer.emit = 0;
+	movBuffer.particlePath = 0;
 
 	return movBuffer;
 }

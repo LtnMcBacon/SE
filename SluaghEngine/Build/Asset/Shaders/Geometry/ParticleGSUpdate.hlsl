@@ -10,6 +10,10 @@ cbuffer velocityBuffer : register(b0)
 	float pad5;
 	float3 gravity;
 	float pad4;
+	float3 startPos;
+	float pad6;
+	float3 endPos;
+	float pad7;
 	float speed;
 	float emitRate;
 	float lifeTime;
@@ -20,7 +24,7 @@ cbuffer velocityBuffer : register(b0)
 	int circular;
 	int gravityCheck;
 	int emit;
-
+	int particlePath;
 };
 cbuffer ParticleTransform : register(b2)
 {
@@ -72,7 +76,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 	}
 	else
 	{
-		if (input[0].age <= lifeTime)
+		if (input[0].age <= lifeTime && !particlePath)
 		{
 			float3 radialVector = (input[0].pos - input[0].startEmitPos) * 1;
 			normalize(radialVector);
@@ -108,6 +112,25 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			ptStream.Append(input[0]);
 			ptStream.RestartStrip();
 		}
+		else if (input[0].pos.x != endPos.x && input[0].pos.y != endPos.y && input[0].pos.z != endPos.z)
+		{
+			float3 finalDirection = endPos - startPos;
+			input[0].velocity = finalDirection;
+			if (input[0].age < 0.25)
+			{
+				input[0].opacity += 1/60.0f;
+				
+			}
+			else
+				input[0].opacity = 1 - input[0].age/ lifeTime;
+	
+			input[0].pos += input[0].velocity * speed;
+			
+			ptStream.Append(input[0]);
+			ptStream.RestartStrip();
+		}
+		
+		
 	}
 	
 }
