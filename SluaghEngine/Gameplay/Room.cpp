@@ -1120,20 +1120,6 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
 	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh" };
 
-
-
-	// 4x4 tile props - add more here
-	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch], Meshes[Meshes::TableGroup1] };
-	propVectors[PropTypes::TABLES]   = { Meshes[Meshes::Table_small], Meshes[Meshes::Table_round] };
-	propVectors[PropTypes::MEDIUM]   = { Meshes[Meshes::Table_long], Meshes[Meshes::Candlestick_tri] };
-	propVectors[PropTypes::BUSHES]   = { Meshes[Meshes::Bush] };
-	// 1x1 tile props // Add more props here
-	propVectors[PropTypes::GENERIC] =
-	{ Meshes[Meshes::Table_small],
-	  Meshes[Meshes::Table_round],
-		Meshes[Meshes::PotGroup1]
-	};
-
 	// Materials
 	Materials[Materials::Stone]      = { "Cube.mat"       };
 	Materials[Materials::FloorStone] = { "floorTest.mat"  };
@@ -1144,6 +1130,59 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
 	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
 
+
+	Prop Chair;
+	Chair.guid = Meshes[Meshes::Chair];
+	Chair.matGuid = Materials[Materials::Wood];
+
+	Prop Torch;
+	Torch.guid = Meshes[Meshes::Torch];
+	Torch.matGuid = Materials[Materials::Stone];
+
+	Prop Table_long;
+	Table_long.guid = Meshes[Meshes::Table_long];
+	Table_long.matGuid = Materials[Materials::Wood];
+
+	Prop Table_small;
+	Table_small.guid = Meshes[Meshes::Table_small];
+	Table_small.matGuid = Materials[Materials::Wood];
+
+	Prop Table_round;
+	Table_round.guid = Meshes[Meshes::Table_round];
+	Table_round.matGuid = Materials[Materials::Wood];
+
+	Prop FloorTorch;
+	FloorTorch.guid = Meshes[Meshes::FloorTorch];
+	FloorTorch.matGuid = Materials[Materials::Stone];
+
+	Prop TableGroup1;
+	TableGroup1.guid = Meshes[Meshes::TableGroup1];
+	TableGroup1.matGuid = Materials[Materials::Wood];
+
+	Prop CandleStick_tri;
+	CandleStick_tri.guid = Meshes[Meshes::Candlestick_tri];
+	CandleStick_tri.matGuid = Materials[Materials::Wood];
+
+	Prop PotGroup1;
+	PotGroup1.guid = Meshes[Meshes::PotGroup1];
+	PotGroup1.matGuid = Materials[Materials::Stone];
+
+	Prop Bush;
+	Bush.guid = Meshes[Meshes::Bush];
+	Bush.matGuid = Materials[Materials::Bush];
+
+	// 4x4 tile props - add more here
+	propVectors[PropTypes::BIGPROPS] = { FloorTorch, TableGroup1 };
+	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri };
+	propVectors[PropTypes::BUSHES]   = { Bush };
+
+	// 1x1 tile props // Add more props here
+	propVectors[PropTypes::GENERIC] =
+	{	Table_small,
+		Table_round,
+		PotGroup1
+	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
 		this->CreateBush(args);
@@ -1349,9 +1388,11 @@ float Room::WallCheck(int x, int y)
 	ProfileReturnConst(rotation);
 }
 
-const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, CreationArguments &args)
+SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArguments &args)
 {
 	StartProfile;
+
+	Prop ret;
 
 	// if we find a prop on the right side of the prop and not beneeth its a 1xx
 	if (tileValues[x + 1][y] == id_Props && tileValues[x][y + 1] != id_Props)
@@ -1366,7 +1407,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		auto rand = CoreInit::subSystems.window->GetRand();
 		auto propId = (rand % nrOfProps);
 
-		ProfileReturnConst(propVectors[PropTypes::MEDIUM][propId]);
+		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
+		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 	// Else we check if its a 2x1 by checking if a prop is beneeth and not on the right side
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y] != id_Props)
@@ -1380,7 +1424,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		auto rand = CoreInit::subSystems.window->GetRand();
 		auto propId = (rand % nrOfProps);
 
-		ProfileReturnConst(propVectors[PropTypes::MEDIUM][propId]);
+		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
+		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y + 1] == id_Props) {
 		// big prop 2x2
@@ -1402,7 +1449,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		auto rand = CoreInit::subSystems.window->GetRand();
 		auto propId = (rand % nrOfProps);
 
-		ProfileReturnConst(propVectors[PropTypes::BIGPROPS][propId]);
+		ret.guid = propVectors[PropTypes::BIGPROPS][propId].guid;
+		ret.matGuid = propVectors[PropTypes::BIGPROPS][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 
 	// 1x1 tile props
@@ -1410,7 +1460,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto propId = (rand % nrOfProps);
 
-	ProfileReturnConst(propVectors[PropTypes::GENERIC][propId]);
+	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
+	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
+
+	ProfileReturn(ret);
 }
 
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
@@ -1418,7 +1471,7 @@ void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto propId = (rand % nrOfProps);
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId], true });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId].guid, true });
 
 	// rand scale
 	float randScale = 0.7 + static_cast <float> (rand) / (static_cast <float> (RAND_MAX / (1.5 - 0.7)));
@@ -1511,11 +1564,13 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	int i = args.i;
 	int j = args.j;
 
+	Prop prop = GenerateRandomProp(i, j, args);
+
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = prop.matGuid;
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { GenerateRandomProp(i, j, args) });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { prop.guid });
 	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 
 	roomEntities.push_back(args.ent);

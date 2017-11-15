@@ -92,8 +92,12 @@ namespace SE
 				SE::Utilz::GUID floorMat;
 			};
 
+			struct Prop {
+				SE::Utilz::GUID guid;
+				SE::Utilz::GUID matGuid;
+			};
 
-			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+			std::map<PropTypes, std::vector<Prop>> propVectors;
 			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
 			std::map<Meshes, SE::Utilz::GUID> Meshes;
 			std::map<Materials, SE::Utilz::GUID> Materials;
@@ -529,7 +533,7 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			const SE::Utilz::GUID GenerateRandomProp(int x, int y, CreationArguments &args);
+			Prop GenerateRandomProp(int x, int y, CreationArguments &args);
 
 			/**
 			* @brief
