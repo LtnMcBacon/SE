@@ -174,6 +174,7 @@ void SE::Core::EventManager::Destroy(size_t index)
 
 	eventData.used--;
 
+	StopProfile;
 }
 
 void SE::Core::EventManager::Destroy(const Entity & entity)

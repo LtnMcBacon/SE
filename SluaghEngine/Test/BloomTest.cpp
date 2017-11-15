@@ -66,7 +66,7 @@ namespace SE
 				if (res < 0)
 					goto error;
 
-				float bloomP[4] = { 5.0f, 2.0f, 0.8f, 0.6f };
+				float bloomP[4] = { 1.0f, 2.0f, 2.0f, 0.8f };
 				subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 				Graphics::BlendState bs;
@@ -248,8 +248,7 @@ namespace SE
 				verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
 				verticalPass.pipeline.CSStage.textures[1] = "backbuffer";
 				verticalPass.pipeline.CSStage.textureCount = 1;
-				verticalPass.pipeline.CSStage.textureBindings[0] = "inTex_bloom";
-			//	verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
+				verticalPass.pipeline.CSStage.textureBindings[0] = "inTex";
 				verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
 				verticalPass.pipeline.CSStage.uavCount = 1;
 				verticalPass.ThreadGroupCountX = 16;
@@ -278,7 +277,7 @@ namespace SE
 				managers.entityManager->Destroy(e3);
 
 				auto p = managers.entityManager->Create();
-				managers.particleSystemManager->CreateSystem(p, { "torchParticles.txt" });
+				managers.particleSystemManager->CreateSystem(p, { "fireBall.txt" });
 			managers.particleSystemManager->ToggleVisible(p, true);
 			managers.transformManager->Create(p, { -2,0,0 });
 
