@@ -291,6 +291,26 @@ void SE::Core::AnimationSystem::GetJointInverseBindPose(const Utilz::GUID& guid,
 
 }
 
+void* SE::Core::AnimationSystem::GetBucketBonePtr(const Entity& entity)
+{
+	const auto find = entityToBucketAndIndexInBucket.find(entity);
+	if(find != entityToBucketAndIndexInBucket.end())
+	{
+		return ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->matrices[updateIndex].data();
+	}
+	return nullptr;
+}
+
+void* SE::Core::AnimationSystem::GetBucketTransformPtr(const Entity& entity)
+{
+	const auto find = entityToBucketAndIndexInBucket.find(entity);
+	if (find != entityToBucketAndIndexInBucket.end())
+	{
+		return ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->transforms.data();
+	}
+	return nullptr;
+}
+
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {
 	StartProfile;
 	
