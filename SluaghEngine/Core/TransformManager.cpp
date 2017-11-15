@@ -350,7 +350,8 @@ void SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t aliveInRow = 0;
-	while(data.used > 0 && aliveInRow < 40U)
+	const uint32_t quitWhenReached = std::max((uint32_t)(data.used * 0.05f), 40U);
+	while(data.used > 0 && aliveInRow < quitWhenReached)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
 		size_t i = distribution(generator);
