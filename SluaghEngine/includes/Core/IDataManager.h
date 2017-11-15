@@ -47,7 +47,7 @@ namespace SE
 				IEntityManager* entityManager;
 			};
 
-			typedef std::variant<bool, int32_t, float, std::string>  values;
+			typedef std::variant<bool, int32_t, float, std::string, Core::Entity>  values;
 
 			/**
 			* @brief	Set the value of a variable. If new variable it will be created.

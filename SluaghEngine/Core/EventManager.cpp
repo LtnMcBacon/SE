@@ -96,6 +96,7 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
 	_ASSERT(timer);
+	GarbageCollection();
 	timer->Start("EventManager");
 	float dt = initInfo.window->GetDelta();
 	for (size_t i = 0; i < eventData.used; i++)

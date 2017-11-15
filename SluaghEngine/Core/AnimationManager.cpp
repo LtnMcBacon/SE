@@ -94,7 +94,8 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 	animationData.animInfo[index].blockBlending[j] = false;
 
 	}
-
+	animationData.animInfo[index].toBlendTarget = false;
+	animationData.animInfo[index].toBlendSource = false;
 	renderableManager->CreateRenderableObject(entity, { info.mesh });
 	
 	// Load skeleton
@@ -206,13 +207,13 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 								ai.toBlendTarget = false;
 								ai.toBlendSource = true;
-								ai.blendSpeed[j] = -10.0f;
+								ai.blendSpeed[j] = -15.0f;
 
 								for (size_t index = 0; index < ai.nrOfLayers; index++) {
 
 									if (index != j) {
 
-										ai.blendSpeed[index] = 10.0f;
+										ai.blendSpeed[index] = 15.0f;
 									}
 								}
 							}
@@ -235,37 +236,6 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 			for (size_t i = 0; i < updateJob.size(); i++)
 			{
 				animationSystem->CalculateMatrices(updateJob[i].ent, updateJob[i].animInfo, true);
-
-				for (size_t k = 0; k < Attacher::maxSlots; k++) {
-
-					auto& att = animationData.attacher[i];
-
-					// If an entity is attached to this entity...
-					if (att.slots[k].attached == true) {
-						
-						// Get the joint transformation matrix
-						DirectX::XMFLOAT4X4 matrix;
-						animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
-						DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
-
-						// Get the joint inversed inverse bindpose
-						DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
-						animationSystem->GetJointInverseBindPose(updateJob[i].animInfo.skeleton, att.slots[k].jointIndex, inverseBindPose);
-						inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
-
-						// Decompose the joint transformation matrix
-						DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-						DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
-
-						DirectX::XMFLOAT4X4 transform;
-						DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
-						DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
-						initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
-
-					}
-				}
-
-				
 			}
 
 			updateJob.clear();
@@ -273,11 +243,43 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 		};
 
 		UpdateLoop();
+		
 		//lambda = initInfo.threadPool->Enqueue(UpdateLoop);
 		aniUpdateTime = 0.0f;
 	}
 
-			
+	for (size_t i = 0; i < animationData.used; i++)
+	{
+		auto& att = animationData.attacher[i];
+
+		for (size_t k = 0; k < Attacher::maxSlots; k++) {
+
+
+			// If an entity is attached to this entity...
+			if (att.slots[k].attached == true) {
+
+				// Get the joint transformation matrix
+				DirectX::XMFLOAT4X4 matrix;
+				animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+				DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
+
+				// Get the joint inversed inverse bindpose
+				DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
+				animationSystem->GetJointInverseBindPose(animationData.animInfo[i].skeleton, att.slots[k].jointIndex, inverseBindPose);
+				inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
+
+				// Decompose the joint transformation matrix
+				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+
+				DirectX::XMFLOAT4X4 transform;
+				DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
+				DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+				initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
+
+			}
+		}
+	}
 	renderableManager->Frame(nullptr);
 	GarbageCollection();
 	timer->Stop(("AnimationManager"));
@@ -314,7 +316,21 @@ void SE::Core::AnimationManager::AttachToEntity(const Entity& source, const Enti
 		}
 	}
 }
+void SE::Core::AnimationManager::DettachFromEntity(const Entity& source, int slotIndex) {
 
+	// Assert the given slot index is larger than max slots
+	_ASSERT(slotIndex < Attacher::maxSlots);
+
+	// Find the source entity
+	auto &sourceEntityIndex = entityToIndex.find(source);
+	if (sourceEntityIndex != entityToIndex.end())
+	{
+		// Get animation info and attacher slots for the source entity
+		auto& at = animationData.attacher[sourceEntityIndex->second];
+		at.slots[slotIndex].attached = false;
+
+	}
+}
 bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID * animations, size_t nrOfAnims, float duration, AnimationFlags flag)
 {
 	StartProfile;
@@ -330,6 +346,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 		
 		for (int i = 0; i < nrOfAnims; i++)
 		{
+
 			bool alreadyRunning = false;
 			for (int j = 0; j < ai.nrOfLayers; j++)
 			{
@@ -406,8 +423,19 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 
 
 			if (flag & AnimationFlags::BLENDTOANDBACK) {
+				
+				for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
-				ai.toBlendTarget = true;
+					if (ai.blendSpeed[i] < 0.0f)
+					{
+						OverwriteAnimation(ai, i, ai.nrOfLayers - 1);
+						ai.nrOfLayers--;
+						ai.blendSpeed[i] = 0.0f;
+						ai.blendFactor[i] = 1.0f;
+					}
+
+				}
+				
 				ai.blendBackInfo.animIndex = ai.nrOfLayers;
 				ai.blendBackInfo.animLength = animationSystem->GetAnimationLength(GUIDTemporaryStorage[0]);
 
@@ -416,16 +444,23 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 
 			if (flag & AnimationFlags::BLENDTO) {
 
+
+				if(ai.toBlendTarget)
+				{
+					ProfileReturnConst(false);
+				}
+				if (flag & AnimationFlags::BLENDTOANDBACK)
+					ai.toBlendTarget = true;
 				// Set info for animations to blend from
 				for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
 					//ai.animationSpeed[i] = 0.0f;
 					if (!(flag & AnimationFlags::BLENDTOANDBACK))
 						ai.looping[i] = false;
-						ai.blendSpeed[i] = -10.0f;
-						ai.blendFactor[i] = 1.0f;
-						ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
-						ai.animationSpeed[i] = 0.0f;
+					ai.blendSpeed[i] = -15.0f;
+					ai.blendFactor[i] = 1.0f;
+					ai.blendBackInfo.previousSpeed[i] = ai.animationSpeed[i];
+				//	ai.animationSpeed[i] = 0.0f;
 				}
 
 				// Set info for the new animations to blend to
@@ -450,7 +485,7 @@ bool SE::Core::AnimationManager::Start(const Entity & entity, const Utilz::GUID 
 					unsigned int animLength = animationSystem->GetAnimationLength(ai.animation[j]);
 					ai.animationSpeed[ai.nrOfLayers + j] = animLength / duration;
 					ai.blendFactor[ai.nrOfLayers + j] = 0.0f;
-					ai.blendSpeed[ai.nrOfLayers + j] = 10.0f;
+					ai.blendSpeed[ai.nrOfLayers + j] = 15.0f;
 					ai.looping[ai.nrOfLayers + j] = flag & AnimationFlags::LOOP ? true : false;
 					ai.blockBlending[ai.nrOfLayers + j] = flag & AnimationFlags::BLOCKBLENDING ? true : false;
 					ai.timePos[ai.nrOfLayers + j] = 0.0f;
@@ -673,7 +708,16 @@ bool SE::Core::AnimationManager::IsAnimationPlaying(const Entity& entity, const 
 		for (size_t i = 0; i < ai.nrOfLayers; i++) {
 
 			if (animationToCheck == ai.animation[i])
-				ProfileReturnConst(true);
+			{
+				if (ai.timePos[i] > animationSystem->GetAnimationLength(animationToCheck))
+				{
+					ProfileReturnConst(false);
+				}
+				else
+				{
+					ProfileReturnConst(true);
+				}
+			}
 
 		}
 	}

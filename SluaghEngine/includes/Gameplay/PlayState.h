@@ -82,6 +82,7 @@ namespace SE
 			float soundTime = 0.0f;
 			SE::Utilz::GUID sounds[3];
 
+			bool noShow = false;
 
 		protected:
 

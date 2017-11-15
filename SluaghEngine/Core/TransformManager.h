@@ -202,6 +202,8 @@ namespace SE
 			{
 				return dirtyTransforms.data();
 			}
+			void Destroy(const Entity& e)override;
+
 		private:
 
 
@@ -212,7 +214,6 @@ namespace SE
 			void GarbageCollection()override;
 			void Allocate(size_t count);
 			void Destroy(const size_t index)override;
-			void Destroy(const Entity& e)override;
 
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 

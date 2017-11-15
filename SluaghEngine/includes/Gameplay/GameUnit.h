@@ -5,6 +5,8 @@
 #include "EventStructs.h"
 #include <memory>
 #include <DirectXMath.h>
+#include "Utilz/GUID.h"
+#include "Stats.h"
 
 namespace SE
 {
@@ -71,9 +73,10 @@ namespace SE
 			/**
 			* @brief	Returns if entity is alive or not
 			*
-			* @details	if health is 0 returns false, else returns true
+			* @details	If this is called on a "dead" entity, the entities deathAnim (if applicable) is performed. Once the death
+			* anim has finished, the function returns false.
 			*/
-			inline bool IsAlive() const { return this->health > 0; };
+			bool IsAlive();
 
 			/**
 			* @brief	Qeueu up damage events in vectors
@@ -160,53 +163,25 @@ namespace SE
 			inline float GetXPosition() { return xPos; };
 			inline float GetYPosition() { return yPos; };
 			inline float GetZPosition() { return zPos; };
+			inline Utilz::GUID GetDeathAnimation() { return deathAnimation; };
 
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
 			inline void SetZPosition(float value) { zPos = value; };
+			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
+			
 
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
 		protected:
-			struct Stats
-			{
-				//std::string characterName;
-				int str = 5;
-				int agi = 5;
-				int whi = 5;
-
-				//str
-				float health = 100.f;
-				float damage = 1.f;
-				float meleeMultiplier = 1.f;
-				float physicalResistance = 1.f;
-
-				//agi
-				float rangedDamage = 1.f;
-				float rangedMultiplier = 1.f;
-				float movementSpeed = 5.f;
-				//float healBonus			= 1.f;
-				//float attackSpeed		= 1.f;
-
-				//whi
-				float magicDamage = 1.f;
-				float magicMultiplier = 1.f;
-				float magicResistance = 1.f;
-				float natureResistance = 1.f;
-				float fireResistance = 1.f;
-				float waterResistance = 1.f;
-
-				int armorCap = 3;
-
-				ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
-				DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;
-				DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-			};
 			Stats baseStat;
 			Stats newStat;
 
 			Core::Entity unitEntity = {};
+
+			Utilz::GUID deathAnimation = "";
+			bool deathAnimationRunning = false;
 
 			//Life. Float needed?
 			float health;
