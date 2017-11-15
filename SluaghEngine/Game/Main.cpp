@@ -52,7 +52,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	if (res < 0)
 		return -2;
 
-	static float bloomP[4] = { 10.f, 2.0f, 0.8f, 0.2f };
+	static float bloomP[4] = { 1.0f, 2.0f, 2.0f, 0.8f };
 	subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 	Graphics::BlendState bs;
@@ -173,8 +173,7 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	verticalPass.pipeline.CSStage.textures[0] = "BloomUAV1";
 	verticalPass.pipeline.CSStage.textures[1] = "backbuffer";
 	verticalPass.pipeline.CSStage.textureCount = 1;
-	verticalPass.pipeline.CSStage.textureBindings[0] = "inTex_bloom";
-	//	verticalPass.pipeline.CSStage.textureBindings[1] = "inTex_bb";
+	verticalPass.pipeline.CSStage.textureBindings[0] = "inTex";
 	verticalPass.pipeline.CSStage.uavs[0] = "BloomUAV2";
 	verticalPass.pipeline.CSStage.uavCount = 1;
 	verticalPass.ThreadGroupCountX = 16;
