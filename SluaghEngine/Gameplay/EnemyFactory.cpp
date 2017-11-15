@@ -110,7 +110,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 				Core::IRenderableManager::CreateInfo swordInfo;
 				swordInfo.meshGUID = "Sword.mesh";
-				swordInfo.shadow = true;
+				swordInfo.shadow = false;
 				swordInfo.transparent = false;
 
 				CoreInit::managers.transformManager->Create(swordEntity);

@@ -27,6 +27,7 @@ GameUnit::~GameUnit()
 
 void GameUnit::DestroyEntity()
 {
+	
 	CoreInit::managers.entityManager->DestroyNow(unitEntity);
 }
 
