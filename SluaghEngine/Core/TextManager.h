@@ -194,11 +194,11 @@ namespace SE
 			* @endcode
 			*/
 			void updateText()override;
+			void Destroy(const Entity& entity)override;
 
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
 
 			struct Entry
 			{

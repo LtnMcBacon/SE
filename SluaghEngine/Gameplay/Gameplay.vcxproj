@@ -84,6 +84,7 @@
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
+    <ClCompile Include="Items.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Slaugh.h" />
+    <ClInclude Include="..\includes\Gameplay\Stats.h" />
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\Items.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />

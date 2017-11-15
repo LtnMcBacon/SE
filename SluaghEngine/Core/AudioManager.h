@@ -58,13 +58,13 @@ namespace SE {
 			void Frame(Utilz::TimeCluster* timer)override;
 
 			void SetCameraEnt(const Entity& entity)override;
-
+			void Destroy(const Entity& entity)override;
 		private:
 			InitializationInfo initInfo;
 			
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
+	
 			void Init();
 			void SetDirty(const Entity & entity, size_t index);
 			void UpdateDirtyTransforms();

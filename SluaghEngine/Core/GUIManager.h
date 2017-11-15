@@ -250,11 +250,11 @@ namespace SE
 			* @endcode
 			*/
 			void updateGUI()override;
+			void Destroy(const Entity& entity)override;
 
 		private:
 			void GarbageCollection()override;
 			void Destroy(size_t index)override;
-			void Destroy(const Entity& entity)override;
 
 			struct EntBindIDGUID
 			{
