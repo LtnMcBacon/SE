@@ -377,6 +377,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
+	GarbageCollection();
 	timer->Start(("TransformManager"));
 	auto LoopDirty = [this](int start, int end)
 	{
@@ -413,7 +414,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 		}
 	}
 
-	GarbageCollection();
+	
 	timer->Stop(("TransformManager"));
 	StopProfile;
 }
