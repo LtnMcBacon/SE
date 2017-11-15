@@ -363,14 +363,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 }
 
-void SE::Gameplay::PlayerUnit::AddForce(float force[2])
-{
-	StartProfile;
-	forcesToApply[0] += force[0];
-	forcesToApply[1] += force[1];
-	StopProfile;
-}
-
 void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 {
 	StartProfile;

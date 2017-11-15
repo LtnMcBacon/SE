@@ -179,6 +179,12 @@ namespace SE
 
 			float stunDuration;
 
+			float force[2];
+
+			/**
+			* @brief To be documented
+			*/
+			void AddForce(float force[2]);
 
 			/*Functions to move the GameUnit*/
 			std::shared_ptr<GameUnit*> mySelf;

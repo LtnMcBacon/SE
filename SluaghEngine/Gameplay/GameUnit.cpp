@@ -25,6 +25,12 @@ GameUnit::~GameUnit()
 
 }
 
+void SE::Gameplay::GameUnit::AddForce(float force[2])
+{
+	this->force[0] += force[0];
+	this->force[1] += force[1];
+}
+
 void GameUnit::DestroyEntity()
 {
 	CoreInit::managers.entityManager->DestroyNow(unitEntity);

@@ -116,11 +116,6 @@ namespace SE
 			 */
 			void Update(float dt/*FlowField, Outgoing events?*/);
 
-			/**
-			 * @brief To be documented
-			 */
-			void AddForce(float force[2]);
-
 			inline float GetRadius()
 			{
 				return radius;
@@ -165,7 +160,6 @@ namespace SE
 			BehaviouralTree* myBehaviouralTree;
 
 			Room* myRoom;
-			float forcesToApply[2] = {}; /*HARDCODED RIGHT NOW!*/
 			float radius;
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};

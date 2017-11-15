@@ -85,12 +85,6 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::EnemyUnit::AddForce(float force[2])
-{
-	forcesToApply[0] += force[0];
-	forcesToApply[1] += force[1];
-}
-
 SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
 	extraSampleCoords{xPos, yPos},
