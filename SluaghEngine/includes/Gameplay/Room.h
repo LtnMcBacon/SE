@@ -346,6 +346,7 @@ namespace SE
 			Room(Utilz::GUID fileName);
 			~Room();
 
+			void InitializeAdjacentFlowFields();
 
 			float FloorCheck(int x, int y); 
 			

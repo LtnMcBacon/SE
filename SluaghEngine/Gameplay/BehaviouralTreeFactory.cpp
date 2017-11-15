@@ -108,6 +108,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateLeapAtPlayerLeaf(dataArray, nodeID);
 	}
+	else if(dataArray[nodeID].Type == "NuckelaveeNormalAttackLeaf")
+	{
+		finishedBehaviour = CreateNuckelaveeNormalAttackLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "LineOfSightCondition")
 	{
 		finishedBehaviour = CreateLineOfSightConditionLeaf(dataArray, nodeID);
@@ -467,6 +471,12 @@ IBehaviour* BehaviouralTreeFactory::CreateChangeRoomLeaf(NodeData* dataArray, in
 {
 	StartProfile;
 	ProfileReturn(new ChangeRoomLeaf(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateNuckelaveeNormalAttackLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new NuckelaveeNormalAttackLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)
