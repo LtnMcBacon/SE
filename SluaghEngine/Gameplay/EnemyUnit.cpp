@@ -10,6 +10,8 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	StartProfile;
 	
 	// only basic at the moment
+	myBlackboard->activeBane = Banes::CONDITIONAL_BANES_NONE;
+	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 	if (!myBlackboard->invurnerable)
 	{
 		for (int i = 0; i < DamageEventVector.size(); i++)
@@ -78,7 +80,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			}
 			else
 			{
-				/*switch (ConditionEventVector[i].bane)
+				switch (ConditionEventVector[i].bane)
 				{
 				case Banes::CONDITIONAL_BANES_NONE:
 				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
@@ -116,7 +118,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 				case Banes::CONDITIONAL_BANES_SLOW:
 				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
 				break;
-				}*/
+				}
 			}
 			if (ConditionEventVector[i].duration > 0.f)
 			{
@@ -165,21 +167,16 @@ void SE::Gameplay::EnemyUnit::PerformAction(float dt)
 void SE::Gameplay::EnemyUnit::Update(float dt)
 {
 	StartProfile;
-	/*
-	* Code body
-	*/
-	ResolveEvents(dt);
-	DecideAction();
-	/*if (stunDuration > 0.f)
+	if (health > 0.f)
 	{
-		stunDuration -= dt;
-		if(stunDuration <= 0.f)
-		{
-			myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
-			stunDuration = 0.f;
-		}
-	}*/
-	PerformAction(dt);
+		/*
+		* Code body
+		*/
+		ResolveEvents(dt);
+		DecideAction();
+
+		PerformAction(dt);
+	}
 	ProfileReturnVoid;
 }
 
@@ -202,6 +199,10 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 
 SE::Gameplay::EnemyUnit::~EnemyUnit()
 {
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(unitEntity, "Weapon", false)))
+	{
+		CoreInit::managers.entityManager->DestroyNow(*weapon);
+	}
 	CoreInit::managers.entityManager->Destroy(this->unitEntity);
 	/*
 	* Code body

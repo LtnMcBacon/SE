@@ -68,14 +68,14 @@ namespace SE
 			DAMAGE_SOURCE_AREA
 		};
 
-		enum class DamageTypes
+		enum class DamageType
 		{
-			DAMAGE_TYPE_PHYSICAL,
-			DAMAGE_TYPE_RANGED,
-			DAMAGE_TYPE_MAGICAL,
-			DAMAGE_TYPE_FIRE,
-			DAMAGE_TYPE_WATER,
-			DAMAGE_TYPE_NATURE
+			PHYSICAL,			
+			FIRE,
+			WATER,
+			NATURE,
+			RANGED,
+			MAGIC,
 		};
 
 		/**
@@ -101,17 +101,17 @@ namespace SE
 			float amount = 0;
 			float originalAmount = 0;
 			DamageSources source;
-			DamageTypes type;
+			DamageType type;
 
 			DamageEvent()
 			{
 				source = DamageSources::DAMAGE_SOURCE_MELEE;
-				type = DamageTypes::DAMAGE_TYPE_PHYSICAL;
+				type = DamageType::PHYSICAL;
 				amount = 1;
 				originalAmount = amount;
 			}
 
-			DamageEvent(DamageSources damageSource, DamageTypes damageType, float damageAmount)
+			DamageEvent(DamageSources damageSource, DamageType damageType, float damageAmount)
 			{
 				source = damageSource;
 				type = damageType;
