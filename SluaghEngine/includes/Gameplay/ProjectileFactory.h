@@ -253,6 +253,10 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			 * @brief	Adds a behaviour to create particles between the projectile and the owner
+			 */
+			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); //o
 
 		public:
 
