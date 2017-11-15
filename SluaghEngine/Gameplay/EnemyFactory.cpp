@@ -97,6 +97,14 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			enemyInfo.shader = enemyCreationData->second.shaderGUID;
 			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
 
+			createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
+
+			if(type == ENEMY_TYPE_NUCKELAVEE)
+			{
+				//Insert entity for sword here.
+				//CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), , "LHand", 0);
+			}
+
 			unitArray[numberOfCreatedEnemies++] = createdEnemy;
 		}
 	}
@@ -150,6 +158,9 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.skeletonGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.deathAnimationGUID = Utilz::GUID(GetLineData(line));
 		++line;
 		line->pop_back();
 		loadedEnemy.behaviouralTreeGUID = Utilz::GUID(GetLineData(line));
