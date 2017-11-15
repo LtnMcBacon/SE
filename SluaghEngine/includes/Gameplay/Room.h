@@ -66,7 +66,8 @@ namespace SE
 				Grass,
 				FloorTorch,
 				TableGroup1,
-				Candlestick_tri
+				Candlestick_tri,
+				PotGroup1
 			};
 			enum class Materials {
 				Stone,
@@ -77,7 +78,8 @@ namespace SE
 				WallWood,
 				Bush,
 				Dirt,
-				Grass
+				Grass,
+				Wood
 			};
 
 			struct CreationArguments

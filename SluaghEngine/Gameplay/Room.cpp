@@ -17,7 +17,7 @@ using namespace Gameplay;
 
 //shaders
 static const SE::Utilz::GUID Trans("SimpleNormTransPS.hlsl");
-static const SE::Utilz::GUID Norm("SimpleLightPS.hlsl");
+static const SE::Utilz::GUID Norm("SimpleNormMapPS.hlsl");
 static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 
 
@@ -963,15 +963,15 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		wallGuid = Materials[Materials::WallStone];
 		break;
 	case 1:
-		wallGuid = Materials[Materials::Dirt];
+		wallGuid = Materials[Materials::Wood];
 		break;
 	case 2:
-		wallGuid = Materials[Materials::Stone];
+		wallGuid = Materials[Materials::Dirt];
 		break;
 	}
 	
 	rand = CoreInit::subSystems.window->GetRand();
-	randNr = (rand % 2);
+	randNr = (rand % 3);
 
 	switch (randNr)
 	{
@@ -980,6 +980,9 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		break;
 	case 1:
 		floorGuid = Materials[Materials::Dirt];
+		break;
+	case 2:
+		floorGuid = Materials[Materials::Wood];
 		break;
 	}
 	
@@ -1093,7 +1096,7 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Bush]            = { "Bush.mesh"                };
 	Meshes[Meshes::TableGroup1]     = { "Table_group1.mesh"        };
 	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
-
+	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh" };
 
 
 
@@ -1103,9 +1106,10 @@ Room::Room(Utilz::GUID fileName)
 	propVectors[PropTypes::MEDIUM]   = { Meshes[Meshes::Table_long], Meshes[Meshes::Candlestick_tri] };
 	propVectors[PropTypes::BUSHES]   = { Meshes[Meshes::Bush] };
 	// 1x1 tile props // Add more props here
-	propVectors[PropTypes::GENERIC]  =
+	propVectors[PropTypes::GENERIC] =
 	{ Meshes[Meshes::Table_small],
-	  Meshes[Meshes::Table_round]
+	  Meshes[Meshes::Table_round],
+		Meshes[Meshes::PotGroup1]
 	};
 
 	// Materials
@@ -1116,7 +1120,7 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush]       = { "Bush.mat"       };
 	Materials[Materials::Dirt]       = { "brownPlane.mat" };
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
-
+	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
 
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
