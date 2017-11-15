@@ -557,6 +557,7 @@ void SE::Core::Engine::InitStartupOption()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 6));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
@@ -587,6 +588,7 @@ void SE::Core::Engine::OptionUpdate()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 6));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
