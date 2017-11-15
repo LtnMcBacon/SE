@@ -829,6 +829,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	{
 		this->skills.push_back(skills[0]);
 		this->skills.push_back(skills[1]);
+		this->skills.push_back(skills[2]);
 	}
 
 	Core::IAnimationManager::CreateInfo sai;

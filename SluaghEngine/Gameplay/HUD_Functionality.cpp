@@ -16,7 +16,7 @@ namespace SE
 		{
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
+	/*	void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions();
@@ -36,7 +36,7 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
-		}
+		}*/
 
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string hoverTex, string PressTex, string buttonText)
 		{
@@ -57,7 +57,7 @@ namespace SE
 			tempElement.PressTex = PressTex;
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
-
+			tempElement.EntityIndex = -1;
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
@@ -82,6 +82,7 @@ namespace SE
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
+			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 7; i++)
 			{
 				if (skillDesc[i] != 0u)
@@ -236,6 +237,10 @@ namespace SE
 			StartProfile;
 			for (auto& ButtonElement : Buttons)
 			{
+				if (ButtonElement.EntityIndex != -1)
+				{
+					continue;
+				}
 				auto entity = CoreInit::managers.entityManager->Create();
 
 				ButtonGuiManager.textureInfo.width = ButtonElement.Width;
@@ -261,6 +266,12 @@ namespace SE
 
 					DrawButtonText(ButtonElement);
 				}
+
+				if (ButtonElement.skillButton)
+				{
+					SkillNPerkEntityVec.push_back(entity);
+					ButtonsToDelete.push_back(ButtonElement.rectName);
+				}
 			}
 			ProfileReturnVoid;
 		}
@@ -276,6 +287,7 @@ namespace SE
 					if (button.rectName == "skillDescription")
 					{
 						skillDescBtn = button;
+						break;
 					}
 				}
 			
@@ -358,10 +370,11 @@ namespace SE
 
 								skillDescEntity = entText;
 								
-								entityIndex++;
+								
 							}
 						}
 						wasHovering = true;
+						break;
 					}
 				}
 				else
@@ -379,7 +392,7 @@ namespace SE
 
 								CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
 								CoreInit::managers.entityManager->Destroy(skillDescEntity);
-								entityIndex--;
+								
 							}
 							wasHovering = false;
 						}
@@ -420,6 +433,37 @@ namespace SE
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
 				
+			}
+			ProfileReturnVoid;
+		}
+
+		void HUDButtons::deleteSkillPerkBtns()
+		{
+			StartProfile;
+			for (int i = 0; i < Buttons.size(); i++)
+			{
+
+				for (auto& name : ButtonsToDelete)
+				{
+					if (name == Buttons[i].rectName)
+					{
+						Buttons.erase(Buttons.begin()+i);
+						
+					}
+				}
+			}
+			
+			for (auto& entity : SkillNPerkEntityVec)
+			{
+				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
+				CoreInit::managers.entityManager->Destroy(entity);
+			}
+			SkillNPerkEntityVec.clear();
+
+			if (skillDescEntity.id != 0)
+			{
+				CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
+				CoreInit::managers.entityManager->Destroy(skillDescEntity);
 			}
 			ProfileReturnVoid;
 		}
