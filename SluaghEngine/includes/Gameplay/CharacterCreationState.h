@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #include "IGameState.h"
 #include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\PerkImporter.h>
 #include <string>
 #include <vector>
 //#include <SkillFactory.h>
@@ -48,27 +49,38 @@ namespace SE
 
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
-
+			PerkImporter perks;
 			/*void SkillBtns(int nrOfSkills);
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
+			void getPerks();
 			void importSkillButtons();
 
 			int selectedSkills;
 			int renewSkillList;
+			int selectedPerks;
+			int renewPerks;
+
 			int nrOfSkills;
-		
-			
-			
-			std::vector<int> chosenSkills;
-			std::vector<int> chosenPerks;
+			int nrOfPerks;
+			std::vector<int> chosenSkillsIndex;
+			std::vector<Skill> chosenSkills;
+			std::vector<int> chosenPerksIndex;
+			std::vector<Skill> chosenPerks;
+			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[3]
+			std::string skillButtonFiles[9]
 			{
 				"FireBallSkill.HuD",
 				"IceBallSkill.HuD",
-				"EarthRiftSkill.HuD"
+				"MagicBallSkill.HuD",
+				"NatureBallSkill.HuD",
+				"WaterBallSkill.HuD",
+				"PhysicalBallSkill.HuD",
+				"ArcaneBallSkill.HuD",
+				"MudBallSkill.HuD",
+				"FistingBallSkill.HuD"
 			};
 
 			std::string perkButtonFiles[2]
@@ -77,18 +89,7 @@ namespace SE
 				"VenomBladesPerk.HuD"
 			};
 
-			/*std::string skillID[2];
-			{
-				"Fireball",
-				"IceBall"
-			};
-
-			std::string perkID[2];
-			{
-				"lifeSteal",
-				"venomblades"
-			};*/
-			
+				
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:

@@ -121,12 +121,6 @@ Status FlowFieldMovementLeaf::Update()
 	float xMovementTot = enemyBlackboard->previousMovement[0];
 	float yMovementTot = enemyBlackboard->previousMovement[1];
 
-	/*Sample from the 9 cells around us, starting with the center point
-	* Add the movements from the cell to total movements (one for x, one for y)
-	* If applicable, divide by the distance (0.5-1.5)
-	* Walls pushes away the unit with half force
-	*/
-
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();
 
@@ -136,11 +130,39 @@ Status FlowFieldMovementLeaf::Update()
 
 
 	flowField->SampleFromMap(myPos, xMovement, yMovement);
+	/*Inside the player or a wall, move towards closest non-blocked wall*/
+	int numberOfSamples = 0;
+	if(xMovement == 0.f && yMovement == 0.f)
+	{
+		for(int i = 0; i < 9; i++)
+		{
+			if(i%3 == 0)
+			{
+				myPos.x = xPos - 1.f;
+				if (i == 0)
+					myPos.y -= 1.f;
+				else
+					myPos.y += 1.f;
+			}
+			else
+			{
+				myPos.x++;
+			}
+			flowField->SampleFromMap(myPos, xMovement, yMovement);
+			if(xMovement != 0.f || yMovement != 0.f)
+			{
+				xMovement = -2*xMovement;
+				yMovement = -2*yMovement;
+				break;
+			}
+		}
+	}
 	xMovementTot += xMovement;
 	yMovementTot += yMovement;
 
 	if (!sample)
 		SampleFromMap(yMovementTot, xMovementTot);
+
 	sample = (sample + 1) % sampleRate;
 	/*Check if we would collide in a wall
 	* See CorrectCollision for information
@@ -153,7 +175,10 @@ Status FlowFieldMovementLeaf::Update()
 	{
 		xMovementTot /= moveTot;
 		yMovementTot /= moveTot;
+		myStatus = Status::BEHAVIOUR_SUCCESS;
 	}
+	else
+		myStatus = Status::BEHAVIOUR_FAILURE;
 	/*Move the entity in the normalized direction*/
 
 	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime, yMovementTot*gameBlackboard->deltaTime);
@@ -163,7 +188,8 @@ Status FlowFieldMovementLeaf::Update()
 	enemyBlackboard->previousMovement[0] = xMovementTot;
 	enemyBlackboard->previousMovement[1] = yMovementTot;
 
-	ProfileReturnConst(Status::BEHAVIOUR_SUCCESS);
+
+	ProfileReturnConst(myStatus);
 }
 
 bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)

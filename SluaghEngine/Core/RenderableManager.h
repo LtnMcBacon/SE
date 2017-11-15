@@ -36,6 +36,7 @@ namespace SE
 		public:
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo);
 			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmI);
+			RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize, RenderableManagerInstancing* rmI, RenderableManagerInstancing* anShadow);
 			virtual ~RenderableManager();
 			RenderableManager(const RenderableManager& other) = delete;
 			RenderableManager(const RenderableManager&& other) = delete;
@@ -81,6 +82,10 @@ namespace SE
 
 			void CreateRenderObjectInfo(size_t index, Graphics::RenderJob * info);
 
+			/**
+			* @brief	Remove an enitity
+			*/
+			void Destroy(const Entity& entity)override;
 		private:
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
 			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
@@ -97,11 +102,7 @@ namespace SE
 			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			void SetDirty(const Entity& entity, size_t index);
 
-			
-			/**
-			* @brief	Remove an enitity
-			*/
-			void Destroy(const Entity& entity)override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

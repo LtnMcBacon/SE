@@ -83,6 +83,8 @@ int SE::Core::Engine::BeginFrame()
 	frameBegun = true;
 	timeClus.Start(("Frame"));
 	subSystems.window->Frame();
+
+
 	
 	subSystems.renderer->BeginFrame();
 	subSystems.devConsole->BeginFrame();

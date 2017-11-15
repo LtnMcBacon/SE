@@ -1,6 +1,7 @@
 #include "GameUnit.h"
 #include <Profiler.h>
 #include "CoreInit.h"
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -22,7 +23,6 @@ GameUnit::GameUnit(float xPos, float yPos, float maxHealth) :
 GameUnit::~GameUnit()
 {
 	//Core::Engine::GetInstance().GetEntityManager().Destroy(unitEntity);
-
 }
 
 void SE::Gameplay::GameUnit::AddForce(float force[2])
@@ -33,6 +33,7 @@ void SE::Gameplay::GameUnit::AddForce(float force[2])
 
 void GameUnit::DestroyEntity()
 {
+	
 	CoreInit::managers.entityManager->DestroyNow(unitEntity);
 }
 
@@ -74,11 +75,11 @@ void GameUnit::ClearConditionEvents()
 void GameUnit::MoveEntity(float xMovement, float yMovement)
 {
 	StartProfile;
+	
 	CoreInit::managers.transformManager->Move(this->unitEntity, DirectX::XMFLOAT3{ xMovement, 0.f, yMovement });
 	DirectX::XMFLOAT3 pos = CoreInit::managers.transformManager->GetPosition(this->unitEntity);
 	xPos = pos.x;
 	yPos = pos.z;
-	zPos = pos.y;
 	StopProfile;
 }
 
@@ -90,6 +91,24 @@ void GameUnit::PositionEntity(float xPos, float yPos)
 	CoreInit::managers.transformManager->SetPosition(this->unitEntity, { xPos, zPos, yPos });
 	DirectX::XMFLOAT3 pos = CoreInit::managers.transformManager->GetPosition(this->unitEntity);
 	StopProfile;
+}
+
+bool SE::Gameplay::GameUnit::IsAlive()
+{
+	StartProfile;
+	if(health > 0.f)
+		ProfileReturnConst(true);
+	if (!deathAnimationRunning)
+	{
+		deathAnimationRunning = true;
+		CoreInit::managers.animationManager->Start(unitEntity, &deathAnimation, 1, 5, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::FORCED | Core::AnimationFlags::BLOCKBLENDING);
+		ProfileReturnConst(true);
+	}
+	else if(CoreInit::managers.animationManager->IsAnimationPlaying(unitEntity, deathAnimation))
+	{
+		ProfileReturnConst(true);
+	}
+	ProfileReturnConst(false);
 }
 
 
