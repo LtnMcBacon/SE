@@ -17,16 +17,20 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 3;
+	nrOfPerks = 0;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
 	fileParser.ParseFiles("CharacterCreationMenu.HuD");
 	fileParser.InitiateTextures();
 	//Testing perk importer
-	std::string tempPath[2];
-	tempPath[0] = "fuckYou.prk";
-	tempPath[1] = "testPerkData.prk";
-	perks.loadPerkData(tempPath, 2);
+	for (auto& fileName: Perkfiles)
+	{
+
+		perks.loadPerkData(fileName);
+	}
+	getPerks();
+	
 	//****************************
 	auto returnToMain = [this]()->void
 	{
@@ -289,7 +293,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					skillButton.Height,
 					0,
 					skillButton.rectName,
-					SkillIndexReturn,
+					skillChoice,
 					skillInfo,
 					skillButton.textName,
 					skillButton.hoverTex,
@@ -308,11 +312,153 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 void SE::Gameplay::CharacterCreationState::getPerks()
 {
 	StartProfile;
-	int offset = 225;
+	int offset = 300;
 	int borderOffset = 200;
 	int rectSize = 100;
+	
+	std::vector<std::string> otherPerks;
+	int nrOfOtherPerks = 0;
+	
+	for (size_t i = 0; i < nrOfPerks; i++)
+	{
+		int anchorX = borderOffset + offset*i;
+		int anchorY = 100;
 
+		std::string perkName = randomizePerk();
+				
+		int count = 0;
+		int j = 0;
+		int p = 0;
+
+		if (nrOfOtherPerks > chosenPerkName.size())
+		{
+			while (j < nrOfOtherPerks)
+			{
+
+				if (perkName == otherPerks[j])
+				{
+					j = 0;
+					p = 0;
+					perkName = randomizePerk();
+				}
+				else
+				{
+					j++;
+				}
+
+				while (p < chosenPerkName.size())
+				{
+					if (perkName == chosenPerkName[p])
+					{
+						j = 0;
+						p = 0;
+						perkName = randomizePerk();
+						
+					}
+					else
+					{
+						p++;
+					}
+				}
+
+			}
+		}
+		else
+		{
+			while (j < chosenPerkName.size())
+			{
+
+				if (perkName == chosenPerkName[j])
+				{
+					j = 0;
+					p = 0;
+					perkName = randomizePerk();
+					
+				}
+				else
+				{
+					j++;
+				}
+
+				while (p < nrOfOtherPerks)
+				{
+					if (perkName == otherPerks[p])
+					{
+						j = 0;
+						p = 0;
+						perkName = randomizePerk();
+					}
+					else
+					{
+						p++;
+					}
+				}
+
+			}
+		}
+
+		otherPerks.push_back(perkName);
+		nrOfOtherPerks++;
+		PerkData tempPerk;
+		for (size_t i = 0; i < perks.perkVec.size(); i++)
+		{
+			if (perks.perkVec[i].name == perkName)
+			{
+				tempPerk = perks.perkVec[i];
+			}
+		}
+		
+
+		auto perkNameReturn = [this, perkName,tempPerk]()->void
+		{
+			if (selectedSkills < nrOfSkills)
+			{
+				this->chosenPerkName.push_back(perkName);
+				this->chosenPerks.push_back(tempPerk);
+				this->selectedPerks++;
+			}
+		}; std::function<void()> perkChoice = perkNameReturn;
+
+
+		for (auto& perkButton : fileParser.perkButtonVec)
+		{
+			if (perkButton.rectName == perkName)
+			{
+				perkButton.perkName = perkName;
+				perkButton.bindButton = perkChoice;
+
+				fileParser.GUIButtons.CreateButton(
+					anchorX,
+					anchorY,
+					perkButton.Width,
+					perkButton.Height,
+					0,
+					perkButton.rectName,
+					perkChoice,
+					true,
+					perkButton.textName,
+					perkButton.hoverTex,
+					perkButton.PressTex,
+					""
+				);
+
+			}
+		}
+	}
+	fileParser.GUIButtons.DrawButtons();
+	otherPerks.clear();
 	ProfileReturnVoid;
+
+
+}
+
+std::string SE::Gameplay::CharacterCreationState::randomizePerk()
+{
+	StartProfile;
+	int i = CoreInit::subSystems.window->GetRand() % perks.perkVec.size();
+	std::string perkName = perks.perkVec[i].name;
+	
+	ProfileReturnConst(perkName);
 }
 
 void SE::Gameplay::CharacterCreationState::importSkillButtons()

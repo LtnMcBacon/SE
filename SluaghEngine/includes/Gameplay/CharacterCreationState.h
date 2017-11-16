@@ -54,6 +54,7 @@ namespace SE
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
 			void getPerks();
+			std::string randomizePerk();
 			void importSkillButtons();
 
 			int selectedSkills;
@@ -65,8 +66,8 @@ namespace SE
 			int nrOfPerks;
 			std::vector<int> chosenSkillsIndex;
 			std::vector<Skill> chosenSkills;
-			std::vector<int> chosenPerksIndex;
-			std::vector<Skill> chosenPerks;
+			std::vector<std::string> chosenPerkName;
+			std::vector<PerkData> chosenPerks;
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
@@ -89,7 +90,13 @@ namespace SE
 				"VenomBladesPerk.HuD"
 			};
 
-				
+			std::string Perkfiles[2]
+			{
+
+				 "fuckYou.prk",
+				 "testPerkData.prk"
+
+			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:
