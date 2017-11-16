@@ -35,11 +35,11 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 
 	auto startGame = [this]()->void
 	{
+		this->CurrentState = State::PLAY_STATE;
 		if (selectedSkills == nrOfSkills)
 		{
 			if (selectedPerks == nrOfPerks)
 			{
-				this->CurrentState = State::PLAY_STATE;
 			}
 		}
 		

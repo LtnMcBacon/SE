@@ -373,6 +373,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
+	
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -398,8 +399,8 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
-
+				//player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
