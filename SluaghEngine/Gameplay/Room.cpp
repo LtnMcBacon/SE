@@ -26,13 +26,12 @@ static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
-	/*
-	* To be written/implemented
-	*/
+
 	pos playerPos;
 	playerPos.x = playerX;
 	playerPos.y = playerY;
 	roomField->Update(playerPos);
+
 	StopProfile;
 }
 
@@ -48,8 +47,6 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
-	/*int collisionX = 0.0;
-	int collisionY = 0.0;*/
 	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
@@ -219,10 +216,8 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		if (ProjectileAgainstEnemies(projectiles[i]) == false)
-		{
-			ProjectileAgainstWalls(projectiles[i]);
-		}
+		ProjectileAgainstEnemies(projectiles[i]);
+		ProjectileAgainstWalls(projectiles[i]);
 	}
 
 	StopProfile;
@@ -1663,7 +1658,7 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
 			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
 
-		DoorArr[arrPos].doorEntityPos = roomEntities.size();
+		DoorArr[arrPos].doorEntityPos = roomEntities.size() - 1;
 		DoorArr[arrPos].xPos = i + 0.5f;
 		DoorArr[arrPos].yPos = j + 0.5f;
 		DoorArr[arrPos].active = true;
@@ -1716,8 +1711,20 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
 	if (DoorArr[int(DoorNr)].active)
 	{
+		Utilz::GUID temp;
+
+		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			temp = "SimpleNormTransPS";
+		else
+			temp = "SimpleNormPS";
+
 		DoorArr[int(DoorNr)].active = false;
+		//CoreInit::managers.renderableManager->Destroy(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
 		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
+		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mat", temp });
+		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+		//CoreInit::managers.entityManager->DestroyNow(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
+
 	}
 
 }

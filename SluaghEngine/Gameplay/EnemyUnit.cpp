@@ -135,7 +135,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 
 }
 
-void SE::Gameplay::EnemyUnit::DecideAction()
+void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 {
 	StartProfile;
 	/*
@@ -143,7 +143,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
 	
-	if (myBehaviouralTree)
+	if (true/*force[0] == 0.0f && force[1] == 0.0f*/)
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
@@ -173,17 +173,11 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		* Code body
 		*/
 		ResolveEvents(dt);
-		DecideAction();
+		DecideAction(dt);
 
 		PerformAction(dt);
 	}
 	ProfileReturnVoid;
-}
-
-void SE::Gameplay::EnemyUnit::AddForce(float force[2])
-{
-	forcesToApply[0] += force[0];
-	forcesToApply[1] += force[1];
 }
 
 SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :

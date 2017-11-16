@@ -334,7 +334,6 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-
 	auto w = CoreInit::subSystems.window;
 
 
@@ -507,14 +506,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	ClearHealingEvents();
 	StopProfile;
 
-}
-
-void SE::Gameplay::PlayerUnit::AddForce(float force[2])
-{
-	StartProfile;
-	forcesToApply[0] += force[0];
-	forcesToApply[1] += force[1];
-	StopProfile;
 }
 
 void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)

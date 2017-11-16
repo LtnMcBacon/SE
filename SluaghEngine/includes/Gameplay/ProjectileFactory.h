@@ -253,7 +253,14 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); // o
+
 			/**
+
+			* @brief	Adds a behaviour to knockback the latest hit target of the projectile from the projectile
+			*/
+			std::function<bool(Projectile* projectile, float dt)> KnockbackBehaviour(std::vector<BehaviourParameter> parameters); // f
+
 			 * @brief	Adds a behaviour to create particles between the projectile and the owner
 			 */
 			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); // o
