@@ -40,6 +40,14 @@ cbuffer LightViewProj : register(b3)
 	float4x4 lViewProj;
 }
 
+cbuffer BloomProperties : register(b4)
+{
+	float BLOOM_BASE_MULTIPLIER;
+	float BLOOM_FADE_EXPONENT;
+	float BLOOM_ADDITIVE_COLOR_STRENGTH_MULTIPLIER;
+	float BLOOM_AT;
+};
+
 struct PS_IN
 {
 	float4 Pos : SV_POSITION;
@@ -50,7 +58,13 @@ struct PS_IN
 	float2 Tex : TEXCOORD;
 };
 
-float4 PS_main(PS_IN input) : SV_TARGET
+struct PS_OUT
+{
+	float4 backBuffer: SV_TARGET0;
+	float4 bloomBuffer: SV_TARGET1;
+};
+
+PS_OUT PS_main(PS_IN input) : SV_TARGET
 {
 	float attenuation = 1.0f;
 float3 light = float3(0.0, 0.0, 0.0);
@@ -91,6 +105,12 @@ for (int i = 0; i < nrOfLights.x; i++)
 	diffuseContribution += normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 }
 
-return saturate(float4(textureColor.rgb * (attenuation * (diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
+	PS_OUT output;
+	output.backBuffer = saturate(float4(textureColor.rgb * (attenuation * (diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
+	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
+	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
+	if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
 
+	return output;
 }

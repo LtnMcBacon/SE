@@ -312,7 +312,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 	int borderOffset = 200;
 	int rectSize = 100;
 
-
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::CharacterCreationState::importSkillButtons()

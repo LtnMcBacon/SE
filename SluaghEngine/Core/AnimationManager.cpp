@@ -256,26 +256,36 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 
 			// If an entity is attached to this entity...
+			//Make sure the attached entity is still alive.
+			
 			if (att.slots[k].attached == true) {
+				if (initInfo.entityManager->Alive(att.slots[k].entity))
+				{
 
-				// Get the joint transformation matrix
-				DirectX::XMFLOAT4X4 matrix;
-				animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
-				DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
+					// Get the joint transformation matrix
+					DirectX::XMFLOAT4X4 matrix;
+					animationSystem->GetJointMatrix(animationData.entity[i], att.slots[k].jointIndex, matrix);
+					DirectX::XMFLOAT4X4 parentTransform = initInfo.transformManager->GetTransform(animationData.entity[i]);
 
-				// Get the joint inversed inverse bindpose
-				DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
-				animationSystem->GetJointInverseBindPose(animationData.animInfo[i].skeleton, att.slots[k].jointIndex, inverseBindPose);
-				inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
+					// Get the joint inversed inverse bindpose
+					DirectX::XMMATRIX inverseBindPose = DirectX::XMMatrixIdentity();
+					animationSystem->GetJointInverseBindPose(animationData.animInfo[i].skeleton, att.slots[k].jointIndex, inverseBindPose);
+					inverseBindPose = DirectX::XMMatrixInverse(nullptr, inverseBindPose);
 
-				// Decompose the joint transformation matrix
-				DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
-				DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+					// Decompose the joint transformation matrix
+					DirectX::XMVECTOR jointScale, jointQuat, jointTrans;
+					DirectX::XMMatrixDecompose(&jointScale, &jointQuat, &jointTrans, inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
 
-				DirectX::XMFLOAT4X4 transform;
-				DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
-				DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
-				initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
+					DirectX::XMFLOAT4X4 transform;
+					DirectX::XMFLOAT4X4 localTransform = initInfo.transformManager->GetTransform(att.slots[k].entity);
+					DirectX::XMStoreFloat4x4(&transform, XMLoadFloat4x4(&localTransform) * inverseBindPose * XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&parentTransform));
+					initInfo.transformManager->SetTransform(att.slots[k].entity, transform);
+				}
+				else
+				{
+					
+					initInfo.console->Print(("Entity " +std::to_string(att.slots[k].entity.id) +  " attached to joint was not alive.").c_str());
+				}
 
 			}
 		}
