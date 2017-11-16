@@ -18,9 +18,9 @@ namespace SE
 			* @param[in] filePaths[] is an array with all the file names of the perks
 			* @param[in] perkCount the amount of perks to be loaded
 			*/
-			void loadPerkData(std::string fileNames[], int perkCount);
+			void loadPerkData(std::string fileName);
 
-			std::vector<PerkData> perks;
+			std::vector<PerkData> perkVec;
 
 		private:
 
