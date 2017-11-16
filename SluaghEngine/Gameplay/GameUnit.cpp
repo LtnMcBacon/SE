@@ -25,6 +25,40 @@ GameUnit::~GameUnit()
 	//Core::Engine::GetInstance().GetEntityManager().Destroy(unitEntity);
 }
 
+void SE::Gameplay::GameUnit::AddForce(float force[2])
+{
+	this->force[0] += force[0];
+	this->force[1] += force[1];
+}
+
+void SE::Gameplay::GameUnit::AddForce(float x, float y)
+{
+	this->force[0] += x;
+	this->force[1] += y;
+}
+
+void SE::Gameplay::GameUnit::DiminishForce(float dt)
+{
+	int sign;
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (force[i] < 0.0f)
+			sign = -1;
+		else
+			sign = 1;
+
+		if (force[i] * sign < sign * dt)
+		{
+			force[i] = 0;
+		}
+		else
+		{
+			force[i] -= sign * dt;
+		}
+	}
+}
+
 void GameUnit::DestroyEntity()
 {
 	

@@ -170,7 +170,16 @@ namespace SE
 			inline void SetZPosition(float value) { zPos = value; };
 
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
+
+			/**
+			* @brief To be documented
+			*/
+			void AddForce(float force[2]);
+			void AddForce(float x, float y);
+			
+
 			inline bool UnitHealthAboveZero() { return health > 0.f; };
+
 
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
@@ -190,6 +199,12 @@ namespace SE
 			float yPos;
 			float zPos;
 			float extents;
+
+			float stunDuration;
+
+			float force[2];
+
+			void DiminishForce(float dt);
 
 			/*Functions to move the GameUnit*/
 			std::shared_ptr<GameUnit*> mySelf;
