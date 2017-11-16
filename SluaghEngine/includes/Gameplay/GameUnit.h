@@ -168,7 +168,10 @@ namespace SE
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
 			inline void SetZPosition(float value) { zPos = value; };
+
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
+			inline bool UnitHealthAboveZero() { return health > 0.f; };
+
 
 			/**
 			* @brief To be documented
