@@ -168,8 +168,9 @@ namespace SE
 			inline void SetXPosition(float value) { xPos = value; };
 			inline void SetYPosition(float value) { yPos = value; };
 			inline void SetZPosition(float value) { zPos = value; };
+
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
-			
+			inline bool UnitHealthAboveZero() { return health > 0.f; };
 
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate

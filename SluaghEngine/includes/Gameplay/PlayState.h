@@ -71,6 +71,7 @@ namespace SE
 			Room* currentRoom = nullptr;
 			int currentRoomIndex = -1;
 			static const int enemiesInEachRoom = 5;
+			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 

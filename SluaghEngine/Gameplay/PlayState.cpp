@@ -236,6 +236,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			*/
 			blackBoard.currentRoom = currentRoom;
 			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+			numberOfFreeFrames = 15;
 		}
 	}
 }
@@ -534,8 +535,14 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
-	rooms[0]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 	IGameState::State returnValue = State::PLAY_STATE;
+	if(numberOfFreeFrames < 0)
+	{
+		numberOfFreeFrames--;
+		
+		ProfileReturn(returnValue);
+	}
+	
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
 	std::vector<ProjectileData> newProjectiles;

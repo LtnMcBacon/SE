@@ -232,30 +232,29 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 {
 	StartProfile;
 
-	if (enemyUnits.size() == 0)
-	{
-		ProfileReturnConst(false);
-	}
-
 	int enemy = -1;
 	float closestDistance = 10000.0f;
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		float enemyX = enemyUnits[i]->GetXPosition() - xPos;
-		float enemyY = enemyUnits[i]->GetYPosition() - yPos;
-		float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
-
-		if (distance < closestDistance)
+		if (enemyUnits[i]->UnitHealthAboveZero())
 		{
-			enemy = i;
-			closestDistance = distance;
+			float enemyX = enemyUnits[i]->GetXPosition() - xPos;
+			float enemyY = enemyUnits[i]->GetYPosition() - yPos;
+			float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
+
+			if (distance < closestDistance)
+			{
+				enemy = i;
+				closestDistance = distance;
+			}
 		}
 	}
-
-	xReturn = enemyUnits[enemy]->GetXPosition();
-	yReturn = enemyUnits[enemy]->GetYPosition();
-
+	if (enemy != -1)
+	{
+		xReturn = enemyUnits[enemy]->GetXPosition();
+		yReturn = enemyUnits[enemy]->GetYPosition();
+	}
 	ProfileReturnConst(true);
 }
 
@@ -1215,27 +1214,20 @@ Room::Room(Utilz::GUID fileName)
 
 	pos start;
 	loadfromFile(fileName);
-
-	start.x = start.y = 1.5f;
-	bool foundStart = false;
-	//for (int x = 0; x < 25 && !foundStart; x++)
-	//{
-	//	for (int y = 0; y < 25 && !foundStart; y++)
-	//	{
-	//		if (!this->tileValues[x][y])
-	//		{
-	//			start.x = x + 0.5f;
-	//			start.y = y + 0.5f;
-	//			foundStart = true;
-	//		}
-	//	}
-	//}
-	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
-	enemyUnits.reserve(5);
 	CreateEntities();
 
 	// reset temporary tilevalues where a single prop is overlapping another tile 
 	ResetTempTileValues();
+
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{
+			tileValues[x][y] = !!(tileValues[x][y]);
+		}
+
+	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
+	enemyUnits.reserve(5);
+
 
 	StopProfile;
 }
