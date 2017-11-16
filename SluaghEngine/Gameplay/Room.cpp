@@ -1222,7 +1222,11 @@ Room::Room(Utilz::GUID fileName)
 	for(int x = 0; x < 25; x++)
 		for(int y = 0; y < 25; y++)
 		{
-			tileValues[x][y] = !!(tileValues[x][y]);
+			if(!tileValues[x][y])
+			{
+				start.x = x;
+				start.y = y;
+			}
 		}
 
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
@@ -1286,17 +1290,15 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	enemyToAdd->SetCurrentRoom(this);
 
 	auto door = DoorArr[int(entranceDirection)];
-	if (door.side != entranceDirection)
-		int a = 0;
 
 	float newX = door.xPos, newY = door.yPos;
 
 	switch(entranceDirection)
 	{
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.5f; break;
 	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE: break;
 	default: ;
 	}
