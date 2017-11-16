@@ -31,6 +31,11 @@ namespace SE
 			void CreateSystem(const Entity& entity, const CreateInfo& info)override;
 
 			/**
+			 * @brief Update the start and end positions of a system.
+			 */
+			void UpdateSystemEndPosition(const Entity& entity, float endPos[3]) override;
+
+			/**
 			* @brief	Hide/Show a particle system.
 			* @param [in] entity The entity to bind system to.
 			* @param [in] visible If the resource should be streamed.
