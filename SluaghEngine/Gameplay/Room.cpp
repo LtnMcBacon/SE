@@ -216,7 +216,7 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		ProjectileAgainstEnemies(projectiles[i]) == false)
+		ProjectileAgainstEnemies(projectiles[i]);
 		ProjectileAgainstWalls(projectiles[i]);
 	}
 

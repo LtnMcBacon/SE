@@ -143,18 +143,13 @@ void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
 	
-	if (force[0] == 0.0f && force[1] == 0.0f)
+	if (true/*force[0] == 0.0f && force[1] == 0.0f*/)
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
 		myBlackboard->checkedThisFrame = false;
 		
 		myBehaviouralTree->Tick();
-	}
-	else
-	{
-		this->MoveEntity(this->force[0] * dt, this->force[1] * dt);
-		this->DiminishForce(dt);
 	}
 
 	ProfileReturnVoid;
