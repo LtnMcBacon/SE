@@ -16,8 +16,8 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
-	nrOfSkills = 3;
-	nrOfPerks = 0;
+	nrOfSkills = 0;
+	nrOfPerks = 3;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -43,9 +43,9 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		{
 			if (selectedPerks == nrOfPerks)
 			{
-				this->CurrentState = State::PLAY_STATE;
 			}
 		}
+		allSkillsSelected = true;
 		
 	}; std::function<void()> begin = startGame;
 
@@ -100,7 +100,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	}
 	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
 	{
-		allSkillsSelected = true;
+		//allSkillsSelected = true;
 		//fileParser.GUIButtons.deleteSkillPerkBtns();
 		//getPerks();
 	}
@@ -117,7 +117,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 	
 	PlayStateData* infoToPass = new PlayStateData;
-	if (selectedSkills  == true)
+	if (allSkillsSelected  == true)
 	{
 
 		for (int i = 0; i < 3; i++)
@@ -165,6 +165,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 
 		passableInfo = infoToPass;
+		CurrentState = State::PLAY_STATE;
 	}
 
 
@@ -447,6 +448,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 					perkButton.rectName,
 					perkChoice,
 					true,
+					perkName,
 					perkButton.textName,
 					perkButton.hoverTex,
 					perkButton.PressTex,
