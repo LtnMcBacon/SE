@@ -56,6 +56,7 @@ namespace SE
 			void getPerks();
 			std::string randomizePerk();
 			void importSkillButtons();
+			void importPerkButtons();
 
 			int selectedSkills;
 			int renewSkillList;
@@ -84,17 +85,31 @@ namespace SE
 				"FistingBallSkill.HuD"
 			};
 
-			std::string perkButtonFiles[2]
+			std::string perkButtonFiles[9]
 			{
-				"LifeStealPerk.HuD",
-				"VenomBladesPerk.HuD"
+				"fuckYou.HuD",
+				"testPerkData.HuD",
+				"fireResistancePerk.HuD",
+				"lifeStealPerk.HuD",
+				"meleeDamagePerk.HuD",
+				"rangeDamagePerk.HuD",
+				"statIncreasePerk.HuD",
+				"strengthMultiPerk.HuD",
+				"waterResistancePerk.HuD"
 			};
 
-			std::string Perkfiles[2]
+			std::string Perkfiles[9]
 			{
 
 				 "fuckYou.prk",
-				 "testPerkData.prk"
+				 "testPerkData.prk",
+				 "fireResistancePerk.prk",
+				 "lifeStealPerk.prk",
+				 "meleeDamagePerk.prk",
+				 "rangeDamagePerk.prk",
+				 "statIncreasePerk.prk",
+				 "strengthMultiPerk.prk",
+				 "waterResistancePerk.prk"
 
 			};
 			

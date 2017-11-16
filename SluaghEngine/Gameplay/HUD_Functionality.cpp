@@ -89,7 +89,7 @@ namespace SE
 			ProfileReturnVoid;
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string textName, string hoverTex, string PressTex, string buttonText)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[],string skillName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions();
@@ -109,6 +109,7 @@ namespace SE
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
+			tempElement.skillName = skillName;
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 7; i++)
 			{
@@ -127,6 +128,7 @@ namespace SE
 		{
 			StartProfile;
 			std::string description = "";
+			description += button.skillName;
 			description += "Damage Source: ";
 			switch (button.skillDesc[0])
 			{
@@ -141,6 +143,9 @@ namespace SE
 				break;
 			case 3:
 				description += "Area\n";
+				break;
+			default:
+				description += "None\n";
 				break;
 			}
 
@@ -161,6 +166,9 @@ namespace SE
 				break;
 			case 4:
 				description += "Nature\n";
+				break;
+			default:
+				description += "None\n";
 				break;
 			}
 			description += "Boon: ";
@@ -212,6 +220,9 @@ namespace SE
 			case 14:
 				description += "Invoulnerability\n";
 				break;
+			default:
+				description += "None\n";
+				break;
 			}
 
 			description += "Banes: ";
@@ -252,6 +263,9 @@ namespace SE
 				break;
 			case 11:
 				description += "Slow\n";
+				break;
+			default:
+				description += "None\n";
 				break;
 			}
 
@@ -384,9 +398,9 @@ namespace SE
 								guiText.layerDepth = 0;
 								guiText.anchor = DirectX::XMFLOAT2(0, 0);
 								guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-								guiText.posX = skillDescBtn.PositionX;
-								guiText.posY = skillDescBtn.PositionY;
-								guiText.width = skillDescBtn.Width;
+								guiText.posX = skillDescBtn.PositionX+55;
+								guiText.posY = skillDescBtn.PositionY+15;
+								guiText.width = skillDescBtn.Width-50;
 								guiText.height = skillDescBtn.Height;
 								guiText.rotation = 0;
 								
@@ -400,8 +414,11 @@ namespace SE
 								
 							}
 						}
-						wasHovering = true;
-						break;
+						if (button.rectName != "skillBackgroundBtn" && button.rectName != "skillBackgroundBtn2" && button.rectName != "skillBackgroundBtn3")
+						{
+							wasHovering = true;
+							break;
+						}
 					}
 				}
 				else

@@ -35,6 +35,7 @@ namespace SE
 				int layerDepth;
 				int skillIndex;
 				std::string perkName;
+				std::string skillName;
 
 				std::function<void()> bindButton;
 			};

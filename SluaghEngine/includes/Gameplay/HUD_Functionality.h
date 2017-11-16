@@ -36,6 +36,7 @@ namespace SE
 				int textEntityIndex = 0;
 				unsigned short skillDesc[7];
 				bool skillButton = false;
+				std::string skillName;
 				std::function<void()> bindButton;
 			};
 
@@ -59,7 +60,7 @@ namespace SE
 			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, bool skill, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[], std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
+			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[],std::string skillName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 
 			std::string printSkillDesc(ButtonElement button);
 
