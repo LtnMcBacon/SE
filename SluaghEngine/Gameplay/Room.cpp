@@ -85,7 +85,7 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 	float val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
 	if (val == 0)
-		return 0;  // colinear
+		ProfileReturnConst(0);  // colinear
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
@@ -118,7 +118,14 @@ void Room::Update(float dt, float playerX, float playerY)
 				
 			}
 			
+			
+			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
+			{
+				CoreInit::managers.entityManager->DestroyNow(*enemyWep);
+			}
+			
 			delete enemyUnits[i];
+			
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
@@ -227,7 +234,7 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 
 	if (enemyUnits.size() == 0)
 	{
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	int enemy = -1;
@@ -260,7 +267,7 @@ bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 
 	if (enemyUnits.size() == 0)
 	{
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	int enemy = -1;
@@ -1619,7 +1626,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	{
 		matInfo.shader = Norm;
 	}
-	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.0f, args.j + 0.5f));
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.5f, args.j + 0.5f));
 
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 
