@@ -8,16 +8,19 @@ struct WeaponInfo
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
+	SE::Utilz::GUID projectile;
+	SE::Utilz::GUID attAnim;
 	SE::Utilz::GUID equipJoint;
 	int slotIndex;
 	DirectX::XMFLOAT3 equipPos;
+	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 equipRot;
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"venomblades.jpg", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
-	{"Fireball_NSMB.png", "Range.png", "Candlestick_tri.mesh", "Candlestick_tri.mat", "SimpleLightPS.hlsl" , "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } },
-	{"sweating towelguy.jpg", "Magic.png", "Chair.mesh", "Chair.mat", "SimpleLightPS.hlsl", "LHand", 0,{ 0.07f,0.15f,0.5f },{ -0.25f, 0.2f, 1.5f } }
+	{"venomblades.jpg", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
+	{"Fireball_NSMB.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
+	{"sweating towelguy.jpg", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
 } };
 
 
@@ -30,7 +33,7 @@ struct ConsumableInfo
 	SE::Utilz::GUID shader;
 };
 static const std::array<ConsumableInfo, 1> consInfo = { {
-	{"Water.png","Water.png", "Bush.mesh", "Bush.mat", "SimpleLightPS.hlsl" }
+	{"Water.png","Water.png", "Pot.mesh", "default.mat", "SimpleLightPS.hlsl" }
 
 } };
 
@@ -39,6 +42,7 @@ struct ElT
 	std::wstring str;
 	DirectX::XMFLOAT4 color;
 };
+
 
 static const ElT elt[4] = {
 	{L"Physical", {0.7f, 0.7f, 0.7f, 1.0f}},
@@ -88,8 +92,9 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	auto wType = WeaponType(std::rand() % weaponInfo.size());
 	auto ele = GetRandDamageType();
 	CoreInit::managers.transformManager->Create(wep);
+	CoreInit::managers.transformManager->SetScale(wep, weaponInfo[size_t(wType)].scale);
 	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(wType)].shader, weaponInfo[size_t(wType)].mat });
-	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(wType)].mesh });
+	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(wType)].mesh , false, false, true});
 	Core::IGUIManager::CreateInfo icon;
 	icon.texture = weaponInfo[size_t(wType)].icon;
 	icon.textureInfo.width = 50;
@@ -110,7 +115,10 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	CoreInit::managers.dataManager->SetValue(wep, "Damage", Item::GetRandDamage());
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(wType));
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(ele));
+	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(wType)].attAnim.id);
+	CoreInit::managers.dataManager->SetValue(wep, "AttProj", weaponInfo[size_t(wType)].projectile.id);
 
+	
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 	return wep;
@@ -308,18 +316,11 @@ void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity ent, Cor
 
 SE::Core::Entity SE::Gameplay::Item::Create()
 {
-	ItemType type = ItemType(std::rand() % size_t(ItemType::NUM_TYPES));
-	switch (type)
-	{
-	case SE::Gameplay::ItemType::WEAPON:
+	auto rand = std::rand() % 100;
+	if(rand < 80)
 		return Weapon::Create();
-		break;
-	case SE::Gameplay::ItemType::CONSUMABLE:
+	else
 		return Consumable::Create();
-		break;
-	default:
-		break;
-	}
 	return Core::Entity();
 }
 
@@ -327,7 +328,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 {
 	CoreInit::managers.transformManager->SetPosition(ent, pos);
 	CoreInit::managers.transformManager->SetRotation(ent, 0,0,0);
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.8);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
@@ -341,6 +342,7 @@ void SE::Gameplay::Item::Pickup(Core::Entity ent)
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+	//CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RoomChange");
 }
 
 void SE::Gameplay::Item::Equip(Core::Entity to, Core::Entity ent)

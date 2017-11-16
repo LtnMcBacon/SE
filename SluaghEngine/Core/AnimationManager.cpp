@@ -242,9 +242,9 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 			return true;
 		};
 
-		UpdateLoop();
+		//UpdateLoop();
 		
-		//lambda = initInfo.threadPool->Enqueue(UpdateLoop);
+		lambda = initInfo.threadPool->Enqueue(UpdateLoop);
 		aniUpdateTime = 0.0f;
 	}
 

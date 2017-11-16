@@ -94,6 +94,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 
 	int nrOfLetters = 0;
 	int startPos = pos;
+	int toSkip = 2;
 	while (startPos < file.size() && file[startPos] != '\r' && file[startPos + 1] != '\n')
 	{
 		nrOfLetters++;
@@ -104,10 +105,11 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 	{
 		nrOfLetters++;
 		startPos++;
+		toSkip = 1;
 	}
 
 	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
-	pos += nrOfLetters + 2;
+	pos += nrOfLetters + toSkip;
 
 	StopProfile;
 }

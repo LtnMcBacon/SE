@@ -259,6 +259,9 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 
 	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
 	weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
+
+	auto an = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(cwe, "AttAnim", false));
+	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
 
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
@@ -493,23 +496,33 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (input.actionButton && attackCooldown <= 0.0f)
 	{
-
-		if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+		if (auto wep = std::get_if<int32_t>(&CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
 		{
-			ProjectileData temp;
+			if (ItemType(*wep) == ItemType::WEAPON)
+			{
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+				{
+					ProjectileData temp;
 
-			temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-			temp.startPosX = this->xPos;
-			temp.startPosY = this->yPos;
-			temp.target = ValidTarget::ENEMIES;
-			temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
-			temp.ownerUnit = mySelf;
-			temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+					temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+					temp.startPosX = this->xPos;
+					temp.startPosY = this->yPos;
+					temp.target = ValidTarget::ENEMIES;
 
-			newProjectiles.push_back(temp);
 
-			attackCooldown = 1.0f / attackSpeed;
+					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
+					temp.ownerUnit = mySelf;
+
+					auto proj = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "AttProj", false));
+
+					temp.fileNameGuid = Utilz::GUID(proj);
+					newProjectiles.push_back(temp);
+
+					attackCooldown = 1.0f / attackSpeed;
+				}
+			}
 		}
+		
 	}
 
 	if (attackCooldown > 0.f)
@@ -550,6 +563,7 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
+	health = 300;
 	if (health > 0.f)
 	{
 		UpdateMovement(dt, mInputs);

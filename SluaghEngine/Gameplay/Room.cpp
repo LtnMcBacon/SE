@@ -110,14 +110,16 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
-			roomEntities.push_back(bs);
 
 
-			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
-			if (true)//spw > 50000)
+			auto spw = CoreInit::subSystems.window->GetRand() % 100;
+			if (spw < 80)
 			{	
-				Item::Drop(Item::Create(), p);
+				auto item = Item::Create();
+
+				Item::Drop(item, p);
 				
+			//	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange", &beingRendered);
 			}
 		
 			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
@@ -1050,8 +1052,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 {
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
+		
 		CoreInit::managers.eventManager->ToggleVisible(roomEntities[i], render);
 		CoreInit::managers.eventManager->ToggleShadow(roomEntities[i], render);
+
+
 	}
 	for(auto enemy : enemyUnits)
 	{
