@@ -46,7 +46,7 @@ struct ParticleInfo {
 bool equal(float3 start, float3 end)
 {
 	
-	if(start.x == end.x && start.y == end.y && start.z == end.z)
+	if((abs(start.x - end.x) < 0.005) && (abs(start.y - end.y) < 0.005) && (abs(start.z - end.z) < 0.005))
 		return true;
 	else
 		return false;
@@ -122,7 +122,8 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 		}
 		else if (!equal(input[0].pos, endPos))
 		{
-			float3 finalDirection = endPos - startPosition;
+			float3 finalDirection = endPos - input[0].pos;
+			
 			input[0].velocity = finalDirection;
 			if (input[0].age < 0.25)
 			{
