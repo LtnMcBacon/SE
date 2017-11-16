@@ -23,6 +23,7 @@ PauseState::PauseState(Window::IWindow* Input)
 
 PauseState::~PauseState()
 {
+
 }
 
 

@@ -61,6 +61,33 @@ namespace SE
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill,string textName, string hoverTex, string PressTex, string buttonText)
+		{
+			StartProfile;
+			CalculateScreenPositions();
+			ButtonElement tempElement;
+			tempElement.PositionX = posX + additionalWidth;
+			tempElement.PositionY = posY + additionalHeight;
+
+			tempElement.Width = width;
+			tempElement.Height = height;
+
+			tempElement.layerDepth = layerDepth;
+			tempElement.rectName = name;
+			tempElement.textName = textName;
+
+			tempElement.hoverTex = hoverTex;
+			tempElement.PressTex = PressTex;
+			tempElement.bindButton = func;
+			tempElement.buttonText = buttonText;
+			tempElement.EntityIndex = -1;
+			if (skill)
+			{
+				tempElement.skillButton = true;
+			}
+			Buttons.push_back(tempElement);
+			ProfileReturnVoid;
+		}
 
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string textName, string hoverTex, string PressTex, string buttonText)
 		{
@@ -448,6 +475,7 @@ namespace SE
 					if (name == Buttons[i].rectName)
 					{
 						Buttons.erase(Buttons.begin()+i);
+						i = 0;
 						
 					}
 				}
@@ -465,13 +493,14 @@ namespace SE
 				CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
 				CoreInit::managers.entityManager->Destroy(skillDescEntity);
 			}
+
 			ProfileReturnVoid;
 		}
 
 		void HUDButtons::CalculateScreenPositions()
 		{
-			size_t height = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
-			size_t width = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+			size_t height = CoreInit::subSystems.window->Height();
+			size_t width = CoreInit::subSystems.window->Width();
 
 			size_t maxwidth = 1920;
 			size_t maxHeight = 1080;
