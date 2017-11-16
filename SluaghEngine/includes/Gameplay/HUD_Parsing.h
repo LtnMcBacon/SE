@@ -34,6 +34,7 @@ namespace SE
 				std::string PressTex;
 				int layerDepth;
 				int skillIndex;
+				std::string perkName;
 
 				std::function<void()> bindButton;
 			};
@@ -51,15 +52,16 @@ namespace SE
 			std::vector<SE::Core::Entity> texEntityVec;
 
 			std::vector <HUDElement> ButtonVector;
-			std::vector<HUDText> MainMenuTextVec;
+			
 
 			std::vector<HUDElement> skillButtonVec;
-			std::vector<HUDText> skillTextVec;
+			
 
 			std::vector<HUDElement> perkButtonVec;
-			std::vector<HUDText> perkTextVec;
+			
 
 			std::vector<HUDElement> optionsMenu;
+
 			std::vector<HUDElement> optionButtons;
 
 			HUDParser();
