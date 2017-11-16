@@ -77,11 +77,7 @@ void SE::Core::RenderableManagerInstancing::UpdateTransform(const Entity & entit
 	auto find = entityToBucketAndIndexInBucket.find(entity);
 
 	if(find != entityToBucketAndIndexInBucket.end()){
-
-		DirectX::XMFLOAT4X4 transposed;
-		DirectX::XMStoreFloat4x4(&transposed, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
-		pipelineToRenderBucket[find->second.bucket]->transforms[find->second.index] = transposed;
-
+		DirectX::XMStoreFloat4x4(&pipelineToRenderBucket[find->second.bucket]->transforms[find->second.index], DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transform)));
 	}
 
 	StopProfile;
