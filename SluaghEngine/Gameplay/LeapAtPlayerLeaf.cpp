@@ -114,22 +114,39 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 	{
 		xMov = gameBlackboard->playerPositionX - enemyBlackboard->ownerPointer->GetXPosition();
 		yMov = gameBlackboard->playerPositionY - enemyBlackboard->ownerPointer->GetYPosition();
+		
+		xDistance = xMov*3.5*gameBlackboard->deltaTime;
+		yDistance = yMov*3.5*gameBlackboard->deltaTime;
 
 		xTarget = gameBlackboard->playerPositionX;
 		yTarget = gameBlackboard->playerPositionY;
 		
-		myStatus = Status::BEHAVIOUR_RUNNING;
 
-		enemyBlackboard->ownerPointer->MoveEntity((xMov*2.5*gameBlackboard->deltaTime),
-			(yMov*2.5*gameBlackboard->deltaTime));
+		if (abs(xDistance) < abs(xMov) || abs(yDistance) < abs(yMov))
+		{
+			enemyBlackboard->ownerPointer->MoveEntity(xDistance,
+				yDistance);
+			myStatus = Status::BEHAVIOUR_RUNNING;
+		}
+		else
+		{
+			enemyBlackboard->ownerPointer->PositionEntity(xTarget, yTarget);
+			myStatus = Status::BEHAVIOUR_SUCCESS;
+		}
 	}
 	else
 	{
-		float xDistance = xTarget - enemyBlackboard->ownerPointer->GetXPosition();
-		float yDistance = yTarget - enemyBlackboard->ownerPointer->GetYPosition();
+		float xLengthLeft = xTarget - enemyBlackboard->ownerPointer->GetXPosition();
+		float yLengthLeft = yTarget - enemyBlackboard->ownerPointer->GetYPosition();
 
-		float distance = sqrtf(xDistance*xDistance + yDistance*yDistance);
-		if(distance < 0.25f)
+		float travelX = (xMov*3.5*gameBlackboard->deltaTime);
+		float travelY = (yMov*3.5*gameBlackboard->deltaTime);
+
+		xDistance += travelX;
+		yDistance += travelY;
+
+		float distance = sqrtf(xLengthLeft*xLengthLeft + yLengthLeft*yLengthLeft);
+		if(distance < 0.25 || ((abs(xMov) < abs(xDistance)) && (abs(yMov) < abs(yDistance))))
 		{
 			enemyBlackboard->ownerPointer->PositionEntity(xTarget, yTarget);
 
@@ -149,8 +166,7 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 		}
 		else
 		{
-			enemyBlackboard->ownerPointer->MoveEntity((xMov*2.5*gameBlackboard->deltaTime),
-				(yMov*2.5*gameBlackboard->deltaTime));
+			enemyBlackboard->ownerPointer->MoveEntity(travelX,travelY);
 			
 		}
 	}

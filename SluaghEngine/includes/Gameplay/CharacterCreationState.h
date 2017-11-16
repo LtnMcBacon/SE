@@ -54,7 +54,9 @@ namespace SE
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
 			void getPerks();
+			std::string randomizePerk();
 			void importSkillButtons();
+			void importPerkButtons();
 
 			int selectedSkills;
 			int renewSkillList;
@@ -65,8 +67,8 @@ namespace SE
 			int nrOfPerks;
 			std::vector<int> chosenSkillsIndex;
 			std::vector<Skill> chosenSkills;
-			std::vector<int> chosenPerksIndex;
-			std::vector<Skill> chosenPerks;
+			std::vector<std::string> chosenPerkName;
+			std::vector<PerkData> chosenPerks;
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
@@ -83,13 +85,33 @@ namespace SE
 				"FistingBallSkill.HuD"
 			};
 
-			std::string perkButtonFiles[2]
+			std::string perkButtonFiles[9]
 			{
-				"LifeStealPerk.HuD",
-				"VenomBladesPerk.HuD"
+				"fuckYou.HuD",
+				"testPerkData.HuD",
+				"fireResistancePerk.HuD",
+				"lifeStealPerk.HuD",
+				"meleeDamagePerk.HuD",
+				"rangeDamagePerk.HuD",
+				"statIncreasePerk.HuD",
+				"strengthMultiPerk.HuD",
+				"waterResistancePerk.HuD"
 			};
 
-				
+			std::string Perkfiles[9]
+			{
+
+				 "fuckYou.prk",
+				 "testPerkData.prk",
+				 "fireResistancePerk.prk",
+				 "lifeStealPerk.prk",
+				 "meleeDamagePerk.prk",
+				 "rangeDamagePerk.prk",
+				 "statIncreasePerk.prk",
+				 "strengthMultiPerk.prk",
+				 "waterResistancePerk.prk"
+
+			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:
