@@ -260,7 +260,6 @@ int SE::Graphics::Renderer::Render()
 	cpuTimer.Start(("RenderJob-CPU"));
 	gpuTimer->Start(("RenderJob-GPU"));
 	
-	
 	for (auto& group : jobGroups)
 	{
 		bool first = true;
