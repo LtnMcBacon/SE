@@ -160,6 +160,8 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
+	StartProfile;
+
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
 		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
@@ -238,11 +240,13 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 		}
 	}
+
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
-	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width * player->GetHealth() / player->GetMaxHealth(), playStateGUI.GUIButtons.Buttons[healthBarPos].Height);
+	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
 }
 
 void PlayState::InitializeRooms()

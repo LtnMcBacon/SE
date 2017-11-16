@@ -169,6 +169,12 @@ namespace SE
 			inline void SetYPosition(float value) { yPos = value; };
 			inline void SetZPosition(float value) { zPos = value; };
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
+
+			/**
+			* @brief To be documented
+			*/
+			void AddForce(float force[2]);
+			void AddForce(float x, float y);
 			
 
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
@@ -194,10 +200,7 @@ namespace SE
 
 			float force[2];
 
-			/**
-			* @brief To be documented
-			*/
-			void AddForce(float force[2]);
+			void DiminishForce(float dt);
 
 			/*Functions to move the GameUnit*/
 			std::shared_ptr<GameUnit*> mySelf;

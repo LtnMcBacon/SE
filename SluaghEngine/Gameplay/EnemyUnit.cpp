@@ -135,7 +135,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 
 }
 
-void SE::Gameplay::EnemyUnit::DecideAction()
+void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 {
 	StartProfile;
 	/*
@@ -143,13 +143,18 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
 	
-	if (myBehaviouralTree)
+	if (force[0] == 0.0f && force[1] == 0.0f)
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
 		myBlackboard->checkedThisFrame = false;
 		
 		myBehaviouralTree->Tick();
+	}
+	else
+	{
+		this->MoveEntity(this->force[0] * dt, this->force[1] * dt);
+		this->DiminishForce(dt);
 	}
 
 	ProfileReturnVoid;
@@ -173,7 +178,7 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		* Code body
 		*/
 		ResolveEvents(dt);
-		DecideAction();
+		DecideAction(dt);
 
 		PerformAction(dt);
 	}

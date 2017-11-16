@@ -94,6 +94,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 
 	int nrOfLetters = 0;
 	int startPos = pos;
+	int toNextLine = 2;
 	while (startPos < file.size() && file[startPos] != '\r' && file[startPos + 1] != '\n')
 	{
 		nrOfLetters++;
@@ -104,10 +105,11 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 	{
 		nrOfLetters++;
 		startPos++;
+		toNextLine = 1;
 	}
 
 	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
-	pos += nrOfLetters + 2;
+	pos += nrOfLetters + toNextLine;
 
 	StopProfile;
 }
@@ -1083,6 +1085,37 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 	ProfileReturnConst(DamageSetter);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	return std::function<bool(Projectile*projectile, float dt)>();
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float force = std::get<float>(parameters[0].data);
+	auto Knockback = [force](Projectile* p, float dt) -> bool
+	{
+		const auto& vec = p->GetUnitsHit();
+		
+		for (int i = 0; i < vec.size(); i++)
+		{
+			float xForce = vec[i]->GetXPosition() - p->GetXPosition();
+			float yForce = vec[i]->GetYPosition() - p->GetYPosition();
+
+			float totVec = sqrt((xForce * xForce) + (yForce * yForce));
+			xForce /= totVec;
+			yForce /= totVec;
+
+			vec[i]->AddForce(xForce * force, yForce * force);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(Knockback);
+}
+
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
@@ -1162,6 +1195,8 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDamageBasedOnDTBehaviour, this, std::placeholders::_1)); // 
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::UserHealthAboveConditionBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetActualDamageBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateParticlesBetweenProjectileAndOwnerBehaviour, this, std::placeholders::_1)); // o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KnockbackBehaviour, this, std::placeholders::_1)); // f
 
 }
 

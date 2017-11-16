@@ -70,7 +70,7 @@ namespace SE
 			* @warning Not implemented! Will always return "MOVE" action, no matter what!
 			*
 			*/
-			void DecideAction();
+			void DecideAction(float dt);
 
 			/**
 			* @brief	Perform the action decided through the DecideAction() call.
