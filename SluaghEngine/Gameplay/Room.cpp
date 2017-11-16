@@ -98,6 +98,7 @@ void Room::Update(float dt, float playerX, float playerY)
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
+		CoreInit::managers.eventManager->ToggleVisible(enemyUnits[i]->GetEntity(), true);
 		if (!enemyUnits[i]->IsAlive())
 		{
 			// Blood spatter
@@ -129,7 +130,6 @@ void Room::Update(float dt, float playerX, float playerY)
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
-
 	}
 
 	StopProfile;

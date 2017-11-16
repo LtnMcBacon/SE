@@ -549,23 +549,25 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	UpdateInput(movementInput, actionInput);
 
+	float dt = min(1 / 30.f, input->GetDelta());
+
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
-	player->Update(input->GetDelta(), movementInput, newProjectiles, actionInput);
+	player->Update(dt, movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
 
 	blackBoard.playerPositionX = player->GetXPosition();
 	blackBoard.playerPositionY = player->GetYPosition();
-	blackBoard.deltaTime = input->GetDelta();
+	blackBoard.deltaTime = dt;
 	blackBoard.playerHealth = player->GetHealth();
 	
-	currentRoom->Update(input->GetDelta(), player->GetXPosition(), player->GetYPosition());
+	currentRoom->Update(dt, player->GetXPosition(), player->GetYPosition());
 
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
 
 	//-----sound update
-	soundTime += input->GetDelta();
+	soundTime += dt;
 	if (soundTime > 60.0f)
 	{
 		uint8_t newSound = input->GetRand() % 3;
@@ -579,7 +581,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	}
 	//-----end sound update
 	CheckForRoomTransition();
-	UpdateHUD(input->GetDelta());
+	UpdateHUD(dt);
 
 	if (!player->IsAlive())
 		returnValue = State::GAME_OVER_STATE;
