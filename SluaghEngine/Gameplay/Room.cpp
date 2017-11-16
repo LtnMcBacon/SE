@@ -6,6 +6,7 @@
 #include "CoreInit.h"
 #include <math.h>
 #include <algorithm>
+#include <Items.h>
 
 
 
@@ -84,11 +85,10 @@ int SE::Gameplay::Room::Orientation(LinePoint p, LinePoint q, LinePoint r)
 	float val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
 	if (val == 0)
-		return 0;  // colinear
+		ProfileReturnConst(0);  // colinear
 
 	ProfileReturnConst((val > 0) ? 1 : 2); // clock or counterclock wise
 }
-#include <Items.h>
 void Room::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
@@ -118,7 +118,14 @@ void Room::Update(float dt, float playerX, float playerY)
 				
 			}
 			
+			
+			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
+			{
+				CoreInit::managers.entityManager->DestroyNow(*enemyWep);
+			}
+			
 			delete enemyUnits[i];
+			
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
@@ -227,7 +234,7 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 
 	if (enemyUnits.size() == 0)
 	{
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	int enemy = -1;
@@ -260,7 +267,7 @@ bool Room::GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit)
 
 	if (enemyUnits.size() == 0)
 	{
-		return false;
+		ProfileReturnConst(false);
 	}
 
 	int enemy = -1;
@@ -975,15 +982,15 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		wallGuid = Materials[Materials::WallStone];
 		break;
 	case 1:
-		wallGuid = Materials[Materials::Dirt];
+		wallGuid = Materials[Materials::Wood];
 		break;
 	case 2:
-		wallGuid = Materials[Materials::Stone];
+		wallGuid = Materials[Materials::Dirt];
 		break;
 	}
 	
 	rand = CoreInit::subSystems.window->GetRand();
-	randNr = (rand % 2);
+	randNr = (rand % 3);
 
 	switch (randNr)
 	{
@@ -992,6 +999,9 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		break;
 	case 1:
 		floorGuid = Materials[Materials::Dirt];
+		break;
+	case 2:
+		floorGuid = Materials[Materials::Wood];
 		break;
 	}
 	
@@ -1045,6 +1055,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	for(auto enemy : enemyUnits)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(enemy->GetEntity(), render);
+		if(auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
+		{
+			CoreInit::managers.eventManager->ToggleVisible(*weapon, render);
+		}
+
 	}
 	beingRendered = render;
 }
@@ -1087,36 +1102,26 @@ Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
 	// Every prop here:
-	Meshes[Meshes::HighWall]     = { "HighWall.mesh"            };
-	Meshes[Meshes::Passage]      = { "HighWall_Passage.mesh"    };
-	Meshes[Meshes::OneSide]      = { "HighWall_OneSide.mesh"    };
-	Meshes[Meshes::Corner]       = { "HighWall_Corner.mesh"     };
-	Meshes[Meshes::Top]          = { "HighWall_Top.mesh"        };
-	Meshes[Meshes::ThreeSides]   = { "HighWall_ThreeSides.mesh" };
-	Meshes[Meshes::Door]         = { "Door.mesh"                };
-	Meshes[Meshes::Floor]        = { "floorTest.mesh"           };
-	Meshes[Meshes::Torch]        = { "Torch_fbx.mesh"           };
-	Meshes[Meshes::Pillar_short] = { "Pillar_short.mesh"        };
-	Meshes[Meshes::Table_long]   = { "Table_long_fbx.mesh"      };
-	Meshes[Meshes::Grass]        = { "GreenPlane.mesh"          };
-	Meshes[Meshes::FloorTorch]   = { "FloorTorch.mesh"          };
-	Meshes[Meshes::Table_small]  = { "Table_small.mesh"         };
-	Meshes[Meshes::Table_round]  = { "Table_round.mesh"         };
-	Meshes[Meshes::Chair]        = { "Chair.mesh"               };
-	Meshes[Meshes::Bush]         = { "Bush.mesh"                };
-
-
-	// 4x4 tile props - add more here
-	propVectors[PropTypes::BIGPROPS] = { Meshes[Meshes::FloorTorch] };
-
-	propVectors[PropTypes::TABLES]   = { Meshes[Meshes::Table_small], Meshes[Meshes::Table_round] };
-	propVectors[PropTypes::CHAIRS]   = { Meshes[Meshes::Chair] };
-	propVectors[PropTypes::BUSHES]   = { Meshes[Meshes::Bush] };
-	// 1x1 tile props // Add more props here
-	propVectors[PropTypes::GENERIC]  =
-	{ Meshes[Meshes::Table_small],
-	  Meshes[Meshes::Table_round]
-	};
+	Meshes[Meshes::HighWall]        = { "HighWall.mesh"            };
+	Meshes[Meshes::Passage]         = { "HighWall_Passage.mesh"    };
+	Meshes[Meshes::OneSide]         = { "HighWall_OneSide.mesh"    };
+	Meshes[Meshes::Corner]          = { "HighWall_Corner.mesh"     };
+	Meshes[Meshes::Top]             = { "HighWall_Top.mesh"        };
+	Meshes[Meshes::ThreeSides]      = { "HighWall_ThreeSides.mesh" };
+	Meshes[Meshes::Door]            = { "Door.mesh"                };
+	Meshes[Meshes::Floor]           = { "floorTest.mesh"           };
+	Meshes[Meshes::Torch]           = { "Torch_fbx.mesh"           };
+	Meshes[Meshes::Pillar_short]    = { "Pillar_short.mesh"        };
+	Meshes[Meshes::Table_long]      = { "Table_long_fbx.mesh"      };
+	Meshes[Meshes::Grass]           = { "GreenPlane.mesh"          };
+	Meshes[Meshes::FloorTorch]      = { "FloorTorch.mesh"          };
+	Meshes[Meshes::Table_small]     = { "Table_small.mesh"         };
+	Meshes[Meshes::Table_round]     = { "Table_round.mesh"         };
+	Meshes[Meshes::Chair]           = { "Chair.mesh"               };
+	Meshes[Meshes::Bush]            = { "Bush.mesh"                };
+	Meshes[Meshes::TableGroup1]     = { "Table_group1.mesh"        };
+	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
+	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh"		   };
 
 	// Materials
 	Materials[Materials::Stone]      = { "Cube.mat"       };
@@ -1126,8 +1131,61 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush]       = { "Bush.mat"       };
 	Materials[Materials::Dirt]       = { "brownPlane.mat" };
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
+	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
 
 
+	Prop Chair;
+	Chair.guid = Meshes[Meshes::Chair];
+	Chair.matGuid = Materials[Materials::Wood];
+
+	Prop Torch;
+	Torch.guid = Meshes[Meshes::Torch];
+	Torch.matGuid = Materials[Materials::Stone];
+
+	Prop Table_long;
+	Table_long.guid = Meshes[Meshes::Table_long];
+	Table_long.matGuid = Materials[Materials::Wood];
+
+	Prop Table_small;
+	Table_small.guid = Meshes[Meshes::Table_small];
+	Table_small.matGuid = Materials[Materials::Wood];
+
+	Prop Table_round;
+	Table_round.guid = Meshes[Meshes::Table_round];
+	Table_round.matGuid = Materials[Materials::Wood];
+
+	Prop FloorTorch;
+	FloorTorch.guid = Meshes[Meshes::FloorTorch];
+	FloorTorch.matGuid = Materials[Materials::Stone];
+
+	Prop TableGroup1;
+	TableGroup1.guid = Meshes[Meshes::TableGroup1];
+	TableGroup1.matGuid = Materials[Materials::Wood];
+
+	Prop CandleStick_tri;
+	CandleStick_tri.guid = Meshes[Meshes::Candlestick_tri];
+	CandleStick_tri.matGuid = Materials[Materials::Wood];
+
+	Prop PotGroup1;
+	PotGroup1.guid = Meshes[Meshes::PotGroup1];
+	PotGroup1.matGuid = Materials[Materials::Stone];
+
+	Prop Bush;
+	Bush.guid = Meshes[Meshes::Bush];
+	Bush.matGuid = Materials[Materials::Bush];
+
+	// 4x4 tile props - add more here
+	propVectors[PropTypes::BIGPROPS] = { FloorTorch, TableGroup1 };
+	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri };
+	propVectors[PropTypes::BUSHES]   = { Bush };
+
+	// 1x1 tile props // Add more props here
+	propVectors[PropTypes::GENERIC] =
+	{	Table_small,
+		Table_round,
+		PotGroup1
+	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
 		this->CreateBush(args);
@@ -1218,6 +1276,10 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
 
 	ProfileReturnConst(true);
 }
@@ -1248,7 +1310,10 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	}
 
 	enemyToAdd->PositionEntity(newX, newY);
-
+	if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyToAdd->GetEntity(), "Weapon", false)))
+	{
+		CoreInit::managers.eventManager->ToggleVisible(*weapon, beingRendered);
+	}
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 
@@ -1333,9 +1398,11 @@ float Room::WallCheck(int x, int y)
 	ProfileReturnConst(rotation);
 }
 
-const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, CreationArguments &args)
+SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArguments &args)
 {
 	StartProfile;
+
+	Prop ret;
 
 	// if we find a prop on the right side of the prop and not beneeth its a 1xx
 	if (tileValues[x + 1][y] == id_Props && tileValues[x][y + 1] != id_Props)
@@ -1345,7 +1412,15 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		args2.i = x + 1;
 		args2.j = y;
 		CreateFloor(args2);
-		ProfileReturnConst(Meshes[Meshes::Table_long]);
+
+		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
+		auto rand = CoreInit::subSystems.window->GetRand();
+		auto propId = (rand % nrOfProps);
+
+		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
+		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 	// Else we check if its a 2x1 by checking if a prop is beneeth and not on the right side
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y] != id_Props)
@@ -1355,7 +1430,14 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		args2.i = x;
 		args2.j = y + 1;
 		CreateFloor(args2);
-		ProfileReturnConst(Meshes[Meshes::Table_long]);
+		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
+		auto rand = CoreInit::subSystems.window->GetRand();
+		auto propId = (rand % nrOfProps);
+
+		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
+		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 	else if (tileValues[x][y + 1] == id_Props && tileValues[x + 1][y + 1] == id_Props) {
 		// big prop 2x2
@@ -1377,7 +1459,10 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 		auto rand = CoreInit::subSystems.window->GetRand();
 		auto propId = (rand % nrOfProps);
 
-		ProfileReturnConst(propVectors[PropTypes::BIGPROPS][propId]);
+		ret.guid = propVectors[PropTypes::BIGPROPS][propId].guid;
+		ret.matGuid = propVectors[PropTypes::BIGPROPS][propId].matGuid;
+
+		ProfileReturn(ret);
 	}
 
 	// 1x1 tile props
@@ -1385,15 +1470,18 @@ const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y, Creat
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto propId = (rand % nrOfProps);
 
-	ProfileReturnConst(propVectors[PropTypes::GENERIC][propId]);
+	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
+	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
+
+	ProfileReturn(ret);
 }
 
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
-	auto nrOfProps = propVectors[PropTypes::BIGPROPS].size();
+	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto propId = (rand % nrOfProps);
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId], true });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { propVectors[PropTypes::BUSHES][propId].guid, true });
 
 	// rand scale
 	float randScale = 0.7 + static_cast <float> (rand) / (static_cast <float> (RAND_MAX / (1.5 - 0.7)));
@@ -1486,11 +1574,13 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	int i = args.i;
 	int j = args.j;
 
+	Prop prop = GenerateRandomProp(i, j, args);
+
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = prop.matGuid;
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { GenerateRandomProp(i, j, args) });
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { prop.guid });
 	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 
 	roomEntities.push_back(args.ent);
@@ -1514,6 +1604,8 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	}
 	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j + 1] == id_Props) {
 		// big prop 2x2
+		CoreInit::managers.transformManager->Create(args.ent);
+		CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(i + 1.0f, 0.0f, j + 1.0f));
 		tileValues[i][j + 1] = 100;
 		tileValues[i + 1 ][j] = 100;
 		tileValues[i + 1 ][j + 1] = 100;
@@ -1534,7 +1626,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	{
 		matInfo.shader = Norm;
 	}
-	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.0f, args.j + 0.5f));
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.i + 0.5f, 1.5f, args.j + 0.5f));
 
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 

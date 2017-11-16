@@ -3,6 +3,8 @@
 #include "Flowfield.h"
 #include "ProjectileData.h"
 #include "CoreInit.h"
+#include <KeyBindings.h>
+#include <Items.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -25,7 +27,8 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 	/*Initialize Run animation*/
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("TopRunAnim_MCModell.anim");
 	animationPlayInfos[PLAYER_RUN_ANIMATION].push_back("BottomRunAnim_MCModell.anim"); //= playInfo;
-		
+	
+	this->deathAnimation = "DeathAnim_MCModell.anim";
 
 	StopProfile;
 	
@@ -327,8 +330,7 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	MoveEntity(xMovement * dt, yMovement * dt);
 	StopProfile;
 }
-#include <KeyBindings.h>
-#include <Items.h>
+
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
@@ -387,13 +389,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			currentItem = pi;
 		}
 	}
-
-
-
-
-
-
-
+	
 	int nrOfSKills = skills.size();
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
@@ -485,13 +481,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			ProjectileData temp;
 
-		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
-		temp.startPosX = this->xPos;
-		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
-		temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
-		temp.ownerUnit = mySelf;
-		temp.fileNameGuid = "playerMeleeProjectiles.SEP";
+			temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
+			temp.startPosX = this->xPos;
+			temp.startPosY = this->yPos;
+			temp.target = ValidTarget::ENEMIES;
+			temp.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE, DamageType::PHYSICAL, 2);
+			temp.ownerUnit = mySelf;
+			temp.fileNameGuid = "playerMeleeProjectiles.SEP";
 
 			newProjectiles.push_back(temp);
 
@@ -537,17 +533,20 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	UpdateMovement(dt, mInputs);
-	UpdateActions(dt, newProjectiles, aInput);
+	if (health > 0.f)
+	{
+		UpdateMovement(dt, mInputs);
+		UpdateActions(dt, newProjectiles, aInput);
 
-	ClearConditionEvents();
-	ClearDamageEvents();
-	ClearHealingEvents();
+		ClearConditionEvents();
+		ClearDamageEvents();
+		ClearHealingEvents();
+	}
 	StopProfile;
 }
-#include <Items.h>
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
+	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 
 
@@ -568,9 +567,6 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 	}
 
-
-
-
 	auto type = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
 	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
@@ -584,10 +580,8 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	if (type == ItemType::WEAPON)
 		Item::Equip(unitEntity, item);
 
-
-
-
 	items[slot] = item;
+	StopProfile;
 }
 
 
@@ -783,36 +777,36 @@ void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
-	playerAggroSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[3] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[4] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroSounds[5] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[1] = Utilz::GUID("DefaultAttackSound.wav");
-	playerAggroColdSounds[2] = Utilz::GUID("DefaultAttackSound.wav");
-	playerHealingColdSounds[0] = Utilz::GUID("DefaultAttackSound.wav");
+	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");
+	playerAggroSounds[1] = Utilz::GUID("ÄtJärn.wav");
+	playerAggroSounds[2] = Utilz::GUID("RedoEller.wav");
+	playerAggroSounds[3] = Utilz::GUID("FörHeder.wav");
+	playerAggroSounds[4] = Utilz::GUID("NuSkaDu.wav");
+	playerAggroSounds[5] = Utilz::GUID("SmakaPå.wav");
+	playerHealingSounds[0] = Utilz::GUID("FörGammal.wav");
+	playerHealingSounds[1] = Utilz::GUID("KännsBättre.wav");
+	playerHealingSounds[2] = Utilz::GUID("SätterPlåster.wav");
+	playerAggroColdSounds[0] = Utilz::GUID("VäntaLite.wav");
+	playerAggroColdSounds[1] = Utilz::GUID("IngenTrollformel.wav");
+	playerAggroColdSounds[2] = Utilz::GUID("Nedkyllning.wav");
+	playerHealingColdSounds[0] = Utilz::GUID("IngePlåster.wav");
 
 
 	for (int i = 0; i < nrAggroSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroSounds[i], SE::Audio::BakgroundSound }); //SE::Audio::StereoPanSound
 	}
 	for (int i = 0; i < nrHealingSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrAggroColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerAggroColdSounds[i], SE::Audio::BakgroundSound });
 	}
 	for (int i = 0; i < nrHealingColdSounds; ++i)
 	{
-		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::StereoPanSound });
+		CoreInit::managers.audioManager->Create(unitEntity, { playerHealingColdSounds[i], SE::Audio::BakgroundSound });
 	}
 
 }
