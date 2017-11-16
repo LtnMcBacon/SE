@@ -204,7 +204,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		Projectile temp(inputData, projData);
 
 		CoreInit::managers.transformManager->SetPosition(temp.GetEntity(),
-		    DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
+		    DirectX::XMFLOAT3(projData.startPosX, projData.startPosZ, projData.startPosY));
 		CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
 		CoreInit::managers.transformManager->SetScale(temp.GetEntity(), 
 			DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale,loaded.meshScale));
@@ -1182,7 +1182,7 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 			float ownerPos[3];
 			auto pos = CoreInit::managers.transformManager->GetPosition(unit->GetEntity());
 			ownerPos[0] = pos.x;
-			ownerPos[1] = pos.y;
+			ownerPos[1] = pos.y+1.f;
 			ownerPos[2] = pos.z;
 			CoreInit::managers.particleSystemManager->UpdateSystemEndPosition(p->GetEntity(), ownerPos);
 		}
