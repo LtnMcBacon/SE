@@ -791,8 +791,8 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 	playerAggroColdSounds[2] = Utilz::GUID("Nedkyllning.wav");
 	playerHealingColdSounds[0] = Utilz::GUID("IngePlåster.wav");
 
-	CoreInit::managers.audioManager->Create(unitEntity, { Utilz::GUID("IngePlåster.wav"), SE::Audio::VoiceSound });
-	CoreInit::managers.dataManager->SetValue(unitEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(Utilz::GUID("IngePlåster.wav").id));
+	CoreInit::managers.audioManager->Create(unitEntity, { Utilz::GUID("deathMC.wav"), SE::Audio::VoiceSound });
+	CoreInit::managers.dataManager->SetValue(unitEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(Utilz::GUID("deathMC.wav").id));
 
 
 	for (int i = 0; i < nrAggroSounds; ++i)
