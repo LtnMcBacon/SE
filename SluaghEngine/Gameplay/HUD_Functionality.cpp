@@ -61,7 +61,7 @@ namespace SE
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill,string textName, string hoverTex, string PressTex, string buttonText)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions();
@@ -81,6 +81,7 @@ namespace SE
 			tempElement.bindButton = func;
 			tempElement.buttonText = buttonText;
 			tempElement.EntityIndex = -1;
+			tempElement.perkName = perkName;
 			if (skill)
 			{
 				tempElement.skillButton = true;
@@ -110,6 +111,7 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
 			tempElement.skillName = skillName;
+			
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 7; i++)
 			{
@@ -128,6 +130,14 @@ namespace SE
 		{
 			StartProfile;
 			std::string description = "";
+			if (button.skillName != "")
+			{
+				description += button.skillName+"\n";
+			}
+			else
+			{
+				description += button.perkName+"\n";
+			}
 			description += button.skillName;
 			description += "Damage Source: ";
 			switch (button.skillDesc[0])
