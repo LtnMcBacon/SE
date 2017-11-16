@@ -173,9 +173,9 @@ namespace SE {
 						voiceVol = voiceVol * (10000 / masterVol);
 					}
 					masterVol = newVol;
-					bakgroundVol = (masterVol * newVol) / 10000;
-					effectVol = (masterVol * newVol) / 10000;
-					voiceVol = (masterVol * newVol) / 10000;
+					bakgroundVol = (bakgroundVol * newVol) / 10000;
+					effectVol = (effectVol * newVol) / 10000;
+					voiceVol = (voiceVol * newVol) / 10000;
 					voiceSVol = voiceVol * 3.0;
 					break;
 				}
