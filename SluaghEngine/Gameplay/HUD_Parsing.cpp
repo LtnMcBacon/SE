@@ -433,8 +433,6 @@ namespace SE
 
 				}
 
-				
-
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			ProfileReturnVoid;

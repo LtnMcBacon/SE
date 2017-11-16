@@ -29,7 +29,7 @@ namespace SE
 			bool CorrectCollision(float &xMov, float &yMov);
 
 			float xMov, yMov;
-			float xTarget, yTarget;
+			float xTarget, yTarget, xDistance, yDistance;
 			float moveEachFrame = 0.f;
 
 		public:
