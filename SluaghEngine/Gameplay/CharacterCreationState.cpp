@@ -17,7 +17,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 0;
-	nrOfPerks = 3;
+	nrOfPerks = 0;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
