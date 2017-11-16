@@ -55,6 +55,11 @@ namespace SE
 			virtual void CreateSystem(const Entity& entity, const CreateInfo& info) = 0;
 
 			/**
+			 * @brief Update the start and end positions of a system
+			 */
+			virtual void UpdateSystemEndPosition(const Entity& entity, float endPos[3]) = 0;
+
+			/**
 			* @brief	Hide/Show a particle system.
 			* @param [in] entity The entity to bind system to.
 			* @param [in] visible If the resource should be streamed.
