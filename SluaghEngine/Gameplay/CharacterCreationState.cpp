@@ -29,7 +29,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 
 		perks.loadPerkData(fileName);
 	}
-	getPerks();
+	
 	
 	//****************************
 	auto returnToMain = [this]()->void
@@ -64,11 +64,19 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, back, button.textName, button.hoverTex, button.PressTex);
 		}
+		else if (button.rectName == "skillBackgroundBtn")
+		{
+			fileParser.GUIButtons.CreateButton(190, 90, button.Width, button.Height, 0.99, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(570, 90, button.Width, button.Height, 0.99, "skillBackgroundBtn2", NULL, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(950, 90, button.Width, button.Height, 0.99, "skillBackgroundBtn3", NULL, button.textName, button.hoverTex, button.PressTex);
+		}
 	}
+
 	fileParser.GUIButtons.DrawButtons();
-
 	importSkillButtons();
+	importPerkButtons();
 
+	getPerks();
 	getSkills();
 	this->input = Input;
 	ProfileReturnVoid;
@@ -93,8 +101,8 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
 	{
 		allSkillsSelected = true;
-		fileParser.GUIButtons.deleteSkillPerkBtns();
-		getPerks();
+		//fileParser.GUIButtons.deleteSkillPerkBtns();
+		//getPerks();
 	}
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
@@ -166,9 +174,9 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 void SE::Gameplay::CharacterCreationState::getSkills()
 {
 	StartProfile;
-	int offset = 300;
+	int offset = 380;
 	int borderOffset = 200;
-	int rectSize = 100;
+	
 	SkillFactory sf;
 	Skill skill;
 	std::vector<int> OtherSkills;
@@ -283,6 +291,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		{
 			if (skillButton.rectName == skillName)
 			{
+				skillButton.skillName = skillName;
 				skillButton.skillIndex = index;
 				skillButton.bindButton = skillChoice;
 
@@ -295,12 +304,13 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					skillButton.rectName,
 					skillChoice,
 					skillInfo,
+					skillName,
 					skillButton.textName,
 					skillButton.hoverTex,
 					skillButton.PressTex,
 					""
 					);
-							
+				break;
 			}
 		}
 	}
@@ -312,9 +322,9 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 void SE::Gameplay::CharacterCreationState::getPerks()
 {
 	StartProfile;
-	int offset = 300;
+	int offset = 380;
 	int borderOffset = 200;
-	int rectSize = 100;
+	
 	
 	std::vector<std::string> otherPerks;
 	int nrOfOtherPerks = 0;
@@ -405,6 +415,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 			if (perks.perkVec[i].name == perkName)
 			{
 				tempPerk = perks.perkVec[i];
+				break;
 			}
 		}
 		
@@ -432,7 +443,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 					anchorY,
 					perkButton.Width,
 					perkButton.Height,
-					0,
+					1,
 					perkButton.rectName,
 					perkChoice,
 					true,
@@ -441,6 +452,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 					perkButton.PressTex,
 					""
 				);
+				break;
 
 			}
 		}
@@ -467,6 +479,16 @@ void SE::Gameplay::CharacterCreationState::importSkillButtons()
 	for (auto& fileName : skillButtonFiles)
 	{
 		fileParser.ParseSkillButtons(fileName);
+	}
+	ProfileReturnVoid;
+}
+
+void SE::Gameplay::CharacterCreationState::importPerkButtons()
+{
+	StartProfile;
+	for (auto& fileName : perkButtonFiles)
+	{
+		fileParser.ParsePerks(fileName);
 	}
 	ProfileReturnVoid;
 }
