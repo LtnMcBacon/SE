@@ -16,8 +16,8 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
-	nrOfSkills = 0;
-	nrOfPerks = 3;
+	nrOfSkills = 3;
+	nrOfPerks = 0;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -44,8 +44,8 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 			if (selectedPerks == nrOfPerks)
 			{
 			}
+				allSkillsSelected = true;
 		}
-		allSkillsSelected = true;
 		
 	}; std::function<void()> begin = startGame;
 
@@ -66,9 +66,9 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		}
 		else if (button.rectName == "skillBackgroundBtn")
 		{
-			fileParser.GUIButtons.CreateButton(190, 90, button.Width, button.Height, 0.99, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
-			fileParser.GUIButtons.CreateButton(570, 90, button.Width, button.Height, 0.99, "skillBackgroundBtn2", NULL, button.textName, button.hoverTex, button.PressTex);
-			fileParser.GUIButtons.CreateButton(950, 90, button.Width, button.Height, 0.99, "skillBackgroundBtn3", NULL, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(190, 90, button.Width, button.Height, 1, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(570, 90, button.Width, button.Height, 1, "skillBackgroundBtn2", NULL, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(950, 90, button.Width, button.Height, 1, "skillBackgroundBtn3", NULL, button.textName, button.hoverTex, button.PressTex);
 		}
 	}
 
@@ -95,8 +95,17 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills != renewSkillList)
 	{
 		fileParser.GUIButtons.deleteSkillPerkBtns();
-		getSkills();
 		renewSkillList = selectedSkills;
+		if (selectedSkills < nrOfSkills)
+		{
+			getSkills();
+		}
+	}
+	else if (selectedPerks != renewPerks)
+	{
+		fileParser.GUIButtons.deleteSkillPerkBtns();
+		getPerks();
+		renewPerks = selectedPerks;
 	}
 	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
 	{
@@ -120,27 +129,31 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (allSkillsSelected  == true)
 	{
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < nrOfSkills; i++)
 		{
-			/*infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
+			SkillFactory sf;
+			float attrArray[8];
+			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
+
+			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
 			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
-			infoToPass->skills[i].element	= chosenSkills.at(i).element;
+			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
 			infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
 			infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
 			infoToPass->skills[i].animation = chosenSkills.at(i).animation;
 			infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
 			
-			infoToPass->skills[i].projectileFileGUID	= chosenSkills.at(i).projectileFileGUID;
-			infoToPass->skills[i].skillDamage			= chosenSkills.at(i).skillDamage;
-			infoToPass->skills[i].boonEffectValue		= chosenSkills.at(i).boonEffectValue;
-			infoToPass->skills[i].boonRange				= chosenSkills.at(i).boonRange;
-			infoToPass->skills[i].boonDuration			= chosenSkills.at(i).boonDuration;
-			infoToPass->skills[i].baneEffectValue		= chosenSkills.at(i).baneEffectValue;
-			infoToPass->skills[i].baneRange				= chosenSkills.at(i).baneRange;
-			infoToPass->skills[i].baneDuration			= chosenSkills.at(i).baneDuration;
-			infoToPass->skills[i].coolDown				= chosenSkills.at(i).coolDown;*/
+			infoToPass->skills[i].projectileFileGUID	= chosenSkills[i].projectileFileGUID;
+			infoToPass->skills[i].skillDamage			= attrArray[0];
+			infoToPass->skills[i].boonEffectValue		= attrArray[1];
+			infoToPass->skills[i].boonRange				= attrArray[2];
+			infoToPass->skills[i].boonDuration			= attrArray[3];
+			infoToPass->skills[i].baneEffectValue		= attrArray[4];
+			infoToPass->skills[i].baneRange				= attrArray[5];
+			infoToPass->skills[i].baneDuration			= attrArray[6];
+			infoToPass->skills[i].cooldown				= attrArray[7];
 
-			infoToPass->skills[i].animation = 0;
+			/*infoToPass->skills[i].animation = 0;
 			infoToPass->skills[i].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
 			infoToPass->skills[i].bane = Banes::CONDITIONAL_BANES_NONE;
 			infoToPass->skills[i].baneDuration = 0;
@@ -157,10 +170,10 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			if(i == 0)
 				infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
 			if(i == 1)
-				infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";
+				infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";*/
 
-			infoToPass->skills[i].skillDamage = 5;
-			infoToPass->skills[i].skillName = "skill1";
+			/*infoToPass->skills[i].skillDamage = 5;
+			infoToPass->skills[i].skillName = "skill1";*/
 		}
 
 
@@ -197,6 +210,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int count = 0;
 		int j = 0;
 		int p = 0;
+		
 		
 		if (nrOfOtherSkills > chosenSkillsIndex.size())
 		{
@@ -276,6 +290,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		skill.bane		= static_cast<Banes>(skillInfo[3]);
 		skill.animation = 0;
 		skill.particle	= 0;
+		
 	
 		auto SkillIndexReturn = [this, index, skill]()->void
 		{
@@ -301,7 +316,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					anchorY,
 					skillButton.Width,
 					skillButton.Height,
-					0,
+					0.1,
 					skillButton.rectName,
 					skillChoice,
 					skillInfo,
@@ -423,7 +438,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 
 		auto perkNameReturn = [this, perkName,tempPerk]()->void
 		{
-			if (selectedSkills < nrOfSkills)
+			if (selectedPerks < nrOfPerks)
 			{
 				this->chosenPerkName.push_back(perkName);
 				this->chosenPerks.push_back(tempPerk);
@@ -444,7 +459,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 					anchorY,
 					perkButton.Width,
 					perkButton.Height,
-					1,
+					0.1,
 					perkButton.rectName,
 					perkChoice,
 					true,
