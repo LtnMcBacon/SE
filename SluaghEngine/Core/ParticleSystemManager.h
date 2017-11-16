@@ -31,6 +31,11 @@ namespace SE
 			void CreateSystem(const Entity& entity, const CreateInfo& info)override;
 
 			/**
+			 * @brief Update the start and end positions of a system.
+			 */
+			void UpdateSystemEndPosition(const Entity& entity, float endPos[3]) override;
+
+			/**
 			* @brief	Hide/Show a particle system.
 			* @param [in] entity The entity to bind system to.
 			* @param [in] visible If the resource should be streamed.
@@ -77,6 +82,10 @@ namespace SE
 				float pad5;
 				float gravity[3];
 				float pad4;
+				float startPos[3];
+				float pad6;
+				float endPos[3];
+				float pad7;
 				float speed;
 				float emitRate;
 				float lifeTime;
@@ -87,6 +96,7 @@ namespace SE
 				unsigned int circular;
 				unsigned int gravityCheck;
 				unsigned int emit;
+				unsigned int particlePath;
 			};
 			struct ParticleSystemData
 			{

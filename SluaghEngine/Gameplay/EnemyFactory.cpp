@@ -97,6 +97,9 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			enemyInfo.shader = enemyCreationData->second.shaderGUID;
 			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
 
+			CoreInit::managers.audioManager->Create(createdEnemy->GetEntity(), { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
+			CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
+
 			createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
 
 			if(type == ENEMY_TYPE_NUCKELAVEE)
@@ -188,6 +191,9 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.shaderGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
+		loadedEnemy.deathSoundGUID = Utilz::GUID(GetLineData(line));
 		++line;
 		line->pop_back();
 		loadedEnemy.baseDamage = GetLineDataAsInt(line);
