@@ -25,6 +25,7 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 		newProjectile.target = ValidTarget::PLAYER;
 		newProjectile.startPosX = gameBlackboard->playerPositionX;
 		newProjectile.startPosY = gameBlackboard->playerPositionY;
+		newProjectile.startPosZ = 1.0f;
 		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED,  Gameplay::DamageType::WATER, 10);
 
 		gameBlackboard->enemyProjectiles.push_back(newProjectile);

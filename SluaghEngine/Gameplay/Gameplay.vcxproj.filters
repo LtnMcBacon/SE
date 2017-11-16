@@ -327,12 +327,6 @@
     <ClCompile Include="AnimationRunningCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
-    <ClCompile Include="PauseAnimationsLeaf.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
-    </ClCompile>
-    <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
-      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClCompile>
     <ClCompile Include="PerkImporter.cpp">
       <Filter>Source Files\Perks</Filter>
     </ClCompile>
@@ -353,6 +347,12 @@
     </ClCompile>
     <ClCompile Include="DistanceToDoorCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseAnimationsLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

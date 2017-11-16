@@ -17,7 +17,7 @@ namespace SE
 		
 		struct ProjectileData
 		{
-			float startPosX, startPosY; // starting position
+			float startPosX, startPosY, startPosZ = 0.5f; // starting position
 			//float magnitudeX, magnitudeY; // directional power vector for determining what direction the projectile will move in
 			//float extentsX, extentsY; // width and height of the projectile in the xy plane, assuming the projectile is pointing straight up
 			//float speed; // speed the projectile moves at
