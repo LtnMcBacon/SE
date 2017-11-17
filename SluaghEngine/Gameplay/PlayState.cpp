@@ -35,10 +35,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
-		/*else if (button.rectName == "DamageOverlay")
+		else if (button.rectName == "DamageOverlay")
 		{
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
-		}*/
+		}
 
 		tempPos++;
 	}
