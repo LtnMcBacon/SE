@@ -6,11 +6,6 @@
 
 using namespace std::chrono_literals;
 
-void Push_(std::mutex& lock, const std::string&& msg)
-{
-	lock.lock();
-}
-
 SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr), stop(false)
 {
 	
@@ -26,18 +21,6 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 	StartProfile;
 	this->initInfo = initInfo;
 
-	//guidToResourceInfo.
-
-	/*switch (initInfo.RAM_UnloadingStrategy)
-	{
-	case EvictPolicy::Linear:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	default:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	}
-*/
 	diskLoader = new RawLoader;
 	auto res = diskLoader->Initialize();
 	if (res < 0)
