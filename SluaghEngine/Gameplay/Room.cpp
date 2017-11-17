@@ -1055,6 +1055,7 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	for(auto enemy : enemyUnits)
 	{
 		CoreInit::managers.eventManager->ToggleVisible(enemy->GetEntity(), render);
+		CoreInit::managers.eventManager->ToggleShadow(enemy->GetEntity(), render);
 		if(auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
 		{
 			CoreInit::managers.eventManager->ToggleVisible(*weapon, render);
@@ -1270,6 +1271,7 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
+	CoreInit::managers.eventManager->ToggleShadow(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
@@ -1311,6 +1313,7 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	}
 	enemyUnits.push_back(enemyToAdd);
 	CoreInit::managers.eventManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
+	CoreInit::managers.eventManager->ToggleShadow(enemyToAdd->GetEntity(), beingRendered);
 
 	ProfileReturnConst(true);
 }

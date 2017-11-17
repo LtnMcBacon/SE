@@ -786,6 +786,8 @@ void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visib
 	StartProfile;
 
 	renderableManager->ToggleRenderableObject(entity, visible);
+	if (!visible)
+		ToggleShadow(entity, visible);
 	StopProfile;
 }
 
