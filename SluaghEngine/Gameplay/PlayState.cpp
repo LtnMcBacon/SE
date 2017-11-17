@@ -35,16 +35,20 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
-		else if (button.rectName == "DamageOverlay")
-		{
-			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
-		
-			dmgOverlayIndex = tempPos;
-		
-		}
+		//else if (button.rectName == "DamageOverlay")
+		//{
+		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+		//
+		//	dmgOverlayIndex = tempPos;
+		//	
+		//}
 
 		tempPos++;
 	}
+
+
+	//playStateGUI.GUIButtons.ButtonEntityVec[dmgOverlayIndex]
+
 	/*playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
 	playStateGUI.GUIButtons.CreateButton(125, 650, 50, 50, 0, "tempButton", NULL);
 	playStateGUI.GUIButtons.CreateButton(200, 650, 50, 50, 0, "tempButton", NULL);
@@ -256,6 +260,10 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
+
+
+
+
 }
 
 void PlayState::InitializeRooms()

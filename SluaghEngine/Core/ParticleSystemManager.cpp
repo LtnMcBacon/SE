@@ -326,7 +326,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
-	//	GarbageCollection();
+	GarbageCollection();
 
 	//while (!toUpdate.wasEmpty())
 	//{

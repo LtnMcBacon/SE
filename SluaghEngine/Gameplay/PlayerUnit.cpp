@@ -41,18 +41,43 @@ bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRu
 	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
 	
 }
+#undef max
 
 void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 {
 	StartProfile;
 
 	// only basic at the moment
-	
+	auto ph = this->health;
 	for (int i = 0; i < DamageEventVector.size(); i++)
 	{
 		this->health -= DamageEventVector[i].amount;
 	}
+
+	if (ph > this->health)
+	{
+		if (!CoreInit::managers.entityManager->Alive(itemSelectedEntity))
+		{
+			itemSelectedEntity = CoreInit::managers.entityManager->Create();
+			Core::IGUIManager::CreateInfo ise;
+			ise.texture = "damageFrame.png";
+			ise.textureInfo.width = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+			ise.textureInfo.height = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);;
+			ise.textureInfo.layerDepth = 1.0;
+			ise.textureInfo.anchor = { 0.0f, 0.0f };
+			ise.textureInfo.screenAnchor = { 0, 0 };
+			ise.textureInfo.posX = 0;
+			ise.textureInfo.posY = 0;
+			ise.textureInfo.colour = { 1,1,1,(1.0f-(health / (float)newStat.health)+ 1.0f) /2.0f };
+			CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
+			CoreInit::managers.eventManager->SetLifetime(itemSelectedEntity, 0.15f);
+		}
 	
+	}
+	
+	
+
 	for (int i = 0; i < ConditionEventVector.size(); i++)
 	{
 		ConditionEventVector[i].duration -= dt;
@@ -944,24 +969,33 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 
 
-	items[currentItem] = Item::Weapon::Create(WeaponType::WAND);
+	items[currentItem] = Item::Weapon::Create(WeaponType::CROSSBOW);
 	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
 	Item::Pickup(items[currentItem]);
 	Item::Equip(unitEntity,items[currentItem]);
 
 	SetCurrentWeaponStats();
-
+	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
 	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	Core::IGUIManager::CreateInfo ise;
-	ise.texture = "Fire.png";
-	ise.textureInfo.width = 60;
-	ise.textureInfo.height = 60;
-	ise.textureInfo.layerDepth = 0.001;
-	ise.textureInfo.anchor = { 0.5f, 0.5f };
-	ise.textureInfo.screenAnchor = { 0, 1 };
-	ise.textureInfo.posX = currentItem * 55 + 40;
-	ise.textureInfo.posY = -55;
-	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);*/
+	ise.texture = "damageFrame.png";
+	ise.textureInfo.width = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	ise.textureInfo.height = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);;
+	ise.textureInfo.layerDepth = 0.0;
+	ise.textureInfo.anchor = { 0.0f, 0.0f };
+	ise.textureInfo.screenAnchor = { 0, 0 };
+	ise.textureInfo.posX = 0;
+	ise.textureInfo.posY = 0;
+	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
+
+	Core::IEventManager::EventCallbacks dmgCB;
+	dmgCB.triggerCheck = [](Core::Entity ent, void*data)
+	{
+		return true;
+	}
+*/
 
 	StopProfile;
 }

@@ -14,9 +14,21 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 	if (!myBlackboard->invurnerable)
 	{
+		auto ph = health;
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
 			this->health -= DamageEventVector[i].amount;
+		}
+
+
+		if (ph > health)
+		{
+			
+			auto ent = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.transformManager->Create(ent, CoreInit::managers.transformManager->GetPosition(unitEntity));
+			CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
+			CoreInit::managers.eventManager->SetLifetime(ent, 0.5f);
+			CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
