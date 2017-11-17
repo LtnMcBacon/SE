@@ -39,6 +39,15 @@ namespace SE
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
+			* @details	The bounding Hierarchy will be created from the sphere radius.
+			* @param[in] entity The entity to create the bounding Hierarchy for.
+			* @param[in] radius The radius of the boundingSphere
+			*/
+			void CreateBoundingHierarchy(const Entity& entity, const float radius);
+
+			/**
+			* @brief	Create a bounding Hierarchy for the entity.
+			*
 			* @details	The bounding Hierarchy will be created from mesh asset given.
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
@@ -63,6 +72,14 @@ namespace SE
 			*/
 			bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const override;
 
+			/**
+			* @brief	Check collision between two entities
+			* @param[in] ent1 The first entity
+			* @param[in] ent2 The second entity
+			* @retval true If they intersect
+			* @retval false If they do not intersect
+			*/
+			bool CheckCollision(const Entity ent1, const Entity ent2)const override;
 
 			inline void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback)override
 			{
@@ -84,6 +101,11 @@ namespace SE
 			 *
 			 */
 			bool GetLocalBoundingBox(const Entity& entity, DirectX::BoundingBox* bb = nullptr);
+
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(const Entity& entity)override;
 		private:
 			void SetDirty(const Entity& entity, size_t index);
 
@@ -95,10 +117,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(const Entity& entity)override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

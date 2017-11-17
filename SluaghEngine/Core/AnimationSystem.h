@@ -35,11 +35,20 @@ namespace SE
 			int FindJointIndex(Utilz::GUID skeleton, Utilz::GUID jointNameToFind);
 
 			void GetJointMatrix(const Entity& entity, int jointIndex, DirectX::XMFLOAT4X4& matrix);
+
+			unsigned int GetAnimationLength(const Utilz::GUID& guid);
+
+			void GetJointInverseBindPose(const Utilz::GUID& guid, int jointIndex, DirectX::XMMATRIX& matrix);
 			
 			inline void UpdateMatricesIndex() {
 				updateIndex = (updateIndex + 1) % 2;
 				mapingIndex = (mapingIndex + 1) % 2;
 			};
+
+			void* GetBucketBonePtr(const Entity& entity);
+			void* GetBucketTransformPtr(const Entity& entity);
+
+			friend class AnimationShadowSystem;
 
 		private:
 			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);

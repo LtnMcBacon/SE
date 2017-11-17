@@ -163,9 +163,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SkillTest.cpp">
-	  <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPoolTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDTest.cpp">
+      <Filter>Source Files\Gameplay Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -304,9 +310,12 @@
     </ClInclude>
     <ClInclude Include="SkillTest.h">
       <Filter>Header Files\GameplayTests</Filter>
-	 </ClInclude>
+    </ClInclude>
     <ClInclude Include="ThreadPoolTest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDTest.h">
+      <Filter>Header Files\GameplayTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

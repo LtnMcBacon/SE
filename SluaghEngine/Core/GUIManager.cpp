@@ -62,10 +62,27 @@ namespace SE {
 				
 				auto& ti = textureInfo[textureInfo.size() - 1];
 				if (ti.width == -1)
+				{
 					ti.width = textureGUID[info.texture].width;
-				if (ti.height == -1)
-					ti.height = textureGUID[info.texture].height;
 
+				}
+				else
+				{
+					ti.scale.x = ti.width / (float)textureGUID[info.texture].width;
+					ti.width = textureGUID[info.texture].width;
+
+				}
+				
+				if (ti.height == -1)
+				{
+					ti.height = textureGUID[info.texture].height;
+				}
+				else
+				{
+					ti.scale.y = ti.height / (float)textureGUID[info.texture].height;
+					ti.height = textureGUID[info.texture].height;
+				}
+				
 				//ti.origin = { ti.posX + ti.origin.x, ti.posY + ti.origin.y };
 
 				/*if (!textureInfo[textureInfo.size() - 1].anchor)
@@ -199,16 +216,17 @@ namespace SE {
 				// Temp variables
 				size_t last = textureInfo.size() - 1;
 				size_t index = entTextureID[entity].ID;
+				const Entity currentEntity = textureEnt[index];
 				const Entity last_entity = textureEnt[last];
 
 				// Copy the data
 				textureEnt[index] = last_entity;
 				textureInfo[index] = textureInfo[last];
-				textureGUID[entTextureID[entity].GUID].refCount--;
-				entTextureID[last_entity].ID = entTextureID[entity].ID;
+				textureGUID[entTextureID[currentEntity].GUID].refCount--;
+				entTextureID[last_entity].ID = entTextureID[currentEntity].ID;
 
 				// Remove last spot 
-				entTextureID.erase(entity);
+				entTextureID.erase(currentEntity);
 				textureInfo.pop_back();
 				textureEnt.pop_back();
 			}

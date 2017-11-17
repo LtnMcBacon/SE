@@ -45,7 +45,9 @@
 #include "ShadowTest.h"
 #include "ComputeTest.h"
 #include "SkillTest.h"
+#include "HUDTest.h"
 #include "ThreadPoolTest.h"
+#include "ParticleTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -67,7 +69,7 @@ int main(int argc, char** argv)
 	//srand(time(NULL));
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_crtBreakAlloc = 28283;
+//	_crtBreakAlloc = 5817;
 
 
 	//std::map<SE::Utilz::GUID, std::tuple<const char*,Test*>, SE::Utilz::GUID::Compare> tests;
@@ -91,26 +93,23 @@ int main(int argc, char** argv)
 	//AddTest(LightTest);
 	//AddTest(RecordingTest);
 	//AddTest(DebugRenderManagerTest);
-	AddTest(InstancingTest);
+	//AddTest(InstancingTest);
 
 	//AddTest(FlowFieldTest);
 	//AddTest(EnemyMovementTest);
 	//AddTest(RoomCreationTest);
 	//AddTest(PlayerMovementTest);
-	//AddTest(GameStateTest);
+	AddTest(GameStateTest);
 	//AddTest(BehavioursTest);
 	//AddTest(BehaviouralTreeFactoryTest);
 	//AddTest(EnemyFactoryTest);
 	//AddTest(GlaistigTest);
-	AddTest(SlaughTest);
-
-	AddTest(PickingTest);
-	AddTest(SkillTest);
+	//AddTest(SlaughTest);
 
 	//AddTest(PickingTest);
 	AddTest(ShadowTest);
   
-	AddTest(ProjectileTest);
+	//AddTest(ProjectileTest);
 	//AddTest(GarbageTest);
 	//AddTest(ConsoleTest);
 	//AddTest(TransformTest);
@@ -118,6 +117,8 @@ int main(int argc, char** argv)
 	AddTest(BloomTest);
 	//AddTest(RandRoomTest); 
 	AddTest(ThreadPoolTest);
+	AddTest(ParticleTest);
+	AddTest(HUDTest);
   
 	volatile bool running = true;
 	SE::DevConsole::IConsole* console = new SE::DevConsole::CMDConsole();

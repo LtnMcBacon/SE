@@ -6,6 +6,7 @@
 #include <Core\IEngine.h>
 #include <Gameplay\Skill.h>
 
+
 namespace SE
 {
 	namespace Gameplay
@@ -13,7 +14,7 @@ namespace SE
 
 		struct PlayStateData
 		{
-			Skill skills[2];
+			Skill skills[3];
 			//Perk perks[3];
 		};
 
@@ -36,14 +37,17 @@ namespace SE
 
 
 			// An enum to decide whish state the game is in, mroe to be added if necessary.
-			 enum  State
+			enum  State
 			{
 				MAIN_MENU_STATE = 0,
 				PLAY_STATE = 1,
 				GAME_OVER_STATE = 2,
 				CHARACTER_CREATION_STATE = 3,
-				PAUSE_STATE = 4
+				PAUSE_STATE = 4,
+				QUIT_GAME = 5
 			};
+
+			 
 
 			// perhaps a pointer to decide states when switching between objects?
 			// or a bunch of subclasses objects.

@@ -78,6 +78,10 @@ namespace SE
 			Entity GetActive()override {
 				return currentActive.entity;
 			}
+			/**
+			* @brief	Remove an enitity entry
+			*/
+			void Destroy(const Entity& entity)override;
 		private:
 			InitializationInfo initInfo;
 			std::default_random_engine generator;
@@ -93,10 +97,7 @@ namespace SE
 			* @brief	Remove an enitity entry
 			*/
 			void Destroy(size_t index)override;
-			/**
-			* @brief	Remove an enitity entry
-			*/
-			void Destroy(const Entity& entity)override;
+
 			/**
 			* @brief	Look for dead entities.
 			*/

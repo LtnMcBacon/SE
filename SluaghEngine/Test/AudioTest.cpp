@@ -43,7 +43,11 @@ namespace SE
 			{	
 #pragma region GUI
 
-				auto entText = managers.entityManager->Create();
+				Core::Entity entText[4];
+				entText[0] = managers.entityManager->Create();
+				entText[1] = managers.entityManager->Create();
+				entText[2] = managers.entityManager->Create();
+				entText[3] = managers.entityManager->Create();
 
 			//	// Text creation
 				Graphics::TextGUI guiText;
@@ -61,22 +65,76 @@ namespace SE
 				guiText.rotation = 0;
 				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
 				
-				managers.textManager->Create(entText, { Utilz::GUID(), guiText });
-				managers.textManager->ToggleRenderableText(entText, true);
+				managers.textManager->Create(entText[0], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[0], true);
+
+
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 10;
+				guiText.posY = 10;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[1], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[1], true);
+
+
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 20;
+				guiText.posY = 20;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[2], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[2], true);
+
+;
+				guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+				guiText.effect = Graphics::Effect::NoEffect;
+				guiText.text = L"Is this pizza heaven????";
+				guiText.hashString = std::hash<std::wstring>()(guiText.text);
+				guiText.layerDepth = 0;
+				guiText.anchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.screenAnchor = DirectX::XMFLOAT2(0.5, 0.5);
+				guiText.posX = 30;
+				guiText.posY = 30;
+				guiText.width = 300;
+				guiText.height = 100;
+				guiText.rotation = 0;
+				guiText.scale = DirectX::XMFLOAT2(2.0, 1.0);
+
+				managers.textManager->Create(entText[3], { Utilz::GUID(), guiText });
+				managers.textManager->ToggleRenderableText(entText[3], true);
 
 				// GUI texture creation
 				auto entTexture = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture;
 				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 				guiTexture.effect = Graphics::Effect::BothFlipEffect;
-				guiTexture.layerDepth = 0.1;
+				guiTexture.layerDepth = 0;
 				guiTexture.posX = 0;
 				guiTexture.posY = 0;
 				guiTexture.rotation = 0;
-				guiTexture.width = -1;
-				guiTexture.height = -1;
-				guiTexture.screenAnchor = { 0.25f ,0.25f };
-				guiTexture.anchor = { 0.5f, 0.5f };
+				guiTexture.width = 100;
+				guiTexture.height = 100;
+				guiTexture.screenAnchor = { 0.5f ,0.5f };
+				guiTexture.anchor = { 1.0f, 0.5f };
 				guiTexture.scale = { 1.0f, 1.0f };
 				//guiTexture.rect = nullptr;	//not needed default nullptr
 
@@ -173,6 +231,7 @@ namespace SE
 				subSystems.window->MapActionButton(12, Window::KeyJ);
 				subSystems.window->MapActionButton(13, Window::KeyO);
 				subSystems.window->MapActionButton(14, Window::KeyL);
+				subSystems.window->MapActionButton(15, Window::KeyM);
 
 				console->Print("Start main loop!!\n");
 				Utilz::Timer time;
@@ -199,6 +258,13 @@ namespace SE
 						managers.audioManager->StopSound(soundEnt, "Canary.wav");
 						managers.audioManager->RemoveSound(soundEnt, "Canary.wav");
 
+					}
+					if (subSystems.window->ButtonPressed(15) == true)
+					{
+						managers.entityManager->Destroy(entText[0]);
+						managers.entityManager->Destroy(entText[1]);
+						managers.entityManager->Destroy(entText[2]);
+						managers.entityManager->Destroy(entText[3]);
 					}
 					if (subSystems.window->ButtonPressed(4) == true)
 					{

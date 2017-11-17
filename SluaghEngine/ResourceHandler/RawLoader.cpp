@@ -19,12 +19,21 @@ SE::ResourceHandler::RawLoader::~RawLoader()
 int SE::ResourceHandler::RawLoader::Initialize()
 {
 	StartProfile;
-	ifstream in("rawLoaderEntries.txt", ios::in);
+	char* appdataBuffer;
+	size_t bcount;
+	if (_dupenv_s(&appdataBuffer, &bcount, "APPDATA"))
+		throw std::exception("Failed to retrieve path to appdata.");
+	std::string appdata(appdataBuffer);
+	free(appdataBuffer);
+	appdata += "\\Sluagh\\";
+	ifstream in(appdata + "rawLoaderEntries.txt", ios::in);
 	if (!in.is_open())
 		ProfileReturnConst(-1);
+	
 	std::string s;
 	while (getline(in, s))
 	{
+		s = appdata + s;
 		auto& name = Utilz::getFilename(s);
 		auto& ext = Utilz::getExtension(s);
 		auto& nh = Utilz::GUID(name);

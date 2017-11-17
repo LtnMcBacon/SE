@@ -104,7 +104,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE;__PROFILE</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
@@ -115,7 +116,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE;__PROFILE</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(TargetName).dll" "$(SolutionDir)Test"</Command>
@@ -128,7 +130,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE;__PROFILE</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -145,7 +148,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);DLL_EXPORT_CORE;__PROFILE</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -156,8 +160,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationShadowSystem.cpp" />
     <ClCompile Include="AnimationSystem.cpp" />
+    <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="IDataManager.cpp" />
     <ClCompile Include="IEventManager.cpp" />
     <ClCompile Include="ITextManager.cpp" />
     <ClCompile Include="RenderableManagerInstancing.cpp" />
@@ -197,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Core\Entity.h" />
+    <ClInclude Include="..\includes\Core\IDataManager.h" />
     <ClInclude Include="..\includes\Core\IEventManager.h" />
     <ClInclude Include="..\includes\Core\ITextManager.h" />
     <ClInclude Include="..\includes\Core\IAnimationManager.h" />
@@ -215,8 +223,10 @@
     <ClInclude Include="..\includes\Core\IParticleSystemManager.h" />
     <ClInclude Include="..\includes\Core\IRenderableManager.h" />
     <ClInclude Include="..\includes\Core\ITransformManager.h" />
+    <ClInclude Include="AnimationShadowSystem.h" />
     <ClInclude Include="AnimationStructs.h" />
     <ClInclude Include="AnimationSystem.h" />
+    <ClInclude Include="DataManager.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="RenderableManagerInstancing.h" />
     <ClInclude Include="TextManager.h" />

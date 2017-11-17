@@ -317,6 +317,13 @@ namespace SE
 			* @sa MapActionButton
 			*/
 			virtual bool ButtonUp(uint32_t actionButton) const = 0;
+			/**
+			* @brief Checks whether or not the bound action button was double pressed
+			* @retval true Returns true if the button was double pressed
+			* @retval false Returns false if the button was not double pressed
+			* @sa MapActionButton
+			*/
+			virtual bool ButtonDouble(uint32_t actionButton) const = 0;
 
 			/**
 			* @brief Retrieves the mouse pos.

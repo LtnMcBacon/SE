@@ -151,6 +151,8 @@ namespace SE
 			*/
 			const DirectX::XMFLOAT4X4 GetTransform(const Entity& e) const override;
 
+			void SetTransform(const Entity& entity, const DirectX::XMFLOAT4X4& matrix)override;
+
 			/**
 			* @brief    Returns the forward vector of the entity.
 			* @param[in] e The entity.
@@ -200,6 +202,8 @@ namespace SE
 			{
 				return dirtyTransforms.data();
 			}
+			void Destroy(const Entity& e)override;
+
 		private:
 
 
@@ -210,7 +214,6 @@ namespace SE
 			void GarbageCollection()override;
 			void Allocate(size_t count);
 			void Destroy(const size_t index)override;
-			void Destroy(const Entity& e)override;
 
 			std::vector<DirectX::XMFLOAT4X4> dirtyTransforms;
 

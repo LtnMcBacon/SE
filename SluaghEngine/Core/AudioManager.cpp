@@ -58,7 +58,7 @@ namespace SE {
 			}
 
 			int handle;
-			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound)
+			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound && createInfo.soundType != Audio::StereoVoiceSound)
 				handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
 			else
 			{
@@ -140,6 +140,7 @@ namespace SE {
 			GarbageCollection();
 			if (PanExist)
 				UpdateDirtyTransforms();
+			dirtyEntites.clear();
 			timer->Stop(("AudioManager"));
 		}
 
@@ -214,7 +215,7 @@ namespace SE {
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
@@ -233,7 +234,7 @@ namespace SE {
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);

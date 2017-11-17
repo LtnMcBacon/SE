@@ -245,8 +245,18 @@ namespace SE
 			/***********End General Render Jobs************/
 
 
+			struct InternalTextJob
+			{
+				TextJob job;
+				RECT rect;
+				DirectX::XMFLOAT2 origin;
+				DirectX::XMFLOAT2 scale;
+				size_t index;
+			};
+			std::vector<InternalTextJob> renderTextJobs;
+			std::vector<size_t> textJobToIndex;
+			std::stack<size_t> freeTextJobs;
 
-			std::vector<TextJob> renderTextJobs;
 			std::vector<GUIJob> renderTextureJobs;
 	
 			// fonts

@@ -29,9 +29,8 @@ namespace SE
 		class Room
 		{
 		private:
-
+			
 			Room* adjacentRooms[4] = {};
-			bool DoorArr[4] = { true, true, true,true };
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
@@ -40,12 +39,79 @@ namespace SE
 			{
 				TABLES,
 				CHAIRS,
-				TORCHES_FLOOR,
 				TORCHES_WALL,
-				BUSHES
+				BUSHES,
+				BIGPROPS,
+				GENERIC,
+				MEDIUM
 			};
-			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
 
+			enum class Meshes {
+				HighWall,
+				Bush,
+				Chair,
+				Passage,
+				OneSide,
+				Corner,
+				Top,
+				ThreeSides,
+				Door,
+				Floor,
+				Torch,
+				Pillar_short,
+				Table_long,
+				Table_small,
+				Table_round,
+				Grass,
+				FloorTorch,
+				TableGroup1,
+				Candlestick_tri,
+				PotGroup1
+			};
+			enum class Materials {
+				Stone,
+				FloorStone,
+				FloorWood,
+				DoorMat,
+				WallStone,
+				WallWood,
+				Bush,
+				Dirt,
+				Grass,
+				Wood
+			};
+
+			struct CreationArguments
+			{
+				SE::Core::Entity ent;
+				int i;
+				int j;
+				int doorCounter;
+				Core::IMaterialManager::CreateInfo mat;
+				SE::Utilz::GUID wallMat;
+				SE::Utilz::GUID floorMat;
+			};
+
+			struct Prop {
+				SE::Utilz::GUID guid;
+				SE::Utilz::GUID matGuid;
+			};
+
+			std::map<PropTypes, std::vector<Prop>> propVectors;
+			std::map<unsigned char, std::function<void(CreationArguments&)>> propItemToFunction;
+			std::map<Meshes, SE::Utilz::GUID> Meshes;
+			std::map<Materials, SE::Utilz::GUID> Materials;
+
+
+			static const char id_Props    = 137;
+			static const char id_Torch    = 203;
+			static const char id_Floor    = 0;
+			static const char id_DeadArea = 76;
+			static const char id_Door1    = 22;
+			static const char id_Door2    = 48;
+			static const char id_Wall     = 255;
+			static const char id_Pillar   = 225;
+			static const char id_Bush     = 13;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -73,7 +139,9 @@ namespace SE
 				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
 				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
 				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
-				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
+				DIRECTION_ADJACENT_ROOM_WEST,	/**<The room lies to the West (3) */
+				DIRECTION_ADJACENT_ROOM_NONE	/**<There is no room (2) */
+
 			};
 
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
@@ -92,6 +160,15 @@ namespace SE
 			*
 			**/
 		private:
+
+			struct DoorData
+			{
+				int doorEntityPos = -1;
+				bool active = true;
+				float xPos, yPos;
+				DirectionToAdjacentRoom side;
+			};
+			DoorData DoorArr[4];
 
 			char tileValues[25][25];
 			/**
@@ -241,7 +318,7 @@ namespace SE
 			*/
 			void ProjectileAgainstWalls(Projectile& projectile);
 
-			int PointCollisionWithEnemy(float x, float y);
+			int PointCollisionWithEnemy(float x, float y, Projectile& projectile);
 
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
@@ -272,10 +349,13 @@ namespace SE
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
 
+			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
+
 		public:
 			Room(Utilz::GUID fileName);
 			~Room();
 
+			void InitializeAdjacentFlowFields();
 
 			float FloorCheck(int x, int y); 
 			
@@ -283,6 +363,18 @@ namespace SE
 			* @brief Sets the enteties in the room to render or not
 			*/
 			void RenderRoom(bool render);
+
+			/**
+			* @brief	This function is used to see if the player should transition between rooms
+			*
+			* @details	This function will check if the player is close enough to a door, and if the user clicked close enough to the door with the mouse
+			* if they are then a corresponding value will be returned indicating what room to transition into
+			*
+			*
+			* @retval What direction the room to transition into is, if DIRECTION_ADJACENT_ROOM_NONE then no transition should be done
+			*
+			*/
+			DirectionToAdjacentRoom CheckForTransition(float playerX, float playerY);
 
 			/**
 			* @brief	This function will allow the user to add a reference to an adjacent room into this room.
@@ -325,7 +417,8 @@ namespace SE
 			* or when an enemy moves between two rooms. The flag "ignorePowerLevel" can be used to make sure that
 			* an enemy is added to a room, no matter the current powerlevel of that room.
 			*
-			* @param[in] toAdd The enemy to be added into the room.
+			* @param[in] enemyToAdd The enemy to be added into the room.
+			* @param[in] exitDirection The direction the enemy LEFT the previous room through.
 			*
 			* @retval true The enemy has been added to the room
 			* @retval false The powerlevel of the room is to high for the current enemy to be added to the room.
@@ -337,17 +430,44 @@ namespace SE
 			*	To be added when function is implemented
 			* @endcode
 			*/
-			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd/*bool ignorePowerLevel*/);
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjacentRoom exitDirection);
+
+			/**
+			* @brief	This function is used to add an enemy to the room.
+			*
+			* @details	This function can be used to add an enemy to a specific room either during room construction
+			* or when an enemy moves between two rooms. The flag "ignorePowerLevel" can be used to make sure that
+			* an enemy is added to a room, no matter the current powerlevel of that room.
+			*
+			* @param[in] enemyToAdd The enemy to be added into the room.
+			*
+			* @retval true The enemy has been added to the room
+			* @retval false The powerlevel of the room is to high for the current enemy to be added to the room.
+			*
+			* @warning Note that the room WILL take ownership of the AIs it contains. This means that they will delete them!
+			*
+			* Example code:
+			* @code
+			*	To be added when function is implemented
+			* @endcode
+			*/
+			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd);
+			void RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit *enemyToRemove);
 			
 			inline const FlowField *GetFlowFieldMap() const
 			{
 				return roomField;
 			};
 
-			inline const Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
+			inline Room* GetAdjacentRoomByDirection(DirectionToAdjacentRoom direction) const
 			{
 				return adjacentRooms[int(direction)];
 			}
+
+			/**
+			* @brief	Sets the reference paramters to the position of the door, the return value indicates if the door is active or not
+			*/
+			bool GetPositionOfActiveDoor(DirectionToAdjacentRoom door, float &posX, float &posY);
 
 			/**
 			* @brief	Update the room
@@ -413,7 +533,36 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
+			Prop GenerateRandomProp(int x, int y, CreationArguments &args);
+
+			/**
+			* @brief
+			*/
+			void CreateBush(CreationArguments &args);
+			/**
+			* @brief	
+			*/
+			void CreateFloor(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateTorch(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreatePillar(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateProp(CreationArguments &args);
+			/**
+			* @brief	Code for creating the actual walls, not the calculations. Not to be confused with createWalls() ! 
+			*/
+			void CreateWall2(CreationArguments &args);
+			/**
+			* @brief
+			*/
+			void CreateDoor(CreationArguments &args);
 
 
 			/**
@@ -442,6 +591,19 @@ namespace SE
 			 */
 			void DistanceToAllEnemies(float startX, float startY, std::vector<float> &returnVector);
 
+			/**
+			 * @brief Get distance to closest (open) door
+			 */
+			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
+
+			/**
+			* @brief Resets the tilevalues from 100 to 0
+			*
+			* @details When we find two tiles next to each other we create an object for both of those tiles even though we are still on only one of the tiles.
+			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
+			*/
+			void ResetTempTileValues();
+		
 			/**
 			* @brief set Room door pointer to values
 			*/

@@ -76,12 +76,15 @@ int SE::Core::Engine::Init(const InitializationInfo& info)
 int SE::Core::Engine::BeginFrame()
 {
 	StartProfile;
+	static int calls = 0;
 	if (frameBegun)
 		ProfileReturnConst( -1);
 
 	frameBegun = true;
 	timeClus.Start(("Frame"));
 	subSystems.window->Frame();
+
+
 	
 	subSystems.renderer->BeginFrame();
 	subSystems.devConsole->BeginFrame();
@@ -89,7 +92,7 @@ int SE::Core::Engine::BeginFrame()
 	for (auto& m : managersVec)
 		m->Frame(&timeClus);
 
-
+	calls++;
 	subSystems.renderer->Render();
 	subSystems.devConsole->Frame();
 
@@ -130,7 +133,6 @@ int SE::Core::Engine::Release()
 		delete *rit;
 
 	delete managers.entityManager;
-	delete managers.eventManager;
 
 	if(subSystems.devConsole)
 		subSystems.devConsole->Shutdown();
@@ -184,8 +186,12 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
-		info.RAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
-		info.VRAM_max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
+		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
+		info.RAM.tryUnloadWhenOver = 0.5;
+		info.RAM.getCurrentMemoryUsage = []() { return Utilz::Memory::GetPhysicalProcessMemory(); };
+		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
+		info.VRAM.tryUnloadWhenOver = 0.5;
+		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
 			throw std::exception("Could not initiate resourceHandler. Make sure you have run the fileparser. And in the right folder,etc.");
@@ -195,8 +201,8 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.window = Window::CreateNewWindow();
 		Window::InitializationInfo info;
 		info.fullScreen = false;
-		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+		info.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+		info.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 		info.windowTitle = "SluaghEngine";
 		info.winState = Window::WindowState::Regular;
 		auto res = subSystems.window->Initialize(info);
@@ -233,11 +239,12 @@ void SE::Core::Engine::InitManagers()
 	if (!managers.entityManager)
 		managers.entityManager = CreateEntityManager();
 
+	InitDataManager();
+
 	if (!managers.eventManager)
-		managers.eventManager = CreateEventManager();
+		managers.eventManager = CreateEventManager({ subSystems.window, managers.entityManager, managers.dataManager });
+	managersVec.push_back(managers.eventManager);
 
-
-	
 	InitTransformManager();
 	InitAudioManager();
 	InitParticleSystemManager();
@@ -251,6 +258,7 @@ void SE::Core::Engine::InitManagers()
 	InitTextManager();
 	InitGUIManager();
 	InitDecalManager();
+
 	StopProfile;
 }
 
@@ -292,6 +300,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
+		info.eventManager = managers.eventManager;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
 	}
 	managersVec.push_back(managers.particleSystemManager);
@@ -446,6 +455,17 @@ void SE::Core::Engine::InitDecalManager()
 	managersVec.push_back(managers.decalManager);
 }
 
+void SE::Core::Engine::InitDataManager()
+{
+	if (!managers.dataManager)
+	{
+		IDataManager::InitializationInfo info;
+		info.entityManager = managers.entityManager;
+		managers.dataManager = CreateDataManager(info);
+	}
+	managersVec.push_back(managers.dataManager);
+}
+
 void SE::Core::Engine::SetupDebugConsole()
 {
 	subSystems.devConsole->AddFrameCallback([this]()
@@ -537,6 +557,7 @@ void SE::Core::Engine::InitStartupOption()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 10));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
@@ -567,6 +588,7 @@ void SE::Core::Engine::OptionUpdate()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 10));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera

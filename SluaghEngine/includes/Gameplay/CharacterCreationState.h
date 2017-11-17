@@ -1,6 +1,12 @@
 #ifndef _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #define _SE_GAMEPLAY_CHARACTER_CREATION_STATE_H
 #include "IGameState.h"
+#include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\PerkImporter.h>
+#include <string>
+#include <vector>
+//#include <SkillFactory.h>
+//#include <PlayerUnit.h>
 #include <Gameplay\Skill.h>
 
 namespace SE
@@ -42,6 +48,72 @@ namespace SE
 			*/
 
 			State Update(void* &passableInfo);
+			HUDParser fileParser;
+			PerkImporter perks;
+			/*void SkillBtns(int nrOfSkills);
+			void PerkBtns(int nrOfPerks);*/
+			void getSkills();
+			void getPerks();
+			std::string randomizePerk();
+			void importSkillButtons();
+			void importPerkButtons();
+
+			int selectedSkills;
+			int renewSkillList;
+			int selectedPerks;
+			int renewPerks;
+
+			int nrOfSkills;
+			int nrOfPerks;
+			std::vector<int> chosenSkillsIndex;
+			std::vector<Skill> chosenSkills;
+			std::vector<std::string> chosenPerkName;
+			std::vector<PerkData> chosenPerks;
+			bool allSkillsSelected = false;
+
+			//	every file to be parsed //
+			std::string skillButtonFiles[9]
+			{
+				"FireBallSkill.HuD",
+				"IceBallSkill.HuD",
+				"MagicBallSkill.HuD",
+				"NatureBallSkill.HuD",
+				"WaterBallSkill.HuD",
+				"PhysicalBallSkill.HuD",
+				"ArcaneBallSkill.HuD",
+				"MudBallSkill.HuD",
+				"FistingBallSkill.HuD"
+			};
+
+			std::string perkButtonFiles[9]
+			{
+				"fuckYou.HuD",
+				"testPerkData.HuD",
+				"fireResistancePerk.HuD",
+				"lifeStealPerk.HuD",
+				"meleeDamagePerk.HuD",
+				"rangeDamagePerk.HuD",
+				"statIncreasePerk.HuD",
+				"strengthMultiPerk.HuD",
+				"waterResistancePerk.HuD"
+			};
+
+			std::string Perkfiles[9]
+			{
+
+				 "fuckYou.prk",
+				 "testPerkData.prk",
+				 "fireResistancePerk.prk",
+				 "lifeStealPerk.prk",
+				 "meleeDamagePerk.prk",
+				 "rangeDamagePerk.prk",
+				 "statIncreasePerk.prk",
+				 "strengthMultiPerk.prk",
+				 "waterResistancePerk.prk"
+
+			};
+			
+			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:
 
 		protected:
@@ -52,6 +124,4 @@ namespace SE
 
 	}
 }
-
-
 #endif

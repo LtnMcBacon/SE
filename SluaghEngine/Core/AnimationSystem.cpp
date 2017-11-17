@@ -54,6 +54,7 @@ bool SE::Core::AnimationSystem::IsSkeletonLoaded(const Utilz::GUID & guid) const
 
 int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XMFLOAT4X4* matrices, uint32_t* joints, size_t nrOfKeyframes, size_t nrOfJoints) {
 
+
 	// The number of joints must be larger 0
 	if (nrOfJoints > 0) {
 		auto& currentAnimation = animations[guid];
@@ -111,9 +112,10 @@ bool SE::Core::AnimationSystem::IsAnimationLoaded(const Utilz::GUID & guid) cons
 void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, AnimationInfo& info, bool threaded)
 {
 	// Get the animation bucket
-	const auto& bucketAndID = entityToBucketAndIndexInBucket[entity];
-	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID.bucket];
-
+	const auto bucketAndID = entityToBucketAndIndexInBucket.find(entity);
+	if (bucketAndID == entityToBucketAndIndexInBucket.end())
+		return;
+	auto bucket = (AnimationBucket*)pipelineToRenderBucket[bucketAndID->second.bucket];
 	// Get the skeleton
 	auto& skeleton = skeletons[info.skeleton];
 
@@ -122,10 +124,10 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 	DirectX::XMFLOAT4X4* bucketTransformUnThreaded = nullptr;
 	if (!threaded)
 	{
-		bucketTransformUnThreaded = bucket->matrices[mapingIndex][bucketAndID.index].jointMatrix;
+		bucketTransformUnThreaded = bucket->matrices[mapingIndex][bucketAndID->second.index].jointMatrix;
 		memcpy(bucketTransformUnThreaded, &mats, sizeof(XMFLOAT4X4));
 	}	
-	bucketTransform = bucket->matrices[updateIndex][bucketAndID.index].jointMatrix;
+	bucketTransform = bucket->matrices[updateIndex][bucketAndID->second.index].jointMatrix;
 	memcpy(bucketTransform, &mats, sizeof(XMFLOAT4X4) * 30);
 
 	// Create vector of bools to check blending status at each joint
@@ -264,6 +266,49 @@ void SE::Core::AnimationSystem::GetJointMatrix(const Entity& entity, int jointIn
 		XMStoreFloat4x4(&matrix, XMMatrixTranspose(XMLoadFloat4x4(&transposed)));
 	
 	}
+}
+
+unsigned int SE::Core::AnimationSystem::GetAnimationLength(const Utilz::GUID& guid) {
+
+	auto find = animations.find(guid);
+
+	if (find != animations.end()) {
+
+		return animations[find->first].Length;
+	}
+
+	return 0;
+}
+
+void SE::Core::AnimationSystem::GetJointInverseBindPose(const Utilz::GUID& guid, int jointIndex, DirectX::XMMATRIX& matrix) {
+
+	auto find = skeletons.find(guid);
+
+	if (find != skeletons.end()) {
+
+		matrix = skeletons[find->first].Hierarchy[jointIndex].inverseBindPoseMatrix;
+	}
+
+}
+
+void* SE::Core::AnimationSystem::GetBucketBonePtr(const Entity& entity)
+{
+	const auto find = entityToBucketAndIndexInBucket.find(entity);
+	if(find != entityToBucketAndIndexInBucket.end())
+	{
+		return ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->matrices[updateIndex].data();
+	}
+	return nullptr;
+}
+
+void* SE::Core::AnimationSystem::GetBucketTransformPtr(const Entity& entity)
+{
+	const auto find = entityToBucketAndIndexInBucket.find(entity);
+	if (find != entityToBucketAndIndexInBucket.end())
+	{
+		return ((AnimationBucket*)pipelineToRenderBucket[find->second.bucket])->transforms.data();
+	}
+	return nullptr;
 }
 
 void SE::Core::AnimationSystem::UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at) {

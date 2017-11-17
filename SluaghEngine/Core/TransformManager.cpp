@@ -158,9 +158,15 @@ void SE::Core::TransformManager::Rotate(const Entity& e, float pitch, float yaw,
 {
 	_ASSERT(e.Index() < lookUpTableSize);
 	const int32_t index = lookUpTable[e.Index()];
-	data.rotations[index].x += pitch;
-	data.rotations[index].y += yaw;
-	data.rotations[index].z += roll;
+
+	float a, b, c;
+	a = data.rotations[index].x+ pitch;
+	b = data.rotations[index].y+ yaw;
+	c = data.rotations[index].z+ roll;
+
+	data.rotations[index].x = a;
+	data.rotations[index].y = b;
+	data.rotations[index].z = c;
 	data.flags[index] |= TransformFlags::DIRTY;
 
 	int32_t child = data.childIndex[index];
@@ -225,7 +231,7 @@ void SE::Core::TransformManager::SetRotation(const Entity& e, float pitch, float
 	const int32_t index = lookUpTable[e.Index()];
 	const float pitchDiff = pitch - data.rotations[index].x;
 	const float yawDiff = yaw - data.rotations[index].y;
-	const float rollDiff = roll -data.rotations[index].z;
+	const float rollDiff = roll - data.rotations[index].z;
 	Rotate(e, pitchDiff, yawDiff, rollDiff);
 }
 
@@ -277,6 +283,16 @@ const DirectX::XMFLOAT4X4 SE::Core::TransformManager::GetTransform(const Entity&
 	XMStoreFloat4x4(&transform, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x, pos.y, pos.z));
 	return transform;
 
+}
+
+void SE::Core::TransformManager::SetTransform(const Entity& entity, const DirectX::XMFLOAT4X4 & matrix)
+{
+	_ASSERT(entity.Index() < lookUpTableSize);
+	const int32_t index = lookUpTable[entity.Index()];
+	_ASSERT(index >= 0);
+
+	dirtyTransforms[index] = matrix;
+	SetDirty(entity, index);
 }
 
 const DirectX::XMFLOAT3 SE::Core::TransformManager::GetForward(const Entity & e) const
@@ -334,9 +350,10 @@ void SE::Core::TransformManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t aliveInRow = 0;
-	while(data.used > 0 && aliveInRow < 40U)
+	const uint32_t quitWhenReached = std::max((uint32_t)(data.used * 0.02f), 40U);
+	while(data.used > 0 && aliveInRow < quitWhenReached)
 	{
-		std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
+		const std::uniform_int_distribution<size_t> distribution(0U, data.used - 1U);
 		size_t i = distribution(generator);
 		if(initInfo.entityManager->Alive(data.entities[i]))
 		{
@@ -360,6 +377,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
 	_ASSERT(timer);
 	StartProfile;
+	GarbageCollection();
 	timer->Start(("TransformManager"));
 	auto LoopDirty = [this](int start, int end)
 	{
@@ -367,21 +385,20 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 		{
 			if (data.flags[i] & TransformFlags::DIRTY)
 			{
-				XMFLOAT4X4 transform;
 				const auto& translation = XMMatrixTranslationFromVector(XMLoadFloat3(&data.positions[i]));
 				const auto& rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&data.rotations[i]));
 				const auto& scale = XMMatrixScalingFromVector(XMLoadFloat3(&data.scalings[i]));
-				XMStoreFloat4x4(&transform, scale*rotation*translation);
-				dirtyTransforms[i] = transform;
+				XMStoreFloat4x4(&dirtyTransforms[i], scale*rotation*translation);	
 			}
 		}
 		return true;
 	};
 	
-	/*auto job1 = initInfo.threadPool->Enqueue(LoopDirty, 0, data.used / 2);
-	auto job2 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 4, data.used / 2);
+	auto job1 = initInfo.threadPool->Enqueue(LoopDirty, 0, data.used / 2);
+	/*auto job2 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 4, data.used / 2);
 	auto job3 = initInfo.threadPool->Enqueue(LoopDirty, data.used / 2, (data.used / 4) * 3);*/
-	LoopDirty(0, data.used);//(data.used / 4) * 3, data.used);
+	LoopDirty(data.used / 2, data.used);//(data.used / 4) * 3, data.used);
+	job1.get();
 	/*job1.get();
 	job2.get();
 	job3.get();*/
@@ -396,7 +413,7 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 		}
 	}
 
-	GarbageCollection();
+	
 	timer->Stop(("TransformManager"));
 	StopProfile;
 }

@@ -147,6 +147,15 @@
     <ClCompile Include="DecalManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IDataManager.cpp">
+      <Filter>Interface\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationShadowSystem.cpp">
+      <Filter>Source Files\Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioManager.h">
@@ -268,6 +277,15 @@
     </ClInclude>
     <ClInclude Include="EventManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Core\IDataManager.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationShadowSystem.h">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

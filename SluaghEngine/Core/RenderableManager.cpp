@@ -3,7 +3,7 @@
 
 #include <Graphics\VertexStructs.h>
 #include <Graphics\FileHeaders.h>
-
+#undef max
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else
@@ -38,8 +38,16 @@ SE::Core::RenderableManager::RenderableManager(const IRenderableManager::Initial
 {
 	Init();
 
-	shadowInstancing = nullptr;
+	shadowInstancing = nullptr;// new RenderableManagerInstancing(initInfo.renderer);
+	
 
+	Allocate(allocsize);
+}
+
+SE::Core::RenderableManager::RenderableManager(const IRenderableManager::InitializationInfo& initInfo, size_t allocsize,
+	RenderableManagerInstancing* rmI, RenderableManagerInstancing* anShadow) : initInfo(initInfo), rmInstancing(rmI), shadowInstancing(anShadow)
+{
+	Init();
 	Allocate(allocsize);
 }
 
@@ -54,9 +62,11 @@ SE::Core::RenderableManager::~RenderableManager()
 
 void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, const CreateInfo& info)
 {
+
+
 	StartProfile;
 	// See so that the entity does not have a renderable object already.
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find == entityToRenderableObjectInfoIndex.end())
 	{
 		// Check if the entity is alive
@@ -94,9 +104,28 @@ void SE::Core::RenderableManager::CreateRenderableObject(const Entity& entity, c
 			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
+	}
+	else
+	{
+		// Register the entity
 
+		renderableObjectInfo.wireframe[find->second] = info.wireframe ? 1u : 0u;
+		renderableObjectInfo.transparency[find->second] = info.transparent ? 1u : 0u;
+		renderableObjectInfo.shadow[find->second] = info.shadow ? 1u : 0u;
 
-	
+		// Load the model
+		ResourceHandler::Callbacks callbacks;
+		callbacks.loadCallback = loadCallback;
+		callbacks.destroyCallback = destroyCallback;
+		callbacks.invokeCallback = [this, entity](auto guid, auto data, auto size)
+		{
+			MeshData md = { guid, *(size_t*)data };
+
+			if (!toUpdate.push({ md, entity }))
+				return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SUCCESS;
+		};
+		initInfo.resourceHandler->LoadResource(info.meshGUID, callbacks, ResourceHandler::LoadFlags::ASYNC | ResourceHandler::LoadFlags::LOAD_FOR_VRAM);
 
 	}
 	StopProfile;
@@ -107,7 +136,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 	StartProfile;
 	// See so that the entity exist
 
-	auto find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		//If the visibility state is switched to what it already is we dont do anything.
@@ -122,7 +151,7 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		if (visible)
 		{		
 			if (renderableObjectInfo.transparency[find->second] == 1u)
-				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 			else
 				rmInstancing->AddEntity(entity, info);
 			rmInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
@@ -191,10 +220,6 @@ void SE::Core::RenderableManager::CreateRenderObjectInfo(size_t index, Graphics:
 
 	// Gather Renderobjectinfo from other managers
 	initInfo.eventManager->TriggerSetRenderObjectInfo(renderableObjectInfo.entity[index], info);
-
-
-	
-	
 }
 
 void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob * info)
@@ -218,7 +243,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 	info->vertexCount = renderableObjectInfo.mesh[index].vertexCount;
 	info->maxInstances = 256;
 	info->specialHaxxor = "OncePerObject";
-
+	initInfo.eventManager->TriggerSetShadowRenderObjectInfo(renderableObjectInfo.entity[index], info);
 }
 //
 //void SE::Core::RenderableManager::LinearUnload(size_t sizeToAdd)
@@ -259,7 +284,7 @@ void SE::Core::RenderableManager::CreateShadowRenderObjectInfo(size_t index, Gra
 
 void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 {
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		if (renderableObjectInfo.visible[find->second])
@@ -267,7 +292,7 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info);
 			if(renderableObjectInfo.transparency[find->second] == 1u)
-				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+				rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 			else
 				rmInstancing->AddEntity(entity, info);
 			
@@ -287,7 +312,7 @@ void SE::Core::RenderableManager::UpdateRenderableObject(const Entity & entity)
 
 void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wireFrame)
 {
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		bool p = static_cast<bool>(renderableObjectInfo.wireframe[find->second]);
@@ -304,7 +329,7 @@ void SE::Core::RenderableManager::ToggleWireframe(const Entity & entity, bool wi
 
 void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool transparency)
 {
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		renderableObjectInfo.transparency[find->second] = transparency ? 1u : 0u;
@@ -312,7 +337,7 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 		{
 			Graphics::RenderJob info;
 			CreateRenderObjectInfo(find->second, &info); 
-			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_5);
+			rmInstancing->AddEntity(entity, info, Graphics::RenderGroup::RENDER_PASS_4);
 		}
 		
 	}
@@ -320,7 +345,7 @@ void SE::Core::RenderableManager::ToggleTransparency(const Entity & entity, bool
 
 bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 {
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 		return static_cast<bool>(renderableObjectInfo.visible[find->second]);
@@ -330,18 +355,24 @@ bool SE::Core::RenderableManager::IsVisible(const Entity & entity) const
 
 void SE::Core::RenderableManager::ToggleShadow(const Entity& entity, bool shadow) {
 
-	auto& find = entityToRenderableObjectInfoIndex.find(entity);
+	const auto find = entityToRenderableObjectInfoIndex.find(entity);
 	if (find != entityToRenderableObjectInfoIndex.end())
 	{
 
-		if (renderableObjectInfo.visible[find->second] == 1u && static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
+		if (static_cast<bool>(renderableObjectInfo.shadow[find->second]) != shadow) {
 
 			renderableObjectInfo.shadow[find->second] = shadow ? 1u : 0u;
-			Graphics::RenderJob info;
-			CreateShadowRenderObjectInfo(find->second, &info);
-			shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
-			if(shadowInstancing)
+			if (shadow)
+			{
+				Graphics::RenderJob info;
+				CreateShadowRenderObjectInfo(find->second, &info);
+				shadowInstancing->AddEntity(entity, info, Graphics::RenderGroup::PRE_PASS_0);
 				shadowInstancing->UpdateTransform(entity, initInfo.transformManager->GetTransform(entity));
+			}
+			else
+			{
+				shadowInstancing->RemoveEntity(entity);
+			}
 
 		}
 	}
@@ -390,8 +421,10 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
+	if (renderableObjectInfo.shadow[index] && shadowInstancing)
+		shadowInstancing->RemoveEntity(entity);
 
-	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::UnloadFlags::VRAM);
+	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::ResourceType::VRAM);
 
 	// Copy the data
 	renderableObjectInfo.entity[index] = last_entity;
@@ -420,7 +453,8 @@ void SE::Core::RenderableManager::Init()
 	_ASSERT(initInfo.console);
 
 	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
-
+	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
+	initInfo.eventManager->RegisterToToggleShadow({ this, &RenderableManager::ToggleShadow });
 
 	ResourceHandler::Callbacks meshCallbacks;
 	meshCallbacks.loadCallback = loadCallback = [this](auto guid, auto data, auto size, auto udata, auto usize) 
@@ -568,7 +602,8 @@ void SE::Core::RenderableManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (renderableObjectInfo.used > 0 && alive_in_row < 50U)
+	const uint32_t quitWhenReached = std::max((uint32_t)(renderableObjectInfo.used * 0.005f), 40U);
+	while (renderableObjectInfo.used > 0 && alive_in_row < quitWhenReached)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, renderableObjectInfo.used - 1U);
 		size_t i = distribution(generator);

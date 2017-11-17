@@ -46,6 +46,14 @@ namespace SE
 			/**
 			* @brief	Create a bounding Hierarchy for the entity.
 			*
+			* @details	The bounding Hierarchy will be created from the sphere radius.
+			* @param[in] entity The entity to create the bounding Hierarchy for.
+			* @param[in] radius The radius of the boundingSphere
+			*/
+			virtual void CreateBoundingHierarchy(const Entity& entity, const float radius) = 0;
+			/**
+			* @brief	Create a bounding Hierarchy for the entity.
+			*
 			* @details	The bounding Hierarchy will be created from mesh asset given.
 			* @param[in] entity The entity to create the bounding Hierarchy for.
 			* @param[in] mesh Guid of the mesh to create the bounding Hierarchy from.
@@ -71,6 +79,14 @@ namespace SE
 			*/
 			virtual bool Pick(const DirectX::XMVECTOR& rayO, const DirectX::XMVECTOR& rayD, Entity& collidedEntity, float& distance) const = 0;
 
+			/**
+			* @brief	Check collision between two entities
+			* @param[in] ent1 The first entity
+			* @param[in] ent2 The second entity
+			* @retval true If they intersect
+			* @retval false If they do not intersect
+			*/
+			virtual bool CheckCollision(const Entity ent1, const Entity ent2) const = 0;
 
 			virtual void SetCollideWithAnyCallback(const Utilz::Delegate<void(const Entity& hit, const Entity& hitter)>& callback) = 0;
 

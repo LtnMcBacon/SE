@@ -15,6 +15,8 @@
 #include "ITransformManager.h"
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
+#include "IEventManager.h"
+
 namespace SE
 {
 	namespace Core
@@ -30,6 +32,7 @@ namespace SE
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				IRenderableManager* renderableManager;
+				IEventManager* eventManager;
 			};
 
 			struct CreateInfo
@@ -50,6 +53,11 @@ namespace SE
 			* @sa CreateInfo
 			*/
 			virtual void CreateSystem(const Entity& entity, const CreateInfo& info) = 0;
+
+			/**
+			 * @brief Update the start and end positions of a system
+			 */
+			virtual void UpdateSystemEndPosition(const Entity& entity, float endPos[3]) = 0;
 
 			/**
 			* @brief	Hide/Show a particle system.

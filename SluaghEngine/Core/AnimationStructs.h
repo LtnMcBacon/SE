@@ -77,17 +77,29 @@ namespace SE
 			}
 		};
 
+		static const size_t maxLayers = 6;
+		struct BlendBackInfo {
+
+			int animIndex = 0;
+			float animLength = 0.0;
+			float previousSpeed[maxLayers] = {0.0};
+
+		};
+		
 		struct AnimationInfo
 		{
-			static const size_t maxLayers = 4;
 			size_t nrOfLayers = 0;
-			Utilz::GUID skeleton;
-			Utilz::GUID animation[maxLayers];
-			float timePos[maxLayers];
-			float animationSpeed[maxLayers];
-			bool looping[maxLayers];
-			float blendFactor[maxLayers];
-			float blendSpeed[maxLayers];
+			Utilz::GUID skeleton = {""};
+			Utilz::GUID animation[maxLayers] = {""};
+			float timePos[maxLayers] = {0.0};
+			float animationSpeed[maxLayers] = {0.0};
+			bool looping[maxLayers] = {false};
+			bool blockBlending[maxLayers] = {false};
+			float blendFactor[maxLayers] = {0.0};
+			float blendSpeed[maxLayers] = {0.0};
+			bool toBlendTarget = false;
+			bool toBlendSource = false;
+			BlendBackInfo blendBackInfo;
 		};
 
 	}

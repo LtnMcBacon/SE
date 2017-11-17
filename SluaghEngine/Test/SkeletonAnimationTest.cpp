@@ -63,21 +63,25 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	auto& mainC = managers.entityManager->Create();
 	auto& mainC2 = managers.entityManager->Create();
-	auto& box = managers.entityManager->Create();
+	auto& attachable = managers.entityManager->Create();
 
 	managers.transformManager->Create(mainC);
 	managers.transformManager->Create(mainC2);
-	managers.transformManager->Create(box);
+	managers.transformManager->Create(attachable);
 
-	managers.renderableManager->CreateRenderableObject(box, {});
-	managers.renderableManager->ToggleRenderableObject(box, true);
-	managers.transformManager->SetScale(box, DirectX::XMFLOAT3(0.25, 0.25, 0.25));
+	Core::IRenderableManager::CreateInfo sword;
+	sword.meshGUID = "Sword.mesh";
+	managers.renderableManager->CreateRenderableObject(attachable, sword);
+	managers.renderableManager->ToggleRenderableObject(attachable, true);
+	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
+	managers.transformManager->SetPosition(attachable, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
+	//managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -117,43 +121,22 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	sai.mesh = "MCModell.mesh";
 	sai.skeleton = "MCModell.skel";
 	sai.animationCount = 4;
-	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim" };
+	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopSwordAttackAnim_MCModell.anim" };
 	sai.animations = anims;
 	managers.animationManager->CreateAnimatedObject(mainC, sai);
 	managers.animationManager->CreateAnimatedObject(mainC2, sai);
 
-	managers.animationManager->AttachToEntity(mainC, box, "LHand", 0);
-
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "MCModell.mesh");
-	managers.collisionManager->CreateBoundingHierarchy(mainC2, "MCModell.mesh");
-
 	managers.animationManager->ToggleVisible(mainC, true);
 	managers.animationManager->ToggleVisible(mainC2, true);
 
-	Core::IAnimationManager::AnimationPlayInfo playInfo;
-	playInfo.animations[0] = "TopRunAnim_MCModell.anim";
-	playInfo.animationSpeed[0] = 1.0f;
-	playInfo.timePos[0] = 0.0f;
-	playInfo.looping[0] = true;
-	playInfo.blendSpeed[0] = 0.00f;
+	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
 
-	playInfo.animations[1] = "BottomRunAnim_MCModell.anim";
-	playInfo.animationSpeed[1] = 1.0f;
-	playInfo.timePos[1] = 0.0f;
-	playInfo.looping[1] = true;
-	playInfo.blendSpeed[1] = 0.00f;
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "Bodach.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Bodach.mesh");
 
-	playInfo.animations[2] = "DeathAnim_MCModell.anim";
-	playInfo.animationSpeed[2] = 1.0f;
-	playInfo.timePos[2] = 0.0f;
-	playInfo.looping[2] = true;
-	playInfo.blendSpeed[2] = 0.00f;
-
-	playInfo.nrOfLayers = 3;
-
-	managers.animationManager->Start(mainC, playInfo);
-
-	managers.animationManager->Start(mainC2, playInfo);
+	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
+	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
+	managers.animationManager->Start(mainC2, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -173,6 +156,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	static float keyframe = 0.0f;
 	static float speed = 0.0f;
 	static float blendFactorSpeed = 0.00f;
+	static float rot = 0.0f;
+	static float localRot[3] = { 0 };
 
 	int width = subSystem.optionsHandler->GetOptionInt("Window", "width", 800);
 	int height = subSystem.optionsHandler->GetOptionInt("Window", "height", 640);
@@ -193,6 +178,9 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		timer.Tick();
 		float dt = timer.GetDelta();
+
+		rot += 0.001;
+		managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
 	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
@@ -228,6 +216,18 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 			managers.animationManager->SetBlendSpeed(mainC, 2, blendFactorSpeed);
 
+		}
+
+		if (ImGui::Button("BlendToAndBack")) {
+
+			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
+			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
+		}
+
+		
+		if (ImGui::SliderFloat3("Object Local Transform", localRot, 0.0f, 6.28f)) {
+
+			managers.transformManager->SetRotation(attachable, localRot[0], localRot[1], localRot[2]);
 		}
 
 		if (ImGui::Button("C1 Start")){
