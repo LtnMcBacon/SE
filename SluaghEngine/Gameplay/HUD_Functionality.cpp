@@ -137,6 +137,8 @@ namespace SE
 				description += button.perkName+"\n";
 			}
 			
+			std::replace(description.begin(), description.end(), '_', ' ');
+
 			description += "Damage Source: ";
 			switch (button.skillDesc[0])
 			{
