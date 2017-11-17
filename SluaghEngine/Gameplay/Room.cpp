@@ -116,7 +116,8 @@ void Room::Update(float dt, float playerX, float playerY)
 				auto item = Item::Create();
 
 				Item::Drop(item, p);
-				
+				itemsInRoom.push_back(item);
+				CoreInit::managers.dataManager->SetValue(item, "Pickup", false);
 			//	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange", &beingRendered);
 			}
 		
@@ -1052,6 +1053,15 @@ void SE::Gameplay::Room::CreateEntities()
 
 void SE::Gameplay::Room::RenderRoom(bool render)
 {
+
+	for (auto& i : itemsInRoom)
+	{
+		if (auto pickedup = std::get<bool>( CoreInit::managers.dataManager->GetValue(i, "Pickup", false)); pickedup == false)
+		{
+			CoreInit::managers.entityManager->Destroy(i);
+		}	
+	}
+	itemsInRoom.clear();
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
 		
@@ -1131,6 +1141,10 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::TableGroup1]     = { "Table_group1.mesh"        };
 	Meshes[Meshes::Candlestick_tri] = { "Candlestick_tri.mesh"     };
 	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh"		   };
+	Meshes[Meshes::Potatosack_closed] = { "Potato_Sack_Closed.mesh" };
+	Meshes[Meshes::Potatosack_open] = { "Potato_Sack_Open.mesh" };
+
+
 
 	// Materials
 	Materials[Materials::Stone]      = { "Cube.mat"       };
@@ -1182,6 +1196,14 @@ Room::Room(Utilz::GUID fileName)
 	PotGroup1.guid = Meshes[Meshes::PotGroup1];
 	PotGroup1.matGuid = Materials[Materials::Stone];
 
+	Prop PotatoSackOpen;
+	PotatoSackOpen.guid = Meshes[Meshes::Potatosack_open];
+	PotatoSackOpen.matGuid = Materials[Materials::Dirt];
+
+	Prop PotatoSackClosed;
+	PotatoSackClosed.guid = Meshes[Meshes::Potatosack_closed];
+	PotatoSackClosed.matGuid = Materials[Materials::Dirt];
+
 	Prop Bush;
 	Bush.guid = Meshes[Meshes::Bush];
 	Bush.matGuid = Materials[Materials::Bush];
@@ -1196,7 +1218,9 @@ Room::Room(Utilz::GUID fileName)
 	propVectors[PropTypes::GENERIC] =
 	{	Table_small,
 		Table_round,
-		PotGroup1
+		PotGroup1,
+		PotatoSackClosed,
+		PotatoSackOpen
 	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {

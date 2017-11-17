@@ -304,8 +304,6 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity& entity, bool v
 			// Tell renderer.
 			if (visible)
 			{
-				particleSystemData[find->second].firstRun = true;
-				particleSystemData[find->second].updateJob.vertexCount = 1;
 				particleSystemData[find->second].updateJobID = initInfo.renderer->AddRenderJob(
 					particleSystemData[find->second].updateJob, SE::Graphics::RenderGroup::PRE_PASS_0);
 				particleSystemData[find->second].renderJobID = initInfo.renderer->AddRenderJob(
