@@ -279,6 +279,7 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	bucket->second.world[transformIndex] = bucket->second.world.back();
 	bucket->second.localTransform[transformIndex] = bucket->second.localTransform.back();
 	bucket->second.owners[transformIndex] = bucket->second.owners.back();
+	bucket->second.opacity[transformIndex] = bucket->second.opacity.back();
 
 	entityToTransformIndex[bucket->second.owners[transformIndex]] = transformIndex;
 
@@ -286,6 +287,7 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	bucket->second.world.pop_back();
 	bucket->second.localTransform.pop_back();
 	bucket->second.owners.pop_back();
+	bucket->second.opacity.pop_back();
 	
 	entityToTransformIndex.erase(entity);
 

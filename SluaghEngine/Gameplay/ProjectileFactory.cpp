@@ -449,7 +449,7 @@ void SE::Gameplay::ProjectileFactory::ParseValue(
 
 	const unsigned int maxValueSize = 50;
 	unsigned int iterator = 2;
-	char value[20] = {NULL};
+	char value[40] = {NULL};
 	BehaviourParameter temp;
 
 	if (valueData[0] == 'f')
@@ -1325,10 +1325,15 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	decalInfo.textureName = std::get<std::string>(parameters[0].data);
 	decalInfo.opacity = std::get<float>(parameters[1].data);
 
+	float parentScale = 1.0f / CoreInit::managers.transformManager->GetScale(std::get<Projectile*>(parameters[2].data)->GetEntity()).x;
+	float height = CoreInit::managers.transformManager->GetPosition(std::get<Projectile*>(parameters[2].data)->GetEntity()).y;
+
 	DirectX::XMFLOAT4X4 tempMat;
-	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixRotationX(1.57079632679));
+	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 0.05f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
 
 	CoreInit::managers.decalManager->Create(std::get<Projectile*>(parameters[2].data)->GetEntity(), decalInfo);
+	//CoreInit::managers.transformManager->SetRotation(std::get<Projectile*>(parameters[2].data)->GetEntity(), 1.57079632679, 0.0f, 0.0f);
+	//CoreInit::managers.transformManager->SetScale(std::get<Projectile*>(parameters[2].data)->GetEntity(), { 3.0f, 3.0f, 3.0f });
 	CoreInit::managers.decalManager->SetLocalTransform(std::get<Projectile*>(parameters[2].data)->GetEntity(), (float*)&tempMat);
 
 	auto Decal = [](Projectile* p, float dt) -> bool
