@@ -106,6 +106,20 @@ void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const 
 	
 	if (const auto find = entityToIndex.find(entity); find != entityToIndex.end())
 	{
+		bool found = false;
+		auto& reg = entires.eventsRegisteredTo[find->second];
+		for (size_t i = 0; i < reg.size(); i++)
+		{
+			if (reg[i] == _event)
+			{
+				reg[i] = reg[reg.size() - 1];
+				reg.pop_back();
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			ProfileReturnVoid;
 		if (auto const findE = entityEventToIndex.find(_event); findE != entityEventToIndex.end())
 		{
 			auto& reg = entityEvents[findE->second].entitesRegistered;
@@ -113,6 +127,7 @@ void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const 
 				if (reg[i] == entity)
 				{
 					reg[i] = reg[reg.size() - 1];
+					reg.pop_back();
 					break;
 				}
 			ProfileReturnVoid;
@@ -124,10 +139,13 @@ void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const 
 				if (reg[i] == entity)
 				{
 					reg[i] = reg[reg.size() - 1];
+					reg.pop_back();
 					break;
 				}
 			ProfileReturnVoid;
 		}
+	
+		
 	}
 	StopProfile;
 }
@@ -140,8 +158,8 @@ void SE::Core::EventManager::SetLifetime(const Entity entity, float lifetime)
 	
 	if (auto const find = entityToIndex.find(entity); find == entityToIndex.end())
 	{
-		entires.entity[find->second] = entity;
-		entires.eventsRegisteredTo[find->second].push_back({});
+		entires.entity.push_back(entity);
+		entires.eventsRegisteredTo.push_back({});
 	}
 	initInfo.dataManager->SetValue(entity, "TimeToDeath", lifetime);
 	StopProfile;
@@ -175,10 +193,16 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 
 	for (auto& _event : entityEvents)
 	{
-		for (auto& ent : _event.entitesRegistered)
+		auto fs = _event.entitesRegistered.size();
+		for (size_t i = 0; i< fs; i++)
 		{
-			if (_event.callbacks.triggerCheck(ent))
-				_event.callbacks.triggerCallback(ent);
+			if (_event.callbacks.triggerCheck(_event.entitesRegistered[i]))
+			{
+				_event.callbacks.triggerCallback(_event.entitesRegistered[i]);
+				if (fs > _event.entitesRegistered.size())
+					fs--;
+			}
+				
 		}
 	}
 
