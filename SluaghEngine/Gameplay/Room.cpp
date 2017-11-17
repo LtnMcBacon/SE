@@ -970,18 +970,26 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 	auto rand = CoreInit::subSystems.window->GetRand();
 	auto randNr = (rand % 3);
 
-	switch (randNr)
+	if (IsOutside == true)
 	{
-	case 0:
-		wallGuid = Materials[Materials::WallStone];
-		break;
-	case 1:
-		wallGuid = Materials[Materials::Wood];
-		break;
-	case 2:
-		wallGuid = Materials[Materials::Dirt];
-		break;
+		wallGuid = Materials[Materials::OutsideWall]; 
 	}
+	else
+	{
+		switch (randNr)
+		{
+		case 0:
+			wallGuid = Materials[Materials::WallStone];
+			break;
+		case 1:
+			wallGuid = Materials[Materials::Wood];
+			break;
+		case 2:
+			wallGuid = Materials[Materials::Dirt];
+			break;
+		}
+	}
+
 	
 	rand = CoreInit::subSystems.window->GetRand();
 	randNr = (rand % 3);
@@ -1131,6 +1139,7 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Dirt]       = { "brownPlane.mat" };
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
 	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
+	Materials[Materials::OutsideWall] = { "StoneWallPlane.mat" }; 
 
 
 	Prop Chair;
