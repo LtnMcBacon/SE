@@ -123,11 +123,19 @@ namespace SE
 		{
 			/*What is needed?*/
 			float amount = 0;
+			float originalAmount = 0;
 			enum class SourceType
 			{
 				SOURCE_TYPE_ENEMY_DEATH,
 				SOURCE_TYPE_ENEMY_HIT
 			}type;
+
+			HealingEvent(SourceType sType = SourceType::SOURCE_TYPE_ENEMY_HIT, float amountHealing = 0)
+			{
+				type = sType;
+				amount = originalAmount = amountHealing;
+			}
+
 		};
 
 		struct ConditionEvent
