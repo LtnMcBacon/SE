@@ -116,7 +116,8 @@ void Room::Update(float dt, float playerX, float playerY)
 				auto item = Item::Create();
 
 				Item::Drop(item, p);
-				
+				itemsInRoom.push_back(item);
+				CoreInit::managers.dataManager->SetValue(item, "Pickup", false);
 			//	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange", &beingRendered);
 			}
 		
@@ -1052,6 +1053,15 @@ void SE::Gameplay::Room::CreateEntities()
 
 void SE::Gameplay::Room::RenderRoom(bool render)
 {
+
+	for (auto& i : itemsInRoom)
+	{
+		if (auto pickedup = std::get<bool>( CoreInit::managers.dataManager->GetValue(i, "Pickup", false)); pickedup == false)
+		{
+			CoreInit::managers.entityManager->Destroy(i);
+		}	
+	}
+	itemsInRoom.clear();
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
 		

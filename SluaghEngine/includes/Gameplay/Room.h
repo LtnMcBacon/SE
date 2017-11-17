@@ -34,6 +34,7 @@ namespace SE
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
+			std::vector<Core::Entity> itemsInRoom;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
