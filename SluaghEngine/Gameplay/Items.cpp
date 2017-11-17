@@ -20,7 +20,7 @@ struct WeaponInfo
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
 	{"Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
-	{"Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
+	{"Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{1.6f,-1.2f,0.0f } },
 	{"Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
 } };
 
@@ -329,7 +329,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 {
 	CoreInit::managers.transformManager->SetPosition(ent, pos);
 	CoreInit::managers.transformManager->SetRotation(ent, 0,0,0);
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.8);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
