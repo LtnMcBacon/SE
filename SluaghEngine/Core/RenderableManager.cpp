@@ -421,6 +421,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
+	if (renderableObjectInfo.shadow[index] && shadowInstancing)
+		shadowInstancing->RemoveEntity(entity);
 
 	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::ResourceType::VRAM);
 

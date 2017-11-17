@@ -77,6 +77,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 	InitWeaponPickups();
+	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
 	ProfileReturnVoid;
 }
 
