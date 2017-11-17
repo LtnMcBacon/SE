@@ -18,7 +18,7 @@ PlayState::PlayState()
 {
 
 }
-
+static size_t dmgOverlayIndex = 0;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
@@ -38,6 +38,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		else if (button.rectName == "DamageOverlay")
 		{
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+		
+			dmgOverlayIndex = tempPos;
+		
 		}
 
 		tempPos++;

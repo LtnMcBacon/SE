@@ -56,27 +56,27 @@ using namespace SE::Gameplay;
 
 int SE::Gameplay::Item::GetRandStr()
 {
-	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
+	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
 }
 
 int SE::Gameplay::Item::GetRandAgi()
 {
-	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
+	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
 }
 
 int SE::Gameplay::Item::GetRandWil()
 {
-	return (CoreInit::subSystems.window->GetRand() % 201) - 100;
+	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
 }
 
 int SE::Gameplay::Item::GetRandHealth()
 {
-	return (CoreInit::subSystems.window->GetRand() % 401) - 200;
+	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
 }
 
 int SE::Gameplay::Item::GetRandDamage()
 {
-	return (CoreInit::subSystems.window->GetRand() % 100);
+	return (CoreInit::subSystems.window->GetRand() % 30) - 15;
 }
 
 
@@ -127,7 +127,41 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 
 SE::Core::Entity SE::Gameplay::Item::Weapon::Create(WeaponType type)
 {
-	return Core::Entity();
+	auto wep = CoreInit::managers.entityManager->Create();
+	auto itype = ItemType::WEAPON;// GetRandType();
+	auto wType = type;
+	auto ele = GetRandDamageType();
+	CoreInit::managers.transformManager->Create(wep);
+	CoreInit::managers.transformManager->SetScale(wep, weaponInfo[size_t(wType)].scale);
+	CoreInit::managers.materialManager->Create(wep, { weaponInfo[size_t(wType)].shader, weaponInfo[size_t(wType)].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(wep, { weaponInfo[size_t(wType)].mesh , false, false, true });
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = weaponInfo[size_t(wType)].icon;
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0.5f,0.5f };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 10;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
+
+	CoreInit::managers.guiManager->Create(wep, icon);
+
+	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(itype));
+	CoreInit::managers.dataManager->SetValue(wep, "Health", Item::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(wep, "Str", Item::GetRandStr());
+	CoreInit::managers.dataManager->SetValue(wep, "Agi", Item::GetRandAgi());
+	CoreInit::managers.dataManager->SetValue(wep, "Wis", Item::GetRandWil());
+	CoreInit::managers.dataManager->SetValue(wep, "Damage", 3);
+	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(wType));
+	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(ele));
+	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(wType)].attAnim.id);
+	CoreInit::managers.dataManager->SetValue(wep, "AttProj", weaponInfo[size_t(wType)].projectile.id);
+
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
+	return wep;
 }
 
 using namespace SE;

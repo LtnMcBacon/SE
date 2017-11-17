@@ -514,9 +514,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
 					temp.ownerUnit = mySelf;
 
-					auto proj = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "AttProj", false));
-
-					temp.fileNameGuid = Utilz::GUID(proj);
+					Utilz::GUID p = Utilz::GUID(std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "AttProj", false)));
+		
+					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
 					attackCooldown = 1.0f / attackSpeed;
@@ -942,6 +942,14 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
+
+
+	items[currentItem] = Item::Weapon::Create(WeaponType::WAND);
+	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
+	Item::Pickup(items[currentItem]);
+	Item::Equip(unitEntity,items[currentItem]);
+
+	SetCurrentWeaponStats();
 
 	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	Core::IGUIManager::CreateInfo ise;
