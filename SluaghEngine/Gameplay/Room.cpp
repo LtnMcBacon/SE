@@ -109,14 +109,17 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
 
-			auto spw = CoreInit::subSystems.window->GetRand() % 100000;
-			if (true)//spw > 50000)
+
+			auto spw = CoreInit::subSystems.window->GetRand() % 100;
+			if (spw < 80)
 			{	
-				Item::Drop(Item::Create(), p);
+				auto item = Item::Create();
+
+				Item::Drop(item, p);
 				
+			//	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange", &beingRendered);
 			}
-			
-			
+		
 			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
 			{
 				CoreInit::managers.entityManager->DestroyNow(*enemyWep);
@@ -1051,8 +1054,11 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 {
 	for (int i = 0; i < roomEntities.size(); i++)
 	{
+		
 		CoreInit::managers.eventManager->ToggleVisible(roomEntities[i], render);
 		CoreInit::managers.eventManager->ToggleShadow(roomEntities[i], render);
+
+
 	}
 	for(auto enemy : enemyUnits)
 	{
@@ -1138,8 +1144,10 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush]       = { "Bush.mat"       };
 	Materials[Materials::Dirt]       = { "brownPlane.mat" };
 	Materials[Materials::Grass]      = { "GreenPlane.mat" };
+
 	Materials[Materials::Wood]		 = { "Wood_plane.mat" };
 	Materials[Materials::OutsideWall] = { "StoneWallPlane.mat" }; 
+
 
 
 	Prop Chair;
@@ -1740,16 +1748,16 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 		Utilz::GUID temp;
 
 		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-			temp = "SimpleNormTransPS";
+			temp = "SimpleNormTransPS.hlsl";
 		else
-			temp = "SimpleNormPS";
+			temp = "SimpleNormPS.hlsl";
 
 		DoorArr[int(DoorNr)].active = false;
-		//CoreInit::managers.renderableManager->Destroy(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
+	///	CoreInit::managers.renderableManager->Destroy(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
 		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
 		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mat", temp });
 		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
-		//CoreInit::managers.entityManager->DestroyNow(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
+	//	CoreInit::managers.entityManager->DestroyNow(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
 
 	}
 

@@ -22,7 +22,7 @@ namespace SE
 		{
 			SWORD,
 			CROSSBOW,
-			STAFF
+			WAND
 		};
 		struct Item
 		{
