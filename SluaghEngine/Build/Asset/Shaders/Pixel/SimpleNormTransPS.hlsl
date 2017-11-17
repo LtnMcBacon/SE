@@ -67,35 +67,36 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	float3 normalWorld = mul(normalTs, Tbm);
 	float distance;
 	float specPower = specular.w;
-
+	float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
+	
+	float3 diffuseContribution = float3(0.0f, 0.0f, 0.0f);
+	float3 specularContribution = float3(0.0f, 0.0f, 0.0f);
+	
 	for (int i = 0; i < nrOfLights.x; i++)
 	{
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
-		attenuation = max(0, 1.0f - (distance / pointLights[i].pos.w));	//Dämpning
-
+		float divby = (distance / pointLights[i].pos.w) + 1.0f;
+		attenuation = (1.0f / (divby * divby)) - 0.25f;
+	
 		light /= distance;
-
-		float normalDotLight = saturate(dot(normalWorld, light));
-		float3 calcDiffuse = normalDotLight * pointLights[i].colour.xyz * (DiffuseColor.Sample(sampAni, input.Tex).xyz * diffuse.xyz);
-		
+	
+		float normalDotLight = saturate(dot(normalWorld.xyz, light));
+	
 		//Calculate specular term
 		float3 V = eyePos.xyz - input.PosInW.xyz;
 		float3 H = normalize(light + V);
-		float3 power = pow(saturate(dot(normalWorld, H)), specPower);
+		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;
-		float3 specularTot = power * colour * normalDotLight;
-
-
-		totLight = ((calcDiffuse + specularTot) * attenuation) + totLight;
+		specularContribution += power * colour * normalDotLight;
+		diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz;
 	}
 	
 	PS_OUT output;
-	output.backBuffer = float4(totLight, 0.75f);
+	output.backBuffer = saturate(float4(textureColor.rgb * ((diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
 	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
 	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
 	if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
-
 	return output;
 }

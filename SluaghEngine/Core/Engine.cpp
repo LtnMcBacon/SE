@@ -450,6 +450,7 @@ void SE::Core::Engine::InitDecalManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.cameraManager = managers.cameraManager;
+		info.eventManager = managers.eventManager;
 		managers.decalManager = CreateDecalManager(info);
 	}
 	managersVec.push_back(managers.decalManager);
