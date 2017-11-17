@@ -78,7 +78,8 @@ namespace SE
 				Bush,
 				Dirt,
 				Grass,
-				Wood
+				Wood, 
+				OutsideWall
 			};
 
 			struct CreationArguments
