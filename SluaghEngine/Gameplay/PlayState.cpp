@@ -35,6 +35,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
+		else if (button.rectName == "DamageOverlay")
+		{
+			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+		}
 
 		tempPos++;
 	}
@@ -270,9 +274,14 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
+	int randomValues[9];
+	int counter = 0;
+
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		randomValues[counter] = random; 
+		counter++;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
 

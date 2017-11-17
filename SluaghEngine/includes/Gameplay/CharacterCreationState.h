@@ -74,11 +74,11 @@ namespace SE
 			//	every file to be parsed //
 			std::string skillButtonFiles[5]
 			{
-				"cnaimh_sporsail.HuD",
-				"freumh_gun_duil.HuD",
-				"Fuilneadh.HuD",
-				"Oran_stoirmean.HuD",
-				"Slat_Phuing.HuD",
+				"Bat_Minion.HuD",
+				"Heavy_Machine_Bow.HuD",
+				"Obliteration_Mine.HuD",
+				"Telekenesis.HuD",
+				"voidRift.HuD"
 				
 			};
 

@@ -16,8 +16,8 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
-	nrOfSkills = 3;
-	nrOfPerks = 3;
+	nrOfSkills = 2;
+	nrOfPerks = 0;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -181,7 +181,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	Skill skill;
 	std::vector<int> OtherSkills;
 	int nrOfOtherSkills = 0;
-	for (size_t i = 0; i < nrOfSkills; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
