@@ -125,7 +125,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 		if (result)
 			ProfileReturnConst(-1);
 	}
-
+	initInfo.entityManager->RegisterDestroyCallback(entity, { this, &DecalManager::Destroy });
 	initInfo.transformManager->Create(entity);
 	entityToTextureGuid[entity] = textureName;
 	DirectX::XMFLOAT4X4 world = initInfo.transformManager->GetTransform(entity);
