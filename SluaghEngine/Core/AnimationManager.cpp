@@ -148,6 +148,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
+	GarbageCollection();
 	renderableManager->Frame(nullptr);
 	static std::future<bool> lambda;
 	auto dt = initInfo.window->GetDelta();
@@ -290,8 +291,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 			}
 		}
 	}
-	renderableManager->Frame(nullptr);
-	GarbageCollection();
+	
 	timer->Stop(("AnimationManager"));
 }
 
@@ -784,17 +784,24 @@ bool SE::Core::AnimationManager::CurrentAnimationAllowsBlending(const Entity& en
 void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visible)
 {
 	StartProfile;
-
-	renderableManager->ToggleRenderableObject(entity, visible);
-	if (!visible)
-		ToggleShadow(entity, visible);
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+	{
+		renderableManager->ToggleRenderableObject(entity, visible);
+		if (!visible)
+			ToggleShadow(entity, visible);
+	}
 	StopProfile;
 }
 
 void SE::Core::AnimationManager::ToggleShadow(const Entity& entity, bool on)
 {
 	StartProfile;
-	renderableManager->ToggleShadow(entity, on);
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+	{
+		renderableManager->ToggleShadow(entity, on);
+	}
 	ProfileReturnVoid;
 }
 
@@ -832,8 +839,6 @@ void SE::Core::AnimationManager::Allocate(size_t size)
 void SE::Core::AnimationManager::Destroy(size_t index)
 {
 	StartProfile;
-
-	renderableManager->Destroy(index);
 
 	// Temp variables
 	size_t last = animationData.used - 1;
