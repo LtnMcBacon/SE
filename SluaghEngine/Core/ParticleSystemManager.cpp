@@ -11,63 +11,72 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
 
-	initInfo.transformManager->RegisterSetDirty({ this, &ParticleSystemManager::UpdateDirtyPos });
-	initInfo.eventManager->RegisterToToggleVisible({ this, &ParticleSystemManager::ToggleVisible });
+	initInfo.transformManager->RegisterSetDirty({this, &ParticleSystemManager::UpdateDirtyPos});
+	initInfo.eventManager->RegisterToToggleVisible({this, &ParticleSystemManager::ToggleVisible});
 
 
-	auto res = initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-			auto res = initInfo.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
-			if (res < 0)
-			{
-				return ResourceHandler::InvokeReturn::FAIL;
-			}
-				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-		});
+	auto res = initInfo.resourceHandler->LoadResource("ParticleGS.hlsl", [&initInfo](auto guid, void* data, size_t size)
+												  {
+													  auto res = initInfo.renderer->GetPipelineHandler()->
+																		  CreateGeometryShader(guid, data, size);
+													  if (res < 0)
+													  {
+														  return ResourceHandler::InvokeReturn::FAIL;
+													  }
+													  return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+														  InvokeReturn::DEC_RAM;
+												  });
 	if (res < 0)
 	{
 		throw std::exception("Failed to create ParticleGS");
 	}
 
-	res = initInfo.resourceHandler->LoadResource("ParticleVS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-			auto res = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
-			if (res < 0)
-			{
-				return ResourceHandler::InvokeReturn::FAIL;
-			}
-			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-		});
+	res = initInfo.resourceHandler->LoadResource("ParticleVS.hlsl", [&initInfo](auto guid, void* data, size_t size)
+											 {
+												 auto res = initInfo.renderer->GetPipelineHandler()->CreateVertexShader(
+													 guid, data, size);
+												 if (res < 0)
+												 {
+													 return ResourceHandler::InvokeReturn::FAIL;
+												 }
+												 return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+													 InvokeReturn::DEC_RAM;
+											 });
 	if (res < 0)
 	{
 		throw std::exception("Failed to create ParticleVS");
 	}
-	res = initInfo.resourceHandler->LoadResource("ParticlePS.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-			auto res = initInfo.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
-			if (res < 0)
-			{
-				return ResourceHandler::InvokeReturn::FAIL;
-			}
-			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+	res = initInfo.resourceHandler->LoadResource("ParticlePS.hlsl", [&initInfo](auto guid, void* data, size_t size)
+											 {
+												 auto res = initInfo.renderer->GetPipelineHandler()->CreatePixelShader(
+													 guid, data, size);
+												 if (res < 0)
+												 {
+													 return ResourceHandler::InvokeReturn::FAIL;
+												 }
+												 return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+													 InvokeReturn::DEC_RAM;
+											 });
 	if (res < 0)
 	{
 		throw std::exception("Failed to create ParticlePS");
 	}
-	res = initInfo.resourceHandler->LoadResource("ParticleGSUpdate.hlsl", [&initInfo](auto guid, void* data, size_t size) {
-			auto res =initInfo.renderer->GetPipelineHandler()->CreateGeometryShaderStreamOut(guid, data, size);
-			if (res < 0)
-			{
-				return ResourceHandler::InvokeReturn::FAIL;
-			}
-			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+	res = initInfo.resourceHandler->LoadResource("ParticleGSUpdate.hlsl", [&initInfo](auto guid, void* data, size_t size)
+											 {
+												 auto res = initInfo.renderer->GetPipelineHandler()->
+																	 CreateGeometryShaderStreamOut(guid, data, size);
+												 if (res < 0)
+												 {
+													 return ResourceHandler::InvokeReturn::FAIL;
+												 }
+												 return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+													 InvokeReturn::DEC_RAM;
+											 });
 	if (res < 0)
 	{
 		throw std::exception("Failed to create ParticleGSUpdate");
 	}
 	//Pipeline for the update geometry shader
-
-
-
 
 
 	updatePipeline.IAStage.topology = Graphics::PrimitiveTopology::POINT_LIST;
@@ -105,7 +114,9 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	}
 
 
-	res = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilState("noDepth", { false, false, Graphics::ComparisonOperation::NO_COMPARISON });
+	res = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilState("noDepth", {
+		false, false, Graphics::ComparisonOperation::NO_COMPARISON
+	});
 	if (res < 0)
 	{
 		throw std::exception("Failed to create particle DepthStencilState");
@@ -117,7 +128,7 @@ SE::Core::ParticleSystemManager::~ParticleSystemManager()
 {
 }
 
-void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const CreateInfo & info)
+void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const CreateInfo& info)
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
@@ -130,7 +141,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 		particleSystemData.push_back({});
 		// Register instant destroy
-		initInfo.entityManager->RegisterDestroyCallback(entity, { this, &ParticleSystemManager::Destroy });
+		initInfo.entityManager->RegisterDestroyCallback(entity, {this, &ParticleSystemManager::Destroy});
 
 		particleSystemData[newEntry].visible = 0u;
 		particleSystemData[newEntry].loaded = 1u;
@@ -139,42 +150,58 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 
 		// Load the particle system file
 		{
-			auto res = initInfo.resourceHandler->LoadResource(info.systemFile, [entity, newEntry, this](auto guid, auto data, auto size) {
-				memcpy(&particleSystemData[newEntry].randVelocity, data, sizeof(bool));
-				memcpy(&particleSystemData[newEntry].textureName, (char*)data + sizeof(bool), sizeof(Utilz::GUID));
-				memcpy(&particleSystemData[newEntry].particleFileInfo, (char*)data + sizeof(bool) + sizeof(Utilz::GUID), sizeof(ParticleSystemFileInfo));
-				memcpy(&particleSystemData[newEntry].velocityRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo), sizeof(DirectX::XMFLOAT2) * 3);
-				memcpy(&particleSystemData[newEntry].emitRange, (char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(ParticleSystemFileInfo) + (sizeof(DirectX::XMFLOAT2) * 3), sizeof(DirectX::XMFLOAT2) * 3);
-				
-				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+			auto res = initInfo.resourceHandler->LoadResource(info.systemFile,
+				[entity, newEntry, this](auto guid, auto data, auto size)
+			{
+				memcpy(&particleSystemData[newEntry].randVelocity, data,
+						sizeof(bool));
+				memcpy(&particleSystemData[newEntry].textureName,
+						(char*)data + sizeof(bool), sizeof(Utilz::GUID));
+				memcpy(&particleSystemData[newEntry].particleFileInfo,
+						(char*)data + sizeof(bool) + sizeof(Utilz::GUID),
+						sizeof(ParticleSystemFileInfo));
+				memcpy(&particleSystemData[newEntry].velocityRange,
+						(char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(
+							ParticleSystemFileInfo), sizeof(DirectX::XMFLOAT2) * 3);
+				memcpy(&particleSystemData[newEntry].emitRange,
+						(char*)data + sizeof(bool) + sizeof(Utilz::GUID) + sizeof(
+							ParticleSystemFileInfo) + (sizeof(DirectX::XMFLOAT2) * 3),
+						sizeof(DirectX::XMFLOAT2) * 3);
+
+				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+					InvokeReturn::DEC_RAM;
 			});
 
 			if (res)
-				initInfo.console->PrintChannel("Resources", "Could not load particle system file. GUID: %u, Error: %d",  info.systemFile, res);
+				initInfo.console->PrintChannel("Resources", "Could not load particle system file. GUID: %u, Error: %d",
+											   info.systemFile, res);
 		}
 
 		updatePipeline.IAStage.vertexBuffer = "OutStreamBuffer1_" + std::to_string(entity.id);
 		updatePipeline.SOStage.streamOutTarget = "OutStreamBuffer2_" + std::to_string(entity.id);
 		particleSystemData[newEntry].updateJob.pipeline = updatePipeline;
-		particleSystemData[newEntry].updateJob.mappingFunc.push_back([this, entity](int a, int b) {
+		particleSystemData[newEntry].updateJob.mappingFunc.push_back([this, entity](int a, int b)
+		{
 			auto const entityIndex = entityToIndex.find(entity);
 			if (entityIndex != entityToIndex.end())
 			{
 				auto& fileInfo = particleSystemData[entityIndex->second].particleFileInfo;
 				auto& PSD = particleSystemData[entityIndex->second];
-				fileInfo.vel[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[0].x/*Max*/ - PSD.velocityRange[0].y/*Min*/) + PSD.velocityRange[0].y;
-				fileInfo.vel[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[1].x/*Max*/ - PSD.velocityRange[1].y/*Min*/) + PSD.velocityRange[1].y;
-				fileInfo.vel[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.velocityRange[2].x/*Max*/ - PSD.velocityRange[2].y/*Min*/) + PSD.velocityRange[2].y;
+				fileInfo.vel[0] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[0].x/*Max*/ - PSD.velocityRange[0].y/*Min*/) + PSD.velocityRange[0].y;
+				fileInfo.vel[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[1].x/*Max*/ - PSD.velocityRange[1].y/*Min*/) + PSD.velocityRange[1].y;
+				fileInfo.vel[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[2].x/*Max*/ - PSD.velocityRange[2].y/*Min*/) + PSD.velocityRange[2].y;
 
-				fileInfo.emitRange[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[0].x/*Max*/ - PSD.emitRange[0].y/*Min*/) + PSD.emitRange[0].y;
-				fileInfo.emitRange[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
-				fileInfo.emitRange[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
-				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo, sizeof(ParticleSystemFileInfo));
-				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform, sizeof(DirectX::XMFLOAT4X4));
+				fileInfo.emitRange[0] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[0].x/*Max*/ - PSD.emitRange[0].y/*Min*/) + PSD.emitRange[0].y;
+				fileInfo.emitRange[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
+				fileInfo.emitRange[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo,
+																			  sizeof(ParticleSystemFileInfo));
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform,
+																			  sizeof(DirectX::XMFLOAT4X4));
 			}
 		});
 		particleSystemData[newEntry].updateJob.vertexCount = 1;
-		
+
 		//Pipeline for each particle system
 		Graphics::Pipeline RPP;
 		RPP.IAStage.topology = Graphics::PrimitiveTopology::POINT_LIST;
@@ -194,32 +221,42 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 		RPP.OMStage.depthStencilView = "backbuffer";
 		RPP.OMStage.depthStencilState = "backbuffer";
 		RPP.OMStage.renderTargetCount = 2;
-		
+
 		Particle p;
 		p.opacity = 1.0f;
 
-		auto res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1_" + std::to_string(entity.id), nullptr, 0, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+		auto res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1_" + std::to_string(entity.id),
+																		 nullptr, 0, sizeof(Particle), 10000,
+																		 Graphics::BufferFlags::BIND_VERTEX | Graphics::
+																		 BufferFlags::BIND_STREAMOUT);
 		if (res < 0)
 		{
 			throw std::exception("Failed to create OutStreamBuffer1");
 		}
-		res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2_" + std::to_string(entity.id), &p, 1, sizeof(Particle), 10000, Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags::BIND_STREAMOUT);
+		res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2_" + std::to_string(entity.id), &p, 1,
+																	sizeof(Particle), 10000,
+																	Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags
+																	::BIND_STREAMOUT);
 		if (res < 0)
 		{
 			throw std::exception("Failed to create OutStreamBuffer2");
 		}
 
 		//Loading texture for the current particle system
-		res = initInfo.resourceHandler->LoadResource(particleSystemData[newEntry].textureName, [this](auto guid, void* data, size_t size) {
-				Graphics::TextureDesc texDesc;
-				texDesc = *(Graphics::TextureDesc*)data;
-				data = (char*)data + sizeof(Graphics::TextureDesc);
-				auto res =	initInfo.renderer->GetPipelineHandler()->CreateTexture(guid, data, texDesc.width, texDesc.height);
-				if (res < 0)
-				{
-					return ResourceHandler::InvokeReturn::FAIL;
-				}
-				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+		res = initInfo.resourceHandler->LoadResource(particleSystemData[newEntry].textureName,
+			[this](auto guid, void* data, size_t size)
+		{
+			Graphics::TextureDesc texDesc;
+			texDesc = *(Graphics::TextureDesc*)data;
+			data = (char*)data + sizeof(Graphics::TextureDesc);
+			auto res = initInfo.renderer->GetPipelineHandler()->CreateTexture(
+				guid, data, texDesc.width, texDesc.height);
+			if (res < 0)
+			{
+				return ResourceHandler::InvokeReturn::FAIL;
+			}
+			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::
+				InvokeReturn::DEC_RAM;
 		});
 		if (res < 0)
 		{
@@ -232,7 +269,25 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity & entity, const 
 	StopProfile;
 }
 
-void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool visible)
+void SE::Core::ParticleSystemManager::UpdateSystemEndPosition(const Entity& entity, float endPos[3])
+{
+	StartProfile;
+	auto find = entityToIndex.find(entity);
+	if (find != entityToIndex.end())
+	{
+		auto &particle = particleSystemData[entityToIndex[entity]];
+		if (particle.particleFileInfo.particlePath)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				particle.particleFileInfo.endPos[i] = endPos[i];
+			}
+		}
+	}
+	StopProfile;
+}
+
+void SE::Core::ParticleSystemManager::ToggleVisible(const Entity& entity, bool visible)
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
@@ -251,9 +306,10 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 			{
 				particleSystemData[find->second].firstRun = true;
 				particleSystemData[find->second].updateJob.vertexCount = 1;
-				particleSystemData[find->second].updateJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].updateJob, SE::Graphics::RenderGroup::PRE_PASS_0);
-				particleSystemData[find->second].renderJobID = initInfo.renderer->AddRenderJob(particleSystemData[find->second].renderJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
-
+				particleSystemData[find->second].updateJobID = initInfo.renderer->AddRenderJob(
+					particleSystemData[find->second].updateJob, SE::Graphics::RenderGroup::PRE_PASS_0);
+				particleSystemData[find->second].renderJobID = initInfo.renderer->AddRenderJob(
+					particleSystemData[find->second].renderJob, SE::Graphics::RenderGroup::RENDER_PASS_5);
 			}
 			else
 			{
@@ -264,16 +320,15 @@ void SE::Core::ParticleSystemManager::ToggleVisible(const Entity & entity, bool 
 
 			particleSystemData[find->second].visible = visible ? 1u : 0u;
 		}
-
 	}
 	StopProfile;
 }
 
-void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
+void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 {
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
-//	GarbageCollection();
+	//	GarbageCollection();
 
 	//while (!toUpdate.wasEmpty())
 	//{
@@ -302,7 +357,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 			if (find != entityToIndex.end())
 			{
 				auto transposedMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&transForm[de.transformIndex]));
-				
+
 				DirectX::XMStoreFloat4x4(&particleSystemData[find->second].transform, transposedMatrix);
 			}
 		}
@@ -316,7 +371,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster * timer)
 			if (!particleSystemData[i].firstRun)
 			{
 				particleSystemData[i].updateJob.vertexCount = 0;
-				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget, particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
+				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget,particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
 				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
 				initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
 				initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
@@ -354,7 +409,7 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 	StopProfile;
 }
 
-void SE::Core::ParticleSystemManager::Destroy(const Entity & entity)
+void SE::Core::ParticleSystemManager::Destroy(const Entity& entity)
 {
 	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
@@ -380,11 +435,11 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 	StopProfile;
 }
 
-void SE::Core::ParticleSystemManager::UpdateDirtyPos(const Entity & entity, size_t index)
+void SE::Core::ParticleSystemManager::UpdateDirtyPos(const Entity& entity, size_t index)
 {
 	StartProfile;
 
-		dirtyEntites.push_back({ index, entity });
-	
+	dirtyEntites.push_back({index, entity});
+
 	ProfileReturnVoid
 }

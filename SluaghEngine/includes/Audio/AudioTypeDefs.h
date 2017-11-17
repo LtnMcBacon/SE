@@ -6,8 +6,8 @@
 namespace SE {
 	namespace Audio {
 
-		enum SoundIndexName { BakgroundSound, BakgroundLoopSound, StereoPanSound, StereoPanLoopSound};
-		enum SoundVolType { MasterVol, BakgroundVol, EffectVol };
+		enum SoundIndexName { BakgroundSound, BakgroundLoopSound, StereoPanSound, StereoPanLoopSound, VoiceSound, StereoVoiceSound };
+		enum SoundVolType { MasterVol, BakgroundVol, EffectVol, VoiceVol };
 
 		struct PanData
 		{

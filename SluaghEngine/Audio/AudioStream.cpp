@@ -53,7 +53,7 @@ namespace SE {
 						inSample); /*This is a pointer that will be passed to
 													 your callback*/
 				}
-				else if (soundType == BakgroundSound)
+				else if (soundType == BakgroundSound || soundType == VoiceSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
@@ -72,7 +72,7 @@ namespace SE {
 						inSample); /*This is a pointer that will be passed to
 													 your callback*/
 				}
-				else if (soundType == StereoPanSound)
+				else if (soundType == StereoPanSound || soundType == StereoVoiceSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
