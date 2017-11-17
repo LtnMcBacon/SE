@@ -13,6 +13,11 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	auto frost = managers.entityManager->Create();
 	auto fire = managers.entityManager->Create();
 	auto torch = managers.entityManager->Create();
+	managers.particleSystemManager->CreateSystem(frost, { "frostBall.pts" });
+	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
+	managers.particleSystemManager->ToggleVisible(fire, true);
+	managers.particleSystemManager->ToggleVisible(frost, true);
+	
 	Core::IParticleSystemManager::CreateInfo particleInfo;
 	particleInfo.systemFile;
 	managers.transformManager->Create(frost, {1, 0.5, 1});
@@ -21,11 +26,6 @@ bool SE::Test::ParticleTest::Run(SE::DevConsole::IConsole * console)
 	managers.transformManager->Create(torch);
 	managers.transformManager->BindChild(torch, fire);
 	managers.renderableManager->ToggleRenderableObject(torch, true);
-	managers.particleSystemManager->CreateSystem(frost, { "frostBall.pts" });
-	managers.particleSystemManager->CreateSystem(fire, { "fireBall.txt" });
-	managers.particleSystemManager->ToggleVisible(fire, true);
-	managers.particleSystemManager->ToggleVisible(frost, true);
-	
 	managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0, 0, -5 });
 	
 	float pos[3] = {0, 0, 0};

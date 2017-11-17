@@ -77,6 +77,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 	InitWeaponPickups();
+	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
 	ProfileReturnVoid;
 }
 
@@ -488,6 +489,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+		if(CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
