@@ -7,7 +7,7 @@
 SE::Gameplay::SkillFactory::SkillFactory()
 {
 	auto rm = CoreInit::subSystems.resourceHandler;
-	rm->LoadResource("testSkill.si", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("skillList.si", [this](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		this->skillAmounts = *((char*)(filePointer));
 
@@ -32,7 +32,7 @@ void SE::Gameplay::SkillFactory::readSkillInfo(unsigned int index, std::string& 
 	SkillInfo* tempSkill;
 	tempSkill = new SkillInfo;
 	
-	rm->LoadResource("testSkill.si", [this, index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
+	rm->LoadResource("skillList.si", [this, index, &tempSkill, name](const Utilz::GUID& guid, void* filePointer, size_t fileSize)
 	{
 		int offset = sizeof(int);
 		int usiSize = sizeof(unsigned short int);
@@ -97,7 +97,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, SE::
 	SkillAttributes* tempSkill;
 	tempSkill = new SkillAttributes;
 
-	int res = rm->LoadResource("testSkill.sa", [this, index, &tempSkill](const Utilz::GUID& guid, void* filePointer, size_t fileSize) 
+	int res = rm->LoadResource("skillList.sa", [this, index, &tempSkill](const Utilz::GUID& guid, void* filePointer, size_t fileSize) 
 	{
 		int offset = 0;
 		unsigned int stringSize;
@@ -107,7 +107,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, SE::
 		for (int i = 0; i < index; i++)
 		{
 			memcpy(&stringSize, (char*)filePointer + offset, uiSize);
-			offset += stringSize + uiSize * (fSize * 8);
+			offset += stringSize + uiSize + (fSize * 8);
 		}
 		memcpy(&stringSize, (char*)filePointer + offset, uiSize);
 		offset += uiSize;
