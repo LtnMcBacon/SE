@@ -329,7 +329,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 {
 	CoreInit::managers.transformManager->SetPosition(ent, pos);
 	CoreInit::managers.transformManager->SetRotation(ent, 0,0,0);
-	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.8);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
