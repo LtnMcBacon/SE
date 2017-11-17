@@ -58,6 +58,8 @@ namespace SE {
 			
 			float masterVol;
 			float effectVol;
+			float voiceVol;
+			float voiceSVol;
 			float bakgroundVol;
 		};
 	}	//namespace Audio

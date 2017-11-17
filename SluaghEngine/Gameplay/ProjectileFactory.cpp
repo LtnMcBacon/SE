@@ -97,6 +97,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 
 	int nrOfLetters = 0;
 	int startPos = pos;
+	int toNextLine = 2;
 	while (startPos < file.size() && file[startPos] != '\r' && file[startPos + 1] != '\n')
 	{
 		nrOfLetters++;
@@ -107,10 +108,11 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 	{
 		nrOfLetters++;
 		startPos++;
+		toNextLine = 1;
 	}
 
 	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
-	pos += nrOfLetters + 2;
+	pos += nrOfLetters + toNextLine;
 
 	StopProfile;
 }
@@ -1121,6 +1123,32 @@ SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters)
 	ProfileReturnConst(DamageSetter);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float force = std::get<float>(parameters[0].data);
+	auto Knockback = [force](Projectile* p, float dt) -> bool
+	{
+		const auto& vec = p->GetUnitsHit();
+		
+		for (int i = 0; i < vec.size(); i++)
+		{
+			float xForce = vec[i]->GetXPosition() - p->GetXPosition();
+			float yForce = vec[i]->GetYPosition() - p->GetYPosition();
+
+			float totVec = sqrt((xForce * xForce) + (yForce * yForce));
+			xForce /= totVec;
+			yForce /= totVec;
+
+			vec[i]->AddForce(xForce * force, yForce * force);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(Knockback);
+}
+
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
@@ -1174,7 +1202,7 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 {
 	StartProfile;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
-	auto CreateProjectile = [ownerPtr](Projectile* p, float dt) -> bool
+	auto CreateParticles = [ownerPtr](Projectile* p, float dt) -> bool
 	{
 		if (auto owner = ownerPtr.lock())
 		{
@@ -1189,7 +1217,53 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 		return false;
 	};
 
-	ProfileReturnConst(CreateProjectile);
+	ProfileReturnConst(CreateParticles);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	return std::function<bool(Projectile*projectile, float dt)>();
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
+	float maxDistance = std::get<float>(parameters[1].data);
+	auto RangeToOwnerCondition = [ownerPtr, maxDistance](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			float distance[2];
+			distance[0] = p->GetXPosition() - unit->GetXPosition();
+			distance[1] = p->GetYPosition() - unit->GetYPosition();
+
+			return sqrtf(distance[0] * distance[0] + distance[1] * distance[1]) < maxDistance;
+
+		}
+		return false;
+	};
+
+	ProfileReturnConst(RangeToOwnerCondition);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::OwnerIsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
+	auto OwnerAliveCondition = [ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			return unit->GetHealth() > 0.f;
+
+		}
+		return false;
+	};
+
+	ProfileReturnConst(OwnerAliveCondition);
 }
 
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
@@ -1224,7 +1298,9 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::UserHealthAboveConditionBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetActualDamageBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateParticlesBetweenProjectileAndOwnerBehaviour, this, std::placeholders::_1)); // o
-
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KnockbackBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RangeToOwnerConditionBehaviour, this, std::placeholders::_1)); // o, f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::OwnerIsAliveConditionBehaviour, this, std::placeholders::_1)); // o, f
 
 }
 

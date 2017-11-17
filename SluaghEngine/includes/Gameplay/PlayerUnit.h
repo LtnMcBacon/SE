@@ -131,11 +131,6 @@ namespace SE
 			};
 
 			/**
-			* @brief To be documented
-			*/
-			void AddForce(float force[2]);
-
-			/**
 			* @brief	Update the map
 			*
 			* @param [in] dt Delta time for this frame
@@ -156,7 +151,7 @@ namespace SE
 
 			inline float GetMaxHealth()
 			{
-				return baseStat.health;
+				return newStat.health;
 			}
 
 
@@ -166,13 +161,13 @@ namespace SE
 				return items[currentItem];
 			}
 		private:
+
 			PlayerUnit() {};
 			PlayerUnit(const PlayerUnit& other) = delete;
 			PlayerUnit(const PlayerUnit&& other) = delete;
 			PlayerUnit& operator=(const PlayerUnit& rhs) = delete;
 
 			char map[25][25] = { {} };
-			float forcesToApply[2] = {};
 			float rotMov[2] = {};
 
 			/* Sound */
