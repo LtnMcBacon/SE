@@ -215,7 +215,7 @@ namespace SE {
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
@@ -234,7 +234,7 @@ namespace SE {
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
