@@ -460,8 +460,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	StartProfile;
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EventCallbacks pickUpEvent;
-	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
+	Core::IEventManager::EntityEventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent) {
 
 		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
 
@@ -487,7 +487,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		}
 	};
 
-	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
@@ -495,8 +495,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return false;
 	};
 
-	Core::IEventManager::EventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
 	{
 		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
 		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
@@ -506,14 +506,14 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
 	
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
+	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
 		Item::ToggleRenderPickupInfo(ent);
 	};
 
-	Core::IEventManager::EventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
 	{
 		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
 		{
@@ -525,15 +525,15 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
 	};
 
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
 	{
 		CoreInit::managers.entityManager->DestroyNow(ent);	
 		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
 	};
-	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
 	ProfileReturnVoid;
 }
 

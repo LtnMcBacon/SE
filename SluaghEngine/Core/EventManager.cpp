@@ -4,52 +4,98 @@
 
 SE::Core::EventManager::EventManager(const IEventManager::InitializationInfo& info) : initInfo(info)
 {
-	Allocate(10);
+
 }
 
 
 SE::Core::EventManager::~EventManager()
 {
-	operator delete(eventData.data);
+
 }
 
-void SE::Core::EventManager::RegisterEventCallback(const Utilz::GUID _event, const EventCallbacks& callbacks)
+void SE::Core::EventManager::RegisterEntityEvent(const Utilz::GUID _event,
+	const EntityEventCallbacks& callbacks)
 {
-	eventToCallbacks[_event] = callbacks;
+	if (const auto find = entityEventToIndex.find(_event); find == entityEventToIndex.end())
+	{
+		entityEventToIndex[_event] = entityEvents.size();
+		entityEvents.push_back({ _event, callbacks });
+	}
+	else
+	{
+		entityEvents[find->second] = { _event, callbacks };
+	}
 }
 
-void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData)
+void SE::Core::EventManager::RegisterTriggerEvent(const Utilz::GUID _event, const std::function<void(const Entity)>& callback)
+{
+	if (const auto find = triggerEventToIndex.find(_event); find == triggerEventToIndex.end())
+	{
+		triggerEventToIndex[_event] = entityEvents.size();
+		triggerEvents.push_back({ _event, callback });
+	}
+	else
+	{
+		triggerEvents[find->second] = { _event, callback };
+	}
+}
+
+void SE::Core::EventManager::TriggerEvent(const Utilz::GUID _event, bool now)
+{
+	StartProfile;
+	if (auto const te = triggerEventToIndex.find(_event); te != triggerEventToIndex.end())
+	{
+		if (now)
+			TriggerEvent(triggerEvents[te->second]);
+		else
+		{
+			eventsToTrigger.push_back(te->second);
+		}
+	}
+	StopProfile;
+}
+
+void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event)
 {
 	StartProfile;
 	if (!initInfo.entityManager->Alive(entity))
 		ProfileReturnVoid;
-	auto const find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
+	if(auto const find = entityToIndex.find(entity); find == entityToIndex.end())
 	{
-		auto const findE = eventToCallbacks.find(_event);
-		if (findE == eventToCallbacks.end())
+		if (auto const findE = entityEventToIndex.find(_event); findE != entityEventToIndex.end())
+		{
+			size_t index = entityToIndex[entity] = entires.entity.size();
+			entires.entity.push_back(entity);
+			entires.eventsRegisteredTo.push_back({ _event });
+			entityEvents[findE->second].entitesRegistered.push_back(entity);
 			ProfileReturnVoid;
-
-		if (eventData.used + 1 > eventData.allocated)
-			Allocate(eventData.allocated * 2);
-		size_t index = entityToIndex[entity] = eventData.used++;
-		eventData.entity[index] = entity;
-
-		eventData.events[index].nrOfEvents = 0;
-		eventData.events[index].event_[eventData.events[index].nrOfEvents] = _event;
-		eventData.events[index].userData[eventData.events[index].nrOfEvents++] = userData;
+		}
+		if (auto const findT = triggerEventToIndex.find(_event); findT != triggerEventToIndex.end())
+		{
+			size_t index = entityToIndex[entity] = entires.entity.size();
+			entires.entity.push_back(entity);
+			entires.eventsRegisteredTo.push_back({ _event });
+			triggerEvents[findT->second].entitesRegistered.push_back(entity);
+			ProfileReturnVoid;
+		}
 	}
 	else
 	{
-		size_t index = entityToIndex[entity];
-		_ASSERT(eventData.events[index].nrOfEvents + 1 <= Events::MAX);
-
-		for (uint8_t i = 0; i < eventData.events[index].nrOfEvents; i++)
-			if (eventData.events[index].event_[i] == _event)
+		for (auto& e : entires.eventsRegisteredTo[find->second])
+			if (e == _event)
 				ProfileReturnVoid;
-
-		eventData.events[index].event_[eventData.events[index].nrOfEvents] = _event;
-		eventData.events[index].userData[eventData.events[index].nrOfEvents++] = userData;
+		if (auto const findE = entityEventToIndex.find(_event); findE != entityEventToIndex.end())
+		{
+			entires.eventsRegisteredTo[find->second].push_back(_event);
+			entityEvents[findE->second].entitesRegistered.push_back(entity);
+			ProfileReturnVoid;
+		}
+		if (auto const findT = triggerEventToIndex.find(_event); findT != triggerEventToIndex.end())
+		{		
+			entires.eventsRegisteredTo[find->second].push_back(_event);
+			triggerEvents[findT->second].entitesRegistered.push_back(entity);
+			ProfileReturnVoid;
+		}
 	}
 	StopProfile;
 }
@@ -57,18 +103,30 @@ void SE::Core::EventManager::RegisterEntitytoEvent(const Entity entity, const Ut
 void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const Utilz::GUID _event)
 {
 	StartProfile;
-	const auto find = entityToIndex.find(entity);
-	if (find != entityToIndex.end())
+	
+	if (const auto find = entityToIndex.find(entity); find != entityToIndex.end())
 	{
-		auto& e = eventData.events[find->second];
-		for (uint8_t i = 0; i < e.nrOfEvents; i++)
+		if (auto const findE = entityEventToIndex.find(_event); findE != entityEventToIndex.end())
 		{
-			if (e.event_[i] == _event)
-			{
-				e.event_[i] = e.event_[e.nrOfEvents - 1];
-				e.nrOfEvents--;
-				break;
-			}
+			auto& reg = entityEvents[findE->second].entitesRegistered;
+			for (size_t i = 0; i < reg.size(); i++)
+				if (reg[i] == entity)
+				{
+					reg[i] = reg[reg.size() - 1];
+					break;
+				}
+			ProfileReturnVoid;
+		}
+		if (auto const findT = triggerEventToIndex.find(_event); findT != triggerEventToIndex.end())
+		{
+			auto& reg = triggerEvents[findT->second].entitesRegistered;
+			for (size_t i = 0; i < reg.size(); i++)
+				if (reg[i] == entity)
+				{
+					reg[i] = reg[reg.size() - 1];
+					break;
+				}
+			ProfileReturnVoid;
 		}
 	}
 	StopProfile;
@@ -79,14 +137,11 @@ void SE::Core::EventManager::SetLifetime(const Entity entity, float lifetime)
 	StartProfile;
 	if (!initInfo.entityManager->Alive(entity))
 		ProfileReturnVoid;
-	auto const find = entityToIndex.find(entity);
-	if (find == entityToIndex.end())
+	
+	if (auto const find = entityToIndex.find(entity); find == entityToIndex.end())
 	{
-		if (eventData.used + 1 > eventData.allocated)
-			Allocate(eventData.allocated * 2);
-		size_t index = entityToIndex[entity] = eventData.used++;
-		eventData.entity[index] = entity;
-		eventData.events[index].nrOfEvents = 0;
+		entires.entity[find->second] = entity;
+		entires.eventsRegisteredTo[find->second].push_back({});
 	}
 	initInfo.dataManager->SetValue(entity, "TimeToDeath", lifetime);
 	StopProfile;
@@ -98,61 +153,44 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 	_ASSERT(timer);
 	GarbageCollection();
 	timer->Start("EventManager");
+
+
+
 	float dt = initInfo.window->GetDelta();
-	for (size_t i = 0; i < eventData.used; i++)
+	for (size_t i = 0; i < entires.entity.size(); i++)
 	{
-		float timeToDeath = std::get<float>(initInfo.dataManager->GetValue(eventData.entity[i], "TimeToDeath", -1.0f));
+		float timeToDeath = std::get<float>(initInfo.dataManager->GetValue(entires.entity[i], "TimeToDeath", -1.0f));
 		if (timeToDeath >= 0)
 		{
 			timeToDeath -= dt;
 			if (timeToDeath <= 0)
 			{
-				initInfo.entityManager->Destroy(eventData.entity[i]);
+				initInfo.entityManager->Destroy(entires.entity[i]);
 				Destroy(i);
 				continue;
 			}
-			initInfo.dataManager->SetValue(eventData.entity[i], "TimeToDeath", timeToDeath);
-		}
-
-		uint8_t fs = eventData.events[i].nrOfEvents;
-		for(uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
-		{
-			const auto& cb = eventToCallbacks[eventData.events[i].event_[e]];
-			if (cb.triggerCheck(eventData.entity[i], eventData.events[i].userData[e]))
-			{
-				cb.triggerCallback(eventData.entity[i], eventData.events[i].userData[e]);
-				if (fs > eventData.events[i].nrOfEvents)
-					e--;
-			}
+			initInfo.dataManager->SetValue(entires.entity[i], "TimeToDeath", timeToDeath);
 		}
 	}
 
+	for (auto& _event : entityEvents)
+	{
+		for (auto& ent : _event.entitesRegistered)
+		{
+			if (_event.callbacks.triggerCheck(ent))
+				_event.callbacks.triggerCallback(ent);
+		}
+	}
+
+	for (auto& _event : eventsToTrigger)
+	{
+		for (auto& ent : triggerEvents[_event].entitesRegistered)
+			triggerEvents[_event].callback(ent);
+	}
+
+
+
 	timer->Stop("EventManager");
-	StopProfile;
-}
-
-void SE::Core::EventManager::Allocate(size_t size)
-{
-	StartProfile;
-	_ASSERT(size > eventData.allocated);
-
-	// Allocate new memory
-	EventData newData;
-	newData.allocated = size;
-	newData.data = operator new(size * EventData::size);
-	newData.used = eventData.used;
-
-	// Setup the new pointers
-	newData.entity = (Entity*)newData.data;
-	newData.events = (Events*)(newData.entity + newData.allocated);
-
-	// Copy data
-	memcpy(newData.entity, eventData.entity, eventData.used * sizeof(Entity));
-	memcpy(newData.events, eventData.events, eventData.used * sizeof(Events));
-
-	// Delete old data;
-	operator delete(eventData.data);
-	eventData = newData;
 	StopProfile;
 }
 
@@ -160,19 +198,20 @@ void SE::Core::EventManager::Destroy(size_t index)
 {
 	StartProfile;
 	// Temp variables
-	size_t last = eventData.used - 1;
-	const Entity entity = eventData.entity[index];
-	const Entity last_entity = eventData.entity[last];
+	size_t last = entires.entity.size() - 1;
+	const Entity entity = entires.entity[index];
+	const Entity last_entity = entires.entity[last];
 
 	// Copy the data
-	eventData.entity[index] = last_entity;
-	eventData.events[index] = eventData.events[last];
+	entires.entity[index] = last_entity;
+	entires.eventsRegisteredTo[index] = entires.eventsRegisteredTo[last];
 
 	// Replace the index for the last_entity 
 	entityToIndex[last_entity] = index;
 	entityToIndex.erase(entity);
 
-	eventData.used--;
+	entires.entity.pop_back();
+	entires.eventsRegisteredTo.pop_back();
 
 	StopProfile;
 }
@@ -185,11 +224,11 @@ void SE::Core::EventManager::GarbageCollection()
 {
 	StartProfile;
 	uint32_t alive_in_row = 0;
-	while (eventData.used > 0 && alive_in_row < 50U)
+	while (entires.entity.size() > 0 && alive_in_row < 50U)
 	{
-		std::uniform_int_distribution<size_t> distribution(0U, eventData.used - 1U);
+		std::uniform_int_distribution<size_t> distribution(0U, entires.entity.size() - 1U);
 		size_t i = distribution(generator);
-		if (initInfo.entityManager->Alive(eventData.entity[i]))
+		if (initInfo.entityManager->Alive(entires.entity[i]))
 		{
 			alive_in_row++;
 			continue;
@@ -197,5 +236,22 @@ void SE::Core::EventManager::GarbageCollection()
 		alive_in_row = 0;
 		Destroy(i);
 	}
+	StopProfile;
+}
+
+void SE::Core::EventManager::TriggerEvent(const TriggerEventStruct& tvs)
+{
+	StartProfile;
+
+	//for (size_t i = 0; i < eventData.used; i++)
+	//{
+	//	for (uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
+	//	{
+	//		if(eventData.events[i].event_[e] == et.event_)
+	//			et.callback(eventData.entity[i], eventData.events[i].userData[e])
+	//	}
+	//	
+	//}
+
 	StopProfile;
 }

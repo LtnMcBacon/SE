@@ -1025,7 +1025,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::ENEMY)
@@ -1033,13 +1033,13 @@ CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return(CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::OBJECT)
@@ -1047,13 +1047,13 @@ CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return(CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::PLAYER)
@@ -1061,7 +1061,7 @@ CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return (CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
@@ -1084,7 +1084,7 @@ SetDamageBasedOnDTBehaviour(std::vector<BehaviourParameter> parameters)
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	float minHealth = std::get<float>(parameters[0].data);
 	std::weak_ptr<GameUnit*> owner = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
 
@@ -1101,7 +1101,7 @@ UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(AboveHealth);
+	return (AboveHealth);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
@@ -1200,7 +1200,6 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 std::function<bool(SE::Gameplay::Projectile * projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	auto CreateParticles = [ownerPtr](Projectile* p, float dt) -> bool
 	{
@@ -1217,13 +1216,9 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 		return false;
 	};
 
-	ProfileReturnConst(CreateParticles);
+	return (CreateParticles);
 }
 
-std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
-{
-	return std::function<bool(Projectile*projectile, float dt)>();
-}
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
