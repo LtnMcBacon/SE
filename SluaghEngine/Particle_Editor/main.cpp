@@ -81,7 +81,7 @@ int main()
 	char loadSystem[100] = "";
 	
 	bool exportWindow = false;
-	
+	//subSystem.devConsole->Toggle();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 	srand(time.GetDelta());
 
