@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
@@ -116,7 +116,7 @@ copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\libsndfile-1.dll" "$(SolutionDir)Build\lib\$(Platform)\libsndfile-1.dll"
@@ -130,7 +130,7 @@ copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName)D.dll" "$(SolutionDir
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -148,7 +148,7 @@ copy /Y "$(SolutionDir)Build\lib\$(Platform)\$(ProjectName).dll" "$(SolutionDir)
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); DLL_EXPORT_AH;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

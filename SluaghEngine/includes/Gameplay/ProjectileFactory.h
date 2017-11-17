@@ -261,15 +261,6 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> KnockbackBehaviour(std::vector<BehaviourParameter> parameters); // f
 
-			 * @brief	Adds a behaviour to create particles between the projectile and the owner
-			 */
-			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); // o
-
-			/**
-			* @brief	Adds a behaviour to create particles between the projectile and the owner
-			* */
-			std::function<bool(Projectile* projectile, float dt)> KnockbackBehaviour(std::vector<BehaviourParameter> parameters); // f
-
 			/**
 			* @brief	Adds a behaviour to create particles between the projectile and the owner
 			* */
