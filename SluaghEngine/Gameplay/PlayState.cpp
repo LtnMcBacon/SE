@@ -160,6 +160,8 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
+	StartProfile;
+
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
 		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
@@ -236,13 +238,16 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			*/
 			blackBoard.currentRoom = currentRoom;
 			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+			numberOfFreeFrames = 15;
 		}
 	}
+
+	ProfileReturnVoid;
 }
 
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
-	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width * player->GetHealth() / player->GetMaxHealth(), playStateGUI.GUIButtons.Buttons[healthBarPos].Height);
+	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
 }
 
 void PlayState::InitializeRooms()
@@ -372,6 +377,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
+	
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -398,7 +404,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 					xOffset = -1;
 				}
 				player = new Gameplay::PlayerUnit(tempPtr->skills, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
-
+				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 				break;
@@ -534,31 +540,39 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
-	rooms[0]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 	IGameState::State returnValue = State::PLAY_STATE;
+	if(numberOfFreeFrames < 0)
+	{
+		numberOfFreeFrames--;
+		
+		ProfileReturn(returnValue);
+	}
+	
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
 
+	float dt = min(1 / 30.f, input->GetDelta());
+
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
-	player->Update(input->GetDelta(), movementInput, newProjectiles, actionInput);
+	player->Update(dt, movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
 
 	blackBoard.playerPositionX = player->GetXPosition();
 	blackBoard.playerPositionY = player->GetYPosition();
-	blackBoard.deltaTime = input->GetDelta();
+	blackBoard.deltaTime = dt;
 	blackBoard.playerHealth = player->GetHealth();
 	
-	currentRoom->Update(input->GetDelta(), player->GetXPosition(), player->GetYPosition());
+	currentRoom->Update(dt, player->GetXPosition(), player->GetYPosition());
 
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
 
 	//-----sound update
-	soundTime += input->GetDelta();
+	soundTime += dt;
 	if (soundTime > 60.0f)
 	{
 		uint8_t newSound = input->GetRand() % 3;
@@ -572,7 +586,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	}
 	//-----end sound update
 	CheckForRoomTransition();
-	UpdateHUD(input->GetDelta());
+	UpdateHUD(dt);
 
 	if (!player->IsAlive())
 		returnValue = State::GAME_OVER_STATE;

@@ -26,13 +26,12 @@ static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
-	/*
-	* To be written/implemented
-	*/
+
 	pos playerPos;
 	playerPos.x = playerX;
 	playerPos.y = playerY;
 	roomField->Update(playerPos);
+
 	StopProfile;
 }
 
@@ -48,8 +47,6 @@ void Room::UpdateFlowField(DirectionToAdjacentRoom exit)
 void Room::UpdateAIs(float dt)
 {
 	StartProfile;
-	/*int collisionX = 0.0;
-	int collisionY = 0.0;*/
 	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
@@ -98,6 +95,7 @@ void Room::Update(float dt, float playerX, float playerY)
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
+		CoreInit::managers.eventManager->ToggleVisible(enemyUnits[i]->GetEntity(), true);
 		if (!enemyUnits[i]->IsAlive())
 		{
 			// Blood spatter
@@ -130,7 +128,6 @@ void Room::Update(float dt, float playerX, float playerY)
 			enemyUnits[i] = enemyUnits.back();
 			enemyUnits.pop_back();
 		}
-
 	}
 
 	StopProfile;
@@ -220,10 +217,8 @@ void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& proje
 
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		if (ProjectileAgainstEnemies(projectiles[i]) == false)
-		{
-			ProjectileAgainstWalls(projectiles[i]);
-		}
+		ProjectileAgainstEnemies(projectiles[i]);
+		ProjectileAgainstWalls(projectiles[i]);
 	}
 
 	StopProfile;
@@ -233,30 +228,29 @@ bool SE::Gameplay::Room::GetClosestEnemy(float xPos, float yPos, float & xReturn
 {
 	StartProfile;
 
-	if (enemyUnits.size() == 0)
-	{
-		ProfileReturnConst(false);
-	}
-
 	int enemy = -1;
 	float closestDistance = 10000.0f;
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		float enemyX = enemyUnits[i]->GetXPosition() - xPos;
-		float enemyY = enemyUnits[i]->GetYPosition() - yPos;
-		float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
-
-		if (distance < closestDistance)
+		if (enemyUnits[i]->UnitHealthAboveZero())
 		{
-			enemy = i;
-			closestDistance = distance;
+			float enemyX = enemyUnits[i]->GetXPosition() - xPos;
+			float enemyY = enemyUnits[i]->GetYPosition() - yPos;
+			float distance = sqrt(enemyX * enemyX + enemyY * enemyY);
+
+			if (distance < closestDistance)
+			{
+				enemy = i;
+				closestDistance = distance;
+			}
 		}
 	}
-
-	xReturn = enemyUnits[enemy]->GetXPosition();
-	yReturn = enemyUnits[enemy]->GetYPosition();
-
+	if (enemy != -1)
+	{
+		xReturn = enemyUnits[enemy]->GetXPosition();
+		yReturn = enemyUnits[enemy]->GetYPosition();
+	}
 	ProfileReturnConst(true);
 }
 
@@ -1216,27 +1210,24 @@ Room::Room(Utilz::GUID fileName)
 
 	pos start;
 	loadfromFile(fileName);
-
-	start.x = start.y = 1.5f;
-	bool foundStart = false;
-	//for (int x = 0; x < 25 && !foundStart; x++)
-	//{
-	//	for (int y = 0; y < 25 && !foundStart; y++)
-	//	{
-	//		if (!this->tileValues[x][y])
-	//		{
-	//			start.x = x + 0.5f;
-	//			start.y = y + 0.5f;
-	//			foundStart = true;
-	//		}
-	//	}
-	//}
-	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
-	enemyUnits.reserve(5);
 	CreateEntities();
 
 	// reset temporary tilevalues where a single prop is overlapping another tile 
 	ResetTempTileValues();
+
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{
+			if(!tileValues[x][y])
+			{
+				start.x = x;
+				start.y = y;
+			}
+		}
+
+	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
+	enemyUnits.reserve(5);
+
 
 	StopProfile;
 }
@@ -1295,17 +1286,15 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	enemyToAdd->SetCurrentRoom(this);
 
 	auto door = DoorArr[int(entranceDirection)];
-	if (door.side != entranceDirection)
-		int a = 0;
 
 	float newX = door.xPos, newY = door.yPos;
 
 	switch(entranceDirection)
 	{
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.5f; break;
 	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE: break;
 	default: ;
 	}
@@ -1535,9 +1524,9 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 {
 	auto entFire = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(entFire);
-	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.i + 0.54, 2.18f, args.j + 0.21));
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.i + 0.54, 2.18f, args.j - 0.38));
 	SE::Core::IParticleSystemManager::CreateInfo info;
-	info.systemFile = Utilz::GUID("torchParticles.pts");
+	info.systemFile = Utilz::GUID("torchParticle.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities.push_back(entFire);
@@ -1670,7 +1659,7 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
 			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
 
-		DoorArr[arrPos].doorEntityPos = roomEntities.size();
+		DoorArr[arrPos].doorEntityPos = roomEntities.size() - 1;
 		DoorArr[arrPos].xPos = i + 0.5f;
 		DoorArr[arrPos].yPos = j + 0.5f;
 		DoorArr[arrPos].active = true;
@@ -1723,8 +1712,20 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
 	if (DoorArr[int(DoorNr)].active)
 	{
+		Utilz::GUID temp;
+
+		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			temp = "SimpleNormTransPS";
+		else
+			temp = "SimpleNormPS";
+
 		DoorArr[int(DoorNr)].active = false;
+		//CoreInit::managers.renderableManager->Destroy(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
 		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
+		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mat", temp });
+		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+		//CoreInit::managers.entityManager->DestroyNow(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
+
 	}
 
 }

@@ -211,7 +211,7 @@ bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();
 
-	const FlowField* flowFieldForRoom = gameBlackboard->roomFlowField;
+	const FlowField* flowFieldForRoom = enemyBlackboard->ownerPointer->GetCurrentRoom()->GetFlowFieldMap();
 
 	pos myPos;
 	/*Checking collision in left x-axis*/

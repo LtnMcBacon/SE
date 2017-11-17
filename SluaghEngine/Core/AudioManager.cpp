@@ -58,7 +58,7 @@ namespace SE {
 			}
 
 			int handle;
-			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound)
+			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound && createInfo.soundType != Audio::StereoVoiceSound)
 				handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
 			else
 			{

@@ -230,6 +230,11 @@ namespace SE
 				targetsHit.clear();
 			};
 
+			inline std::vector<GameUnit*> GetUnitsHit()
+			{
+				return targetsHit;
+			}
+
 			inline void SetRotation(float projectileRotation)
 			{
 				rotation = projectileRotation;

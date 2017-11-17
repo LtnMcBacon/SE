@@ -152,59 +152,7 @@ namespace SE
 					
 				}
 
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-					
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-					this->MainMenuTextVec.push_back(currentText);
-				}
+				
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
@@ -360,59 +308,7 @@ namespace SE
 
 				}
 
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-					this->skillTextVec.push_back(currentText);
-				}
+				
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
@@ -535,60 +431,6 @@ namespace SE
 
 					this->perkButtonVec.push_back(CurrentElm);
 
-				}
-
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-					this->perkTextVec.push_back(currentText);
 				}
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
