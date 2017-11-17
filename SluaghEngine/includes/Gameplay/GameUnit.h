@@ -171,6 +171,7 @@ namespace SE
 
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
 
+
 			/**
 			* @brief To be documented
 			*/

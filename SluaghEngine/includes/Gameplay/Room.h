@@ -67,7 +67,9 @@ namespace SE
 				FloorTorch,
 				TableGroup1,
 				Candlestick_tri,
-				PotGroup1
+				PotGroup1,
+				Potatosack_closed,
+				Potatosack_open
 			};
 			enum class Materials {
 				Stone,
