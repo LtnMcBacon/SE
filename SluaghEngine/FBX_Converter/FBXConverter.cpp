@@ -1837,18 +1837,22 @@ unsigned int SE::FBX::FBXConverter::FindJointIndexByName(string& jointName, Skel
 
 void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
-	// Get the translation and rotation from the matrix to be processed
+	// Invert translation
 	FbxVector4 translation = matrix.GetT();
-	FbxQuaternion rotation = matrix.GetQ();
-
-	// To convert to DirectX left handed coordinate system, we negate the z-translation and xy rotation in the matrix
-
 	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2]);
-	rotation.Set(-rotation.mData[0], -rotation.mData[1], rotation.mData[2]);
 
-	// Update the matrix with the converted translation and rotation
+	// Create inversion matrix
+	FbxAMatrix Mo = matrix;
+	FbxAMatrix Mi;
+	Mi.SetIdentity();
+	Mi.mData[2][3] = -1;
+
+	// Set converted rotation
+	matrix = Mi * Mo * Mi;
+
+	// Set converted translation
 	matrix.SetT(translation);
-	matrix.SetQ(rotation);
+
 }
 
 FbxMesh* SE::FBX::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName) {	// Function to receive a mesh from the root node
