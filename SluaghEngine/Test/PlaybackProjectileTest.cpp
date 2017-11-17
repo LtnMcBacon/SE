@@ -203,11 +203,14 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		Gameplay::Room* testRoom = new Gameplay::Room(RoomArr[random]);
 
 		Gameplay::PlayerUnit* player = nullptr;
+
+		char map[25][25];
+		testRoom->GetMap(map);
 		for (int x = 0; x < 25; x++)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (testRoom->tileValues[x][y] == 1)
+				if (map[x][y] == 1)
 				{
 					float rotation = ceilf((testRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 					int xOffset = 0, yOffset = 0;
@@ -227,7 +230,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					{
 						xOffset = -1;
 					}
-					player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), testRoom->tileValues);
+					player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 
 					break;
 				}
@@ -290,13 +293,13 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 		{
 			for (int y = 0; y < 25; y++)
 			{
-				if (testRoom->tileValues[x][y] == 10)
+				if (map[x][y] == 10)
 				{
 
-					int right = testRoom->tileValues[x + 1][y];
-					int left = testRoom->tileValues[x - 1][y];
-					int up = testRoom->tileValues[x][y + 1];
-					int down = testRoom->tileValues[x][y - 1];
+					int right = map[x + 1][y];
+					int left = map[x - 1][y];
+					int up = map[x][y + 1];
+					int down = map[x][y - 1];
 					
 					if (x == 24 || y == 24 || x == 0 || y == 0)
 					{
@@ -306,16 +309,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 						}
 						else if ((x == 24 && y != 0))
 						{
-							if (testRoom->tileValues[x - 1][y] == 10)
+							if (map[x - 1][y] == 10)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
 							}
-							else if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							else if (map[x][y - 1] == 1 || map[x][y - 1] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
 							}
-							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							else if (map[x][y + 1] == 1 || map[x][y + 1] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
@@ -328,16 +331,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 						}
 						else if ((y == 24 && x != 0))
 						{
-							if (testRoom->tileValues[x][y - 1] == 10)
+							if (map[x][y - 1] == 10)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
 							}
-							else if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							else if (map[x - 1][y] == 1 || map[x - 1][y] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, 0.0, 0.0);
 							}
-							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							else if (map[x + 1][y] == 1 || map[x + 1][y] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
@@ -350,16 +353,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 						}
 						else if ((x == 0 && y != 24))
 						{
-							if (testRoom->tileValues[x + 1][y] == 10)
+							if (map[x + 1][y] == 10)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
 							}
-							else if (testRoom->tileValues[x][y - 1] == 1 || testRoom->tileValues[x][y - 1] == 2)
+							else if (map[x][y - 1] == 1 || map[x][y - 1] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, -DirectX::XM_PIDIV2, 0.0);
 							}
-							else if (testRoom->tileValues[x][y + 1] == 1 || testRoom->tileValues[x][y + 1] == 2)
+							else if (map[x][y + 1] == 1 || map[x][y + 1] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
@@ -372,16 +375,16 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 						}
 						else if ((y == 0 && x != 24))
 						{
-							if (testRoom->tileValues[x][y + 1] == 10)
+							if (map[x][y + 1] == 10)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Top });
 							}
-							else if (testRoom->tileValues[x - 1][y] == 1 || testRoom->tileValues[x - 1][y] == 2)
+							else if (map[x - 1][y] == 1 || map[x - 1][y] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PIDIV2, 0.0);
 							}
-							else if (testRoom->tileValues[x + 1][y] == 1 || testRoom->tileValues[x + 1][y] == 2)
+							else if (map[x + 1][y] == 1 || map[x + 1][y] == 2)
 							{
 								managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Corner });
 								managers.transformManager->SetRotation(entities[numberOfEntitesPlaced], 0.0, DirectX::XM_PI, 0.0);
@@ -512,7 +515,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					}
 					
 					
-					if (!(x == 24 || y == 24) && (right == 0 || up == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					if (!(x == 24 || y == 24) && (right == 0 || up == 0 || map[x + 1][y + 1] == 0))
 					{
 						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
 						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
@@ -527,10 +530,10 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					managers.transformManager->SetScale(entities[numberOfEntitesPlaced], DirectX::XMFLOAT3(1.0, 1.0, 1.0));
 					numberOfEntitesPlaced++;
 				}
-				else if (testRoom->tileValues[x][y] == 2 || testRoom->tileValues[x][y] == 1)
+				else if (map[x][y] == 2 || map[x][y] == 1)
 				{
 					managers.renderableManager->CreateRenderableObject(entities[numberOfEntitesPlaced], { Door });
-					if (!(x == 24 || y == 24) && (testRoom->tileValues[x + 1][y] == 0 || testRoom->tileValues[x][y + 1] == 0 || testRoom->tileValues[x + 1][y + 1] == 0))
+					if (!(x == 24 || y == 24) && (map[x + 1][y] == 0 || map[x][y + 1] == 0 || map[x + 1][y + 1] == 0))
 					{
 						shader = Utilz::GUID("SimpleNormTransPS.hlsl");
 						managers.renderableManager->ToggleTransparency(entities[numberOfEntitesPlaced], true);
@@ -554,7 +557,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 
 					numberOfFloor++;
 				}
-				else if (testRoom->tileValues[x][y] == 0)
+				else if (map[x][y] == 0)
 				{
 					managers.renderableManager->CreateRenderableObject(floor[numberOfFloor], { Floor });
 					shader = Utilz::GUID("SimpleNormMapPS.hlsl");
@@ -624,32 +627,42 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 			}
 		}
 		Gameplay::EnemyFactory eFactory;
-		auto enemyGUID = Utilz::GUID("FlowFieldEnemy.SEC");
-		eFactory.LoadEnemyIntoMemory(enemyGUID);
+		Gameplay::EnemyCreationStruct eStruct;
 		Gameplay::GameBlackboard blackBoard;
 		blackBoard.roomFlowField = testRoom->GetFlowFieldMap();
 
-		for (int i = 0; i < 100; i++)
+		const int enemiesSize = 100;
+		Gameplay::EnemyUnit** enemies;
+
+		enemies = new Gameplay::EnemyUnit*[enemiesSize];
+
+		for (int i = 0; i < enemiesSize; i++)
 		{
 			pos enemyPos;
 			do
 			{
 				enemyPos.x = subSystem.window->GetRand() % 25;
 				enemyPos.y = subSystem.window->GetRand() % 25;
-			} while (testRoom->tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
-			Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
-			enemy->SetXPosition(enemyPos.x + .5f);
-			enemy->SetYPosition(enemyPos.y + .5f);
-
-			//new Gameplay::EnemyUnit(testRoom->GetFlowFieldMap(), enemyPos.x + .5f, enemyPos.y + .5f, 10.0f);
-			managers.renderableManager->CreateRenderableObject(enemy->GetEntity(), { Block });
-			managers.renderableManager->ToggleRenderableObject(enemy->GetEntity(), true);
-			managers.transformManager->SetRotation(enemy->GetEntity(), -DirectX::XM_PIDIV2, 0, 0);
-			managers.transformManager->SetScale(enemy->GetEntity(), 0.5f);
-			testRoom->AddEnemyToRoom(enemy);
+			Gameplay::EnemyCreationData data;
+			data.type = Gameplay::EnemyType::ENEMY_TYPE_GLAISTIG;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
 		}
 
+
+
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+
+		for (int i = 0; i < enemiesSize; i++)
+		{
+			testRoom->AddEnemyToRoom(enemies[i]);
+		}
+
+		delete[] enemies;
 		subSystem.window->MapActionButton(0, Window::KeyEscape);
 		subSystem.window->MapActionButton(1, Window::Key1);
 		subSystem.window->MapActionButton(2, Window::Key2);
@@ -828,7 +841,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 			{
 				for (int y = 0; y < 25; y++)
 				{
-					if (testRoom->tileValues[x][y])
+					if (map[x][y])
 					{
 
 					}

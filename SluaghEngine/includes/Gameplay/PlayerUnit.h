@@ -3,12 +3,15 @@
 
 #include "GameUnit.h"
 #include <Gameplay\SkillFactory.h>
+#include <Utilz\GUID.h>
+#include <Gameplay\Skill.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
 		struct ProjectileData;
+
 		/**
 		*
 		* @brief The player class
@@ -102,6 +105,7 @@ namespace SE
 
 			struct ActionInput
 			{
+				bool actionButton;
 				bool skill1Button;
 				bool skill2Button;
 
@@ -110,10 +114,11 @@ namespace SE
 
 				}
 
-				ActionInput(bool skill1, bool skill2)
+				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
+					actionButton = action;
 				}
 			};
 
@@ -180,7 +185,7 @@ namespace SE
 				//agi
 				float rangedDamage		= 1.f;
 				float rangedMultiplier  = 1.f;
-				float movementSpeed		= 1.f;
+				float movementSpeed		= 5.f;
 				//float healBonus			= 1.f;
 				//float attackSpeed		= 1.f;
 
@@ -239,28 +244,10 @@ namespace SE
 			void changeElementType(DamageTypes element);
 		
 		public:
-			struct Skill
-			{
-				std::string skillName = "";
-				DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
-				DamageTypes element = DamageTypes::DAMAGE_TYPE_PHYSICAL;
-				Boons boon = Boons::CONDITIONAL_BOONS_NONE;
-				Banes bane = Banes::CONDITIONAL_BANES_NONE;
-				unsigned short int animation = 0;
-				unsigned short int particle = 0;
 
-				float skillDamage = 0.f;
-				float boonEffectValue = 0.f;
-				float boonRange = 0.f;
-				float boonDuration = 0.f;
-				float baneEffectValue = 0.f;
-				float baneRange = 0.f;
-				float baneDuration = 0.f;
-			};
 
 		private:		
 			std::vector<Skill> skills;
-			std::vector<Skill> aiSkills;
 			
 			/**
 			* @brief		Removes all the skills from the list.
@@ -278,7 +265,7 @@ namespace SE
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
 		public:
-			PlayerUnit(void* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
 		};
 

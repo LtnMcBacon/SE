@@ -360,12 +360,7 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 			initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("MaterialAttributes", (void*)&attrib, sizeof(attrib));
 		});
 
-		info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "shadowMapDSV";
-
-		info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount++] = "ShadowMap";
-
-		info->pipeline.PSStage.samplers[1] = "shadowPointSampler";
-		info->pipeline.PSStage.samplerCount = 2;
+		
 
 	}
 	else
@@ -374,4 +369,9 @@ void SE::Core::MaterialManager::SetRenderObjectInfo(const Entity & entity, Graph
 		info->pipeline.PSStage.textureCount = 0;
 		info->pipeline.PSStage.samplerCount = 0;
 	}
+	info->pipeline.PSStage.textures[info->pipeline.PSStage.textureCount] = "DepthCube";
+	info->pipeline.PSStage.textureBindings[info->pipeline.PSStage.textureCount] = "ShadowMap";
+	++info->pipeline.PSStage.textureCount;
+	info->pipeline.PSStage.samplers[1] = "shadowPointSampler";
+	info->pipeline.PSStage.samplerCount = 2;
 }

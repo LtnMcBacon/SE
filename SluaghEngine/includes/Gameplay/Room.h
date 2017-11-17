@@ -35,6 +35,17 @@ namespace SE
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
+			bool IsOutside = false;
+			enum class PropTypes
+			{
+				TABLES,
+				CHAIRS,
+				TORCHES_FLOOR,
+				TORCHES_WALL,
+				BUSHES
+			};
+			std::map<PropTypes, std::vector<SE::Utilz::GUID>> propVectors;
+
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -56,8 +67,16 @@ namespace SE
 
 		public:
 
+			enum class DirectionToAdjacentRoom
+			{
 
-			void CloseDoor(int DoorNr); 
+				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
+				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
+				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
+				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
+			};
+
+			void CloseDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 
@@ -72,14 +91,6 @@ namespace SE
 			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-			enum class DirectionToAdjacentRoom
-			{
-
-				DIRECTION_ADJACENT_ROOM_NORTH,	/**<The room lies to the North (0) */
-				DIRECTION_ADJACENT_ROOM_EAST,	/**<The room lies to the East (1) */
-				DIRECTION_ADJACENT_ROOM_SOUTH,	/**<The room lies to the South (2) */
-				DIRECTION_ADJACENT_ROOM_WEST	/**<The room lies to the West (3) */
-			};
 		private:
 
 			char tileValues[25][25];
@@ -253,6 +264,10 @@ namespace SE
 			void CreateEntities();
 
 			/**
+			* @brief Places enemies in the room on free tiles
+			*/
+			void CreateEnemies();
+			/**
 			* @brief Creates wall ent for the room
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
@@ -395,8 +410,11 @@ namespace SE
 			*/
 			float WallCheck(int x, int y);
 
+			/**
+			* @brief	Generates random props
+			*/
+			const SE::Utilz::GUID GenerateRandomProp(int x, int y);
 
-			const SE::Utilz::GUID GenerateRandomProp();
 
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
@@ -438,7 +456,7 @@ namespace SE
 					}
 				}
 			}
-
+			bool beingRendered = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 

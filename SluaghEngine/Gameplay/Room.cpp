@@ -26,11 +26,11 @@ static const SE::Utilz::GUID Floor("floorTest.mesh");
 static const SE::Utilz::GUID Torch("Torch_fbx.mesh");
 static const SE::Utilz::GUID Pillar_short("Pillar_short.mesh");
 
+
 // Random props
-static const SE::Utilz::GUID FloorTorch("FloorTorch.mesh");
-static const SE::Utilz::GUID Chair("Chair.mesh");
-static const SE::Utilz::GUID Table_small("Table_small.mesh");
-static const SE::Utilz::GUID Table_round("Table_round.mesh");
+std::vector<SE::Utilz::GUID> randomProps;
+
+
 
 
 //materials
@@ -205,6 +205,7 @@ bool Room::CheckCollisionInRoom(float xCenterPositionBefore, float yCenterPositi
 	}
 	ProfileReturn(collision);
 }
+
 
 void SE::Gameplay::Room::CheckProjectileCollision(std::vector<Projectile>& projectiles)
 {
@@ -964,6 +965,15 @@ void SE::Gameplay::Room::CreateEntities()
 				CoreInit::managers.transformManager->Create(floorEnt);
 				CoreInit::managers.transformManager->SetPosition(floorEnt, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 0.5f));
 
+				if (IsOutside)
+				{
+					if (tileValues[i][j] == (char)13)
+					{
+					auto& props = propVectors[PropTypes::BUSHES];
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { props[0] });
+					}
+				}
+
 				if (tileValues[i][j] == (char)0)
 				{
 					cubeInfo.materialFile = FloorMat;
@@ -986,9 +996,9 @@ void SE::Gameplay::Room::CreateEntities()
 				else if (tileValues[i][j] == (char)137 )
 				{
 
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp() });
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { GenerateRandomProp(i, j) });
 				}
-				else if (tileValues[i][j] == (char)225 )
+				else if (tileValues[i][j] == (char)225 ) // Pillar
 				{
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Pillar_short });
 				}
@@ -1065,11 +1075,39 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	{
 		CoreInit::managers.renderableManager->ToggleRenderableObject(roomEntities[i], render);
 	}
+	for(auto enemy : enemyUnits)
+	{
+		CoreInit::managers.animationManager->ToggleVisible(enemy->GetEntity(), render);
+	}
+	beingRendered = render;
+}
+
+void SE::Gameplay::Room::CreateEnemies()
+{
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	pos enemyPos;
+	//	do
+	//	{
+	//		enemyPos.x = subSystem.window->GetRand() % 25;
+	//		enemyPos.y = subSystem.window->GetRand() % 25;
+	//	} while (tileValues[int(enemyPos.x)][int(enemyPos.y)]);
+
+	//	Gameplay::EnemyUnit* enemy = eFactory.CreateEnemy(enemyGUID, &blackBoard);
+	//	enemy->PositionEntity(enemyPos.x + .5f, enemyPos.y + .5f);
+
+	//	testRoom->AddEnemyToRoom(enemy);
+	//}
 }
 
 Room::Room(Utilz::GUID fileName)
 {
 	StartProfile;
+	propVectors[PropTypes::TORCHES_FLOOR] = {"FloorTorch.mesh"};
+	propVectors[PropTypes::TABLES] = { "Table_small.mesh", "Table_round.mesh" };
+	propVectors[PropTypes::CHAIRS] = { "Chair.mesh" };
+	propVectors[PropTypes::BUSHES] = { "Bush.mesh" };
+
 	pos start;
 	loadfromFile(fileName);
 
@@ -1090,7 +1128,7 @@ Room::Room(Utilz::GUID fileName)
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 	enemyUnits.reserve(5);
 	CreateEntities();
-	
+
 	StopProfile;
 }
 
@@ -1102,13 +1140,16 @@ Room::~Room()
 		enemy->DestroyEntity();
 		delete enemy;
 	}
+
+
 }
 
 bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd)
 {
 	StartProfile;
+	enemyToAdd->SetCurrentRoom(this);
 	enemyUnits.push_back(enemyToAdd);
-
+	CoreInit::managers.animationManager->ToggleVisible(enemyToAdd->GetEntity(), beingRendered);
 	/* Should check to make sure that a pre-determined condition ("total power level of room"?)
 	* is okay, and first then add the enemy to the room. Otherwise, it should be rejected and stay in the current room.
 	*/
@@ -1130,6 +1171,10 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			for (int x = 0; x < 25; x++)
 			{
 				tileValues[x][y] = (char)(in[counter]);
+				if (in[counter] == (char)13)
+				{
+					IsOutside = true;
+				}
 				counter++; 
 			}
 		}
@@ -1163,29 +1208,34 @@ float Room::WallCheck(int x, int y)
 	ProfileReturnConst(rotation);
 }
 
-const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp()
+const SE::Utilz::GUID SE::Gameplay::Room::GenerateRandomProp(int x, int y)
 {
+	StartProfile;
 
-	int rand = CoreInit::subSystems.window->GetRand();
-
-	int randNr = (rand % 4) + 1;
-
-	switch (randNr)
+	// if we find a prop on the right side of the prop and not beneeth its a 2x1
+	if (tileValues[x + 1][y] == (char)137 && tileValues[x][y - 1] != (char)137 )
 	{
-	case 1:
-		return FloorTorch;
-		break;
-	case 2:
-		return Chair;
-		break;
-	case 3:
-		return Table_small;
-		break;
-	case 4:
-		return Table_round;
-		break;
+		// medium prop 2x1
+	}
+	// Else we check if its a 1x2 by checking if a prop is beneeth and not on the right side
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y] != (char)137)
+	{
+		//medium prop 1x2
+	}
+	else if (tileValues[x][y - 1] == (char)137 && tileValues[x + 1][y - 1] == (char)137) {
+		// big prop 2x2
 	}
 
+
+
+	auto& propList = propVectors[PropTypes::TABLES];
+
+	auto rand = CoreInit::subSystems.window->GetRand();
+	auto randNr = (rand % propList.size());
+
+
+
+	ProfileReturnConst(propList[randNr]);
 }
 
 float Room::FloorCheck(int x, int y)
@@ -1210,8 +1260,8 @@ float Room::FloorCheck(int x, int y)
 }
 
 
-void Room::CloseDoor(int DoorNr)
+void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
-	DoorArr[DoorNr] = false; 
+	DoorArr[int(DoorNr)] = false;
 
 }
