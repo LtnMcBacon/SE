@@ -4,6 +4,7 @@
 struct WeaponInfo
 {
 	SE::Utilz::GUID icon;
+	SE::Utilz::GUID iconP;
 	SE::Utilz::GUID backTex;
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
@@ -18,9 +19,9 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"venomblades.jpg", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
-	{"Fireball_NSMB.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
-	{"sweating towelguy.jpg", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
+	{"Sword_black.png", "Sword_black.png", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
+	{"Crossbow_black.png", "Sword_black.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
+	{"Wand_black.png","Sword_black.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
 } };
 
 
