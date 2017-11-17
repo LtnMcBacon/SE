@@ -35,6 +35,7 @@ namespace SE
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
 			bool IsOutside = false;
+			uint32_t fogRjHandle = -1;
 			enum class PropTypes
 			{
 				TABLES,
@@ -348,6 +349,11 @@ namespace SE
 			* @brief Creates wall ent for the room
 			*/
 			bool CreateWall(SE::Core::Entity ent, int x, int y);
+
+			/**
+			* @brief Creates the plane onto which the fog will be rendered
+			*/
+			void CreateFogPlane();
 
 			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
 

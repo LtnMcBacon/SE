@@ -51,6 +51,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);
 	playStateGUI.GUIButtons.DrawButtons();
 
+	InitializeFogDependencies();
 	InitializeRooms();
 	InitializePlayer(passedInfo);
 	InitializeEnemies();
@@ -324,6 +325,107 @@ void PlayState::InitializeRooms()
 	currentRoom->InitializeAdjacentFlowFields();
 	delete[] RoomArr;
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::PlayState::InitializeFogDependencies()
+{
+	auto subSystem = engine->GetSubsystems();
+
+
+	ResourceHandler::Callbacks vertexShaderCallbacks;
+	vertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	vertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	vertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	int res = subSystem.resourceHandler->LoadResource("FogVS.hlsl", vertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog vertex shader");
+
+
+
+	ResourceHandler::Callbacks pixelShaderCallbacks;
+	pixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	pixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	pixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogPS.hlsl", pixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog pixel shader");
+
+
+
+	ResourceHandler::Callbacks textureCallbacks;
+	textureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		Graphics::TextureDesc td;
+		memcpy(&td, data, sizeof(td));
+		*usize = size - sizeof(td);
+		// Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel
+		if (td.width * td.height * 4 != size - sizeof(td))
+			return ResourceHandler::LoadReturn::FAIL;
+
+		void* rawTextureData = ((char*)data) + sizeof(td);
+		auto result = subSystem.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
+		if (result < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+
+	textureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	textureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
+		subSystem.renderer->GetPipelineHandler()->DestroyTexture(guid);
+	};
+
+	res = subSystem.resourceHandler->LoadResource("DefaultNormal.jpg", textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog texture");
+
+
+
+	Graphics::RenderTarget fogRenderTarget;
+
+	fogRenderTarget.clearColor[0] = 0; fogRenderTarget.clearColor[1] = 0; fogRenderTarget.clearColor[2] = 0; fogRenderTarget.clearColor[3] = 1;
+	fogRenderTarget.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
+	fogRenderTarget.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	fogRenderTarget.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
+	fogRenderTarget.bindAsShaderResource = true;
+
+	subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("FogRt", fogRenderTarget);
+
+
+
+	Graphics::SamplerState fogSampler;
+
+	fogSampler.addressU = Graphics::AddressingMode::WRAP;
+	fogSampler.addressV = Graphics::AddressingMode::WRAP;
+	fogSampler.addressW = Graphics::AddressingMode::WRAP;
+
+	fogSampler.filter = Graphics::Filter::ANISOTROPIC;
+	fogSampler.maxAnisotropy = 4;
+
+	subSystem.renderer->GetPipelineHandler()->CreateSamplerState("FogSampler", fogSampler);
 }
 void SE::Gameplay::PlayState::InitializeEnemies()
 {
