@@ -17,7 +17,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 3;
-	nrOfPerks = 0;
+	nrOfPerks = 3;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -76,7 +76,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	importSkillButtons();
 	importPerkButtons();
 
-	getPerks();
+	//getPerks();
 	getSkills();
 	this->input = Input;
 	ProfileReturnVoid;
@@ -94,18 +94,26 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 	if (selectedSkills != renewSkillList)
 	{
-		fileParser.GUIButtons.deleteSkillPerkBtns();
 		renewSkillList = selectedSkills;
 		if (selectedSkills < nrOfSkills)
 		{
+			fileParser.GUIButtons.deleteSkillPerkBtns();
 			getSkills();
 		}
+		else
+		{
+			fileParser.GUIButtons.deleteSkillPerkBtns();
+			getPerks();
+		}
 	}
-	else if (selectedPerks != renewPerks)
+	else if (selectedPerks != renewPerks && selectedSkills == nrOfSkills)
 	{
 		fileParser.GUIButtons.deleteSkillPerkBtns();
-		getPerks();
 		renewPerks = selectedPerks;
+		if (selectedPerks < nrOfPerks)
+		{
+			getPerks();
+		}
 	}
 	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
 	{
@@ -152,28 +160,6 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
 			infoToPass->skills[i].cooldown				= attrArray[7];
-
-			/*infoToPass->skills[i].animation = 0;
-			infoToPass->skills[i].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
-			infoToPass->skills[i].bane = Banes::CONDITIONAL_BANES_NONE;
-			infoToPass->skills[i].baneDuration = 0;
-			infoToPass->skills[i].baneEffectValue = 0;
-			infoToPass->skills[i].baneRange = 0;
-			infoToPass->skills[i].boon = Boons::CONDITIONAL_BOONS_NONE;
-			infoToPass->skills[i].boonDuration = 0;
-			infoToPass->skills[i].boonEffectValue = 0;
-			infoToPass->skills[i].boonRange = 0;
-			infoToPass->skills[i].cooldown = 1.0f;
-			infoToPass->skills[i].damageType = DamageType::PHYSICAL;
-			infoToPass->skills[i].particle = 0;
-
-			if(i == 0)
-				infoToPass->skills[i].projectileFileGUID = "turretProjectile.SEP";
-			if(i == 1)
-				infoToPass->skills[i].projectileFileGUID = "EarthRift.SEP";*/
-
-			/*infoToPass->skills[i].skillDamage = 5;
-			infoToPass->skills[i].skillName = "skill1";*/
 		}
 
 
