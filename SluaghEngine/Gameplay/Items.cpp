@@ -448,6 +448,7 @@ SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
 
 	CoreInit::managers.dataManager->SetValue(item, "Item", int32_t(itype));
 	CoreInit::managers.dataManager->SetValue(item, "Health", Item::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(item, "Charges", int32_t(3));
 	CoreInit::managers.dataManager->SetValue(item, "Type", int32_t(type));
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "StartRenderWIC");

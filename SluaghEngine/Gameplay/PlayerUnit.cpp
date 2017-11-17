@@ -429,8 +429,19 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			{
 				//Item::Unequip(unitEntity, items[pi]);
 				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
-				currentItem = newItem;
-				health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
+				auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Charges", 0));
+				if (charges > 0)
+				{
+					health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Health", 0));
+					charges--;
+					if (charges == 0)
+					{
+						CoreInit::managers.entityManager->DestroyNow(items[newItem]);
+					}
+					else
+						CoreInit::managers.dataManager->SetValue(items[newItem], "Charges", charges);
+				}
+				
 			}
 
 		}

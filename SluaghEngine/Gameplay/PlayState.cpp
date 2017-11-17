@@ -357,13 +357,14 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+	int en = std::rand() % 3 + 4;
+	EnemyUnit** enemies = new EnemyUnit*[en];
 	for(auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
 
-		for (int i = 0; i < enemiesInEachRoom; i++)
+		for (int i = 0; i < en; i++)
 		{
 			pos enemyPos;
 			do
@@ -382,7 +383,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < enemiesInEachRoom; i++)
+		for (int i = 0; i < en; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
