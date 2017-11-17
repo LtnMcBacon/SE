@@ -1220,6 +1220,7 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 	ProfileReturnConst(CreateParticles);
 }
 
+
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
