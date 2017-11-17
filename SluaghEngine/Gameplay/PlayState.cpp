@@ -495,6 +495,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			player->AddItem(ent, 4);
 		}
+
+		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {

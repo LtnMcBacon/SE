@@ -250,6 +250,11 @@ void SE::Core::CollisionManager::Frame(Utilz::TimeCluster* timer)
 			auto& mySphere = boundingHierarchy.sphere[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
 			auto& myAABB = boundingHierarchy.AABB[boundingInfo[collisionData.boundingIndex[dirty.myIndex]].index];
 			XMMATRIX myTransform = XMLoadFloat4x4(&tArr[dirty.transformIndex]);
+
+			auto tran = XMMatrixTranslationFromVector(XMLoadFloat3(&initInfo.transformManager->GetPosition(collisionData.entity[dirty.myIndex])));
+			auto rot = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&initInfo.transformManager->GetRotation(collisionData.entity[dirty.myIndex])));
+			myTransform = rot* tran;
+
 			mySphere.Transform(collisionData.sphereWorld[dirty.myIndex], myTransform);
 			myAABB.Transform(collisionData.AABBWorld[dirty.myIndex], myTransform);
 		}
