@@ -19,9 +19,9 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"Sword_black.png", "Sword_black.png", "Physical.png", "Sword.mesh", "MCModell.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
-	{"Crossbow_black.png", "Sword_black.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
-	{"Wand_black.png","Sword_black.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
+	{"Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.07f,0.15f,0.5f }, {1,1,1},{ -0.25f, 0.2f, 1.5f } },
+	{"Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, 0.25f },{ 0.15f,0.15f,0.15f },{0.0f,-1.2f,0.195f } },
+	{"Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.049f, 0.024f,0.084f },{ 1,1,1 },{ -0.307f, 0.922f, 0.022f } }
 } };
 
 
@@ -102,7 +102,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	icon.textureInfo.height = 50;
 	icon.textureInfo.anchor = {0.5f,0.5f };
 	icon.textureInfo.screenAnchor = { 0, 1 };
-	icon.textureInfo.posX = 5;
+	icon.textureInfo.posX = 10;
 	icon.textureInfo.posY = -60;
 	icon.textureInfo.layerDepth = 0;
 
@@ -351,6 +351,7 @@ void SE::Gameplay::Item::Equip(Core::Entity to, Core::Entity ent)
 	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Type", -1));
 	if (wType != -1)
 	{
+		CoreInit::managers.guiManager->SetTexture(ent, weaponInfo[wType].iconP);
 		CoreInit::managers.transformManager->SetPosition(ent, weaponInfo[wType].equipPos);
 		CoreInit::managers.transformManager->SetRotation(ent, weaponInfo[wType].equipRot.x, weaponInfo[wType].equipRot.y, weaponInfo[wType].equipRot.z);
 		CoreInit::managers.animationManager->AttachToEntity(to, ent, weaponInfo[wType].equipJoint, weaponInfo[wType].slotIndex);
@@ -366,6 +367,7 @@ void SE::Gameplay::Item::Unequip(Core::Entity from ,Core::Entity ent)
 	{
 		//CoreInit::managers.transformManager->SetPosition(ent, { 0.07f,0.15f,0.5f });
 		//CoreInit::managers.transformManager->SetRotation(ent, -0.25f, 0.2f, 1.5f);
+		CoreInit::managers.guiManager->SetTexture(ent, weaponInfo[wType].icon);
 		CoreInit::managers.animationManager->DettachFromEntity(from, weaponInfo[wType].slotIndex);
 		CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
 	}

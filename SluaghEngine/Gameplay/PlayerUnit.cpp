@@ -356,30 +356,30 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 
 	bool ci = false;
-	auto pi = currentItem;
+	auto newItem = 0;
 	if (w->ButtonPressed(GameInput::ONE))
 	{
-		currentItem = 0;
+		newItem = 0;
 		ci = true;
 	}
 	else if (w->ButtonPressed(GameInput::TWO))
 	{
-		currentItem = 1;;
+		newItem = 1;;
 		ci = true;
 	}
 	else if (w->ButtonPressed(GameInput::THREE))
 	{
-		currentItem = 2;;
+		newItem = 2;;
 		ci = true;
 	}
 	else if (w->ButtonPressed(GameInput::FOUR))
 	{
-		currentItem = 3;;
+		newItem = 3;;
 		ci = true;
 	}
 	else if (w->ButtonPressed(GameInput::FIVE))
 	{
-		currentItem = 4;;
+		newItem = 4;;
 		ci = true;
 	}
 	if (ci)
@@ -387,12 +387,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		if (!w->ButtonDown(GameInput::SHOWINFO))
 		{
 
-			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)));
 			if (item == ItemType::WEAPON)
 			{
-				Item::Unequip(unitEntity, items[pi]);
+				auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+				if(pit == ItemType::WEAPON)
+					Item::Unequip(unitEntity, items[currentItem]);
+
+				currentItem = newItem;
 				Item::Equip(unitEntity, items[currentItem]);
-				CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 
 				SetCurrentWeaponStats();
 			}
@@ -400,13 +404,10 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			{
 				//Item::Unequip(unitEntity, items[pi]);
 				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
-
+				currentItem = newItem;
 				health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Health", 0));
 			}
-			else
-			{
-				currentItem = pi;
-			}
+
 		}
 	}
 
@@ -592,25 +593,12 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 	}
 
-	CoreInit::managers.guiManager->SetTexturePos(item, 40 + slot * 55, -55);
+	CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
 	Item::Pickup(item);
 
-	if (itype == ItemType::CONSUMABLE)
-	{
-		items[slot] = item;
-	}
-	else
-	{
-		currentItem = slot;
-		CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + slot * 55, -55);
-		CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
 
-		//Item::Equip(unitEntity, item);
-
-		items[slot] = item;
-
-		
-	}
+	items[slot] = item;
+	
 
 	StopProfile;
 }
@@ -956,7 +944,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
 
-	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	Core::IGUIManager::CreateInfo ise;
 	ise.texture = "Fire.png";
 	ise.textureInfo.width = 60;
@@ -966,7 +954,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	ise.textureInfo.screenAnchor = { 0, 1 };
 	ise.textureInfo.posX = currentItem * 55 + 40;
 	ise.textureInfo.posY = -55;
-	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
+	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);*/
 
 	StopProfile;
 }
