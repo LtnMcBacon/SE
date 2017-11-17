@@ -115,7 +115,7 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 		}
 
 		uint8_t fs = eventData.events[i].nrOfEvents;
-		for(uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)
+		for(uint8_t e = 0; e < fs; e++)
 		{
 			const auto& cb = eventToCallbacks[eventData.events[i].event_[e]];
 			if (cb.triggerCheck(eventData.entity[i], eventData.events[i].userData[e]))

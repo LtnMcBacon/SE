@@ -159,6 +159,10 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		else
 		{
 			rmInstancing->RemoveEntity(entity);
+			if(shadowInstancing)
+			{
+				shadowInstancing->RemoveEntity(entity);
+			}
 		}
 
 	}

@@ -498,6 +498,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	};
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
+		if(CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
