@@ -43,8 +43,8 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 		{
 			if (selectedPerks == nrOfPerks)
 			{
-			}
 				allSkillsSelected = true;
+			}
 		}
 		
 	}; std::function<void()> begin = startGame;
