@@ -259,9 +259,28 @@ int SE::Graphics::Renderer::Render()
 	/******************General Jobs*********************/
 	cpuTimer.Start(("RenderJob-CPU"));
 	gpuTimer->Start(("RenderJob-GPU"));
-	
+	Utilz::ConstexprStringAndHash passHashes[] = { "PrePass_0",
+		"PrePass_1",
+		"PrePass_2", 
+		"PrePass_3", 
+		"PrePass_4",
+		"PrePass_5",
+		"RenderPass_0",
+		"RenderPass_1",
+		"RenderPass_2",
+		"RenderPass_3",
+		"RenderPass_4",
+		"RenderPass_5",
+		"PostPass_0",
+		"PostPass_1",
+		"PostPass_2",
+		"PostPass_3",
+		"PostPass_4",
+		"PostPass_5"
+	};
 	for (auto& group : jobGroups)
 	{
+		gpuTimer->Start(passHashes[uint32_t(group.first)]);
 		bool first = true;
 		for (auto& j : group.second)
 		{
@@ -332,8 +351,9 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
-
+		gpuTimer->Stop(passHashes[uint32_t(group.first)]);
 	}
+	
 	{
 		ID3D11RenderTargetView* backbuf = device->GetRTV();
 		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();
