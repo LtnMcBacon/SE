@@ -980,7 +980,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 
 
-	items[currentItem] = Item::Weapon::Create(WeaponType::CROSSBOW);
+	items[currentItem] = Item::Weapon::Create(WeaponType::WAND);
 	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
 	Item::Pickup(items[currentItem]);
 	Item::Equip(unitEntity,items[currentItem]);
