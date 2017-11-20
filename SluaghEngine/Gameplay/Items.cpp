@@ -180,7 +180,7 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	ciStr.info.height = he;
 	ciStr.info.text = L"Str: " + std::to_wstring(s);
 	auto wStr = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.textManager->Create(wStr, ciStr);
+	/*CoreInit::managers.textManager->Create(wStr, ciStr);
 
 	if (stop)
 	{
@@ -195,12 +195,12 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
-
+*/
 	s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Agi", 0));
 	ciStr.font = "CloisterBlack.spritefont";
 	ciStr.info.posY = offset;
 	ciStr.info.text = L"Agi: " + std::to_wstring(s);
-	wStr = CoreInit::managers.entityManager->Create();
+	/*wStr = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(wStr, ciStr);
 
 	if (stop)
@@ -215,12 +215,12 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
-
+*/
 	s = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Wis", 0));
 	ciStr.font = "CloisterBlack.spritefont";
 	ciStr.info.posY = offset;
 	ciStr.info.text = L"Wis: " + std::to_wstring(s);
-	wStr = CoreInit::managers.entityManager->Create();
+	/*wStr = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(wStr, ciStr);
 	if (stop)
 	{
@@ -234,7 +234,7 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	CoreInit::managers.textManager->ToggleRenderableText(wStr, true);
 
 	offset += he + 3;
-
+*/
 	Core::ITextManager::CreateInfo cielement;
 	cielement.font = "CloisterBlack.spritefont";
 	cielement.info.posX = posX;
@@ -246,7 +246,7 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	auto element = DamageType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(ent, "Element", -1)));
 	cielement.info.colour = elt[size_t(element)].color;
 	cielement.info.text = elt[size_t(element)].str;
-	auto weaponElement = CoreInit::managers.entityManager->Create();
+	/*auto weaponElement = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(weaponElement, cielement);
 
 	if (stop)
@@ -261,7 +261,7 @@ static const auto wepInfo = [](SE::Core::Entity ent, Core::Entity parent, long p
 	CoreInit::managers.textManager->ToggleRenderableText(weaponElement, true);
 
 	offset += he + 3;
-
+*/
 
 	Core::ITextManager::CreateInfo cidamage;
 	cidamage.font = "CloisterBlack.spritefont";
