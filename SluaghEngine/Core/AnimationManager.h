@@ -112,13 +112,13 @@ namespace SE
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-			struct updateInfo
+			struct UpdateInfo
 			{
 				Entity ent;
 				AnimationInfo& animInfo;
 			};
 
-			std::vector<updateInfo> updateJob;
+			std::vector<UpdateInfo> updateJob;
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;

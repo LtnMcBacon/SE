@@ -14,9 +14,34 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 	if (!myBlackboard->invurnerable)
 	{
+		auto ph = health;
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
 			this->health -= DamageEventVector[i].amount;
+		}
+
+
+		if (ph > health)
+		{
+			
+			auto ent = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.transformManager->Create(ent, CoreInit::managers.transformManager->GetPosition(unitEntity));
+
+			// Blood spatter
+			auto bs = CoreInit::managers.entityManager->Create();
+			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+			p.y = 0;
+			CoreInit::managers.transformManager->Create(bs, p, { DirectX::XM_PIDIV2, 0,0 }, { 0.4f,0.4f, 0.05f });
+
+			Core::DecalCreateInfo ci;
+			ci.textureName = "bloodSpatt.png";
+			CoreInit::managers.decalManager->Create(bs, ci);
+			CoreInit::managers.eventManager->SetLifetime(bs, 20);
+
+
+		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
+			//CoreInit::managers.eventManager->SetLifetime(ent, 0.5f);
+			//CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)

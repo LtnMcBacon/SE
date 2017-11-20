@@ -72,17 +72,14 @@ namespace SE
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[9]
+			std::string skillButtonFiles[5]
 			{
-				"FireBallSkill.HuD",
-				"IceBallSkill.HuD",
-				"MagicBallSkill.HuD",
-				"NatureBallSkill.HuD",
-				"WaterBallSkill.HuD",
-				"PhysicalBallSkill.HuD",
-				"ArcaneBallSkill.HuD",
-				"MudBallSkill.HuD",
-				"FistingBallSkill.HuD"
+				"Bat_Minion.HuD",
+				"Heavy_Machine_Bow.HuD",
+				"Obliteration_Mine.HuD",
+				"Telekenesis.HuD",
+				"voidRift.HuD"
+				
 			};
 
 			std::string perkButtonFiles[9]

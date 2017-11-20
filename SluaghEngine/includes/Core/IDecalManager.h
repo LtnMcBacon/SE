@@ -13,6 +13,7 @@
 #include <Graphics/IRenderer.h>
 #include <ResourceHandler/IResourceHandler.h>
 #include "ICameraManager.h"
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -35,6 +36,7 @@ namespace SE
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				ICameraManager* cameraManager;
+				IEventManager* eventManager;
 				Graphics::IRenderer* renderer;
 				ResourceHandler::IResourceHandler* resourceHandler;
 			};
