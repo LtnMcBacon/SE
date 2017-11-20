@@ -72,13 +72,17 @@ namespace SE
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[5]
+			std::string skillButtonFiles[9]
 			{
 				"Bat_Minion.HuD",
 				"Heavy_Machine_Bow.HuD",
-				"Obliteration_Mine.HuD",
-				"Telekenesis.HuD",
-				"voidRift.HuD"
+				"voidRift.HuD",
+				"Bat_Swarm.HuD",
+				"Dagger_Rain.HuD",
+				"Doom_Ball.HuD",
+				"Fire_Pillars.HuD",
+				"Gae_Bolg.HuD",
+				"Kasta_Sten.HuD"
 				
 			};
 
