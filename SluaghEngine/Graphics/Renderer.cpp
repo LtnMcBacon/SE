@@ -259,28 +259,48 @@ int SE::Graphics::Renderer::Render()
 	/******************General Jobs*********************/
 	cpuTimer.Start(("RenderJob-CPU"));
 	gpuTimer->Start(("RenderJob-GPU"));
-	Utilz::ConstexprStringAndHash passHashes[] = { "PrePass_0",
-		"PrePass_1",
-		"PrePass_2", 
-		"PrePass_3", 
-		"PrePass_4",
-		"PrePass_5",
-		"RenderPass_0",
-		"RenderPass_1",
-		"RenderPass_2",
-		"RenderPass_3",
-		"RenderPass_4",
-		"RenderPass_5",
-		"PostPass_0",
-		"PostPass_1",
-		"PostPass_2",
-		"PostPass_3",
-		"PostPass_4",
-		"PostPass_5"
+	Utilz::ConstexprStringAndHash passHashes[] = { "GPU_PrePass_0",
+		"GPU_PrePass_1",
+		"GPU_PrePass_2", 
+		"GPU_PrePass_3", 
+		"GPU_PrePass_4",
+		"GPU_PrePass_5",
+		"GPU_RenderPass_0",
+		"GPU_RenderPass_1",
+		"GPU_RenderPass_2",
+		"GPU_RenderPass_3",
+		"GPU_RenderPass_4",
+		"GPU_RenderPass_5",
+		"GPU_PostPass_0",
+		"GPU_PostPass_1",
+		"GPU_PostPass_2",
+		"GPU_PostPass_3",
+		"GPU_PostPass_4",
+		"GPU_PostPass_5"
+	};
+	Utilz::ConstexprStringAndHash passHashes2[] = { "CPU_PrePass_0",
+		"CPU_PrePass_1",
+		"CPU_PrePass_2",
+		"CPU_PrePass_3",
+		"CPU_PrePass_4",
+		"CPU_PrePass_5",
+		"CPU_RenderPass_0",
+		"CPU_RenderPass_1",
+		"CPU_RenderPass_2",
+		"CPU_RenderPass_3",
+		"CPU_RenderPass_4",
+		"CPU_RenderPass_5",
+		"CPU_PostPass_0",
+		"CPU_PostPass_1",
+		"CPU_PostPass_2",
+		"CPU_PostPass_3",
+		"CPU_PostPass_4",
+		"CPU_PostPass_5"
 	};
 	for (auto& group : jobGroups)
 	{
 		gpuTimer->Start(passHashes[uint32_t(group.first)]);
+		cpuTimer.Start(passHashes2[uint32_t(group.first)]);
 		bool first = true;
 		for (auto& j : group.second)
 		{
@@ -352,6 +372,7 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
 		gpuTimer->Stop(passHashes[uint32_t(group.first)]);
+		cpuTimer.Stop(passHashes2[uint32_t(group.first)]);
 	}
 	
 	{
