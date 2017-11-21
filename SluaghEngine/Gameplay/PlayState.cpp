@@ -172,10 +172,101 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 
 }
 
+void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, int& x, int& y)
+{
+
+	switch (dir)
+	{
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH:
+		y--;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST:
+		x++;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH:
+		y++;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST:
+		x--;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE:
+		break;
+	default:
+		break;
+	}
+}
+static const std::vector<std::pair<int, int>> adjIndices = { { -1,0 },{ 1,0 },{ 0, 1 },{ 0,-1 } };
+
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
+	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
+	{
+		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+		{
+			int x = currentRoomX, y = currentRoomY;
+			GetRoomPosFromDir(dir, x, y);
+			for (auto a : adjIndices)
+			{
+				// Unload adjacent room to previous room
+				int ax = currentRoomX + a.first;
+				int ay = currentRoomY + a.second;
+				if (!(x == ax && y == ay)) // Excluding the one we are changing to.
+				{
+					if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+					{
+						if ((*adjRoom)->load.valid())
+						{
+							(*adjRoom)->load.wait();
+						}
+						(*adjRoom)->roomPtr->Unload();
+					}
 
+				}
+
+				// Load the new adjacent rooms
+				ax = x + a.first;
+				ay = y + a.second;
+				if (!(currentRoomX == ax && currentRoomY == ay)) // Exluding the one we where in.
+				{
+					if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+					{
+						if ((*adjRoom)->load.valid())
+						{
+							(*adjRoom)->load.wait();
+						}
+						(*adjRoom)->roomPtr->Load();
+					}
+				}
+			}
+			currentRoom->RenderRoom(false);
+			blackBoard.currentRoom = currentRoom = (*GetRoom(x, y))->roomPtr;
+			currentRoom->Load();
+			currentRoom->RenderRoom(true);
+			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+			currentRoomX = x;
+			currentRoomY = y;
+
+			projectileManager->RemoveAllProjectiles();
+
+			char newMap[25][25];
+			currentRoom->GetMap(newMap);
+
+			char** tempPtr = new char*[25];
+
+			for (int i = 0; i < 25; i++)
+			{
+				tempPtr[i] = new char[25];
+				for (int j = 0; j < 25; j++)
+				{
+					tempPtr[i][j] = newMap[i][j];
+				}
+			}
+
+			player->UpdateMap(tempPtr);
+			currentRoom->InitializeAdjacentFlowFields();
+		}
+	}
 	//if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	//{
 	//	SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
@@ -271,7 +362,7 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 1;
+	worldWidth = 2;
 	worldHeight = 1;
 	auto subSystem = engine->GetSubsystems();
 

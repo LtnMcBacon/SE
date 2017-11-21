@@ -1089,7 +1089,7 @@ SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransiti
 	{
 		if (DoorArr[i].active)
 		{
-			if (sqrt((DoorArr[i].posX - playerX) * (DoorArr[i].posY - playerX) + (DoorArr[i].posX - playerY) * (DoorArr[i].posY - playerY)) <= 1.5f)
+			//if (sqrt((DoorArr[i].posX - playerX) * (DoorArr[i].posY - playerX) + (DoorArr[i].posX - playerY) * (DoorArr[i].posY - playerY)) <= 1.5f)
 			{
 					return DirectionToAdjacentRoom(i);
 			}
@@ -1281,7 +1281,7 @@ Room::Room(Utilz::GUID fileName)
 					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
 				else if (x == 0)
 					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
-				tileValues[x][y] = 0; 
+				tileValues[x][y] = id_Wall;
 			}
 
 
@@ -1701,8 +1701,6 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 	int i = args.i;
 	int j = args.j;
 
-	if (DoorArr[args.doorCounter].active == true)
-	{
 		CreateFloor(args);
 
 		matInfo.materialFile = Materials[Materials::DoorMat];
@@ -1737,12 +1735,7 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		DoorArr[arrPos].active = true;
 		DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
 */
-		args.doorCounter++;
-	}
-	else
-	{
-		CreateFloor(args);
-	}
+
 }
 
 float Room::FloorCheck(int x, int y)
