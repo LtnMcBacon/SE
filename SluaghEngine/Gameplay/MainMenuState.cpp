@@ -133,23 +133,15 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 	input->GetMousePos(mousePosX, mousePosY);
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 
-	
-
-
 	IGameState::State empty = State::MAIN_MENU_STATE;
-			
-	
+
 	if (input->ButtonPressed(0))
 	{
 			
 		CurrentState = State::PAUSE_STATE;
 	}
 
-
-
-
-	ProfileReturn(CurrentState);
-	
+	ProfileReturn(CurrentState);	
 }
 
 
