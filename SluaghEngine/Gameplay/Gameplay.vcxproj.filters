@@ -354,6 +354,9 @@
     <ClCompile Include="DistanceToDoorCondition.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClCompile>
+    <ClCompile Include="Fog.cpp">
+      <Filter>Source Files\Rooms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -610,6 +613,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Fog.h">
+      <Filter>Header Files\Rooms</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

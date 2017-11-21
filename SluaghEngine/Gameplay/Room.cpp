@@ -971,196 +971,6 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 	return false;
 }
 
-void SE::Gameplay::Room::CreateFogPlane()
-{
-	std::string roomValues = "\n";
-
-	for (int rowI = 24; rowI >= 0; rowI--)
-	{
-		for (int columnI = 0; columnI < 25; columnI++)
-		{
-			std::string tileValue = std::to_string((unsigned char)tileValues[columnI][rowI]);
-			roomValues += tileValue;
-
-			for (int spaceI = 0; spaceI < 3 - tileValue.size(); spaceI++)
-				roomValues += ' ';
-		}
-
-		roomValues += '\n';
-	}
-
-	CoreInit::subSystems.devConsole->PrintChannel("Room Values", "%s", roomValues.c_str());
-
-
-
-	const float fogHeight = 3.1f;
-
-	const float TEMP_uvCoord = 0;
-
-
-
-	struct Vertex
-	{
-		float position[3];
-		float uv[2];
-		float opacity;
-
-		Vertex() {};
-		Vertex(float x, float y, float z, float u, float v, float o = 1)
-		{
-			position[0] = x; position[1] = y; position[2] = z;
-			uv[0] = u; uv[1] = v;
-			opacity = o;
-		}
-	};
-
-	struct Quad
-	{
-		enum class Vertices { TopLeft, TopRight, BottomLeft, BottomRight };
-
-	private:
-		Vertex vertices[6];
-
-	public:
-		Quad() {};
-		void SetVertex(Vertices vertex, float x, float y, float z, float u, float v, float opacity = 1)
-		{
-			if (vertex == Vertices::TopLeft)
-			{
-				vertices[0] = Vertex(x, y, z, u, v, opacity);
-				vertices[3] = Vertex(x, y, z, u, v, opacity);
-			}
-			else if (vertex == Vertices::TopRight)
-			{
-				vertices[1] = Vertex(x, y, z, u, v, opacity);
-			}
-			else if (vertex == Vertices::BottomLeft)
-			{
-				vertices[5] = Vertex(x, y, z, u, v, opacity);
-			}
-			else if (vertex == Vertices::BottomRight)
-			{
-				vertices[2] = Vertex(x, y, z, u, v, opacity);
-				vertices[4] = Vertex(x, y, z, u, v, opacity);
-			}
-		}
-	};
-
-	struct Plane
-	{
-	private:
-		Quad quads[27 * 27];
-		bool quads_used[27 * 27] = {};
-
-	public:
-		Plane() {};
-		Quad& GetQuad(unsigned int column, unsigned int row)
-		{
-			quads_used[row * 27 + column] = true;
-			return quads[row * 27 + column];
-		}
-		unsigned int GetQuadCount()
-		{
-			unsigned int usedQuadCount = 0;
-			for (int quadI = 0; quadI < 27 * 27; quadI++)
-			{
-				if (quads_used[quadI])
-					usedQuadCount++;
-			}
-			return usedQuadCount;
-		}
-		void GetVertexBuffer(Vertex *pVertexBuffer)
-		{
-			unsigned int vertexI = 0;
-			for (int quadI = 0; quadI < 27 * 27; quadI++)
-			{
-				if (quads_used[quadI])
-				{
-					memcpy(pVertexBuffer + vertexI, &quads[quadI], 2 * 3 * sizeof(Vertex));
-
-					vertexI += 2 * 3;
-				}
-			}
-		}
-	};
-
-
-
-	Plane plane;
-
-	for (int paddingRowI = -1; paddingRowI < 26; paddingRowI += 26)
-	{
-		for (int paddingColumnI = -1; paddingColumnI < 26; paddingColumnI++)
-		{
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopLeft, paddingColumnI, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopRight, paddingColumnI + 1, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomRight, paddingColumnI + 1, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		}
-	}
-
-	for (int paddingRowI = 0; paddingRowI < 25; paddingRowI++)
-	{
-		for (int paddingColumnI = -1; paddingColumnI < 26; paddingColumnI += 26)
-		{
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopLeft, paddingColumnI, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopRight, paddingColumnI + 1, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomRight, paddingColumnI + 1, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		}
-	}
-
-
-	for (int rowI = 0; rowI < 25; rowI++)
-	{
-		for (int columnI = 0; columnI < 25; columnI++)
-		{
-			char tileType = tileValues[columnI][rowI];
-			if (tileType == id_DeadArea || tileType == id_Wall || tileType == id_Door1 || tileType == id_Door2)
-			{
-				plane.GetQuad(columnI + 1, rowI + 1).SetVertex(Quad::Vertices::TopLeft, columnI, fogHeight, rowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-				plane.GetQuad(columnI + 1, rowI + 1).SetVertex(Quad::Vertices::TopRight, columnI + 1, fogHeight, rowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-				plane.GetQuad(columnI + 1, rowI + 1).SetVertex(Quad::Vertices::BottomLeft, columnI, fogHeight, rowI, TEMP_uvCoord, TEMP_uvCoord);
-				plane.GetQuad(columnI + 1, rowI + 1).SetVertex(Quad::Vertices::BottomRight, columnI + 1, fogHeight, rowI, TEMP_uvCoord, TEMP_uvCoord);
-			}
-		}
-	}
-
-
-
-	unsigned int planeVertexCount = plane.GetQuadCount() * 2 * 3;
-
-	Vertex *planeVertexBuffer = new Vertex[planeVertexCount];
-	plane.GetVertexBuffer(planeVertexBuffer);
-
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("Fog", planeVertexBuffer, planeVertexCount, sizeof(Vertex));
-
-
-	Graphics::RenderJob fogRj;
-
-	fogRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
-	fogRj.pipeline.OMStage.renderTargetCount = 1;
-
-	fogRj.pipeline.VSStage.shader = "FogVS.hlsl";
-	fogRj.pipeline.PSStage.shader = "FogPS.hlsl";
-
-	fogRj.pipeline.PSStage.samplers[0] = "FogSampler";
-	fogRj.pipeline.PSStage.samplerCount = 1;
-
-	fogRj.pipeline.PSStage.textures[0] = "DefaultNormal.jpg";
-	fogRj.pipeline.PSStage.textureCount = 1;
-	fogRj.pipeline.PSStage.textureBindings[0] = "fogTexture";
-
-	fogRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
-	fogRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	fogRj.pipeline.IAStage.vertexBuffer = "Fog";
-
-	fogRj.vertexCount = planeVertexCount;
-	fogRj.maxInstances = 1;
-
-	fogRjHandle = CoreInit::subSystems.renderer->AddRenderJob(fogRj, Graphics::RenderGroup::POST_PASS_5);
-}
-
 void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid, SE::Utilz::GUID &floorGuid)
 {
 	auto rand = CoreInit::subSystems.window->GetRand();
@@ -1253,15 +1063,7 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	}
 	beingRendered = render;
 
-	if (render && fogRjHandle == -1)
-		CreateFogPlane();
-	else if (!render && fogRjHandle != -1)
-	{
-		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("Fog");
-		CoreInit::subSystems.renderer->RemoveRenderJob(fogRjHandle);
-
-		fogRjHandle = -1;
-	}
+	fog.Set(render);
 }
 
 SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY)
@@ -1569,6 +1371,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			}
 		}
 
+		fog.SetTileValues(tileValues);
 	
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});

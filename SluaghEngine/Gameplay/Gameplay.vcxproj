@@ -38,6 +38,7 @@
     <ClCompile Include="FailUntilSuccess.cpp" />
     <ClCompile Include="Flowfield.cpp" />
     <ClCompile Include="FlowFieldMovementLeaf.cpp" />
+    <ClCompile Include="Fog.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameUnit.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="..\includes\Gameplay\FailUntilSuccess.h" />
     <ClInclude Include="..\includes\Gameplay\Flowfield.h" />
     <ClInclude Include="..\includes\Gameplay\FlowFieldMovementLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\Fog.h" />
     <ClInclude Include="..\includes\Gameplay\Game.h" />
     <ClInclude Include="..\includes\Gameplay\GameBlackboard.h" />
     <ClInclude Include="..\includes\Gameplay\GameOverState.h" />
