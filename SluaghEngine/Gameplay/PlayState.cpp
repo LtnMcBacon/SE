@@ -155,8 +155,8 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	DirectX::XMVECTOR rayD;
 
 
-	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
-	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
 	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
@@ -466,7 +466,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	StartProfile;
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
-	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
 	cam = CoreInit::managers.cameraManager->GetActive();
 	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
 
