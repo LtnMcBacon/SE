@@ -234,8 +234,8 @@ namespace SE
 				uint32_t jobID;
 			};
 			uint32_t jobIDCounter = 0;
-			static const uint32_t JOB_GROUP_BITS = 4;
-			static const uint32_t JOB_ID_BITS = 28;
+			static const uint32_t JOB_GROUP_BITS = 5;
+			static const uint32_t JOB_ID_BITS = 27;
 			static const uint32_t JOB_ID_MASK = (1 << JOB_ID_BITS) - 1;
 			static const uint32_t JOB_GROUP_MASK = (1 << JOB_GROUP_BITS) - 1;
 

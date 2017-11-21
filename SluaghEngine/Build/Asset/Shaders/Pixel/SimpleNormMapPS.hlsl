@@ -100,11 +100,11 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
 		float3 colour = pointLights[i].colour.xyz * specular.xyz;
 		specularContribution += power * colour * normalDotLight * shadowFactor;
-		diffuseContribution += normalDotLight * pointLights[i].colour.xyz * shadowFactor;
+		diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 	}
 	
 	PS_OUT output;
-	output.backBuffer = saturate(float4(textureColor.rgb * (attenuation * (diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
+	output.backBuffer = saturate(float4(textureColor.rgb * ((diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
 	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
 	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;

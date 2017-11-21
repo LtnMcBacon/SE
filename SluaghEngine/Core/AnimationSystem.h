@@ -48,6 +48,8 @@ namespace SE
 			void* GetBucketBonePtr(const Entity& entity);
 			void* GetBucketTransformPtr(const Entity& entity);
 
+			friend class AnimationShadowSystem;
+
 		private:
 			void UpdateAnimation(const Animation& animation, const Skeleton& skeleton, float timePos, DirectX::XMFLOAT4X4* at);
 

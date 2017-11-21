@@ -28,16 +28,33 @@ void SE::Core::AnimationShadowSystem::AddEntity(const Entity& entity, Graphics::
 	if (findBucket == pipelineToRenderBucket.end()) // This is a new bucket.
 	{
 		bucket = CreateBucket(job);
+		
 		auto hax = job.specialHaxxor;
-		job.mappingFunc.push_back([this, bucket, hax, entity](auto a, auto b) {
-			auto t = this->animSys->GetBucketTransformPtr(entity);
-			if(t)
-				renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, t, sizeof(DirectX::XMFLOAT4X4) * b);
+		job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+
+			auto anbuck = (AnimationBucket*)bucket;
+			for (const auto& ent : anbuck->indexToEntity)
+			{
+				auto find = animSys->entityToBucketAndIndexInBucket.find(ent);
+
+				const auto& stolenBuckAndIndex = animSys->entityToBucketAndIndexInBucket[ent];
+				auto boneMatricesToStealPtr = ((AnimationBucket*)animSys->pipelineToRenderBucket[stolenBuckAndIndex.bucket])->matrices[animSys->mapingIndex][stolenBuckAndIndex.index].jointMatrix;
+				memcpy(anbuck->matrices[0][entityToBucketAndIndexInBucket[ent].index].jointMatrix, boneMatricesToStealPtr, sizeof(JointMatrices));
+
+			}
+			renderer->GetPipelineHandler()->UpdateConstantBuffer("VS_SKINNED_DATA", anbuck->matrices[0].data(), sizeof(JointMatrices) * b);
 		});
-		job.mappingFunc.push_back([this, bucket, hax, entity](auto a, auto b) {
-			auto bt = this->animSys->GetBucketBonePtr(entity);
-			if (bt)
-				renderer->GetPipelineHandler()->UpdateConstantBuffer("VS_SKINNED_DATA", bt, sizeof(JointMatrices) * b);
+
+		job.mappingFunc.push_back([this, bucket, hax](auto a, auto b) {
+			auto anbuck = (AnimationBucket*)bucket;
+			for (const auto& ent : anbuck->indexToEntity)
+			{
+
+				const auto& stolenBuckAndIndex = animSys->entityToBucketAndIndexInBucket[ent];
+				auto transformMatrixToSteal = ((AnimationBucket*)animSys->pipelineToRenderBucket[stolenBuckAndIndex.bucket])->transforms[stolenBuckAndIndex.index];
+				memcpy(&anbuck->transforms[entityToBucketAndIndexInBucket[ent].index], &transformMatrixToSteal, sizeof(DirectX::XMFLOAT4X4));
+			}
+			renderer->GetPipelineHandler()->UpdateConstantBuffer(hax, anbuck->transforms.data(), sizeof(DirectX::XMFLOAT4X4) * b);
 		});
 	}
 	else

@@ -253,23 +253,57 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			 * @brief	Adds a behaviour to create particles between the projectile and the owner
+			 */
 			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); // o
 
 			/**
-
-			* @brief	Adds a behaviour to knockback the latest hit target of the projectile from the projectile
-			*/
+			* @brief	Adds a behaviour to knockback hit enemies
+			* */
 			std::function<bool(Projectile* projectile, float dt)> KnockbackBehaviour(std::vector<BehaviourParameter> parameters); // f
-			
+
 			/**
-			* @brief	Adds a behaviour to create particles between the projectile and the owner
+			* @brief	Adds a condition based on the distance between the projectile and its owner
 			* */
 			std::function<bool(Projectile* projectile, float dt)> RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters); // o, f
 
 			/**
-			* @brief	Adds a behaviour to create particles between the projectile and the owner
-			* */
+			* @brief	Adds a condition based on if the owner is alive or not
+			**/
 			std::function<bool(Projectile* projectile, float dt)> OwnerIsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters); // o
+
+			/**
+			* @brief	Adds a behaviour to set the original amount of damage in a projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOriginalDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set the original amount of healing a projectile does
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOriginalHealingBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set what type of unit a projectile can hit (p = player, e = enemy, anything else will be set to everyone)
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetValidTargetBehaviour(std::vector<BehaviourParameter> parameters); // s
+
+			/**
+			* @brief	Adds a decal to the projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> CreateDecalBehaviour(std::vector<BehaviourParameter> parameters); // s, f, p
+
+			/**
+			* @brief	Adds a behaviour to change the opacity of the decal
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to change the opacity of the decal per second
+			**/
+			std::function<bool(Projectile* projectile, float dt)> ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+
 
 		public:
 

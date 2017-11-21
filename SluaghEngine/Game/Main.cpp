@@ -51,8 +51,8 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	});
 	if (res < 0)
 		return -2;
-
-	static float bloomP[4] = { 0.3f, 0.6f, 2.0f, 0.667f };
+	//static float bloomP[4] = { 0.3f, 0.6f, 2.0f, 0.667f };
+	static float bloomP[4] = { 0.45f, 0.3f, 0.75f, 0.75f };
 	subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 	Graphics::BlendState bs;

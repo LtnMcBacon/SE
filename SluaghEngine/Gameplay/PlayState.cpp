@@ -18,7 +18,7 @@ PlayState::PlayState()
 {
 
 }
-
+static size_t dmgOverlayIndex = 0;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
@@ -35,10 +35,21 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
+		//else if (button.rectName == "DamageOverlay")
+		//{
+		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
+		//
+		//	dmgOverlayIndex = tempPos;
+		//	
+		//}
 
 		tempPos++;
 	}
-	playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
+
+
+	//playStateGUI.GUIButtons.ButtonEntityVec[dmgOverlayIndex]
+
+	/*playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
 	playStateGUI.GUIButtons.CreateButton(125, 650, 50, 50, 0, "tempButton", NULL);
 	playStateGUI.GUIButtons.CreateButton(200, 650, 50, 50, 0, "tempButton", NULL);
 
@@ -48,7 +59,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	playStateGUI.GUIButtons.CreateButton(930, 575, 50, 50, 0, "tempButton", NULL);
 	playStateGUI.GUIButtons.CreateButton(1030, 575, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);
+	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);*/
 	playStateGUI.GUIButtons.DrawButtons();
 
 	InitializeRooms();
@@ -77,6 +88,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 	InitWeaponPickups();
+	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
 	ProfileReturnVoid;
 }
 
@@ -248,6 +260,10 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
+
+
+
+
 }
 
 void PlayState::InitializeRooms()
@@ -269,9 +285,14 @@ void PlayState::InitializeRooms()
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
 
+	int randomValues[9];
+	int counter = 0;
+
 	while (nrOfRoomsCreated < nrOfRoomsToCreate)
 	{
 		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
+		randomValues[counter] = random; 
+		counter++;
 		
 		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
 
@@ -336,13 +357,14 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+	int en = std::rand() % 3 + 4;
+	EnemyUnit** enemies = new EnemyUnit*[en];
 	for(auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
 
-		for (int i = 0; i < enemiesInEachRoom; i++)
+		for (int i = 0; i < en; i++)
 		{
 			pos enemyPos;
 			do
@@ -361,7 +383,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < enemiesInEachRoom; i++)
+		for (int i = 0; i < en; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
@@ -438,7 +460,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Create a default light
 
 	dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 2.05f, 0.0f });
+	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 1.95f, 0.0f });
 	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
 	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
@@ -485,9 +507,14 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			player->AddItem(ent, 4);
 		}
+
+		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
 
+
+
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
