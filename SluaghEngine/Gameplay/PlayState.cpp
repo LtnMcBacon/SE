@@ -35,6 +35,14 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
+		else if (button.rectName == "EnemyHpFrame")
+		{
+
+		}
+		else if (button.rectName == "EnemyHp")
+		{
+
+		}
 		//else if (button.rectName == "DamageOverlay")
 		//{
 		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
@@ -42,8 +50,25 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		//	dmgOverlayIndex = tempPos;
 		//	
 		//}
-
 		tempPos++;
+	}
+
+	for (auto& fileName: OptionalButtons )
+	{
+		playStateGUI.ParseOptionalButtons(fileName);
+	}
+	for (auto& button: playStateGUI.OptionalButtons)
+	{
+		if (button.rectName == "EnemyHpFrame")
+		{
+			//it's a me
+			int a = 0;
+		}
+		else if (button.rectName == "EnemyHp")
+		{
+			// MARIO!!!
+			int b = 0;
+		}
 	}
 
 
