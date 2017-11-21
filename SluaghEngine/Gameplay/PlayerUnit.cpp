@@ -51,7 +51,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 	auto ph = this->health;
 	for (int i = 0; i < DamageEventVector.size(); i++)
 	{
-		this->health -= DamageEventVector[i].amount;
+		//this->health -= DamageEventVector[i].amount;
 	}
 
 	if (ph > this->health)

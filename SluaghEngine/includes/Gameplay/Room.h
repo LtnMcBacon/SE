@@ -69,7 +69,8 @@ namespace SE
 				Candlestick_tri,
 				PotGroup1,
 				Potatosack_closed,
-				Potatosack_open
+				Potatosack_open,
+				Fireplace
 			};
 			enum class Materials {
 				Stone,
@@ -537,7 +538,7 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			Prop GenerateRandomProp(int x, int y, CreationArguments &args);
+			Prop GenerateRandomProp(int x, int y, CreationArguments &args, float &rot);
 
 			/**
 			* @brief
@@ -607,6 +608,13 @@ namespace SE
 			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
 			*/
 			void ResetTempTileValues();
+
+			/**
+			* @brief Checks if a prop is against a wall
+			@details Uses the x and y coordinates to check for walls on either side. Dir is the axis you want to want to look for walls.
+			* Returns true if walls are found
+			*/
+			bool CheckPropAgainstWall(int x, int y, int propId, std::string dir, float & rot);
 		
 			/**
 			* @brief set Room door pointer to values

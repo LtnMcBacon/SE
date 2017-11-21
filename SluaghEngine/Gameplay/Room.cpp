@@ -1143,6 +1143,7 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::PotGroup1]		= { "Pot_group1.mesh"		   };
 	Meshes[Meshes::Potatosack_closed] = { "Potato_Sack_Closed.mesh" };
 	Meshes[Meshes::Potatosack_open] = { "Potato_Sack_Open.mesh" };
+	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
 
 
 
@@ -1208,10 +1209,15 @@ Room::Room(Utilz::GUID fileName)
 	Bush.guid = Meshes[Meshes::Bush];
 	Bush.matGuid = Materials[Materials::Bush];
 
+	Prop Fireplace;
+	Fireplace.guid = Meshes[Meshes::Fireplace];
+	Fireplace.matGuid = Materials[Materials::Stone];
+
+
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { FloorTorch, TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1431,11 +1437,15 @@ float Room::WallCheck(int x, int y)
 	ProfileReturnConst(rotation);
 }
 
-SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArguments &args)
+SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArguments &args, float &rot)
 {
 	StartProfile;
 
+	bool propCheck = false;
 	Prop ret;
+	size_t nrOfProps;
+	int rand;
+	int propId;
 
 	// if we find a prop on the right side of the prop and not beneeth its a 1xx
 	if (tileValues[x + 1][y] == id_Props && tileValues[x][y + 1] != id_Props)
@@ -1446,9 +1456,23 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 		args2.j = y;
 		CreateFloor(args2);
 
-		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
-		auto rand = CoreInit::subSystems.window->GetRand();
-		auto propId = (rand % nrOfProps);
+
+		while (propCheck == false)
+		{
+			nrOfProps = propVectors[PropTypes::MEDIUM].size();
+			rand = CoreInit::subSystems.window->GetRand();
+			propId = (rand % nrOfProps);
+
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+				if (CheckPropAgainstWall(x, y, propId, "y", rot))
+				{
+					propCheck = true;
+				}
+			}
+			else {
+				propCheck = true;
+			}
+		}
 
 		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
 		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
@@ -1463,9 +1487,26 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 		args2.i = x;
 		args2.j = y + 1;
 		CreateFloor(args2);
-		auto nrOfProps = propVectors[PropTypes::MEDIUM].size();
-		auto rand = CoreInit::subSystems.window->GetRand();
-		auto propId = (rand % nrOfProps);
+		
+		while (propCheck == false)
+		{
+			nrOfProps = propVectors[PropTypes::MEDIUM].size();
+			rand = CoreInit::subSystems.window->GetRand();
+			propId = (rand % nrOfProps);
+			rot = 1.5708;
+
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+				if (CheckPropAgainstWall(x, y, propId, "x", rot))
+				{
+					propCheck = true;
+				}
+			}
+			else {
+				propCheck = true;
+			}
+		}
+
+		
 
 		ret.guid = propVectors[PropTypes::MEDIUM][propId].guid;
 		ret.matGuid = propVectors[PropTypes::MEDIUM][propId].matGuid;
@@ -1499,9 +1540,9 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 	}
 
 	// 1x1 tile props
-	auto nrOfProps = propVectors[PropTypes::GENERIC].size();
-	auto rand = CoreInit::subSystems.window->GetRand();
-	auto propId = (rand % nrOfProps);
+	nrOfProps = propVectors[PropTypes::GENERIC].size();
+	rand = CoreInit::subSystems.window->GetRand();
+	propId = (rand % nrOfProps);
 
 	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
 	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
@@ -1607,7 +1648,8 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	int i = args.i;
 	int j = args.j;
 
-	Prop prop = GenerateRandomProp(i, j, args);
+	float rot;
+	Prop prop = GenerateRandomProp(i, j, args, rot);
 
 	Core::IMaterialManager::CreateInfo matInfo;
 	matInfo.materialFile = prop.matGuid;
@@ -1625,6 +1667,7 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 		// medium prop 2x1
 		CoreInit::managers.transformManager->Create(args.ent);
 		CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(i + 1.0f, 0.0f, j + 0.5f));
+		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0, rot, 0.0);
 		tileValues[i + 1][j] = 100;
 	}
 	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j] != id_Props)
@@ -1632,7 +1675,7 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 		//medium prop 1x2
 		CoreInit::managers.transformManager->Create(args.ent);
 		CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(i + 0.5f, 0.0f, j + 1.0f));
-		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0, 1.5708, 0.0); // 90 degrees
+		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0, rot, 0.0);
 		tileValues[i][j + 1] = 100; // temporary 
 	}
 	else if (tileValues[i][j + 1] == id_Props && tileValues[i + 1][j + 1] == id_Props) {
@@ -1749,6 +1792,42 @@ void SE::Gameplay::Room::ResetTempTileValues()
 			
 		}
 	}
+}
+
+bool SE::Gameplay::Room::CheckPropAgainstWall(int x, int y, int propId, std::string dir, float &rot)
+{
+	bool besideWall = false;
+	// if fireplace, check for walls
+	if (dir == "y")
+	{
+
+		// Check both sides of tile if surrounded by walls
+		if (tileValues[x][y - 1] == id_Wall && tileValues[x + 1][y - 1] == id_Wall)
+		{
+			besideWall = true;
+			rot = 0;
+		}
+		else if (tileValues[x][y + 1] == id_Wall && tileValues[x + 1][y + 1] == id_Wall)
+		{
+			besideWall = true;
+			rot = 3.14159;
+		}
+	}
+	else if (dir == "x")
+	{
+		// Check both sides of tile if surrounded by walls
+		if (tileValues[x - 1][y] == id_Wall && tileValues[x - 1][y + 1] == id_Wall)
+		{
+			besideWall = true;
+			rot = 1.5708;
+		}
+		else if (tileValues[x + 1][y] == id_Wall && tileValues[x + 1][y + 1] == id_Wall)
+		{
+			besideWall = true;
+			rot = -1.5708;
+		}
+	}
+	return besideWall;
 }
 
 void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
