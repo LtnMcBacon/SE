@@ -1144,7 +1144,7 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Potatosack_closed] = { "Potato_Sack_Closed.mesh" };
 	Meshes[Meshes::Potatosack_open] = { "Potato_Sack_Open.mesh" };
 	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
-
+	Meshes[Meshes::Painting] = { "Painting.mesh" };
 
 
 	// Materials
@@ -1415,6 +1415,27 @@ void Room::loadfromFile(Utilz::GUID fileName)
 	StopProfile; 
 }
 
+float Room::RotatePainting(int x, int y) {
+	StartProfile;
+	float rotation = 0;
+
+
+	if ((tileValues[x + 1][y] == id_Floor))
+		rotation = 180;
+	else if ( (tileValues[x][y + 1] == id_Floor ))
+		rotation = 90;
+	else if ((tileValues[x][y - 1] == id_Floor ))
+		rotation = -90;
+	else if ( (tileValues[x - 1][y] == id_Floor ))
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+	ProfileReturnConst(rotation);
+
+}
 float Room::WallCheck(int x, int y)
 {
 	StartProfile;
@@ -1707,6 +1728,27 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 
 	roomEntities.push_back(args.ent);
+
+
+	auto rand = CoreInit::subSystems.window->GetRand();
+	int randValue = (rand % 500); // 2% chance a wall will have painting
+
+	if ( 0 < randValue && randValue <= 10 )
+	{
+		auto test = CoreInit::managers.entityManager->Create();
+		Core::IMaterialManager::CreateInfo matInfoPainting;
+		matInfoPainting.shader = Norm;
+		matInfoPainting.materialFile = Materials[Materials::Wood];
+		CoreInit::managers.transformManager->Create(test);
+		CoreInit::managers.transformManager->SetPosition(test, DirectX::XMFLOAT3(args.i + 0.5f, 1.0f, args.j + 0.5f));
+		CoreInit::managers.transformManager->SetRotation(test, 0.0f, RotatePainting(args.i, args.j), 0.0f);
+		CoreInit::managers.renderableManager->CreateRenderableObject(test, { Meshes[Meshes::Painting] });
+		CoreInit::managers.materialManager->Create(test, matInfoPainting);
+		CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
+
+		roomEntities.push_back(test);
+	}
+
 }
 
 void SE::Gameplay::Room::CreateDoor(CreationArguments & args)

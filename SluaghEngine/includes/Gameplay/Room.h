@@ -70,7 +70,8 @@ namespace SE
 				PotGroup1,
 				Potatosack_closed,
 				Potatosack_open,
-				Fireplace
+				Fireplace,
+				Painting
 			};
 			enum class Materials {
 				Stone,
@@ -612,10 +613,13 @@ namespace SE
 			/**
 			* @brief Checks if a prop is against a wall
 			@details Uses the x and y coordinates to check for walls on either side. Dir is the axis you want to want to look for walls.
-			* Returns true if walls are found
+			* Returns true if walls are found. Also sets appropriate rotation.
 			*/
 			bool CheckPropAgainstWall(int x, int y, int propId, std::string dir, float & rot);
 		
+			float RotatePainting(int x, int y);
+
+
 			/**
 			* @brief set Room door pointer to values
 			*/
