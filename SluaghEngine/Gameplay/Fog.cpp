@@ -57,37 +57,67 @@ void SE::Gameplay::Fog::CreateFogPlane()
 
 
 
-	for (int paddingRowI = -1; paddingRowI < 26; paddingRowI += 26)
+	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 	{
-		for (int paddingColumnI = -1; paddingColumnI < 26; paddingColumnI++)
-		{
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopLeft, paddingColumnI, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopRight, paddingColumnI + 1, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomRight, paddingColumnI + 1, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopRight, paddingColumnI, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
 
-			if (paddingRowI == -1)
-				CheckAdjacentTiles(paddingColumnI, 0);
-			else
-				CheckAdjacentTiles(paddingColumnI, 24);
-		}
+		CheckAdjacentTiles(paddingColumnI - 1, 0);
 	}
 
-	for (int paddingRowI = 0; paddingRowI < 25; paddingRowI++)
+	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 	{
-		for (int paddingColumnI = -1; paddingColumnI < 26; paddingColumnI += 26)
-		{
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopLeft, paddingColumnI, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::TopRight, paddingColumnI + 1, fogHeight, paddingRowI + 1, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-			plane.GetQuad(paddingColumnI + 1, paddingRowI + 1).SetVertex(Quad::Vertices::BottomRight, paddingColumnI + 1, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopRight, paddingColumnI, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
 
-			if (paddingColumnI == -1)
-				CheckAdjacentTiles(0, paddingRowI);
-			else
-				CheckAdjacentTiles(24, paddingRowI);
-		}
+		CheckAdjacentTiles(paddingColumnI - 1, 24);
 	}
+
+
+	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
+	{
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		CheckAdjacentTiles(0, paddingRowI - 1);
+	}
+
+	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
+	{
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		CheckAdjacentTiles(24, paddingRowI - 1);
+	}
+
+
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
 
 
 
@@ -143,8 +173,8 @@ void SE::Gameplay::Fog::CheckAdjacentTiles(unsigned int column, unsigned int row
 	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::BottomRight, column + 1, fogHeight, row, TEMP_uvCoord, TEMP_uvCoord);
 
 
-	CheckAdjacentTiles(column - 1, row - 1);
-	CheckAdjacentTiles(column - 1, row + 1);
-	CheckAdjacentTiles(column + 1, row - 1);
-	CheckAdjacentTiles(column + 1, row + 1);
+	CheckAdjacentTiles(column - 1, row);
+	CheckAdjacentTiles(column + 1, row);
+	CheckAdjacentTiles(column, row - 1);
+	CheckAdjacentTiles(column, row + 1);
 }

@@ -113,6 +113,7 @@ namespace SE
 			static const char id_Bush = 13;
 
 			const float fogHeight = 3.1f;
+			const float fogPadding = 10.f;
 			const float TEMP_uvCoord = 0;
 
 			unsigned int fogRjHandle = -1;
