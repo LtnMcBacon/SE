@@ -679,6 +679,9 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 				vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
 				vertex.normal = CreateNormals(pMesh.meshNode, j, k);
 
+				vertex.pos.z *= -1.0f;
+				vertex.normal.z *= -1.0f;
+
 				// Retreive Blending Weight info for each vertex in the mesh
 				// Every vertex must have three weights and four influencing bone indices
 
@@ -1009,7 +1012,7 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		currentCluster->GetTransformLinkMatrix(transformLinkMatrix); // The transformation of the cluster(joint) at binding time from joint space to world space
 
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
-		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
+		b.GlobalBindposeInverse = (transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform));
 	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
@@ -1270,57 +1273,6 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 			}
 		}
 	}
-
-	//unsigned int clusterCount = pMesh.skinNode->GetClusterCount();
-
-	//// Loop through each joint
-	//for (unsigned int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++)
-	//{
-	//	FbxCluster* currentCluster = pMesh.skinNode->GetCluster(clusterIndex);
-	//	string currentJointName = currentCluster->GetLink()->GetName();
-	//	unsigned int currentJointIndex = FindJointIndexByName(currentJointName, pMesh.skeleton);
-
-	//	// If this is the root joint, we don't need to process it. It has already been given its global transformation from its local transformation
-	//	if (currentJointIndex > 0) {
-
-	//		// Get the child and parent joint references
-	//		Joint &childBone = pMesh.skeleton.hierarchy[currentJointIndex];
-	//		Joint &parentBone = pMesh.skeleton.hierarchy[childBone.ParentIndex];
-
-	//		// Get number of animations
-	//		int animCount = childBone.Animations.size();
-
-	//		// Loop through each animation on the joint
-	//		for (int animIndex = 0; animIndex < animCount; animIndex++) {
-
-	//			// Get child and parent joint animation references
-	//			Animation &childAnimation = childBone.Animations[animIndex];
-	//			Animation &parentAnimation = parentBone.Animations[animIndex];
-	//			
-	//			// Get length of animation
-	//			int keyframeCount = childBone.Animations[animIndex].Length;
-
-	//			logFile << "-------------------------------------------------------\n"
-	//				<< "Joint: " << currentJointName << "\nNumber of animations: " << animCount 
-	//				<< "\nAnimation: " << childAnimation.Name << "\nIndex: " << animIndex << "\nLength: " << keyframeCount <<
-	//				"\n-------------------------------------------------------\n";
-
-	//			for (int timeIndex = 0; timeIndex < keyframeCount; timeIndex++) {
-
-	//				// Store child and parent local transformations at the given time
-	//				FbxAMatrix childTransform = childAnimation.Keyframes[timeIndex].LocalTransform;
-	//				FbxAMatrix parentTransform = parentAnimation.Keyframes[timeIndex].GlobalTransform;
-
-	//				// Multiply the joint parent transform and the child transform
-	//				childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
-
-	//				logFile << "Time: " << timeIndex + 1 << endl;
-	//			//	Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
-	//			}
-	//		}
-	//	}
-
-	//}
 
 	logFile.close();
 }

@@ -32,6 +32,26 @@ int SE::Core::AnimationSystem::AddSkeleton(const Utilz::GUID& guid, JointAttribu
 
 			joint.parentIndex = jointData[i].ParentIndex;
 			joint.inverseBindPoseMatrix = XMLoadFloat4x4((XMFLOAT4X4*)&jointData[i].bindposeMatrix);
+
+			DirectX::XMVECTOR scale, rotQuat, trans;
+			DirectX::XMFLOAT4 S, Q, T;
+			DirectX::XMMatrixDecompose(&scale, &rotQuat, &trans, joint.inverseBindPoseMatrix);
+
+			DirectX::XMStoreFloat4(&S, scale);
+			DirectX::XMStoreFloat4(&Q, rotQuat);
+			DirectX::XMStoreFloat4(&T, trans);
+
+			Q.x *= -1.0f;
+			Q.y *= -1.0f;
+			T.z *= -1.0f;
+
+			scale = DirectX::XMLoadFloat4(&S);
+			rotQuat = DirectX::XMLoadFloat4(&Q);
+			trans = DirectX::XMLoadFloat4(&T);
+
+			XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+			joint.inverseBindPoseMatrix = XMMatrixAffineTransformation(scale, zero, rotQuat, trans);
+
 			joint.jointName = jointData[i].jointName;
 
 			skeleton.Hierarchy.push_back(joint);
@@ -85,8 +105,13 @@ int SE::Core::AnimationSystem::AddAnimation(const Utilz::GUID& guid, DirectX::XM
 				DirectX::XMMatrixDecompose(&scale, &rotQuat, &trans, keyFrameMatrix);
 
 				DirectX::XMStoreFloat4(&currentKeyFrame.Scale, scale);
+				
 				DirectX::XMStoreFloat4(&currentKeyFrame.RotationQuat, rotQuat);
+				currentKeyFrame.RotationQuat.x *= -1.0f;
+				currentKeyFrame.RotationQuat.y *= -1.0f;
+
 				DirectX::XMStoreFloat4(&currentKeyFrame.Translation, trans);
+				currentKeyFrame.Translation.z *= -1.0f;
 
 				// Push back the current keyframe
 				jointKeyFrame.Keyframes.push_back(currentKeyFrame);
@@ -189,7 +214,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		
 		if(blendCheck[i] == true){
-		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i]) * XMMatrixScaling(1, 1, -1)));
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
 		}
 		else {
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
