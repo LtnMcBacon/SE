@@ -118,8 +118,8 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 	Graphics::RenderTarget rt;
 	rt.bindAsShaderResource = true;
 	rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 	rt.clearColor[0] = 0.0f;
 	rt.clearColor[1] = 0.0f;
 	rt.clearColor[2] = 0.0f;

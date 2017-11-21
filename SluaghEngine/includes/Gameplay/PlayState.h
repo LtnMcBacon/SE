@@ -62,7 +62,11 @@ namespace SE
 			void UpdateHUD(float dt);
 
 			HUDParser playStateGUI;
-
+			std::string OptionalButtons[2]
+			{
+				"EnemyHp.HuD",
+				"EnemyHpFrame.HuD"
+			};
 			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
