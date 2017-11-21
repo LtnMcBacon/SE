@@ -565,7 +565,7 @@ void SE::Core::Engine::InitStartupOption()
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
 	ICameraManager::CreateInfo camInfo;
-	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
 	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
 	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
 	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);
@@ -597,7 +597,7 @@ void SE::Core::Engine::OptionUpdate()
 	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
 	ICameraManager::CreateInfo camInfo;
 	subSystems.optionsHandler->SetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
-	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
 	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
 	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
 	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);
