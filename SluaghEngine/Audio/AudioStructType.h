@@ -143,33 +143,25 @@ namespace SE {
 			/* Cast data passed through stream to our structure. */
 			AudioOut *data = static_cast<AudioOut*>(userData);
 			float *out = (float*)outputBuffer;
-			float *volBasedOfDist = new float[data->sample->info.channels];
+			float volBasedOfDist[2];
 
 			float dist = sqrt((data->panData.headPos.x - data->panData.soundPos.x) * (data->panData.headPos.x - data->panData.soundPos.x) + (data->panData.headPos.y - data->panData.soundPos.y) * (data->panData.headPos.y - data->panData.soundPos.y) + (data->panData.headPos.z - data->panData.soundPos.z) * (data->panData.headPos.z - data->panData.soundPos.z));
-			if (data->sample->info.channels == 2)
+
+			DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3((data->panData.soundPos.x - data->panData.headPos.x) / dist, (data->panData.soundPos.y - data->panData.headPos.y) / dist, (data->panData.soundPos.z - data->panData.headPos.z) / dist);
+			//dot product of Sound and head left and right
+			float dotSHLeft = 1.0f + (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
+			float dotSHRight = 1.0f + ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
+			if (dist >= 1)
 			{
-				DirectX::XMFLOAT3 soundVec = DirectX::XMFLOAT3((data->panData.soundPos.x - data->panData.headPos.x) / dist, (data->panData.soundPos.y - data->panData.headPos.y) / dist, (data->panData.soundPos.z - data->panData.headPos.z) / dist);
-				//dot product of Sound and head left and right
-				float dotSHLeft = 1.0f + (data->panData.hearingVec.x * soundVec.x) + (data->panData.hearingVec.y * soundVec.y) + (data->panData.hearingVec.z * soundVec.z);
-				float dotSHRight = 1.0f + ((-data->panData.hearingVec.x) * soundVec.x) + ((-data->panData.hearingVec.y) * soundVec.y) + ((-data->panData.hearingVec.z) * soundVec.z);
-				if (dist >= 1)
-				{
-					volBasedOfDist[0] = (1.0f / dist) * (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
-					volBasedOfDist[1] = (1.0f / dist) * (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
-				}
-				else
-				{
-					volBasedOfDist[0] = (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
-					volBasedOfDist[1] = (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
-				}
+				volBasedOfDist[0] = (1.0f / dist) * (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+				volBasedOfDist[1] = (1.0f / dist) * (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
 			}
 			else
 			{
-				if (dist >= 1)
-					volBasedOfDist[0] = (1 / dist) * *data->audioPrivateData.volume;
-				else
-					volBasedOfDist[0] = *data->audioPrivateData.volume;
+				volBasedOfDist[0] = (dotSHLeft / 2.0f) * *data->audioPrivateData.volume;
+				volBasedOfDist[1] = (dotSHRight / 2.0f) * *data->audioPrivateData.volume;
 			}
+
 
 
 			unsigned int i;
@@ -177,15 +169,25 @@ namespace SE {
 
 			if (framesPerBuffer * data->audioPrivateData.currentPos < data->sample->info.frames - framesPerBuffer)
 			{
-				for (i = 0; i<framesPerBuffer; i++)
+				if (data->sample->info.channels == 2)
 				{
-					for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
+					for (i = 0; i < framesPerBuffer; i++)
 					{
-						*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[AmountOfChannels];
+						for (int AmountOfChannels = 0; AmountOfChannels < data->sample->info.channels; AmountOfChannels++)
+						{
+							*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[AmountOfChannels];
+						}
+					}
+				}
+				else 
+				{
+					for (i = 0; i < framesPerBuffer; i++)
+					{
+						*out++ = (data->sample->samples[i * data->sample->info.channels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[0];
+						*out++ = (data->sample->samples[i * data->sample->info.channels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[1];
 					}
 				}
 				data->audioPrivateData.currentPos++;
-				delete[] volBasedOfDist;
 				return paContinue;
 			}
 			else
@@ -198,10 +200,8 @@ namespace SE {
 						*out++ = (data->sample->samples[i * data->sample->info.channels + AmountOfChannels + (framesPerBuffer * data->sample->info.channels * data->audioPrivateData.currentPos)]) * volBasedOfDist[AmountOfChannels];
 					}
 				}
-				delete[] volBasedOfDist;
 				return paComplete;
 			}
-			delete[] volBasedOfDist;
 			return paComplete;
 		};
 
