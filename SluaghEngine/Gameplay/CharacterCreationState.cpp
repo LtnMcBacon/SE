@@ -17,7 +17,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 2;
-	nrOfPerks = 0;
+	nrOfPerks = 2;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -76,7 +76,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	importSkillButtons();
 	importPerkButtons();
 
-	//getPerks();
+
 	getSkills();
 	this->input = Input;
 	ProfileReturnVoid;
@@ -95,18 +95,17 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills != renewSkillList)
 	{
 		renewSkillList = selectedSkills;
+		fileParser.GUIButtons.deleteSkillPerkBtns();
 		if (selectedSkills < nrOfSkills)
 		{
-			fileParser.GUIButtons.deleteSkillPerkBtns();
 			getSkills();
 		}
 		else
 		{
-			fileParser.GUIButtons.deleteSkillPerkBtns();
 			getPerks();
 		}
 	}
-	else if (selectedPerks != renewPerks && selectedSkills == nrOfSkills)
+	else if (selectedPerks != renewPerks)
 	{
 		fileParser.GUIButtons.deleteSkillPerkBtns();
 		renewPerks = selectedPerks;
@@ -331,7 +330,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 	std::vector<std::string> otherPerks;
 	int nrOfOtherPerks = 0;
 	
-	for (size_t i = 0; i < nrOfPerks; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;

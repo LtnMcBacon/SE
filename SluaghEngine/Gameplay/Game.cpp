@@ -140,7 +140,7 @@ void SE::Gameplay::Game::Run()
 					break;
 				}
 				case SE::Gameplay::IGameState::State::QUIT_GAME:
-					delete state;
+					
 					running = false;
 					break;
 			 }

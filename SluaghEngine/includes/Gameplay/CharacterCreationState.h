@@ -83,35 +83,25 @@ namespace SE
 				"Fire_Pillars.HuD",
 				"Gae_Bolg.HuD",
 				"Kasta_Sten.HuD"
+			};
+
+			std::string perkButtonFiles[5]
+			{
+				"Fire_Resistance.HuD",
+				"Life_Steal.HuD",
+				"Melee_Damage.HuD",
+				"Range_Damage.HuD",
+				"Stat_Increase.HuD"
 				
 			};
 
-			std::string perkButtonFiles[9]
+			std::string Perkfiles[5]
 			{
-				"fuckYou.HuD",
-				"testPerkData.HuD",
-				"fireResistancePerk.HuD",
-				"lifeStealPerk.HuD",
-				"meleeDamagePerk.HuD",
-				"rangeDamagePerk.HuD",
-				"statIncreasePerk.HuD",
-				"strengthMultiPerk.HuD",
-				"waterResistancePerk.HuD"
-			};
-
-			std::string Perkfiles[9]
-			{
-
-				 "fuckYou.prk",
-				 "testPerkData.prk",
-				 "fireResistancePerk.prk",
-				 "lifeStealPerk.prk",
-				 "meleeDamagePerk.prk",
-				 "rangeDamagePerk.prk",
-				 "statIncreasePerk.prk",
-				 "strengthMultiPerk.prk",
-				 "waterResistancePerk.prk"
-
+				 "Fire_Resistance.prk",
+				 "Life_Steal.prk",
+				 "Melee_Damage.prk",
+				 "Range_Damage.prk",
+				 "Stat_Increase.prk"
 			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
