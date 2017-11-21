@@ -52,31 +52,52 @@ namespace SE
 
 			virtual ~IEventManager() {};
 
-			struct EventCallbacks
+			struct EntityEventCallbacks
 			{
-				std::function<void(const Entity, void* userData)> triggerCallback; 
-				std::function<bool(const Entity, void* userData)> triggerCheck;
+				std::function<void(const Entity)> triggerCallback; 
+				std::function<bool(const Entity)> triggerCheck;
 			};
 
 			/**
-			* @brief	Register a new event
+			* @brief	Register a new entity event
+			* @detail Entity events run the trigger check once per entity registered to it.
 			*
 			* @param[in] _event The event identifier.
 			* @param[in] callbacks The callbacks used to check if the event is trigger and to trigger the event.
 			*
 			*/
-			virtual void RegisterEventCallback(const Utilz::GUID _event,
-				const EventCallbacks& callbacks) = 0;
+			virtual void RegisterEntityEvent(const Utilz::GUID _event,
+				const EntityEventCallbacks& callbacks) = 0;
+
+			/**
+			* @brief	Register a new trigger event
+			* @detail Trigger events are triggered from the outside, by the user.
+			*
+			* @param[in] _event The event identifier.
+			* @param[in] callback The callback used when the event has been triggered.
+			*
+			*/
+			virtual void RegisterTriggerEvent(const Utilz::GUID _event,
+				const std::function<void(const Entity)>& callback) = 0;
+
+			/**
+			* @brief	Trigger a trigger event
+			* @detail Trigger events usually are buffered until the event managers frame
+			*
+			* @param[in] _event The event identifier.
+			* @param[in] now If the event should fire immediatly
+			*
+			*/
+			virtual void TriggerEvent(const Utilz::GUID _event, bool now) = 0;
 
 			/**
 			* @brief	Register an event to an entity
 			*
 			* @param[in] entity The entity to bind the event to.
 			* @param[in] _event The event identifier.
-			* @param[in] userData User specified data.
 			*
 			*/
-			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData = nullptr) = 0;
+			virtual void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) = 0;
 			
 			/**
 			* @brief	UnRegister an event to an entity

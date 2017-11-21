@@ -77,7 +77,7 @@ namespace SE {
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
 						0,          /* no input channels */
-						inSample->sample->info.channels,          /* stereo output */
+						2,          /* stereo output */
 						paFloat32,  /* 32 bit floating point output */
 						inSample->sample->info.samplerate,
 						256,        /* frames per buffer, i.e. the number
@@ -96,7 +96,7 @@ namespace SE {
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
 						0,          /* no input channels */
-						inSample->sample->info.channels,          /* stereo output */
+						2,          /* stereo output */
 						paFloat32,  /* 32 bit floating point output */
 						inSample->sample->info.samplerate,
 						256,        /* frames per buffer, i.e. the number
