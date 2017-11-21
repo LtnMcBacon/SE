@@ -29,7 +29,7 @@ namespace SE
 		class Room
 		{
 		private:
-			
+			Utilz::GUID myRoomFile;
 			Room* adjacentRooms[4] = {};
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
@@ -148,29 +148,17 @@ namespace SE
 
 			};
 
-			void CloseDoor(DirectionToAdjacentRoom DoorNr);
-			/*@brief store values from raw file*/
-			/*@warning may replace "char map" ????*/
+		
 
-			/**
-			*
-			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
-			*
-			* @details DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
-			*
-			* @warning Note that only four directions are allowed!
-			*
-			* @sa Read the warning at ReverseDirection before modifying!
-			*
-			**/
 		private:
 
 			struct DoorData
 			{
-				int doorEntityPos = -1;
-				bool active = true;
-				float xPos, yPos;
-				DirectionToAdjacentRoom side;
+				float posX;
+				float posY;
+				size_t tileX;
+				size_t tileY;
+				bool active = false;
 			};
 			DoorData DoorArr[4];
 
@@ -356,8 +344,12 @@ namespace SE
 			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
 
 		public:
+
 			Room(Utilz::GUID fileName);
 			~Room();
+
+			void Load();
+			void Unload();
 
 			void InitializeAdjacentFlowFields();
 
@@ -411,7 +403,9 @@ namespace SE
 			*/
 			inline void AddAdjacentRoomByDirection(DirectionToAdjacentRoom direction, Room* roomToAdd)
 			{
-				adjacentRooms[int(direction)] = roomToAdd;
+				DoorArr[size_t(direction)].active = true;
+				tileValues[DoorArr[size_t(direction)].tileX][DoorArr[size_t(direction)].tileY] = id_Door1;
+				adjacentRooms[size_t(direction)] = roomToAdd;
 			}
 
 			/**

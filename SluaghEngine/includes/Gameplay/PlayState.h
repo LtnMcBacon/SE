@@ -12,6 +12,7 @@
 #include "EnemyFactory.h"
 #include <Gameplay\HUD_Parsing.h>
 #include <Gameplay\HUD_Functionality.h>
+#include <optional>
 
 namespace SE 
 {
@@ -67,10 +68,30 @@ namespace SE
 			Core::Entity cam;
 			Core::Entity dummy;
 			PlayerUnit* player;
-			std::vector<Room*> rooms;
-			Room* currentRoom = nullptr;
-			int currentRoomIndex = -1;
-			static const int enemiesInEachRoom = 1;
+
+			uint8_t worldWidth = 4;
+			uint8_t worldHeight = 4;
+
+			struct RoomInfo
+			{
+				Room* roomPtr;
+				std::future<bool> load;
+			};
+
+			inline std::optional<RoomInfo*> GetRoom(int x, int y)
+			{
+				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0 )
+					return &rooms[x* worldWidth + y];
+				else
+					return std::nullopt;
+			}
+
+
+			RoomInfo* rooms;
+			Room* currentRoom; 
+			int currentRoomX = 0;
+			int currentRoomY = 0;
+
 			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;

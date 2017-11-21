@@ -177,6 +177,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		if (error)
 			return -1;
 
+
 		if (load)
 		{
 			//if (loadFlags & LoadFlags::ASYNC)
