@@ -438,7 +438,7 @@ namespace SE
 			ProfileReturnVoid;
 		}
 
-		void HUDParser::ParseOptionMenu(Utilz::GUID fileName)
+		void HUDParser::ParseOptionalButtons(Utilz::GUID fileName)
 		{
 
 			StartProfile;
@@ -554,12 +554,9 @@ namespace SE
 					head += sizeof(int);
 					if (CurrentElm.Btn)
 					{
-						optionButtons.push_back(CurrentElm);
+						OptionalButtons.push_back(CurrentElm);
 					}
-					else
-					{
-						optionsMenu.push_back(CurrentElm);
-					}
+					
 
 				}
 
