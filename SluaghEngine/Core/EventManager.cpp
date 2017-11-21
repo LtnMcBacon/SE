@@ -226,6 +226,9 @@ void SE::Core::EventManager::Destroy(size_t index)
 	const Entity entity = entires.entity[index];
 	const Entity last_entity = entires.entity[last];
 
+	for (auto& e : entires.eventsRegisteredTo[index])
+		UnregisterEntitytoEvent(entity, e);
+
 	// Copy the data
 	entires.entity[index] = last_entity;
 	entires.eventsRegisteredTo[index] = entires.eventsRegisteredTo[last];
