@@ -378,7 +378,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 	auto w = CoreInit::subSystems.window;
-
+	health = 1000;
 
 	bool ci = false;
 	auto newItem = 0;
@@ -918,13 +918,13 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	
 	
 	
-	Core::IEventManager::EventCallbacks startRenderItemInfo;
-	startRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
+	startRenderItemInfo.triggerCheck = [](const Core::Entity ent)
 	{
 		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
 	};
 	
-	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
 	{
 		auto slot = -1;
 		if (CoreInit::subSystems.window->ButtonPressed(GameInput::ONE))
@@ -960,21 +960,21 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	};
 
 
-	Core::IEventManager::EventCallbacks stopRenderItemInfo;
-	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks stopRenderItemInfo;
+	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent)
 	{
 		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) ||( CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && !CoreInit::subSystems.window->ButtonDown(GameInput::PICKUP));
 	};
 
-	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
 	{
 		CoreInit::managers.entityManager->DestroyNow(ent);
 		//CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 	};
 
 
-	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderItemInfo", startRenderItemInfo);
-	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderItemInfo", stopRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderItemInfo", startRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderItemInfo", stopRenderItemInfo);
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
