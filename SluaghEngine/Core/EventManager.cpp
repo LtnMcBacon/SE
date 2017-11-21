@@ -193,14 +193,12 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 
 	for (auto& _event : entityEvents)
 	{
-		auto fs = _event.entitesRegistered.size();
-		for (size_t i = 0; i< fs; i++)
+		auto reg = _event.entitesRegistered;
+		for (auto& ent : reg)
 		{
-			if (_event.callbacks.triggerCheck(_event.entitesRegistered[i]))
+			if (_event.callbacks.triggerCheck(ent))
 			{
-				_event.callbacks.triggerCallback(_event.entitesRegistered[i]);
-				if (fs > _event.entitesRegistered.size())
-					fs--;
+				_event.callbacks.triggerCallback(ent);
 			}
 				
 		}
