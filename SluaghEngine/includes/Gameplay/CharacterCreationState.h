@@ -58,6 +58,8 @@ namespace SE
 			void importSkillButtons();
 			void importPerkButtons();
 
+			void interpretPerks(PerkData perk);
+
 			int selectedSkills;
 			int renewSkillList;
 			int selectedPerks;

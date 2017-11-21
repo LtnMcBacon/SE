@@ -129,12 +129,12 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 
-	if (input->ButtonPressed(0))
-	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 	
-	PlayStateData* infoToPass = new PlayStateData;
+	
+	
 	if (allSkillsSelected  == true)
 	{
+		PlayStateData* infoToPass = new PlayStateData;
 
 		for (int i = 0; i < nrOfSkills; i++)
 		{
@@ -159,6 +159,11 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
 			infoToPass->skills[i].cooldown				= attrArray[7];
+		}
+
+		for (size_t i = 0; i < nrOfPerks; i++)
+		{
+			//infoToPass->perks[i] = chosenPerks.at(i);
 		}
 
 
@@ -493,4 +498,9 @@ void SE::Gameplay::CharacterCreationState::importPerkButtons()
 		fileParser.ParsePerks(fileName);
 	}
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::CharacterCreationState::interpretPerks(PerkData perk)
+{
+
 }
