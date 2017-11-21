@@ -129,7 +129,7 @@ bool SE::Gameplay::GameUnit::IsAlive()
 	if (!deathAnimationRunning)
 	{
 		deathAnimationRunning = true;
-		CoreInit::managers.animationManager->Start(unitEntity, &deathAnimation, 1, 5, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::FORCED | Core::AnimationFlags::BLOCKBLENDING);
+		CoreInit::managers.animationManager->Start(unitEntity, &deathAnimation, 1, 2.5, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::FORCED | Core::AnimationFlags::BLOCKBLENDING);
 		SE::Utilz::GUID dSound;
 		dSound = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(unitEntity, SE::Utilz::GUID("deathSoundGUID"), 0));
 		CoreInit::managers.audioManager->PlaySound(unitEntity, dSound);
