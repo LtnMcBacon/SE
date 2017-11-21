@@ -16,6 +16,7 @@ SE::FBX::FBXConverter::FBXConverter() {
 	pFbxScene = nullptr;
 	pImporter = nullptr;
 	pFbxRootNode = nullptr;
+
 }
 
 SE::FBX::FBXConverter::~FBXConverter() {
@@ -114,6 +115,10 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 		return false;
 	}
 
+	// Set the coordinate system and convert the FbxScene
+	/*FbxAxisSystem directXAxisSys = FbxAxisSystem::eDirectX;
+	directXAxisSys.ConvertScene(pFbxScene);*/
+	
 	cout << "\n#----------------------------------------------------------------------------\n"
 		"# STEP 1: LOAD MESHES\n"
 		"#----------------------------------------------------------------------------\n" << endl;
@@ -664,7 +669,7 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 			int iNumVertices = pMesh.meshNode->GetPolygonSize(j);	// Retreive the size of every polygon which should be represented as a triangle
 			assert(iNumVertices == 3);	// Reassure that every polygon is a triangle and if not, don't allow the user to pass this point
 
-			for (int k = 0; k < iNumVertices; k++) {	// Process every vertex in the triangle
+			for (int k = iNumVertices - 1; k >= 0; k--) {	// Process every vertex in the triangle
 
 				int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);	// Retrieve the vertex index to know which control point in the vector to use
 				ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
@@ -1005,7 +1010,6 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
 		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
-
 	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
@@ -1839,19 +1843,18 @@ void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
 	// Invert translation
 	FbxVector4 translation = matrix.GetT();
-	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2]);
+	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2], 1.0f);
+
+	// Set converted translation
+	matrix.SetT(translation);
 
 	// Create inversion matrix
 	FbxAMatrix Mo = matrix;
 	FbxAMatrix Mi;
 	Mi.SetIdentity();
-	Mi.mData[2][3] = -1;
 
 	// Set converted rotation
 	matrix = Mi * Mo * Mi;
-
-	// Set converted translation
-	matrix.SetT(translation);
 
 }
 

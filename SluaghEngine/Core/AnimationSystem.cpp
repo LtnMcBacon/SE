@@ -189,7 +189,7 @@ void SE::Core::AnimationSystem::CalculateMatrices(const Entity& entity, Animatio
 		// Create the matrix by multiplying the joint global transformation with the inverse bind pose
 		
 		if(blendCheck[i] == true){
-		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i])));
+		XMStoreFloat4x4(&bucketTransform[i], XMMatrixTranspose(b.inverseBindPoseMatrix * XMLoadFloat4x4(&bucketTransform[i]) * XMMatrixScaling(1, 1, -1)));
 		}
 		else {
 		XMStoreFloat4x4(&bucketTransform[i], XMMatrixIdentity());
