@@ -89,9 +89,10 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			cInfo.animations = nullptr;
 			cInfo.mesh = enemyCreationData->second.meshGUID;
 			cInfo.skeleton = enemyCreationData->second.skeletonGUID;
+
 			CoreInit::managers.animationManager->CreateAnimatedObject(createdEnemy->GetEntity(), cInfo);
 			CoreInit::managers.animationManager->ToggleVisible(createdEnemy->GetEntity(), true);
-
+			//CoreInit::managers.animationManager->ToggleShadow(createdEnemy->GetEntity(), true);
 			Core::IMaterialManager::CreateInfo enemyInfo;
 			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
 			enemyInfo.shader = enemyCreationData->second.shaderGUID;
@@ -113,7 +114,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 
 				Core::IRenderableManager::CreateInfo swordInfo;
 				swordInfo.meshGUID = "Sword.mesh";
-				swordInfo.shadow = false;
+				//swordInfo.shadow = true;
 				swordInfo.transparent = false;
 
 				CoreInit::managers.transformManager->Create(swordEntity);

@@ -34,7 +34,7 @@ namespace SE
 				std::string buttonText = "";
 				int textEntityID = 0;
 				int textEntityIndex = 0;
-				unsigned short skillDesc[7];
+				unsigned short skillDesc[8];
 				bool skillButton = false;
 				std::string skillName;
 				std::string perkName;
@@ -73,7 +73,6 @@ namespace SE
 			void ShowButtons();
 			void CalculateScreenPositions();
 			void deleteSkillPerkBtns();
-		private:
 
 		};
 	}

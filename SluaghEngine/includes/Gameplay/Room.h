@@ -34,6 +34,7 @@ namespace SE
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
+			std::vector<Core::Entity> itemsInRoom;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
@@ -66,7 +67,9 @@ namespace SE
 				FloorTorch,
 				TableGroup1,
 				Candlestick_tri,
-				PotGroup1
+				PotGroup1,
+				Potatosack_closed,
+				Potatosack_open
 			};
 			enum class Materials {
 				Stone,
@@ -78,7 +81,8 @@ namespace SE
 				Bush,
 				Dirt,
 				Grass,
-				Wood
+				Wood, 
+				OutsideWall
 			};
 
 			struct CreationArguments

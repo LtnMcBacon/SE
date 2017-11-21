@@ -97,6 +97,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 
 	int nrOfLetters = 0;
 	int startPos = pos;
+	int toNextLine = 2;
 	while (startPos < file.size() && file[startPos] != '\r' && file[startPos + 1] != '\n')
 	{
 		nrOfLetters++;
@@ -107,10 +108,11 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 	{
 		nrOfLetters++;
 		startPos++;
+		toNextLine = 1;
 	}
 
 	line = std::string(file.begin() + pos, file.begin() + pos + nrOfLetters);
-	pos += nrOfLetters + 2;
+	pos += nrOfLetters + toNextLine;
 
 	StopProfile;
 }
@@ -447,7 +449,7 @@ void SE::Gameplay::ProjectileFactory::ParseValue(
 
 	const unsigned int maxValueSize = 50;
 	unsigned int iterator = 2;
-	char value[20] = {NULL};
+	char value[40] = {NULL};
 	BehaviourParameter temp;
 
 	if (valueData[0] == 'f')
@@ -945,7 +947,7 @@ CreateProjectilesBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
 
-	std::string fileName = std::get<std::string>(parameters[0].data);
+	Utilz::GUID fileName = std::get<std::string>(parameters[0].data);
 
 	auto ProjectileCreator = [this, fileName](Projectile* p, float dt) -> bool
 	{
@@ -1121,6 +1123,32 @@ SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters)
 	ProfileReturnConst(DamageSetter);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float force = std::get<float>(parameters[0].data);
+	auto Knockback = [force](Projectile* p, float dt) -> bool
+	{
+		const auto& vec = p->GetUnitsHit();
+		
+		for (int i = 0; i < vec.size(); i++)
+		{
+			float xForce = vec[i]->GetXPosition() - p->GetXPosition();
+			float yForce = vec[i]->GetYPosition() - p->GetYPosition();
+
+			float totVec = sqrt((xForce * xForce) + (yForce * yForce));
+			xForce /= totVec;
+			yForce /= totVec;
+
+			vec[i]->AddForce(xForce * force, yForce * force);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(Knockback);
+}
+
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 {
@@ -1192,11 +1220,6 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 	ProfileReturnConst(CreateParticles);
 }
 
-std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::KnockbackBehaviour(std::vector<BehaviourParameter> parameters)
-{
-	return std::function<bool(Projectile*projectile, float dt)>();
-}
-
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
@@ -1238,6 +1261,115 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(OwnerAliveCondition);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOriginalDamageBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float damageAmount = std::get<float>(parameters[0].data);
+	auto SetOriginalDamage = [damageAmount](Projectile* p, float dt) -> bool
+	{
+		SE::Gameplay::DamageEvent temp = p->GetDamageEvent();
+		temp.amount = temp.originalAmount = damageAmount;
+		p->SetDamageEvent(temp);
+
+		return false;
+	};
+
+	ProfileReturnConst(SetOriginalDamage);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOriginalHealingBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float healingAmount = std::get<float>(parameters[0].data);
+	auto SetOriginalHealing = [healingAmount](Projectile* p, float dt) -> bool
+	{
+		SE::Gameplay::HealingEvent temp = p->GetHealingEvent();
+		temp.amount = temp.originalAmount = healingAmount;
+		p->SetHealingEvent(temp);
+
+		return false;
+	};
+
+	ProfileReturnConst(SetOriginalHealing);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetValidTargetBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	char target = std::get<std::string>(parameters[0].data)[0];
+	auto SetTarget = [target](Projectile* p, float dt) -> bool
+	{
+		if (target == 'p')
+		{
+			p->SetValidTarget(ValidTarget::PLAYER);
+		}
+		else if (target == 'e')
+		{
+			p->SetValidTarget(ValidTarget::ENEMIES);
+		}
+		else
+		{
+			p->SetValidTarget(ValidTarget::EVERYONE);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(SetTarget);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::CreateDecalBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	Core::DecalCreateInfo decalInfo;
+	decalInfo.textureName = std::get<std::string>(parameters[0].data);
+	decalInfo.opacity = std::get<float>(parameters[1].data);
+
+	float parentScale = 1.0f / CoreInit::managers.transformManager->GetScale(std::get<Projectile*>(parameters[2].data)->GetEntity()).x;
+	float height = CoreInit::managers.transformManager->GetPosition(std::get<Projectile*>(parameters[2].data)->GetEntity()).y;
+
+	DirectX::XMFLOAT4X4 tempMat;
+	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 0.05f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
+
+	CoreInit::managers.decalManager->Create(std::get<Projectile*>(parameters[2].data)->GetEntity(), decalInfo);
+	//CoreInit::managers.transformManager->SetRotation(std::get<Projectile*>(parameters[2].data)->GetEntity(), 1.57079632679, 0.0f, 0.0f);
+	//CoreInit::managers.transformManager->SetScale(std::get<Projectile*>(parameters[2].data)->GetEntity(), { 3.0f, 3.0f, 3.0f });
+	CoreInit::managers.decalManager->SetLocalTransform(std::get<Projectile*>(parameters[2].data)->GetEntity(), (float*)&tempMat);
+
+	auto Decal = [](Projectile* p, float dt) -> bool
+	{
+		return false;
+	};
+
+	ProfileReturnConst(Decal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	float amount = std::get<float>(parameters[0].data);
+
+	auto OpacitySetter = [amount](Projectile* p, float dt) -> bool
+	{
+		CoreInit::managers.decalManager->SetOpacity(p->GetEntity(), amount);
+		return false;
+	};
+
+	ProfileReturnConst(OpacitySetter);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	float amount = std::get<float>(parameters[0].data);
+
+	auto OpacityModifier = [amount](Projectile* p, float dt) -> bool
+	{
+		CoreInit::managers.decalManager->ModifyOpacity(p->GetEntity(), amount * dt);
+		return false;
+	};
+
+	ProfileReturnConst(OpacityModifier);
+}
+
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
 {
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::BounceBehaviour, this, std::placeholders::_1)); // 
@@ -1273,6 +1405,14 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::KnockbackBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::RangeToOwnerConditionBehaviour, this, std::placeholders::_1)); // o, f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::OwnerIsAliveConditionBehaviour, this, std::placeholders::_1)); // o, f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOriginalDamageBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOriginalHealingBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetValidTargetBehaviour, this, std::placeholders::_1)); // s
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetPlayerBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateDecalBehaviour, this, std::placeholders::_1)); // s, f, p
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDecalOpacityBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ModifyDecalOpacityBehaviour, this, std::placeholders::_1)); // f
+
 
 
 }

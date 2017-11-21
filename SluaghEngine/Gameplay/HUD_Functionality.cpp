@@ -113,13 +113,11 @@ namespace SE
 			tempElement.skillName = skillName;
 			
 			tempElement.EntityIndex = -1;
-			for (size_t i = 0; i < 7; i++)
+			for (size_t i = 0; i < 8; i++)
 			{
-				if (skillDesc[i] != 0u)
-				{
-					tempElement.skillDesc[i] = skillDesc[i];
+			
+				tempElement.skillDesc[i] = skillDesc[i];
 
-				}
 			}
 
 			Buttons.push_back(tempElement);
@@ -138,7 +136,9 @@ namespace SE
 			{
 				description += button.perkName+"\n";
 			}
-			description += button.skillName;
+			
+			std::replace(description.begin(), description.end(), '_', ' ');
+
 			description += "Damage Source: ";
 			switch (button.skillDesc[0])
 			{
@@ -166,16 +166,19 @@ namespace SE
 				description += "Physical\n";
 				break;
 			case 1:
-				description += "Magical\n";
-				break;
-			case 2:
 				description += "Fire\n";
 				break;
-			case 3:
+			case 2:
 				description += "Water\n";
 				break;
-			case 4:
+			case 3:
 				description += "Nature\n";
+				break;
+			case 4:
+				description += "Ranged\n";
+				break;
+			case 5:
+				description += "Magic\n";
 				break;
 			default:
 				description += "None\n";

@@ -74,15 +74,16 @@ namespace SE
 			//	every file to be parsed //
 			std::string skillButtonFiles[9]
 			{
-				"FireBallSkill.HuD",
-				"IceBallSkill.HuD",
-				"MagicBallSkill.HuD",
-				"NatureBallSkill.HuD",
-				"WaterBallSkill.HuD",
-				"PhysicalBallSkill.HuD",
-				"ArcaneBallSkill.HuD",
-				"MudBallSkill.HuD",
-				"FistingBallSkill.HuD"
+				"Bat_Minion.HuD",
+				"Heavy_Machine_Bow.HuD",
+				"voidRift.HuD",
+				"Bat_Swarm.HuD",
+				"Dagger_Rain.HuD",
+				"Doom_Ball.HuD",
+				"Fire_Pillars.HuD",
+				"Gae_Bolg.HuD",
+				"Kasta_Sten.HuD"
+				
 			};
 
 			std::string perkButtonFiles[9]
