@@ -395,6 +395,8 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 		ToggleVisible(e, false);
 
 
+	initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer("OutStreamBuffer1_" + std::to_string(e.id));
+	initInfo.renderer->GetPipelineHandler()->DestroyVertexBuffer("OutStreamBuffer2_" + std::to_string(e.id));
 	indexToEntity[index] = last_e;
 	particleSystemData[index] = particleSystemData[last];
 

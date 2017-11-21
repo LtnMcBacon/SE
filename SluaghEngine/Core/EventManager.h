@@ -4,6 +4,8 @@
 #include <Utilz\Event.h>
 #include <unordered_map>
 #include <random>
+#include <vector>
+
 
 namespace SE
 {
@@ -16,10 +18,39 @@ namespace SE
 			~EventManager();
 
 
-			void RegisterEventCallback(const Utilz::GUID _event,
-				const EventCallbacks& callbacks)override;
+			/**
+			* @brief	Register a new entity event
+			* @detail Entity events run the trigger check once per entity registered to it.
+			*
+			* @param[in] _event The event identifier.
+			* @param[in] callbacks The callbacks used to check if the event is trigger and to trigger the event.
+			*
+			*/
+			void RegisterEntityEvent(const Utilz::GUID _event,
+				const EntityEventCallbacks& callbacks)override;
+
+			/**
+			* @brief	Register a new trigger event
+			* @detail Trigger events are triggered from the outside, by the user.
+			*
+			* @param[in] _event The event identifier.
+			* @param[in] callback The callback used when the event has been triggered.
+			*
+			*/
+			void RegisterTriggerEvent(const Utilz::GUID _event,
+				const std::function<void(const Entity)>& callback) override;
+
+			/**
+			* @brief	Trigger a trigger event
+			* @detail Trigger events usually are buffered until the event managers frame
+			*
+			* @param[in] _event The event identifier.
+			* @param[in] now If the event should fire immediatly
+			*
+			*/
+			void TriggerEvent(const Utilz::GUID _event, bool now) override;
 		
-			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event, void* userData) override;
+			void RegisterEntitytoEvent(const Entity entity, const Utilz::GUID _event) override;
 			
 			/**
 			* @brief	UnRegister an event to an entity
@@ -96,11 +127,8 @@ namespace SE
 			Utilz::Event<void(const Entity& entity, size_t index)> SetDirty;
 			Utilz::Event<void(const Entity& entity)> UpdateRenderableObject;
 			Utilz::Event<void(const Entity&, bool)> ToggleVisibleEvent;
+			Utilz::Event<void(const Entity&, bool)> ToggleShadowEvent;
 
-			/**
-			* @brief	Allocate more memory
-			*/
-			void Allocate(size_t size);
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -110,32 +138,40 @@ namespace SE
 			* @brief	Look for dead entities.
 			*/
 			void GarbageCollection() override;
-			struct Events
+			
+			struct EntityEntry
 			{
-				static const uint8_t MAX = 8;
-				uint8_t nrOfEvents = 0;
-				Utilz::GUID event_[MAX];
-				void* userData[MAX];
+				std::vector<Entity> entity;
+				std::vector<std::vector<Utilz::GUID>> eventsRegisteredTo;
 			};
-			struct EventData
-			{
-				static const size_t size = sizeof(Entity) + sizeof(Events);
-				size_t allocated = 0;
-				size_t used = 0;
-				void* data = nullptr;
-				Entity* entity;
-				Events* events;
-			};
-
-			EventData eventData;
+			EntityEntry entires;
 			std::unordered_map<Entity, size_t, EntityHasher> entityToIndex;
 
 			IEventManager::InitializationInfo initInfo;
 			std::default_random_engine generator;
 
-			std::unordered_map<Utilz::GUID, EventCallbacks, Utilz::GUID::Hasher> eventToCallbacks;
+	
+			struct EntityEvent
+			{
+				Utilz::GUID event_;
+				EntityEventCallbacks callbacks;
+				std::vector<Entity> entitesRegistered;
+			};
+			std::vector<EntityEvent> entityEvents;
+			std::unordered_map<Utilz::GUID, size_t, Utilz::GUID::Hasher> entityEventToIndex;
 
-			Utilz::Event<void(const Entity&, bool)> ToggleShadowEvent;
+			struct TriggerEventStruct
+			{
+				Utilz::GUID event_;
+				std::function<void(const Entity)> callback;
+				std::vector<Entity> entitesRegistered;
+			};
+			std::vector<TriggerEventStruct> triggerEvents;
+			std::vector<size_t> eventsToTrigger;
+			std::unordered_map<Utilz::GUID, size_t, Utilz::GUID::Hasher> triggerEventToIndex;
+		
+
+			void TriggerEvent(const TriggerEventStruct& tvs);
 		};
 	}
 }
