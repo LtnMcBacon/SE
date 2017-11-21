@@ -51,34 +51,6 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	state =  new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 
-
-
-	Core::IEventManager::EventCallbacks roomChangeEvent;
-	roomChangeEvent.triggerCheck = [](Core::Entity ent, void* data)
-	{
-		return *(bool*)data;
-	};
-
-	roomChangeEvent.triggerCallback = [](Core::Entity ent, void* data)
-	{
-		auto vis = std::get<bool>( CoreInit::managers.dataManager->GetValue(ent, "Visible", false));
-		if (*(bool*)data && !vis)
-		{
-			
-			CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
-			CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
-			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-		
-		}
-		else if(!*(bool*)data && vis)
-		{
-			CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
-			CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
-			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
-		}
-			
-	};
-	CoreInit::managers.eventManager->RegisterEventCallback("RoomChange", roomChangeEvent);
 }
 
 void SE::Gameplay::Game::Run()
