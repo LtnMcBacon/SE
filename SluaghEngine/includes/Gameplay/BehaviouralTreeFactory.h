@@ -98,12 +98,70 @@ namespace SE
 			IBehaviour* CreateTickDownAttackCooldownLeaf(NodeData* dataArray, int nodeID);
 
 			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateResetSecondaryAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateAddTimeToSecondaryAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTickDownSecondaryAttackCooldownLeaf(NodeData* dataArray, int nodeID);
+
+			/**
 			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
 			*
 			*
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateTimerConditionLeaf(NodeData* dataArray, int nodeID);
+
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateCalculateTimeToRoomTransistionLeafLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateCountdownRoomTransistionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTransitionToRoomLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a GlaistigAttack Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateResetTransistionTimerLeaf(NodeData* dataArray, int nodeID);
+
 
 			/**
 			* @brief	Create a TimerCondition Node with the data given on position nodeID in dataArray.
@@ -128,6 +186,14 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a AttackCooldownZeroCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateSecondaryAttackCooldownZeroConditionLeaf(NodeData* dataArray, int nodeID);
 
 			/**
 			* @brief	Create a StunnedCondition Node with the data given on position nodeID in dataArray.
@@ -177,6 +243,17 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateDistanceToDoorConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a InTheSameRoomAsThePlayerCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateTransistionCountdownDoneConditionLeaf(NodeData* dataArray, int nodeID);
+
+
+
 
 			/**
 			* @brief	Create a AnimiationRunningCondition Node with the data given on position nodeID in dataArray.

@@ -34,7 +34,7 @@ struct ConsumableInfo
 	SE::Utilz::GUID shader;
 };
 static const std::array<ConsumableInfo, 1> consInfo = { {
-	{"Water.png","Water.png", "Pot.mesh", "default.mat", "SimpleLightPS.hlsl" }
+	{"Water.png","Water.png", "Pot.mesh", "Nuckelavee.mat", "SimpleLightPS.hlsl" }
 
 } };
 
