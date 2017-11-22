@@ -1,7 +1,5 @@
 static const float fogSize = 1.f;
 
-static const float fogPlaneSize = 25.f + 2.f * 10.f;
-
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -19,8 +17,8 @@ struct PS_IN
 
 float4 PS_main(PS_IN input) : SV_TARGET
 {
-    float4 albedoValues = albedoTexture.Sample(samplerState, (fogPlaneSize / fogSize) * input.uv);
-    float4 normalValues = normalTexture.Sample(samplerState, (fogPlaneSize / fogSize) * input.uv);
+    float4 albedoValues = albedoTexture.Sample(samplerState, input.uv / fogSize);
+    float4 normalValues = normalTexture.Sample(samplerState, input.uv / fogSize);
 
-    return float4(albedoValues * dot(float3(0, 0, 1), normalValues.rgb));
+    return float4(dot(float3(0, 0, 1), normalValues.rgb) * albedoValues.rgb, dot(float3(0, 0, 1), normalValues.rgb) * input.opacity);
 }

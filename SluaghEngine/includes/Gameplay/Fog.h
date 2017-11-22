@@ -37,6 +37,13 @@ namespace SE
 
 			public:
 				Quad() {};
+				void SetVertex(Vertices vertex, float x, float y, float z, float opacity = 1)
+				{
+					float u = x;
+					float v = z;
+
+					SetVertex(vertex, x, y, z, u, v, opacity);
+				}
 				void SetVertex(Vertices vertex, float x, float y, float z, float u, float v, float opacity = 1)
 				{
 					if (vertex == Vertices::TopLeft)
@@ -141,8 +148,6 @@ namespace SE
 			const float slopeTop = height - 0.3f;
 			const float slopeBottom = 0.5f;
 			const float slopeOffset = 0.3f;
-
-			const float TEMP_uvCoord = 0;
 
 			unsigned int rjHandle = -1;
 			char tileValues[25][25];
