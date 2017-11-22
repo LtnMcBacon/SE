@@ -379,7 +379,7 @@ void PlayState::InitializeRooms()
 {
 	StartProfile;
 	worldWidth = 2;
-	worldHeight = 1;
+	worldHeight = 2;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();

@@ -1277,9 +1277,9 @@ Room::Room(Utilz::GUID fileName)
 				if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
 					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
 				else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
-					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-				else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
 					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+				else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
 				else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
 					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
 				DoorArr[size_t(dir)] = { float(x) + 0.5f, float(y) + 0.5f, size_t(x),size_t(y) };
