@@ -149,7 +149,41 @@ namespace SE
 			};
 
 		
-
+			/**
+			* @brief	Reverse the direction for the enumerator that defines the connection between two rooms.
+			*
+			* @details	This help function is used to reverse the enumerator that defines the connection between two rooms.
+			* Mainly, this is used when we need to update the flow fields in adjacent rooms; since the connection from
+			* current room -> adjacent room is the reverse of adjacent room -> current room, this function can be called
+			* on the direction the current room has defined for the connection.
+			*
+			* For instance, if we send in DIRECTION_ADJACENT_ROOM_NORTH to this function, we will get
+			* DIRECTION_ADJACENT_ROOM_SOUTH back.
+			*
+			* @param[in] currentDirection The direction for the connection that we want to know the reverse of.
+			*
+			*
+			* @retval DIRECTION_ADJACENT_ROOM_NORTH The reverse of the inputed direction is North.
+			* @retval DIRECTION_ADJACENT_ROOM_EAST	The reverse of the inputed direction is East.
+			* @retval DIRECTION_ADJACENT_ROOM_SOUTH The reverse of the inputed direction is South.
+			* @retval DIRECTION_ADJACENT_ROOM_WEST	The reverse of the inputed direction is West.
+			*
+			* @warning If the enum "DirectionToAdjacentRoom" is modified, this function will no longer work!
+			*
+			* Example code:
+			* @code
+			* for(int i = 0; i < 4; i++)
+			* {
+			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
+			*	if(adjacentRooms[directionToRoom])
+			* 		adjacentRooms[directionToRoom]->UpdateFlowField(ReverseDirection(directionToRoom));
+			* }
+			* @endcode
+			*/
+			inline static DirectionToAdjacentRoom ReverseDirection(DirectionToAdjacentRoom currentDirection)
+			{
+				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
+			}
 		private:
 
 			struct DoorData
@@ -209,41 +243,7 @@ namespace SE
 			*/
 			void UpdateFlowField(DirectionToAdjacentRoom exit);
 
-			/**
-			* @brief	Reverse the direction for the enumerator that defines the connection between two rooms.
-			*
-			* @details	This help function is used to reverse the enumerator that defines the connection between two rooms.
-			* Mainly, this is used when we need to update the flow fields in adjacent rooms; since the connection from
-			* current room -> adjacent room is the reverse of adjacent room -> current room, this function can be called
-			* on the direction the current room has defined for the connection.
-			*
-			* For instance, if we send in DIRECTION_ADJACENT_ROOM_NORTH to this function, we will get
-			* DIRECTION_ADJACENT_ROOM_SOUTH back.
-			*
-			* @param[in] currentDirection The direction for the connection that we want to know the reverse of.
-			*
-			*
-			* @retval DIRECTION_ADJACENT_ROOM_NORTH The reverse of the inputed direction is North.
-			* @retval DIRECTION_ADJACENT_ROOM_EAST	The reverse of the inputed direction is East.
-			* @retval DIRECTION_ADJACENT_ROOM_SOUTH The reverse of the inputed direction is South.
-			* @retval DIRECTION_ADJACENT_ROOM_WEST	The reverse of the inputed direction is West.
-			*
-			* @warning If the enum "DirectionToAdjacentRoom" is modified, this function will no longer work!
-			*
-			* Example code:
-			* @code
-			* for(int i = 0; i < 4; i++)
-			* {
-			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
-			*	if(adjacentRooms[directionToRoom])
-			* 		adjacentRooms[directionToRoom]->UpdateFlowField(ReverseDirection(directionToRoom));
-			* }
-			* @endcode
-			*/
-			inline static DirectionToAdjacentRoom ReverseDirection(DirectionToAdjacentRoom currentDirection)
-			{
-				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
-			}
+			
 
 			/**
 			* @brief	Update all the AIs in the room

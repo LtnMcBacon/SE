@@ -1089,7 +1089,7 @@ SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransiti
 	{
 		if (DoorArr[i].active)
 		{
-			//if (sqrt((DoorArr[i].posX - playerX) * (DoorArr[i].posY - playerX) + (DoorArr[i].posX - playerY) * (DoorArr[i].posY - playerY)) <= 1.5f)
+			if (sqrt((DoorArr[i].posX - playerX) * (DoorArr[i].posX - playerX) + (DoorArr[i].posY - playerY) * (DoorArr[i].posY - playerY)) <= 1.5f)
 			{
 					return DirectionToAdjacentRoom(i);
 			}
@@ -1269,18 +1269,20 @@ Room::Room(Utilz::GUID fileName)
 		}
 
 
-	for (size_t x = 0; x < 25; x++)
-		for (size_t y = 0; y < 25; y++)
+	for (int x = 0; x < 25; x++)
+		for (int y = 0; y < 25; y++)
 			if (tileValues[x][y] == id_Door1 || tileValues[x][y] == id_Door2)
 			{
-				if (y == 0)
-					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
-				else if (y == 24)
-					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
-				else if (x == 24)
-					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
-				else if (x == 0)
-					DoorArr[size_t(DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)] = { float(x) + 0.5f, float(y) + 0.5f, x,y };
+				DirectionToAdjacentRoom dir = DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE;
+				if (x - 1 >= 0 && tileValues[x - 1][y] == 0)
+					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+				else if (y - 1 >= 0 && tileValues[x][y - 1] == 0)
+					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+				else if (y + 1 < 25 && tileValues[x][y + 1] == 0)
+					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+				else if (x + 1 < 25 && tileValues[x + 1][y] == 0)
+					dir = (Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+				DoorArr[size_t(dir)] = { float(x) + 0.5f, float(y) + 0.5f, size_t(x),size_t(y) };
 				tileValues[x][y] = id_Wall;
 			}
 
