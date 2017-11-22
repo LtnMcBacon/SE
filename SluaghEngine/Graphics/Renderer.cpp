@@ -64,6 +64,32 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 	//animationSystem = new AnimationSystem();
 
+#pragma region SpriteShader
+std::string shader = "Texture2D<float4> Texture : register(t0); \
+sampler TextureSampler : register(s0); \
+\
+struct PS_IN \
+{\
+	float4 color : COLOR0;\
+	float2 Tex : TEXCOORD0;\
+};\
+\
+float4 PS_main(PS_IN input) : SV_TARGET\
+{\
+	return float4(Texture.Sample(TextureSampler, input.Tex)) * input.color;\
+}";
+
+ID3DBlob *blob = nullptr;
+
+hr = D3DCompile(shader.c_str(), shader.size(), NULL, nullptr, nullptr, "PS_main", "ps_5_0", NULL, NULL, &blob, nullptr);
+if (FAILED(hr))
+	return hr;
+
+hr = device->GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &SpriteShader);
+if (FAILED(hr))
+	return hr;
+#pragma endregion SpriteShader
+
 	
 
 	graphicResourceHandler->CreateSamplerState();
@@ -82,6 +108,9 @@ void SE::Graphics::Renderer::Shutdown()
 	fonts.clear();
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
+
+	if (SpriteShader != nullptr)
+		SpriteShader->Release();
 	
 
 	delete gpuTimer;
@@ -394,7 +423,10 @@ int SE::Graphics::Renderer::Render()
 		long height = gBB_Desc.Height;
 		long width = gBB_Desc.Width;
 
-		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
+		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState(), nullptr, nullptr, nullptr, [=] {
+			device->GetDeviceContext()->PSSetShader(SpriteShader, nullptr, 0);
+		});
+		//spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState(), nullptr, nullptr, nullptr, nullptr);
 		for (auto& job : renderTextureJobs)
 		{
 
