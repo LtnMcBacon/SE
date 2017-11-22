@@ -1727,9 +1727,9 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 {
 	auto entFire = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(entFire);
-	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.i + 0.54, 2.18f, args.j - 0.38));
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.i + 0.41, 2.18f, args.j + 0.48));
 	SE::Core::IParticleSystemManager::CreateInfo info;
-	info.systemFile = Utilz::GUID("torchParticle.pts");
+	info.systemFile = Utilz::GUID("torchFlame.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities.push_back(entFire);
