@@ -1678,8 +1678,9 @@ void SE::FBX::FBXConverter::WriteAnimation(std::string folderName, vector<Animat
 
 				for (auto& keyframe : anim.joints[jointIndex].keyframes) {
 
-					// Transpose the matrix from column major to row major
-					animationTransformations.push_back(Load4X4Transformations(keyframe.GlobalTransform));
+					XMFLOAT4X4 matrix;
+					XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&Load4X4Transformations(keyframe.GlobalTransform)) * XMMatrixRotationY(160.3));
+					animationTransformations.push_back(matrix);
 				}
 			}
 		}
