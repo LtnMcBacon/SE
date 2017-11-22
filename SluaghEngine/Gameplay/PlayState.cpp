@@ -285,10 +285,6 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
-
-
-
-
 }
 
 void PlayState::InitializeRooms()
@@ -382,39 +378,56 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	int en = std::rand() % 3 + 4;
-	EnemyUnit** enemies = new EnemyUnit*[en];
-	for(auto& room : rooms)
+	int counter = 0;
+	for (auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
-
-		for (int i = 0; i < en; i++)
+		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+		Room::DirectionToAdjacentRoom throwAway;
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)] && room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			if (counter < 1)
+			{
+				data.type = ENEMY_TYPE_BODACH;
+			}
+			else if(counter < 4)
+			{
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_BODACH;
+				else
+					data.type = ENEMY_TYPE_GLAISTIG;
+			}
+			else 
+			{
+				data.type = ENEMY_TYPE_RANDOM;
+			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
 			eStruct.information.push_back(data);
 		}
-		
+
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < en; i++)
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
+		if (!(++counter % 3))
+			enemiesInEachRoom++;
+		delete[] enemies;
+
 
 	}
-	delete[] enemies;
 	ProfileReturnVoid;
 }
 
