@@ -1,11 +1,12 @@
 #include "..\includes\Gameplay\Sluagh.h"
 #include "ProjectileData.h"
 #include <Profiler.h>
+#include "CoreInit.h"
 
-SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer)
+SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, char map[25][25])
 	:thePlayer(thePlayer)
 {
-
+	theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 13, 13, map);
 }
 
 SE::Gameplay::Sluagh::~Sluagh()
@@ -44,4 +45,9 @@ bool SE::Gameplay::Sluagh::CollisionAgainstProjectile(float projectileX, float p
 	float yDistance = projectileX - theSluagh->GetYPosition();
 	static const float sluaghRadius = sqrtf(0.25f*0.25f*2);
 	ProfileReturn((sqrtf(xDistance*xDistance + yDistance*yDistance) < projectileRadius+sluaghRadius));
+}
+
+void SE::Gameplay::Sluagh::ToggleRendering(bool render)
+{
+	CoreInit::managers.eventManager->ToggleVisible(theSluagh->GetEntity(), render);
 }

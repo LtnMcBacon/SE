@@ -28,7 +28,7 @@ namespace SE
 		**/
 		class Room
 		{
-		private:
+		protected:
 			
 			struct HpBar
 			{
@@ -36,7 +36,7 @@ namespace SE
 				Core::Entity frame; // the frame around the bar
 			};
 
-			Room* adjacentRooms[4] = {};
+			Room* adjacentRooms[4] = {nullptr, nullptr, nullptr };
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
@@ -173,7 +173,7 @@ namespace SE
 			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-		private:
+		protected:
 
 			struct DoorData
 			{

@@ -273,7 +273,7 @@ namespace SE
 			float getBaneDuration(int skillNumber);
 			float getCooldown(int skillNumber);
 			float getCurrentCooldown(int skillNumber);
-
+			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
 
 
