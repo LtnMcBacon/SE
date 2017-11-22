@@ -390,13 +390,36 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
+			int x, y;
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)] && room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f);
+				x = CoreInit::subSystems.window->GetRand() % 25;
+				y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[x][y]);// || (room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f));
 
+
+			float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+			int xOffset = 0, yOffset = 0;
+			if (rotation == 0)
+			{
+				yOffset = 1;
+			}
+			else if (rotation == 90)
+			{
+				xOffset = 1;
+			}
+			else if (rotation == 180)
+			{
+				yOffset = -1;
+			}
+			else if (rotation == 270)
+			{
+				xOffset = -1;
+			}
+			enemyPos.x = x + 0.5f;
+			enemyPos.y = y -0.5f;
+	
 			EnemyCreationData data;
 			if (counter < 1)
 			{
