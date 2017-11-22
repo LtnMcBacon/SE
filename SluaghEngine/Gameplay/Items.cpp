@@ -365,9 +365,12 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 	CoreInit::managers.transformManager->SetRotation(ent, 0,0,0);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(ent, 0.2);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, false);
+	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "torchParticle.pts" });
+	CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
+	
 }
 
 void SE::Gameplay::Item::Pickup(Core::Entity ent)
@@ -377,6 +380,7 @@ void SE::Gameplay::Item::Pickup(Core::Entity ent)
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+	CoreInit::managers.particleSystemManager->Destroy(ent);
 	//CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RoomChange");
 }
 
