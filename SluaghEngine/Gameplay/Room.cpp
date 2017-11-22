@@ -1678,7 +1678,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.i + 0.54, 2.18f, args.j - 0.38));
 	SE::Core::IParticleSystemManager::CreateInfo info;
 	info.systemFile = Utilz::GUID("torchParticle.pts");
-	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
+//	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities.push_back(entFire);
 
@@ -1910,28 +1910,3 @@ bool SE::Gameplay::Room::CheckPropAgainstWall(int x, int y, int propId, std::str
 	}
 	return besideWall;
 }
-//
-//void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
-//{
-//	if (DoorArr[int(DoorNr)].active)
-//	{
-//		DoorArr[int(DoorNr)].active = false;
-//		
-//	/*	tileValues[DoorArr[int(DoorNr)].xPos][DoorArr[int(DoorNr)].yPos] = 0;
-//		Utilz::GUID temp;
-//
-//		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-//			temp = "SimpleNormTransPS.hlsl";
-//		else
-//			temp = "SimpleNormPS.hlsl";*/
-//
-//		DoorArr[int(DoorNr)].active = false;
-//	///	CoreInit::managers.renderableManager->Destroy(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
-//		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "HighWall.mesh" });
-//		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], {  temp, "HighWall.mat" });
-//		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
-//	//	CoreInit::managers.entityManager->DestroyNow(roomEntities[DoorArr[int(DoorNr)].doorEntityPos]);
-//
-//	}
-//
-//}
