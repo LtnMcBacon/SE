@@ -166,13 +166,29 @@ namespace SE
 			for (auto& HUDElement : StaticGuiVec)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
-				
+				//ResolutionChange(HUDElement.Width, HUDElement.Height);
 				GuiManager.textureInfo.width = HUDElement.Width;
 				GuiManager.textureInfo.height = HUDElement.Height;
 				GuiManager.textureInfo.posX = HUDElement.PositionX;
 				GuiManager.textureInfo.posY = HUDElement.PositionY;
-
+				
+				
 				GuiManager.textureInfo.layerDepth = 1.0f - HUDElement.layerDepth / 1000.0f;
+
+			//	Graphics::GUITextureInfo guiTexture;
+			//	guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
+			////	guiTexture.effect = Graphics::Effect::BothFlipEffect;
+			//	guiTexture.layerDepth = 1;
+			//	guiTexture.posX = 0;
+			//	guiTexture.posY = 0;
+			//	guiTexture.rotation = 0;
+			//	guiTexture.width = 1280;
+			//	guiTexture.height = 720;
+			//	guiTexture.screenAnchor = { 0.5f ,0.5f };
+			//	guiTexture.anchor = { 0.5f, 0.5f };
+			//	guiTexture.scale = { 1.0f, 1.0f };
+			//	guiTexture.absolute = true;
+
 
 				GuiManager.texture = HUDElement.textName;
 
@@ -621,6 +637,25 @@ namespace SE
 			});
 			ProfileReturnVoid;
 
+		}
+
+		void HUDParser::ResolutionChange(int& elementWidth, int& elementHeight)
+		{
+			size_t height = CoreInit::subSystems.window->Height();
+			size_t width = CoreInit::subSystems.window->Width();
+
+			size_t maxwidth = 1920;
+			size_t maxHeight = 1080;
+			size_t minWidth = 1280;
+			size_t minHeight = 720;
+			size_t widthDif = maxwidth - minWidth;
+			size_t heightDif = maxHeight - minHeight;
+
+			size_t scaledHeight = ((height - 720) * 1) / (1080 - 720);
+			size_t scaledWidth = ((width - 1280) * 1) / (1920 - 1280);
+
+			elementWidth += widthDif * scaledWidth;
+			elementHeight += heightDif * scaledHeight;
 		}
 		
 	}

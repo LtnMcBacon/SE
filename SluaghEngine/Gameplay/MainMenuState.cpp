@@ -104,11 +104,12 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		if (button.rectName == "startGameBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			
 		}
 		else if (button.rectName == "quitBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
 		}
 		/*else if (button.rectName == "optionsBtn")
 		{

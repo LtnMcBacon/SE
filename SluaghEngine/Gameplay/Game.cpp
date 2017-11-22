@@ -46,7 +46,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	
-	CoreInit::managers.textManager->MakeFont(Utilz::GUID("CloisterBlack.spritefont"));
+	CoreInit::managers.textManager->MakeFont(Utilz::GUID("EnchantedLand.spritefont"));
 
 	state =  new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;

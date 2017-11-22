@@ -354,6 +354,9 @@
     <ClCompile Include="PauseAnimationsLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
+    <ClCompile Include="PerkFactory.cpp">
+      <Filter>Source Files\Perks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -610,6 +613,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PerkFactory.h">
+      <Filter>Header Files\Perks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

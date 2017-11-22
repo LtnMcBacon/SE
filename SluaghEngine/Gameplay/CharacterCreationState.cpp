@@ -114,12 +114,13 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			getPerks();
 		}
 	}
-	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
+	if (selectedPerks == nrOfPerks)
 	{
-		//allSkillsSelected = true;
-		//fileParser.GUIButtons.deleteSkillPerkBtns();
-		//getPerks();
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
 	}
+
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
 	bool released = input->ButtonUp(uint32_t(GameInput::ACTION));
@@ -134,6 +135,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	
 	if (allSkillsSelected  == true)
 	{
+		
 		PlayStateData* infoToPass = new PlayStateData;
 
 		for (int i = 0; i < nrOfSkills; i++)
@@ -163,7 +165,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 		for (size_t i = 0; i < nrOfPerks; i++)
 		{
-			//infoToPass->perks[i] = chosenPerks.at(i);
+			infoToPass->perks[i] = chosenPerks.at(i);
 		}
 
 
