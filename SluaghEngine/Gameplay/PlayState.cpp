@@ -248,85 +248,6 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 		
 		}
 	}
-	//if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
-	//{
-	//	SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
-
-	//	if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
-	//	{
-	//		currentRoom->RenderRoom(false);
-
-	//		if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
-	//		{
-	//			currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
-	//			currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
-	//			float xToSet, yToSet;
-	//			xToSet = yToSet = -999999;
-	//			currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
-	//			player->PositionEntity(xToSet, yToSet - 1);
-	//		}
-	//		else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
-	//		{
-	//			currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
-	//			currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
-	//			float xToSet, yToSet;
-	//			xToSet = yToSet = -999999;
-	//			currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
-	//			player->PositionEntity(xToSet, yToSet + 1);
-	//		}
-	//		else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-	//		{
-	//			currentRoom = rooms[currentRoomIndex - 1];
-	//			currentRoomIndex = currentRoomIndex - 1;
-	//			float xToSet, yToSet;
-	//			xToSet = yToSet = -999999;
-	//			currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-	//			player->PositionEntity(xToSet + 1, yToSet);
-	//		}
-	//		else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
-	//		{
-	//			currentRoom = rooms[currentRoomIndex + 1];
-	//			currentRoomIndex = currentRoomIndex + 1;
-	//			float xToSet, yToSet;
-	//			xToSet = yToSet = -999999;
-	//			currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
-	//			player->PositionEntity(xToSet - 1, yToSet);
-	//		}
-
-	//		currentRoom->RenderRoom(true);
-	//		projectileManager->RemoveAllProjectiles();
-
-	//		char newMap[25][25];
-	//		currentRoom->GetMap(newMap);
-
-	//		char** tempPtr = new char*[25];
-
-	//		for (int i = 0; i < 25; i++)
-	//		{
-	//			tempPtr[i] = new char[25];
-	//			for (int j = 0; j < 25; j++)
-	//			{
-	//				tempPtr[i][j] = newMap[i][j];
-	//			}
-	//		}
-
-	//		player->UpdateMap(tempPtr);
-	//		currentRoom->InitializeAdjacentFlowFields();
-	//		for (int i = 0; i < 25; i++)
-	//		{
-	//			delete tempPtr[i];
-	//		}
-
-	//		delete tempPtr;
-
-	//		/**
-	//		*	Must be put in change room once the function is done!
-	//		*/
-	//		blackBoard.currentRoom = currentRoom;
-	//		blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-	//		numberOfFreeFrames = 15;
-	//	}
-	//}
 
 	ProfileReturnVoid;
 }
@@ -432,41 +353,41 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	StartProfile;
 	char map[25][25];
 
-	//EnemyCreationStruct eStruct;
-	//int en = std::rand() % 3 + 4;
-	//EnemyUnit** enemies = new EnemyUnit*[en];
-	//for(size_t r = 0; r < worldWidth*worldHeight; r++)
-	//{
-	//	auto& room = rooms[r];
-	//	room->GetMap(map);
-	//	eStruct.information.clear();
+	EnemyCreationStruct eStruct;
+	int en = std::rand() % 3 + 4;
+	EnemyUnit** enemies = new EnemyUnit*[en];
+	for(size_t r = 0; r < worldWidth*worldHeight; r++)
+	{
+		auto& room = rooms[r];
+		room->GetMap(map);
+		eStruct.information.clear();
 
-	//	for (int i = 0; i < en; i++)
-	//	{
-	//		pos enemyPos;
-	//		do
-	//		{
-	//			enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-	//			enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-	//		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+		for (int i = 0; i < en; i++)
+		{
+			pos enemyPos;
+			do
+			{
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
-	//		EnemyCreationData data;
-	//		data.type = ENEMY_TYPE_RANDOM;
-	//		data.startX = enemyPos.x;
-	//		data.startY = enemyPos.y;
-	//		data.useVariation = true;
-	//		eStruct.information.push_back(data);
-	//	}
-	//	
-	//	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+			EnemyCreationData data;
+			data.type = ENEMY_TYPE_RANDOM;
+			data.startX = enemyPos.x;
+			data.startY = enemyPos.y;
+			data.useVariation = true;
+			eStruct.information.push_back(data);
+		}
+		
+		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-	//	for (int i = 0; i < en; i++)
-	//	{
-	//		room->AddEnemyToRoom(enemies[i]);
-	//	}
+		for (int i = 0; i < en; i++)
+		{
+			room->AddEnemyToRoom(enemies[i]);
+		}
 
-	//}
-	//delete[] enemies;
+	}
+	delete[] enemies;
 	ProfileReturnVoid;
 }
 
