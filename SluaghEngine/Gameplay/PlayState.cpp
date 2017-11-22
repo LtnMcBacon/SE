@@ -331,7 +331,7 @@ void PlayState::InitializeRooms()
 	auto s = std::chrono::high_resolution_clock::now();
 
 	std::vector<Utilz::GUID> roomGuids;
-	subSystem.resourceHandler->GetAllGUIDsWithExtension("raw", roomGuids);
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("room", roomGuids);
 
 	if (!roomGuids.size())
 		throw std::exception("No rooms found");
