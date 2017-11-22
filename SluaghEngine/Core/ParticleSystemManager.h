@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+#include <Utilz\Timer.h>
 #include <unordered_map>
 #include <random>
 #include <Particle_Editor\ParticleEmitter.h>
@@ -54,7 +55,7 @@ namespace SE
 		private:
 			InitializationInfo initInfo;
 			Graphics::Pipeline updatePipeline;
-
+			Utilz::Timer time;
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -93,6 +94,7 @@ namespace SE
 				float radialValue;
 				float gravityValue;
 				float pSize;
+				float dt;
 				unsigned int circular;
 				unsigned int gravityCheck;
 				unsigned int emit;
