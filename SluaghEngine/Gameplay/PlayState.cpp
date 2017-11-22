@@ -53,23 +53,27 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		tempPos++;
 	}
 
-	for (auto& fileName: OptionalButtons )
-	{
-		playStateGUI.ParseOptionalButtons(fileName);
-	}
-	for (auto& button: playStateGUI.OptionalButtons)
-	{
-		if (button.rectName == "EnemyHpFrame")
-		{
-			//it's a me
-			int a = 0;
-		}
-		else if (button.rectName == "EnemyHp")
-		{
-			// MARIO!!!
-			int b = 0;
-		}
-	}
+
+	//for (auto& fileName : OptionalButtons)
+	//{
+	//	playStateGUI.ParseOptionalButtons(fileName);
+	//}
+
+
+	//for (auto& button : playStateGUI.OptionalButtons)
+	//{
+	//	if (button.rectName == "EnemyHpFrame")
+	//	{
+	//		//it's a me
+	//		int a = 0;
+	//	}
+	//	else if (button.rectName == "EnemyHp")
+	//	{
+	//		// MARIO!!!
+	//		int b = 0;
+	//	}
+	//}
+
 
 
 	//playStateGUI.GUIButtons.ButtonEntityVec[dmgOverlayIndex]
@@ -285,9 +289,6 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
-
-
-
 
 }
 
