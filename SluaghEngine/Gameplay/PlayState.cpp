@@ -101,7 +101,7 @@ PlayState::~PlayState()
 	for (int x = 0; x < worldWidth; x++)
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
-				delete (*room)->roomPtr;
+				delete *room;
 	ProfileReturnVoid;
 }
 
@@ -206,65 +206,40 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 		{
 			int x = currentRoomX, y = currentRoomY;
 			GetRoomPosFromDir(dir, x, y);
-			for (auto a : adjIndices)
+
+			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
-				// Unload adjacent room to previous room
-				int ax = currentRoomX + a.first;
-				int ay = currentRoomY + a.second;
-				if (!(x == ax && y == ay)) // Excluding the one we are changing to.
-				{
-					if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
-					{
-						if ((*adjRoom)->load.valid())
-						{
-							(*adjRoom)->load.wait();
-						}
-						(*adjRoom)->roomPtr->Unload();
-					}
+				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
 
-				}
+				currentRoom->RenderRoom(false);
 
-				// Load the new adjacent rooms
-				ax = x + a.first;
-				ay = y + a.second;
-				if (!(currentRoomX == ax && currentRoomY == ay)) // Exluding the one we where in.
+				currentRoomX = x;
+				currentRoomY = y;
+				blackBoard.currentRoom = currentRoom = *newRoom;
+				blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+				projectileManager->RemoveAllProjectiles();
+
+				char newMap[25][25];
+				currentRoom->GetMap(newMap);
+
+				char** tempPtr = new char*[25];
+
+				for (int i = 0; i < 25; i++)
 				{
-					if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+					tempPtr[i] = new char[25];
+					for (int j = 0; j < 25; j++)
 					{
-						if ((*adjRoom)->load.valid())
-						{
-							(*adjRoom)->load.wait();
-						}
-						(*adjRoom)->roomPtr->Load();
+						tempPtr[i][j] = newMap[i][j];
 					}
 				}
+
+				player->UpdateMap(tempPtr);
+				currentRoom->InitializeAdjacentFlowFields();
+
+				currentRoom->RenderRoom(true);
 			}
-			currentRoom->RenderRoom(false);
-			blackBoard.currentRoom = currentRoom = (*GetRoom(x, y))->roomPtr;
-			currentRoom->Load();
-			currentRoom->RenderRoom(true);
-			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-			currentRoomX = x;
-			currentRoomY = y;
-
-			projectileManager->RemoveAllProjectiles();
-
-			char newMap[25][25];
-			currentRoom->GetMap(newMap);
-
-			char** tempPtr = new char*[25];
-
-			for (int i = 0; i < 25; i++)
-			{
-				tempPtr[i] = new char[25];
-				for (int j = 0; j < 25; j++)
-				{
-					tempPtr[i][j] = newMap[i][j];
-				}
-			}
-
-			player->UpdateMap(tempPtr);
-			currentRoom->InitializeAdjacentFlowFields();
+		
 		}
 	}
 	//if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
@@ -359,6 +334,41 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 
 }
 
+void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Load the new adjacent rooms
+		int ax = x + a.first;
+		int ay = y + a.second;
+		if (!(sx == ax && sy == ay)) // Exluding the one we where in.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Load();
+			}
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Unload adjacent room to previous room
+		int ax = x + a.first;
+		int ay = y + a.second;
+		if (!(sx == ax && sy == ay)) // Excluding the one we are changing to.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Unload();
+			}
+
+		}
+	}
+}
+
 void PlayState::InitializeRooms()
 {
 	StartProfile;
@@ -374,10 +384,10 @@ void PlayState::InitializeRooms()
 	if (!roomGuids.size())
 		throw std::exception("No rooms found");
 
-	rooms = new RoomInfo[worldWidth * worldHeight];
+	rooms = new Room*[worldWidth * worldHeight];
 	for (int x = 0; x < worldWidth; x++)
 		for (int y = 0; y < worldHeight; y++)
-			GetRoom(x,y).value()->roomPtr = new Gameplay::Room(roomGuids[std::rand()%roomGuids.size()]);
+			rooms[x*worldWidth + y] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
 	//		GetRoom(x, 0).value()->roomPtr->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, );
 	//for (int x = 0; x < worldWidth; x++)
@@ -396,23 +406,24 @@ void PlayState::InitializeRooms()
 	{
 		for (int y = 0; y < worldHeight; y++)
 		{
-			auto room = GetRoom(x, y).value()->roomPtr;
+			auto room = GetRoom(x, y).value();
 			if (auto leftRoom = GetRoom(x - 1, y); leftRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom)->roomPtr);
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom));
 			if (auto rightRoom = GetRoom(x + 1, y); rightRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom)->roomPtr);
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom));
 			if (auto upRoom = GetRoom(x, y - 1); upRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom)->roomPtr);
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom));
 			if (auto downRoom = GetRoom(x, y - 1); downRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom)->roomPtr);
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
 		}
 	}
 
-
-	auto ri = GetRoom(0, 0).value();
-	ri->roomPtr->Load();
-
-	blackBoard.currentRoom = currentRoom = ri->roomPtr;
+	currentRoomX = 0;
+	currentRoomY = 0;
+	currentRoom = GetRoom(currentRoomX, currentRoomY).value();
+	currentRoom->Load();
+	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
+	blackBoard.currentRoom = currentRoom;
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 	currentRoom->RenderRoom(true);
 	currentRoom->InitializeAdjacentFlowFields();

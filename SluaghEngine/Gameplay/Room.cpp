@@ -1553,7 +1553,7 @@ void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 	mi.materialFile = Materials[Materials::Bush];
 	mi.shader = BushShader;
 	CoreInit::managers.materialManager->Create(args.ent, mi);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 	roomEntities.push_back(args.ent);
 
 	CreateFloor(args);
@@ -1582,7 +1582,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(args.i + 0.5f, 0.0f, args.j + 0.5f));
 	CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Meshes[Meshes::Floor] });
 	CoreInit::managers.materialManager->Create(entFloor, matInfo);
-	CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
 	roomEntities.push_back(entFloor);
 
 
@@ -1600,7 +1600,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	SE::Core::IParticleSystemManager::CreateInfo info;
 	info.systemFile = Utilz::GUID("torchParticle.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
-	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities.push_back(entFire);
 
 
@@ -1611,7 +1611,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.transformManager->SetRotation(args.ent, 0, WallCheck(args.i, args.j), 0);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Torch] });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
+	//CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 
 	roomEntities.push_back(args.ent);
 
@@ -1643,7 +1643,7 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { prop.guid });
-	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
+//	CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 
 	roomEntities.push_back(args.ent);
 

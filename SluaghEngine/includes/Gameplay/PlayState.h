@@ -72,22 +72,20 @@ namespace SE
 			uint8_t worldWidth = 4;
 			uint8_t worldHeight = 4;
 
-			struct RoomInfo
-			{
-				Room* roomPtr;
-				std::future<bool> load;
-			};
 
-			inline std::optional<RoomInfo*> GetRoom(int x, int y)
+			inline std::optional<Room*> GetRoom(int x, int y)
 			{
 				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0 )
-					return &rooms[x* worldWidth + y];
+					return rooms[x* worldWidth + y];
 				else
 					return std::nullopt;
 			}
 
 
-			RoomInfo* rooms;
+			void LoadAdjacentRooms(int x, int y, int sx, int sy);
+			void UnloadAdjacentRooms(int x, int y, int sx, int sy);
+
+			Room** rooms;
 			Room* currentRoom; 
 			int currentRoomX = 0;
 			int currentRoomY = 0;
