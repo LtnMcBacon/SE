@@ -296,6 +296,13 @@ void SE::Core::DecalManager::Destroy(size_t index)
 		initInfo.renderer->RemoveRenderJob(decalToJobID[texture]);
 		decalToJobID.erase(texture);
 	}
+	else
+	{
+		initInfo.renderer->ChangeRenderJob(decalToJobID[texture], [](RenderJob& job)
+		{
+			--job.instanceCount;
+		});
+	}
 	ProfileReturnVoid;
 }
 

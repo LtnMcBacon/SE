@@ -133,10 +133,10 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (input->ButtonPressed(0))
 	IGameState::State empty = State::CHARACTER_CREATION_STATE;
 	
-	PlayStateData* infoToPass = new PlayStateData;
+	
 	if (allSkillsSelected  == true)
 	{
-
+		PlayStateData* infoToPass = new PlayStateData;
 		for (int i = 0; i < nrOfSkills; i++)
 		{
 			SkillFactory sf;

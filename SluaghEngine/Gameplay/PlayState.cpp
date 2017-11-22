@@ -35,6 +35,14 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
+		else if (button.rectName == "EnemyHpFrame")
+		{
+
+		}
+		else if (button.rectName == "EnemyHp")
+		{
+
+		}
 		//else if (button.rectName == "DamageOverlay")
 		//{
 		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
@@ -42,8 +50,25 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		//	dmgOverlayIndex = tempPos;
 		//	
 		//}
-
 		tempPos++;
+	}
+
+	for (auto& fileName: OptionalButtons )
+	{
+		playStateGUI.ParseOptionalButtons(fileName);
+	}
+	for (auto& button: playStateGUI.OptionalButtons)
+	{
+		if (button.rectName == "EnemyHpFrame")
+		{
+			//it's a me
+			int a = 0;
+		}
+		else if (button.rectName == "EnemyHp")
+		{
+			// MARIO!!!
+			int b = 0;
+		}
 	}
 
 
@@ -132,8 +157,8 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	DirectX::XMVECTOR rayD;
 
 
-	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
-	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
 	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
@@ -255,10 +280,6 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
-
-
-
-
 }
 
 void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
@@ -354,40 +375,58 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	int en = std::rand() % 3 + 4;
-	EnemyUnit** enemies = new EnemyUnit*[en];
+	int counter = 0;
+
 	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
 		auto& room = rooms[r];
 		room->GetMap(map);
 		eStruct.information.clear();
-
-		for (int i = 0; i < en; i++)
+		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+		Room::DirectionToAdjacentRoom throwAway;
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)] && room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			if (counter < 1)
+			{
+				data.type = ENEMY_TYPE_BODACH;
+			}
+			else if(counter < 4)
+			{
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_BODACH;
+				else
+					data.type = ENEMY_TYPE_GLAISTIG;
+			}
+			else 
+			{
+				data.type = ENEMY_TYPE_RANDOM;
+			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
 			eStruct.information.push_back(data);
 		}
-		
+
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < en; i++)
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
+		if (!(++counter % 3))
+			enemiesInEachRoom++;
+		delete[] enemies;
+
 
 	}
-	delete[] enemies;
 	ProfileReturnVoid;
 }
 
@@ -439,7 +478,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	StartProfile;
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
-	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
 	cam = CoreInit::managers.cameraManager->GetActive();
 	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
 

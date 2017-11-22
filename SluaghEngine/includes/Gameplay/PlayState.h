@@ -63,7 +63,11 @@ namespace SE
 			void UpdateHUD(float dt);
 
 			HUDParser playStateGUI;
-
+			std::string OptionalButtons[2]
+			{
+				"EnemyHp.HuD",
+				"EnemyHpFrame.HuD"
+			};
 			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
@@ -89,7 +93,7 @@ namespace SE
 			Room* currentRoom; 
 			int currentRoomX = 0;
 			int currentRoomY = 0;
-
+			int enemiesInEachRoom = 2;
 			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
