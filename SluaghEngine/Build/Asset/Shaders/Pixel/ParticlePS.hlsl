@@ -16,6 +16,7 @@ struct PS_OUT
 {
 	float4 backBuffer: SV_TARGET0;
 	float4 bloomBuffer: SV_TARGET1;
+	
 };
 PS_OUT PS_main(PS_IN input) : SV_TARGET
 {
@@ -31,6 +32,6 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
 	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
 	if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
-
+	
 	return output;
 }
