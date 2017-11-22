@@ -3,6 +3,7 @@
 
 
 #include <memory.h>
+#include <vector>
 
 
 namespace SE
@@ -65,6 +66,8 @@ namespace SE
 				Quad quads[27 * 27];
 				bool quads_used[27 * 27] = {};
 
+				std::vector<Quad> extraQuads;
+
 			public:
 				Plane() {};
 				Quad& GetQuad(unsigned int column, unsigned int row)
@@ -72,19 +75,33 @@ namespace SE
 					quads_used[row * 27 + column] = true;
 					return quads[row * 27 + column];
 				}
+				Quad& GetQuad(unsigned int extraQuadI = -1)
+				{
+					if (extraQuadI == -1)
+						extraQuadI = extraQuads.size() - 1;
+
+					return extraQuads[extraQuadI];
+				}
+				void AddQuad()
+				{
+					extraQuads.push_back(Quad());
+				}
 				bool GetQuadStatus(unsigned int column, unsigned int row)
 				{
 					return quads_used[row * 27 + column];
 				}
 				unsigned int GetQuadCount()
 				{
-					unsigned int usedQuadCount = 0;
+					unsigned int quadCount = 0;
 					for (int quadI = 0; quadI < 27 * 27; quadI++)
 					{
 						if (quads_used[quadI])
-							usedQuadCount++;
+							quadCount++;
 					}
-					return usedQuadCount;
+
+					quadCount += extraQuads.size();
+
+					return quadCount;
 				}
 				void GetVertexBuffer(Vertex *pVertexBuffer)
 				{
@@ -97,6 +114,13 @@ namespace SE
 
 							vertexI += 2 * 3;
 						}
+					}
+
+					for (unsigned int quadI = 0; quadI < extraQuads.size(); quadI++)
+					{
+						memcpy(pVertexBuffer + vertexI, &extraQuads[quadI], 2 * 3 * sizeof(Vertex));
+
+						vertexI += 2 * 3;
 					}
 				}
 			};
@@ -112,11 +136,15 @@ namespace SE
 			static const char id_Pillar = 225;
 			static const char id_Bush = 13;
 
-			const float fogHeight = 3.1f;
-			const float fogPadding = 10.f;
+			const float padding = 10.f;
+			const float height = 3.1f;
+			const float slopeTop = height - 0.3f;
+			const float slopeBottom = 0.5f;
+			const float slopeOffset = 0.3f;
+
 			const float TEMP_uvCoord = 0;
 
-			unsigned int fogRjHandle = -1;
+			unsigned int rjHandle = -1;
 			char tileValues[25][25];
 
 			Plane plane;
@@ -126,8 +154,10 @@ namespace SE
 			void SetTileValues(char tileValues[25][25]);
 
 		private:
-			void CreateFogPlane();
-			void CheckAdjacentTiles(unsigned int column, unsigned int row);
+			void CreatePlane();
+			void AddAdjacentTiles(unsigned int column, unsigned int row);
+			void AddSlope(unsigned int column, unsigned int row);
+			char GetTileValue(unsigned int column, unsigned int row);
 		};
 	}
 }

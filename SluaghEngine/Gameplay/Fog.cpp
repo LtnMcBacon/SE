@@ -9,16 +9,16 @@ using namespace Gameplay;
 
 void SE::Gameplay::Fog::Set(bool status)
 {
-	if (status && fogRjHandle == -1)
+	if (status && rjHandle == -1)
 	{
-		CreateFogPlane();
+		CreatePlane();
 	}
-	else if (!status && fogRjHandle != -1)
+	else if (!status && rjHandle != -1)
 	{
 		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("Fog");
-		CoreInit::subSystems.renderer->RemoveRenderJob(fogRjHandle);
+		CoreInit::subSystems.renderer->RemoveRenderJob(rjHandle);
 
-		fogRjHandle = -1;
+		rjHandle = -1;
 	}
 }
 
@@ -33,7 +33,7 @@ void SE::Gameplay::Fog::SetTileValues(char tileValues[25][25])
 	}
 }
 
-void SE::Gameplay::Fog::CreateFogPlane()
+void SE::Gameplay::Fog::CreatePlane()
 {
 	/*
 	std::string roomValues = "\n";
@@ -59,65 +59,78 @@ void SE::Gameplay::Fog::CreateFogPlane()
 
 	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 	{
-		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopRight, paddingColumnI, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
 
-		CheckAdjacentTiles(paddingColumnI - 1, 0);
+		AddAdjacentTiles(paddingColumnI - 1, 0);
 	}
 
 	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 	{
-		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopRight, paddingColumnI, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, 25, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, 25, TEMP_uvCoord, TEMP_uvCoord);
 
-		CheckAdjacentTiles(paddingColumnI - 1, 24);
+		AddAdjacentTiles(paddingColumnI - 1, 24);
 	}
 
 
 	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
 	{
-		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopLeft, -padding, height, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopRight, 0, height, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, -padding, height, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 0, height, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
 
-		CheckAdjacentTiles(0, paddingRowI - 1);
+		AddAdjacentTiles(0, paddingRowI - 1);
 	}
 
 	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
 	{
-		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
-		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopLeft, 25, height, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, paddingRowI, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, 25, height, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
+		plane.GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, paddingRowI - 1, TEMP_uvCoord, TEMP_uvCoord);
 
-		CheckAdjacentTiles(24, paddingRowI - 1);
+		AddAdjacentTiles(24, paddingRowI - 1);
 	}
 
 
-	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopLeft, -padding, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::TopRight, 0, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomLeft, -padding, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 0).SetVertex(Quad::Vertices::BottomRight, 0, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
 
-	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, 0, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, -fogPadding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopLeft, 25, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 0, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomLeft, 25, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 0).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, -padding, TEMP_uvCoord, TEMP_uvCoord);
 
-	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopLeft, -fogPadding, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopRight, 0, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomLeft, -fogPadding, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomRight, 0, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopLeft, -padding, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::TopRight, 0, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomLeft, -padding, height, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(0, 26).SetVertex(Quad::Vertices::BottomRight, 0, height, 25, TEMP_uvCoord, TEMP_uvCoord);
 
-	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopLeft, 25, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopRight, 25 + fogPadding, fogHeight, 25 + fogPadding, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomLeft, 25, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomRight, 25 + fogPadding, fogHeight, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopLeft, 25, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 25 + padding, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomLeft, 25, height, 25, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(26, 26).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, 25, TEMP_uvCoord, TEMP_uvCoord);
+
+
+	for (unsigned int rowI = 0; rowI < 25; rowI++)
+	{
+		for (unsigned int columnI = 0; columnI < 25; columnI++)
+		{
+			if (plane.GetQuadStatus(columnI + 1, rowI + 1))
+				continue;
+
+			if (plane.GetQuadStatus(columnI + 2, rowI + 1) || plane.GetQuadStatus(columnI, rowI + 1) || plane.GetQuadStatus(columnI + 1, rowI + 2) || plane.GetQuadStatus(columnI + 1, rowI))
+				AddSlope(columnI, rowI);
+		}
+	}
 
 
 
@@ -140,9 +153,11 @@ void SE::Gameplay::Fog::CreateFogPlane()
 	fogRj.pipeline.PSStage.samplers[0] = "FogSampler";
 	fogRj.pipeline.PSStage.samplerCount = 1;
 
-	fogRj.pipeline.PSStage.textures[0] = "DefaultNormal.jpg";
-	fogRj.pipeline.PSStage.textureCount = 1;
-	fogRj.pipeline.PSStage.textureBindings[0] = "fogTexture";
+	fogRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
+	fogRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
+	fogRj.pipeline.PSStage.textureCount = 2;
+	fogRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
+	fogRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
 
 	fogRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
 	fogRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
@@ -151,10 +166,10 @@ void SE::Gameplay::Fog::CreateFogPlane()
 	fogRj.vertexCount = planeVertexCount;
 	fogRj.maxInstances = 1;
 
-	fogRjHandle = CoreInit::subSystems.renderer->AddRenderJob(fogRj, Graphics::RenderGroup::POST_PASS_5);
+	rjHandle = CoreInit::subSystems.renderer->AddRenderJob(fogRj, Graphics::RenderGroup::POST_PASS_5);
 }
 
-void SE::Gameplay::Fog::CheckAdjacentTiles(unsigned int column, unsigned int row)
+void SE::Gameplay::Fog::AddAdjacentTiles(unsigned int column, unsigned int row)
 {
 	if (column > 24 || row > 24)
 		return;
@@ -167,14 +182,295 @@ void SE::Gameplay::Fog::CheckAdjacentTiles(unsigned int column, unsigned int row
 		return;
 
 
-	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::TopLeft, column, fogHeight, row + 1, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::TopRight, column + 1, fogHeight, row + 1, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::BottomLeft, column, fogHeight, row, TEMP_uvCoord, TEMP_uvCoord);
-	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::BottomRight, column + 1, fogHeight, row, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::TopLeft, column, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::BottomLeft, column, height, row, TEMP_uvCoord, TEMP_uvCoord);
+	plane.GetQuad(column + 1, row + 1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row, TEMP_uvCoord, TEMP_uvCoord);
 
 
-	CheckAdjacentTiles(column - 1, row);
-	CheckAdjacentTiles(column + 1, row);
-	CheckAdjacentTiles(column, row - 1);
-	CheckAdjacentTiles(column, row + 1);
+	AddAdjacentTiles(column - 1, row);
+	AddAdjacentTiles(column + 1, row);
+	AddAdjacentTiles(column, row - 1);
+	AddAdjacentTiles(column, row + 1);
+}
+
+void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
+{
+	if (plane.GetQuadStatus(column + 1, row + 2))
+	{
+		plane.AddQuad();
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column, row + 1))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 2, row + 1))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column + 2, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+
+		char tileType = GetTileValue(column, row + 1);
+		if (tileType != id_Door1 && tileType != id_Door2)
+		{
+			plane.AddQuad();
+
+
+			if (plane.GetQuadStatus(column, row + 1))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+
+
+			if (plane.GetQuadStatus(column + 2, row + 1))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column + 2, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+		}
+	}
+
+	if (plane.GetQuadStatus(column + 1, row))
+	{
+		plane.AddQuad();
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, height, row, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column, row + 1))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, height, row, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 2, row + 1))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column + 2, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+
+		char tileType = GetTileValue(column, row - 1);
+		if (tileType != id_Door1 && tileType != id_Door2)
+		{
+			plane.AddQuad();
+
+
+			if (plane.GetQuadStatus(column, row + 1))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+
+
+			if (plane.GetQuadStatus(column + 2, row + 1))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column + 2, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+		}
+	}
+
+	if (plane.GetQuadStatus(column, row + 1))
+	{
+		plane.AddQuad();
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 1, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeTop, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeTop, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, height, row, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 1, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeTop, row, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeTop, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+
+		char tileType = GetTileValue(column - 1, row);
+		if (tileType != id_Door1 && tileType != id_Door2)
+		{
+			plane.AddQuad();
+
+
+			if (plane.GetQuadStatus(column + 1, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeTop, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeBottom, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeOffset, slopeTop, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeOffset, slopeBottom, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+
+
+			if (plane.GetQuadStatus(column + 1, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeTop, row, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeBottom, row, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeOffset, slopeTop, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeOffset, slopeBottom, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+		}
+	}
+
+	if (plane.GetQuadStatus(column + 2, row + 1))
+	{
+		plane.AddQuad();
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 1, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column + 2, row + 2))
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeTop, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeTop, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+		plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, height, row, TEMP_uvCoord, TEMP_uvCoord);
+
+		if (plane.GetQuadStatus(column + 1, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+		else if (plane.GetQuadStatus(column + 2, row))
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeTop, row, TEMP_uvCoord, TEMP_uvCoord);
+		else
+			plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeTop, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+
+
+
+		char tileType = GetTileValue(column + 1, row);
+		if (tileType != id_Door1 && tileType != id_Door2)
+		{
+			plane.AddQuad();
+
+
+			if (plane.GetQuadStatus(column + 1, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeTop, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeBottom, row + 1 - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column + 2, row + 2))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeTop, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeBottom, row + 1, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeOffset, slopeTop, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeOffset, slopeBottom, row + 1 + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+
+
+			if (plane.GetQuadStatus(column + 1, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeTop, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeBottom, row + slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else if (plane.GetQuadStatus(column + 2, row))
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeTop, row, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeBottom, row, TEMP_uvCoord, TEMP_uvCoord);
+			}
+			else
+			{
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeOffset, slopeTop, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+				plane.GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeOffset, slopeBottom, row - slopeOffset, TEMP_uvCoord, TEMP_uvCoord);
+			}
+		}
+	}
+}
+
+char SE::Gameplay::Fog::GetTileValue(unsigned int column, unsigned int row)
+{
+	char tileValue = 0;
+
+	if (column < 25 && row < 25)
+		tileValue = tileValues[column][row];
+
+	return tileValue;
 }

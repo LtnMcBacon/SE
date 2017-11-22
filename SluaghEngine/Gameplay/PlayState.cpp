@@ -374,8 +374,8 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 
 
 
-	ResourceHandler::Callbacks textureCallbacks;
-	textureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	ResourceHandler::Callbacks albedoTextureCallbacks;
+	albedoTextureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		Graphics::TextureDesc td;
 		memcpy(&td, data, sizeof(td));
@@ -391,16 +391,45 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
 
-	textureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+	albedoTextureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
-	textureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
+	albedoTextureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
 		subSystem.renderer->GetPipelineHandler()->DestroyTexture(guid);
 	};
 
-	res = subSystem.resourceHandler->LoadResource("DefaultNormal.jpg", textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	res = subSystem.resourceHandler->LoadResource("Fog_AlbedoTexture.png", albedoTextureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
-		throw std::exception("Could not load fog texture");
+		throw std::exception("Could not load fog albedo texture");
+
+
+	ResourceHandler::Callbacks normalTextureCallbacks;
+	normalTextureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		Graphics::TextureDesc td;
+		memcpy(&td, data, sizeof(td));
+		*usize = size - sizeof(td);
+		// Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel
+		if (td.width * td.height * 4 != size - sizeof(td))
+			return ResourceHandler::LoadReturn::FAIL;
+
+		void* rawTextureData = ((char*)data) + sizeof(td);
+		auto result = subSystem.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
+		if (result < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+
+	normalTextureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	normalTextureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
+		subSystem.renderer->GetPipelineHandler()->DestroyTexture(guid);
+	};
+
+	res = subSystem.resourceHandler->LoadResource("Fog_NormalTexture.png", normalTextureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog normal texture");
 
 
 
