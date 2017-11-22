@@ -4,6 +4,7 @@
 #include "CoreInit.h"
 #include "EnemyFactory.h"
 #include <GameBlackboard.h>
+#include "SluaghRoom.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -93,8 +94,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	InitializeRooms();
 	InitializePlayer(passedInfo);
-	InitializeEnemies();
 	InitializeOther();
+	InitializeEnemies();
 
 	/* Play sounds */
 	currentSound = 0u;
@@ -118,6 +119,15 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	InitWeaponPickups();
 	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
+
+
+
+	/*Initialize Sluagh*/
+
+	rooms[0]->OpenDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	rooms.push_back(new SluaghRoom("Room18.raw", player, projectileManager));
+	rooms.back()->RenderRoom(false);
+
 	ProfileReturnVoid;
 }
 
@@ -231,12 +241,20 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
 			{
-				currentRoom = rooms[currentRoomIndex - 1];
-				currentRoomIndex = currentRoomIndex - 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-				player->PositionEntity(xToSet + 1, yToSet);
+				if(!currentRoomIndex)
+				{
+					currentRoom = rooms.back();
+					player->PositionEntity(16.0f, 13.0f);
+				}
+				else
+				{
+					currentRoom = rooms[currentRoomIndex - 1];
+					currentRoomIndex = currentRoomIndex - 1;
+					float xToSet, yToSet;
+					xToSet = yToSet = -999999;
+					currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
+					player->PositionEntity(xToSet + 1, yToSet);
+				}
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
 			{
@@ -325,7 +343,7 @@ void PlayState::InitializeRooms()
 		nrOfRoomsCreated++;
 		temp->RenderRoom(false);
 	}
-
+	
 	for (int i = 0; i < nrOfRoomsToCreate; i++)
 	{
 		if (i < sideLength) // top row
@@ -349,6 +367,7 @@ void PlayState::InitializeRooms()
 		if (i % sideLength == 0) // left side
 		{
 			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+
 		}
 		else
 		{
@@ -475,6 +494,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 			}
 		}
 	}
+	
 	ProfileReturnVoid;
 }
 
@@ -515,6 +535,8 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+
 	ProfileReturnVoid;
 }
 #include <Items.h>

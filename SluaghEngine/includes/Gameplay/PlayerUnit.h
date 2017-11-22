@@ -120,11 +120,7 @@ namespace SE
 				bool skill1Button;
 				bool skill2Button;
 
-				ActionInput()
-				{
-
-				}
-
+				 
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
@@ -277,7 +273,7 @@ namespace SE
 			float getBaneDuration(int skillNumber);
 			float getCooldown(int skillNumber);
 			float getCurrentCooldown(int skillNumber);
-
+			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
 
 

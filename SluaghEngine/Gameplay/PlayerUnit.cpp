@@ -378,7 +378,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 	auto w = CoreInit::subSystems.window;
-	health = 1000;
 
 	bool ci = false;
 	auto newItem = 0;
