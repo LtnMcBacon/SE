@@ -378,8 +378,8 @@ void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 2;
+	worldWidth = 3;
+	worldHeight = 3;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -432,41 +432,41 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	StartProfile;
 	char map[25][25];
 
-	EnemyCreationStruct eStruct;
-	int en = std::rand() % 3 + 4;
-	EnemyUnit** enemies = new EnemyUnit*[en];
-	for(size_t r = 0; r < worldWidth*worldHeight; r++)
-	{
-		auto& room = rooms[r];
-		room->GetMap(map);
-		eStruct.information.clear();
+	//EnemyCreationStruct eStruct;
+	//int en = std::rand() % 3 + 4;
+	//EnemyUnit** enemies = new EnemyUnit*[en];
+	//for(size_t r = 0; r < worldWidth*worldHeight; r++)
+	//{
+	//	auto& room = rooms[r];
+	//	room->GetMap(map);
+	//	eStruct.information.clear();
 
-		for (int i = 0; i < en; i++)
-		{
-			pos enemyPos;
-			do
-			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+	//	for (int i = 0; i < en; i++)
+	//	{
+	//		pos enemyPos;
+	//		do
+	//		{
+	//			enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
+	//			enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
+	//		} while (map[int(enemyPos.x)][int(enemyPos.y)]);
 
-			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
-			data.startX = enemyPos.x;
-			data.startY = enemyPos.y;
-			data.useVariation = true;
-			eStruct.information.push_back(data);
-		}
-		
-		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+	//		EnemyCreationData data;
+	//		data.type = ENEMY_TYPE_RANDOM;
+	//		data.startX = enemyPos.x;
+	//		data.startY = enemyPos.y;
+	//		data.useVariation = true;
+	//		eStruct.information.push_back(data);
+	//	}
+	//	
+	//	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < en; i++)
-		{
-			room->AddEnemyToRoom(enemies[i]);
-		}
+	//	for (int i = 0; i < en; i++)
+	//	{
+	//		room->AddEnemyToRoom(enemies[i]);
+	//	}
 
-	}
-	delete[] enemies;
+	//}
+	//delete[] enemies;
 	ProfileReturnVoid;
 }
 
