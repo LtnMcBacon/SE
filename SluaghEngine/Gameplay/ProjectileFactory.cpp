@@ -1163,7 +1163,7 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 			ConditionEvent::ConditionType conditionType;
 			conditionType.unionType = 0;
 			conditionType.condition.boon = Boons::CONDITIONAL_BOONS_STUN;
-			ConditionEvent cEvent(conditionType, duration);
+			ConditionEvent cEvent(conditionType, 0.f, duration);
 			unit->AddConditionEvent(cEvent);
 		}
 
