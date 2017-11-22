@@ -1293,7 +1293,7 @@ Room::Room(Utilz::GUID fileName)
 
 
 	// 4x4 tile props - add more here
-	propVectors[PropTypes::BIGPROPS] = { FloorTorch, TableGroup1 };
+	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
 	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
 	propVectors[PropTypes::BUSHES]   = { Bush };
@@ -1304,7 +1304,8 @@ Room::Room(Utilz::GUID fileName)
 		Table_round,
 		PotGroup1,
 		PotatoSackClosed,
-		PotatoSackOpen
+		PotatoSackOpen,
+		FloorTorch
 	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
@@ -1635,6 +1636,7 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 		ret.guid = propVectors[PropTypes::BIGPROPS][propId].guid;
 		ret.matGuid = propVectors[PropTypes::BIGPROPS][propId].matGuid;
 
+
 		ProfileReturn(ret);
 	}
 
@@ -1646,9 +1648,27 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
 	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
 
+	if (ret.guid == Meshes[Meshes::FloorTorch])
+	{
+		CreateFire(x, y);
+	}
+
 	ProfileReturn(ret);
 }
 
+void SE::Gameplay::Room::CreateFire(int x, int y) 
+{
+
+	auto entFire = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(entFire);
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y - 0.5f));
+	SE::Core::IParticleSystemManager::CreateInfo info;
+	info.systemFile = Utilz::GUID("torchParticle.pts");
+	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
+	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+	roomEntities.push_back(entFire);
+
+}
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
 	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
