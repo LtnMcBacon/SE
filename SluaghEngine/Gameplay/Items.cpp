@@ -19,9 +19,9 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{"Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.0f, 0.0f, -0.6f }, {1,1,1},{ 3.0f, 0.0f, 1.3f } },
-	{ "Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.0f, 0.0f, -0.6f },{ 1,1,1 },{ 3.0f, 0.0f, 1.3f } },
-	{ "Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.0f, 0.0f, -0.6f },{ 1,1,1 },{ 3.0f, 0.0f, 1.3f } }
+	{"Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f }, {1,1,1},{ 3.0f, -0.4f, 1.3f } },
+	{"Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow_fbx.mesh", "Crossbow_fbx.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{1.6f, 1.2f,0.0f } },
+	{"Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
 } };
 
 
