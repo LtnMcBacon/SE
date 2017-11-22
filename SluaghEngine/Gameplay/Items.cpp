@@ -25,6 +25,7 @@ static const std::array<WeaponInfo, 3> weaponInfo = { {
 } };
 
 
+
 struct ConsumableInfo
 {
 	SE::Utilz::GUID icon;
