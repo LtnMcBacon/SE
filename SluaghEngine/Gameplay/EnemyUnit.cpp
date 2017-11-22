@@ -199,8 +199,10 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		*/
 		ResolveEvents(dt);
 		DecideAction(dt);
-
 		PerformAction(dt);
+		ClearHealingEvents();
+		ClearDamageEvents();
+		ClearConditionEvents();
 	}
 	ProfileReturnVoid;
 }

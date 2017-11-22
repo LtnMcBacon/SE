@@ -159,8 +159,8 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	DirectX::XMVECTOR rayD;
 
 
-	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
-	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
 	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
@@ -289,7 +289,6 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
-
 }
 
 void PlayState::InitializeRooms()
@@ -383,39 +382,56 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	int en = std::rand() % 3 + 4;
-	EnemyUnit** enemies = new EnemyUnit*[en];
-	for(auto& room : rooms)
+	int counter = 0;
+	for (auto& room : rooms)
 	{
 		room->GetMap(map);
 		eStruct.information.clear();
-
-		for (int i = 0; i < en; i++)
+		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+		Room::DirectionToAdjacentRoom throwAway;
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
+			} while (map[int(enemyPos.x)][int(enemyPos.y)] && room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f);
 
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			if (counter < 1)
+			{
+				data.type = ENEMY_TYPE_BODACH;
+			}
+			else if(counter < 4)
+			{
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_BODACH;
+				else
+					data.type = ENEMY_TYPE_GLAISTIG;
+			}
+			else 
+			{
+				data.type = ENEMY_TYPE_RANDOM;
+			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
 			eStruct.information.push_back(data);
 		}
-		
+
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < en; i++)
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
+		if (!(++counter % 3))
+			enemiesInEachRoom++;
+		delete[] enemies;
+
 
 	}
-	delete[] enemies;
 	ProfileReturnVoid;
 }
 
@@ -467,7 +483,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	StartProfile;
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
-	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
 	cam = CoreInit::managers.cameraManager->GetActive();
 	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
 
@@ -508,8 +524,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	StartProfile;
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EventCallbacks pickUpEvent;
-	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
+	Core::IEventManager::EntityEventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent) {
 
 		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
 
@@ -537,8 +553,10 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
 
-	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
-		if(CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+
+
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
@@ -546,8 +564,8 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return false;
 	};
 
-	Core::IEventManager::EventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
 	{
 		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
 		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
@@ -557,14 +575,14 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
 	
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
+	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
 		Item::ToggleRenderPickupInfo(ent);
 	};
 
-	Core::IEventManager::EventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
 	{
 		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
 		{
@@ -576,15 +594,15 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
 	};
 
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
 	{
 		CoreInit::managers.entityManager->DestroyNow(ent);	
 		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
 		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
 	};
-	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
 	ProfileReturnVoid;
 }
 
