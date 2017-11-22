@@ -36,6 +36,7 @@ namespace SE
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
 			Fog fog;
+			float clock = 0;
 			bool IsOutside = false;
 			enum class PropTypes
 			{

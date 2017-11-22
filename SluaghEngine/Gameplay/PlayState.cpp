@@ -445,6 +445,20 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 
 
 
+	Graphics::BlendState fogBlendState;
+
+	fogBlendState.enable = true;
+	fogBlendState.blendOperation = Graphics::BlendOperation::ADD;
+	fogBlendState.blendOperationAlpha = Graphics::BlendOperation::ADD;
+	fogBlendState.srcBlend = Graphics::Blend::ONE;
+	fogBlendState.srcBlendAlpha = Graphics::Blend::ONE;
+	fogBlendState.dstBlend = Graphics::Blend::ONE;
+	fogBlendState.dstBlendAlpha = Graphics::Blend::ONE;
+
+	subSystem.renderer->GetPipelineHandler()->CreateBlendState("FogBs", fogBlendState);
+
+
+
 	Graphics::SamplerState fogSampler;
 
 	fogSampler.addressU = Graphics::AddressingMode::WRAP;

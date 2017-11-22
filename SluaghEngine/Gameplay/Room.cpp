@@ -132,6 +132,9 @@ void Room::Update(float dt, float playerX, float playerY)
 
 	}
 
+	clock += dt;
+	CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("clockBuffer", &clock, sizeof(float));
+
 	StopProfile;
 }
 

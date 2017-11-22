@@ -163,6 +163,8 @@ void SE::Gameplay::Fog::CreatePlane()
 	fogRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 	fogRj.pipeline.IAStage.vertexBuffer = "Fog";
 
+	fogRj.pipeline.OMStage.blendState = "FogBs";
+
 	fogRj.vertexCount = planeVertexCount;
 	fogRj.maxInstances = 1;
 
