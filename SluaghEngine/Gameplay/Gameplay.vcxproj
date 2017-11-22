@@ -20,16 +20,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
+    <ClCompile Include="AddTimeToSecondaryAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
     <ClCompile Include="AnimationRunningCondition.cpp" />
     <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="BodachMeleeAttackLeaf.cpp" />
+    <ClCompile Include="CalculateTimeToRoomTransistionLeaf.cpp" />
     <ClCompile Include="ChangeRoomLeaf.cpp" />
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
     <ClCompile Include="CoreInit.cpp" />
+    <ClCompile Include="CountdownRoomTransistionLeaf.cpp" />
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
     <ClCompile Include="DistanceToDoorCondition.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
@@ -75,20 +78,27 @@
     <ClCompile Include="ProjectileFactory.cpp" />
     <ClCompile Include="ProjectileManger.cpp" />
     <ClCompile Include="ResetAttackCooldownLeaf.cpp" />
+    <ClCompile Include="ResetSecondaryAttackCooldownLeaf.cpp" />
+    <ClCompile Include="ResetTransistionTimerLeaf.cpp" />
     <ClCompile Include="RestartingSequence.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="SecondaryAttackCooldownZeroCondition.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="StunnedCondition.cpp" />
     <ClCompile Include="SkillFactory.cpp" />
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
+    <ClCompile Include="TickDownSecondaryAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
     <ClCompile Include="Items.cpp" />
+    <ClCompile Include="TransistionCountdownDoneCondition.cpp" />
+    <ClCompile Include="TransistionToRoomLeaf.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AddTimeToSecondaryAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h" />
     <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h" />
@@ -96,9 +106,11 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\CalculateTimeToRoomTransistionLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChangeRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\CountdownRoomTransistionLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
@@ -150,8 +162,11 @@
     <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
     <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetSecondaryAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetTransistionTimerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\RestartingSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="..\includes\Gameplay\SecondaryAttackCooldownZeroCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
@@ -164,8 +179,11 @@
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TickDownSecondaryAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Items.h" />
+    <ClInclude Include="..\includes\Gameplay\TransistionCountdownDoneCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
