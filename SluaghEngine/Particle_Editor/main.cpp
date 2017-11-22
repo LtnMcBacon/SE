@@ -284,6 +284,18 @@ int main()
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
 	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
+		if (ImGui::Button("Reset Sliders"))
+		{
+			for (size_t i = 0; i < 2; i++)
+			{
+				emitRangeX[i] = 0.0f;
+				emitRangeY[i] = 0.0f;
+				emitRangeZ[i] = 0.0f;
+				velocityRangeX[i] = 0.0f;
+				velocityRangeY[i] = 0.0f;
+				velocityRangeZ[i] = 0.0f;
+			}
+		}
 		if (ImGui::Button("Start/Stop Emit")) {
 			movBuffer.emit ^= 1;
 		}		
@@ -335,6 +347,17 @@ int main()
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
 		ImGui::Checkbox("Random direction", &RandVelocity);
 		ImGui::InputText("Texture file", tempText, 100);
+		if (ImGui::Button("Reset Sliders"))
+		{
+			movBuffer.radialValue = 0;
+			movBuffer.tangentValue = 0;
+			for (size_t i = 0; i < 3; i++)
+			{
+				movBuffer.gravity[i] = 0.0f;
+			}
+		}
+		
+
 		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		
 		if (ImGui::Button("Export/Import Settings")) exportWindow ^= 1;
