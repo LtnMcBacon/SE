@@ -85,6 +85,8 @@
     <ClCompile Include="SecondaryAttackCooldownZeroCondition.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="Sluagh.cpp" />
+    <ClCompile Include="SluaghRoom.cpp" />
     <ClCompile Include="StunnedCondition.cpp" />
     <ClCompile Include="SkillFactory.cpp" />
     <ClCompile Include="Succeeder.cpp" />
@@ -171,7 +173,8 @@
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
-    <ClInclude Include="..\includes\Gameplay\Slaugh.h" />
+    <ClInclude Include="..\includes\Gameplay\Sluagh.h" />
+    <ClInclude Include="..\includes\Gameplay\SluaghRoom.h" />
     <ClInclude Include="..\includes\Gameplay\Stats.h" />
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />

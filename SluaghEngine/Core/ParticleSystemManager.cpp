@@ -1,5 +1,6 @@
 #include "ParticleSystemManager.h"
 #include <Profiler.h>
+#include <Utilz\Timer.h>
 #include <algorithm>
 
 #undef min
@@ -190,19 +191,28 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 			{
 				auto& fileInfo = particleSystemData[entityIndex->second].particleFileInfo;
 				auto& PSD = particleSystemData[entityIndex->second];
-				fileInfo.vel[0] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[0].x/*Max*/ - PSD.velocityRange[0].y/*Min*/) + PSD.velocityRange[0].y;
-				fileInfo.vel[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[1].x/*Max*/ - PSD.velocityRange[1].y/*Min*/) + PSD.velocityRange[1].y;
-				fileInfo.vel[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[2].x/*Max*/ - PSD.velocityRange[2].y/*Min*/) + PSD.velocityRange[2].y;
+				if (PSD.randVelocity)
+				{
+					fileInfo.vel[0] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[0].x/*Max*/ - PSD.velocityRange[0].y/*Min*/) + PSD.velocityRange[0].y;
+					fileInfo.vel[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[1].x/*Max*/ - PSD.velocityRange[1].y/*Min*/) + PSD.velocityRange[1].y;
+					fileInfo.vel[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.velocityRange[2].x/*Max*/ - PSD.velocityRange[2].y/*Min*/) + PSD.velocityRange[2].y;
+				}
 
 				fileInfo.emitRange[0] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[0].x/*Max*/ - PSD.emitRange[0].y/*Min*/) + PSD.emitRange[0].y;
 				fileInfo.emitRange[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
 				fileInfo.emitRange[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
+				
+				fileInfo.dt = time.GetDelta<std::ratio<1, 1>>();
+				
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo,
 																			  sizeof(ParticleSystemFileInfo));
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform,
 																			  sizeof(DirectX::XMFLOAT4X4));
 			}
 		});
+
+		
+		//time.GetDelta<std::ratio<1, 1>>();
 		particleSystemData[newEntry].updateJob.vertexCount = 1;
 
 		//Pipeline for each particle system
@@ -330,7 +340,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
 	GarbageCollection();
-
+	time.Tick();
 	//while (!toUpdate.wasEmpty())
 	//{
 	//	auto& top = toUpdate.top();
