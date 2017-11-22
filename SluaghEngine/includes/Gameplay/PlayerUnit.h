@@ -275,6 +275,7 @@ namespace SE
 			float getCurrentCooldown(int skillNumber);
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
+			inline void ToggleAsSluagh(bool sluagh) { isSluagh = sluagh; };
 
 
 
@@ -298,6 +299,7 @@ namespace SE
 			bool isStunned = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
+			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();

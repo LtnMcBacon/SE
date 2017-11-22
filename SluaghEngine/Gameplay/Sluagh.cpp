@@ -6,7 +6,8 @@
 SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, char map[25][25])
 	:thePlayer(thePlayer)
 {
-	theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 13, 13, map);
+	theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, map);
+	theSluagh->ToggleAsSluagh(true);
 }
 
 SE::Gameplay::Sluagh::~Sluagh()
@@ -17,7 +18,7 @@ SE::Gameplay::Sluagh::~Sluagh()
 void SE::Gameplay::Sluagh::Update(float dt, std::vector<ProjectileData>& projectilesOut)
 {
 	StartProfile;
-	PlayerUnit::MovementInput moveInput;
+	PlayerUnit::MovementInput moveInput(false, false, false, false, false, 0.f, 0.f);
 	PlayerUnit::ActionInput actionInput;
 	/*Utility function calls here*/
 
