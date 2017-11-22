@@ -30,11 +30,18 @@ namespace SE
 		{
 		private:
 			
+			struct HpBar
+			{
+				Core::Entity bar; // the moving bar representing the hp
+				Core::Entity frame; // the frame around the bar
+			};
+
 			Room* adjacentRooms[4] = {};
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
 			std::vector<Core::Entity> itemsInRoom;
+			std::vector<HpBar> hpBars;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
@@ -177,6 +184,9 @@ namespace SE
 			DoorData DoorArr[4];
 
 			char tileValues[25][25];
+
+			void UpdateHpBars(float playerX, float playerY);
+
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -350,6 +360,7 @@ namespace SE
 			* @brief Places enemies in the room on free tiles
 			*/
 			void CreateEnemies();
+			
 			/**
 			* @brief Creates wall ent for the room
 			*/
