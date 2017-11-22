@@ -83,11 +83,20 @@ ID3DBlob *blob = nullptr;
 
 hr = D3DCompile(shader.c_str(), shader.size(), NULL, nullptr, nullptr, "PS_main", "ps_5_0", NULL, NULL, &blob, nullptr);
 if (FAILED(hr))
+{
+	if (blob != nullptr)
+		blob->Release();
 	return hr;
+}
 
 hr = device->GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &SpriteShader);
 if (FAILED(hr))
+{
+	if (blob != nullptr)
+		blob->Release();
 	return hr;
+}
+blob->Release();
 #pragma endregion SpriteShader
 
 	
