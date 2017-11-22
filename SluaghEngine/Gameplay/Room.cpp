@@ -1311,7 +1311,22 @@ void SE::Gameplay::Room::Load()
 
 void SE::Gameplay::Room::Unload()
 {
-	
+	for (auto e : roomEntities)
+	{
+
+		CoreInit::managers.entityManager->Destroy(e);
+
+
+	}
+	/*for (auto enemy : enemyUnits)
+	{
+		CoreInit::managers.entityManager->Destroy(enemy->GetEntity());
+		if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
+		{
+			CoreInit::managers.entityManager->Destroy(*weapon);
+		}
+
+	}*/
 }
 
 void SE::Gameplay::Room::InitializeAdjacentFlowFields()

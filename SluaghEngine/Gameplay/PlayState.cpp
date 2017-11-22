@@ -372,8 +372,8 @@ void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 1;
+	worldWidth = 6;
+	worldHeight = 6;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -387,7 +387,7 @@ void PlayState::InitializeRooms()
 	rooms = new Room*[worldWidth * worldHeight];
 	for (int x = 0; x < worldWidth; x++)
 		for (int y = 0; y < worldHeight; y++)
-			rooms[x*worldWidth + y] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+			rooms[x*worldHeight + y] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
 	//		GetRoom(x, 0).value()->roomPtr->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, );
 	//for (int x = 0; x < worldWidth; x++)

@@ -76,7 +76,7 @@ namespace SE
 			inline std::optional<Room*> GetRoom(int x, int y)
 			{
 				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0 )
-					return rooms[x* worldWidth + y];
+					return rooms[x* worldHeight + y];
 				else
 					return std::nullopt;
 			}
