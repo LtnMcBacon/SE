@@ -1991,3 +1991,22 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 	}
 
 }
+
+void SE::Gameplay::Room::OpenDoor(DirectionToAdjacentRoom DoorNr)
+{
+	if (!DoorArr[int(DoorNr)].active)
+	{
+		Utilz::GUID temp;
+
+		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			temp = "SimpleNormTransPS.hlsl";
+		else
+			temp = "SimpleNormPS.hlsl";
+
+		DoorArr[int(DoorNr)].active = true;
+		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "Door.mesh" });
+		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { temp, "Door.mat" });
+		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	}
+}
