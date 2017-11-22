@@ -120,11 +120,7 @@ namespace SE
 				bool skill1Button;
 				bool skill2Button;
 
-				ActionInput()
-				{
-
-				}
-
+				 
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;

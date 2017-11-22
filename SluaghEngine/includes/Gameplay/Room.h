@@ -149,6 +149,7 @@ namespace SE
 			};
 
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
+			void OpenDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 
@@ -327,7 +328,7 @@ namespace SE
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
 			*/
-			bool ProjectileAgainstEnemies(Projectile& projectile);
+			virtual bool ProjectileAgainstEnemies(Projectile& projectile);
 
 			/**
 			* @brief	Function for loding in a raw file to the rooms
@@ -357,7 +358,7 @@ namespace SE
 
 		public:
 			Room(Utilz::GUID fileName);
-			~Room();
+			virtual ~Room();
 
 			void InitializeAdjacentFlowFields();
 
@@ -486,7 +487,7 @@ namespace SE
 			* @retval void No return value
 			*
 			*/
-			void Update(float dt, float playerX, float playerY);
+			virtual void Update(float dt, float playerX, float playerY);
 
 			/**
 			* @brief	Check for collision (2D-Plan)
