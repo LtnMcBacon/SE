@@ -1404,6 +1404,7 @@ void SE::Gameplay::Room::Unload()
 
 
 	}
+	roomEntities.clear();
 	/*for (auto enemy : enemyUnits)
 	{
 		CoreInit::managers.entityManager->Destroy(enemy->GetEntity());
