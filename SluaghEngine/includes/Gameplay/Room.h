@@ -30,11 +30,18 @@ namespace SE
 		{
 		private:
 			
+			struct HpBar
+			{
+				Core::Entity bar; // the moving bar representing the hp
+				Core::Entity frame; // the frame around the bar
+			};
+
 			Room* adjacentRooms[4] = {};
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
 			std::vector<Core::Entity> itemsInRoom;
+			std::vector<HpBar> hpBars;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
@@ -69,7 +76,9 @@ namespace SE
 				Candlestick_tri,
 				PotGroup1,
 				Potatosack_closed,
-				Potatosack_open
+				Potatosack_open,
+				Fireplace,
+				Painting
 			};
 			enum class Materials {
 				Stone,
@@ -176,6 +185,9 @@ namespace SE
 			DoorData DoorArr[4];
 
 			char tileValues[25][25];
+
+			void UpdateHpBars(float playerX, float playerY);
+
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -349,6 +361,7 @@ namespace SE
 			* @brief Places enemies in the room on free tiles
 			*/
 			void CreateEnemies();
+			
 			/**
 			* @brief Creates wall ent for the room
 			*/
@@ -538,7 +551,7 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			Prop GenerateRandomProp(int x, int y, CreationArguments &args);
+			Prop GenerateRandomProp(int x, int y, CreationArguments &args, float &rot);
 
 			/**
 			* @brief
@@ -608,7 +621,17 @@ namespace SE
 			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
 			*/
 			void ResetTempTileValues();
+
+			/**
+			* @brief Checks if a prop is against a wall
+			@details Uses the x and y coordinates to check for walls on either side. Dir is the axis you want to want to look for walls.
+			* Returns true if walls are found. Also sets appropriate rotation.
+			*/
+			bool CheckPropAgainstWall(int x, int y, int propId, std::string dir, float & rot);
 		
+			float RotatePainting(int x, int y);
+
+
 			/**
 			* @brief set Room door pointer to values
 			*/
