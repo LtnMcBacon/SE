@@ -23,6 +23,83 @@ static const SE::Utilz::GUID BushShader("SimpleLightPS.hlsl");
 
 
 
+void SE::Gameplay::Room::UpdateHpBars(float playerX, float playerY)
+{
+	StartProfile;
+	const int barWidth = 47;
+	const int barHeight = 12;
+
+	const int frameWidth = 51;
+	const int frameHeight = 14;
+
+	if (enemyUnits.size() > hpBars.size())
+	{
+		int toAdd = enemyUnits.size() - hpBars.size();
+
+		for (int i = 0; i < toAdd; i++)
+		{
+			Core::Entity tempBar = CoreInit::managers.entityManager->Create();
+			Core::IGUIManager::CreateInfo barInfo;
+			barInfo.texture = "Enemy hpBar.jpg";
+			barInfo.textureInfo.height = barHeight;
+			barInfo.textureInfo.width = barWidth;
+			barInfo.textureInfo.anchor = { 0.0f, 0.0f };
+			barInfo.textureInfo.layerDepth = 0.01 * hpBars.size() + 0.01;
+
+			CoreInit::managers.guiManager->Create(tempBar, barInfo);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(tempBar, true);
+
+			Core::Entity tempFrame = CoreInit::managers.entityManager->Create();
+			Core::IGUIManager::CreateInfo frameInfo;
+			frameInfo.texture = "Enemy hpBar Frame.jpg";
+			frameInfo.textureInfo.height = frameHeight;
+			frameInfo.textureInfo.width = frameWidth;
+			frameInfo.textureInfo.anchor = { 0.0f, 0.0f };
+			frameInfo.textureInfo.layerDepth = 0.011 * hpBars.size() + 0.011;
+
+			CoreInit::managers.guiManager->Create(tempFrame, frameInfo);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(tempFrame, true);
+
+			HpBar tempHpBar;
+			tempHpBar.bar = tempBar;
+			tempHpBar.frame = tempFrame;
+			hpBars.push_back(tempHpBar);
+		}
+	}
+	
+	for (int i = 0; i < enemyUnits.size(); i++)
+	{
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, true);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, true);
+
+		float xPos, yPos;
+		auto a = CoreInit::managers.cameraManager->GetActive();
+
+		DirectX::XMFLOAT3 worldPos = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
+		DirectX::XMVECTOR worldVec = DirectX::XMVectorSet(worldPos.x, worldPos.y, worldPos.z, 1.0f);
+		DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&CoreInit::managers.cameraManager->GetViewProjection(CoreInit::managers.cameraManager->GetActive()));
+		DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldVec, viewProj);
+
+		float w = DirectX::XMVectorGetW(screenPos);
+
+		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.window->Width());
+		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.window->Height());
+
+		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
+		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
+
+		CoreInit::managers.guiManager->SetTextureDimensions(hpBars[i].bar, barWidth * (enemyUnits[i]->GetHealth() / enemyUnits[i]->GetMaxHealth()), barHeight);
+	}
+
+	for (int i = enemyUnits.size(); i < hpBars.size(); i++)
+	{
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, false);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, false);
+	}
+
+	StopProfile;
+}
+
 void Room::UpdateFlowField(float playerX, float playerY)
 {
 	StartProfile;
@@ -92,6 +169,7 @@ void Room::Update(float dt, float playerX, float playerY)
 	UpdateFlowField(playerX, playerY);
 	UpdateAdjacentRooms(dt);
 	UpdateAIs(dt);
+	UpdateHpBars(playerX, playerY);
 
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{

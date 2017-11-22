@@ -196,6 +196,8 @@ void SE::Window::WindowSDL::PlaybackFrame()
 	{
 		ks.second = (ks.second & KeyState::DOWN);
 	}
+
+	if (frame < playRecord.playbackData.size())
 	for (auto& ev : playRecord.playbackData[frame].events)
 	{
 		for (auto& onEvent : onEventCallbacks)
