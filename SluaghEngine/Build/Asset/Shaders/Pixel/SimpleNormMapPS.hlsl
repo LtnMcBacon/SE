@@ -8,13 +8,12 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
-	uint4 castShadow;
 };
 
 cbuffer LightDataBuffer : register(b2)
 {
 	uint4 nrOfLights;
-	Light pointLights[20];
+	Light pointLights[64];
 };
 
 cbuffer CameraPos : register(b3)
