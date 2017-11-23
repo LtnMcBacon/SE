@@ -50,6 +50,15 @@ namespace SE
 
 			
 		private:
+
+			struct SkillIndicator
+			{
+				Core::Entity frame;
+				Core::Entity Image;
+				float currentCooldown = 0;
+				float maxCooldown;
+			}skillIndicators[2];
+
 			void InitializeRooms();
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
