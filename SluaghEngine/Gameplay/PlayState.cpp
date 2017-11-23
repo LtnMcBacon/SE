@@ -122,11 +122,6 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 
 
-	/*Initialize Sluagh*/
-
-	rooms[0]->OpenDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-	rooms.push_back(new SluaghRoom("Room18.raw", player, projectileManager));
-	rooms.back()->RenderRoom(false);
 
 	ProfileReturnVoid;
 }
@@ -347,9 +342,10 @@ void PlayState::InitializeRooms()
 		throw std::exception("No rooms found");
 
 	rooms = new Room*[worldWidth * worldHeight];
-	for (int x = 0; x < worldWidth; x++)
-		for (int y = 0; y < worldHeight; y++)
-			rooms[x*worldHeight + y] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+	for (int i = 0; i < worldWidth*worldHeight; i++)
+		rooms[i] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+
+	//rooms[worldWidth * worldHeight - 1] = new SluaghRoom("Room18.raw", player, projectileManager);
 
 	for (int x = 0; x < worldWidth; x++)
 	{
@@ -366,6 +362,13 @@ void PlayState::InitializeRooms()
 				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
 		}
 	}
+
+
+
+	/*Initialize Sluagh*/
+
+	
+
 
 	currentRoomX = 0;
 	currentRoomY = 0;

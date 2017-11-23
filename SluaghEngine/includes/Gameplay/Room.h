@@ -198,7 +198,7 @@ namespace SE
 			{
 				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
 			}
-		private:
+		protected:
 
 			struct DoorData
 			{
