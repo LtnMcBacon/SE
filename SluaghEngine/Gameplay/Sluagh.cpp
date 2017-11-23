@@ -190,7 +190,7 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skillToCheck)
 {
 	StartProfile;
-	if (skillToCheck.currentCooldown <= 0.f)
+	if (skillToCheck.currentCooldown > 0.f)
 		ProfileReturnConst(0.f);
 
 	ProfileReturnConst(10.f);

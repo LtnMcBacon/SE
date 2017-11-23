@@ -245,6 +245,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				{
 					currentRoom = rooms.back();
 					player->PositionEntity(16.0f, 13.0f);
+					currentRoomIndex = 1;
 				}
 				else
 				{
