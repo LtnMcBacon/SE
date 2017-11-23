@@ -12,6 +12,7 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.eventManager);
 
+	initInfo.eventManager->RegisterToToggleVisible({ this, LightManager::ToggleLight });
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 	
 	auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
