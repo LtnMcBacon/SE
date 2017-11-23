@@ -44,6 +44,7 @@ namespace SE
 
 			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
 
+
 			/**
 			* @brief	Resolve the events that has been added this frame.
 			*
@@ -84,6 +85,9 @@ namespace SE
 			void SetCurrentWeaponStats();
 		public:
 
+			std::vector<DamageEvent>& GetDamageEvents();
+			std::vector<HealingEvent>& GetHealingEvents();
+			std::vector<ConditionEvent>& GetConditionEvents();
 			struct MovementInput
 			{
 				bool upButton;

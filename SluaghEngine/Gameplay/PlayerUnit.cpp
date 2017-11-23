@@ -41,6 +41,18 @@ bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRu
 	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
 	
 }
+std::vector<SE::Gameplay::DamageEvent>& SE::Gameplay::PlayerUnit::GetDamageEvents()
+{
+	return DamageEventVector;
+}
+std::vector<SE::Gameplay::HealingEvent>& SE::Gameplay::PlayerUnit::GetHealingEvents()
+{
+	return HealingEventVector;
+}
+std::vector<SE::Gameplay::ConditionEvent>& SE::Gameplay::PlayerUnit::GetConditionEvents()
+{
+	return ConditionEventVector;
+}
 #undef max
 
 void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
