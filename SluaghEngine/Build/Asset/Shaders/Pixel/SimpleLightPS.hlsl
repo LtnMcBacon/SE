@@ -17,7 +17,7 @@ struct Light
 cbuffer LightDataBuffer : register(b0)
 {
 	uint4 nrOfLights; //x-component for number, y-component for which light is casting shadow.
-	Light pointLights[20];
+	Light pointLights[64];
 };
 
 cbuffer CameraPos : register(b1)
