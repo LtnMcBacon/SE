@@ -28,7 +28,7 @@ namespace SE
 		**/
 		class Room
 		{
-		private:
+		protected:
 			
 			struct HpBar
 			{
@@ -36,7 +36,7 @@ namespace SE
 				Core::Entity frame; // the frame around the bar
 			};
 
-			Room* adjacentRooms[4] = {};
+			Room* adjacentRooms[4] = {nullptr, nullptr, nullptr };
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
 			std::vector<SE::Core::Entity> roomEntities;
@@ -158,6 +158,7 @@ namespace SE
 			};
 
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
+			void OpenDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 
@@ -172,7 +173,7 @@ namespace SE
 			* @sa Read the warning at ReverseDirection before modifying!
 			*
 			**/
-		private:
+		protected:
 
 			struct DoorData
 			{
@@ -339,7 +340,7 @@ namespace SE
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
 			*/
-			bool ProjectileAgainstEnemies(Projectile& projectile);
+			virtual bool ProjectileAgainstEnemies(Projectile& projectile);
 
 			/**
 			* @brief	Function for loding in a raw file to the rooms
@@ -370,7 +371,7 @@ namespace SE
 
 		public:
 			Room(Utilz::GUID fileName);
-			~Room();
+			virtual ~Room();
 
 			void InitializeAdjacentFlowFields();
 
@@ -499,7 +500,7 @@ namespace SE
 			* @retval void No return value
 			*
 			*/
-			void Update(float dt, float playerX, float playerY);
+			virtual void Update(float dt, float playerX, float playerY);
 
 			/**
 			* @brief	Check for collision (2D-Plan)
@@ -630,6 +631,7 @@ namespace SE
 		
 			float RotatePainting(int x, int y);
 
+			void CreateFire(int x, int y);
 
 			/**
 			* @brief set Room door pointer to values

@@ -4,6 +4,8 @@
 #include "CoreInit.h"
 #include "EnemyFactory.h"
 #include <GameBlackboard.h>
+#include "SluaghRoom.h"
+#include <string>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
@@ -43,58 +45,16 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		{
 
 		}
-		//else if (button.rectName == "DamageOverlay")
-		//{
-		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
-		//
-		//	dmgOverlayIndex = tempPos;
-		//	
-		//}
+
 		tempPos++;
 	}
 
-
-	//for (auto& fileName : OptionalButtons)
-	//{
-	//	playStateGUI.ParseOptionalButtons(fileName);
-	//}
-
-
-	//for (auto& button : playStateGUI.OptionalButtons)
-	//{
-	//	if (button.rectName == "EnemyHpFrame")
-	//	{
-	//		//it's a me
-	//		int a = 0;
-	//	}
-	//	else if (button.rectName == "EnemyHp")
-	//	{
-	//		// MARIO!!!
-	//		int b = 0;
-	//	}
-	//}
-
-
-
-	//playStateGUI.GUIButtons.ButtonEntityVec[dmgOverlayIndex]
-
-	/*playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
-	playStateGUI.GUIButtons.CreateButton(125, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(200, 650, 50, 50, 0, "tempButton", NULL);
-
-	playStateGUI.GUIButtons.CreateButton(930, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1030, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1130, 650, 50, 50, 0, "tempButton", NULL);
-
-	playStateGUI.GUIButtons.CreateButton(930, 575, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1030, 575, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);*/
 	playStateGUI.GUIButtons.DrawButtons();
 
 	InitializeRooms();
 	InitializePlayer(passedInfo);
-	InitializeEnemies();
 	InitializeOther();
+	InitializeEnemies();
 
 	/* Play sounds */
 	currentSound = 0u;
@@ -115,9 +75,17 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	
 	projectileManager = new ProjectileManager(temp);
 
-
 	InitWeaponPickups();
 	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
+
+
+
+	/*Initialize Sluagh*/
+
+	rooms[0]->OpenDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	rooms.push_back(new SluaghRoom("Room18.raw", player, projectileManager));
+	rooms.back()->RenderRoom(false);
+
 	ProfileReturnVoid;
 }
 
@@ -196,7 +164,6 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
 
-
 }
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
@@ -231,12 +198,20 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
 			{
-				currentRoom = rooms[currentRoomIndex - 1];
-				currentRoomIndex = currentRoomIndex - 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-				player->PositionEntity(xToSet + 1, yToSet);
+				if(!currentRoomIndex)
+				{
+					currentRoom = rooms.back();
+					player->PositionEntity(16.0f, 13.0f);
+				}
+				else
+				{
+					currentRoom = rooms[currentRoomIndex - 1];
+					currentRoomIndex = currentRoomIndex - 1;
+					float xToSet, yToSet;
+					xToSet = yToSet = -999999;
+					currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
+					player->PositionEntity(xToSet + 1, yToSet);
+				}
 			}
 			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
 			{
@@ -289,6 +264,14 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
+	
+	for (int i = 0; i < 2; i++)
+	{
+		if (player->getCurrentCooldown(i) > 0.0f)
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->getCurrentCooldown(i)))));
+		else
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
+	}
 }
 
 void PlayState::InitializeRooms()
@@ -325,7 +308,7 @@ void PlayState::InitializeRooms()
 		nrOfRoomsCreated++;
 		temp->RenderRoom(false);
 	}
-
+	
 	for (int i = 0; i < nrOfRoomsToCreate; i++)
 	{
 		if (i < sideLength) // top row
@@ -349,6 +332,7 @@ void PlayState::InitializeRooms()
 		if (i % sideLength == 0) // left side
 		{
 			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+
 		}
 		else
 		{
@@ -441,7 +425,52 @@ void PlayState::InitializePlayer(void* playerInfo)
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
-	
+
+	skillIndicators[0].maxCooldown = tempPtr->skills[0].cooldown;
+	skillIndicators[1].maxCooldown = tempPtr->skills[1].cooldown;
+
+	skillIndicators[0].frame = CoreInit::managers.entityManager->Create();
+	skillIndicators[1].frame = CoreInit::managers.entityManager->Create();
+	skillIndicators[0].Image = CoreInit::managers.entityManager->Create();
+	skillIndicators[1].Image = CoreInit::managers.entityManager->Create();
+
+	SE::Core::IGUIManager::CreateInfo indicatorInfo;
+	indicatorInfo.texture = "Q.png";
+	indicatorInfo.textureInfo.posX = 1000;
+	indicatorInfo.textureInfo.posY = 600;
+	indicatorInfo.textureInfo.height = 100;
+	indicatorInfo.textureInfo.width = 100;
+	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.anchor = {0.0f, 0.0f};
+
+	SE::Core::ITextManager::CreateInfo textInfo;
+	textInfo.font = "CloisterBlack.spritefont";
+	textInfo.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	textInfo.info.layerDepth = indicatorInfo.textureInfo.layerDepth / 2;
+	textInfo.info.anchor = { 0.0f, 0.0f };
+	textInfo.info.height = indicatorInfo.textureInfo.height;
+	textInfo.info.width = indicatorInfo.textureInfo.width;
+	textInfo.info.posX = indicatorInfo.textureInfo.posX - 15;
+	textInfo.info.posY = indicatorInfo.textureInfo.posY;
+	textInfo.info.text = L"";
+
+	CoreInit::managers.guiManager->Create(skillIndicators[0].frame, indicatorInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[0].frame, true);
+	CoreInit::managers.textManager->Create(skillIndicators[0].Image, textInfo);
+	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[0].Image, true);
+
+	indicatorInfo.texture = "E.png";
+	indicatorInfo.textureInfo.posX = 1150;
+	indicatorInfo.textureInfo.posY = 600;
+
+	textInfo.info.text = L"";
+	textInfo.info.posX = indicatorInfo.textureInfo.posX - 15;
+	textInfo.info.posY = indicatorInfo.textureInfo.posY;
+
+	CoreInit::managers.guiManager->Create(skillIndicators[1].frame, indicatorInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[1].frame, true);
+	CoreInit::managers.textManager->Create(skillIndicators[1].Image, textInfo);
+	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[1].Image, true);
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -475,6 +504,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 			}
 		}
 	}
+	
 	ProfileReturnVoid;
 }
 
@@ -515,6 +545,8 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+
 	ProfileReturnVoid;
 }
 #include <Items.h>

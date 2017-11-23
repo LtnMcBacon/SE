@@ -127,7 +127,6 @@ void Room::UpdateAIs(float dt)
 	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
-
 	}
 	StopProfile;
 }
@@ -1158,6 +1157,13 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 		}
 
 	}
+
+	for (auto& hpBar : hpBars)
+	{
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.frame, render);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.bar, render);
+	}
+
 	beingRendered = render;
 }
 
@@ -1293,7 +1299,7 @@ Room::Room(Utilz::GUID fileName)
 
 
 	// 4x4 tile props - add more here
-	propVectors[PropTypes::BIGPROPS] = { FloorTorch, TableGroup1 };
+	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
 	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
 	propVectors[PropTypes::BUSHES]   = { Bush };
@@ -1304,7 +1310,8 @@ Room::Room(Utilz::GUID fileName)
 		Table_round,
 		PotGroup1,
 		PotatoSackClosed,
-		PotatoSackOpen
+		PotatoSackOpen,
+		FloorTorch
 	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
@@ -1635,6 +1642,7 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 		ret.guid = propVectors[PropTypes::BIGPROPS][propId].guid;
 		ret.matGuid = propVectors[PropTypes::BIGPROPS][propId].matGuid;
 
+
 		ProfileReturn(ret);
 	}
 
@@ -1646,9 +1654,27 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
 	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
 
+	if (ret.guid == Meshes[Meshes::FloorTorch])
+	{
+		CreateFire(x, y);
+	}
+
 	ProfileReturn(ret);
 }
 
+void SE::Gameplay::Room::CreateFire(int x, int y) 
+{
+
+	auto entFire = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.transformManager->Create(entFire);
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
+	SE::Core::IParticleSystemManager::CreateInfo info;
+	info.systemFile = Utilz::GUID("floorTorchFire.pts");
+	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
+	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+	roomEntities.push_back(entFire);
+
+}
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
 	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
@@ -1970,4 +1996,23 @@ void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 
 	}
 
+}
+
+void SE::Gameplay::Room::OpenDoor(DirectionToAdjacentRoom DoorNr)
+{
+	if (!DoorArr[int(DoorNr)].active)
+	{
+		Utilz::GUID temp;
+
+		if (DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH || DoorArr[int(DoorNr)].side == Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
+			temp = "SimpleNormTransPS.hlsl";
+		else
+			temp = "SimpleNormPS.hlsl";
+
+		DoorArr[int(DoorNr)].active = true;
+		CoreInit::managers.renderableManager->CreateRenderableObject(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { "Door.mesh" });
+		CoreInit::managers.materialManager->Create(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], { temp, "Door.mat" });
+		CoreInit::managers.transformManager->Move(roomEntities[DoorArr[int(DoorNr)].doorEntityPos], DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	}
 }

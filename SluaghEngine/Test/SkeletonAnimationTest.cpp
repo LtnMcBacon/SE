@@ -70,7 +70,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.transformManager->Create(attachable);
 
 	Core::IRenderableManager::CreateInfo sword;
-	sword.meshGUID = "Crossbow_fbx.mesh";
+	sword.meshGUID = "Sword.mesh";
 	managers.renderableManager->CreateRenderableObject(attachable, sword);
 	managers.renderableManager->ToggleRenderableObject(attachable, true);
 
@@ -88,7 +88,6 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
-	//managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -187,7 +186,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		float dt = timer.GetDelta();
 
 	//	rot += 0.001;
-		managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
+		//managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
 	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
@@ -229,7 +228,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if (ImGui::Button("BlendToAndBack")) {
 
-			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
+			Utilz::GUID deathAnim = "TopSwordAttackAnim_MCModell.anim";
 			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
 		}
 
