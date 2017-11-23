@@ -127,7 +127,6 @@ void Room::UpdateAIs(float dt)
 	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
-
 	}
 	StopProfile;
 }
@@ -1158,6 +1157,13 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 		}
 
 	}
+
+	for (auto& hpBar : hpBars)
+	{
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.frame, render);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.bar, render);
+	}
+
 	beingRendered = render;
 }
 
