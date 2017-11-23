@@ -90,14 +90,14 @@ namespace SE
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
-				
+
 				bool mouseRightDown;
 				float mousePosX;
 				float mousePosY;
 
 				MovementInput()
 				{
-					
+
 				}
 
 				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
@@ -120,7 +120,7 @@ namespace SE
 				bool skill1Button;
 				bool skill2Button;
 
-				 
+
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
@@ -179,7 +179,7 @@ namespace SE
 			uint8_t nrHealingColdSounds = 1;
 			SE::Utilz::GUID playerHealingColdSounds[1];
 			SE::Utilz::GUID currentSound;
-			
+
 			/**
 			* @brief	Sets the sounds for the player
 			*
@@ -251,7 +251,7 @@ namespace SE
 			* @param [in] The new given element type.
 			**/
 			void changeElementType(DamageType element);
-		
+
 		public:
 			int getSkillVectorSize();
 
@@ -280,9 +280,9 @@ namespace SE
 
 
 
-		private:		
+		private:
 			std::vector<Skill> skills;
-			
+
 			/**
 			* @brief		Removes all the skills from the list.
 			*
@@ -295,7 +295,7 @@ namespace SE
 			SkillFactory SF;
 
 			//void changeElementType(Gameplay::DamageTypes element);
-			
+
 			bool isStunned = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
@@ -307,4 +307,5 @@ namespace SE
 
 	}
 }
+
 #endif
