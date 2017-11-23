@@ -26,7 +26,6 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	//Testing perk importer
 	for (auto& fileName: Perkfiles)
 	{
-
 		perks.loadPerkData(fileName);
 	}
 	
