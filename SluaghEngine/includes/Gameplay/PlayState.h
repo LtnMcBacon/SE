@@ -88,11 +88,16 @@ namespace SE
 
 			void LoadAdjacentRooms(int x, int y, int sx, int sy);
 			void UnloadAdjacentRooms(int x, int y, int sx, int sy);
+			void CloseDoorsToRoom(int x, int y);
+			void OpenDoorsToRoom(int x, int y);
 
 			Room** rooms;
 			Room* currentRoom; 
 			int currentRoomX = 0;
 			int currentRoomY = 0;
+			int sluaghRoomX = 0;
+			int sluaghRoomY = 0;
+			bool sluaghDoorsOpen = false;
 			int enemiesInEachRoom = 2;
 			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;

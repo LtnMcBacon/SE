@@ -40,7 +40,7 @@ namespace SE
 			Room* adjacentRooms[4] = {nullptr};
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
-			std::vector<SE::Core::Entity> roomEntities;
+			
 			std::vector<Core::Entity> itemsInRoom;
 			std::vector<HpBar> hpBars;
 			bool IsOutside = false;
@@ -98,8 +98,8 @@ namespace SE
 			struct CreationArguments
 			{
 				SE::Core::Entity ent;
-				int i;
-				int j;
+				int x;
+				int y;
 				int doorCounter;
 				Core::IMaterialManager::CreateInfo mat;
 				SE::Utilz::GUID wallMat;
@@ -211,6 +211,9 @@ namespace SE
 			DoorData DoorArr[4];
 
 			char tileValues[25][25];
+			std::vector<Core::Entity> roomEntities[25][25];
+			SE::Utilz::GUID wallTexture;
+			SE::Utilz::GUID floorTexture;
 
 			void UpdateHpBars(float playerX, float playerY);
 
@@ -640,11 +643,12 @@ namespace SE
 				{
 					for (int j = 0; j < 25; j++)
 					{
-						toReturn[i][j] = tileValues[i][j];
+						toReturn[i][j] = tileValues[i][j] == id_Torch ? id_Floor : tileValues[i][j];
 					}
 				}
 			}
 			bool beingRendered = false;
+			bool loaded = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 
