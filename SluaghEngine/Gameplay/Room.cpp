@@ -1707,7 +1707,7 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	info.systemFile = Utilz::GUID("torchParticle.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
-	roomEntities.push_back(entFire);
+	roomEntities[x][y].push_back(entFire);
 
 }
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
