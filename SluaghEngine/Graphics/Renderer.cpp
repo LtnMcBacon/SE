@@ -86,6 +86,7 @@ if (FAILED(hr))
 {
 	if (blob != nullptr)
 		blob->Release();
+	throw std::exception("CRITICAL ERROR: Failed to compile sprite shader");
 	return hr;
 }
 
@@ -94,6 +95,7 @@ if (FAILED(hr))
 {
 	if (blob != nullptr)
 		blob->Release();
+	throw std::exception("CRITICAL ERROR: Failed to create sprite shader");
 	return hr;
 }
 blob->Release();
