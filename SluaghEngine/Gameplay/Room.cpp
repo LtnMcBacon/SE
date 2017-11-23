@@ -1782,6 +1782,11 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	info.systemFile = Utilz::GUID("torchFlame.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+	Core::ILightManager::CreateInfo ci;
+	ci.pos = { 0,0,0 };
+	ci.color = { 0.85f, 0.67f, 0.24f };
+	ci.radius = 5.0f;
+	CoreInit::managers.lightManager->Create(entFire, ci);
 	roomEntities[args.x][args.y].push_back(entFire);
 
 

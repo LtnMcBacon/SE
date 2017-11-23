@@ -12,7 +12,7 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 	_ASSERT(initInfo.transformManager);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
-
+	
 	auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
 	if (result < 0)
 		throw std::exception("Failed to create depth stencil cube.");
