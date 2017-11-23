@@ -127,7 +127,6 @@ void Room::UpdateAIs(float dt)
 	for (auto enemy : enemyUnits)
 	{
 		enemy->Update(dt);
-
 	}
 	StopProfile;
 }
@@ -1156,6 +1155,13 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 		}
 
 	}
+
+	for (auto& hpBar : hpBars)
+	{
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.frame, render);
+		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBar.bar, render);
+	}
+
 	beingRendered = render;
 }
 
@@ -1705,9 +1711,9 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 
 	auto entFire = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(entFire);
-	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y - 0.5f));
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 	SE::Core::IParticleSystemManager::CreateInfo info;
-	info.systemFile = Utilz::GUID("torchParticle.pts");
+	info.systemFile = Utilz::GUID("floorTorchFire.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities[x][y].push_back(entFire);
