@@ -1,6 +1,10 @@
 #include "ParticleSystemManager.h"
 #include <Profiler.h>
 #include <Utilz\Timer.h>
+#include <algorithm>
+
+#undef min
+#undef max
 
 SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo& initInfo) : initInfo(initInfo)
 {
@@ -429,7 +433,8 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 {
 	StartProfile;
 	uint8_t alive_in_row = 0;
-	while (particleSystemData.size() > 0 && alive_in_row < 4U)
+	const uint32_t quitWhenReached = std::max((uint32_t)(particleSystemData.size() * 0.02f), 40U);
+	while (particleSystemData.size() > 0 && alive_in_row < quitWhenReached)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, particleSystemData.size() - 1U);
 		size_t i = distribution(generator);
