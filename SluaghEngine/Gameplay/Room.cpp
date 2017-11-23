@@ -1661,7 +1661,7 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 
 	auto entFire = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.transformManager->Create(entFire);
-	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y - 0.5f));
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(x + 0.5f, 0.5f, y + 0.5f));
 	SE::Core::IParticleSystemManager::CreateInfo info;
 	info.systemFile = Utilz::GUID("floorTorchFire.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
