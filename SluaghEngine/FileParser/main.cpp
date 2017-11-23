@@ -75,9 +75,9 @@ std::vector<Accepted> acceptedExt =
 
 				{ "SEC", "SEC", "Enemies", [](const char* filename, const char* outFilename) {
 					fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing); }},
-					{ "raw", "raw", "RoomMaps", [](const char* filename, const char* outFilename)
+					{ "raw", "room", "RoomMaps", [](const char* filename, const char* outFilename)
 					{
-						RoomMaps.push_back(Utilz::getFilename(filename));
+						//RoomMaps.push_back(Utilz::getFilename(filename));
 						fs::copy_file(filename, outFilename, fs::v1::copy_options::overwrite_existing);
 					}},
 
@@ -223,19 +223,19 @@ int main(int argc, char* argv[])
 				gE << Utilz::GUID(Utilz::getFilename( f)).id << std::endl;
 		
 			}				
-			gE << std::string(argv[argc - 1]) + "/RoomGeneration.txt" << std::endl;
-			gE << Utilz::GUID((std::string(argv[argc - 1]) + "/RoomGeneration.txt")).id <<  std::endl;
+		//	gE << std::string(argv[argc - 1]) + "/RoomGeneration.txt" << std::endl;
+		//	gE << Utilz::GUID((std::string(argv[argc - 1]) + "/RoomGeneration.txt")).id <<  std::endl;
 		}
 
 
-		std::ofstream RM; 
+	/*	std::ofstream RM; 
 		RM.open(std::string(argv[argc - 1]) + "/RoomGeneration.txt", std::ios::trunc|std::ios::binary);
 		if (RM.is_open())
 		{
 			uint32_t nrOfRooms = RoomMaps.size(); 
 			RM.write((char*)&nrOfRooms, sizeof(uint32_t)); 
 			RM.write((char*)RoomMaps.data(), sizeof(SE::Utilz::GUID) * nrOfRooms); 
-		}
+		}*/
 		//fs::remove_all("FBXTemp");
 	}
 	
