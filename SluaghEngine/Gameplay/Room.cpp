@@ -1464,9 +1464,9 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 	switch(entranceDirection)
 	{
 	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH: newY -= 1.5f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX += 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST: newX -= 1.5f; break;
 	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH: newY += 1.5f; break;
-	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX -= 1.5f; break;
+	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST: newX += 1.5f; break;
 	case DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE: break;
 	default: ;
 	}
