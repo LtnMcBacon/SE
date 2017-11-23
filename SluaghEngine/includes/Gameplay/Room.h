@@ -91,7 +91,12 @@ namespace SE
 				Dirt,
 				Grass,
 				Wood, 
-				OutsideWall
+				OutsideWall,
+				StoneFloor2,
+				WoodFloor,
+				FanzyWall,
+				LightStoneWall,
+				LightStoneWallWood
 			};
 
 			struct CreationArguments
