@@ -632,6 +632,7 @@ namespace SE
 		
 			float RotatePainting(int x, int y);
 
+			void CreateFire(int x, int y);
 
 			/**
 			* @brief set Room door pointer to values

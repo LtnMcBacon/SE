@@ -68,7 +68,8 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			ise.textureInfo.screenAnchor = { 0, 0 };
 			ise.textureInfo.posX = 0;
 			ise.textureInfo.posY = 0;
-			ise.textureInfo.colour = { 1,1,1,(1.0f-(health / (float)newStat.health)+ 1.0f) /2.0f };
+			float alpha = (1.0f - (health / (float)newStat.health) + 1.0f) / 2.0f;
+			ise.textureInfo.colour = { 1.0f,1.0f,1.0f, alpha };
 			CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
 			CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
 			CoreInit::managers.eventManager->SetLifetime(itemSelectedEntity, 0.15f);
