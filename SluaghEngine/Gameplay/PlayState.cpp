@@ -314,6 +314,9 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
 				GetRoomPosFromDir(dir, xToSet, yToSet);
 				player->PositionEntity(xToSet, yToSet);
+
+
+				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
 			}
 		
 		}
@@ -395,8 +398,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 4;
-	worldHeight = 4;
+	worldWidth = 2;
+	worldHeight = 2;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -434,6 +437,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		auto& room = rooms[r];
 		room->GetMap(map);
 		eStruct.information.clear();
+	//	enemiesInEachRoom = 2;
 		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
@@ -591,7 +595,6 @@ void SE::Gameplay::PlayState::InitializeOther()
 	ProfileReturnVoid;
 }
 #include <Items.h>
-
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
 	StartProfile;
@@ -676,6 +679,23 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
 	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
 	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+
+
+	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {
+
+		if (auto roomEnt = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Room", false)))
+		{
+			if ((*roomEnt) == currentRoom->GetEntity())
+			{
+				Item::Drop(ent);
+			}
+			{
+				Item::GodPickup(ent);
+			}
+
+		}
+	});
+
 	ProfileReturnVoid;
 }
 
@@ -697,7 +717,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			for (int y = 0; y < worldHeight; y++)
 				totalEnemiesLeft += GetRoom(x, y).value()->NumberOfEnemiesInRoom();
 
-		if (totalEnemiesLeft == 0) {
+		if (totalEnemiesLeft <= 2) {
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
 

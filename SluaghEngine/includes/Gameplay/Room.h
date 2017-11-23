@@ -198,6 +198,10 @@ namespace SE
 			{
 				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
 			}
+			inline Core::Entity GetEntity()const
+			{
+				return roomEntity;
+			}
 		protected:
 
 			struct DoorData
@@ -212,6 +216,7 @@ namespace SE
 
 			char tileValues[25][25];
 			std::vector<Core::Entity> roomEntities[25][25];
+			Core::Entity roomEntity;
 			SE::Utilz::GUID wallTexture;
 			SE::Utilz::GUID floorTexture;
 

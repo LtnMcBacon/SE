@@ -194,9 +194,10 @@ void Room::Update(float dt, float playerX, float playerY)
 				auto item = Item::Create();
 
 				Item::Drop(item, p);
-				itemsInRoom.push_back(item);
+				//itemsInRoom.push_back(item);
 				CoreInit::managers.dataManager->SetValue(item, "Pickup", false);
-			//	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange", &beingRendered);
+				CoreInit::managers.dataManager->SetValue(item, "Room", roomEntity);
+				CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "RoomChange");
 			}
 		
 			if(auto enemyWep = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemyUnits[i]->GetEntity(), "Weapon", false)))
@@ -1373,12 +1374,14 @@ Room::Room(Utilz::GUID fileName)
 
 	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
 
+	roomEntity = CoreInit::managers.entityManager->Create();
 
 	StopProfile;
 }
 
 Room::~Room()
 {
+	CoreInit::managers.entityManager->Destroy(roomEntity);
 	delete roomField;
 	for (auto enemy : enemyUnits)
 	{
