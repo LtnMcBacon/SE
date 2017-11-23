@@ -433,27 +433,15 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 
 
 
-	Graphics::RenderTarget fogRenderTarget;
-
-	fogRenderTarget.clearColor[0] = 0; fogRenderTarget.clearColor[1] = 0; fogRenderTarget.clearColor[2] = 0; fogRenderTarget.clearColor[3] = 1;
-	fogRenderTarget.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-	fogRenderTarget.width = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
-	fogRenderTarget.height = subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
-	fogRenderTarget.bindAsShaderResource = true;
-
-	subSystem.renderer->GetPipelineHandler()->CreateRenderTarget("FogRt", fogRenderTarget);
-
-
-
 	Graphics::BlendState fogBlendState;
 
 	fogBlendState.enable = true;
+	fogBlendState.srcBlend = Graphics::Blend::SRC_ALPHA;
+	fogBlendState.srcBlendAlpha = Graphics::Blend::ONE;
+	fogBlendState.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	fogBlendState.dstBlendAlpha = Graphics::Blend::ONE;
 	fogBlendState.blendOperation = Graphics::BlendOperation::ADD;
 	fogBlendState.blendOperationAlpha = Graphics::BlendOperation::ADD;
-	fogBlendState.srcBlend = Graphics::Blend::ONE;
-	fogBlendState.srcBlendAlpha = Graphics::Blend::ONE;
-	fogBlendState.dstBlend = Graphics::Blend::ONE;
-	fogBlendState.dstBlendAlpha = Graphics::Blend::ONE;
 
 	subSystem.renderer->GetPipelineHandler()->CreateBlendState("FogBs", fogBlendState);
 

@@ -139,7 +139,7 @@ void SE::Gameplay::Fog::CreatePlane()
 	Vertex *planeVertexBuffer = new Vertex[planeVertexCount];
 	plane.GetVertexBuffer(planeVertexBuffer);
 
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("Fog", planeVertexBuffer, planeVertexCount, sizeof(Vertex));
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("FogVb", planeVertexBuffer, planeVertexCount, sizeof(Vertex));
 
 
 	Graphics::RenderJob fogRj;
@@ -161,14 +161,16 @@ void SE::Gameplay::Fog::CreatePlane()
 
 	fogRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
 	fogRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	fogRj.pipeline.IAStage.vertexBuffer = "Fog";
+	fogRj.pipeline.IAStage.vertexBuffer = "FogVb";
 
 	fogRj.pipeline.OMStage.blendState = "FogBs";
+	fogRj.pipeline.OMStage.depthStencilState = "backbuffer";
+	fogRj.pipeline.OMStage.depthStencilView = "backbuffer";
 
 	fogRj.vertexCount = planeVertexCount;
 	fogRj.maxInstances = 1;
 
-	rjHandle = CoreInit::subSystems.renderer->AddRenderJob(fogRj, Graphics::RenderGroup::POST_PASS_5);
+	rjHandle = CoreInit::subSystems.renderer->AddRenderJob(fogRj, Graphics::RenderGroup::RENDER_PASS_5);
 }
 
 void SE::Gameplay::Fog::AddAdjacentTiles(unsigned int column, unsigned int row)
