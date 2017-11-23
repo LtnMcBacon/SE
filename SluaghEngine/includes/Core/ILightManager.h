@@ -12,6 +12,7 @@
 #include "IEntityManager.h"
 #include "ITransformManager.h"
 #include <DirectXMath.h>
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -25,6 +26,7 @@ namespace SE
 				Graphics::IRenderer* renderer;
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
+				IEventManager* eventManager;
 			};
 
 			struct CreateInfo
