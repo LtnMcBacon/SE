@@ -2,8 +2,13 @@
 #define _SE_GAMEPLAY_FOG_H_
 
 
+#undef min
+#undef max
+
+
 #include <memory.h>
 #include <vector>
+#include <algorithm>
 
 
 namespace SE
@@ -82,10 +87,9 @@ namespace SE
 					quads_used[row * 27 + column] = true;
 					return quads[row * 27 + column];
 				}
-				Quad& GetQuad(unsigned int extraQuadI = -1)
+				Quad& GetQuad(int extraQuadIOffset = 0)
 				{
-					if (extraQuadI == -1)
-						extraQuadI = extraQuads.size() - 1;
+					int extraQuadI = extraQuads.size() - 1 + std::min(0, extraQuadIOffset);
 
 					return extraQuads[extraQuadI];
 				}
@@ -145,14 +149,16 @@ namespace SE
 
 			const float padding = 10.f;
 			const float height = 3.1f;
-			const float slopeTop = height - 0.3f;
-			const float slopeBottom = 0.5f;
-			const float slopeOffset = 0.3f;
+			const float slopeTopOffset[2] = { 0.3f, height - 0.3f };
+			const float slopeMiddleOffset[2] = { 0.3f, height / 2.f };
+			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
 
-			unsigned int rjHandle = -1;
 			char tileValues[25][25];
+			unsigned int topPlaneRjHandle = -1;
+			unsigned int bottomPlaneRjHandle = -1;
 
-			Plane plane;
+			Plane topPlane;
+			Plane bottomPlane;
 
 		public:
 			void Set(bool status);
