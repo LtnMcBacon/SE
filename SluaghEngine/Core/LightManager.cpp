@@ -10,6 +10,7 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.eventManager);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 	
