@@ -37,7 +37,7 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 	if (fileLoaded == entityToLightData.end())
 	{
 		data.visible = false;
-		data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
+		data.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
 		data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
 		data.castShadow = false;
 

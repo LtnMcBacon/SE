@@ -85,7 +85,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 			if(normalDotLight > 0.0f)
 			{
 				float divby = (distance / pointLights[i].pos.w) + 1.0f;
-				float intensity = pointLights[i].color.w;
+				float intensity = pointLights[i].colour.w;
 				attenuation = (intensity / (divby * divby)) - intensity / 4;
 				
 			
@@ -93,8 +93,9 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 				{
 					float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
 					float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+					float ndist = distance / pointLights[i].pos.w;
 					if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
-						shadowFactor = 0.25f;
+						shadowFactor = ndist;
 				}
 			
 				//Calculate specular term

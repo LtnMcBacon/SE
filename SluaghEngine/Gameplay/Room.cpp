@@ -1786,6 +1786,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	ci.pos = { 0,0,0 };
 	ci.color = { 0.85f, 0.67f, 0.24f };
 	ci.radius = 9.0f;
+	ci.intensity = 1.0f;
 	CoreInit::managers.lightManager->Create(entFire, ci);
 	roomEntities[args.x][args.y].push_back(entFire);
 
