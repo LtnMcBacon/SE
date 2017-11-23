@@ -595,12 +595,25 @@ void SE::Gameplay::PlayState::InitializeOther()
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 0.74f, 0.92f, 0.95f };
-	lightInfo.radius = 15.0f;
-
+	lightInfo.radius = 10.5f;
+	lightInfo.intensity = 1.3f;
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		bool god = true;
+		if (argc == 2)
+			if (std::string(argv[1]) == "0")
+				god = false;
 
+		this->player->SetGodMode(god);
+		if (god)
+			back->Print("Godmode on");
+		else
+			back->Print("Godmode off");
+		
+	}, "tgm", "Toggles godmode.");
 
 	ProfileReturnVoid;
 }

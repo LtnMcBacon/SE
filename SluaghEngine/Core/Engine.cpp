@@ -393,6 +393,7 @@ void SE::Core::Engine::InitLightManager()
 		info.renderer = subSystems.renderer;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
+		info.eventManager = managers.eventManager;
 		managers.lightManager = CreateLightManager(info);
 	}
 	managersVec.push_back(managers.lightManager);
