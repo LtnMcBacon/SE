@@ -15,7 +15,7 @@ void SE::Gameplay::Fog::Set(bool status)
 	}
 	else if (!status && rjHandle != -1)
 	{
-		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("Fog");
+		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("FogVb");
 		CoreInit::subSystems.renderer->RemoveRenderJob(rjHandle);
 
 		rjHandle = -1;
