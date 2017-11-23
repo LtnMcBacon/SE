@@ -100,7 +100,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
 			auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
 			uint32_t count = 0;
-			uint32_t shadowCasterIndex = 21;
+			uint32_t shadowCasterIndex = MAX_LIGHTS;
 			for (auto& l : entityToLightData)
 			{
 				if (l.second.visible)
@@ -111,7 +111,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 						shadowCasterIndex = count;
 					count++;
 				}
-				if (count == 20)
+				if (count == MAX_LIGHTS)
 					break;
 			}
 			cb.size[0] = count;

@@ -595,7 +595,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 0.74f, 0.92f, 0.95f };
-	lightInfo.radius = 15.0f;
+	lightInfo.radius = 6.5f;
 
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
