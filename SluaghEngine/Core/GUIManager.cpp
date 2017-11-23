@@ -177,6 +177,10 @@ namespace SE {
 			textureEnt[index] = last_entity;
 			textureInfo[index] = textureInfo[last];
 			textureGUID[entTextureID[entity].GUID].refCount--;
+			if(textureGUID[entTextureID[entity].GUID].refCount == 0)
+			{
+				initInfo.renderer->GetPipelineHandler()->DestroyTexture(entTextureID[entity].GUID);
+			}
 			entTextureID[last_entity].ID = entTextureID[entity].ID;
 
 			// Remove last spot 
@@ -223,6 +227,10 @@ namespace SE {
 				textureEnt[index] = last_entity;
 				textureInfo[index] = textureInfo[last];
 				textureGUID[entTextureID[currentEntity].GUID].refCount--;
+				if (textureGUID[entTextureID[entity].GUID].refCount == 0)
+				{
+					initInfo.renderer->GetPipelineHandler()->DestroyTexture(entTextureID[entity].GUID);
+				}
 				entTextureID[last_entity].ID = entTextureID[currentEntity].ID;
 
 				// Remove last spot 
