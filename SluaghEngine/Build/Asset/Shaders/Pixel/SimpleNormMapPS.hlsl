@@ -85,7 +85,9 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 			if(normalDotLight > 0.0f)
 			{
 				float divby = (distance / pointLights[i].pos.w) + 1.0f;
-				attenuation = (1.0f / (divby * divby)) - 0.25f;
+				float intensity = pointLights[i].color.w;
+				attenuation = (intensity / (divby * divby)) - intensity / 4;
+				
 			
 				if (i == nrOfLights.y)
 				{
