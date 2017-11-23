@@ -118,7 +118,7 @@ namespace SE
 			void					 Print4x4Matrix(FbxAMatrix fbxMatrix);
 			void					 PrintMeshData(Mesh& mesh);
 		private:
-			
+
 			string workingDirectory;
 			std::vector<Utilz::File> filesInWorkingDirectory;
 			string fileName;
