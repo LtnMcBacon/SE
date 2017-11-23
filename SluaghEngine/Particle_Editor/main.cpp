@@ -24,6 +24,24 @@ using namespace Graphics;
 #else
 #pragma comment(lib, "Core.lib")
 #endif
+
+enum ActionButton
+{
+	Exit,
+	Hide,
+	Show,
+	Up,
+	Down,
+	Left,
+	Right,
+	Fullscreen,
+	Rise,
+	Sink,
+	RotLeft,
+	RotRight,
+	RotUp,
+	RotDown
+};
 // Variables for randomization of particle attributes
 float velocityRangeX[2] = { -1.0f , 1.0f };
 float velocityRangeY[2] = { -1.0f , 1.0f };
@@ -82,6 +100,33 @@ int main()
 	int changedTexture = 0;
 	char particleName[100] = "";
 	char loadSystem[100] = "";
+
+
+
+	auto camera = engine->GetManagers().entityManager->Create();
+	engine->GetManagers().cameraManager->Create(camera);
+	engine->GetManagers().cameraManager->SetActive(camera);
+	engine->GetManagers().transformManager->SetForward(camera, XMVECTOR{0, 0, 1.0f});
+	engine->GetManagers().transformManager->SetRotation(camera, 0, 0, 0);
+	engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
+
+
+	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
+	subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
+	subSystem.window->MapActionButton(ActionButton::Up, Window::KeyW);
+	subSystem.window->MapActionButton(ActionButton::Down, Window::KeyS);
+	subSystem.window->MapActionButton(ActionButton::Left, Window::KeyA);
+	subSystem.window->MapActionButton(ActionButton::Right, Window::KeyD);
+	subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+	subSystem.window->MapActionButton(ActionButton::RotLeft, Window::KeyLeft);
+	subSystem.window->MapActionButton(ActionButton::RotRight, Window::KeyRight);
+	subSystem.window->MapActionButton(ActionButton::RotUp, Window::KeyUp);
+	subSystem.window->MapActionButton(ActionButton::RotDown, Window::KeyDown);
+
+	subSystem.window->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
+	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
+
 	
 	bool exportWindow = false;
 	subSystem.devConsole->Toggle();
@@ -154,13 +199,13 @@ int main()
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(XMLoadFloat3(&eyePos), XMLoadFloat3(&lookAt), XMLoadFloat3(&upVec));
 
 	XMFLOAT4X4 cameraMatrix;
-	XMMATRIX camera = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
-	XMMATRIX viewProj = viewMatrix * camera;
+	XMMATRIX cameraM = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
+	XMMATRIX viewProj = viewMatrix * cameraM;
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view, viewMatrix);
 	DirectX::XMStoreFloat4x4(&cameraMatrix, viewProj);
 
-
+	
 	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
 
 	ParticleDataStruct movBuffer = createParticleBuffer();
@@ -233,8 +278,39 @@ int main()
 	Utilz::GUID texName = renderParticleJob.pipeline.PSStage.textures[0];//Default texture for exporting
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
-		
 		time.Tick();
+		float dt = time.GetDelta<std::ratio<1, 1>>();
+		
+		XMFLOAT4X4 view = engine->GetManagers().cameraManager->GetView(camera);
+		XMMATRIX tViewProj = XMLoadFloat4x4(&engine->GetManagers().cameraManager->GetViewProjection(camera));
+		tViewProj = XMMatrixTranspose(tViewProj);
+		 XMStoreFloat4x4(&cameraMatrices.viewProj, tViewProj);
+		XMFLOAT3 eyePos = engine->GetManagers().transformManager->GetPosition(camera);
+		constantBuffer.eyePosition = eyePos;
+		constantBuffer.upVector = XMFLOAT3(view._12, view._22, view._32);
+		//Camera movement
+		if (subSystem.window->ButtonDown(ActionButton::Up))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Down))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -1.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Right))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 1.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Left))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ -1.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Rise))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, -1.01f*dt, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Sink))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 1.01f*dt, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::RotLeft))
+			engine->GetManagers().transformManager->Rotate(camera, 0.0f, 0.4f * dt, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotRight))
+			engine->GetManagers().transformManager->Rotate(camera, 0.0f, -0.4f * dt, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotUp))
+			engine->GetManagers().transformManager->Rotate(camera, -0.4f * dt, 0.0f, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotDown))
+			engine->GetManagers().transformManager->Rotate(camera, 0.4f * dt, 0.0f, 0.0f);
+
+
 		if (changedTexture || imported)
 		{
 			if (!imported)
@@ -271,6 +347,20 @@ int main()
 		engine->BeginFrame();
 		//Putting each separate window withing a Begin/End() section
 		//Window for emit specific properties
+		ImGui::Begin("Camera");
+		//ImGui::BeginMenuBar();
+
+		//ImGui::EndMenuBar();
+		
+	
+		if (ImGui::Button("Reset Camera"))
+		{
+			
+			engine->GetManagers().transformManager->SetRotation(camera, 0.0f, 0.0f, 0.0f);
+			engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
+		}
+		ImGui::End();
+
 		ImGui::Begin("Emit Attributes");
 		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Direction Y", &movBuffer.vel[1], -1.0f, 1.0f);
@@ -396,7 +486,7 @@ int main()
 			
 			ImGui::End();
 		}
-		float dt = time.GetDelta<std::ratio<1, 1>>();
+		//float dt = time.GetDelta<std::ratio<1, 1>>();
 		//float dt = time.GetDelta();
 		//dt = 10;
 		movBuffer.dt = dt;
