@@ -600,7 +600,20 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		bool god = true;
+		if (argc == 2)
+			if (std::string(argv[1]) == "0")
+				god = false;
 
+		this->player->SetGodMode(god);
+		if (god)
+			back->Print("Godmode on");
+		else
+			back->Print("Godmode off");
+		
+	}, "tgm", "Toggles godmode.");
 
 	ProfileReturnVoid;
 }

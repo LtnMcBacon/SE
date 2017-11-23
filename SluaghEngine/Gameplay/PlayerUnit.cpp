@@ -290,6 +290,11 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
 
+void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
+{
+	godMode = on;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -592,6 +597,8 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
+	if (godMode)
+		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		UpdateMovement(dt, mInputs);
