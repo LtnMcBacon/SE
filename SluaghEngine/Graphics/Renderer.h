@@ -274,6 +274,7 @@ namespace SE
 
 			/********* END Bloom ************/
 
+			ID3D11PixelShader *SpriteShader = nullptr;
 			Utilz::CPUTimeCluster cpuTimer;
 			GPUTimeCluster* gpuTimer;
 		};

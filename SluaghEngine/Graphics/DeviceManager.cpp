@@ -453,7 +453,7 @@ void DeviceManager::CreateBlendState()
 	}
 
 	D3D11_BLEND_DESC blendTransStateDesc;
-	blendTransStateDesc.AlphaToCoverageEnable = true;
+	blendTransStateDesc.AlphaToCoverageEnable = false;
 	blendTransStateDesc.IndependentBlendEnable = false;
 	blendTransStateDesc.RenderTarget[0] = rendTransBlendState[0];
 	blendTransStateDesc.RenderTarget[1] = rendTransBlendState[1];
