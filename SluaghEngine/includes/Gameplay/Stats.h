@@ -13,6 +13,7 @@ namespace SE
 			int str = 5;
 			int agi = 5;
 			int whi = 5;
+			int armorCap = 3;
 
 			//str
 			float health = 100.f;
@@ -35,14 +36,9 @@ namespace SE
 			float fireResistance = 1.f;
 			float waterResistance = 1.f;
 
-			int armorCap = 3;
-
 			ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
 			DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;
 			DamageType damageType = DamageType::PHYSICAL;
-
-
-
 		};
 
 	}
