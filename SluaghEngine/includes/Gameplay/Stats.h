@@ -40,11 +40,7 @@ namespace SE
 			ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
 			DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;
 			DamageType damageType = DamageType::PHYSICAL;
-
-
-
 		};
-
 	}
 }
 

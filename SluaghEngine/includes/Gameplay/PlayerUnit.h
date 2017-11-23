@@ -260,28 +260,57 @@ namespace SE
 			int getSkillVectorSize();
 
 			std::string getSkillName(int skillNumber);
+			void setSkillName(int skillNumber, std::string skillName);
 			DamageSources getAttackType(int skillNumber);
+			void setAttackType(int skillNumber, unsigned short int atkType);
 			DamageType getDamageType(int skillNumber);
+			void setDamageType(int skillNumber, unsigned short int damageType);
 			Boons getBoon(int skillNumber);
+			void setBoon(int skillNumber, unsigned short int boon);
 			Banes getBanes(int skillNumber);
+			void setBanes(int skillNumber, unsigned short int bane);
 			unsigned short int getAnimation(int skillNumber);
+			void setAnimation(int skillNumber, unsigned short int animation);
 			unsigned short int getParticle(int skillNumber);
+			void setParticle(int skillNumber, unsigned short int particle);
 
-			Utilz::GUID getProjectileReferemce(int skillNumber);
+			Utilz::GUID getProjectileReference(int skillNumber);
+			void setProjectileReference(int skillNumber, std::string projectileName);
 			float getSkillDamage(int skillNumber);
+			void  setSkillDamage(int skillNumber, float skillDamage);
+			void  addSkillDamage(int skillNumber, float skillDamage);
+			void  removeSkillDamage(int skillNumber, float skillDamage);
 			float getBoonEffectValue(int skillNumber);
+			void  setBoonEffectValue(int skillNumber, float effectValue);
+			void  addBoonEffectValue(int skillNumber, float effectValue);
+			void  removeBoonEffectValue(int skillNumber, float effectValue);
 			float getBoonRange(int skillNumber);
+			void  setBoonRange(int skillNumber, float range);
+			void  addBoonRange(int skillNumber, float range);
+			void  removeBoonRange(int skillNumber, float range);
 			float getBoonDuration(int skillNumber);
+			void  setBoonDuration(int skillNumber, float duration);
+			void  addBoonDuration(int skillNumber, float duration);
+			void  removeBoonDuration(int skillNumber, float duration);
 			float getBaneEffetValue(int skillNumber);
+			void  setBaneEffectValue(int skillNumber, float effectValue);
+			void  addBaneEffectValue(int skillNumber, float effectValue);
+			void  removeBaneEffectValue(int skillNumber, float effectValue);
 			float getBaneRange(int skillNumber);
+			void  setBaneRange(int skillNumber, float range);
+			void  addBaneRange(int skillNumber, float range);
 			float getBaneDuration(int skillNumber);
+			void  setBaneDuration(int skillNumber, float duration);
+			void  addBaneDuration(int skillNumber, float duration);
+			void  removeBaneDuration(int skillNumber, float duration);
 			float getCooldown(int skillNumber);
+			void  setCooldown(int skillNumber, float cooldown);
+			void  addCooldown(int skillNumber, float cooldown);
+			void  removeCooldown(int skillNumber, float cooldown);
 			float getCurrentCooldown(int skillNumber);
-
-
-
-
-
+			void  setCurrentCooldown(int skillNumber, float currentCooldown);
+			void  addCurrentCooldown(int skillNumber, float currentCooldown);
+			void  removeCurrentCooldown(int skillNumber, float currentCooldown);
 
 		private:		
 			std::vector<Skill> skills;
