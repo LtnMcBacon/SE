@@ -16,6 +16,7 @@ SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, SluaghRoom* room)
 	float rotX, rotY;
 	thePlayer->GetRotation(rotX, rotY);
 	theSluagh->UpdatePlayerRotation(rotX, rotY);
+	this->room = room;
 }
 
 SE::Gameplay::Sluagh::~Sluagh()
@@ -353,9 +354,15 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 	case MovementDirection::RIGHT: moveEvaluate.rightButton = true; break;
 	default: ;
 	}
-
+	bool lineOfSightBeforeMove = room->CheckLineOfSightBetweenPoints(theSluagh->GetXPosition(), 
+		theSluagh->GetYPosition(),
+		thePlayer->GetXPosition(), 
+		thePlayer->GetYPosition());
 	theSluagh->UpdateMovement(dt, moveEvaluate);
-
+	bool lineOfSightAfterMove = room->CheckLineOfSightBetweenPoints(theSluagh->GetXPosition(),
+		theSluagh->GetYPosition(),
+		thePlayer->GetXPosition(),
+		thePlayer->GetYPosition());
 
 
 	/*Check the weapon combinations, adapt the behaviour after that*/
@@ -369,7 +376,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
 
-		if (distAfterMove < 2.0f)
+		if (distAfterMove > 2.0f)
 			utilityValue = 0.f;
 		
 	}
@@ -378,13 +385,20 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
 		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
-
-		if (distanceToPlayer < distAfterMove)
+		
+		if (distanceToPlayer < distAfterMove && lineOfSightAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
-
-
-		if (distAfterMove < 2.0f)
+		else if (distAfterMove < 2.0f)
 			utilityValue -= 0.5f;
+
+		if (lineOfSightBeforeMove && !lineOfSightAfterMove) /*Moved behing object... not good*/
+			utilityValue -= 0.5f;
+		else if (!lineOfSightBeforeMove && lineOfSightAfterMove) /*Moved so we could see, pretty good*/
+			utilityValue += 0.5f;
+		else if (!lineOfSightAfterMove)
+			utilityValue -= 0.5f;
+		else
+			utilityValue += 0.75f;
 	}
 	else if(sluaghWeaponType == WeaponType::SWORD && (playerWeaponType == WeaponType::CROSSBOW || playerWeaponType == WeaponType::WAND)) /*Player Ranged, Sluagh Melee*/
 	{
@@ -418,12 +432,31 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
 		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
 
-		if (distanceToPlayer > distAfterMove)
+
+		if (distanceToPlayer < distAfterMove && lineOfSightAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
+		else if (distAfterMove < 2.0f)
+			utilityValue -= 0.5f;
 
+		if (lineOfSightBeforeMove && !lineOfSightAfterMove) /*Moved behing object... not good*/
+			utilityValue -= 0.5f;
+		else if (!lineOfSightBeforeMove && lineOfSightAfterMove) /*Moved so we could see, pretty good*/
+			utilityValue += 0.5f;
+		else if (!lineOfSightAfterMove)
+			utilityValue -= 0.5f;
+		else
+			utilityValue += 0.75f;
 
-		if (distAfterMove < 2.0f)
-			utilityValue = 0.f;		
+		if(abs(xPos-thePlayer->GetXPosition()) < abs(yPos-thePlayer->GetYPosition()))
+		{
+			if (abs(yDifference) < abs(yPos - thePlayer->GetYPosition()))
+				utilityValue += 0.75f;
+		}
+		else
+		{
+			if (abs(xDifference) < abs(xPos - thePlayer->GetXPosition()))
+				utilityValue += 0.75f;			
+		}
 	}
 
 
