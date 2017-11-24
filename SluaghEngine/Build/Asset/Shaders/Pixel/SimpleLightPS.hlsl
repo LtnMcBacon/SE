@@ -84,7 +84,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 		{
 			
 			light /= distance;
-			float normalDotLight = saturate(dot(normalWorld.xyz, light));
+			float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
 			if(normalDotLight > 0.0f)
 			{
 				float divby = (distance / pointLights[i].pos.w) + 1.0f;
