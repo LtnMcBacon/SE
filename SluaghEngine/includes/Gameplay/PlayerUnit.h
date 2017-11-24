@@ -81,9 +81,10 @@ namespace SE
 			Stats weaponStats;
 			bool displaying = false;
 			bool hideP = false;
+			bool godMode = false;
 			void SetCurrentWeaponStats();
 		public:
-
+			void SetGodMode(bool on);
 			struct MovementInput
 			{
 				bool upButton;

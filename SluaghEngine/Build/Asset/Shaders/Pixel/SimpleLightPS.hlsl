@@ -17,7 +17,7 @@ struct Light
 cbuffer LightDataBuffer : register(b0)
 {
 	uint4 nrOfLights; //x-component for number, y-component for which light is casting shadow.
-	Light pointLights[20];
+	Light pointLights[64];
 };
 
 cbuffer CameraPos : register(b1)
@@ -67,43 +67,50 @@ struct PS_OUT
 PS_OUT PS_main(PS_IN input) : SV_TARGET
 {
 	float attenuation = 1.0f;
-float3 light = float3(0.0, 0.0, 0.0);
-float shadowFactor = 1.0f;
-float distance;
-float specPower = specular.w;
-float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
-
-float3 diffuseContribution = float3(0.0f, 0.0f, 0.0f);
-float3 specularContribution = float3(0.0f, 0.0f, 0.0f);
-
-for (int i = 0; i < nrOfLights.x; i++)
-{
-	light = pointLights[i].pos.xyz - input.PosInW;
-	distance = length(light);
-	float divby = (distance / pointLights[i].pos.w) + 1.0f;
-	attenuation = (1.0f / (divby * divby)) - 0.25f;
-
-	light /= distance;
-
-	float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
-
-
-	if (i == nrOfLights.y)
+	float3 light = float3(0.0, 0.0, 0.0);
+	float shadowFactor = 1.0f;
+	float distance;
+	float specPower = specular.w;
+	float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
+	
+	float3 diffuseContribution = float3(0.0f, 0.0f, 0.0f);
+	float3 specularContribution = float3(0.0f, 0.0f, 0.0f);
+	
+	for (int i = 0; i < nrOfLights.x; i++)
 	{
-		float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
-		float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
-		if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
-			shadowFactor = 0.25f;
+		light = pointLights[i].pos.xyz - input.PosInW;
+		distance = length(light);
+		if(distance < pointLights[i].pos.w)
+		{
+			
+			light /= distance;
+			float normalDotLight = saturate(dot(input.NormalInW.xyz, light));
+			if(normalDotLight > 0.0f)
+			{
+				float divby = (distance / pointLights[i].pos.w) + 1.0f;
+				float intensity = pointLights[i].colour.w;
+				attenuation = (intensity / (divby * divby)) - intensity / 4;
+				
+			
+				if (i == nrOfLights.y)
+				{
+					float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
+					float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+					float ndist = distance / pointLights[i].pos.w;
+					if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
+						shadowFactor = ndist;
+				}
+			
+				//Calculate specular term
+				float3 V = eyePos.xyz - input.PosInW.xyz;
+				float3 H = normalize(light + V);
+				float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
+				float3 colour = pointLights[i].colour.xyz * specular.xyz;
+				specularContribution += power * colour * normalDotLight * shadowFactor;
+				diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
+			}
+		}
 	}
-
-	//Calculate specular term
-	float3 V = eyePos.xyz - input.PosInW.xyz;
-	float3 H = normalize(light + V);
-	float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
-	float3 colour = pointLights[i].colour.xyz * specular.xyz;
-	specularContribution += power * colour * normalDotLight * shadowFactor;
-	diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
-}
 
 	PS_OUT output;
 	output.backBuffer = saturate(float4(textureColor.rgb * ((diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
