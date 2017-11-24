@@ -45,10 +45,10 @@ SE::Gameplay::TutorialState::TutorialState()
 	skillIndicators[0].maxCooldown = skills[0].cooldown;
 	skillIndicators[1].maxCooldown = skills[1].cooldown;
 
-	skillIndicators[0].frame = CoreInit::managers.entityManager->Create();
-	skillIndicators[1].frame = CoreInit::managers.entityManager->Create();
-	skillIndicators[0].Image = CoreInit::managers.entityManager->Create();
-	skillIndicators[1].Image = CoreInit::managers.entityManager->Create();
+	skillIndicators[0].frame = managers.entityManager->Create();
+	skillIndicators[1].frame = managers.entityManager->Create();
+	skillIndicators[0].Image = managers.entityManager->Create();
+	skillIndicators[1].Image = managers.entityManager->Create();
 
 	SE::Core::IGUIManager::CreateInfo indicatorInfo;
 	indicatorInfo.texture = "Q.png";
@@ -70,10 +70,10 @@ SE::Gameplay::TutorialState::TutorialState()
 	textInfo.info.posY = indicatorInfo.textureInfo.posY;
 	textInfo.info.text = L"";
 
-	CoreInit::managers.guiManager->Create(skillIndicators[0].frame, indicatorInfo);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[0].frame, true);
-	CoreInit::managers.textManager->Create(skillIndicators[0].Image, textInfo);
-	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[0].Image, true);
+	managers.guiManager->Create(skillIndicators[0].frame, indicatorInfo);
+	managers.guiManager->ToggleRenderableTexture(skillIndicators[0].frame, true);
+	managers.textManager->Create(skillIndicators[0].Image, textInfo);
+	managers.textManager->ToggleRenderableText(skillIndicators[0].Image, true);
 
 	indicatorInfo.texture = "E.png";
 	indicatorInfo.textureInfo.posX = 1150;
@@ -83,10 +83,10 @@ SE::Gameplay::TutorialState::TutorialState()
 	textInfo.info.posX = indicatorInfo.textureInfo.posX - 15;
 	textInfo.info.posY = indicatorInfo.textureInfo.posY;
 
-	CoreInit::managers.guiManager->Create(skillIndicators[1].frame, indicatorInfo);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[1].frame, true);
-	CoreInit::managers.textManager->Create(skillIndicators[1].Image, textInfo);
-	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[1].Image, true);
+	managers.guiManager->Create(skillIndicators[1].frame, indicatorInfo);
+	managers.guiManager->ToggleRenderableTexture(skillIndicators[1].frame, true);
+	managers.textManager->Create(skillIndicators[1].Image, textInfo);
+	managers.textManager->ToggleRenderableText(skillIndicators[1].Image, true);
 
 #pragma endregion
 
@@ -100,8 +100,8 @@ SE::Gameplay::TutorialState::TutorialState()
 	Core::Entity cam;
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
-	cam = CoreInit::managers.cameraManager->GetActive();
-	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
+	cam = managers.cameraManager->GetActive();
+	managers.cameraManager->UpdateCamera(cam, cInfo);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -111,26 +111,26 @@ SE::Gameplay::TutorialState::TutorialState()
 	auto cameraTranslation = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0, 0, 1, 0), cameraRotationMatrix);
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
-	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
-	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
-	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
+	managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
+	managers.transformManager->Move(cam, -5 * cameraTranslation);
+	managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
 	//Create a default light
 
-	Core::Entity dummy = CoreInit::managers.entityManager->Create();
-	CoreInit::managers.transformManager->Create(dummy, { 0.0f, 1.95f, 0.0f });
-	CoreInit::managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
-	//CoreInit::managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
-	//CoreInit::managers.renderableManager->ToggleRenderableObject(dummy, true);
+	Core::Entity dummy = managers.entityManager->Create();
+	managers.transformManager->Create(dummy, { 0.0f, 1.95f, 0.0f });
+	managers.transformManager->BindChild(player->GetEntity(), dummy, false, true);
+	//managers.renderableManager->CreateRenderableObject(dummy, { "Placeholder_Block.mesh" });
+	//managers.renderableManager->ToggleRenderableObject(dummy, true);
 
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 0.74f, 0.92f, 0.95f };
 	lightInfo.radius = 10.5f;
 	lightInfo.intensity = 1.3f;
-	CoreInit::managers.lightManager->Create(dummy, lightInfo);
-	CoreInit::managers.lightManager->ToggleLight(dummy, true);
-	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+	managers.lightManager->Create(dummy, lightInfo);
+	managers.lightManager->ToggleLight(dummy, true);
+	managers.lightManager->SetShadowCaster(dummy);
 
 
 #pragma endregion
@@ -138,8 +138,14 @@ SE::Gameplay::TutorialState::TutorialState()
 	
 
 
-	auto weapon = Item::Weapon::Create(WeaponType::SWORD);
-	player->AddItem(weapon, 0);
+	/*auto weapon = Item::Weapon::Create(WeaponType::SWORD);
+	player->AddItem(weapon, 0);*/
+
+	subSystems.window->UpdateTime();
+	//scriptToRun = &TutorialState::GreetingScript;
+
+	scriptToRun = &TutorialState::SpawnaGlastigScript;
+
 }
 
 
@@ -149,12 +155,12 @@ SE::Gameplay::TutorialState::~TutorialState()
 	delete room;
 }
 
-SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass)
-{
+using namespace SE;
+using namespace Gameplay;
 
-	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
-	PlayerUnit::ActionInput action(false, false);
-	std::vector<ProjectileData> newProjectiles;
+
+static const auto GetBasicMovement(PlayerUnit::MovementInput& movement, PlayerUnit::ActionInput& action)
+{
 
 	if (subSystems.window->ButtonDown(uint32_t(GameInput::UP)))
 	{
@@ -182,7 +188,7 @@ SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass
 
 	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
 	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
-	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+	managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 
@@ -190,31 +196,544 @@ SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass
 
 	movement.mousePosX = DirectX::XMVectorGetX(clickPos);
 	movement.mousePosY = DirectX::XMVectorGetZ(clickPos);
+}
 
 
-	if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL1)))
-	{
-		action.skill1Button = true;
-	}
+SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass)
+{
 
-	if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL2)))
-	{
-		action.skill2Button = true;
-	}
+	
+	float dt = subSystems.window->GetDelta();
 
-	if (subSystems.window->ButtonDown(uint32_t(GameInput::ACTION)))
-	{
-		action.actionButton = true;
-	}
-
-	float dt = min(1 / 30.f, subSystems.window->GetDelta());
+	(*this.*scriptToRun)(dt);
+	//GreetingScript(dt);
 
 
-	player->Update(dt, movement, newProjectiles, action);
+	//if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL1)))
+	//{
+	//	action.skill1Button = true;
+	//}
+
+	//if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL2)))
+	//{
+	//	action.skill2Button = true;
+	//}
+
+	//if (subSystems.window->ButtonDown(uint32_t(GameInput::ACTION)))
+	//{
+	//	action.actionButton = true;
+	//}
+
+
+
+	//player->Update(dt, movement, newProjectiles, action);
 
 	//UpdateProjectiles(newProjectiles);
 
 	room->Update(dt, player->GetXPosition(), player->GetYPosition());
 
 	return State::TUTORIAL_STATE;
+}
+
+void SE::Gameplay::TutorialState::NoneScript(float dt)
+{
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+
+
+
+	player->Update(dt, movement, newProjectiles, action);
+}
+
+void SE::Gameplay::TutorialState::GreetingScript(float dt)
+{
+	auto greetingText = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Ancient.spritefont";
+	gti.info.text = L"V‰lkommen till Sluagh";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	//gti.info.scale = { 0.25f ,0.25f };
+	managers.textManager->Create(greetingText, gti);
+	managers.textManager->ToggleRenderableText(greetingText, true);
+	managers.eventManager->SetLifetime(greetingText, 4.5f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::WASDScript;
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(greetingText, "OnDeath");
+
+	scriptToRun = &TutorialState::NoneScript;
+
+}
+
+void SE::Gameplay::TutorialState::WASDScript(float dt)
+{
+	auto wasdText = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"ANVƒND w,a,s,d F÷R ATT F÷RFLYTTA DIG I VƒRLDEN";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(wasdText, gti);
+	managers.textManager->ToggleRenderableText(wasdText, true);
+	managers.eventManager->SetLifetime(wasdText, 6.0f);
+	scriptToRun = &TutorialState::NoneScript;
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::MouseScript;
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(wasdText, "OnDeath");
+
+}
+
+void SE::Gameplay::TutorialState::MouseScript(float dt)
+{
+	auto mouseText = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"ANVƒND MUSEN F÷R ATT SE DIG OMKRING";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(mouseText, gti);
+	managers.textManager->ToggleRenderableText(mouseText, true);
+	managers.eventManager->SetLifetime(mouseText, 4.5f);
+	scriptToRun = &TutorialState::NoneScript;
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::WaitForMovementInputScript;
+	});
+	managers.eventManager->RegisterEntitytoEvent(mouseText, "OnDeath");
+}
+
+void SE::Gameplay::TutorialState::BraJobbatMovementScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"BRA JOBBAT!";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+	managers.eventManager->SetLifetime(ent, 4.5f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::GlimmerPickupWeaponScript;
+	});
+	scriptToRun = &TutorialState::NoneScript;
+
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
+}
+
+void SE::Gameplay::TutorialState::GlimmerPickupWeaponScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"F÷RM≈L P≈ MARKEN MARKERAS MED ETT GLIMMANDE SKIMMER!";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+	managers.eventManager->SetLifetime(ent, 5.5f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnPickupWeaponScript;
+	});
+	scriptToRun = &TutorialState::NoneScript;
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
+}
+
+void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"G≈ FRAM TILL F÷REM≈LET OCH H≈LL IN SHIFT KNAPPEN!";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+
+	scriptToRun = &TutorialState::NoneScript;
+
+
+
+	auto pe = player->GetEntity();
+
+	Core::IEventManager::EntityEventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	{
+		auto vis = std::get<bool>(managers.dataManager->GetValue(pe, "WICV", false));
+		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
+			return false;
+		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			return false;
+		return managers.collisionManager->CheckCollision(ent, pe);
+	};
+
+	startrenderWIC.triggerCallback = [pe, this, ent](const Core::Entity ent2)
+	{
+		managers.dataManager->SetValue(pe, "WICV", true);
+		Item::ToggleRenderPickupInfo(ent2);
+		scriptToRun = &TutorialState::PickupWeaponScript;
+		managers.entityManager->Destroy(ent);
+	};
+
+	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	{
+		if (auto parent = std::get_if<Core::Entity>(&managers.dataManager->GetValue(ent, "Parent", false)))
+		{
+			if (!managers.collisionManager->CheckCollision(*parent, pe)) {
+				return true;
+			}
+		}
+
+		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+	};
+
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
+	{
+		managers.entityManager->DestroyNow(ent);
+		auto parent = std::get<Core::Entity>(managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
+		managers.dataManager->SetValue(pe, "WICV", false);
+	};
+	managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
+	managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+
+	Core::IEventManager::EntityEventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent) {
+
+
+	};
+
+
+
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
+			{
+				return managers.collisionManager->CheckCollision(ent, pe);
+			}
+		return false;
+	};
+
+
+	managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+
+
+	auto wep = Item::Weapon::Create(WeaponType::SWORD);
+	Item::Drop(wep, { 5.5f,0.0f, 10.5f });
+}
+
+void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"BRA JOBBAT!\nFORTSƒTT H≈LLA IN SHIFT\nOCH DUBBEL KLICKA P≈ 1 F÷R ATT PLOCKA UPP F÷REM≈LET";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+	scriptToRun = &TutorialState::NoneScript;
+
+
+	auto pe = player->GetEntity();
+
+	Core::IEventManager::EntityEventCallbacks startrenderWIC;
+	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	{
+		auto vis = std::get<bool>(managers.dataManager->GetValue(pe, "WICV", false));
+		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
+			return false;
+		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			return false;
+		return managers.collisionManager->CheckCollision(ent, pe);
+	};
+
+	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
+	{
+		managers.dataManager->SetValue(pe, "WICV", true);
+		Item::ToggleRenderPickupInfo(ent);
+	};
+
+	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
+	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	{
+		if (auto parent = std::get_if<Core::Entity>(&managers.dataManager->GetValue(ent, "Parent", false)))
+		{
+			if (!managers.collisionManager->CheckCollision(*parent, pe)) {
+				return true;
+			}
+		}
+
+		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+	};
+
+	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
+	{
+		managers.entityManager->DestroyNow(ent);
+		auto parent = std::get<Core::Entity>(managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
+		managers.dataManager->SetValue(pe, "WICV", false);
+	};
+	managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
+	managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+
+	Core::IEventManager::EntityEventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this, ent](const Core::Entity ent2) {
+
+		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(managers.dataManager->GetValue(ent2, "Name", "NaN"s)).c_str());
+
+		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
+		{
+			player->AddItem(ent2, 0);
+			managers.dataManager->SetValue(ent2, "Pickup", true);
+			scriptToRun = &TutorialState::Utm‰rktPickupWeaponScript;
+			managers.entityManager->Destroy(ent);
+		}
+
+
+		
+	};
+
+
+
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+			if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
+			{
+				return managers.collisionManager->CheckCollision(ent, pe);
+			}
+		return false;
+	};
+
+
+	managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+
+}
+
+void SE::Gameplay::TutorialState::Utm‰rktPickupWeaponScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"UTMƒRKT! HAR DU GJORT DETTA TIDIGARE?\n(PRO TIP: DU KAN OCKS≈ TRYCKA P≈ KNAPPARNA 2,3,4 ELLER 5)";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+	managers.eventManager->SetLifetime(ent, 10.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::VisaTaPÂSigVapenScript;
+	});
+
+	scriptToRun = &TutorialState::NoneScript;
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
+}
+
+void SE::Gameplay::TutorialState::VisaTaPÂSigVapenScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"TRYCK NU P≈ 1 F÷R ATT GREPPA DITT SVƒRD";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+	managers.eventManager->RegisterTriggerEvent("DelVisaVapenText", [this](Core::Entity ent) {
+		managers.entityManager->Destroy(ent);
+	});
+	managers.eventManager->RegisterEntitytoEvent(ent, "DelVisaVapenText");
+	scriptToRun = &TutorialState::TaPÂSigVapenScript;
+}
+
+void SE::Gameplay::TutorialState::TaPÂSigVapenScript(float dt)
+{
+
+
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+	if (subSystems.window->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+
+
+
+	player->Update(dt, movement, newProjectiles, action);
+
+	if (action.one)
+	{
+		managers.eventManager->TriggerEvent("DelVisaVapenText", true);
+		scriptToRun = &TutorialState::SpawnaFiendeScript;
+	}
+}
+
+void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"DET FINNS FYRA OLIKA MONSTER I SLOTTET";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);	
+	
+	scriptToRun = &TutorialState::NoneScript;
+
+	managers.eventManager->SetLifetime(ent, 5.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaGlastigScript;
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
+}
+
+void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
+{
+	Core::Entity glastig;
+	Core::Entity glastigLight;
+	glastig = managers.entityManager->Create();
+	managers.transformManager->Create(glastig, { 16.5f, 0.5f, 15.5f }, {0, XM_PIDIV2,0});
+	Core::IAnimationManager::CreateInfo aci;
+	aci.mesh = "Glaistig.mesh";
+	aci.skeleton = "Glaistig.skel";
+	aci.animationCount = 0;
+	managers.animationManager->CreateAnimatedObject(glastig, aci);
+	managers.animationManager->ToggleVisible(glastig, true);
+	Core::IMaterialManager::CreateInfo mci;
+	mci.materialFile = "Glaistig.mat";
+	mci.shader = "SimpleLightPS.hlsl";
+	managers.materialManager->Create(glastig, mci);
+
+
+	glastigLight = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo pl;
+	pl.pos = { 14.5f, 2.5f, 15.5f };
+	pl.color = { 1.0f, 0.7f, 0.7f };
+	pl.intensity = 4;
+	pl.radius = 5;
+	managers.lightManager->Create(glastigLight, pl);
+	managers.lightManager->ToggleLight(glastigLight, true);
+
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"GLAISTIG";
+	gti.info.screenAnchor = { 0.5f,0.25f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(glastig, gti);
+	managers.textManager->ToggleRenderableText(glastig, true);
+
+
+	managers.eventManager->SetLifetime(glastig, 10.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, glastigLight](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaBodachScript;
+		managers.entityManager->Destroy(ent);
+		managers.entityManager->Destroy(glastigLight);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(glastig, "OnDeath");
+
+	scriptToRun = &TutorialState::NoneScript;
+}
+
+void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
+{
+	Core::Entity bodach;
+	Core::Entity bodachLight;
+	bodach = managers.entityManager->Create();
+	managers.transformManager->Create(bodach, { 16.5f, 0.5f, 13.5f }, { 0, XM_PIDIV2,0 });
+	Core::IAnimationManager::CreateInfo aci;
+	aci.mesh = "Bodach.mesh";
+	aci.skeleton = "Bodach.skel";
+	aci.animationCount = 0;
+	managers.animationManager->CreateAnimatedObject(bodach, aci);
+	managers.animationManager->ToggleVisible(bodach, true);
+	Core::IMaterialManager::CreateInfo mci;
+	mci.materialFile = "Bodach.mat";
+	mci.shader = "SimpleLightPS.hlsl";
+	managers.materialManager->Create(bodach, mci);
+
+
+	bodachLight = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo pl;
+	pl.pos = { 14.5f, 2.5f, 13.5f };
+	pl.color = { 1.0f, 0.7f, 0.7f };
+	pl.intensity = 4;
+	pl.radius = 5;
+	managers.lightManager->Create(bodachLight, pl);
+	managers.lightManager->ToggleLight(bodachLight, true);
+
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"GLAISTIG";
+	gti.info.screenAnchor = { 0.5f,0.25f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(bodach, gti);
+	managers.textManager->ToggleRenderableText(bodach, true);
+
+
+	managers.eventManager->SetLifetime(bodach, 10.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, bodachLight](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaGlastigScript;
+		managers.entityManager->Destroy(ent);
+		managers.entityManager->Destroy(bodachLight);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(bodach, "OnDeath");
+
+	scriptToRun = &TutorialState::NoneScript;
+}
+
+void SE::Gameplay::TutorialState::WaitForMovementInputScript(float dt)
+{
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+	if (movement.leftButton)
+		a = true;
+	if (movement.rightButton)
+		d = true;
+	if (movement.upButton)
+		w = true;
+	if (movement.downButton)
+		s = true;
+
+	player->Update(dt, movement, newProjectiles, action);
+
+	if (w&&a&&s&&d)
+	{
+		scriptToRun = &TutorialState::BraJobbatMovementScript;
+	}
 }

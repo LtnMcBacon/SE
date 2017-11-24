@@ -161,7 +161,7 @@ void SE::Core::LightManager::GarbageCollection()
 	StartProfile;
 	uint32_t alive_in_row = 0;
 
-	while (entityToLightData.size() > 0 && alive_in_row < 4U)
+	while (entityToLightData.size() > 0 && alive_in_row < 20U)
 	{
 		const std::uniform_int_distribution<uint32_t> distribution(0U, entityToLightData.size() - 1U);
 		uint32_t i = distribution(generator);
@@ -214,7 +214,7 @@ void SE::Core::LightManager::Destroy(size_t index)
 
 	// Copy the data
 	indexToEntity[index] = last_entity;
-	entityToLightData[last_entity] = entityToLightData[entity];
+	entityToLightData[entity] = entityToLightData[last_entity];
 
 	// Remove last spot 
 	entityToLightData.erase(entity);

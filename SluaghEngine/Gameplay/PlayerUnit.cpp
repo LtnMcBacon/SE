@@ -387,34 +387,34 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	bool ci = false;
 	auto newItem = 0;
-	if (w->ButtonPressed(GameInput::ONE))
+	if (input.one)
 	{
 		newItem = 0;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::TWO))
+	else if (input.two)
 	{
 		newItem = 1;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::THREE))
+	else if (input.three)
 	{
 		newItem = 2;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FOUR))
+	else if (input.four)
 	{
 		newItem = 3;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FIVE))
+	else if (input.five)
 	{
 		newItem = 4;;
 		ci = true;
 	}
 	if (ci)
 	{
-		if (!w->ButtonDown(GameInput::SHOWINFO))
+		if (!input.showInfo)
 		{
 
 			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)));

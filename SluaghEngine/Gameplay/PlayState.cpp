@@ -152,7 +152,30 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	{
 		movement.rightButton = true;
 	}
-
+	if (input->ButtonDown(GameInput::SHOWINFO))
+	{
+		action.showInfo = true;
+	}
+	if (input->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+	else if (input->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+	else if (input->ButtonPressed(GameInput::THREE))
+	{
+		action.three = true;
+	}
+	else if (input->ButtonPressed(GameInput::FOUR))
+	{
+		action.four = true;
+	}
+	else if (input->ButtonPressed(GameInput::FIVE))
+	{
+		action.five = true;
+	}
 	int mX, mY;
 	input->GetMousePos(mX, mY);
 
@@ -473,7 +496,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	}
 	ProfileReturnVoid;
 }
-
+#include <Items.h>
 void PlayState::InitializePlayer(void* playerInfo)
 {
 	StartProfile;
@@ -763,7 +786,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
-	PlayerUnit::ActionInput actionInput(false, false);
+	PlayerUnit::ActionInput actionInput;
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);

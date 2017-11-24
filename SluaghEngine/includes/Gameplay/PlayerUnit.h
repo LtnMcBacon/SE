@@ -91,7 +91,8 @@ namespace SE
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
-				
+
+
 				bool mouseRightDown;
 				float mousePosX;
 				float mousePosY;
@@ -117,17 +118,17 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool actionButton;
-				bool skill1Button;
-				bool skill2Button;
+				bool actionButton = false;
+				bool skill1Button = false;
+				bool skill2Button = false;
 
-				 
-				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
-				{
-					skill1Button = skill1;
-					skill2Button = skill2;
-					actionButton = action;
-				}
+				bool one = false;
+				bool two = false;
+				bool three = false;
+				bool four = false;
+				bool five = false;
+
+				bool showInfo = false;
 			};
 
 			/**
