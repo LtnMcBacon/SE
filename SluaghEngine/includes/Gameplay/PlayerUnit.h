@@ -173,6 +173,10 @@ namespace SE
 			*
 			*/
 			void UpdateMovement(float dt, const MovementInput& inputs);
+
+			void GetRotation(float &rotX, float &rotY) { rotX = rotMov[0]; rotY = rotMov[1]; };
+
+			Core::Entity* GetAllItems() { return items; };
 		private:
 
 			PlayerUnit() {};

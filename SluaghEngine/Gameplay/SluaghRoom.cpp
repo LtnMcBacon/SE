@@ -5,7 +5,7 @@
 SE::Gameplay::SluaghRoom::SluaghRoom(const Utilz::GUID& fileName, PlayerUnit* thePlayer, ProjectileManager* projectileManagers)
 	:Room(fileName), projectileManagers(projectileManagers)
 {
-	theSluagh = new Sluagh(thePlayer, tileValues);
+	theSluagh = new Sluagh(thePlayer, this);
 	theSluagh->ToggleRendering(false);
 	for(int i = 0; i < 4; i++)
 	{
