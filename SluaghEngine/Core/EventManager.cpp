@@ -31,7 +31,7 @@ void SE::Core::EventManager::RegisterTriggerEvent(const Utilz::GUID _event, cons
 {
 	if (const auto find = triggerEventToIndex.find(_event); find == triggerEventToIndex.end())
 	{
-		triggerEventToIndex[_event] = entityEvents.size();
+		triggerEventToIndex[_event] = triggerEvents.size();
 		triggerEvents.push_back({ _event, callback });
 	}
 	else
@@ -120,6 +120,7 @@ void SE::Core::EventManager::UnregisterEntitytoEvent(const Entity entity, const 
 		}
 		if(!found)
 			ProfileReturnVoid;
+
 		if (auto const findE = entityEventToIndex.find(_event); findE != entityEventToIndex.end())
 		{
 			auto& reg = entityEvents[findE->second].entitesRegistered;
@@ -267,7 +268,8 @@ void SE::Core::EventManager::GarbageCollection()
 void SE::Core::EventManager::TriggerEvent(const TriggerEventStruct& tvs)
 {
 	StartProfile;
-
+	for (auto& ent : tvs.entitesRegistered)
+		tvs.callback(ent);
 	//for (size_t i = 0; i < eventData.used; i++)
 	//{
 	//	for (uint8_t e = 0; e < eventData.events[i].nrOfEvents; e++)

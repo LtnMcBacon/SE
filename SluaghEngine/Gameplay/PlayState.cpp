@@ -79,12 +79,43 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
 
 
-
+	sluaghRoomX = worldWidth - 1;
+	sluaghRoomY = worldHeight - 1;
 	/*Initialize Sluagh*/
+	delete rooms[sluaghRoomX * worldHeight + sluaghRoomY];
+	rooms[sluaghRoomX * worldHeight  + sluaghRoomY] = new SluaghRoom("Room18.room", player, projectileManager);
 
-	rooms[0]->OpenDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-	rooms.push_back(new SluaghRoom("Room18.raw", player, projectileManager));
-	rooms.back()->RenderRoom(false);
+
+	for (int x = 0; x < worldWidth; x++)
+	{
+		for (int y = 0; y < worldHeight; y++)
+		{
+			auto room = GetRoom(x, y).value();
+			if (auto leftRoom = GetRoom(x - 1, y); leftRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom));
+			if (auto rightRoom = GetRoom(x + 1, y); rightRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom));
+			if (auto upRoom = GetRoom(x, y + 1); upRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom));
+			if (auto downRoom = GetRoom(x, y - 1); downRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
+		}
+	}
+
+
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+
+	CloseDoorsToRoom(sluaghRoomX, sluaghRoomY);
+
+	currentRoom->Load();
+	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
+	blackBoard.currentRoom = currentRoom;
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
 
 	ProfileReturnVoid;
 }
@@ -95,8 +126,10 @@ PlayState::~PlayState()
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
-	for (auto room : rooms)
-		delete room;
+	for (int x = 0; x < worldWidth; x++)
+		for (int y = 0; y < worldHeight; y++)
+			if (auto room = GetRoom(x, y); room.has_value())
+				delete *room;
 	ProfileReturnVoid;
 }
 
@@ -165,96 +198,84 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	projectileManager->UpdateProjectileActions(input->GetDelta());
 
 }
+template<class T>
+void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T& y)
+{
+
+	switch (dir)
+	{
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH:
+		y+=1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST:
+		x += 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH:
+		y -= 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST:
+		x -= 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE:
+		break;
+	default:
+		break;
+	}
+}
+
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
-
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
-		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
-
-		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{
-			currentRoom->RenderRoom(false);
+			int x = currentRoomX, y = currentRoomY;
+			GetRoomPosFromDir(dir, x, y);
 
-			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
+			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
-				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet - 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
-			{
-				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet + 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-			{
-				if(!currentRoomIndex)
+				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
+
+				currentRoom->RenderRoom(false);
+
+				currentRoomX = x;
+				currentRoomY = y;
+				blackBoard.currentRoom = currentRoom = *newRoom;
+				blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+				projectileManager->RemoveAllProjectiles();
+
+				char newMap[25][25];
+				currentRoom->GetMap(newMap);
+
+				char** tempPtr = new char*[25];
+
+				for (int i = 0; i < 25; i++)
 				{
-					currentRoom = rooms.back();
-					player->PositionEntity(16.0f, 13.0f);
+					tempPtr[i] = new char[25];
+					for (int j = 0; j < 25; j++)
+					{
+						tempPtr[i][j] = newMap[i][j];
+					}
 				}
-				else
-				{
-					currentRoom = rooms[currentRoomIndex - 1];
-					currentRoomIndex = currentRoomIndex - 1;
-					float xToSet, yToSet;
-					xToSet = yToSet = -999999;
-					currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-					player->PositionEntity(xToSet + 1, yToSet);
-				}
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
-			{
-				currentRoom = rooms[currentRoomIndex + 1];
-				currentRoomIndex = currentRoomIndex + 1;
+
+				player->UpdateMap(tempPtr);
+				currentRoom->InitializeAdjacentFlowFields();
+
+				currentRoom->RenderRoom(true);
+			
+
 				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
-				player->PositionEntity(xToSet - 1, yToSet);
+				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
+				GetRoomPosFromDir(dir, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet);
+
+
+				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
 			}
-
-			currentRoom->RenderRoom(true);
-			projectileManager->RemoveAllProjectiles();
-
-			char newMap[25][25];
-			currentRoom->GetMap(newMap);
-
-			char** tempPtr = new char*[25];
-
-			for (int i = 0; i < 25; i++)
-			{
-				tempPtr[i] = new char[25];
-				for (int j = 0; j < 25; j++)
-				{
-					tempPtr[i][j] = newMap[i][j];
-				}
-			}
-
-			player->UpdateMap(tempPtr);
-			currentRoom->InitializeAdjacentFlowFields();
-			for (int i = 0; i < 25; i++)
-			{
-				delete tempPtr[i];
-			}
-
-			delete tempPtr;
-
-			/**
-			*	Must be put in change room once the function is done!
-			*/
-			blackBoard.currentRoom = currentRoom;
-			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-			numberOfFreeFrames = 15;
+		
 		}
 	}
 
@@ -273,91 +294,99 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
 }
+static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
+
+
+void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Load the new adjacent rooms
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		if (!(sx == ax && sy == ay)) // Exluding the one we where in.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Load();
+			}
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Unload adjacent room to previous room
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		if (!(sx == ax && sy == ay)) // Excluding the one we are changing to.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Unload();
+			}
+
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::CloseDoorsToRoom(int x, int y)
+{
+	for (auto a : adjIndices)
+	{
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
+		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+		{
+			adjRoom.value()->CloseDoor(Room::ReverseDirection(dir));
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
+{
+	for (auto a : adjIndices)
+	{
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
+		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+		{
+			adjRoom.value()->OpenDoor(Room::ReverseDirection(dir));
+		}
+	}
+}
 
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	uint32_t nrOfRooms = 0;
-	Utilz::GUID* RoomArr;
+	worldWidth = 2;
+	worldHeight = 2;
 	auto subSystem = engine->GetSubsystems();
-	int sideLength = 3;
-	int nrOfRoomsToCreate = sideLength * sideLength;
-	int nrOfRoomsCreated = 0;
-	
 
-	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
-	{
-		nrOfRooms = *(uint32_t *)data;
-		RoomArr = new Utilz::GUID[nrOfRooms];
-		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+	auto s = std::chrono::high_resolution_clock::now();
 
-	int randomValues[9];
-	int counter = 0;
+	std::vector<Utilz::GUID> roomGuids;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("room", roomGuids);
 
-	while (nrOfRoomsCreated < nrOfRoomsToCreate)
-	{
-		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
-		randomValues[counter] = random; 
-		counter++;
-		
-		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+	if (!roomGuids.size())
+		throw std::exception("No rooms found");
 
-		rooms.push_back(temp);
-		nrOfRoomsCreated++;
-		temp->RenderRoom(false);
-	}
-	
-	for (int i = 0; i < nrOfRoomsToCreate; i++)
-	{
-		if (i < sideLength) // top row
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, rooms[i - sideLength]);
-		}
+	rooms = new Room*[worldWidth * worldHeight];
+	for (int i = 0; i < worldWidth*worldHeight; i++)
+		rooms[i] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
-		if (i % sideLength == sideLength - 1) // right side
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, rooms[i + 1]);
-		}
+	currentRoomX = 0;
+	currentRoomY = 0;
+	currentRoom = GetRoom(currentRoomX, currentRoomY).value();
 
-		if (i % sideLength == 0) // left side
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	auto e = std::chrono::high_resolution_clock::now();
 
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, rooms[i - 1]);
-		}
-
-		if (i >= sideLength * (sideLength - 1)) // bottom row
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, rooms[i + sideLength]);
-		}
-
-
-
-	}
-
-	currentRoomIndex = 0;
-	blackBoard.currentRoom = currentRoom = rooms[0];
-	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-	currentRoom->RenderRoom(true);
-	currentRoom->InitializeAdjacentFlowFields();
-	delete[] RoomArr;
+	auto diff = std::chrono::duration<float>(e - s).count();
+	CoreInit::subSystems.devConsole->Print("Room Load Time: %f", diff);
 	ProfileReturnVoid;
 }
 void SE::Gameplay::PlayState::InitializeEnemies()
@@ -367,21 +396,47 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	int counter = 0;
-	for (auto& room : rooms)
+
+	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
+		auto& room = rooms[r];
 		room->GetMap(map);
 		eStruct.information.clear();
+	//	enemiesInEachRoom = 2;
 		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
+			int x, y;
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25 + 0.5f;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)] && room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f);
+				x = CoreInit::subSystems.window->GetRand() % 25;
+				y = CoreInit::subSystems.window->GetRand() % 25;
+			} while (map[x][y]);// || (room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f));
 
+
+			float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+			int xOffset = 0, yOffset = 0;
+			if (rotation == 0)
+			{
+				yOffset = 1;
+			}
+			else if (rotation == 90)
+			{
+				xOffset = 1;
+			}
+			else if (rotation == 180)
+			{
+				yOffset = -1;
+			}
+			else if (rotation == 270)
+			{
+				xOffset = -1;
+			}
+			enemyPos.x = x + 0.5f;
+			enemyPos.y = y -0.5f;
+	
 			EnemyCreationData data;
 			if (counter < 1)
 			{
@@ -476,7 +531,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (map[x][y] == (char)22)
+			if (map[x][y] == 0)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -500,7 +555,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
-				break;
+				return;
 			}
 		}
 	}
@@ -540,17 +595,29 @@ void SE::Gameplay::PlayState::InitializeOther()
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 0.74f, 0.92f, 0.95f };
-	lightInfo.radius = 15.0f;
-
+	lightInfo.radius = 10.5f;
+	lightInfo.intensity = 1.3f;
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		bool god = true;
+		if (argc == 2)
+			if (std::string(argv[1]) == "0")
+				god = false;
 
+		this->player->SetGodMode(god);
+		if (god)
+			back->Print("Godmode on");
+		else
+			back->Print("Godmode off");
+		
+	}, "tgm", "Toggles godmode.");
 
 	ProfileReturnVoid;
 }
 #include <Items.h>
-
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
 	StartProfile;
@@ -635,6 +702,23 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
 	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
 	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+
+
+	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {
+
+		if (auto roomEnt = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Room", false)))
+		{
+			if ((*roomEnt) == currentRoom->GetEntity())
+			{
+				Item::Drop(ent);
+			}
+			{
+				Item::GodPickup(ent);
+			}
+
+		}
+	});
+
 	ProfileReturnVoid;
 }
 
@@ -649,6 +733,33 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		ProfileReturn(returnValue);
 	}
 	
+	if (!sluaghDoorsOpen)
+	{
+		int totalEnemiesLeft = 0;
+		for (int x = 0; x < worldWidth; x++)
+			for (int y = 0; y < worldHeight; y++)
+				totalEnemiesLeft += GetRoom(x, y).value()->NumberOfEnemiesInRoom();
+
+		if (totalEnemiesLeft <= 2) {
+			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
+			sluaghDoorsOpen = true;
+
+			Core::ITextManager::CreateInfo ti;
+			ti.font = "Ancient.spritefont";
+			ti.info.text = L"Vägen till din död har öppnats...";
+			ti.info.screenAnchor = { 0.5f, 0.5f };
+			ti.info.anchor = { 0.5f,0.5f };
+			ti.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+			auto slt = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.textManager->Create(slt, ti);
+			CoreInit::managers.textManager->ToggleRenderableText(slt, true);
+			CoreInit::managers.eventManager->SetLifetime(slt, 5);
+
+
+		}
+	}
+
+
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
 	PlayerUnit::ActionInput actionInput(false, false);
 	std::vector<ProjectileData> newProjectiles;
