@@ -615,6 +615,8 @@ void SE::Gameplay::PlayState::InitializeOther()
 		
 	}, "tgm", "Toggles godmode.");
 
+	
+
 	ProfileReturnVoid;
 }
 #include <Items.h>
