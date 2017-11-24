@@ -103,7 +103,7 @@ namespace SE {
 				if (findS != findE->second.guidToStream.end())
 				{
 					audioHandler->StopSound(findS->second.stream);
-					findS->second.playState = true;
+					findS->second.playState = false;
 				}
 			}
 		}
@@ -192,9 +192,14 @@ namespace SE {
 		{
 			if (entity == cameraEnt)
 			{
+				dirtyEntites.push_back({ index, entity });
 				cameraMove = true;
 			}
-			dirtyEntites.push_back({ index, entity });
+			auto& findE = entToSounds.find(entity);
+			if (findE != entToSounds.end())
+			{
+				dirtyEntites.push_back({ index, entity });
+			}
 		}
 
 		void SE::Core::AudioManager::UpdateDirtyTransforms()
