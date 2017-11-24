@@ -107,7 +107,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 				{
 					cb.data[count].colour = l.second.colour;
 					cb.data[count].pos = l.second.pos;
-					if (l.first == shadowCaster)
+					if (hasShadowCaster && l.first == shadowCaster)
 						shadowCasterIndex = count;
 					count++;
 				}
