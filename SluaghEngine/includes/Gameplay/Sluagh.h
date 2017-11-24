@@ -6,6 +6,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
+		class SluaghRoom;
 		class Sluagh
 		{
 		private:
@@ -14,10 +15,11 @@ namespace SE
 
 			PlayerUnit::MovementInput previousMovement;
 			PlayerUnit::ActionInput previousAction;
+			float distanceToPlayer;
 
 			Sluagh() = delete;
 		public:
-			Sluagh(PlayerUnit* thePlayer, char map[25][25]);
+			Sluagh(PlayerUnit* thePlayer, SluaghRoom* room);
 			~Sluagh();
 			void Update(float dt, std::vector<ProjectileData>& projectilesOut);
 			bool CollisionAgainstProjectile(float projectileX, float projectileY, float projectileRadius);

@@ -84,6 +84,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	rooms[0]->OpenDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
 	rooms.push_back(new SluaghRoom("Room18.raw", player, projectileManager));
+	rooms[0]->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, rooms.back());
 	rooms.back()->RenderRoom(false);
 
 	ProfileReturnVoid;

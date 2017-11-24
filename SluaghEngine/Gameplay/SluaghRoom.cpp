@@ -29,6 +29,7 @@ void SE::Gameplay::SluaghRoom::Update(float dt, float playerX, float playerY)
 	!theSluagh->GetSluagh()->IsAlive();
 
 	projectileManagers->AddProjectiles(projectiles);
+
 	StopProfile;
 }
 

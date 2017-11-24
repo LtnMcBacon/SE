@@ -2,10 +2,13 @@
 #include "ProjectileData.h"
 #include <Profiler.h>
 #include "CoreInit.h"
+#include "SluaghRoom.h"
 
-SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, char map[25][25])
+SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, SluaghRoom* room)
 	:thePlayer(thePlayer)
 {
+	char map[25][25];
+	room->GetMap(map);
 	theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, map);
 	theSluagh->ToggleAsSluagh(true);
 }
@@ -58,6 +61,13 @@ void SE::Gameplay::Sluagh::ToggleRendering(bool render)
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
 	StartProfile;
+
+
+	float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
+	float yDist = thePlayer->GetYPosition() - theSluagh->GetYPosition();
+
+	distanceToPlayer = sqrtf(xDist*xDist + yDist*yDist);
+
 	auto skills = theSluagh->GetAllSkills();
 	utilityMap[UtilityMapEnum::SKILL1] = UtilityForUsingACertainSkill(dt, skills[0]);
 	utilityMap[UtilityMapEnum::SKILL2] = UtilityForUsingACertainSkill(dt, skills[1]);
@@ -134,8 +144,8 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 
 	switch(choice)
 	{
-	case UtilityMapEnum::SKILL1: action.skill1Button; break;
-	case UtilityMapEnum::SKILL2: action.skill2Button; break;
+	case UtilityMapEnum::SKILL1: action.skill1Button = true; break;
+	case UtilityMapEnum::SKILL2: action.skill2Button = true; break;
 	case UtilityMapEnum::WEAPON_SLOT_1: break;
 	case UtilityMapEnum::WEAPON_SLOT_2: break;
 	case UtilityMapEnum::WEAPON_SLOT_3: break;
@@ -180,10 +190,6 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 	default: ;
 	}
 
-
-
-
-
 	StopProfile;
 }
 
@@ -193,7 +199,12 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.currentCooldown > 0.f)
 		ProfileReturnConst(0.f);
 
-	ProfileReturnConst(10.f);
+	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
+		ProfileReturnConst(0.f);
+
+	float utilityValue = skillToCheck.skillDamage*5.f/skillToCheck.cooldown;
+	
+	ProfileReturnConst(utilityValue);
 }
 
 float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwapFor)
@@ -216,8 +227,51 @@ float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirection dir)
 {
 	StartProfile;
-
 	
+	float utilityValue = 0.f;
 
-	ProfileReturnConst(0.f);
+	float xPos = theSluagh->GetXPosition();
+	float yPos = theSluagh->GetYPosition();
+		
+	auto SluaghCurrentWeapon = theSluagh->GetCurrentItem();
+	auto PlayerCurrentWeapon = thePlayer->GetCurrentItem();
+
+	PlayerUnit::MovementInput moveEvaluate;
+
+	switch(dir)
+	{
+	case MovementDirection::UP: moveEvaluate.upButton = true; break;
+	case MovementDirection::DOWN: moveEvaluate.downButton = true; break;
+	case MovementDirection::LEFT: moveEvaluate.leftButton = true; break;
+	case MovementDirection::RIGHT: moveEvaluate.rightButton = true; break;
+	default: ;
+	}
+
+	theSluagh->UpdateMovement(dt, moveEvaluate);
+
+
+
+	/*Check the weapon combinations, adapt the behaviour after that*/
+	if(true) /*Both wields melee weapon -> Sluagh moves towards the player*/
+	{
+		
+	}
+	else if(true) /*Player Melee, Sluagh Ranged*/
+	{
+		
+	}
+	else if(true) /*Player Ranged, Sluagh Melee*/
+	{
+		
+	}
+	else /*Player Ranged, Sluagh Ranged*/
+	{
+		
+	}
+
+
+
+	theSluagh->PositionEntity(xPos, yPos);
+
+	ProfileReturnConst(utilityValue);
 }

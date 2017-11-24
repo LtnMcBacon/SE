@@ -159,6 +159,20 @@ namespace SE
 			{
 				return items[currentItem];
 			}
+
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the position of the player and checks so that it is a legal position,
+			* if not it tries to retain as much of the movement as possible
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in] MovementInput input data
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateMovement(float dt, const MovementInput& inputs);
 		private:
 
 			PlayerUnit() {};
@@ -188,19 +202,6 @@ namespace SE
 
 
 
-			/**
-			* @brief	Update the players movement
-			*
-			* @details	This function updates the position of the player and checks so that it is a legal position,
-			* if not it tries to retain as much of the movement as possible
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in] MovementInput input data
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateMovement(float dt, const MovementInput& inputs);
 
 
 			/**
