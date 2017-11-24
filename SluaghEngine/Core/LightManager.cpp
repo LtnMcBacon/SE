@@ -78,7 +78,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 			const auto fl = entityToLightData.find(l.entity);
 			if (fl != entityToLightData.end())
 			{
-				auto pos = initInfo.transformManager->GetPosition(l.entity);
+				const auto pos = initInfo.transformManager->GetPosition(l.entity);
 				fl->second.pos.x = pos.x;
 				fl->second.pos.y = pos.y;
 				fl->second.pos.z = pos.z;
