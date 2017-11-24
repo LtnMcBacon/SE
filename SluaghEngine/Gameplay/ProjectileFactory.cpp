@@ -83,7 +83,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			{
 				Core::IAudioManager::CreateInfo audioInfo;
 				audioInfo.soundFile = loaded.soundName;
-				audioInfo.soundType = SE::Audio::StereoPanSound;
+				audioInfo.soundType = SE::Audio::BakgroundSound;
 				CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
 				CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
 			}
@@ -197,8 +197,8 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		if (fileVersion < 1.4)
 		{
 			loaded.materialName = "Cube.mat";
-			//loaded.soundName = "DefaultAttackSound.wav";
-			loaded.soundName = "NONE";
+			loaded.soundName = "DefaultAttackSound.wav";
+			//loaded.soundName = "NONE";
 		}
 		else
 		{
@@ -265,7 +265,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		{
 			Core::IAudioManager::CreateInfo audioInfo;
 			audioInfo.soundFile = loaded.soundName;
-			audioInfo.soundType = SE::Audio::StereoPanSound;
+			audioInfo.soundType = SE::Audio::BakgroundSound;
 			CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
 			CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
 		}
