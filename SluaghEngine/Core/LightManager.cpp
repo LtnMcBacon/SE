@@ -184,7 +184,7 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 
 void SE::Core::LightManager::SetColor(const Entity& entity, float rgb[3])
 {
-	auto exists = entityToLightData.find(entity);
+	const auto exists = entityToLightData.find(entity);
 	if (exists == entityToLightData.end())
 		return;
 
