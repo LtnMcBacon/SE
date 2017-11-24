@@ -106,7 +106,7 @@ namespace SE
 
 		private:
 			ImGuiTextFilter filter;
-			bool scrollToBottom = false;
+			bool scrollToBottom = true;
 
 			struct Message
 			{

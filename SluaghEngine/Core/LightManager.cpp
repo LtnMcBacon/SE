@@ -33,13 +33,13 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 
 	// chexk if entity exist
 	const auto fileLoaded = entityToLightData.find(entity);
-	auto& data = entityToLightData[entity];
 	if (fileLoaded == entityToLightData.end())
 	{
-		data.visible = false;
-		data.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
-		data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
-		data.castShadow = false;
+		auto& light = entityToLightData[entity];
+		light.visible = false;
+		light.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
+		light.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
+		light.castShadow = false;
 
 		initInfo.transformManager->Create(entity, info.pos);
 		indexToEntity.push_back(entity);
