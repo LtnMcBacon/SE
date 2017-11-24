@@ -197,8 +197,8 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		if (fileVersion < 1.4)
 		{
 			loaded.materialName = "Cube.mat";
-			loaded.soundName = "DefaultAttackSound.wav";
-			//loaded.soundName = "NONE";
+			//loaded.soundName = "DefaultAttackSound.wav";
+			loaded.soundName = "NONE";
 		}
 		else
 		{
