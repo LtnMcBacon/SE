@@ -124,10 +124,11 @@ namespace SE {
 					}
 					else
 					{
-						stream[freeStreamID.top()] = tempStream;
-						sampleOut[freeStreamID.top()] = inSample;
+						int temmpPos = freeStreamID.top();
+						stream[temmpPos] = tempStream;
+						sampleOut[temmpPos] = inSample;
 						freeStreamID.pop();
-						ProfileReturn(stream.size() - 1);
+						ProfileReturn(temmpPos);
 					}
 				}
 			}
@@ -178,8 +179,7 @@ namespace SE {
 		int AudioStream::UpdateStreamPos(int streamID, PanData panData)
 		{
 			StartProfile;
-			PaError err;
-			sampleOut[streamID]->panData = panData;
+				sampleOut[streamID]->panData = panData;
 			ProfileReturnConst(0);
 		}
 
