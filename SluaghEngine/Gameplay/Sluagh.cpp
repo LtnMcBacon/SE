@@ -174,10 +174,42 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 		{
 		}
 		break;
-	case UtilityMapEnum::WEAPON_SLOT_2: break;
-	case UtilityMapEnum::WEAPON_SLOT_3: break;
-	case UtilityMapEnum::WEAPON_SLOT_4: break;
-	case UtilityMapEnum::WEAPON_SLOT_5: break;
+	case UtilityMapEnum::WEAPON_SLOT_2:
+		if (currentEquipment == 1)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_3:
+		if (currentEquipment == 2)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_4:
+		if (currentEquipment == 3)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_5:
+		if (currentEquipment == 4)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
 	
 	
 	default: ;
@@ -300,8 +332,16 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 	float xPos = theSluagh->GetXPosition();
 	float yPos = theSluagh->GetYPosition();
 		
-	auto SluaghCurrentWeapon = theSluagh->GetCurrentItem();
-	auto PlayerCurrentWeapon = thePlayer->GetCurrentItem();
+
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(thePlayer->GetCurrentItem(), "Type", -1));
+	WeaponType playerWeaponType = WeaponType::NONE;
+	if (type != int32_t(-1))
+		playerWeaponType = WeaponType(type);
+
+	type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(theSluagh->GetCurrentItem(), "Type", -1));
+	WeaponType sluaghWeaponType = WeaponType::NONE;
+	if (type != int32_t(-1))
+		sluaghWeaponType = WeaponType(type);
 
 	PlayerUnit::MovementInput moveEvaluate(false, false, false, false, false, thePlayer->GetXPosition(), thePlayer->GetYPosition());
 
@@ -319,7 +359,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 
 
 	/*Check the weapon combinations, adapt the behaviour after that*/
-	if(true) /*Both wields melee weapon -> Sluagh moves towards the player*/
+	if(sluaghWeaponType == WeaponType::SWORD && playerWeaponType == WeaponType::SWORD) /*Both wields melee weapon -> Sluagh moves towards the player*/
 	{
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
@@ -333,17 +373,57 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 			utilityValue = 0.f;
 		
 	}
-	else if(true) /*Player Melee, Sluagh Ranged*/
+	else if((sluaghWeaponType == WeaponType::CROSSBOW || sluaghWeaponType == WeaponType::WAND) && playerWeaponType == WeaponType::SWORD) /*Player Melee, Sluagh Ranged*/
 	{
-		
+		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
+		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
+		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
+
+		if (distanceToPlayer < distAfterMove)
+			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
+
+
+		if (distAfterMove < 2.0f)
+			utilityValue -= 0.5f;
 	}
-	else if(true) /*Player Ranged, Sluagh Melee*/
+	else if(sluaghWeaponType == WeaponType::SWORD && (playerWeaponType == WeaponType::CROSSBOW || playerWeaponType == WeaponType::WAND)) /*Player Ranged, Sluagh Melee*/
 	{
-		
+		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
+		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
+		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
+
+		if (distanceToPlayer > distAfterMove)
+			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
+
+
+		if (distAfterMove < 2.0f)
+			utilityValue = 0.f;		
+	}
+	else if(playerWeaponType == WeaponType::NONE) /*CONFUSED SCREAMING*/
+	{
+		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
+		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
+		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
+
+		if (distanceToPlayer > distAfterMove)
+			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
+
+
+		if (distAfterMove < 2.0f)
+			utilityValue = 0.f;
 	}
 	else /*Player Ranged, Sluagh Ranged*/
 	{
-		
+		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
+		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
+		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
+
+		if (distanceToPlayer > distAfterMove)
+			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
+
+
+		if (distAfterMove < 2.0f)
+			utilityValue = 0.f;		
 	}
 
 
