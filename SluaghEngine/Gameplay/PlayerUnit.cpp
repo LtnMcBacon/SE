@@ -386,6 +386,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	auto w = CoreInit::subSystems.window;
 
 	bool ci = false;
+
 	auto newItem = 0;
 	if (w->ButtonPressed(GameInput::ONE))
 	{
@@ -412,7 +413,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newItem = 4;;
 		ci = true;
 	}
-	if (ci)
+
+	if (ci && attacking == false)
 	{
 		if (!w->ButtonDown(GameInput::SHOWINFO))
 		{
@@ -542,15 +544,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+				// Only allow attacking if attack animation is not already playing and attacking is false
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
 				{
+					attacking = true;
+
 					ProjectileData temp;
 
 					temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 					temp.startPosX = this->xPos;
 					temp.startPosY = this->yPos;
 					temp.target = ValidTarget::ENEMIES;
-
 
 					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
 					temp.ownerUnit = mySelf;
@@ -571,8 +575,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		attackCooldown -= dt;
 	}
-	if (attackCooldown < 0.f)
+	else if (attackCooldown <= 0.f){
+		attacking = false;
 		attackCooldown = 0.f;
+	}
+
 	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
