@@ -175,8 +175,6 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 	const auto exists = entityToLightData.find(entity);
 	if (exists == entityToLightData.end())
 		return;
-	if (hasShadowCaster)
-		return;
 
 	hasShadowCaster = true;
 	shadowCaster = entity;
