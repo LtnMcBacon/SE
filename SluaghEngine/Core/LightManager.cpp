@@ -68,7 +68,7 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(("LightManger"));
+	timer->Start(("LightManager"));
 	GarbageCollection();
 
 	if (dirtyEntites.size())
@@ -144,7 +144,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
 	}
-	timer->Stop(("LightManger"));
+	timer->Stop(("LightManager"));
 	StopProfile;
 }
 		
