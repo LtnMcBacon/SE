@@ -210,6 +210,10 @@ namespace SE {
 			{
 				for (auto& ent : soundEntity)
 				{
+					// Check if the entity is alive
+					if (!initInfo.entityManager->Alive(ent))
+						ProfileReturnVoid;
+
 					auto& findE = entToSounds.find(ent);
 					if (findE != entToSounds.end())
 					{
@@ -229,6 +233,10 @@ namespace SE {
 			{
 				for (auto& dirty : dirtyEntites)
 				{
+					// Check if the entity is alive
+					if (!initInfo.entityManager->Alive(dirty.entity))
+						ProfileReturnVoid;
+
 					auto& findE = entToSounds.find(dirty.entity);
 					if (findE != entToSounds.end())
 					{
