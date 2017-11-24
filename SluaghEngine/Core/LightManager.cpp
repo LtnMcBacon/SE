@@ -54,6 +54,7 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 	if (!initInfo.entityManager->Alive(entity))
 		ProfileReturnVoid;
 
+
 	// chexk if entity exist in text 
 	const auto fileLoaded = entityToLightData.find(entity);
 	if (fileLoaded != entityToLightData.end())
