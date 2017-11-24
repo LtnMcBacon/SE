@@ -10,9 +10,11 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 	_ASSERT(initInfo.renderer);
 	_ASSERT(initInfo.entityManager);
 	_ASSERT(initInfo.transformManager);
+	_ASSERT(initInfo.eventManager);
 
+	initInfo.eventManager->RegisterToToggleVisible({ this, &LightManager::ToggleLight });
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
-
+	
 	auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
 	if (result < 0)
 		throw std::exception("Failed to create depth stencil cube.");
@@ -35,7 +37,7 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 	if (fileLoaded == entityToLightData.end())
 	{
 		data.visible = false;
-		data.colour = { info.color.x, info.color.y, info.color.z, 1.0f };
+		data.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
 		data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
 		data.castShadow = false;
 
@@ -98,7 +100,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->GetPipelineHandler()->MapConstantBuffer("LightDataBuffer", [this](auto data) {
 			auto& cb = *reinterpret_cast<LightDataBuffer*>(data);
 			uint32_t count = 0;
-			uint32_t shadowCasterIndex = 21;
+			uint32_t shadowCasterIndex = MAX_LIGHTS;
 			for (auto& l : entityToLightData)
 			{
 				if (l.second.visible)
@@ -109,7 +111,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 						shadowCasterIndex = count;
 					count++;
 				}
-				if (count == 20)
+				if (count == MAX_LIGHTS)
 					break;
 			}
 			cb.size[0] = count;

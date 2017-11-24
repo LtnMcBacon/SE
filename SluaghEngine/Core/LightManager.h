@@ -35,6 +35,8 @@ namespace SE
 			void Destroy(size_t index)override;
 
 			void UpdateDirtyPos(const Entity& entity, size_t index);
+
+			static const uint32_t MAX_LIGHTS = 64;
 			struct DirtyEntityInfo
 			{
 				size_t transformIndex;
@@ -76,7 +78,7 @@ namespace SE
 			struct LightDataBuffer
 			{
 				uint32_t size[4];
-				LightAttributes data[20];
+				LightAttributes data[MAX_LIGHTS];
 			};
 
 			// Light variables

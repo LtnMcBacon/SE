@@ -188,7 +188,7 @@ void SE::Core::Engine::InitSubSystems()
 		ResourceHandler::InitializationInfo info;
 		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
 		info.RAM.tryUnloadWhenOver = 0.5;
-		info.RAM.getCurrentMemoryUsage = []() { return Utilz::Memory::GetPhysicalProcessMemory(); };
+		info.RAM.getCurrentMemoryUsage = []() { return Utilz::Memory::GetVirtualProcessMemory(); };
 		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		info.VRAM.tryUnloadWhenOver = 0.5;
 		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
@@ -393,6 +393,7 @@ void SE::Core::Engine::InitLightManager()
 		info.renderer = subSystems.renderer;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
+		info.eventManager = managers.eventManager;
 		managers.lightManager = CreateLightManager(info);
 	}
 	managersVec.push_back(managers.lightManager);
@@ -494,7 +495,7 @@ void SE::Core::Engine::SetupDebugConsole()
 		static int offset = 0;
 
 		vram_usage[offset] = ((float)subSystems.renderer->GetVRam()) / (1024.0f * 1024.0f);
-		ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
+		ram_usage[offset] = ((float)Utilz::Memory::GetVirtualProcessMemory()) / (1024.0f * 1024.0f);
 		offset = (offset + 1) % samples;
 		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
 		if (subSystems.renderer->GetVRam() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))

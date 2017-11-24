@@ -290,6 +290,11 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
 
+void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
+{
+	godMode = on;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -381,6 +386,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	auto w = CoreInit::subSystems.window;
 
 	bool ci = false;
+
 	auto newItem = 0;
 	if (w->ButtonPressed(GameInput::ONE))
 	{
@@ -407,7 +413,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newItem = 4;;
 		ci = true;
 	}
-	if (ci)
+
+	if (ci && attacking == false)
 	{
 		if (!w->ButtonDown(GameInput::SHOWINFO))
 		{
@@ -537,15 +544,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+				// Only allow attacking if attack animation is not already playing and attacking is false
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
 				{
+					attacking = true;
+
 					ProjectileData temp;
 
 					temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 					temp.startPosX = this->xPos;
 					temp.startPosY = this->yPos;
 					temp.target = ValidTarget::ENEMIES;
-
 
 					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
 					temp.ownerUnit = mySelf;
@@ -566,8 +575,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		attackCooldown -= dt;
 	}
-	if (attackCooldown < 0.f)
+	else if (attackCooldown <= 0.f){
+		attacking = false;
 		attackCooldown = 0.f;
+	}
+
 	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
@@ -592,7 +604,8 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	health = 100;
+	if (godMode)
+		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		UpdateMovement(dt, mInputs);

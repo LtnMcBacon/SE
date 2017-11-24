@@ -81,9 +81,10 @@ namespace SE
 			Stats weaponStats;
 			bool displaying = false;
 			bool hideP = false;
+			bool godMode = false;
 			void SetCurrentWeaponStats();
 		public:
-
+			void SetGodMode(bool on);
 			struct MovementInput
 			{
 				bool upButton;
@@ -296,6 +297,7 @@ namespace SE
 			//void changeElementType(Gameplay::DamageTypes element);
 			
 			bool isStunned = false;
+			bool attacking = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
 		public:
