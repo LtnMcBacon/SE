@@ -47,12 +47,9 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 
 			Projectile temp(inputData, projData);
 
-			CoreInit::managers.transformManager->SetPosition(temp.GetEntity(),
-			                                                 DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
+			CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
-			CoreInit::managers.transformManager->SetScale(temp.GetEntity(),
-			                                              DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale,
-			                                                                loaded.meshScale));
+			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
 			if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
 			{
@@ -68,14 +65,28 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			}
 
 			Core::IMaterialManager::CreateInfo projectileInfo;
-			Utilz::GUID material = Utilz::GUID("Cube.mat");
-			Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+			Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
 			projectileInfo.shader = shader;
-			projectileInfo.materialFile = material;
+
+			if (loaded.materialName != "NONE")
+				projectileInfo.materialFile = loaded.materialName;;
+
 			CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
 
-			CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), {Utilz::GUID(loaded.meshName)});
-			CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+			if (loaded.meshName != "NONE.mesh" && loaded.meshName != ".mesh" && loaded.meshName != "NONE" && loaded.meshName != "")
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { Utilz::GUID(loaded.meshName) });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+			}
+
+			if (loaded.soundName != "NONE")
+			{
+				Core::IAudioManager::CreateInfo audioInfo;
+				audioInfo.soundFile = loaded.soundName;
+				audioInfo.soundType = SE::Audio::StereoPanSound;
+				CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
+				CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
+			}
 
 			for (int j = 0; j < loaded.nrOfBehaviours; j++)
 			{
@@ -182,6 +193,21 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		GetLine(fileData, line, position);
 		loaded.particleEffect = line;
 		GetLine(fileData, line, position);
+
+		if (fileVersion < 1.4)
+		{
+			loaded.materialName = "Cube.mat";
+			//loaded.soundName = "DefaultAttackSound.wav";
+			loaded.soundName = "NONE";
+		}
+		else
+		{
+			GetLine(fileData, line, position);
+			loaded.materialName = line;
+			GetLine(fileData, line, position);
+			loaded.soundName = line;
+		}
+
 		loaded.nrOfBehaviours = atoi(line.c_str());
 
 		projData.startRotation += loaded.rotationAroundUnit;
@@ -213,7 +239,6 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 
 		if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
 		{
-			
 			CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), {loaded.particleEffect});
 			CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
 		}
@@ -226,14 +251,30 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		}
 
 		Core::IMaterialManager::CreateInfo projectileInfo;
-		Utilz::GUID material = Utilz::GUID("Cube.mat");
-		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+		Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+		Utilz::GUID material = loaded.materialName;
+
 		projectileInfo.shader = shader;
-		projectileInfo.materialFile = material;
+
+		if(loaded.materialName != "NONE")
+			projectileInfo.materialFile = material;
+
 		CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
 
-		CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), {Utilz::GUID(loaded.meshName)});
-		CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+		if (loaded.soundName != "NONE")
+		{
+			Core::IAudioManager::CreateInfo audioInfo;
+			audioInfo.soundFile = loaded.soundName;
+			audioInfo.soundType = SE::Audio::StereoPanSound;
+			CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
+			CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
+		}
+
+		if (loaded.meshName != "NONE.mesh" && loaded.meshName != ".mesh" && loaded.meshName != "NONE" && loaded.meshName != "")
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { Utilz::GUID(loaded.meshName) });
+			CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+		}
 
 		for (int j = 0; j < loaded.nrOfBehaviours; j++)
 		{
@@ -420,7 +461,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 			for (int i = powCounter - 1; i > 0; i--)
 			{
-				parameterData[i] = functionIndex % int(pow(10, i - 1)) + 48;
+				parameterData[i] = functionIndex % int(pow(10, i)) + 48;
 				functionIndex = functionIndex / 10;
 			}
 			parameterData[0] = functionIndex + 48;
@@ -617,7 +658,7 @@ SpeedAddDynamicBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourP
 	auto speed = [speedModifier](Projectile* p, float dt) -> bool
 	{
 		float speed = p->GetSpeed();
-		speed += speed * dt * speedModifier;
+		speed += dt * speedModifier;
 		p->SetSpeed(speed);
 
 		return false;

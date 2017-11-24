@@ -592,6 +592,7 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
+	health = 100;
 	if (health > 0.f)
 	{
 		UpdateMovement(dt, mInputs);

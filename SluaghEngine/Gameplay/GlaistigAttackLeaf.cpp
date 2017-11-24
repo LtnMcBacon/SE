@@ -4,6 +4,7 @@
 #include <Gameplay/EnemyBlackboard.h>
 #include <Gameplay/EnemyUnit.h>
 #include <Profiler.h>
+#include "CoreInit.h"
 
 const SE::Utilz::GUID SE::Gameplay::GlaistigAttackLeaf::glaistigAttackFileGUID = Utilz::GUID("GlaistigProjectile.SEP");
 
@@ -23,9 +24,10 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 		newProjectile.fileNameGuid = glaistigAttackFileGUID;
 		newProjectile.ownerUnit = enemyBlackboard->ownerPointer->GetSharedPtr();
 		newProjectile.target = ValidTarget::PLAYER;
-		newProjectile.startPosX = gameBlackboard->playerPositionX;
-		newProjectile.startPosY = gameBlackboard->playerPositionY;
+		newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
+		newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
 		newProjectile.startPosZ = 1.0f;
+		newProjectile.startRotation = 0;
 		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED,  Gameplay::DamageType::WATER, 10);
 
 		gameBlackboard->enemyProjectiles.push_back(newProjectile);
