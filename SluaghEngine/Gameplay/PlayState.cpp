@@ -627,7 +627,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 		this->player->SetSpeed(speed);
 
 	}, "setspeed", "setspeed <value>");
-
+	
 	ProfileReturnVoid;
 }
 #include <Items.h>

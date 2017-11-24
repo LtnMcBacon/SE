@@ -58,6 +58,7 @@ namespace SE
 
 			int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description)override;
 
+			int RemoveCommand(const char* name) override;
 			/**
 			* @brief	Add a callback that will be called each frame.
 			*

@@ -102,6 +102,8 @@ namespace SE
 			**/
 			void AddFrameCallback(const std::function<void()>& frameCallback) override;
 
+			int RemoveCommand(const char* name) override;
+
 		private:
 			ImGuiTextFilter filter;
 			bool scrollToBottom = false;
