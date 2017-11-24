@@ -123,6 +123,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -130,6 +132,7 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
+	
 	ProfileReturnVoid;
 }
 
