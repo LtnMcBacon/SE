@@ -615,7 +615,18 @@ void SE::Gameplay::PlayState::InitializeOther()
 		
 	}, "tgm", "Toggles godmode.");
 
-	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		float speed = 5.0f;
+		if (argc > 1)
+		{
+			try
+			{
+				speed = std::stof(argv[1]);
+			}catch(...){}
+		}
+		this->player->SetSpeed(speed);
+
+	}, "setspeed", "setspeed <value>");
 
 	ProfileReturnVoid;
 }

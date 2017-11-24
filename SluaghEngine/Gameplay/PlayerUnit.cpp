@@ -297,7 +297,7 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 
 void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
 {
-	this->baseStat.movementSpeed = speed;
+	this->newStat.movementSpeed = speed;
 }
 
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
