@@ -60,6 +60,13 @@ namespace SE
 			float UtilityForChangingWeapon(float dt, int& weaponToSwapFor);
 			float UtilityForUsingItem(float dt, int& item);
 			float UtilityForMoveInDirection(float dt, MovementDirection dir);
+
+			void CalculateSkillUtilities(float dt);
+			void CalculateWeaponChangeUtilities(float dt);
+			void CalculateUseItemUtilities(float dt);
+			void CalculateMovementUtilities(float dt);
+			void DecideActionInput(float dt, PlayerUnit::ActionInput& action);
+			void DecideMovementInput(float dt, PlayerUnit::MovementInput& movement, PlayerUnit::ActionInput& action);
 		};
 	}
 }

@@ -68,164 +68,13 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 {
 	StartProfile;
 
-
-	float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
-	float yDist = thePlayer->GetYPosition() - theSluagh->GetYPosition();
-
-	distanceToPlayer = sqrtf(xDist*xDist + yDist*yDist);
-
-	auto skills = theSluagh->GetAllSkills();
-	utilityMap[UtilityMapEnum::SKILL1] = UtilityForUsingACertainSkill(dt, skills[0]);
-	utilityMap[UtilityMapEnum::SKILL2] = UtilityForUsingACertainSkill(dt, skills[1]);
-
-	int weaponSlot = -1;
-	float weaponUtility = UtilityForChangingWeapon(dt, weaponSlot);
-
-	switch(weaponSlot)
-	{
-	case 0:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_1] = weaponUtility;
-		break;
-	case 1:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_2] = weaponUtility;
-		break;
-	case 2:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_3] = weaponUtility;
-		break;
-	case 3:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_4] = weaponUtility;
-		break;
-	case 4:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_5] = weaponUtility;
-		break;
-	default:
-
-		break;
-	}
-
-	int itemSlot = -1;
-	float itemUtility = UtilityForUsingItem(dt, itemSlot);
-
-	switch (itemSlot)
-	{
-	case 0:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_1] = itemUtility;
-		break;
-	case 1:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_2] = itemUtility;
-		break;
-	case 2:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_3] = itemUtility;
-		break;
-	case 3:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_4] = itemUtility;
-		break;
-	case 4:
-		utilityMap[UtilityMapEnum::WEAPON_SLOT_5] = itemUtility;
-		break;
-	default:
-
-		break;
-	}
-
-	utilityMap[UtilityMapEnum::MOVE_UP] = UtilityForMoveInDirection(dt, MovementDirection::UP);
-	utilityMap[UtilityMapEnum::MOVE_DOWN] = UtilityForMoveInDirection(dt, MovementDirection::DOWN);
-	utilityMap[UtilityMapEnum::MOVE_LEFT] = UtilityForMoveInDirection(dt, MovementDirection::LEFT);
-	utilityMap[UtilityMapEnum::MOVE_RIGHT] = UtilityForMoveInDirection(dt, MovementDirection::RIGHT);
-
-	float maxUtility = -1.f;
-	UtilityMapEnum choice;
-
-	int currentEquipment = 0;
-	auto currentEquipmentEntity = theSluagh->GetCurrentItem();
-	auto allEquipments = theSluagh->GetAllItems();
-
-	for(int i = 0; i < 5; i++)
-	{
-		if (currentEquipmentEntity == allEquipments[i])
-		{
-			currentEquipment = i;
-			break;
-		}
-	}
+	CalculateSkillUtilities(dt);
+	CalculateWeaponChangeUtilities(dt);
+	CalculateUseItemUtilities(dt);
+	CalculateMovementUtilities(dt);
+	DecideActionInput(dt, action);
+	DecideMovementInput(dt, movement, action);
 	
-
-	for(auto utility : utilityMap)
-	{
-		if(maxUtility < utility.second && int(utility.first) < 7)
-		{
-			choice = utility.first;
-			maxUtility = utility.second;
-		}
-	}
-
-	if (maxUtility <= 0.f) /*No choice*/
-		ProfileReturnVoid;
-
-	switch(choice)
-	{
-	case UtilityMapEnum::SKILL1: action.skill1Button = true; break;
-	case UtilityMapEnum::SKILL2: action.skill2Button = true; break;
-	case UtilityMapEnum::WEAPON_SLOT_1: 
-		if(currentEquipment == 0)
-		{
-			action.actionButton = true;
-		}
-		else
-		{
-		}
-		break;
-	case UtilityMapEnum::WEAPON_SLOT_2:
-		if (currentEquipment == 1)
-		{
-			action.actionButton = true;
-		}
-		else
-		{
-		}
-		break;
-	case UtilityMapEnum::WEAPON_SLOT_3:
-		if (currentEquipment == 2)
-		{
-			action.actionButton = true;
-		}
-		else
-		{
-		}
-		break;
-	case UtilityMapEnum::WEAPON_SLOT_4:
-		if (currentEquipment == 3)
-		{
-			action.actionButton = true;
-		}
-		else
-		{
-		}
-		break;
-	case UtilityMapEnum::WEAPON_SLOT_5:
-		if (currentEquipment == 4)
-		{
-			action.actionButton = true;
-		}
-		else
-		{
-		}
-		break;
-	
-	
-	default: ;
-	}
-
-	if (.50f < utilityMap[UtilityMapEnum::MOVE_UP])
-		movement.upButton = true;
-	if (0.50f < utilityMap[UtilityMapEnum::MOVE_LEFT])
-		movement.leftButton = true;
-	if (0.50f < utilityMap[UtilityMapEnum::MOVE_DOWN])
-		movement.downButton = true;
-	if (0.50f < utilityMap[UtilityMapEnum::MOVE_RIGHT])
-		movement.rightButton = true;
-		
-
 
 	StopProfile;
 }
@@ -464,4 +313,185 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 	theSluagh->PositionEntity(xPos, yPos);
 
 	ProfileReturnConst(utilityValue);
+}
+
+void SE::Gameplay::Sluagh::CalculateSkillUtilities(float dt)
+{
+	float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
+	float yDist = thePlayer->GetYPosition() - theSluagh->GetYPosition();
+	distanceToPlayer = sqrtf(xDist*xDist + yDist*yDist);
+
+	auto skills = theSluagh->GetAllSkills();
+	utilityMap[UtilityMapEnum::SKILL1] = UtilityForUsingACertainSkill(dt, skills[0]);
+	utilityMap[UtilityMapEnum::SKILL2] = UtilityForUsingACertainSkill(dt, skills[1]);
+
+}
+
+void SE::Gameplay::Sluagh::CalculateWeaponChangeUtilities(float dt)
+{
+	int weaponSlot = -1;
+	float weaponUtility = UtilityForChangingWeapon(dt, weaponSlot);
+
+	switch (weaponSlot)
+	{
+	case 0:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_1] = weaponUtility;
+		break;
+	case 1:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_2] = weaponUtility;
+		break;
+	case 2:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_3] = weaponUtility;
+		break;
+	case 3:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_4] = weaponUtility;
+		break;
+	case 4:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_5] = weaponUtility;
+		break;
+	default:
+
+		break;
+	}
+
+}
+
+void SE::Gameplay::Sluagh::CalculateUseItemUtilities(float dt)
+{
+	int itemSlot = -1;
+	float itemUtility = UtilityForUsingItem(dt, itemSlot);
+
+	switch (itemSlot)
+	{
+	case 0:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_1] = itemUtility;
+		break;
+	case 1:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_2] = itemUtility;
+		break;
+	case 2:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_3] = itemUtility;
+		break;
+	case 3:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_4] = itemUtility;
+		break;
+	case 4:
+		utilityMap[UtilityMapEnum::WEAPON_SLOT_5] = itemUtility;
+		break;
+	default:
+
+		break;
+	}
+}
+
+void SE::Gameplay::Sluagh::CalculateMovementUtilities(float dt)
+{
+	utilityMap[UtilityMapEnum::MOVE_UP] = UtilityForMoveInDirection(dt, MovementDirection::UP);
+	utilityMap[UtilityMapEnum::MOVE_DOWN] = UtilityForMoveInDirection(dt, MovementDirection::DOWN);
+	utilityMap[UtilityMapEnum::MOVE_LEFT] = UtilityForMoveInDirection(dt, MovementDirection::LEFT);
+	utilityMap[UtilityMapEnum::MOVE_RIGHT] = UtilityForMoveInDirection(dt, MovementDirection::RIGHT);
+
+}
+
+void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& action)
+{
+
+	float maxUtility = -1.f;
+	UtilityMapEnum choice;
+
+	int currentEquipment = 0;
+	auto currentEquipmentEntity = theSluagh->GetCurrentItem();
+	auto allEquipments = theSluagh->GetAllItems();
+
+	for (int i = 0; i < 5; i++)
+	{
+		if (currentEquipmentEntity == allEquipments[i])
+		{
+			currentEquipment = i;
+			break;
+		}
+	}
+
+
+	for (auto utility : utilityMap)
+	{
+		if (maxUtility < utility.second && int(utility.first) < 7)
+		{
+			choice = utility.first;
+			maxUtility = utility.second;
+		}
+	}
+
+	if (maxUtility <= 0.f) /*No choice*/
+		ProfileReturnVoid;
+
+	switch (choice)
+	{
+	case UtilityMapEnum::SKILL1: action.skill1Button = true; break;
+	case UtilityMapEnum::SKILL2: action.skill2Button = true; break;
+	case UtilityMapEnum::WEAPON_SLOT_1:
+		if (currentEquipment == 0)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_2:
+		if (currentEquipment == 1)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_3:
+		if (currentEquipment == 2)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_4:
+		if (currentEquipment == 3)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+	case UtilityMapEnum::WEAPON_SLOT_5:
+		if (currentEquipment == 4)
+		{
+			action.actionButton = true;
+		}
+		else
+		{
+		}
+		break;
+
+
+	default:;
+	}
+}
+
+void SE::Gameplay::Sluagh::DecideMovementInput(float dt, PlayerUnit::MovementInput& movement,
+	PlayerUnit::ActionInput& action)
+{
+
+	if (.50f < utilityMap[UtilityMapEnum::MOVE_UP])
+		movement.upButton = true;
+	if (0.50f < utilityMap[UtilityMapEnum::MOVE_LEFT])
+		movement.leftButton = true;
+	if (0.50f < utilityMap[UtilityMapEnum::MOVE_DOWN])
+		movement.downButton = true;
+	if (0.50f < utilityMap[UtilityMapEnum::MOVE_RIGHT])
+		movement.rightButton = true;
+
+
 }
