@@ -559,7 +559,9 @@ void PlayState::InitializePlayer(void* playerInfo)
 			}
 		}
 	}
-	
+	auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+	player->AddItem(startWeapon, 0);
+
 	ProfileReturnVoid;
 }
 

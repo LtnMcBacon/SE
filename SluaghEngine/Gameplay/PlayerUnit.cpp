@@ -986,12 +986,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
 
-	items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
+	/*items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
 	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
 	Item::Pickup(items[currentItem]);
 	Item::Equip(unitEntity,items[currentItem]);
 
-	SetCurrentWeaponStats();
+	SetCurrentWeaponStats();*/
 	itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
 	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();

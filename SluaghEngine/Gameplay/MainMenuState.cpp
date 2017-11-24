@@ -72,7 +72,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 
 	auto startGame = [this]()->void
 	{
-		this->CurrentState = State::CHARACTER_CREATION_STATE;
+		this->CurrentState = State::TUTORIAL_STATE;
 	};
 
 	auto quitGame = []()->bool
