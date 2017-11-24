@@ -58,14 +58,8 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 	const auto fileLoaded = entityToLightData.find(entity);
 	if (fileLoaded != entityToLightData.end())
 	{		
-		if (show && !fileLoaded->second.visible)
-		{
-			anyTogglesThisFrame = true;
-		}
-		else if (!show && fileLoaded->second.visible)
-		{
-			anyTogglesThisFrame = true;
-		}
+		anyTogglesThisFrame = true;
+		initInfo.transformManager->SetAsDirty(entity);
 		fileLoaded->second.visible = show;
 	}
 	ProfileReturnVoid;
@@ -225,6 +219,18 @@ void SE::Core::LightManager::Destroy(size_t index)
 
 void SE::Core::LightManager::Destroy(const Entity & entity)
 {
+	int32_t index = -1;
+	for(int32_t i = 0; i < indexToEntity.size(); i++)
+	{
+		if (indexToEntity[i] == entity)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != -1)
+		Destroy(index);
+
 }
 
 void SE::Core::LightManager::UpdateDirtyPos(const Entity& entity, size_t index)
