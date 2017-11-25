@@ -15,7 +15,7 @@ SE::Core::LightManager::LightManager(const InitializationInfo & initInfo) :initI
 	initInfo.eventManager->RegisterToToggleVisible({ this, &LightManager::ToggleLight });
 	initInfo.transformManager->RegisterSetDirty({ this, &LightManager::UpdateDirtyPos });
 	
-	auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
+	const auto result = initInfo.renderer->GetPipelineHandler()->CreateDepthStencilViewCube("DepthCube", 512, 512, true);
 	if (result < 0)
 		throw std::exception("Failed to create depth stencil cube.");
 }
@@ -33,13 +33,13 @@ void SE::Core::LightManager::Create(const Entity & entity, const CreateInfo & in
 
 	// chexk if entity exist
 	const auto fileLoaded = entityToLightData.find(entity);
-	auto& data = entityToLightData[entity];
 	if (fileLoaded == entityToLightData.end())
 	{
-		data.visible = false;
-		data.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
-		data.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
-		data.castShadow = false;
+		auto& light = entityToLightData[entity];
+		light.visible = false;
+		light.colour = { info.color.x, info.color.y, info.color.z, info.intensity };
+		light.pos = { info.pos.x, info.pos.y, info.pos.z, info.radius };
+		light.castShadow = false;
 
 		initInfo.transformManager->Create(entity, info.pos);
 		indexToEntity.push_back(entity);
@@ -58,14 +58,8 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 	const auto fileLoaded = entityToLightData.find(entity);
 	if (fileLoaded != entityToLightData.end())
 	{		
-		if (show && !fileLoaded->second.visible)
-		{
-			anyTogglesThisFrame = true;
-		}
-		else if (!show && fileLoaded->second.visible)
-		{
-			anyTogglesThisFrame = true;
-		}
+		anyTogglesThisFrame = true;
+		initInfo.transformManager->SetAsDirty(entity);
 		fileLoaded->second.visible = show;
 	}
 	ProfileReturnVoid;
@@ -74,7 +68,7 @@ void SE::Core::LightManager::ToggleLight(const Entity & entity, bool show)
 void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 {
 	StartProfile;
-	timer->Start(("LightManger"));
+	timer->Start(("LightManager"));
 	GarbageCollection();
 
 	if (dirtyEntites.size())
@@ -84,7 +78,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 			const auto fl = entityToLightData.find(l.entity);
 			if (fl != entityToLightData.end())
 			{
-				auto pos = initInfo.transformManager->GetPosition(l.entity);
+				const auto pos = initInfo.transformManager->GetPosition(l.entity);
 				fl->second.pos.x = pos.x;
 				fl->second.pos.y = pos.y;
 				fl->second.pos.z = pos.z;
@@ -107,7 +101,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 				{
 					cb.data[count].colour = l.second.colour;
 					cb.data[count].pos = l.second.pos;
-					if (l.first == shadowCaster)
+					if (hasShadowCaster && l.first == shadowCaster)
 						shadowCasterIndex = count;
 					count++;
 				}
@@ -150,7 +144,7 @@ void SE::Core::LightManager::Frame(Utilz::TimeCluster * timer)
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightVPBuffer", &lightVPBuffer, sizeof(lightVPBuffer));
 		initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("LightShadowDataBuffer", &lightShadowDataBuffer, sizeof(lightShadowDataBuffer));
 	}
-	timer->Stop(("LightManger"));
+	timer->Stop(("LightManager"));
 	StopProfile;
 }
 		
@@ -181,8 +175,6 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 	const auto exists = entityToLightData.find(entity);
 	if (exists == entityToLightData.end())
 		return;
-	if (hasShadowCaster)
-		return;
 
 	hasShadowCaster = true;
 	shadowCaster = entity;
@@ -192,7 +184,7 @@ void SE::Core::LightManager::SetShadowCaster(const Entity& entity)
 
 void SE::Core::LightManager::SetColor(const Entity& entity, float rgb[3])
 {
-	auto exists = entityToLightData.find(entity);
+	const auto exists = entityToLightData.find(entity);
 	if (exists == entityToLightData.end())
 		return;
 
@@ -214,7 +206,6 @@ void SE::Core::LightManager::Destroy(size_t index)
 
 	// Copy the data
 	indexToEntity[index] = last_entity;
-	entityToLightData[last_entity] = entityToLightData[entity];
 
 	// Remove last spot 
 	entityToLightData.erase(entity);
@@ -225,6 +216,18 @@ void SE::Core::LightManager::Destroy(size_t index)
 
 void SE::Core::LightManager::Destroy(const Entity & entity)
 {
+	int32_t index = -1;
+	for(int32_t i = 0; i < indexToEntity.size(); i++)
+	{
+		if (indexToEntity[i] == entity)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != -1)
+		Destroy(index);
+
 }
 
 void SE::Core::LightManager::UpdateDirtyPos(const Entity& entity, size_t index)

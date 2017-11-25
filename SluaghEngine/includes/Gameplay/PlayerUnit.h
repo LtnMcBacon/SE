@@ -84,7 +84,10 @@ namespace SE
 			bool godMode = false;
 			void SetCurrentWeaponStats();
 		public:
+			//Cheats
 			void SetGodMode(bool on);
+			void SetSpeed(float speed);
+
 			struct MovementInput
 			{
 				bool upButton;

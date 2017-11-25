@@ -134,6 +134,11 @@ int SE::DevConsole::CMDConsole::AddCommand(const DevConsole_Command & commandFun
 	return commands.AddCommand(commandFunction, name, description);
 }
 
+int SE::DevConsole::CMDConsole::RemoveCommand(const char* name)
+{
+	return 0;
+}
+
 void SE::DevConsole::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)
 {
 }
