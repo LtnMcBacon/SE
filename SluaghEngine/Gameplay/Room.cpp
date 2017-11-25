@@ -1419,9 +1419,17 @@ void SE::Gameplay::Room::Load()
 void SE::Gameplay::Room::Unload()
 {
 	for (int x = 0; x < 25; x++)
+	{
 		for (int y = 0; y < 25; y++)
-			for(auto e : roomEntities[x][y])
-			CoreInit::managers.entityManager->Destroy(e);
+		{
+			for (auto e : roomEntities[x][y])
+			{
+				CoreInit::managers.entityManager->Destroy(e);
+			}
+			roomEntities[x][y].clear();
+		}
+	}
+
 	loaded = false;
 	/*for (auto enemy : enemyUnits)
 	{
@@ -1982,9 +1990,9 @@ float Room::FloorCheck(int x, int y)
 }
 void SE::Gameplay::Room::ResetTempTileValues()
 {
-	for (int y = 24; y >= 0; y--)
+	for (int x = 0; x < 25; x++)
 	{
-		for (int x = 0; x < 25; x++)
+		for (int y = 0; y < 25; y++)
 		{
 			if (tileValues[x][y] == (char)100)
 			{

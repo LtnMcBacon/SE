@@ -54,7 +54,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 		this->health -= DamageEventVector[i].amount;
 	}
 
-	if (ph > this->health)
+	if (ph > this->health && !isSluagh)
 	{
 		if (!CoreInit::managers.entityManager->Alive(itemSelectedEntity))
 		{
@@ -295,6 +295,11 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 	godMode = on;
 }
 
+void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
+{
+	this->newStat.movementSpeed = speed;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -386,6 +391,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	auto w = CoreInit::subSystems.window;
 
 	bool ci = false;
+
 	auto newItem = 0;
 	if (input.one)
 	{
@@ -412,7 +418,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newItem = 4;;
 		ci = true;
 	}
-	if (ci)
+
+	if (ci && attacking == false)
 	{
 		if (!input.showInfo)
 		{
@@ -465,14 +472,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+			else
+				currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
 
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
-		else
-			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
-
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
@@ -481,13 +490,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (nrOfSKills > 0 && input.skill1Button)
 	{
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
-		else
-			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+			else
+				currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 	}
 
 	if (nrOfSKills > 1 && skills[1].currentCooldown <= 0.0f && input.skill2Button)
@@ -502,14 +514,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
 
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		uint8_t soundToPlay;
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
-		else
-			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			uint8_t soundToPlay;
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+			else
+				currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
@@ -518,13 +533,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (nrOfSKills > 1 && input.skill2Button)
 	{
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
-		else
-			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+			else
+				currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 	}
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown > 0.0f)
@@ -542,15 +560,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+				// Only allow attacking if attack animation is not already playing and attacking is false
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
 				{
+					attacking = true;
+
 					ProjectileData temp;
 
 					temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 					temp.startPosX = this->xPos;
 					temp.startPosY = this->yPos;
 					temp.target = ValidTarget::ENEMIES;
-
 
 					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
 					temp.ownerUnit = mySelf;
@@ -571,8 +591,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		attackCooldown -= dt;
 	}
-	if (attackCooldown < 0.f)
+	else if (attackCooldown <= 0.f){
+		attacking = false;
 		attackCooldown = 0.f;
+	}
+
 	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
@@ -926,9 +949,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	
 	
 	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
-	startRenderItemInfo.triggerCheck = [](const Core::Entity ent)
+	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
 	{
-		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP) && !isSluagh;
 	};
 	
 	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent)

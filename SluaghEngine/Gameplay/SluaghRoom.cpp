@@ -1,15 +1,17 @@
 #include "SluaghRoom.h"
 #include <Profiler.h>
+#include "CoreInit.h"
 
 SE::Gameplay::SluaghRoom::SluaghRoom(const Utilz::GUID& fileName, PlayerUnit* thePlayer, ProjectileManager* projectileManagers)
 	:Room(fileName), projectileManagers(projectileManagers)
 {
-	theSluagh = new Sluagh(thePlayer, tileValues);
+	theSluagh = new Sluagh(thePlayer, this);
 	theSluagh->ToggleRendering(false);
 	for(int i = 0; i < 4; i++)
 	{
 		DoorArr[i].active = false;
 	}
+	CoreInit::managers.transformManager->Move(theSluagh->GetSluagh()->GetEntity(), DirectX::XMFLOAT3{ 0.f, 0.75f,0.f });
 }
 
 SE::Gameplay::SluaghRoom::~SluaghRoom()
@@ -27,6 +29,7 @@ void SE::Gameplay::SluaghRoom::Update(float dt, float playerX, float playerY)
 	!theSluagh->GetSluagh()->IsAlive();
 
 	projectileManagers->AddProjectiles(projectiles);
+
 	StopProfile;
 }
 

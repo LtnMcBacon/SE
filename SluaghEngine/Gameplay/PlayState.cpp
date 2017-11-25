@@ -123,6 +123,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -130,6 +132,7 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
+	
 	ProfileReturnVoid;
 }
 
@@ -640,6 +643,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 		
 	}, "tgm", "Toggles godmode.");
 
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		float speed = 5.0f;
+		if (argc > 1)
+		{
+			try
+			{
+				speed = std::stof(argv[1]);
+			}catch(...){}
+		}
+		this->player->SetSpeed(speed);
+
+	}, "setspeed", "setspeed <value>");
+	
 	ProfileReturnVoid;
 }
 #include <Items.h>

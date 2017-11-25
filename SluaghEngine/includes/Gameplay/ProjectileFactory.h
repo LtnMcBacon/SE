@@ -54,7 +54,9 @@ namespace SE
 				bool boundToOwner;
 				Utilz::GUID meshName;
 				float meshScale;
-				std::string particleEffect;
+				Utilz::GUID particleEffect;
+				Utilz::GUID materialName;
+				Utilz::GUID soundName;
 				int nrOfBehaviours;
 				std::vector<std::string> behaviours;
 			};
