@@ -1,7 +1,7 @@
 #ifndef SE_GAMEPLAY_TUTORIAL_STATE_H_
 #define SE_GAMEPLAY_TUTORIAL_STATE_H_
 #include "IGameState.h"
-
+#include "ProjectileManager.h"
 namespace SE::Gameplay
 {
 	class Room;
@@ -15,6 +15,7 @@ namespace SE::Gameplay
 		State Update(void*&)override;
 
 	private:
+		void NothingScript(float dt);
 		void NoneScript(float dt);
 		void GreetingScript(float dt);
 		void WASDScript(float dt);
@@ -30,15 +31,28 @@ namespace SE::Gameplay
 
 		void BytaVapenAddInitScript(float dt);
 		void BytaVapenAddScript(float dt);
-		void SpawnaTr‰ningsDocka(float dt);
+
+
+		int hugg = 0;
+		void SlÂMedVapenInitScript(float dt);
+		void SlÂMedVapenScript(float dt);
+
+
+
+		void SpawnaTr‰ningsDockaScript(float dt);
 		
-	
+		void TestaSpellInitScript(float dt);
+		void TestaSpellScript(float dt);
+
+
 		void SpawnaFiendeScript(float dt);
 		void SpawnaGlastigScript(float dt);
 		void SpawnaBodachScript(float dt);
 		void SpawnaNuckelaveeScript(float dt);
-		void SpawnAnd(float dt);
+		void SpawnAndScript(float dt);
 
+		void GÂTillSluaghSvartScript(float dt);
+		void EndTutorialScript(float dt);
 
 		bool w = false;
 		bool a = false;
@@ -54,6 +68,8 @@ namespace SE::Gameplay
 
 		Room* room;
 		PlayerUnit* player;
+		ProjectileManager* projectileManager;
+
 		bool scriptStarted = false;
 		struct SkillIndicator
 		{

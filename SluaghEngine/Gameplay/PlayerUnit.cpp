@@ -1022,6 +1022,13 @@ SE::Gameplay::PlayerUnit::~PlayerUnit()
 	StartProfile;
 
 	this->DestroyEntity();
+	for (int i = 0; i < 5; i++)
+		if (auto item = (std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[i], "Item", -1))); item != -1)
+		{
+			CoreInit::managers.entityManager->DestroyNow(items[i]);
+		}
+
+
 
 	ProfileReturnVoid;
 }

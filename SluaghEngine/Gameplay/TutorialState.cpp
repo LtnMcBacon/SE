@@ -21,11 +21,11 @@ SE::Gameplay::TutorialState::TutorialState()
 	Skill skills[3];
 
 	skills[0].skillDamage = 10;
-	skills[0].atkType = DamageSources::DAMAGE_SOURCE_MELEE;
+	skills[0].atkType = DamageSources::DAMAGE_SOURCE_RANGED;
 	skills[0].cooldown = 5;
 	skills[0].currentCooldown = 0;
 	skills[0].damageType = DamageType::PHYSICAL;
-	skills[0].projectileFileGUID = "playerMeleeProjectiles.SEP";
+	skills[0].projectileFileGUID = "DaggerRain.SEP";
 
 	skills[1].skillDamage = 10;
 	skills[1].atkType = DamageSources::DAMAGE_SOURCE_MELEE;
@@ -134,23 +134,28 @@ SE::Gameplay::TutorialState::TutorialState()
 
 
 #pragma endregion
+	BehaviourPointers temp;
+	temp.currentRoom = &room;
+	temp.player = player;
 
-	
+	projectileManager = new ProjectileManager(temp);
+
 
 
 	/*auto weapon = Item::Weapon::Create(WeaponType::SWORD);
 	player->AddItem(weapon, 0);*/
 
 	subSystems.window->UpdateTime();
-	//scriptToRun = &TutorialState::GreetingScript;
+	scriptToRun = &TutorialState::GreetingScript;
 
-	scriptToRun = &TutorialState::BytaVapenAddInitScript;
+//scriptToRun = &TutorialState::SpawnaGlastigScript;
 
 }
 
 
 SE::Gameplay::TutorialState::~TutorialState()
 {
+	delete projectileManager;
 	delete player;
 	delete room;
 }
@@ -201,38 +206,15 @@ static const auto GetBasicMovement(PlayerUnit::MovementInput& movement, PlayerUn
 
 SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass)
 {
-
-	
 	float dt = subSystems.window->GetDelta();
 
 	(*this.*scriptToRun)(dt);
-	//GreetingScript(dt);
 
+	return scriptToRun == &TutorialState::EndTutorialScript ? State::MAIN_MENU_STATE : State::TUTORIAL_STATE;
+}
 
-	//if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL1)))
-	//{
-	//	action.skill1Button = true;
-	//}
-
-	//if (subSystems.window->ButtonPressed(uint32_t(GameInput::SKILL2)))
-	//{
-	//	action.skill2Button = true;
-	//}
-
-	//if (subSystems.window->ButtonDown(uint32_t(GameInput::ACTION)))
-	//{
-	//	action.actionButton = true;
-	//}
-
-
-
-	//player->Update(dt, movement, newProjectiles, action);
-
-	//UpdateProjectiles(newProjectiles);
-
-	room->Update(dt, player->GetXPosition(), player->GetYPosition());
-
-	return State::TUTORIAL_STATE;
+void SE::Gameplay::TutorialState::NothingScript(float dt)
+{
 }
 
 void SE::Gameplay::TutorialState::NoneScript(float dt)
@@ -243,6 +225,13 @@ void SE::Gameplay::TutorialState::NoneScript(float dt)
 
 	GetBasicMovement(movement, action);
 
+	projectileManager->AddProjectiles(newProjectiles);
+
+	projectileManager->UpdateProjectilePositions(subSystems.window->GetDelta());
+	room->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+	projectileManager->UpdateProjectileActions(subSystems.window->GetDelta());
+
+	room->Update(dt, player->GetXPosition(), player->GetYPosition());
 
 
 	player->Update(dt, movement, newProjectiles, action);
@@ -305,7 +294,12 @@ void SE::Gameplay::TutorialState::MouseScript(float dt)
 	managers.textManager->ToggleRenderableText(mouseText, true);
 	managers.eventManager->SetLifetime(mouseText, 4.5f);
 	scriptToRun = &TutorialState::NoneScript;
+
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		w = false;
+		a = false;
+		s = false;
+		d = false;
 		scriptToRun = &TutorialState::WaitForMovementInputScript;
 	});
 	managers.eventManager->RegisterEntitytoEvent(mouseText, "OnDeath");
@@ -633,11 +627,127 @@ void SE::Gameplay::TutorialState::BytaVapenAddScript(float dt)
 	if (action.two)
 	{
 		managers.eventManager->TriggerEvent("DelBytVapenText", true);
-		scriptToRun = &TutorialState::SpawnaTräningsDocka;
+		scriptToRun = &TutorialState::SlåMedVapenInitScript;
 	}
 }
 
-void SE::Gameplay::TutorialState::SpawnaTräningsDocka(float dt)
+void SE::Gameplay::TutorialState::SlåMedVapenInitScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"UTMÄRKT!\nGE NU DINA VAPEN NÅGRA BRA HUGG GENOM ATT TRYCKA PÅ VÄNSTER MUSKNAPP";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.25f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+	hugg = 0;
+	managers.eventManager->RegisterTriggerEvent("DelSlåMedVapenScript", [this](Core::Entity ent) {
+		managers.entityManager->Destroy(ent);
+		scriptToRun = &TutorialState::NoneScript;
+	});
+
+	scriptToRun = &TutorialState::SlåMedVapenScript;
+	managers.eventManager->RegisterEntitytoEvent(ent, "DelSlåMedVapenScript");
+}
+
+void SE::Gameplay::TutorialState::SlåMedVapenScript(float dt)
+{
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+	if (subSystems.window->ButtonPressed(GameInput::ACTION))
+	{
+		action.actionButton = true;
+		hugg++;
+	}
+	if (subSystems.window->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+	else if (subSystems.window->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+	player->Update(dt, movement, newProjectiles, action);
+
+
+	projectileManager->AddProjectiles(newProjectiles);
+
+	projectileManager->UpdateProjectilePositions(subSystems.window->GetDelta());
+	room->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+	projectileManager->UpdateProjectileActions(subSystems.window->GetDelta());
+
+	room->Update(dt, player->GetXPosition(), player->GetYPosition());
+
+
+	if (hugg >= 10)
+	{
+		managers.eventManager->TriggerEvent("DelSlåMedVapenScript", true);
+		scriptToRun = &TutorialState::TestaSpellInitScript;
+	}
+}
+
+void SE::Gameplay::TutorialState::TestaSpellInitScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"DU KAN OCKSÅ ANVÄNDA SPECIELLA FÖRMÅGOR\nTESTA ATT TRYCKA PÅ q ELLER e";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+	managers.eventManager->RegisterTriggerEvent("TestaSkillDelText", [this](Core::Entity ent) {
+		managers.entityManager->Destroy(ent);
+	});
+	managers.eventManager->RegisterEntitytoEvent(ent, "TestaSkillDelText");
+
+	scriptToRun = &TutorialState::TestaSpellScript;
+
+}
+
+void SE::Gameplay::TutorialState::TestaSpellScript(float dt)
+{
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+	if (subSystems.window->ButtonPressed(GameInput::SKILL1))
+	{
+		action.skill1Button = true;
+	}
+	else if (subSystems.window->ButtonPressed(GameInput::SKILL2))
+	{
+		action.skill2Button = true;
+	}
+
+	player->Update(dt, movement, newProjectiles, action);
+
+
+	projectileManager->AddProjectiles(newProjectiles);
+
+	projectileManager->UpdateProjectilePositions(subSystems.window->GetDelta());
+	room->CheckProjectileCollision(projectileManager->GetAllProjectiles());
+	projectileManager->UpdateProjectileActions(subSystems.window->GetDelta());
+
+	room->Update(dt, player->GetXPosition(), player->GetYPosition());
+
+
+	if (action.skill1Button || action.skill2Button)
+	{
+		managers.eventManager->TriggerEvent("TestaSkillDelText", true);
+		scriptToRun = &TutorialState::SpawnaFiendeScript;
+	}
+}
+
+void SE::Gameplay::TutorialState::SpawnaTräningsDockaScript(float dt)
 {
 	player->SetGodMode(true);
 
@@ -674,7 +784,7 @@ void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
 	
 	scriptToRun = &TutorialState::NoneScript;
 
-	managers.eventManager->SetLifetime(ent, 5.0f);
+	managers.eventManager->SetLifetime(ent, 8.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::SpawnaGlastigScript;
@@ -705,7 +815,7 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 2.5f, 15.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 8;
+	pl.intensity = 2;
 	pl.radius = 3;
 	managers.lightManager->Create(glastigLight, pl);
 	managers.lightManager->ToggleLight(glastigLight, true);
@@ -720,7 +830,7 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	managers.textManager->ToggleRenderableText(glastig, true);
 
 	Utilz::GUID anims[] = { "AttackAnim_Glaistig.anim" };
-	managers.animationManager->Start(glastig, anims, 1, 2, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.animationManager->Start(glastig, anims, 1, 2, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(glastig, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, glastigLight](Core::Entity ent) {
@@ -756,7 +866,7 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 1.75f, 12.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 8;
+	pl.intensity = 2;
 	pl.radius = 3;
 	managers.lightManager->Create(bodachLight, pl);
 	managers.lightManager->ToggleLight(bodachLight, true);
@@ -771,7 +881,7 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	managers.textManager->ToggleRenderableText(bodach, true);
 
 	Utilz::GUID anims[] = { "IdleAnim_Bodach.anim" };
-	managers.animationManager->Start(bodach, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.animationManager->Start(bodach, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(bodach, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, bodachLight](Core::Entity ent) {
@@ -798,7 +908,7 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	managers.animationManager->CreateAnimatedObject(nuck, aci);
 	managers.animationManager->ToggleVisible(nuck, true);
 	Core::IMaterialManager::CreateInfo mci;
-	mci.materialFile = "Bodach.mat";
+	mci.materialFile = "Nuckelavee.mat";
 	mci.shader = "SimpleLightPS.hlsl";
 	managers.materialManager->Create(nuck, mci);
 
@@ -807,7 +917,7 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 1.75f, 10.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 8;
+	pl.intensity = 2;
 	pl.radius = 3;
 	managers.lightManager->Create(nuckLight, pl);
 	managers.lightManager->ToggleLight(nuckLight, true);
@@ -822,11 +932,11 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	managers.textManager->ToggleRenderableText(nuck, true);
 
 	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
-	managers.animationManager->Start(nuck, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.animationManager->Start(nuck, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(nuck, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, nuckLight](Core::Entity ent) {
-		scriptToRun = &TutorialState::SpawnAnd;
+		scriptToRun = &TutorialState::SpawnAndScript;
 		managers.entityManager->Destroy(ent);
 		managers.entityManager->Destroy(nuckLight);
 	});
@@ -836,27 +946,93 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	scriptToRun = &TutorialState::NoneScript;
 }
 
-void SE::Gameplay::TutorialState::SpawnAnd(float dt)
+void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 {
+	delete projectileManager;
+	projectileManager = nullptr;
+	delete player;
+	player = nullptr;
+	room->Unload();
+	delete room;
+	room = nullptr;
+
+	managers.entityManager->Destroy(skillIndicators[0].frame);
+	managers.entityManager->Destroy(skillIndicators[1].frame);
+	managers.entityManager->Destroy(skillIndicators[0].Image);
+	managers.entityManager->Destroy(skillIndicators[1].Image);
+
+
+
 	auto ent = managers.entityManager->Create();
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
-	gti.info.text = L"AND...";
+	gti.info.text = L"OCH...";
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 
-	managers.eventManager->SetLifetime(ent, 4.0f);
+	managers.eventManager->SetLifetime(ent, 7.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
-		scriptToRun = &TutorialState::SpawnaGlastigScript;
+		scriptToRun = &TutorialState::GåTillSluaghSvartScript;
 		managers.entityManager->Destroy(ent);
 	});
 
 	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
-	scriptToRun = &TutorialState::NoneScript;
+	scriptToRun = &TutorialState::NothingScript;
+}
+
+void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
+{
+	
+
+
+	Core::ICameraManager::CreateInfo cci;
+	cci.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280)/(double)subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720));
+	cci.fov = 1.570796f;
+	auto newCam = managers.entityManager->Create();
+	managers.cameraManager->Create(newCam, cci);
+	managers.cameraManager->SetActive(newCam);
+
+	auto sluagh = managers.entityManager->Create();
+
+	Core::IMaterialManager::CreateInfo mci;
+	mci.materialFile = "Slaughplane.mat";
+	mci.shader = "SimpleTexPS.hlsl";
+	managers.materialManager->Create(sluagh, mci);
+
+	Core::IAnimationManager::CreateInfo aci;
+	aci.mesh = "MCModell.mesh";
+	aci.skeleton = "MCModell.skel";
+	aci.animationCount = 0;
+	
+	managers.transformManager->Create(sluagh, { 0.0f,-0.4f, 1.0f }, {0, -XM_PI,0});
+	managers.animationManager->CreateAnimatedObject(sluagh, aci);
+	managers.animationManager->ToggleVisible(sluagh, true);
+	Utilz::GUID anims[] = { "TopAttackAnim_MCModell.anim","BottomIdleAnim_MCModell.anim" };
+	managers.animationManager->Start(sluagh, anims, 2, 2, Core::AnimationFlags::IMMEDIATE);
+
+
+	managers.eventManager->SetLifetime(sluagh, 4.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::EndTutorialScript;
+		managers.entityManager->Destroy(ent);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(sluagh, "OnDeath");
+
+
+	scriptToRun = &TutorialState::NothingScript;
+
+
+	
+}
+
+void SE::Gameplay::TutorialState::EndTutorialScript(float dt)
+{
 }
 
 void SE::Gameplay::TutorialState::WaitForMovementInputScript(float dt)
