@@ -144,7 +144,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	subSystems.window->UpdateTime();
 	//scriptToRun = &TutorialState::GreetingScript;
 
-	scriptToRun = &TutorialState::SpawnaGlastigScript;
+	scriptToRun = &TutorialState::BytaVapenAddInitScript;
 
 }
 
@@ -587,8 +587,77 @@ void SE::Gameplay::TutorialState::TaPåSigVapenScript(float dt)
 	if (action.one)
 	{
 		managers.eventManager->TriggerEvent("DelVisaVapenText", true);
-		scriptToRun = &TutorialState::SpawnaFiendeScript;
+		scriptToRun = &TutorialState::BytaVapenAddInitScript;
 	}
+}
+
+void SE::Gameplay::TutorialState::BytaVapenAddInitScript(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"DU KAN BYTA VAPEN GENOM ATT TRYCKA PÅ KNAPPEN 1,2,3,4 ELLER 5\nGREPPA NU DITT TROLLSPÖ";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+	managers.eventManager->RegisterTriggerEvent("DelBytVapenText", [this](Core::Entity ent) {
+		managers.entityManager->Destroy(ent);
+	});
+	managers.eventManager->RegisterEntitytoEvent(ent, "DelBytVapenText");
+
+	player->AddItem(Item::Weapon::Create(WeaponType::WAND), 1);
+
+	scriptToRun = &TutorialState::BytaVapenAddScript;
+
+}
+
+void SE::Gameplay::TutorialState::BytaVapenAddScript(float dt)
+{
+	PlayerUnit::MovementInput movement(false, false, false, false, false, 0.0f, 0.0f);
+	PlayerUnit::ActionInput action;
+	std::vector<ProjectileData> newProjectiles;
+
+	GetBasicMovement(movement, action);
+	if (subSystems.window->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+
+
+
+	player->Update(dt, movement, newProjectiles, action);
+
+	if (action.two)
+	{
+		managers.eventManager->TriggerEvent("DelBytVapenText", true);
+		scriptToRun = &TutorialState::SpawnaTräningsDocka;
+	}
+}
+
+void SE::Gameplay::TutorialState::SpawnaTräningsDocka(float dt)
+{
+	player->SetGodMode(true);
+
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"TESTA NU DINA VAPEN";
+	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+	managers.eventManager->SetLifetime(ent, 4.5f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaFiendeScript;
+	});
+	scriptToRun = &TutorialState::NoneScript;
+
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
 }
 
 void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
@@ -619,7 +688,7 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	Core::Entity glastig;
 	Core::Entity glastigLight;
 	glastig = managers.entityManager->Create();
-	managers.transformManager->Create(glastig, { 16.5f, 0.5f, 15.5f }, {0, XM_PIDIV2,0});
+	managers.transformManager->Create(glastig, { 16.5f, 0.5f, 15.5f }, {0, -XM_PIDIV2,0});
 	Core::IAnimationManager::CreateInfo aci;
 	aci.mesh = "Glaistig.mesh";
 	aci.skeleton = "Glaistig.skel";
@@ -634,10 +703,10 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 
 	glastigLight = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo pl;
-	pl.pos = { 14.5f, 2.5f, 15.5f };
-	pl.color = { 1.0f, 0.7f, 0.7f };
-	pl.intensity = 4;
-	pl.radius = 5;
+	pl.pos = { 15.5f, 2.5f, 15.5f };
+	pl.color = { 1.0f, 0.85f, 0.85f };
+	pl.intensity = 8;
+	pl.radius = 3;
 	managers.lightManager->Create(glastigLight, pl);
 	managers.lightManager->ToggleLight(glastigLight, true);
 
@@ -650,8 +719,9 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	managers.textManager->Create(glastig, gti);
 	managers.textManager->ToggleRenderableText(glastig, true);
 
-
-	managers.eventManager->SetLifetime(glastig, 10.0f);
+	Utilz::GUID anims[] = { "AttackAnim_Glaistig.anim" };
+	managers.animationManager->Start(glastig, anims, 1, 2, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.eventManager->SetLifetime(glastig, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, glastigLight](Core::Entity ent) {
 		scriptToRun = &TutorialState::SpawnaBodachScript;
@@ -669,7 +739,7 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	Core::Entity bodach;
 	Core::Entity bodachLight;
 	bodach = managers.entityManager->Create();
-	managers.transformManager->Create(bodach, { 16.5f, 0.5f, 13.5f }, { 0, XM_PIDIV2,0 });
+	managers.transformManager->Create(bodach, { 16.5f, 0.0f, 12.5f }, { 0, -XM_PIDIV2,0 });
 	Core::IAnimationManager::CreateInfo aci;
 	aci.mesh = "Bodach.mesh";
 	aci.skeleton = "Bodach.skel";
@@ -684,33 +754,108 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 
 	bodachLight = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo pl;
-	pl.pos = { 14.5f, 2.5f, 13.5f };
-	pl.color = { 1.0f, 0.7f, 0.7f };
-	pl.intensity = 4;
-	pl.radius = 5;
+	pl.pos = { 15.5f, 1.75f, 12.5f };
+	pl.color = { 1.0f, 0.85f, 0.85f };
+	pl.intensity = 8;
+	pl.radius = 3;
 	managers.lightManager->Create(bodachLight, pl);
 	managers.lightManager->ToggleLight(bodachLight, true);
 
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
-	gti.info.text = L"GLAISTIG";
+	gti.info.text = L"BODACH";
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(bodach, gti);
 	managers.textManager->ToggleRenderableText(bodach, true);
 
-
-	managers.eventManager->SetLifetime(bodach, 10.0f);
+	Utilz::GUID anims[] = { "IdleAnim_Bodach.anim" };
+	managers.animationManager->Start(bodach, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.eventManager->SetLifetime(bodach, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, bodachLight](Core::Entity ent) {
-		scriptToRun = &TutorialState::SpawnaGlastigScript;
+		scriptToRun = &TutorialState::SpawnaNuckelaveeScript;
 		managers.entityManager->Destroy(ent);
 		managers.entityManager->Destroy(bodachLight);
 	});
 
 	managers.eventManager->RegisterEntitytoEvent(bodach, "OnDeath");
 
+	scriptToRun = &TutorialState::NoneScript;
+}
+
+void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
+{
+	Core::Entity nuck;
+	Core::Entity nuckLight;
+	nuck = managers.entityManager->Create();
+	managers.transformManager->Create(nuck, { 16.5f, 0.0f, 10.5f }, { 0, -XM_PIDIV2,0 });
+	Core::IAnimationManager::CreateInfo aci;
+	aci.mesh = "Nuckelavee.mesh";
+	aci.skeleton = "Nuckelavee.skel";
+	aci.animationCount = 0;
+	managers.animationManager->CreateAnimatedObject(nuck, aci);
+	managers.animationManager->ToggleVisible(nuck, true);
+	Core::IMaterialManager::CreateInfo mci;
+	mci.materialFile = "Bodach.mat";
+	mci.shader = "SimpleLightPS.hlsl";
+	managers.materialManager->Create(nuck, mci);
+
+
+	nuckLight = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo pl;
+	pl.pos = { 15.5f, 1.75f, 10.5f };
+	pl.color = { 1.0f, 0.85f, 0.85f };
+	pl.intensity = 8;
+	pl.radius = 3;
+	managers.lightManager->Create(nuckLight, pl);
+	managers.lightManager->ToggleLight(nuckLight, true);
+
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"NUCKLAVEE";
+	gti.info.screenAnchor = { 0.5f,0.25f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(nuck, gti);
+	managers.textManager->ToggleRenderableText(nuck, true);
+
+	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
+	managers.animationManager->Start(nuck, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+	managers.eventManager->SetLifetime(nuck, 12.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, nuckLight](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnAnd;
+		managers.entityManager->Destroy(ent);
+		managers.entityManager->Destroy(nuckLight);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(nuck, "OnDeath");
+
+	scriptToRun = &TutorialState::NoneScript;
+}
+
+void SE::Gameplay::TutorialState::SpawnAnd(float dt)
+{
+	auto ent = managers.entityManager->Create();
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"AND...";
+	gti.info.screenAnchor = { 0.5f,0.25f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	managers.textManager->Create(ent, gti);
+	managers.textManager->ToggleRenderableText(ent, true);
+
+	managers.eventManager->SetLifetime(ent, 4.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaGlastigScript;
+		managers.entityManager->Destroy(ent);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
 	scriptToRun = &TutorialState::NoneScript;
 }
 

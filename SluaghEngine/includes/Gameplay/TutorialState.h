@@ -26,12 +26,18 @@ namespace SE::Gameplay
 		void Utm‰rktPickupWeaponScript(float dt);
 		void VisaTaPÂSigVapenScript(float dt);
 		void TaPÂSigVapenScript(float dt);
-		
+
+
+		void BytaVapenAddInitScript(float dt);
+		void BytaVapenAddScript(float dt);
+		void SpawnaTr‰ningsDocka(float dt);
 		
 	
 		void SpawnaFiendeScript(float dt);
 		void SpawnaGlastigScript(float dt);
 		void SpawnaBodachScript(float dt);
+		void SpawnaNuckelaveeScript(float dt);
+		void SpawnAnd(float dt);
 
 
 		bool w = false;
