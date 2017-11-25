@@ -72,9 +72,12 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 
 	auto startGame = [this]()->void
 	{
+		this->CurrentState = State::CHARACTER_CREATION_STATE;
+	};
+	auto startTutorial = [this]()->void
+	{
 		this->CurrentState = State::TUTORIAL_STATE;
 	};
-
 	auto quitGame = []()->bool
 	{
 
@@ -98,6 +101,8 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 		if (button.rectName == "startGameBtn")
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY+200, button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
+
 		}
 		/*else if (button.rectName == "quitBtn")
 		{
