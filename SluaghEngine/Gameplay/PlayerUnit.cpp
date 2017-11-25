@@ -444,6 +444,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 				auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Charges", 0));
 				if (charges > 0)
 				{
+					CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+					uint8_t soundToPlay;
+
+					currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+
+					CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 					health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Health", 0));
 					charges--;
 					if (charges == 0)

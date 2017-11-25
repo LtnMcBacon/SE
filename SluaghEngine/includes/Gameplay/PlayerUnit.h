@@ -147,7 +147,7 @@ namespace SE
 					this->two = two;
 					this->three = three;
 					this->four = four;
-					this - five = five;
+					this->five = five;
 					this->showInfo = showInfo;
 				}
 			};
