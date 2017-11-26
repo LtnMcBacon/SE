@@ -133,22 +133,12 @@ namespace SE
 
 				bool showInfo = false;
 
-				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false, bool one = false,
-				bool two = false,
-				bool three = false,
-				bool four = false,
-				bool five = false,
-				bool showInfo = false)
+				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
 					actionButton = action;
-					this->one = one;
-					this->two = two;
-					this->three = three;
-					this->four = four;
-					this->five = five;
-					this->showInfo = showInfo;
+
 				}
 			};
 
