@@ -15,6 +15,7 @@ namespace SE
 			struct SkillInfo
 			{
 				std::string skillName = "";
+				std::string description = "";
 				unsigned short int AtkType		= 0;
 				unsigned short int Element		= 0;
 				unsigned short int Boon			= 0;
@@ -60,7 +61,7 @@ namespace SE
 			*
 			* @Warning		Output value typeList must be manually converted into skill enums found in player.
 			**/
-			void readSkillInfo(unsigned int index, std::string& name, unsigned short int* typeList);
+			void readSkillInfo(unsigned int index, std::string& name, std::string& desc, unsigned short int* typeList);
 			/**
 			* @brief		Returns the skills attributes.
 			*

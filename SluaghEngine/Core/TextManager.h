@@ -219,8 +219,8 @@ namespace SE
 
 			InitializationInfo initInfo;
 
-			long originalScreenWidth = 1280;
-			long originalScreenHeight = 720;
+			long originalScreenWidth = 1920;
+			long originalScreenHeight = 1080;
 		};
 	}
 }

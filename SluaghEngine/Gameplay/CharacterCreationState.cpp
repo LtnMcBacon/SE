@@ -26,7 +26,6 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	//Testing perk importer
 	for (auto& fileName: Perkfiles)
 	{
-
 		perks.loadPerkData(fileName);
 	}
 	
@@ -76,7 +75,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 	importSkillButtons();
 	importPerkButtons();
 
-	//getPerks();
+
 	getSkills();
 	this->input = Input;
 	ProfileReturnVoid;
@@ -95,18 +94,17 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	if (selectedSkills != renewSkillList)
 	{
 		renewSkillList = selectedSkills;
+		fileParser.GUIButtons.deleteSkillPerkBtns();
 		if (selectedSkills < nrOfSkills)
 		{
-			fileParser.GUIButtons.deleteSkillPerkBtns();
 			getSkills();
 		}
 		else
 		{
-			fileParser.GUIButtons.deleteSkillPerkBtns();
 			getPerks();
 		}
 	}
-	else if (selectedPerks != renewPerks && selectedSkills == nrOfSkills)
+	else if (selectedPerks != renewPerks)
 	{
 		fileParser.GUIButtons.deleteSkillPerkBtns();
 		renewPerks = selectedPerks;
@@ -115,12 +113,13 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			getPerks();
 		}
 	}
-	if (selectedSkills == nrOfSkills && allSkillsSelected == false)
-	{
-		//allSkillsSelected = true;
-		//fileParser.GUIButtons.deleteSkillPerkBtns();
-		//getPerks();
-	}
+	//if (selectedPerks == nrOfPerks)
+	//{
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
+	//}
+
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
 	bool released = input->ButtonUp(uint32_t(GameInput::ACTION));
@@ -130,13 +129,14 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 
-	if (input->ButtonPressed(0))
-	IGameState::State empty = State::CHARACTER_CREATION_STATE;
+	
 	
 	
 	if (allSkillsSelected  == true)
 	{
+		
 		PlayStateData* infoToPass = new PlayStateData;
+
 		for (int i = 0; i < nrOfSkills; i++)
 		{
 			SkillFactory sf;
@@ -160,6 +160,11 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
 			infoToPass->skills[i].cooldown				= attrArray[7];
+		}
+
+		for (size_t i = 0; i < nrOfPerks; i++)
+		{
+			infoToPass->perks[i] = chosenPerks.at(i);
 		}
 
 
@@ -187,10 +192,11 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorY = 100;
 
 		std::string skillName;
+		std::string skillDesc;
 		unsigned short int skillInfo[8];
 		
 		unsigned int index = sf.getRandomSkillIndex();
-		sf.readSkillInfo(index, skillName, skillInfo);
+		sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 
 	
 		int count = 0;
@@ -208,7 +214,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -222,7 +228,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{
@@ -242,7 +248,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -256,7 +262,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{
@@ -331,7 +337,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 	std::vector<std::string> otherPerks;
 	int nrOfOtherPerks = 0;
 	
-	for (size_t i = 0; i < nrOfPerks; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		int anchorX = borderOffset + offset*i;
 		int anchorY = 100;
@@ -494,4 +500,9 @@ void SE::Gameplay::CharacterCreationState::importPerkButtons()
 		fileParser.ParsePerks(fileName);
 	}
 	ProfileReturnVoid;
+}
+
+void SE::Gameplay::CharacterCreationState::interpretPerks(PerkData perk)
+{
+
 }
