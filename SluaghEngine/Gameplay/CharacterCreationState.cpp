@@ -192,10 +192,11 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorY = 100;
 
 		std::string skillName;
+		std::string skillDesc;
 		unsigned short int skillInfo[8];
 		
 		unsigned int index = sf.getRandomSkillIndex();
-		sf.readSkillInfo(index, skillName, skillInfo);
+		sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 
 	
 		int count = 0;
@@ -213,7 +214,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -227,7 +228,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{
@@ -247,7 +248,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -261,7 +262,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{

@@ -33,7 +33,6 @@ namespace SE
 			CharacterCreationState(Window::IWindow* Input);
 			~CharacterCreationState();
 
-
 			/**
 			* @brief	The Update loop for the Character creation phase.
 			*
