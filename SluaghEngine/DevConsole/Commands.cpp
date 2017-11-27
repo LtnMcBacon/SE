@@ -92,3 +92,15 @@ int SE::DevConsole::Commands::AddCommand(const DevConsole_Command& commandFuncti
 	commands[hash] = { commandFunction, name ,description };
 	return 0;
 }
+
+int SE::DevConsole::Commands::RemoveCommand(const char* name)
+{
+	auto hash = std::hash<std::string>{}(name);
+	auto find = commands.find(hash);
+	if (find != commands.end())
+	{
+		commands.erase(find);
+		return 0;
+	}
+	return -1;
+}

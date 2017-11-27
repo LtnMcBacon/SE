@@ -61,6 +61,8 @@ namespace SE
 			*/
 			int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description);
 
+			int RemoveCommand(const char* name);
+
 			void InterpretCommand(IConsole* console,const char* command);
 
 			void GetMap(std::map<size_t, Command_Structure>& commands);

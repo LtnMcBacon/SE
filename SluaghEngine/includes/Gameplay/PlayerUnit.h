@@ -84,13 +84,17 @@ namespace SE
 			bool godMode = false;
 			void SetCurrentWeaponStats();
 		public:
+			//Cheats
 			void SetGodMode(bool on);
+			void SetSpeed(float speed);
+
 			struct MovementInput
 			{
 				bool upButton;
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
+
 
 				bool mouseRightDown;
 				float mousePosX;
@@ -117,16 +121,24 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool actionButton;
-				bool skill1Button;
-				bool skill2Button;
+				bool actionButton = false;
+				bool skill1Button = false;
+				bool skill2Button = false;
 
+				bool one = false;
+				bool two = false;
+				bool three = false;
+				bool four = false;
+				bool five = false;
+
+				bool showInfo = false;
 
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
 					actionButton = action;
+
 				}
 			};
 
