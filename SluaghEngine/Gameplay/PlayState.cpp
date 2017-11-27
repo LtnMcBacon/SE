@@ -133,6 +133,7 @@ PlayState::~PlayState()
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
 	
+
 	ProfileReturnVoid;
 }
 
@@ -253,6 +254,16 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
+	auto ducks = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+	if(ducks != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+	{
+		CoreInit::managers.textManager->SetTextPos(usePrompt, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, true);
+	}
+	else
+	{
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, false);
+	}
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
@@ -628,6 +639,13 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+	usePrompt = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo promptCreateInfo;
+	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
+	promptCreateInfo.info.scale = { 0.3f, 0.3f };
+	promptCreateInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
