@@ -439,6 +439,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.one = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_2:
@@ -448,6 +449,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.two = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_3:
@@ -457,6 +459,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.three = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_4:
@@ -466,6 +469,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.four = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_5:
@@ -475,6 +479,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.five = true;
 		}
 		break;
 

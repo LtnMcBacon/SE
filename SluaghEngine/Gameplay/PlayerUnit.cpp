@@ -860,6 +860,28 @@ float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
 	return skills.at(skillNumber).currentCooldown;
 }
 
+void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
+{
+	isSluagh = sluagh;
+	Core::IMaterialManager::CreateInfo info;
+	if (sluagh)
+	{
+		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto material = Utilz::GUID("Slaughplane.mat");
+		info.shader = shader;
+		info.materialFile = material;
+	}
+	else
+	{
+		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto material = Utilz::GUID("MCModell.mat");
+		info.shader = shader;
+		info.materialFile = material;
+	}
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+}
+
 void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
 {
 	skills.clear();

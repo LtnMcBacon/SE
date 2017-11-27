@@ -293,7 +293,7 @@ namespace SE
 			float getCurrentCooldown(int skillNumber);
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
-			inline void ToggleAsSluagh(bool sluagh) { isSluagh = sluagh; };
+			void ToggleAsSluagh(bool sluagh);
 
 
 
