@@ -23,7 +23,8 @@ void SE::Core::EventManager::RegisterEntityEvent(const Utilz::GUID _event,
 	}
 	else
 	{
-		entityEvents[find->second] = { _event, callbacks };
+		entityEvents[find->second].event_ = _event;
+		entityEvents[find->second].callbacks = callbacks;
 	}
 }
 
@@ -36,7 +37,8 @@ void SE::Core::EventManager::RegisterTriggerEvent(const Utilz::GUID _event, cons
 	}
 	else
 	{
-		triggerEvents[find->second] = { _event, callback };
+		triggerEvents[find->second].event_ = _event;
+		triggerEvents[find->second].callback = callback;
 	}
 }
 
@@ -174,7 +176,11 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 	timer->Start("EventManager");
 
 
-
+	TriggerEventStruct* odes = nullptr;
+	if (auto onDeathEvent = triggerEventToIndex.find("OnDeath"); onDeathEvent != triggerEventToIndex.end())
+	{
+		odes  = &triggerEvents[onDeathEvent->second];
+	}
 	float dt = initInfo.window->GetDelta();
 	for (size_t i = 0; i < entires.entity.size(); i++)
 	{
@@ -184,6 +190,10 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 			timeToDeath -= dt;
 			if (timeToDeath <= 0)
 			{
+				if (odes)
+					for (auto& e : odes->entitesRegistered)
+						if (e == entires.entity[i])
+							odes->callback(e);
 				initInfo.entityManager->Destroy(entires.entity[i]);
 				Destroy(i);
 				continue;

@@ -44,7 +44,8 @@ namespace SE
 				GAME_OVER_STATE = 2,
 				CHARACTER_CREATION_STATE = 3,
 				PAUSE_STATE = 4,
-				QUIT_GAME = 5
+				TUTORIAL_STATE = 5,
+				QUIT_GAME
 			};
 
 			 
