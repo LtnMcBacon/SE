@@ -2,6 +2,9 @@
 #define _SE_GAMEPLAY_FOG_H_
 
 
+#include <Graphics\IRenderer.h>
+
+
 namespace SE
 {
 	namespace Gameplay
@@ -9,6 +12,8 @@ namespace SE
 		class Fog
 		{
 		private:
+			static unsigned int fogIndex;
+
 			class Vertex;
 			class Quad;
 			class Plane;
@@ -30,8 +35,18 @@ namespace SE
 			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
 
 			char tileValues[25][25];
+
 			unsigned int topPlaneRjHandle = -1;
 			unsigned int bottomPlaneRjHandle = -1;
+
+			Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;
+			Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_4;
+
+			Graphics::RenderJob topPlaneRj;
+			Graphics::RenderJob bottomPlaneRj;
+
+			bool rjInitialized = false;
+			bool rjEnabled = false;
 
 			Plane *topPlane;
 			Plane *bottomPlane;

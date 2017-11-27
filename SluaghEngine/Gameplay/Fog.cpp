@@ -14,6 +14,9 @@ using namespace SE;
 using namespace Gameplay;
 
 
+unsigned int SE::Gameplay::Fog::fogIndex = 0;
+
+
 class SE::Gameplay::Fog::Vertex
 {
 public:
@@ -296,22 +299,19 @@ SE::Gameplay::Fog::~Fog()
 
 void SE::Gameplay::Fog::Set(bool status)
 {
-	if (status && topPlaneRjHandle == -1)
+	if (status && !rjEnabled && rjInitialized)
 	{
-		CreatePlane();
+		topPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(topPlaneRj, topPlane_renderGroup);
+		bottomPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(bottomPlaneRj, bottomPlane_renderGroup);
+
+		rjEnabled = true;
 	}
-	else if (!status && topPlaneRjHandle != -1)
+	else if (!status && rjEnabled && topPlaneRjHandle != -1)
 	{
-		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("FogTopPlaneVb");
 		CoreInit::subSystems.renderer->RemoveRenderJob(topPlaneRjHandle);
-
-		topPlaneRjHandle = -1;
-
-
-		CoreInit::subSystems.renderer->GetPipelineHandler()->DestroyVertexBuffer("FogBottomPlaneVb");
 		CoreInit::subSystems.renderer->RemoveRenderJob(bottomPlaneRjHandle);
 
-		bottomPlaneRjHandle = -1;
+		rjEnabled = false;
 	}
 }
 
@@ -324,6 +324,8 @@ void SE::Gameplay::Fog::SetTileValues(char tileValues[25][25])
 			this->tileValues[column][row] = tileValues[column][row];
 		}
 	}
+
+	CreatePlane();
 }
 
 void SE::Gameplay::Fog::CreatePlane()
@@ -432,10 +434,10 @@ void SE::Gameplay::Fog::CreatePlane()
 	Vertex *topPlaneVertexBuffer = new Vertex[topPlaneVertexCount];
 	topPlane->GetVertexBuffer(topPlaneVertexBuffer);
 
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("FogTopPlaneVb", topPlaneVertexBuffer, topPlaneVertexCount, sizeof(Vertex));
+	std::string topPlaneVbName = std::string("FogTopPlaneVb#" + std::to_string(fogIndex));
 
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(topPlaneVbName, topPlaneVertexBuffer, topPlaneVertexCount, sizeof(Vertex));
 
-	Graphics::RenderJob topPlaneRj;
 
 	topPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
 	topPlaneRj.pipeline.OMStage.renderTargetCount = 1;
@@ -454,7 +456,7 @@ void SE::Gameplay::Fog::CreatePlane()
 
 	topPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
 	topPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	topPlaneRj.pipeline.IAStage.vertexBuffer = "FogTopPlaneVb";
+	topPlaneRj.pipeline.IAStage.vertexBuffer = topPlaneVbName;
 
 	topPlaneRj.pipeline.OMStage.blendState = "FogBs";
 	topPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
@@ -463,19 +465,19 @@ void SE::Gameplay::Fog::CreatePlane()
 	topPlaneRj.vertexCount = topPlaneVertexCount;
 	topPlaneRj.maxInstances = 1;
 
-	topPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(topPlaneRj, Graphics::RenderGroup::RENDER_PASS_5);
-
 
 
 	unsigned int bottomPlaneVertexCount = bottomPlane->GetQuadCount() * 2 * 3;
 
 	Vertex *bottomPlaneVertexBuffer = new Vertex[bottomPlaneVertexCount];
 	bottomPlane->GetVertexBuffer(bottomPlaneVertexBuffer);
+	
+	std::string bottomPlaneVbName = std::string("FogBottomPlaneVb#" + std::to_string(fogIndex));
 
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("FogBottomPlaneVb", bottomPlaneVertexBuffer, bottomPlaneVertexCount, sizeof(Vertex));
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(bottomPlaneVbName, bottomPlaneVertexBuffer, bottomPlaneVertexCount, sizeof(Vertex));
 
+	fogIndex++;
 
-	Graphics::RenderJob bottomPlaneRj;
 
 	bottomPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
 	bottomPlaneRj.pipeline.OMStage.renderTargetCount = 1;
@@ -494,7 +496,7 @@ void SE::Gameplay::Fog::CreatePlane()
 
 	bottomPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
 	bottomPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	bottomPlaneRj.pipeline.IAStage.vertexBuffer = "FogBottomPlaneVb";
+	bottomPlaneRj.pipeline.IAStage.vertexBuffer = bottomPlaneVbName;
 
 	bottomPlaneRj.pipeline.OMStage.blendState = "FogBs";
 	bottomPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
@@ -503,7 +505,9 @@ void SE::Gameplay::Fog::CreatePlane()
 	bottomPlaneRj.vertexCount = bottomPlaneVertexCount;
 	bottomPlaneRj.maxInstances = 1;
 
-	bottomPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(bottomPlaneRj, Graphics::RenderGroup::RENDER_PASS_4);
+
+
+	rjInitialized = true;
 }
 
 void SE::Gameplay::Fog::AddAdjacentTiles(unsigned int column, unsigned int row)
@@ -594,9 +598,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
 			}
 
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
-
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
 
@@ -621,9 +622,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
 			}
-
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
 		}
 	}
 
@@ -688,9 +686,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
 			}
 
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
-
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
 
@@ -715,9 +710,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
 			}
-
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
 		}
 	}
 
@@ -782,9 +774,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
 			}
 
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
-
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column, height, row);
 
@@ -809,9 +798,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
 			}
-
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
 		}
 	}
 
@@ -876,9 +862,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
 			}
 
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
-
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
 
@@ -903,9 +886,6 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
 			}
-
-			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
-			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
 		}
 	}
 }
