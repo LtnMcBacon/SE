@@ -42,7 +42,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed = 1.f);
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
@@ -316,11 +316,13 @@ namespace SE
 
 			bool isStunned = false;
 			bool attacking = false;
-			float attackSpeed = 1.0f;
+			float attackSpeed = 5.f;
 			float attackCooldown = 0.f;
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25]);
+			void SavePlayerToFile(Utilz::GUID sluaghFile);
 			~PlayerUnit();
 		};
 

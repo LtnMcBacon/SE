@@ -6,12 +6,10 @@ SE::Gameplay::SluaghRoom::SluaghRoom(const Utilz::GUID& fileName, PlayerUnit* th
 	:Room(fileName), projectileManagers(projectileManagers)
 {
 	theSluagh = new Sluagh(thePlayer, this);
-	theSluagh->ToggleRendering(false);
 	for(int i = 0; i < 4; i++)
 	{
 		DoorArr[i].active = false;
 	}
-	CoreInit::managers.transformManager->Move(theSluagh->GetSluagh()->GetEntity(), DirectX::XMFLOAT3{ 0.f, 0.75f,0.f });
 }
 
 SE::Gameplay::SluaghRoom::~SluaghRoom()
@@ -22,14 +20,22 @@ SE::Gameplay::SluaghRoom::~SluaghRoom()
 void SE::Gameplay::SluaghRoom::Update(float dt, float playerX, float playerY)
 {
 	StartProfile;
-	theSluagh->ToggleRendering(true);
-	std::vector<ProjectileData> projectiles;
-	theSluagh->Update(dt, projectiles);
+	if (theSluagh->GetSluagh()->IsAlive() && theSluagh->GetSluagh()->GetHealth() > 0.f)
+	{
+		theSluagh->ToggleRendering(true);
+		std::vector<ProjectileData> projectiles;
+		theSluagh->Update(dt, projectiles);
 
-	!theSluagh->GetSluagh()->IsAlive();
+		projectileManagers->AddProjectiles(projectiles);
+	}
+	StopProfile;
+}
 
-	projectileManagers->AddProjectiles(projectiles);
-
+void SE::Gameplay::SluaghRoom::InitSluagh()
+{
+	StartProfile;
+	theSluagh->InitializeSluagh();
+	theSluagh->ToggleRendering(false);
 	StopProfile;
 }
 

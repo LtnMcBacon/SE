@@ -35,10 +35,10 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 }
 
 
-bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
+bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed)
 {
 	StartProfile;
-	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
+	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), playSpeed, animationFlags));
 	
 }
 #undef max
@@ -567,7 +567,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
 				// Only allow attacking if attack animation is not already playing and attacking is false
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/attackSpeed) && attacking == false)
 				{
 					attacking = true;
 
@@ -1066,6 +1066,16 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 */
 
 	StopProfile;
+}
+
+SE::Gameplay::PlayerUnit::PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25])
+{
+
+}
+
+void SE::Gameplay::PlayerUnit::SavePlayerToFile(Utilz::GUID sluaghFile)
+{
+
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()
