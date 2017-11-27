@@ -1951,12 +1951,12 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 
 		Core::ILightManager::CreateInfo createInfo;
 		createInfo.color = DirectX::XMFLOAT3(0.8f, 0.0f, 0.8f);
-		createInfo.pos = { i, 1.0f, j };
+		createInfo.pos = { args.x + 0.5f, 1.0f, args.y + 0.5f };
 		createInfo.intensity = 1.0f;
-		createInfo.radius = 2.0f;
+		createInfo.radius = 5.0f;
 
 		auto lightEnt = CoreInit::managers.entityManager->Create();
-		CoreInit::managers.transformManager->Create(lightEnt, {i, 1.0f, j});
+		CoreInit::managers.transformManager->Create(lightEnt, { args.x + 0.5f, 1.0f, args.y + 0.5f });
 		CoreInit::managers.lightManager->Create(lightEnt, createInfo);
 		roomEntities[args.x][args.y].push_back(lightEnt);
 
