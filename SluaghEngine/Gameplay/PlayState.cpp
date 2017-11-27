@@ -581,12 +581,14 @@ void PlayState::InitializePlayer(void* playerInfo)
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
+
+				auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+				player->AddItem(startWeapon, 0);
 				return;
 			}
 		}
 	}
-	auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
-	player->AddItem(startWeapon, 0);
+	
 
 	ProfileReturnVoid;
 }

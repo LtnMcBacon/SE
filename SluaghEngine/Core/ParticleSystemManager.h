@@ -117,6 +117,7 @@ namespace SE
 				DirectX::XMFLOAT2 velocityRange[3]; 
 				DirectX::XMFLOAT2 emitRange[3];
 			};
+
 			struct DirtyEntityInfo {
 				size_t transformIndex;
 				Entity entity;
