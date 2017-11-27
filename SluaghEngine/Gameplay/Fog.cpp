@@ -594,6 +594,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
+
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
 
@@ -618,6 +621,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
 		}
 	}
 
@@ -682,6 +688,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
+
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
 
@@ -706,6 +715,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
 		}
 	}
 
@@ -770,6 +782,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
+
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column, height, row);
 
@@ -794,6 +809,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
 		}
 	}
 
@@ -858,6 +876,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
+
 
 			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
 
@@ -882,6 +903,9 @@ void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
 				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
+			bottomPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
 		}
 	}
 }
