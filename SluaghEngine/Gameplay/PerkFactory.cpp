@@ -142,11 +142,8 @@ void PerkFaktory::initiateFuncs()
 
 void PerkFaktory::initateMap()
 {
-	parameters a;
+	/*parameters a;
 	PlayerUnit* play;
-	a.player = play;
-	
-
-
+	a.player = play;*/
 
 }
