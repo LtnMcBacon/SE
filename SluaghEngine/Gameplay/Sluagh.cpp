@@ -16,6 +16,8 @@ SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, SluaghRoom* room)
 	float rotX, rotY;
 	thePlayer->GetRotation(rotX, rotY);
 	theSluagh->UpdatePlayerRotation(rotX, rotY);
+	theSluagh->SetZPosition(0.9f);
+	theSluagh->PositionEntity(15.5f, 15.5f);
 	this->room = room;
 }
 
@@ -62,6 +64,7 @@ bool SE::Gameplay::Sluagh::CollisionAgainstProjectile(float projectileX, float p
 void SE::Gameplay::Sluagh::ToggleRendering(bool render)
 {
 	CoreInit::managers.eventManager->ToggleVisible(theSluagh->GetEntity(), render);
+	CoreInit::managers.eventManager->ToggleVisible(theSluagh->GetCurrentItem(), render);
 }
 
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
