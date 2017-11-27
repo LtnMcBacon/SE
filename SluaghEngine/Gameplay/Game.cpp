@@ -1,6 +1,7 @@
 #include <Game.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <TutorialState.h>
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
@@ -111,6 +112,10 @@ void SE::Gameplay::Game::Run()
 					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
+				case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
+					delete state;
+					state = new TutorialState();
+					break;
 				case SE::Gameplay::IGameState::State::QUIT_GAME:
 					delete state;
 					running = false;

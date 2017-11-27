@@ -123,6 +123,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -130,6 +132,7 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
+	
 	ProfileReturnVoid;
 }
 
@@ -152,7 +155,30 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	{
 		movement.rightButton = true;
 	}
-
+	if (input->ButtonDown(GameInput::SHOWINFO))
+	{
+		action.showInfo = true;
+	}
+	if (input->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+	else if (input->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+	else if (input->ButtonPressed(GameInput::THREE))
+	{
+		action.three = true;
+	}
+	else if (input->ButtonPressed(GameInput::FOUR))
+	{
+		action.four = true;
+	}
+	else if (input->ButtonPressed(GameInput::FIVE))
+	{
+		action.five = true;
+	}
 	int mX, mY;
 	input->GetMousePos(mX, mY);
 
@@ -473,7 +499,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	}
 	ProfileReturnVoid;
 }
-
+#include <Items.h>
 void PlayState::InitializePlayer(void* playerInfo)
 {
 	StartProfile;
@@ -559,7 +585,9 @@ void PlayState::InitializePlayer(void* playerInfo)
 			}
 		}
 	}
-	
+	auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+	player->AddItem(startWeapon, 0);
+
 	ProfileReturnVoid;
 }
 
@@ -615,6 +643,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 		
 	}, "tgm", "Toggles godmode.");
 
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		float speed = 5.0f;
+		if (argc > 1)
+		{
+			try
+			{
+				speed = std::stof(argv[1]);
+			}catch(...){}
+		}
+		this->player->SetSpeed(speed);
+
+	}, "setspeed", "setspeed <value>");
+	
 	ProfileReturnVoid;
 }
 #include <Items.h>
@@ -761,7 +802,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
-	PlayerUnit::ActionInput actionInput(false, false);
+	PlayerUnit::ActionInput actionInput;
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);

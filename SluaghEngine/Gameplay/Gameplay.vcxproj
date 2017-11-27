@@ -96,6 +96,7 @@
     <ClCompile Include="Items.cpp" />
     <ClCompile Include="TransistionCountdownDoneCondition.cpp" />
     <ClCompile Include="TransistionToRoomLeaf.cpp" />
+    <ClCompile Include="TutorialState.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +188,7 @@
     <ClInclude Include="..\includes\Gameplay\Items.h" />
     <ClInclude Include="..\includes\Gameplay\TransistionCountdownDoneCondition.h" />
     <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TutorialState.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
