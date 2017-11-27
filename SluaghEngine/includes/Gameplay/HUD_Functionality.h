@@ -44,6 +44,8 @@ namespace SE
 			bool wasHovering = false;
 			size_t additionalHeight = 0;
 			size_t additionalWidth = 0;
+			size_t resolutionXIncrease=0;
+			size_t resolutionYIncrease=0;
 			// vector to store buttons
 			std::vector<ButtonElement> Buttons;
 			std::vector<std::string> ButtonsToDelete;
@@ -73,6 +75,7 @@ namespace SE
 			void ShowButtons();
 			void CalculateScreenPositions();
 			void deleteSkillPerkBtns();
+			void DeleteSpecificButtons(std::string name);
 
 		};
 	}

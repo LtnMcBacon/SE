@@ -16,38 +16,16 @@ namespace SE
 		{
 		}
 
-	/*	void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string buttonText)
-		{
-			StartProfile;
-			CalculateScreenPositions();
-			ButtonElement tempElement;
-			tempElement.PositionX = posX + additionalWidth;
-			tempElement.PositionY = posY + additionalHeight;
-
-			tempElement.Width = width;
-			tempElement.Height = height;
-
-			tempElement.layerDepth = layerDepth;
-
-			tempElement.rectName = name;
-
-			tempElement.textName = textName;
-			tempElement.bindButton = func;
-			tempElement.buttonText = buttonText;
-			Buttons.push_back(tempElement);
-			ProfileReturnVoid;
-		}*/
-
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions();
 			ButtonElement tempElement;
-			tempElement.PositionX = posX + additionalWidth;
-			tempElement.PositionY = posY + additionalHeight;
+			tempElement.PositionX = posX;// +additionalWidth;
+			tempElement.PositionY = posY;// +additionalHeight;
 
-			tempElement.Width = width;
-			tempElement.Height = height;
+			tempElement.Width = width;// width;
+			tempElement.Height = height;// height;
 
 			tempElement.layerDepth = layerDepth;
 			tempElement.rectName = name;
@@ -61,6 +39,7 @@ namespace SE
 			Buttons.push_back(tempElement);
 			ProfileReturnVoid;
 		}
+
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
@@ -301,11 +280,12 @@ namespace SE
 				ButtonGuiManager.textureInfo.height = ButtonElement.Height;
 				ButtonGuiManager.textureInfo.posX = ButtonElement.PositionX;
 				ButtonGuiManager.textureInfo.posY = ButtonElement.PositionY;
+				ButtonGuiManager.textureInfo.absolute = true;
 
 				ButtonGuiManager.textureInfo.layerDepth = 1.0f - ButtonElement.layerDepth / 1000.0f;
 
 				ButtonGuiManager.texture = ButtonElement.textName;
-
+				
 				CoreInit::managers.guiManager->Create(entity, ButtonGuiManager);
 
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
@@ -412,14 +392,14 @@ namespace SE
 								guiText.anchor = DirectX::XMFLOAT2(0, 0);
 								guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
 								guiText.posX = skillDescBtn.PositionX+55;
-								guiText.posY = skillDescBtn.PositionY+15;
+								guiText.posY = skillDescBtn.PositionY+30;
 								guiText.width = skillDescBtn.Width-50;
-								guiText.height = skillDescBtn.Height;
+								guiText.height = skillDescBtn.Height-10;
 								guiText.rotation = 0;
 								
 								guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
-								CoreInit::managers.textManager->Create(entText, { Utilz::GUID("CloisterBlack.spritefont"), guiText });
+								CoreInit::managers.textManager->Create(entText, { Utilz::GUID("EnchantedLand.spritefont"), guiText });
 								CoreInit::managers.textManager->ToggleRenderableText(entText, true);
 
 								skillDescEntity = entText;
@@ -542,8 +522,8 @@ namespace SE
 			size_t scaledHeight = ((height - 720) * 1) / (1080 - 720);
 			size_t scaledWidth = ((width - 1280) * 1) / (1920 - 1280);
 
-			additionalWidth = widthDif*scaledWidth;
-			additionalHeight = heightDif*scaledHeight;
+			resolutionXIncrease = widthDif*scaledWidth;
+			resolutionYIncrease = heightDif*scaledHeight;
 		}
 
 		void HUDButtons::DrawButtonText(ButtonElement button)
@@ -578,6 +558,18 @@ namespace SE
 			button.textEntityIndex = entityIndex;
 			entityIndex++;
 			ProfileReturnVoid;
+		}
+
+		void HUDButtons::DeleteSpecificButtons(string name)
+		{
+			for (auto& Button: Buttons)
+			{
+				if (Button.rectName == name)
+				{
+					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex),false);
+					CoreInit::managers.entityManager->Destroy(ButtonEntityVec.at(Button.EntityIndex));
+				}
+			}
 		}
 
 	}

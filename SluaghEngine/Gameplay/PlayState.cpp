@@ -314,8 +314,8 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 	
 	for (int i = 0; i < 2; i++)
 	{
-		if (player->getCurrentCooldown(i) > 0.0f)
-			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->getCurrentCooldown(i)))));
+		if (player->GetCurrentCooldown(i) > 0.0f)
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->GetCurrentCooldown(i)))));
 		else
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
