@@ -107,7 +107,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			{
 				//Move up
 				createdEnemy->SetZPosition(1.5f);
-				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 1.5f, 0 });
+				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 0.8f, 0 });
 
 				//Insert entity for sword here.
 				auto swordEntity = CoreInit::managers.entityManager->Create();
