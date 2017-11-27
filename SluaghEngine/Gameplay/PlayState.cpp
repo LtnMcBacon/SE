@@ -132,7 +132,14 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
-	
+	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(usePrompt);
+	CoreInit::managers.entityManager->DestroyNow(soundEnt);
+	for (auto& s : skillIndicators)
+	{
+		CoreInit::managers.entityManager->DestroyNow(s.Image);
+		CoreInit::managers.entityManager->DestroyNow(s.frame);
+	}
 
 	ProfileReturnVoid;
 }
