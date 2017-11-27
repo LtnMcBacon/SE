@@ -245,6 +245,12 @@ namespace SE
 				originalScreenWidth = inWidth;
 			}
 
+			void GetDefaultScale(float& inHeight, float& inWidth)override
+			{
+				inHeight = originalScreenHeight;
+				inWidth = originalScreenWidth;
+			}
+
 			/**
 			* @brief Resets all GUI to be rescaled to new resolution
 			* @endcode

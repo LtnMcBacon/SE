@@ -18,6 +18,12 @@ SE::Gameplay::TutorialState::TutorialState()
 	room->Load();
 	room->RenderRoom(true);
 
+	subSystems.devConsole->AddCommand([this](DevConsole::IConsole* backend, int argc, char** argv) {
+	
+		scriptToRun = &TutorialState::SpawnaGlastigScript;
+	
+	}, "skip", "Skips the tutorial");
+
 	Skill skills[3];
 
 	skills[0].skillDamage = 10;
@@ -900,7 +906,7 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	Core::Entity nuck;
 	Core::Entity nuckLight;
 	nuck = managers.entityManager->Create();
-	managers.transformManager->Create(nuck, { 16.5f, 0.0f, 10.5f }, { 0, -XM_PIDIV2,0 });
+	managers.transformManager->Create(nuck, { 16.5f, 0.9f, 10.5f }, { 0, -XM_PIDIV2,0 });
 	Core::IAnimationManager::CreateInfo aci;
 	aci.mesh = "Nuckelavee.mesh";
 	aci.skeleton = "Nuckelavee.skel";
@@ -932,7 +938,7 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	managers.textManager->ToggleRenderableText(nuck, true);
 
 	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
-	managers.animationManager->Start(nuck, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
+	managers.animationManager->Start(nuck, anims, 2, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(nuck, 12.0f);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, nuckLight](Core::Entity ent) {
@@ -1011,7 +1017,7 @@ void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
 	managers.transformManager->Create(sluagh, { 0.0f,-0.4f, 1.0f }, {0, -XM_PI,0});
 	managers.animationManager->CreateAnimatedObject(sluagh, aci);
 	managers.animationManager->ToggleVisible(sluagh, true);
-	Utilz::GUID anims[] = { "TopAttackAnim_MCModell.anim","BottomIdleAnim_MCModell.anim" };
+	Utilz::GUID anims[] = { "TopSwordAttackAnim_MCModell.anim","BottomIdleAnim_MCModell.anim" };
 	managers.animationManager->Start(sluagh, anims, 2, 2, Core::AnimationFlags::IMMEDIATE);
 
 

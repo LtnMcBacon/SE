@@ -66,6 +66,7 @@
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
+    <ClCompile Include="PerkFactory.cpp" />
     <ClCompile Include="PerkImporter.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />

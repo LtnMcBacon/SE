@@ -230,11 +230,16 @@ int WINAPI WinMain(HINSTANCE hInstance,
 {
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
+	Core::IEngine::InitializationInfo engineInit;
+	engineInit.subSystems.optionsHandler = Core::CreateOptionsHandler();
+	auto res = engineInit.subSystems.optionsHandler->Initialize("Config.ini");
+	if (res < 0)
+		throw std::exception("Could not initiate optionsHandler. Something went wrong with the Config.ini file");
+
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
 	//initInfo.winState = Window::WindowState::Playback;
 	initInfo.file = "Recordings/RecordingWednesday Wed Nov 22 094339 2017.bin";
-	Core::IEngine::InitializationInfo engineInit;
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
 	auto result= engine->Init(engineInit);
