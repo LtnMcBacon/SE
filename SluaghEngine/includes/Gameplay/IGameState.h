@@ -5,6 +5,7 @@
 #include <Gameplay\KeyBindings.h>
 #include <Core\IEngine.h>
 #include <Gameplay\Skill.h>
+#include <Gameplay\PerkData.h>
 
 
 namespace SE
@@ -15,7 +16,7 @@ namespace SE
 		struct PlayStateData
 		{
 			Skill skills[3];
-			//Perk perks[3];
+			PerkData perks[3];
 		};
 
 		/**
