@@ -199,8 +199,10 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		*/
 		ResolveEvents(dt);
 		DecideAction(dt);
-
 		PerformAction(dt);
+		ClearHealingEvents();
+		ClearDamageEvents();
+		ClearConditionEvents();
 	}
 	ProfileReturnVoid;
 }
@@ -211,6 +213,7 @@ SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, f
 	previousMovement{0,0},
 	sample(0)
 {
+	this->maxHealth = maxHealth;
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 	radius = sqrt(extents*extents + extents*extents);
 

@@ -147,6 +147,12 @@ void SE::Core::ImGuiConsole::AddFrameCallback(const std::function<void()>& frame
 	frameCallbacks.push_back(frameCallback);
 }
 
+int SE::Core::ImGuiConsole::RemoveCommand(const char* name)
+{
+	commands.RemoveCommand(name);
+	return 0;
+}
+
 int SE::Core::ImGuiConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)
 {
 	ImGuiConsole* devcon = (ImGuiConsole*)data->UserData;

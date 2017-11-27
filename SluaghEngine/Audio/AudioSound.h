@@ -3,7 +3,6 @@
 #define SE_AUDIO_AUDIOSOUND_H
 #include "AudioStructType.h"
 #include "AudioTypeDefs.h"
-#include <Utilz\StackAllocator.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "utilzD.lib")
@@ -54,7 +53,6 @@ namespace SE {
 
 		private:
 			std::vector<AudioSample*> soundSample;
-			Utilz::StackAllocator sampleStack;
 			
 			float masterVol;
 			float effectVol;

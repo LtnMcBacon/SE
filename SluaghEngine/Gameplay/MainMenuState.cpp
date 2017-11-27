@@ -76,7 +76,10 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		this->CurrentState = State::CHARACTER_CREATION_STATE;
 	};
-
+	auto startTutorial = [this]()->void
+	{
+		this->CurrentState = State::TUTORIAL_STATE;
+	};
 	auto quitGame = [this]()->void
 	{
 		this->CurrentState = State::QUIT_GAME;
@@ -141,23 +144,15 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 	input->GetMousePos(mousePosX, mousePosY);
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 
-	
-
-
 	IGameState::State empty = State::MAIN_MENU_STATE;
-			
-	
+
 	if (input->ButtonPressed(0))
 	{
 			
 		CurrentState = State::PAUSE_STATE;
 	}
 
-
-	passableInfo = new int(10);
-
-	ProfileReturn(CurrentState);
-	
+	ProfileReturn(CurrentState);	
 }
 
 

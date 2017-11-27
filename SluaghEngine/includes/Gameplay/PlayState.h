@@ -12,6 +12,7 @@
 #include "EnemyFactory.h"
 #include <Gameplay\HUD_Parsing.h>
 #include <Gameplay\HUD_Functionality.h>
+#include <optional>
 
 namespace SE 
 {
@@ -50,6 +51,15 @@ namespace SE
 
 			
 		private:
+
+			struct SkillIndicator
+			{
+				Core::Entity frame;
+				Core::Entity Image;
+				float currentCooldown = 0;
+				float maxCooldown;
+			}skillIndicators[2];
+
 			void InitializeRooms();
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
@@ -62,15 +72,42 @@ namespace SE
 			void UpdateHUD(float dt);
 
 			HUDParser playStateGUI;
-
+			std::string OptionalButtons[2]
+			{
+				"EnemyHp.HuD",
+				"EnemyHpFrame.HuD"
+			};
 			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
 			PlayerUnit* player;
-			std::vector<Room*> rooms;
-			Room* currentRoom = nullptr;
-			int currentRoomIndex = -1;
-			static const int enemiesInEachRoom = 1;
+
+			uint8_t worldWidth = 4;
+			uint8_t worldHeight = 4;
+
+
+			inline std::optional<Room*> GetRoom(int x, int y)
+			{
+				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0  && rooms[x* worldHeight + y])
+					return rooms[x* worldHeight + y];
+				else
+					return std::nullopt;
+			}
+
+
+			void LoadAdjacentRooms(int x, int y, int sx, int sy);
+			void UnloadAdjacentRooms(int x, int y, int sx, int sy);
+			void CloseDoorsToRoom(int x, int y);
+			void OpenDoorsToRoom(int x, int y);
+
+			Room** rooms;
+			Room* currentRoom; 
+			int currentRoomX = 0;
+			int currentRoomY = 0;
+			int sluaghRoomX = 0;
+			int sluaghRoomY = 0;
+			bool sluaghDoorsOpen = false;
+			int enemiesInEachRoom = 2;
 			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;

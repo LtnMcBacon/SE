@@ -284,8 +284,8 @@ namespace SE
 					}
 					if (subSystems.window->ButtonPressed(12) == true)
 					{
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 900);
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1440);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
 						subSystems.optionsHandler->Trigger();
 					}
 					if (subSystems.window->ButtonPressed(13) == true)

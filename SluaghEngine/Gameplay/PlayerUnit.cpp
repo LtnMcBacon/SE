@@ -66,7 +66,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 		this->health -= DamageEventVector[i].amount;
 	}
 
-	if (ph > this->health)
+	if (ph > this->health && !isSluagh)
 	{
 		if (!CoreInit::managers.entityManager->Alive(itemSelectedEntity))
 		{
@@ -80,7 +80,8 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			ise.textureInfo.screenAnchor = { 0, 0 };
 			ise.textureInfo.posX = 0;
 			ise.textureInfo.posY = 0;
-			ise.textureInfo.colour = { 1,1,1,(1.0f-(health / (float)newStat.health)+ 1.0f) /2.0f };
+			float alpha = (1.0f - (health / (float)newStat.health) + 1.0f) / 2.0f;
+			ise.textureInfo.colour = { 1.0f,1.0f,1.0f, alpha };
 			CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
 			CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
 			CoreInit::managers.eventManager->SetLifetime(itemSelectedEntity, 0.15f);
@@ -301,6 +302,16 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
 
+void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
+{
+	godMode = on;
+}
+
+void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
+{
+	this->newStat.movementSpeed = speed;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -391,37 +402,38 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	StartProfile;
 	auto w = CoreInit::subSystems.window;
 
-
 	bool ci = false;
+
 	auto newItem = 0;
-	if (w->ButtonPressed(GameInput::ONE))
+	if (input.one)
 	{
 		newItem = 0;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::TWO))
+	else if (input.two)
 	{
 		newItem = 1;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::THREE))
+	else if (input.three)
 	{
 		newItem = 2;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FOUR))
+	else if (input.four)
 	{
 		newItem = 3;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FIVE))
+	else if (input.five)
 	{
 		newItem = 4;;
 		ci = true;
 	}
-	if (ci)
+
+	if (ci && attacking == false)
 	{
-		if (!w->ButtonDown(GameInput::SHOWINFO))
+		if (!input.showInfo)
 		{
 
 			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)));
@@ -444,6 +456,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 				auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Charges", 0));
 				if (charges > 0)
 				{
+					CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+					uint8_t soundToPlay;
+
+					currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+
+					CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 					health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Health", 0));
 					charges--;
 					if (charges == 0)
@@ -472,14 +490,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+			else
+				currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
 
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
-		else
-			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
-
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[0].projectileFileGUID;
 
@@ -488,13 +508,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (nrOfSKills > 0 && input.skill1Button)
 	{
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
-		else
-			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+			else
+				currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 	}
 
 	if (nrOfSKills > 1 && skills[1].currentCooldown <= 0.0f && input.skill2Button)
@@ -509,14 +532,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
 
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		uint8_t soundToPlay;
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
-		else
-			currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			uint8_t soundToPlay;
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroSounds[CoreInit::subSystems.window->GetRand() % nrAggroSounds];
+			else
+				currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 		temp.ownerUnit = mySelf;
 		temp.fileNameGuid = skills[1].projectileFileGUID;
 
@@ -525,13 +551,16 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (nrOfSKills > 1 && input.skill2Button)
 	{
-		CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
-		if (/*SkillType == Damage*/true)
-			currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
-		else
-			currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
+		if (!isSluagh)
+		{
+			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+			if (/*SkillType == Damage*/true)
+				currentSound = playerAggroColdSounds[CoreInit::subSystems.window->GetRand() % nrAggroColdSounds];
+			else
+				currentSound = playerHealingColdSounds[CoreInit::subSystems.window->GetRand() % nrHealingColdSounds];
 
-		CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+			CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
+		}
 	}
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown > 0.0f)
@@ -549,15 +578,17 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		{
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK))
+				// Only allow attacking if attack animation is not already playing and attacking is false
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
 				{
+					attacking = true;
+
 					ProjectileData temp;
 
 					temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 					temp.startPosX = this->xPos;
 					temp.startPosY = this->yPos;
 					temp.target = ValidTarget::ENEMIES;
-
 
 					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
 					temp.ownerUnit = mySelf;
@@ -578,8 +609,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		attackCooldown -= dt;
 	}
-	if (attackCooldown < 0.f)
+	else if (attackCooldown <= 0.f){
+		attacking = false;
 		attackCooldown = 0.f;
+	}
+
 	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
@@ -604,6 +638,8 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
+	if (godMode)
+		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		UpdateMovement(dt, mInputs);
@@ -840,13 +876,13 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	
 	
 	
-	Core::IEventManager::EventCallbacks startRenderItemInfo;
-	startRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
+	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
 	{
-		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP) && !isSluagh;
 	};
 	
-	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
 	{
 		auto slot = -1;
 		if (CoreInit::subSystems.window->ButtonPressed(GameInput::ONE))
@@ -882,31 +918,31 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	};
 
 
-	Core::IEventManager::EventCallbacks stopRenderItemInfo;
-	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks stopRenderItemInfo;
+	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent)
 	{
 		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) ||( CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && !CoreInit::subSystems.window->ButtonDown(GameInput::PICKUP));
 	};
 
-	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent, void *data)
+	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
 	{
 		CoreInit::managers.entityManager->DestroyNow(ent);
 		//CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 	};
 
 
-	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderItemInfo", startRenderItemInfo);
-	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderItemInfo", stopRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderItemInfo", startRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderItemInfo", stopRenderItemInfo);
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
 
-	items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
+	/*items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
 	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
 	Item::Pickup(items[currentItem]);
 	Item::Equip(unitEntity,items[currentItem]);
 
-	SetCurrentWeaponStats();
+	SetCurrentWeaponStats();*/
 	itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
 	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
@@ -937,6 +973,13 @@ SE::Gameplay::PlayerUnit::~PlayerUnit()
 	StartProfile;
 
 	this->DestroyEntity();
+	for (int i = 0; i < 5; i++)
+		if (auto item = (std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[i], "Item", -1))); item != -1)
+		{
+			CoreInit::managers.entityManager->DestroyNow(items[i]);
+		}
+
+
 
 	ProfileReturnVoid;
 }

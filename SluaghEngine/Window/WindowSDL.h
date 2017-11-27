@@ -87,7 +87,7 @@ namespace SE
 			*/
 			inline float GetDelta() const override
 			{
-				if (!playRecord.playback)
+				if (!playRecord.playback|| frame >= playRecord.playbackData.size())
 					return time.GetDelta<std::ratio<1, 1>>();
 				else
 					return playRecord.playbackData[frame].dTime;
