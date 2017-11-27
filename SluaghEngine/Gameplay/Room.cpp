@@ -1949,6 +1949,17 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		CoreInit::managers.materialManager->Create(args.ent, matInfo);
 		roomEntities[args.x][args.y].push_back(args.ent);
 
+		Core::ILightManager::CreateInfo createInfo;
+		createInfo.color = DirectX::XMFLOAT3(0.8f, 0.0f, 0.8f);
+		createInfo.pos = { i, 1.0f, j };
+		createInfo.intensity = 1.0f;
+		createInfo.radius = 2.0f;
+
+		auto lightEnt = CoreInit::managers.entityManager->Create();
+		CoreInit::managers.transformManager->Create(lightEnt, {i, 1.0f, j});
+		CoreInit::managers.lightManager->Create(lightEnt, createInfo);
+		roomEntities[args.x][args.y].push_back(lightEnt);
+
 	/*	int arrPos = -1;
 		if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
 			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
