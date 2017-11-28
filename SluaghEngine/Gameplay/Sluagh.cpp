@@ -46,6 +46,7 @@ void SE::Gameplay::Sluagh::Update(float dt, std::vector<ProjectileData>& project
 	{
 		projectile.target = ValidTarget::PLAYER;
 	}
+
 	ProfileReturnVoid;
 }
 
@@ -86,6 +87,15 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 		/*Create copy of the player*/
 		char roomMap[25][25]; room->GetMap(roomMap);
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
+
+		
+
+		Core::Entity testWeapon = Item::Weapon::Create(WeaponType::SWORD);
+		theSluagh->AddItem(testWeapon, 0);
+
+		Core::Entity testWeapon2 = Item::Weapon::Create(WeaponType::CROSSBOW);
+		theSluagh->AddItem(testWeapon2, 1);
+
 	}
 	float rotX, rotY;
 	thePlayer->GetRotation(rotX, rotY);
@@ -98,6 +108,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
 	StartProfile;
+	ClearMap();
 
 	CalculateSkillUtilities(dt);
 	CalculateWeaponChangeUtilities(dt);
@@ -198,8 +209,41 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 {
 	StartProfile;
-
 	
+	auto sluaghWeapons = theSluagh->GetAllItems();
+	float maxUtility = 0.f;
+	int32_t type;
+	for (int i = 0; i < 5; i++)
+	{
+		ItemType itemType;
+		if ((type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Type", -1))) != -1)
+		{
+			float swapUtility = 0.f;
+			auto itemType = ItemType(type);
+			switch (itemType)
+			{
+			case ItemType::CONSUMABLE:
+				if(theSluagh->GetHealth() < theSluagh->GetMaxHealth()/2.f)
+					swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Health", 0)) / 5.f;
+				break;
+
+			
+			case ItemType::WEAPON:
+				
+				break;
+
+			default:;
+			}
+
+			if (maxUtility < swapUtility)
+			{
+				maxUtility = swapUtility;
+				item = i;
+			}
+
+		}
+	}
+
 
 	ProfileReturnConst(0.f);
 }
@@ -344,6 +388,11 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 	theSluagh->PositionEntity(xPos, yPos);
 
 	ProfileReturnConst(utilityValue);
+}
+
+void SE::Gameplay::Sluagh::ClearMap()
+{
+	utilityMap.clear();
 }
 
 void SE::Gameplay::Sluagh::CalculateSkillUtilities(float dt)

@@ -457,7 +457,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 				x = CoreInit::subSystems.window->GetRand() % 25;
 				y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[x][y]);// || (room->DistanceToClosestDoor(enemyPos.x, enemyPos.y, throwAway) < 5.5f));
+			} while (map[x][y] || (room->DistanceToClosestDoor(x, y, throwAway) < 5.5f));
 
 
 			float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
