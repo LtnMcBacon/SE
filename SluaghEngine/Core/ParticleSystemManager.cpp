@@ -141,6 +141,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 
 		auto index = entries.add(entity);
 		entries.set<visible>(index, 0u);
+		entries.set<firstRun>(index, true);
 		DirectX::XMStoreFloat4x4(&entries.get<transform>()[index], DirectX::XMMatrixIdentity());
 		
 		/*Register the entity*/
@@ -389,6 +390,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 				particleSystemData[i].updateJob.vertexCount = 0;
 				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget,particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
 				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;
+
 				initInfo.renderer->ChangeRenderJob(particleSystemData[i].updateJobID, particleSystemData[i].updateJob);
 				initInfo.renderer->ChangeRenderJob(particleSystemData[i].renderJobID, particleSystemData[i].renderJob);
 			}
@@ -408,7 +410,6 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 	const Entity e = indexToEntity[index];
 	const Entity last_e = indexToEntity[last];
 
-	entries.destroy(index);
 	if (particleSystemData[index].visible == 1u)
 		ToggleVisible(e, false);
 
@@ -429,6 +430,7 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 
 void SE::Core::ParticleSystemManager::Destroy(const Entity& entity)
 {
+	entries.erase(entity);
 	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 		Destroy(find->second);
@@ -450,6 +452,19 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 		}
 		alive_in_row = 0;
 		Destroy(i);
+	}
+
+	while (entries.size() && alive_in_row < quitWhenReached)
+	{
+		std::uniform_int_distribution<size_t> distribution(0U, entries.size() - 1U);
+		size_t i = distribution(generator);
+		if (initInfo.entityManager->Alive(entries.get<entity>(i)))
+		{
+			alive_in_row++;
+			continue;
+		}
+		alive_in_row = 0;
+		entries.destroy(i);
 	}
 	StopProfile;
 }

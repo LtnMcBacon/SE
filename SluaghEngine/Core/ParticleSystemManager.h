@@ -139,9 +139,8 @@ namespace SE
 				uint8_t, // visible
 				ParticleSystemFileInfo, // FileInfo
 				bool, // randVelocity
+				bool, //firstRun
 				Utilz::GUID, // textureName
-				//Graphics::RenderJob//, // Updatejob
-				//Graphics::RenderJob, // renderJob
 				uint32_t, // UpdatejobId
 				uint32_t, // renderJobId
 				VelocityEmitRange // VelocityEmitRange
@@ -154,9 +153,8 @@ namespace SE
 				visible,
 				fileInfo,
 				randVelocity,
+				firstRun,
 				textureName,
-				updateJob,
-				renderJob,
 				updateJobID,
 				renderJobID,
 				velocityEmitRange,
