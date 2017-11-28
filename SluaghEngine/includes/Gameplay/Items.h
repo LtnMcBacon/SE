@@ -4,6 +4,8 @@
 #include <Utilz\GUID.h>
 #include <Core\Entity.h>
 #include <DirectXMath.h>
+#include <fstream>
+
 namespace SE
 {
 	namespace Gameplay
@@ -34,6 +36,7 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static Core::Entity Create(ConsumableType type);
+				static void CreateMeta(Core::Entity ent);
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};
@@ -41,6 +44,7 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static Core::Entity Create(WeaponType type);
+				static void CreateMeta(Core::Entity ent);
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};
@@ -61,6 +65,14 @@ namespace SE
 			static int GetRandDamage();
 
 			static DamageType GetRandDamageType();
+
+
+			static Core::Entity Copy(Core::Entity toCopy);
+			static void WriteToFile(Core::Entity ent,const std::string& filename);
+			static void WriteToFile(Core::Entity ent, std::ofstream& file);
+
+			static Core::Entity Create(const std::string& filename);
+			static Core::Entity Create(std::ifstream& file);
 		};
 	}
 }
