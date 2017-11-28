@@ -811,7 +811,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		if (totalEnemiesLeft <= 2) {
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
-
+			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+			sluaghRoom->InitSluagh();
 			Core::ITextManager::CreateInfo ti;
 			ti.font = "Ancient.spritefont";
 			ti.info.text = L"Vägen till din död har öppnats...";
