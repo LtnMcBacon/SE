@@ -86,6 +86,28 @@ SE::Gameplay::DamageType SE::Gameplay::Item::GetRandDamageType()
 	return DamageType(CoreInit::subSystems.window->GetRand() % 4);
 }
 
+SE::Core::Entity SE::Gameplay::Item::Copy(Core::Entity toCopy)
+{
+	if (auto item = std::get<int32_t>( CoreInit::managers.dataManager->GetValue(toCopy, "Item", -1)); item != -1)
+	{
+		auto newItem = CoreInit::managers.entityManager->Create();
+
+		CoreInit::managers.dataManager->SetValue(newItem, "Item", item);
+		switch (ItemType(item))
+		{
+		case ItemType::WEAPON:
+			Weapon::Copy(toCopy, newItem);
+			break;
+		case ItemType::CONSUMABLE:
+			Consumable::Copy(toCopy, newItem);
+			break;
+		}
+		return newItem;
+	}
+
+	return -1;
+}
+
 
 SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
@@ -163,6 +185,43 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(WeaponType type)
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(wep, "WeaponPickUp");
 	return wep;
+}
+
+void SE::Gameplay::Item::Weapon::Copy(Core::Entity from, Core::Entity to)
+{
+
+	auto itype = ItemType::WEAPON;
+	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Type", -1));
+	auto ele = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Element", -1));
+	CoreInit::managers.transformManager->Create(to);
+	CoreInit::managers.transformManager->SetScale(to, weaponInfo[size_t(wType)].scale);
+	CoreInit::managers.materialManager->Create(to, { weaponInfo[size_t(wType)].shader, weaponInfo[size_t(wType)].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(to, { weaponInfo[size_t(wType)].mesh , false, false, true });
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = weaponInfo[size_t(wType)].icon;
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0.5f,0.5f };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 10;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
+
+	CoreInit::managers.guiManager->Create(to, icon);
+
+	CoreInit::managers.dataManager->SetValue(to, "Health", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Health", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Str", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Str", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Agi", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Agi", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Wis", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Wis", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Damage", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Damage", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Type", int32_t(wType));
+	CoreInit::managers.dataManager->SetValue(to, "Element", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Element", -1)));
+	CoreInit::managers.dataManager->SetValue(to, "AttAnim", weaponInfo[size_t(wType)].attAnim.id);
+	CoreInit::managers.dataManager->SetValue(to, "AttProj", weaponInfo[size_t(wType)].projectile.id);
+
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(to, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(to, "WeaponPickUp");
 }
 
 using namespace SE;
@@ -483,9 +542,64 @@ SE::Core::Entity SE::Gameplay::Item::Consumable::Create()
 	return item;
 }
 
-Core::Entity SE::Gameplay::Item::Consumable::Create(ConsumableType type)
+Core::Entity SE::Gameplay::Item::Consumable::Create(ConsumableType ctype)
 {
-	return Core::Entity();
+	auto type = std::rand() % consInfo.size();
+	auto item = CoreInit::managers.entityManager->Create();
+	auto itype = ItemType::CONSUMABLE;// GetRandType();
+
+	CoreInit::managers.transformManager->Create(item);
+	CoreInit::managers.materialManager->Create(item, { consInfo[type].shader, consInfo[type].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(item, { consInfo[type].mesh });
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = consInfo[type].icon;
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0.5f,0.5f };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 5;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
+
+	CoreInit::managers.guiManager->Create(item, icon);
+
+	CoreInit::managers.dataManager->SetValue(item, "Item", int32_t(itype));
+	CoreInit::managers.dataManager->SetValue(item, "Health", Item::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(item, "Charges", int32_t(3));
+	CoreInit::managers.dataManager->SetValue(item, "Type", int32_t(type));
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(item, "WeaponPickUp");
+	return item;
+}
+
+void SE::Gameplay::Item::Consumable::Copy(Core::Entity from, Core::Entity to)
+{
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Type", -1));
+	auto itype = ItemType::CONSUMABLE;// GetRandType();
+
+	CoreInit::managers.transformManager->Create(to);
+	CoreInit::managers.materialManager->Create(to, { consInfo[type].shader, consInfo[type].mat });
+	CoreInit::managers.renderableManager->CreateRenderableObject(to, { consInfo[type].mesh });
+	Core::IGUIManager::CreateInfo icon;
+	icon.texture = consInfo[type].icon;
+	icon.textureInfo.width = 50;
+	icon.textureInfo.height = 50;
+	icon.textureInfo.anchor = { 0.5f,0.5f };
+	icon.textureInfo.screenAnchor = { 0, 1 };
+	icon.textureInfo.posX = 5;
+	icon.textureInfo.posY = -60;
+	icon.textureInfo.layerDepth = 0;
+
+	CoreInit::managers.guiManager->Create(to, icon);
+
+	CoreInit::managers.dataManager->SetValue(to, "Item", int32_t(itype));
+	CoreInit::managers.dataManager->SetValue(to, "Health", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Health",0)));
+	CoreInit::managers.dataManager->SetValue(to, "Charges", std::get<int32_t>(CoreInit::managers.dataManager->GetValue(from, "Charges", 0)));
+	CoreInit::managers.dataManager->SetValue(to, "Type", int32_t(type));
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(to, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(to, "WeaponPickUp");
 }
 
 static const auto renconsInfo = [](SE::Core::Entity ent, Core::Entity parent, long posX, bool stop)

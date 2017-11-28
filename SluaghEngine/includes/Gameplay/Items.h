@@ -33,6 +33,7 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static Core::Entity Create(ConsumableType type);
+				static void Copy(Core::Entity from, Core::Entity to);
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};
@@ -40,6 +41,7 @@ namespace SE
 			{
 				static Core::Entity Create();
 				static Core::Entity Create(WeaponType type);
+				static void Copy(Core::Entity from, Core::Entity to);
 				static void ToggleRenderPickupInfo(Core::Entity ent);
 				static void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 			};
@@ -60,6 +62,9 @@ namespace SE
 			static int GetRandDamage();
 
 			static DamageType GetRandDamageType();
+
+
+			static Core::Entity Copy(Core::Entity toCopy);
 		};
 	}
 }
