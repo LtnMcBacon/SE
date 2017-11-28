@@ -73,6 +73,8 @@ namespace SE
 			*/
 			void DestroyNow(const Entity& e)override;
 
+			void DestroyAll() override;
+
 			/**
 			* @brief    Register a destroy callback for an entity.
 			* @param[in] e The entity to bind to.
