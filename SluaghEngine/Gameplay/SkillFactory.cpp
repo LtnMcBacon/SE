@@ -146,7 +146,7 @@ void SE::Gameplay::SkillFactory::readAttributesFromFile(unsigned int index, SE::
 	});
 
 	projectileReference = tempSkill->projectileReference + ".SEP";
- 	attributes[0] = tempSkill->skillDamage;
+	attributes[0] = tempSkill->skillDamage;
 	attributes[1] = tempSkill->boonEffectValue;
 	attributes[2] = tempSkill->boonRange;
 	attributes[3] = tempSkill->boonDuration;

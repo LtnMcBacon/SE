@@ -5,18 +5,17 @@
 #include "SluaghRoom.h"
 #include "Items.h"
 
+#include <fstream>
+
 SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, SluaghRoom* room)
 	:thePlayer(thePlayer)
 {
 	char map[25][25];
 	room->GetMap(map);
-	theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, map);
-	theSluagh->ToggleAsSluagh(true);
 
-	float rotX, rotY;
-	thePlayer->GetRotation(rotX, rotY);
-	theSluagh->UpdatePlayerRotation(rotX, rotY);
 	this->room = room;
+	theSluagh = nullptr;
+	distanceToPlayer = 0.f;
 }
 
 SE::Gameplay::Sluagh::~Sluagh()
@@ -62,6 +61,38 @@ bool SE::Gameplay::Sluagh::CollisionAgainstProjectile(float projectileX, float p
 void SE::Gameplay::Sluagh::ToggleRendering(bool render)
 {
 	CoreInit::managers.eventManager->ToggleVisible(theSluagh->GetEntity(), render);
+	CoreInit::managers.eventManager->ToggleVisible(theSluagh->GetCurrentItem(), render);
+}
+
+void SE::Gameplay::Sluagh::InitializeSluagh()
+{
+	StartProfile;
+	char* appdataBuffer;
+	size_t bcount;
+	if (_dupenv_s(&appdataBuffer, &bcount, "APPDATA"))
+		throw std::exception("Failed to retrieve path to appdata.");
+	std::string appdata(appdataBuffer);
+	free(appdataBuffer);
+	appdata += "\\Sluagh\\";
+	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in);
+	
+
+	if(in.is_open())
+	{
+		/*Create sluagh from data*/
+	}
+	else
+	{
+		/*Create copy of the player*/
+		char roomMap[25][25]; room->GetMap(roomMap);
+		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
+	}
+	float rotX, rotY;
+	thePlayer->GetRotation(rotX, rotY);
+	theSluagh->UpdatePlayerRotation(rotX, rotY);
+	theSluagh->SetZPosition(0.9f);
+	theSluagh->PositionEntity(15.5f, 15.5f);
+	theSluagh->ToggleAsSluagh(true);
 }
 
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -317,7 +348,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 
 void SE::Gameplay::Sluagh::CalculateSkillUtilities(float dt)
 {
-	float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
+		float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
 	float yDist = thePlayer->GetYPosition() - theSluagh->GetYPosition();
 	distanceToPlayer = sqrtf(xDist*xDist + yDist*yDist);
 
@@ -436,6 +467,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.one = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_2:
@@ -445,6 +477,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.two = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_3:
@@ -454,6 +487,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.three = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_4:
@@ -463,6 +497,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.four = true;
 		}
 		break;
 	case UtilityMapEnum::WEAPON_SLOT_5:
@@ -472,6 +507,7 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 		}
 		else
 		{
+			action.five = true;
 		}
 		break;
 
