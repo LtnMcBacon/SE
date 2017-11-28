@@ -55,6 +55,9 @@ namespace SE
 			float effectVol = 0;
 			float voiceVol = 0;
 			float bakgroundVol = 0;
+
+			std::map<std::string, int> buttonEnt;
+			SE::Core::Entity boxNames[5];
 		protected:
 
 
