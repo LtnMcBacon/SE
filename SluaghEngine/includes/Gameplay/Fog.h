@@ -12,6 +12,9 @@ namespace SE
 		class Fog
 		{
 		private:
+			enum class WallSide { Top, Bottom, Left, Right };
+
+		private:
 			static unsigned int fogIndex;
 
 			class Vertex;
@@ -34,22 +37,34 @@ namespace SE
 			const float slopeMiddleOffset[2] = { 0.3f, height / 2.f };
 			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
 
-			char tileValues[25][25];
-
-			unsigned int topPlaneRjHandle = -1;
-			unsigned int bottomPlaneRjHandle = -1;
-
 			Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;
 			Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_4;
 
-			Graphics::RenderJob topPlaneRj;
-			Graphics::RenderJob bottomPlaneRj;
+
+			char tileValues[25][25];
 
 			bool rjInitialized = false;
 			bool rjEnabled = false;
 
+			unsigned int topPlaneRjHandle = -1;
+			unsigned int bottomPlaneRjHandle = -1;
+
+			Graphics::RenderJob topPlaneRj;
+			Graphics::RenderJob bottomPlaneRj;
+
 			Plane *topPlane;
 			Plane *bottomPlane;
+
+			unsigned int firstWallTile[2];
+			WallSide firstWallSide;
+
+			unsigned int previousWallTile[2];
+			unsigned int currentWallTile[2];
+			unsigned int nextWallTile[2];
+
+			WallSide previousWallSide;
+			WallSide currentWallSide;
+			WallSide nextWallSide;
 
 		public:
 			Fog();
@@ -61,7 +76,10 @@ namespace SE
 		private:
 			void CreatePlane();
 			void AddAdjacentTiles(unsigned int column, unsigned int row);
-			void AddSlope(unsigned int column, unsigned int row);
+			unsigned int GetSlopeCount();
+			void SetFirstWall();
+			void ContinueToNextWall();
+			void AddSlope(unsigned int slopeIndex);
 			char GetTileValue(unsigned int column, unsigned int row);
 		};
 	}

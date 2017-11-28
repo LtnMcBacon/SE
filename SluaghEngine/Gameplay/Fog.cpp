@@ -72,29 +72,29 @@ public:
 			vertices[4] = Vertex(x, y, z, u, v, opacity);
 		}
 	}
-	void AdjustUv(Vertices parent, Vertices child)
+	void AdjustUv(Quad &parentQuad, Vertices parent, Vertices child)
 	{
 		float parentU, parentV;
 
 		if (parent == Vertices::TopLeft)
 		{
-			parentU = vertices[0].uv[0];
-			parentV = vertices[0].uv[1];
+			parentU = parentQuad.vertices[0].uv[0];
+			parentV = parentQuad.vertices[0].uv[1];
 		}
 		else if (parent == Vertices::TopRight)
 		{
-			parentU = vertices[1].uv[0];
-			parentV = vertices[1].uv[1];
+			parentU = parentQuad.vertices[1].uv[0];
+			parentV = parentQuad.vertices[1].uv[1];
 		}
 		else if (parent == Vertices::BottomLeft)
 		{
-			parentU = vertices[5].uv[0];
-			parentV = vertices[5].uv[1];
+			parentU = parentQuad.vertices[5].uv[0];
+			parentV = parentQuad.vertices[5].uv[1];
 		}
 		else if (parent == Vertices::BottomRight)
 		{
-			parentU = vertices[2].uv[0];
-			parentV = vertices[2].uv[1];
+			parentU = parentQuad.vertices[2].uv[0];
+			parentV = parentQuad.vertices[2].uv[1];
 		}
 
 
@@ -123,23 +123,23 @@ public:
 
 		if (parent == Vertices::TopLeft)
 		{
-			uVector[0] -= vertices[0].position[0];
-			uVector[1] -= vertices[0].position[1];
+			uVector[0] -= parentQuad.vertices[0].position[0];
+			uVector[1] -= parentQuad.vertices[0].position[1];
 		}
 		else if (parent == Vertices::TopRight)
 		{
-			uVector[0] -= vertices[1].position[0];
-			uVector[1] -= vertices[1].position[1];
+			uVector[0] -= parentQuad.vertices[1].position[0];
+			uVector[1] -= parentQuad.vertices[1].position[1];
 		}
 		else if (parent == Vertices::BottomLeft)
 		{
-			uVector[0] -= vertices[5].position[0];
-			uVector[1] -= vertices[5].position[1];
+			uVector[0] -= parentQuad.vertices[5].position[0];
+			uVector[1] -= parentQuad.vertices[5].position[1];
 		}
 		else if (parent == Vertices::BottomRight)
 		{
-			uVector[0] -= vertices[2].position[0];
-			uVector[1] -= vertices[2].position[1];
+			uVector[0] -= parentQuad.vertices[2].position[0];
+			uVector[1] -= parentQuad.vertices[2].position[1];
 		}
 
 
@@ -168,23 +168,23 @@ public:
 
 		if (parent == Vertices::TopLeft)
 		{
-			vVector[0] -= vertices[0].position[2];
-			vVector[1] -= vertices[0].position[1];
+			vVector[0] -= parentQuad.vertices[0].position[2];
+			vVector[1] -= parentQuad.vertices[0].position[1];
 		}
 		else if (parent == Vertices::TopRight)
 		{
-			vVector[0] -= vertices[1].position[2];
-			vVector[1] -= vertices[1].position[1];
+			vVector[0] -= parentQuad.vertices[1].position[2];
+			vVector[1] -= parentQuad.vertices[1].position[1];
 		}
 		else if (parent == Vertices::BottomLeft)
 		{
-			vVector[0] -= vertices[5].position[2];
-			vVector[1] -= vertices[5].position[1];
+			vVector[0] -= parentQuad.vertices[5].position[2];
+			vVector[1] -= parentQuad.vertices[5].position[1];
 		}
 		else if (parent == Vertices::BottomRight)
 		{
-			vVector[0] -= vertices[2].position[2];
-			vVector[1] -= vertices[2].position[1];
+			vVector[0] -= parentQuad.vertices[2].position[2];
+			vVector[1] -= parentQuad.vertices[2].position[1];
 		}
 
 
@@ -217,6 +217,112 @@ public:
 			vertices[4].uv[0] = parentU + ((uVector[0] > 0) - (uVector[0] < 0)) * uDistance;
 			vertices[4].uv[1] = parentV + ((vVector[0] > 0) - (vVector[0] < 0)) * vDistance;
 		}
+	}
+	void AdjustUv(Vertices parent, Vertices child)
+	{
+		AdjustUv(*this, parent, child);
+	}
+	void AdjustV(Quad &parentQuad, Vertices parent, Vertices child)
+	{
+		float parentV;
+
+		if (parent == Vertices::TopLeft)
+		{
+			parentV = parentQuad.vertices[0].uv[1];
+		}
+		else if (parent == Vertices::TopRight)
+		{
+			parentV = parentQuad.vertices[1].uv[1];
+		}
+		else if (parent == Vertices::BottomLeft)
+		{
+			parentV = parentQuad.vertices[5].uv[1];
+		}
+		else if (parent == Vertices::BottomRight)
+		{
+			parentV = parentQuad.vertices[2].uv[1];
+		}
+
+
+		float vVector[3];
+
+		if (child == Vertices::TopLeft)
+		{
+			vVector[0] = vertices[0].position[0];
+			vVector[1] = vertices[0].position[1];
+			vVector[2] = vertices[0].position[2];
+		}
+		else if (child == Vertices::TopRight)
+		{
+			vVector[0] = vertices[1].position[0];
+			vVector[1] = vertices[1].position[1];
+			vVector[2] = vertices[1].position[2];
+		}
+		else if (child == Vertices::BottomLeft)
+		{
+			vVector[0] = vertices[5].position[0];
+			vVector[1] = vertices[5].position[1];
+			vVector[2] = vertices[5].position[2];
+		}
+		else if (child == Vertices::BottomRight)
+		{
+			vVector[0] = vertices[2].position[0];
+			vVector[1] = vertices[2].position[1];
+			vVector[2] = vertices[2].position[2];
+		}
+
+		if (parent == Vertices::TopLeft)
+		{
+			vVector[0] -= parentQuad.vertices[0].position[0];
+			vVector[1] -= parentQuad.vertices[0].position[1];
+			vVector[2] -= parentQuad.vertices[0].position[2];
+		}
+		else if (parent == Vertices::TopRight)
+		{
+			vVector[0] -= parentQuad.vertices[1].position[0];
+			vVector[1] -= parentQuad.vertices[1].position[1];
+			vVector[2] -= parentQuad.vertices[1].position[2];
+		}
+		else if (parent == Vertices::BottomLeft)
+		{
+			vVector[0] -= parentQuad.vertices[5].position[0];
+			vVector[1] -= parentQuad.vertices[5].position[1];
+			vVector[2] -= parentQuad.vertices[5].position[2];
+		}
+		else if (parent == Vertices::BottomRight)
+		{
+			vVector[0] -= parentQuad.vertices[2].position[0];
+			vVector[1] -= parentQuad.vertices[2].position[1];
+			vVector[2] -= parentQuad.vertices[2].position[2];
+		}
+
+
+		float vDistance = sqrt(pow(vVector[0], 2) + pow(vVector[1], 2) + pow(vVector[2], 2));
+
+		if (child == Vertices::TopLeft)
+		{
+			vertices[0].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+
+			vertices[3].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+		}
+		else if (child == Vertices::TopRight)
+		{
+			vertices[1].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+		}
+		else if (child == Vertices::BottomLeft)
+		{
+			vertices[5].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+		}
+		else if (child == Vertices::BottomRight)
+		{
+			vertices[2].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+
+			vertices[4].uv[1] = parentV + ((vVector[1] > 0) - (vVector[1] < 0)) * vDistance;
+		}
+	}
+	void AdjustV(Vertices parent, Vertices child)
+	{
+		AdjustV(*this, parent, child);
 	}
 };
 
@@ -351,160 +457,164 @@ void SE::Gameplay::Fog::CreatePlane()
 	*/
 
 
-
-	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 	{
-		topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 0);
-		topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 0);
-		topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, -padding);
-		topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, -padding);
-
-		AddAdjacentTiles(paddingColumnI - 1, 0);
-	}
-
-	for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
-	{
-		topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 25 + padding);
-		topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 25 + padding);
-		topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, 25);
-		topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, 25);
-
-		AddAdjacentTiles(paddingColumnI - 1, 24);
-	}
-
-
-	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
-	{
-		topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopLeft, -padding, height, paddingRowI);
-		topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopRight, 0, height, paddingRowI);
-		topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, -padding, height, paddingRowI - 1);
-		topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 0, height, paddingRowI - 1);
-
-		AddAdjacentTiles(0, paddingRowI - 1);
-	}
-
-	for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
-	{
-		topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopLeft, 25, height, paddingRowI);
-		topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, paddingRowI);
-		topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, 25, height, paddingRowI - 1);
-		topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, paddingRowI - 1);
-
-		AddAdjacentTiles(24, paddingRowI - 1);
-	}
-
-
-	topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::TopLeft, -padding, height, 0);
-	topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::TopRight, 0, height, 0);
-	topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::BottomLeft, -padding, height, -padding);
-	topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::BottomRight, 0, height, -padding);
-
-	topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::TopLeft, 25, height, 0);
-	topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 0);
-	topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::BottomLeft, 25, height, -padding);
-	topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, -padding);
-
-	topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::TopLeft, -padding, height, 25 + padding);
-	topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::TopRight, 0, height, 25 + padding);
-	topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::BottomLeft, -padding, height, 25);
-	topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::BottomRight, 0, height, 25);
-
-	topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::TopLeft, 25, height, 25 + padding);
-	topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 25 + padding);
-	topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::BottomLeft, 25, height, 25);
-	topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, 25);
-
-
-	for (unsigned int rowI = 0; rowI < 25; rowI++)
-	{
-		for (unsigned int columnI = 0; columnI < 25; columnI++)
+		for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
 		{
-			if (topPlane->GetQuadStatus(columnI + 1, rowI + 1))
-				continue;
+			topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 0);
+			topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 0);
+			topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, -padding);
+			topPlane->GetQuad(paddingColumnI, 0).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, -padding);
 
-			if (topPlane->GetQuadStatus(columnI + 2, rowI + 1) || topPlane->GetQuadStatus(columnI, rowI + 1) || topPlane->GetQuadStatus(columnI + 1, rowI + 2) || topPlane->GetQuadStatus(columnI + 1, rowI))
-				AddSlope(columnI, rowI);
+			AddAdjacentTiles(paddingColumnI - 1, 0);
 		}
+
+		for (int paddingColumnI = 1; paddingColumnI < 26; paddingColumnI++)
+		{
+			topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopLeft, paddingColumnI - 1, height, 25 + padding);
+			topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::TopRight, paddingColumnI, height, 25 + padding);
+			topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomLeft, paddingColumnI - 1, height, 25);
+			topPlane->GetQuad(paddingColumnI, 26).SetVertex(Quad::Vertices::BottomRight, paddingColumnI, height, 25);
+
+			AddAdjacentTiles(paddingColumnI - 1, 24);
+		}
+
+
+		for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
+		{
+			topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopLeft, -padding, height, paddingRowI);
+			topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::TopRight, 0, height, paddingRowI);
+			topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, -padding, height, paddingRowI - 1);
+			topPlane->GetQuad(0, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 0, height, paddingRowI - 1);
+
+			AddAdjacentTiles(0, paddingRowI - 1);
+		}
+
+		for (int paddingRowI = 1; paddingRowI < 26; paddingRowI++)
+		{
+			topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopLeft, 25, height, paddingRowI);
+			topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, paddingRowI);
+			topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomLeft, 25, height, paddingRowI - 1);
+			topPlane->GetQuad(26, paddingRowI).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, paddingRowI - 1);
+
+			AddAdjacentTiles(24, paddingRowI - 1);
+		}
+
+
+		topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::TopLeft, -padding, height, 0);
+		topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::TopRight, 0, height, 0);
+		topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::BottomLeft, -padding, height, -padding);
+		topPlane->GetQuad(0, 0).SetVertex(Quad::Vertices::BottomRight, 0, height, -padding);
+
+		topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::TopLeft, 25, height, 0);
+		topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 0);
+		topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::BottomLeft, 25, height, -padding);
+		topPlane->GetQuad(26, 0).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, -padding);
+
+		topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::TopLeft, -padding, height, 25 + padding);
+		topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::TopRight, 0, height, 25 + padding);
+		topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::BottomLeft, -padding, height, 25);
+		topPlane->GetQuad(0, 26).SetVertex(Quad::Vertices::BottomRight, 0, height, 25);
+
+		topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::TopLeft, 25, height, 25 + padding);
+		topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::TopRight, 25 + padding, height, 25 + padding);
+		topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::BottomLeft, 25, height, 25);
+		topPlane->GetQuad(26, 26).SetVertex(Quad::Vertices::BottomRight, 25 + padding, height, 25);
 	}
 
 
+	SetFirstWall();
 
-	unsigned int topPlaneVertexCount = topPlane->GetQuadCount() * 2 * 3;
+	unsigned int slopeCount = GetSlopeCount();
 
-	Vertex *topPlaneVertexBuffer = new Vertex[topPlaneVertexCount];
-	topPlane->GetVertexBuffer(topPlaneVertexBuffer);
+	unsigned int slopeIndex = 0;
+	do
+	{
+		AddSlope(slopeIndex);
 
-	std::string topPlaneVbName = std::string("FogTopPlaneVb#" + std::to_string(fogIndex));
+		ContinueToNextWall();
 
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(topPlaneVbName, topPlaneVertexBuffer, topPlaneVertexCount, sizeof(Vertex));
+		slopeIndex++;
 
-
-	topPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
-	topPlaneRj.pipeline.OMStage.renderTargetCount = 1;
-
-	topPlaneRj.pipeline.VSStage.shader = "FogVS.hlsl";
-	topPlaneRj.pipeline.PSStage.shader = "FogPS.hlsl";
-
-	topPlaneRj.pipeline.PSStage.samplers[0] = "FogSampler";
-	topPlaneRj.pipeline.PSStage.samplerCount = 1;
-
-	topPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
-	topPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
-	topPlaneRj.pipeline.PSStage.textureCount = 2;
-	topPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
-	topPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
-
-	topPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
-	topPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	topPlaneRj.pipeline.IAStage.vertexBuffer = topPlaneVbName;
-
-	topPlaneRj.pipeline.OMStage.blendState = "FogBs";
-	topPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
-	topPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
-
-	topPlaneRj.vertexCount = topPlaneVertexCount;
-	topPlaneRj.maxInstances = 1;
+	} while (slopeIndex < slopeCount);
 
 
+	{
+		unsigned int topPlaneVertexCount = topPlane->GetQuadCount() * 2 * 3;
 
-	unsigned int bottomPlaneVertexCount = bottomPlane->GetQuadCount() * 2 * 3;
+		Vertex *topPlaneVertexBuffer = new Vertex[topPlaneVertexCount];
+		topPlane->GetVertexBuffer(topPlaneVertexBuffer);
 
-	Vertex *bottomPlaneVertexBuffer = new Vertex[bottomPlaneVertexCount];
-	bottomPlane->GetVertexBuffer(bottomPlaneVertexBuffer);
-	
-	std::string bottomPlaneVbName = std::string("FogBottomPlaneVb#" + std::to_string(fogIndex));
+		std::string topPlaneVbName = std::string("FogTopPlaneVb#" + std::to_string(fogIndex));
 
-	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(bottomPlaneVbName, bottomPlaneVertexBuffer, bottomPlaneVertexCount, sizeof(Vertex));
-
-	fogIndex++;
+		CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(topPlaneVbName, topPlaneVertexBuffer, topPlaneVertexCount, sizeof(Vertex));
 
 
-	bottomPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
-	bottomPlaneRj.pipeline.OMStage.renderTargetCount = 1;
+		topPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
+		topPlaneRj.pipeline.OMStage.renderTargetCount = 1;
 
-	bottomPlaneRj.pipeline.VSStage.shader = "FogVS.hlsl";
-	bottomPlaneRj.pipeline.PSStage.shader = "FogPS.hlsl";
+		topPlaneRj.pipeline.VSStage.shader = "FogVS.hlsl";
+		topPlaneRj.pipeline.PSStage.shader = "FogPS.hlsl";
 
-	bottomPlaneRj.pipeline.PSStage.samplers[0] = "FogSampler";
-	bottomPlaneRj.pipeline.PSStage.samplerCount = 1;
+		topPlaneRj.pipeline.PSStage.samplers[0] = "FogSampler";
+		topPlaneRj.pipeline.PSStage.samplerCount = 1;
 
-	bottomPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
-	bottomPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
-	bottomPlaneRj.pipeline.PSStage.textureCount = 2;
-	bottomPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
-	bottomPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
+		topPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
+		topPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
+		topPlaneRj.pipeline.PSStage.textureCount = 2;
+		topPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
+		topPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
 
-	bottomPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
-	bottomPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-	bottomPlaneRj.pipeline.IAStage.vertexBuffer = bottomPlaneVbName;
+		topPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
+		topPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+		topPlaneRj.pipeline.IAStage.vertexBuffer = topPlaneVbName;
 
-	bottomPlaneRj.pipeline.OMStage.blendState = "FogBs";
-	bottomPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
-	bottomPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
+		topPlaneRj.pipeline.OMStage.blendState = "FogBs";
+		topPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
+		topPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
 
-	bottomPlaneRj.vertexCount = bottomPlaneVertexCount;
-	bottomPlaneRj.maxInstances = 1;
+		topPlaneRj.vertexCount = topPlaneVertexCount;
+		topPlaneRj.maxInstances = 1;
 
+
+
+		unsigned int bottomPlaneVertexCount = bottomPlane->GetQuadCount() * 2 * 3;
+
+		Vertex *bottomPlaneVertexBuffer = new Vertex[bottomPlaneVertexCount];
+		bottomPlane->GetVertexBuffer(bottomPlaneVertexBuffer);
+
+		std::string bottomPlaneVbName = std::string("FogBottomPlaneVb#" + std::to_string(fogIndex));
+
+		CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(bottomPlaneVbName, bottomPlaneVertexBuffer, bottomPlaneVertexCount, sizeof(Vertex));
+
+		fogIndex++;
+
+
+		bottomPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
+		bottomPlaneRj.pipeline.OMStage.renderTargetCount = 1;
+
+		bottomPlaneRj.pipeline.VSStage.shader = "FogVS.hlsl";
+		bottomPlaneRj.pipeline.PSStage.shader = "FogPS.hlsl";
+
+		bottomPlaneRj.pipeline.PSStage.samplers[0] = "FogSampler";
+		bottomPlaneRj.pipeline.PSStage.samplerCount = 1;
+
+		bottomPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
+		bottomPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
+		bottomPlaneRj.pipeline.PSStage.textureCount = 2;
+		bottomPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
+		bottomPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
+
+		bottomPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
+		bottomPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+		bottomPlaneRj.pipeline.IAStage.vertexBuffer = bottomPlaneVbName;
+
+		bottomPlaneRj.pipeline.OMStage.blendState = "FogBs";
+		bottomPlaneRj.pipeline.OMStage.depthStencilState = "backbuffer";
+		bottomPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
+
+		bottomPlaneRj.vertexCount = bottomPlaneVertexCount;
+		bottomPlaneRj.maxInstances = 1;
+	}
 
 
 	rjInitialized = true;
@@ -535,357 +645,583 @@ void SE::Gameplay::Fog::AddAdjacentTiles(unsigned int column, unsigned int row)
 	AddAdjacentTiles(column, row + 1);
 }
 
-void SE::Gameplay::Fog::AddSlope(unsigned int column, unsigned int row)
+unsigned int SE::Gameplay::Fog::GetSlopeCount()
 {
-	if (topPlane->GetQuadStatus(column + 1, row + 2))
+	unsigned int slopeCount = 0;
+
+	for (unsigned int rowI = 0; rowI < 25; rowI++)
+	{
+		for (unsigned int columnI = 0; columnI < 25; columnI++)
+		{
+			if (!topPlane->GetQuadStatus(columnI + 1, rowI + 1))
+			{
+				if (topPlane->GetQuadStatus(columnI + 2, rowI + 1))
+					slopeCount++;
+
+				if (topPlane->GetQuadStatus(columnI, rowI + 1))
+					slopeCount++;
+
+				if (topPlane->GetQuadStatus(columnI + 1, rowI))
+					slopeCount++;
+
+				if (topPlane->GetQuadStatus(columnI + 1, rowI + 2))
+					slopeCount++;
+			}
+		}
+	}
+
+	return slopeCount;
+}
+
+void SE::Gameplay::Fog::SetFirstWall()
+{
+	for (unsigned int radiusI = 0; radiusI < 25; radiusI++)
+	{
+		for (unsigned int rowI = 0; rowI <= radiusI; rowI++)
+		{
+			for (unsigned int columnI = (rowI == radiusI) ? 0 : radiusI; columnI <= radiusI; columnI++)
+			{
+				if (!topPlane->GetQuadStatus(columnI + 1, rowI + 1))
+				{
+					currentWallTile[0] = firstWallTile[0] = columnI;
+					currentWallTile[1] = firstWallTile[1] = rowI;
+
+					currentWallSide = firstWallSide = WallSide::Bottom;
+
+					goto endOfLoops;
+				}
+			}
+		}
+	}
+endOfLoops:
+
+
+	previousWallTile[0] = currentWallTile[0];
+	previousWallTile[1] = currentWallTile[1];
+
+	previousWallSide = WallSide::Left;
+
+
+	if (!topPlane->GetQuadStatus(currentWallTile[0] + 2, currentWallTile[1]))
+	{
+		nextWallTile[0] = currentWallTile[0] + 1;
+		nextWallTile[1] = currentWallTile[1] - 1;
+
+		nextWallSide = WallSide::Left;
+	}
+	else if (!topPlane->GetQuadStatus(currentWallTile[0] + 2, currentWallTile[1] + 1))
+	{
+		nextWallTile[0] = currentWallTile[0] + 1;
+		nextWallTile[1] = currentWallTile[1];
+
+		nextWallSide = WallSide::Bottom;
+	}
+	else
+	{
+		nextWallTile[0] = currentWallTile[0];
+		nextWallTile[1] = currentWallTile[1];
+
+		nextWallSide = WallSide::Right;
+	}
+}
+
+void SE::Gameplay::Fog::ContinueToNextWall()
+{
+	previousWallTile[0] = currentWallTile[0];
+	previousWallTile[1] = currentWallTile[1];
+	previousWallSide = currentWallSide;
+
+	currentWallTile[0] = nextWallTile[0];
+	currentWallTile[1] = nextWallTile[1];
+	currentWallSide = nextWallSide;
+
+
+	if (currentWallSide == WallSide::Top)
+	{
+		if (!topPlane->GetQuadStatus(currentWallTile[0], currentWallTile[1] + 2))
+		{
+			nextWallTile[0] = currentWallTile[0] - 1;
+			nextWallTile[1] = currentWallTile[1] + 1;
+
+			nextWallSide = WallSide::Right;
+		}
+		else if (!topPlane->GetQuadStatus(currentWallTile[0], currentWallTile[1] + 1))
+		{
+			nextWallTile[0] = currentWallTile[0] - 1;
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = currentWallSide;
+		}
+		else
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = WallSide::Left;
+		}
+	}
+	else if (currentWallSide == WallSide::Bottom)
+	{
+		if (!topPlane->GetQuadStatus(currentWallTile[0] + 2, currentWallTile[1]))
+		{
+			nextWallTile[0] = currentWallTile[0] + 1;
+			nextWallTile[1] = currentWallTile[1] - 1;
+
+			nextWallSide = WallSide::Left;
+		}
+		else if (!topPlane->GetQuadStatus(currentWallTile[0] + 2, currentWallTile[1] + 1))
+		{
+			nextWallTile[0] = currentWallTile[0] + 1;
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = currentWallSide;
+		}
+		else
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = WallSide::Right;
+		}
+	}
+	else if (currentWallSide == WallSide::Left)
+	{
+		if (!topPlane->GetQuadStatus(currentWallTile[0], currentWallTile[1]))
+		{
+			nextWallTile[0] = currentWallTile[0] - 1;
+			nextWallTile[1] = currentWallTile[1] - 1;
+
+			nextWallSide = WallSide::Top;
+		}
+		else if (!topPlane->GetQuadStatus(currentWallTile[0] + 1, currentWallTile[1]))
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1] - 1;
+
+			nextWallSide = currentWallSide;
+		}
+		else
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = WallSide::Bottom;
+		}
+	}
+	else // currentWallSide == WallSide::Right
+	{
+		if (!topPlane->GetQuadStatus(currentWallTile[0] + 2, currentWallTile[1] + 2))
+		{
+			nextWallTile[0] = currentWallTile[0] + 1;
+			nextWallTile[1] = currentWallTile[1] + 1;
+
+			nextWallSide = WallSide::Bottom;
+		}
+		else if (!topPlane->GetQuadStatus(currentWallTile[0] + 1, currentWallTile[1] + 2))
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1] + 1;
+
+			nextWallSide = currentWallSide;
+		}
+		else
+		{
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1];
+
+			nextWallSide = WallSide::Top;
+		}
+	}
+}
+
+void SE::Gameplay::Fog::AddSlope(unsigned int slopeIndex)
+{
+	if (currentWallSide == WallSide::Top)
 	{
 		topPlane->AddQuad();
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column, height, row + 1);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1);
 
-		if (topPlane->GetQuadStatus(column, row + 1))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
+		if (nextWallSide == WallSide::Left)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else if (nextWallSide == WallSide::Top)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else // nextWallSide == WallSide::Right
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1);
 
-		if (topPlane->GetQuadStatus(column + 2, row + 1))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column + 2, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
+		if (previousWallSide == WallSide::Right)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else if (previousWallSide == WallSide::Top)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else // previousWallSide == WallSide::Left
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
 
 
 
-		char tileType = GetTileValue(column, row + 1);
+		char tileType = GetTileValue(currentWallTile[0], currentWallTile[1] + 1);
 		if (tileType != id_Door1 && tileType != id_Door2)
 		{
 			bottomPlane->AddQuad();
 			bottomPlane->AddQuad();
 
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column, height, row + 1);
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1, slopeIndex + 1, height);
 
-			if (topPlane->GetQuadStatus(column, row + 1))
+			if (nextWallSide == WallSide::Left)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column, row + 2))
+			else if (nextWallSide == WallSide::Top)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column, slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else
+			else // nextWallSide == WallSide::Right
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopLeft, Quad::Vertices::TopLeft);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
 
-			if (topPlane->GetQuadStatus(column + 2, row + 1))
+
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1, slopeIndex, height);
+
+			if (previousWallSide == WallSide::Right)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column + 2, row + 2))
+			else if (previousWallSide == WallSide::Top)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else
+			else // previousWallSide == WallSide::Left
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
+
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopRight, Quad::Vertices::TopRight);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
 		}
 	}
-
-	if (topPlane->GetQuadStatus(column + 1, row))
+	else if (currentWallSide == WallSide::Bottom)
 	{
 		topPlane->AddQuad();
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, height, row);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1]);
 
-		if (topPlane->GetQuadStatus(column, row + 1))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeTopOffset[1], row + slopeTopOffset[0]);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
+		if (previousWallSide == WallSide::Left)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else if (previousWallSide == WallSide::Bottom)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else // previousWallSide == WallSide::Right
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1]);
 
-		if (topPlane->GetQuadStatus(column + 2, row + 1))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column + 2, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeTopOffset[1], row + slopeTopOffset[0]);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
+		if (nextWallSide == WallSide::Right)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else if (nextWallSide == WallSide::Bottom)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else // nextWallSide == WallSide::Left
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
 
 
 
-		char tileType = GetTileValue(column, row - 1);
+		char tileType = GetTileValue(currentWallTile[0], currentWallTile[1] - 1);
 		if (tileType != id_Door1 && tileType != id_Door2)
 		{
 			bottomPlane->AddQuad();
 			bottomPlane->AddQuad();
 
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column, height, row);
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1], slopeIndex, height);
 
-			if (topPlane->GetQuadStatus(column, row + 1))
+			if (previousWallSide == WallSide::Left)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column, row))
+			else if (previousWallSide == WallSide::Bottom)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column, slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column, slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else
+			else // previousWallSide == WallSide::Right
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column - slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomLeft, Quad::Vertices::BottomLeft);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
 
-			if (topPlane->GetQuadStatus(column + 2, row + 1))
+
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1], slopeIndex + 1, height);
+
+			if (nextWallSide == WallSide::Right)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column + 2, row))
+			else if (nextWallSide == WallSide::Bottom)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1, slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else
+			else // nextWallSide == WallSide::Left
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 + slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
+
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomRight, Quad::Vertices::BottomRight);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
 		}
 	}
-
-	if (topPlane->GetQuadStatus(column, row + 1))
+	else if (currentWallSide == WallSide::Left)
 	{
 		topPlane->AddQuad();
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column, height, row + 1);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1);
 
-		if (topPlane->GetQuadStatus(column + 1, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeTopOffset[0], slopeTopOffset[1], row + 1);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeTopOffset[0], slopeTopOffset[1], row + 1 + slopeTopOffset[0]);
+		if (previousWallSide == WallSide::Top)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else if (previousWallSide == WallSide::Left)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1);
+		else // previousWallSide == WallSide::Bottom
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 + slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column, height, row);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1]);
 
-		if (topPlane->GetQuadStatus(column + 1, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeTopOffset[0], slopeTopOffset[1], row);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeTopOffset[0], slopeTopOffset[1], row - slopeTopOffset[0]);
+		if (nextWallSide == WallSide::Bottom)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else if (nextWallSide == WallSide::Left)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1]);
+		else // nextWallSide == WallSide::Top
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] - slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
 
 
 
-		char tileType = GetTileValue(column - 1, row);
+		char tileType = GetTileValue(currentWallTile[0] - 1, currentWallTile[1]);
 		if (tileType != id_Door1 && tileType != id_Door2)
 		{
 			bottomPlane->AddQuad();
 			bottomPlane->AddQuad();
 
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column, height, row + 1);
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1, slopeIndex, height);
 
-			if (topPlane->GetQuadStatus(column + 1, row + 2))
+			if (previousWallSide == WallSide::Top)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column, row + 2))
+			else if (previousWallSide == WallSide::Left)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1, slopeIndex, slopeBottomOffset[1]);
 			}
-			else
+			else // previousWallSide == WallSide::Bottom
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column, height, row);
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopLeft, Quad::Vertices::TopLeft);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
 
-			if (topPlane->GetQuadStatus(column + 1, row))
+
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1], slopeIndex + 1, height);
+
+			if (nextWallSide == WallSide::Bottom)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column, row))
+			else if (nextWallSide == WallSide::Left)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else
+			else // nextWallSide == WallSide::Top
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
+
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomLeft, Quad::Vertices::BottomLeft);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
 		}
 	}
-
-	if (topPlane->GetQuadStatus(column + 2, row + 1))
+	else // currentWallSize == WallSide::Right
 	{
 		topPlane->AddQuad();
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1);
 
-		if (topPlane->GetQuadStatus(column + 1, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + 1 - slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column + 2, row + 2))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + 1);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + 1 + slopeTopOffset[0]);
+		if (nextWallSide == WallSide::Top)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0]);
+		else if (nextWallSide == WallSide::Right)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1);
+		else // nextWallSide == WallSide::Bottom
+			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 + slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1]);
 
-		if (topPlane->GetQuadStatus(column + 1, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row + slopeTopOffset[0]);
-		else if (topPlane->GetQuadStatus(column + 2, row))
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row);
-		else
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeTopOffset[0], slopeTopOffset[1], row - slopeTopOffset[0]);
+		if (previousWallSide == WallSide::Bottom)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0]);
+		else if (previousWallSide == WallSide::Right)
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1]);
+		else // previousWallSide == WallSide::Top
+			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] - slopeTopOffset[0]);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
 
 
 
-		char tileType = GetTileValue(column + 1, row);
+		char tileType = GetTileValue(currentWallTile[0] + 1, currentWallTile[1]);
 		if (tileType != id_Door1 && tileType != id_Door2)
 		{
 			bottomPlane->AddQuad();
 			bottomPlane->AddQuad();
 
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, column + 1, height, row + 1);
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1, slopeIndex + 1, height);
 
-			if (topPlane->GetQuadStatus(column + 1, row + 2))
+			if (nextWallSide == WallSide::Top)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column + 2, row + 2))
+			else if (nextWallSide == WallSide::Right)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeBottomOffset[1]);
 			}
-			else
+			else // nextWallSide == WallSide::Bottom
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + 1 + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + 1 + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1]);
 			}
 
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, column + 1, height, row);
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopRight, Quad::Vertices::TopRight);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
 
-			if (topPlane->GetQuadStatus(column + 1, row))
+
+			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1], slopeIndex, height);
+
+			if (previousWallSide == WallSide::Bottom)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row + slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row + slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
-			else if (topPlane->GetQuadStatus(column + 2, row))
+			else if (previousWallSide == WallSide::Right)
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1], slopeIndex, slopeBottomOffset[1]);
 			}
-			else
+			else // previousWallSide == WallSide::Top
 			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
+				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
 
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, column + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], row - slopeMiddleOffset[0]);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, column + 1 - slopeBottomOffset[0], slopeBottomOffset[1], row - slopeBottomOffset[0]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1]);
+				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1]);
 			}
+
+			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
+
+			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomRight, Quad::Vertices::BottomRight);
+			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
 		}
 	}
 }
