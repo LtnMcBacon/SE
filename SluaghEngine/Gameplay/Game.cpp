@@ -87,6 +87,7 @@ void SE::Gameplay::Game::Run()
 					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 						CoreInit::subSystems.window->StopRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					break;
 				}
@@ -95,6 +96,7 @@ void SE::Gameplay::Game::Run()
 					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 						CoreInit::subSystems.window->StopRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
 					break;
 				}
@@ -102,18 +104,21 @@ void SE::Gameplay::Game::Run()
 				{
 					/*CoreInit::subSystems.window->StartRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::CharacterCreationState(CoreInit::subSystems.window);
 					break;
 				}
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
 				case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new TutorialState();
 					break;
 				case SE::Gameplay::IGameState::State::QUIT_GAME:

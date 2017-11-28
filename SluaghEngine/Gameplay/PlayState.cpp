@@ -627,8 +627,9 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
-	cam = CoreInit::managers.cameraManager->GetActive();
-	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
+	cam = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.cameraManager->Create(cam, cInfo);
+	CoreInit::managers.cameraManager->SetActive(cam);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
