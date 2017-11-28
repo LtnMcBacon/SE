@@ -88,13 +88,12 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 		char roomMap[25][25]; room->GetMap(roomMap);
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
 
+		auto playerItems = thePlayer->GetAllItems();
+		for(int i = 0; i < 5; i++)
+		{
+			theSluagh->AddItem(Item::Copy(playerItems[i]), i);
+		}
 		
-
-		Core::Entity testWeapon = Item::Weapon::Create(WeaponType::SWORD);
-		theSluagh->AddItem(testWeapon, 0);
-
-		Core::Entity testWeapon2 = Item::Weapon::Create(WeaponType::CROSSBOW);
-		theSluagh->AddItem(testWeapon2, 1);
 
 	}
 	float rotX, rotY;
