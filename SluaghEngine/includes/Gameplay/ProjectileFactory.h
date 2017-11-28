@@ -296,7 +296,7 @@ namespace SE
 			std::function<bool(Projectile* projectile, float dt)> CreateDecalBehaviour(std::vector<BehaviourParameter> parameters); // s, f, p
 
 			/**
-			* @brief	Adds a behaviour to change the opacity of the decal
+			* @brief	Adds a behaviour to set the opacity of the decal
 			**/
 			std::function<bool(Projectile* projectile, float dt)> SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
 
@@ -304,6 +304,43 @@ namespace SE
 			* @brief	Adds a behaviour to change the opacity of the decal per second
 			**/
 			std::function<bool(Projectile* projectile, float dt)> ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount per second if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerDynamicBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount of their max health if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerPercentageStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount of their max health per second if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the owner's health (can set it to above max health)
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOwnerHealthStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the owner's health (can set it to above max health) to a percentage of their maxhealth
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOwnerHealthPercentBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the projectiles position to the same as the mouse
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters); // 
+
+
 
 
 
