@@ -35,10 +35,10 @@ void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 }
 
 
-bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags)
+bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed)
 {
 	StartProfile;
-	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
+	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), playSpeed, animationFlags));
 	
 }
 std::vector<SE::Gameplay::DamageEvent>& SE::Gameplay::PlayerUnit::GetDamageEvents()
@@ -579,7 +579,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			if (ItemType(*wep) == ItemType::WEAPON)
 			{
 				// Only allow attacking if attack animation is not already playing and attacking is false
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK) && attacking == false)
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/attackSpeed) && attacking == false)
 				{
 					attacking = true;
 
@@ -787,6 +787,27 @@ int SE::Gameplay::PlayerUnit::getSkillVectorSize()
 	return skills.size();
 }
 
+void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
+{
+	isSluagh = sluagh;
+	Core::IMaterialManager::CreateInfo info;
+	if (sluagh)
+	{
+		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto material = Utilz::GUID("Slaughplane.mat");
+		info.shader = shader;
+		info.materialFile = material;
+	}
+	else
+	{
+		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto material = Utilz::GUID("MCModell.mat");
+		info.shader = shader;
+		info.materialFile = material;
+	}
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+}
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
 	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");
@@ -867,14 +888,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	PlayerSounds();
 	InitializeAnimationInfo();
 
-
-
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
-	
-	
-	
-	
-	
 	
 	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
 	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
@@ -966,6 +980,16 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 */
 
 	StopProfile;
+}
+
+SE::Gameplay::PlayerUnit::PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25])
+{
+
+}
+
+void SE::Gameplay::PlayerUnit::SavePlayerToFile(Utilz::GUID sluaghFile)
+{
+
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()
