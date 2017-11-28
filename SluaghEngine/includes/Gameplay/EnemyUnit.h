@@ -151,7 +151,7 @@ namespace SE
 				return myRoom;
 			}
 
-			inline float GetMaxHealth() const
+			float GetMaxHealth() const
 			{
 				return maxHealth;
 			}
