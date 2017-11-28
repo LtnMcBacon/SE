@@ -92,6 +92,8 @@ namespace SE
 			*/
 			virtual void SetDefaultScale(float inHeight, float inWidth) = 0;
 
+			virtual void GetDefaultScale(float& inHeight, float& inWidth) = 0;
+
 			/**
 			* @brief Resets all GUI to be rescaled to new resolution
 			* @endcode

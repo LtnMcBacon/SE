@@ -80,6 +80,7 @@ namespace SE
 			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
+			Core::Entity usePrompt;
 			PlayerUnit* player;
 
 			uint8_t worldWidth = 4;

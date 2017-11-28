@@ -41,6 +41,18 @@ bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRu
 	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), playSpeed, animationFlags));
 	
 }
+std::vector<SE::Gameplay::DamageEvent>& SE::Gameplay::PlayerUnit::GetDamageEvents()
+{
+	return DamageEventVector;
+}
+std::vector<SE::Gameplay::HealingEvent>& SE::Gameplay::PlayerUnit::GetHealingEvents()
+{
+	return HealingEventVector;
+}
+std::vector<SE::Gameplay::ConditionEvent>& SE::Gameplay::PlayerUnit::GetConditionEvents()
+{
+	return ConditionEventVector;
+}
 #undef max
 
 void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
@@ -324,13 +336,13 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	// Handle input and apply movement
 	if (inputs.upButton)
-		yMovement += 1.0f;
+		yMovement += newStat.movementSpeed;
 	if (inputs.downButton)
-		yMovement -= 1.0f;
+		yMovement -= newStat.movementSpeed;
 	if (inputs.leftButton)
-		xMovement -= 1.0f;
+		xMovement -= newStat.movementSpeed;
 	if (inputs.rightButton)
-		xMovement += 1.0f;
+		xMovement += newStat.movementSpeed;
 
 	float tempX = xMovement;
 	float tempY = yMovement;
@@ -860,6 +872,11 @@ float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
 	return skills.at(skillNumber).currentCooldown;
 }
 
+void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
+{
+	skills.clear();
+}
+
 void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
 {
 	isSluagh = sluagh;
@@ -881,12 +898,6 @@ void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
 
 	CoreInit::managers.materialManager->Create(unitEntity, info);
 }
-
-void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
-{
-	skills.clear();
-}
-
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
 	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");

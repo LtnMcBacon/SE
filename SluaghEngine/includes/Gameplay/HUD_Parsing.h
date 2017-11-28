@@ -72,6 +72,7 @@ namespace SE
 			void ParsePerks(Utilz::GUID fileName);
 			void ParseOptionalButtons(Utilz::GUID fileName);
 			void InitiateTextures();
+			void ResolutionChange(int& elementWidth, int& elementHeight);
 			
 			
 			
