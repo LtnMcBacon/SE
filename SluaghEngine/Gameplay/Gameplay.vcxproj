@@ -31,6 +31,7 @@
     <ClCompile Include="ChangeRoomLeaf.cpp" />
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
+    <ClCompile Include="Consumable.cpp" />
     <ClCompile Include="CoreInit.cpp" />
     <ClCompile Include="CountdownRoomTransistionLeaf.cpp" />
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
@@ -98,6 +99,7 @@
     <ClCompile Include="TransistionCountdownDoneCondition.cpp" />
     <ClCompile Include="TransistionToRoomLeaf.cpp" />
     <ClCompile Include="TutorialState.cpp" />
+    <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +116,7 @@
     <ClInclude Include="..\includes\Gameplay\ChangeRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\Consumable.h" />
     <ClInclude Include="..\includes\Gameplay\CountdownRoomTransistionLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h" />
@@ -191,6 +194,7 @@
     <ClInclude Include="..\includes\Gameplay\TransistionCountdownDoneCondition.h" />
     <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TutorialState.h" />
+    <ClInclude Include="..\includes\Gameplay\Weapon.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />

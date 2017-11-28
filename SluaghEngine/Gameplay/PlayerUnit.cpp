@@ -441,18 +441,15 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			{
 				auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
 				if(pit == ItemType::WEAPON)
-					Item::Unequip(unitEntity, items[currentItem]);
+					Item::Unequip(items[currentItem], unitEntity);
 
 				currentItem = newItem;
-				Item::Equip(unitEntity, items[currentItem]);
-				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
+				Item::Equip(items[currentItem], unitEntity);
 
 				SetCurrentWeaponStats();
 			}
 			else if (item == ItemType::CONSUMABLE)
 			{
-				//Item::Unequip(unitEntity, items[pi]);
-				//CoreInit::managers.guiManager->SetTexturePos(itemSelectedEntity, 40 + currentItem * 55, -55);
 				auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Charges", 0));
 				if (charges > 0)
 				{
@@ -669,7 +666,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		{
 			auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
 			if (ctype == ItemType::WEAPON)
-				Item::Unequip(unitEntity, items[currentItem]);
+				Item::Unequip(items[currentItem], unitEntity);
 		}
 		
 		Item::Drop(items[slot], p);
@@ -950,34 +947,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
-
-	/*items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
-	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
-	Item::Pickup(items[currentItem]);
-	Item::Equip(unitEntity,items[currentItem]);
-
-	SetCurrentWeaponStats();*/
 	itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
-	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
-	Core::IGUIManager::CreateInfo ise;
-	ise.texture = "damageFrame.png";
-	ise.textureInfo.width = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
-	ise.textureInfo.height = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);;
-	ise.textureInfo.layerDepth = 0.0;
-	ise.textureInfo.anchor = { 0.0f, 0.0f };
-	ise.textureInfo.screenAnchor = { 0, 0 };
-	ise.textureInfo.posX = 0;
-	ise.textureInfo.posY = 0;
-	CoreInit::managers.guiManager->Create(itemSelectedEntity, ise);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(itemSelectedEntity, true);
-
-	Core::IEventManager::EventCallbacks dmgCB;
-	dmgCB.triggerCheck = [](Core::Entity ent, void*data)
-	{
-		return true;
-	}
-*/
+	
 
 	StopProfile;
 }

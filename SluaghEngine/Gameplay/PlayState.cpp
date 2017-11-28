@@ -600,7 +600,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 
-				auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+				auto startWeapon = Item::Weapon::Create(Item::Weapon::Type(std::rand() % 3));
 				player->AddItem(startWeapon, 0);
 				//auto wc = Item::Copy(startWeapon);
 				//player->AddItem(wc, 1);

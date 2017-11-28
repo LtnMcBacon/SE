@@ -3,12 +3,13 @@
 #include <Room.h>
 #include <PlayerUnit.h>
 #include <ProjectileData.h>
+#include <Items.h>
 
 using namespace DirectX;
 
 static SE::Core::IEngine::ManagerWrapper managers;
 static SE::Core::IEngine::Subsystems subSystems;
-#include <Items.h>
+
 SE::Gameplay::TutorialState::TutorialState()
 {
 	managers = CoreInit::managers;
@@ -382,6 +383,7 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 		return managers.collisionManager->CheckCollision(ent, pe);
 	};
 
+
 	startrenderWIC.triggerCallback = [pe, this, ent](const Core::Entity ent2)
 	{
 		managers.dataManager->SetValue(pe, "WICV", true);
@@ -433,7 +435,7 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 	managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
 
 
-	auto wep = Item::Weapon::Create(WeaponType::SWORD);
+	auto wep = Item::Weapon::Create(Item::Weapon::Type::SWORD);
 	Item::Drop(wep, { 5.5f,0.0f, 10.5f });
 }
 
@@ -608,7 +610,7 @@ void SE::Gameplay::TutorialState::BytaVapenAddInitScript(float dt)
 	});
 	managers.eventManager->RegisterEntitytoEvent(ent, "DelBytVapenText");
 
-	player->AddItem(Item::Weapon::Create(WeaponType::WAND), 1);
+	player->AddItem(Item::Weapon::Create(Item::Weapon::Type::WAND), 1);
 
 	scriptToRun = &TutorialState::BytaVapenAddScript;
 
