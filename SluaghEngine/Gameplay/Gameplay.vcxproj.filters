@@ -145,6 +145,12 @@
     <Filter Include="Source Files\Perks">
       <UniqueIdentifier>{ae18b683-1a04-47df-b06d-326c5d3c82b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\IGameState\OptionState">
+      <UniqueIdentifier>{4f27e3c0-0506-4463-b7a5-78d5077be776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\OptionState">
+      <UniqueIdentifier>{1b3a5f1c-13db-4933-9640-ecc88ec0289a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -393,6 +399,9 @@
     <ClCompile Include="PerkFactory.cpp">
       <Filter>Source Files\Perks</Filter>
     </ClCompile>
+    <ClCompile Include="OptionState.cpp">
+      <Filter>Source Files\IGameState\OptionState</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -629,9 +638,6 @@
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\Slaugh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -685,6 +691,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h">
       <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\OptionState.h">
+      <Filter>Header Files\IGameState\OptionState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
