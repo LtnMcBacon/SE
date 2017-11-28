@@ -26,7 +26,7 @@ namespace SE
 			float rangedMultiplier = 1.f;
 			float movementSpeed = 5.f;
 			//float healBonus			= 1.f;
-			//float attackSpeed		= 1.f;
+			float attackSpeed		= 1.f;
 
 			//whi
 			float magicDamage = 1.f;
@@ -36,6 +36,7 @@ namespace SE
 			float fireResistance = 1.f;
 			float waterResistance = 1.f;
 
+			float attackCooldown = 0.f;
 			ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
 			DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;
 			DamageType damageType = DamageType::PHYSICAL;

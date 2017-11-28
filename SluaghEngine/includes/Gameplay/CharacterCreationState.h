@@ -87,20 +87,20 @@ namespace SE
 				"Kasta_Sten.HuD"
 			};
 
-			std::string perkButtonFiles[5]
+			std::string perkButtonFiles[4]
 			{
 				"Fire_Resistance.HuD",
-				"Life_Steal.HuD",
+				
 				"Melee_Damage.HuD",
 				"Range_Damage.HuD",
 				"Stat_Increase.HuD"
 				
 			};
 
-			std::string Perkfiles[5]
+			std::string Perkfiles[4]
 			{
 				 "Fire_Resistance.prk",
-				 "Life_Steal.prk",
+				 
 				 "Melee_Damage.prk",
 				 "Range_Damage.prk",
 				 "Stat_Increase.prk"

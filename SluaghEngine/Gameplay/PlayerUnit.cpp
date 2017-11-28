@@ -543,7 +543,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown -= dt;
 	}
 
-	if (input.actionButton && attackCooldown <= 0.0f)
+	if (input.actionButton && newStat.attackCooldown <= 0.0f)
 	{
 		if (auto wep = std::get_if<int32_t>(&CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
 		{
@@ -567,19 +567,19 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					attackCooldown = 1.0f / attackSpeed;
+					newStat.attackCooldown = 1.0f / newStat.attackSpeed;
 				}
 			}
 		}
 		
 	}
 
-	if (attackCooldown > 0.f)
+	if (newStat.attackCooldown > 0.f)
 	{
-		attackCooldown -= dt;
+		newStat.attackCooldown -= dt;
 	}
-	if (attackCooldown < 0.f)
-		attackCooldown = 0.f;
+	if (newStat.attackCooldown < 0.f)
+		newStat.attackCooldown = 0.f;
 	ResolveEvents(dt);
 	ClearConditionEvents();
 	ClearDamageEvents();
@@ -654,11 +654,11 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 void SE::Gameplay::PlayerUnit::calcStrChanges()
 {
 	StartProfile;
-	if (baseStat.str > 5)
+	if (newStat.str > 5)
 	{
-		int increment = baseStat.str - 5;
-		newStat.health = baseStat.health * (1.f + (0.05f * increment));
-		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
+		int increment = newStat.str - 5;
+		newStat.health = newStat.health * (1.f + (0.05f * increment));
+		newStat.damage = newStat.damage * (1.f + (0.05f * increment));
 	}
 	else if (baseStat.str < 5)
 	{
@@ -751,265 +751,6 @@ int SE::Gameplay::PlayerUnit::getSkillVectorSize()
 	return skills.size();
 }
 
-std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
-{
-	return skills.at(skillNumber).skillName;
-}
-
-void SE::Gameplay::PlayerUnit::setSkillName(int skillNumber, std::string skillName)
-{
-	this->skills.at(skillNumber).skillName = skillName;
-}
-
-SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
-{
-	return skills.at(skillNumber).atkType;
-}
-
-void SE::Gameplay::PlayerUnit::setAttackType(int skillNumber, unsigned short int atkType)
-{
-	this->skills.at(skillNumber).atkType = static_cast<DamageSources>(atkType);
-}
-
-SE::Gameplay::DamageType SE::Gameplay::PlayerUnit::getDamageType(int skillNumber)
-{
-	return skills.at(skillNumber).damageType;
-}
-
-void SE::Gameplay::PlayerUnit::setDamageType(int skillNumber, unsigned short int damageType)
-{
-	this->skills.at(skillNumber).damageType = static_cast<DamageType>(damageType);
-}
-
-SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
-{
-	return skills.at(skillNumber).boon;
-}
-
-void SE::Gameplay::PlayerUnit::setBoon(int skillNumber, unsigned short int boon)
-{
-	this->skills.at(skillNumber).boon = static_cast<Boons>(boon);
-}
-
-SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
-{
-	return skills.at(skillNumber).bane;
-}
-
-void SE::Gameplay::PlayerUnit::setBanes(int skillNumber, unsigned short int bane)
-{
-	this->skills.at(skillNumber).bane = static_cast<Banes>(bane);
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).animation;
-}
-
-void SE::Gameplay::PlayerUnit::setAnimation(int skillNumber, unsigned short int animation)
-{
-	this->skills.at(skillNumber).animation = animation;
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).particle;
-}
-
-void SE::Gameplay::PlayerUnit::setParticle(int skillNumber, unsigned short int particle)
-{
-	this->skills.at(skillNumber).particle = particle;
-}
-
-SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReference(int skillNumber)
-{
-	return skills.at(skillNumber).projectileFileGUID;
-}
-
-void SE::Gameplay::PlayerUnit::setProjectileReference(int skillNumber, std::string projectileName)
-{
-	this->skills.at(skillNumber).projectileFileGUID = projectileName;
-}
-
-float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
-{
-	return skills.at(skillNumber).skillDamage;
-}
-
-void SE::Gameplay::PlayerUnit::setSkillDamage(int skillNumber, float skillDamage)
-{
-	this->skills.at(skillNumber).skillDamage = skillDamage;
-}
-
-void SE::Gameplay::PlayerUnit::addSkillDamage(int skillNumber, float skillDamage)
-{
-	this->skills.at(skillNumber).skillDamage += skillDamage;
-}
-
-void SE::Gameplay::PlayerUnit::removeSkillDamage(int skillNumber, float skillDamage)
-{
-	this->skills.at(skillNumber).skillDamage -= skillDamage;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonEffectValue(int skillNumber)
-{
-	return skills.at(skillNumber).boonEffectValue;
-}
-
-void SE::Gameplay::PlayerUnit::setBoonEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).boonEffectValue = effectValue;
-}
-
-void SE::Gameplay::PlayerUnit::addBoonEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).boonEffectValue += effectValue;
-}
-
-void SE::Gameplay::PlayerUnit::removeBoonEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).boonEffectValue -= effectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonRange(int skillNumber)
-{
-	return skills.at(skillNumber).boonRange;
-}
-
-void SE::Gameplay::PlayerUnit::setBoonRange(int skillNumber, float range)
-{
-	this->skills.at(skillNumber).boonRange = range;
-}
-
-void SE::Gameplay::PlayerUnit::addBoonRange(int skillNumber, float range)
-{
-	this->skills.at(skillNumber).boonRange += range;
-}
-
-void SE::Gameplay::PlayerUnit::removeBoonRange(int skillNumber, float range)
-{
-	this->skills.at(skillNumber).boonRange -= range;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonDuration(int skillNumber)
-{
-	return skills.at(skillNumber).boonDuration;
-}
-
-void SE::Gameplay::PlayerUnit::setBoonDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).boonDuration = duration;
-}
-
-void SE::Gameplay::PlayerUnit::addBoonDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).boonDuration += duration;
-}
-
-void SE::Gameplay::PlayerUnit::removeBoonDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).boonDuration -= duration;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneEffetValue(int skillNumber)
-{
-	return skills.at(skillNumber).baneEffectValue;
-}
-
-void SE::Gameplay::PlayerUnit::setBaneEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).baneEffectValue = effectValue;
-}
-
-void SE::Gameplay::PlayerUnit::addBaneEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).baneEffectValue += effectValue;
-}
-
-void SE::Gameplay::PlayerUnit::removeBaneEffectValue(int skillNumber, float effectValue)
-{
-	this->skills.at(skillNumber).baneEffectValue -= effectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneRange(int skillNumber)
-{
-	return skills.at(skillNumber).baneRange;
-}
-
-void SE::Gameplay::PlayerUnit::setBaneRange(int skillNumber, float range)
-{
-	this->skills.at(skillNumber).baneRange = range;
-}
-
-void SE::Gameplay::PlayerUnit::addBaneRange(int skillNumber, float range)
-{
-	this->skills.at(skillNumber).baneRange += range;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneDuration(int skillNumber)
-{
-	return skills.at(skillNumber).baneDuration;
-}
-
-void SE::Gameplay::PlayerUnit::setBaneDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).baneDuration = duration;
-}
-
-void SE::Gameplay::PlayerUnit::addBaneDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).baneDuration += duration;
-}
-
-void SE::Gameplay::PlayerUnit::removeBaneDuration(int skillNumber, float duration)
-{
-	this->skills.at(skillNumber).baneDuration -= duration;
-}
-
-float SE::Gameplay::PlayerUnit::getCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).cooldown;
-}
-
-void SE::Gameplay::PlayerUnit::setCooldown(int skillNumber, float cooldown)
-{
-	this->skills.at(skillNumber).cooldown = cooldown;
-}
-
-void SE::Gameplay::PlayerUnit::addCooldown(int skillNumber, float cooldown)
-{
-	this->skills.at(skillNumber).cooldown += cooldown;
-}
-
-void SE::Gameplay::PlayerUnit::removeCooldown(int skillNumber, float cooldown)
-{
-	this->skills.at(skillNumber).cooldown -= cooldown;
-}
-
-float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::setCurrentCooldown(int skillNumber, float currentCooldown)
-{
-	this->skills.at(skillNumber).currentCooldown = currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::addCurrentCooldown(int skillNumber, float currentCooldown)
-{
-	this->skills.at(skillNumber).currentCooldown += currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::removeCurrentCooldown(int skillNumber, float currentCooldown)
-{
-	this->skills.at(skillNumber).currentCooldown -= currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
-{
-	skills.clear();
-}
 
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {

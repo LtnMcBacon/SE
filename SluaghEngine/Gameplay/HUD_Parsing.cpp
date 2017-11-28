@@ -171,24 +171,12 @@ namespace SE
 				GuiManager.textureInfo.height = HUDElement.Height;
 				GuiManager.textureInfo.posX = HUDElement.PositionX;
 				GuiManager.textureInfo.posY = HUDElement.PositionY;
-				
+				if (HUDElement.rectName != "Background" && HUDElement.rectName != "backGround")
+				{
+					GuiManager.textureInfo.absolute = true;
+				}
 				
 				GuiManager.textureInfo.layerDepth = 1.0f - HUDElement.layerDepth / 1000.0f;
-
-			//	Graphics::GUITextureInfo guiTexture;
-			//	guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-			////	guiTexture.effect = Graphics::Effect::BothFlipEffect;
-			//	guiTexture.layerDepth = 1;
-			//	guiTexture.posX = 0;
-			//	guiTexture.posY = 0;
-			//	guiTexture.rotation = 0;
-			//	guiTexture.width = 1280;
-			//	guiTexture.height = 720;
-			//	guiTexture.screenAnchor = { 0.5f ,0.5f };
-			//	guiTexture.anchor = { 0.5f, 0.5f };
-			//	guiTexture.scale = { 1.0f, 1.0f };
-			//	guiTexture.absolute = true;
-
 
 				GuiManager.texture = HUDElement.textName;
 

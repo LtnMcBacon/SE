@@ -341,8 +341,6 @@ namespace SE
 			//void changeElementType(Gameplay::DamageTypes element);
 			
 			bool isStunned = false;
-			float attackSpeed = 1.0f;
-			float attackCooldown = 0.f;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
