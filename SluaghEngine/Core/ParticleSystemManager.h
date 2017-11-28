@@ -103,6 +103,7 @@ namespace SE
 			struct ParticleSystemData
 			{
 				bool firstRun;
+				bool locked;
 				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
