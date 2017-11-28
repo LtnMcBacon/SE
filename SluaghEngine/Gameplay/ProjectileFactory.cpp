@@ -7,6 +7,8 @@
 #include "EnemyUnit.h"
 
 #include "CoreInit.h"
+#include <DirectXMath.h>
+using namespace DirectX;
 
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
@@ -1386,6 +1388,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	float amount = std::get<float>(parameters[0].data);
 
 	auto OpacitySetter = [amount](Projectile* p, float dt) -> bool
@@ -1399,6 +1402,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	float amount = std::get<float>(parameters[0].data);
 
 	auto OpacityModifier = [amount](Projectile* p, float dt) -> bool
@@ -1408,6 +1412,176 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	};
 
 	ProfileReturnConst(OpacityModifier);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto staticHeal = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = amount;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(staticHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerDynamicBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto dynamicHeal = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = amount * dt;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(dynamicHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float percentage = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto staticPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = percentage * unit->GetMaxHealth();
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(staticPercentageHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float percentage = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto dynamicPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = percentage * unit->GetMaxHealth() * dt;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(dynamicPercentageHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOwnerHealthStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto healthSetStatic = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			unit->SetHealth(amount);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(healthSetStatic);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOwnerHealthPercentBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto healthSetPercentage = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			unit->SetHealth(amount * unit->GetMaxHealth());
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(healthSetPercentage);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto window = CoreInit::subSystems.window;
+
+	auto setToMousePos = [window](Projectile* p, float dt) -> bool
+	{
+		int mouseX, mouseY;
+		window->GetMousePos(mouseX, mouseY);
+
+		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayD;
+
+		auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+		auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+		CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mouseX, mouseY, width, height, rayO, rayD);
+
+		float distance = DirectX::XMVectorGetY(rayO) / -DirectX::XMVectorGetY(rayD);
+
+		auto clickPos = rayO + rayD * distance;
+
+		p->SetXPosition(DirectX::XMVectorGetX(clickPos));
+		p->SetYPosition(DirectX::XMVectorGetY(clickPos));
+
+		return false;
+	};
+
+	ProfileReturnConst(setToMousePos);
 }
 
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
@@ -1452,8 +1626,13 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateDecalBehaviour, this, std::placeholders::_1)); // s, f, p
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDecalOpacityBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ModifyDecalOpacityBehaviour, this, std::placeholders::_1)); // f
-
-
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerDynamicBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerPercentageStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerPercentageDynamicBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthPercentBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetPositionToMouseBehaviour, this, std::placeholders::_1)); // 
 
 }
 

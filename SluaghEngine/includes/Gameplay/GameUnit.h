@@ -171,6 +171,10 @@ namespace SE
 
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
 
+			inline void SetHealth(float amount) { health = amount; };
+
+			virtual float GetMaxHealth() { return health; };
+
 
 			/**
 			* @brief To be documented

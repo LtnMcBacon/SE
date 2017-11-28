@@ -166,7 +166,7 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 
-	auto clickPos = rayO + rayD*distance;
+	auto clickPos = rayO + rayD * distance;
 
 	movement.mousePosX = DirectX::XMVectorGetX(clickPos);
 	movement.mousePosY = DirectX::XMVectorGetZ(clickPos);

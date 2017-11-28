@@ -149,7 +149,7 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
-			inline float GetMaxHealth()
+			float GetMaxHealth()
 			{
 				return newStat.health;
 			}
