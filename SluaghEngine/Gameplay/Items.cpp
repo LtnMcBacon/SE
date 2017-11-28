@@ -79,7 +79,6 @@ int SE::Gameplay::Item::GetRandDamage()
 	return (CoreInit::subSystems.window->GetRand() % 20) + 1;
 }
 
-
 SE::Gameplay::DamageType SE::Gameplay::Item::GetRandDamageType()
 {
 	return DamageType(CoreInit::subSystems.window->GetRand() % 4);
@@ -91,7 +90,6 @@ SE::Core::Entity SE::Gameplay::Item::Copy(Core::Entity toCopy)
 	{
 		auto newItem = CoreInit::managers.entityManager->Create();
 		CoreInit::managers.dataManager->Copy(newItem, toCopy);
-
 
 		switch (ItemType(item))
 		{
