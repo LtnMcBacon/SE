@@ -108,6 +108,13 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 {
 	StartProfile;
 
+	if (file[pos] == '\n')
+	{
+		pos++;
+		line = "";
+		ProfileReturnVoid;
+	}
+
 	int nrOfLetters = 0;
 	int startPos = pos;
 	int toNextLine = 2;
@@ -194,7 +201,6 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		loaded.meshScale = (float)atof(line.c_str());
 		GetLine(fileData, line, position);
 		loaded.particleEffect = line;
-		GetLine(fileData, line, position);
 
 		if (fileVersion < "1.4")
 		{
@@ -210,6 +216,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 			loaded.soundName = line;
 		}
 
+		GetLine(fileData, line, position);
 		loaded.nrOfBehaviours = atoi(line.c_str());
 
 		projData.startRotation += loaded.rotationAroundUnit;
