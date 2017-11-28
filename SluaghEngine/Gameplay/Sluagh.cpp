@@ -299,8 +299,10 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if(lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove > 2.0f)
+		if (distAfterMove > 2.0f && !lineOfSightAfterMove)
 			utilityValue = 0.f;
 		
 	}
@@ -333,9 +335,11 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if (lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove < 2.0f)
-			utilityValue = 0.f;		
+		if (distAfterMove > 2.0f)
+			utilityValue = 0.f;
 	}
 	else if(playerWeaponType == WeaponType::NONE) /*CONFUSED SCREAMING*/
 	{
@@ -346,8 +350,10 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if (lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove < 2.0f)
+		if (distAfterMove > 2.0f)
 			utilityValue = 0.f;
 	}
 	else /*Player Ranged, Sluagh Ranged*/
@@ -568,15 +574,39 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 void SE::Gameplay::Sluagh::DecideMovementInput(float dt, PlayerUnit::MovementInput& movement,
 	PlayerUnit::ActionInput& action)
 {
-
-	if (.50f < utilityMap[UtilityMapEnum::MOVE_UP])
+	bool moved = false;
+	if (0.50f < utilityMap[UtilityMapEnum::MOVE_UP])
+	{
 		movement.upButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_LEFT])
+	{
 		movement.leftButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_DOWN])
+	{
 		movement.downButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_RIGHT])
+	{
 		movement.rightButton = true;
+		moved = true;
+	}
 
+	if(moved)
+	{
+		commitmentTime += 5.f;
+		previousMovement = movement;
+	}
+	else
+	{
+		movement = previousMovement;
+		commitmentTime -= dt;
+		if (commitmentTime < 0.f)
+			ProfileReturnVoid;
+	}
 
 }

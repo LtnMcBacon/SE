@@ -13,6 +13,7 @@ namespace SE
 			PlayerUnit* thePlayer;
 			PlayerUnit* theSluagh;
 
+			float commitmentTime = 0.f;
 			PlayerUnit::MovementInput previousMovement;
 			PlayerUnit::ActionInput previousAction;
 			SluaghRoom* room;
