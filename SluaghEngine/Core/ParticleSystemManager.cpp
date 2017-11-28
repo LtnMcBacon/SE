@@ -139,11 +139,11 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 	if (find == entityToIndex.end()) // The entity had no system
 	{
 
-		auto index = entries.add(entity);
+		/*auto index = entries.add(entity);
 		entries.set<visible>(index, 0u);
 		entries.set<firstRun>(index, true);
 		DirectX::XMStoreFloat4x4(&entries.get<transform>()[index], DirectX::XMMatrixIdentity());
-		
+		*/
 		/*Register the entity*/
 		auto newEntry = particleSystemData.size();
 		indexToEntity.push_back(entity);
@@ -430,7 +430,7 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 
 void SE::Core::ParticleSystemManager::Destroy(const Entity& entity)
 {
-	entries.erase(entity);
+	//entries.erase(entity);
 	auto find = entityToIndex.find(entity);
 	if (find != entityToIndex.end())
 		Destroy(find->second);
@@ -454,7 +454,7 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 		Destroy(i);
 	}
 
-	while (entries.size() && alive_in_row < quitWhenReached)
+	/*while (entries.size() && alive_in_row < quitWhenReached)
 	{
 		std::uniform_int_distribution<size_t> distribution(0U, entries.size() - 1U);
 		size_t i = distribution(generator);
@@ -465,7 +465,7 @@ void SE::Core::ParticleSystemManager::GarbageCollection()
 		}
 		alive_in_row = 0;
 		entries.destroy(i);
-	}
+	}*/
 	StopProfile;
 }
 
