@@ -7,7 +7,7 @@
 struct WeaponInfo
 {
 	SE::Utilz::GUID icon;
-	SE::Utilz::GUID iconP;
+	SE::Utilz::GUID selectedIcon;
 	SE::Utilz::GUID backTex;
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
@@ -96,7 +96,7 @@ void SE::Gameplay::Item::Weapon::Equip(Core::Entity wep, Core::Entity to)
 {
 	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(wep, "Type", -1));
 
-	CoreInit::managers.guiManager->SetTexture(wep, weaponInfo[wType].iconP);
+	CoreInit::managers.guiManager->SetTexture(wep, weaponInfo[wType].selectedIcon);
 	CoreInit::managers.transformManager->SetPosition(wep, weaponInfo[wType].equipPos);
 	CoreInit::managers.transformManager->SetRotation(wep, weaponInfo[wType].equipRot.x, weaponInfo[wType].equipRot.y, weaponInfo[wType].equipRot.z);
 	CoreInit::managers.animationManager->AttachToEntity(to, wep, weaponInfo[wType].equipJoint, weaponInfo[wType].slotIndex);

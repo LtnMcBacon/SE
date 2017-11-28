@@ -423,7 +423,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "lootParticle.pts" });
 	CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "ItemPickup");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "RoomChange");
 }
@@ -436,7 +436,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent)
 	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "lootParticle.pts" });
 	CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "ItemPickup");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
 }
 
@@ -446,7 +446,7 @@ void SE::Gameplay::Item::Pickup(Core::Entity ent)
 	CoreInit::managers.collisionManager->Destroy(ent);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "ItemPickup");
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 	CoreInit::managers.particleSystemManager->Destroy(ent);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RoomChange");
@@ -456,7 +456,7 @@ void SE::Gameplay::Item::GodPickup(Core::Entity ent)
 {
 	CoreInit::managers.collisionManager->Destroy(ent);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "ItemPickup");
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
 	CoreInit::managers.particleSystemManager->Destroy(ent);
 }
@@ -476,7 +476,7 @@ void SE::Gameplay::Item::Unequip(Core::Entity item, Core::Entity from)
 	auto itemType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1));
 	if (ItemType(itemType) == ItemType::WEAPON)
 	{
-		Weapon::Equip(item, from);
+		Weapon::UnEquip(item, from);
 	}
 }
 

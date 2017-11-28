@@ -6,7 +6,7 @@
 #include <GameBlackboard.h>
 #include "SluaghRoom.h"
 #include <string>
-
+#include <Items.h>
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else
@@ -24,6 +24,55 @@ static size_t dmgOverlayIndex = 0;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			uint8_t slot = 0;
+			if (argc == 4)
+				slot = std::stoi(argv[3]);
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				
+				
+				player->AddItem(Item::Weapon::Create(wType), slot);
+				break;
+			}
+				
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				player->AddItem(Item::Consumable::Create(cType), slot);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("give", "Usage:");
+			con->PrintChannel("give", "give ItemType Type");
+			con->PrintChannel("give", "ItemTypes:");
+			con->PrintChannel("give", "\tWeapon - 0:");
+			con->PrintChannel("give", "\tConsumable - 1");
+			con->PrintChannel("give", "");
+			con->PrintChannel("give", "WeaponTypes:");
+			con->PrintChannel("give", "\tSword - 0");
+			con->PrintChannel("give", "\tCrossbow - 1");
+			con->PrintChannel("give", "\tWand - 2");
+			con->PrintChannel("give", "ConsumableTypes:");
+			con->PrintChannel("give", "\tHp - 0");
+		}
+	}, "give", "Give the player an item");
+
+
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
@@ -124,6 +173,7 @@ PlayState::~PlayState()
 {
 	StartProfile;
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("give");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
@@ -779,7 +829,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	};
 	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
 	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+	CoreInit::managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
 
 	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {

@@ -432,7 +432,7 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 	};
 
 
-	managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+	managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
 
 	auto wep = Item::Weapon::Create(Item::Weapon::Type::SWORD);
@@ -524,7 +524,7 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 	};
 
 
-	managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
+	managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
 }
 
