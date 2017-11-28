@@ -203,6 +203,8 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 				fileInfo.emitRange[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
 				
 				fileInfo.dt = time.GetDelta<std::ratio<1, 1>>();
+								
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("lockBuffer", &PSD.locked, sizeof(bool));
 				
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("velocityBuffer", &fileInfo,
 																			  sizeof(ParticleSystemFileInfo));
@@ -291,6 +293,7 @@ void SE::Core::ParticleSystemManager::UpdateSystemEndPosition(const Entity& enti
 		auto &particle = particleSystemData[entityToIndex[entity]];
 		if (particle.particleFileInfo.particlePath)
 		{
+			particle.locked = true;
 			for (int i = 0; i < 3; i++)
 			{
 				particle.particleFileInfo.endPos[i] = endPos[i];
