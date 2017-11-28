@@ -27,6 +27,10 @@ cbuffer velocityBuffer : register(b0)
 	int emit;
 	int particlePath;
 };
+cbuffer lockBuffer : register(b1)
+{
+	bool locked;
+}
 cbuffer ParticleTransform : register(b2)
 {
 	float4x4 World;
@@ -125,9 +129,15 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 		{
 			if(!equal(input[0].pos, endPos))
 			{
-				float3 finalDirection = endPos - input[0].pos;
-			
-				input[0].velocity = finalDirection;
+				if(locked)
+				{
+					float3 finalDirection = endPos - input[0].pos;
+					input[0].velocity = finalDirection;
+				}
+				else	
+				{
+					input[0].velocity = float3(0, 0, 0);
+				}
 				if (input[0].age < 0.25)
 				{
 					input[0].opacity += 1/60.0f;
