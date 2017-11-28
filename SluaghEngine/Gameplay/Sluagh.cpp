@@ -14,6 +14,8 @@ SE::Gameplay::Sluagh::Sluagh(PlayerUnit * thePlayer, SluaghRoom* room)
 	room->GetMap(map);
 
 	this->room = room;
+	theSluagh = nullptr;
+	distanceToPlayer = 0.f;
 }
 
 SE::Gameplay::Sluagh::~Sluagh()

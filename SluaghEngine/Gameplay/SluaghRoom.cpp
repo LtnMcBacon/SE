@@ -46,6 +46,8 @@ bool SE::Gameplay::SluaghRoom::ProjectileAgainstEnemies(Projectile& projectile)
 	CollisionData cData; 
 	if (theSluagh->CollisionAgainstProjectile(projectile.GetXPosition(), projectile.GetYPosition(), projectile.GetBoundingRect().radius))
 	{
+		if (projectile.GetValidTarget() == ValidTarget::PLAYER)
+			ProfileReturnConst(false);
 		auto sluagh = theSluagh->GetSluagh();
 		sluagh->AddDamageEvent(projectile.GetProjectileDamageEvent());
 		sluagh->AddHealingEvent(projectile.GetProjectileHealingEvent());
