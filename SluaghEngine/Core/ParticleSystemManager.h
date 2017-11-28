@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <random>
 #include <Particle_Editor\ParticleEmitter.h>
+#include <Utilz\Sofa.h>
+
 namespace SE
 {
 	namespace Core
@@ -126,6 +128,39 @@ namespace SE
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;
 			std::unordered_map<Entity, size_t, Core::EntityHasher> entityToIndex;
+
+			struct VelocityEmitRange
+			{
+				DirectX::XMFLOAT2 velocity[3];
+				DirectX::XMFLOAT2 emit[3];
+			};
+			Utilz::Sofa<Entity, EntityHasher,
+				DirectX::XMFLOAT4X4, // transform
+				uint8_t, // visible
+				ParticleSystemFileInfo, // FileInfo
+				bool, // randVelocity
+				Utilz::GUID, // textureName
+				//Graphics::RenderJob//, // Updatejob
+				//Graphics::RenderJob, // renderJob
+				uint32_t, // UpdatejobId
+				uint32_t, // renderJobId
+				VelocityEmitRange // VelocityEmitRange
+			> entries;
+
+			enum Entries
+			{
+				entity,
+				transform,
+				visible,
+				fileInfo,
+				randVelocity,
+				textureName,
+				updateJob,
+				renderJob,
+				updateJobID,
+				renderJobID,
+				velocityEmitRange,
+			};
 
 			struct toUpdateStruct
 			{

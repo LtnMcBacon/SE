@@ -138,6 +138,11 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 	auto find = entityToIndex.find(entity);
 	if (find == entityToIndex.end()) // The entity had no system
 	{
+
+		auto index = entries.add(entity);
+		entries.set<visible>(index, 0u);
+		DirectX::XMStoreFloat4x4(&entries.get<transform>()[index], DirectX::XMMatrixIdentity());
+		
 		/*Register the entity*/
 		auto newEntry = particleSystemData.size();
 		indexToEntity.push_back(entity);
@@ -403,7 +408,7 @@ void SE::Core::ParticleSystemManager::Destroy(size_t index)
 	const Entity e = indexToEntity[index];
 	const Entity last_e = indexToEntity[last];
 
-
+	entries.destroy(index);
 	if (particleSystemData[index].visible == 1u)
 		ToggleVisible(e, false);
 
