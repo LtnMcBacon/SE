@@ -91,14 +91,14 @@ namespace SE
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
-				
+
 				bool mouseRightDown;
 				float mousePosX;
 				float mousePosY;
 
 				MovementInput()
 				{
-					
+
 				}
 
 				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
@@ -121,7 +121,7 @@ namespace SE
 				bool skill1Button;
 				bool skill2Button;
 
-				 
+
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
@@ -160,6 +160,24 @@ namespace SE
 			{
 				return items[currentItem];
 			}
+
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the position of the player and checks so that it is a legal position,
+			* if not it tries to retain as much of the movement as possible
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in] MovementInput input data
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateMovement(float dt, const MovementInput& inputs);
+
+			void GetRotation(float &rotX, float &rotY) { rotX = rotMov[0]; rotY = rotMov[1]; };
+
+			Core::Entity* GetAllItems() { return items; };
 		private:
 
 			PlayerUnit() {};
@@ -180,7 +198,7 @@ namespace SE
 			uint8_t nrHealingColdSounds = 1;
 			SE::Utilz::GUID playerHealingColdSounds[1];
 			SE::Utilz::GUID currentSound;
-			
+
 			/**
 			* @brief	Sets the sounds for the player
 			*
@@ -189,19 +207,6 @@ namespace SE
 
 
 
-			/**
-			* @brief	Update the players movement
-			*
-			* @details	This function updates the position of the player and checks so that it is a legal position,
-			* if not it tries to retain as much of the movement as possible
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in] MovementInput input data
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateMovement(float dt, const MovementInput& inputs);
 
 
 			/**
@@ -252,7 +257,7 @@ namespace SE
 			* @param [in] The new given element type.
 			**/
 			void changeElementType(DamageType element);
-		
+
 		public:
 			int getSkillVectorSize();
 
@@ -276,13 +281,14 @@ namespace SE
 			float getCurrentCooldown(int skillNumber);
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
+			inline void ToggleAsSluagh(bool sluagh) { isSluagh = sluagh; };
 
 
 
 
-		private:		
+		private:
 			std::vector<Skill> skills;
-			
+
 			/**
 			* @brief		Removes all the skills from the list.
 			*
@@ -295,11 +301,12 @@ namespace SE
 			SkillFactory SF;
 
 			//void changeElementType(Gameplay::DamageTypes element);
-			
+
 			bool isStunned = false;
 			bool attacking = false;
 			float attackSpeed = 1.0f;
 			float attackCooldown = 0.f;
+			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
@@ -307,4 +314,5 @@ namespace SE
 
 	}
 }
+
 #endif
