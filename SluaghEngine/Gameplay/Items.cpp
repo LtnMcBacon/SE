@@ -64,7 +64,6 @@ int SE::Gameplay::Item::GetRandAgi()
 {
 	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
 }
-
 int SE::Gameplay::Item::GetRandWil()
 {
 	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
@@ -72,12 +71,12 @@ int SE::Gameplay::Item::GetRandWil()
 
 int SE::Gameplay::Item::GetRandHealth()
 {
-	return (CoreInit::subSystems.window->GetRand() % 20) - 10;
+	return (CoreInit::subSystems.window->GetRand() % 20) + 1;
 }
 
 int SE::Gameplay::Item::GetRandDamage()
 {
-	return (CoreInit::subSystems.window->GetRand() % 30) - 15;
+	return (CoreInit::subSystems.window->GetRand() % 20) + 1;
 }
 
 
