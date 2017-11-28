@@ -85,7 +85,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			{
 				Core::IAudioManager::CreateInfo audioInfo;
 				audioInfo.soundFile = loaded.soundName;
-				audioInfo.soundType = SE::Audio::BakgroundSound;
+				audioInfo.soundType = SE::Audio::StereoPanSound;
 				CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
 				CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
 			}
@@ -267,7 +267,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		{
 			Core::IAudioManager::CreateInfo audioInfo;
 			audioInfo.soundFile = loaded.soundName;
-			audioInfo.soundType = SE::Audio::BakgroundSound;
+			audioInfo.soundType = SE::Audio::StereoPanSound;
 			CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
 			CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
 		}

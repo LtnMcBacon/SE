@@ -1,6 +1,7 @@
 #include <Game.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <TutorialState.h>
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
@@ -46,7 +47,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	
-	CoreInit::managers.textManager->MakeFont(Utilz::GUID("CloisterBlack.spritefont"));
+	CoreInit::managers.textManager->MakeFont(Utilz::GUID("EnchantedLand.spritefont"));
 
 	state =  new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
@@ -111,8 +112,12 @@ void SE::Gameplay::Game::Run()
 					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
-				case SE::Gameplay::IGameState::State::QUIT_GAME:
+				case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
 					delete state;
+					state = new TutorialState();
+					break;
+				case SE::Gameplay::IGameState::State::QUIT_GAME:
+					
 					running = false;
 					break;
 			 }

@@ -123,6 +123,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -130,6 +132,15 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
+	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(usePrompt);
+	CoreInit::managers.entityManager->DestroyNow(soundEnt);
+	for (auto& s : skillIndicators)
+	{
+		CoreInit::managers.entityManager->DestroyNow(s.Image);
+		CoreInit::managers.entityManager->DestroyNow(s.frame);
+	}
+
 	ProfileReturnVoid;
 }
 
@@ -152,7 +163,30 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	{
 		movement.rightButton = true;
 	}
-
+	if (input->ButtonDown(GameInput::SHOWINFO))
+	{
+		action.showInfo = true;
+	}
+	if (input->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+	else if (input->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+	else if (input->ButtonPressed(GameInput::THREE))
+	{
+		action.three = true;
+	}
+	else if (input->ButtonPressed(GameInput::FOUR))
+	{
+		action.four = true;
+	}
+	else if (input->ButtonPressed(GameInput::FIVE))
+	{
+		action.five = true;
+	}
 	int mX, mY;
 	input->GetMousePos(mX, mY);
 
@@ -227,6 +261,16 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
+	auto ducks = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+	if(ducks != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+	{
+		CoreInit::managers.textManager->SetTextPos(usePrompt, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, true);
+	}
+	else
+	{
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, false);
+	}
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
@@ -288,8 +332,8 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 	
 	for (int i = 0; i < 2; i++)
 	{
-		if (player->getCurrentCooldown(i) > 0.0f)
-			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->getCurrentCooldown(i)))));
+		if (player->GetCurrentCooldown(i) > 0.0f)
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->GetCurrentCooldown(i)))));
 		else
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
@@ -473,7 +517,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	}
 	ProfileReturnVoid;
 }
-
+#include <Items.h>
 void PlayState::InitializePlayer(void* playerInfo)
 {
 	StartProfile;
@@ -555,11 +599,15 @@ void PlayState::InitializePlayer(void* playerInfo)
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
+
+				auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+				player->AddItem(startWeapon, 0);
 				return;
 			}
 		}
 	}
 	
+
 	ProfileReturnVoid;
 }
 
@@ -600,6 +648,13 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+	usePrompt = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo promptCreateInfo;
+	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
+	promptCreateInfo.info.scale = { 0.3f, 0.3f };
+	promptCreateInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
@@ -615,6 +670,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 		
 	}, "tgm", "Toggles godmode.");
 
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		float speed = 5.0f;
+		if (argc > 1)
+		{
+			try
+			{
+				speed = std::stof(argv[1]);
+			}catch(...){}
+		}
+		this->player->SetSpeed(speed);
+
+	}, "setspeed", "setspeed <value>");
+	
 	ProfileReturnVoid;
 }
 #include <Items.h>
@@ -761,7 +829,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
-	PlayerUnit::ActionInput actionInput(false, false);
+	PlayerUnit::ActionInput actionInput;
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);

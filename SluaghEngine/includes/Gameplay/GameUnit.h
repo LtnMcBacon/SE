@@ -171,6 +171,103 @@ namespace SE
 
 			inline void SetDeathAnimation(Utilz::GUID deathAnim) { deathAnimation = deathAnim; };
 
+			//Stat Getters
+			inline int GetBaseStrength			  (){ return baseStat.str; };
+			inline int GetBaseAgility			  (){ return baseStat.agi; };
+			inline int GetBaseWhisdom			  (){ return baseStat.whi; };
+			inline int GetArmourCap				  (){ return baseStat.armorCap; };
+
+			inline float GetBaseMaxHealth		  (){ return baseStat.health; };
+			inline float GetBaseDamage			  (){ return baseStat.damage; };
+			inline float GetBaseDamageMultipyier  (){ return baseStat.meleeMultiplier; };
+			inline float GetBasePhysicalResistance(){ return baseStat.damage; };
+	  
+			inline float GetBaseRangedDamage	  (){ return baseStat.rangedDamage; };
+			inline float GetBaseRangedMulitplier  (){ return baseStat.rangedMultiplier; };
+			inline float GetBaseMovement		  (){ return baseStat.movementSpeed; };
+
+			inline float GetBaseMagicDamage		  (){ return baseStat.magicDamage; };
+			inline float GetBaseMagicMulitplier	  (){ return baseStat.magicMultiplier; };
+			inline float GetBaseMagicResistance	  (){ return baseStat.magicResistance; };
+			inline float GetBaseNatureResistance  (){ return baseStat.natureResistance; };
+			inline float GetBaseFireResistance	  (){ return baseStat.fireResistance; };
+			inline float GetBaseWaterResistance	  (){ return baseStat.waterResistance; };
+
+			inline ArmourType GetArmour			  (){ return baseStat.armour; };
+			inline DamageSources GetWeapon		  (){ return baseStat.weapon; };
+			inline DamageType GetDamageType		  (){ return baseStat.damageType; };
+
+			//Stat Setters
+			inline void SetBaseStrength			 (int str)						{ this->baseStat.str = str;};
+			inline void SetBaseAgility			 (int agi)						{ this->baseStat.agi = agi; };
+			inline void SetBaseWhisdom			 (int whi)						{ this->baseStat.whi = whi; };
+			inline void SetArmourCap			 (int cap)						{ this->baseStat.armorCap = cap; };
+
+			inline void SetBaseMaxHealth		 (float health)					{ this->baseStat.health = health; };
+			inline void SetBaseDamage			 (float damage)					{ this->baseStat.damage = damage; };
+			inline void SetBaseDamageMultipyier  (float multiplier)				{ this->baseStat.meleeMultiplier = multiplier; };
+			inline void SetBasePhysicalResistance(float resistance)				{ this->baseStat.physicalResistance = resistance; };
+
+			inline void SetBaseRangedDamage		 (float damage)					{ this->baseStat.rangedDamage = damage; };
+			inline void SetBaseRangedMulitplier  (float multiplier)				{ this->baseStat.rangedMultiplier = multiplier; };
+			inline void SetBaseMovement			 (float speed)					{ this->baseStat.movementSpeed = speed; };
+
+			inline void SetBaseMagicDamage		 (float damage)					{ this->baseStat.magicDamage = damage; };
+			inline void SetBaseMagicMulitplier	 (float multiplier)				{ this->baseStat.magicMultiplier = multiplier; };
+			inline void SetBaseMagicResistance	 (float resistance)				{ this->baseStat.magicResistance = resistance; };
+			inline void SetBaseNatureResistance  (float resistance)				{ this->baseStat.natureResistance = resistance; };
+			inline void SetBaseFireResistance	 (float resistance)				{ this->baseStat.fireResistance = resistance; };
+			inline void SetBaseWaterResistance	 (float resistance)				{ this->baseStat.waterResistance = resistance; };
+
+			inline void	 SetArmour				 (unsigned short int armour)	{ this->baseStat.armour = static_cast<ArmourType>(armour); };
+			inline void  SetWeapon				 (unsigned short int weapon)	{ this->baseStat.weapon = static_cast<DamageSources>(weapon);
+			};
+			inline void  SetDamageType			 (unsigned short int damageType){ this->baseStat.damageType = static_cast<DamageType>(damageType);
+			};
+
+			//Stat Adders
+			inline void AddBaseStrength			 (int str)						{ this->baseStat.str += str;};
+			inline void AddBaseAgility			 (int agi)						{ this->baseStat.agi += agi;};
+			inline void AddBaseWhisdom			 (int whi)						{ this->baseStat.whi += whi;};
+			inline void AddArmourCap			 (int cap)						{ this->baseStat.armorCap += cap;};
+
+			inline void AddBaseMaxHealth		 (float health)					{ this->baseStat.health += health; };
+			inline void AddBaseDamage			 (float damage)					{ this->baseStat.damage += damage; };
+			inline void AddBaseDamageMultipyier  (float multiplier)				{ this->baseStat.meleeMultiplier += multiplier; };
+			inline void AddBasePhysicalResistance(float resistance)				{ this->baseStat.physicalResistance += resistance; };
+
+			inline void AddBaseRangedDamage		 (float damage)					{ this->baseStat.rangedDamage += damage; };
+			inline void AddBaseRangedMulitplier  (float multiplier)				{ this->baseStat.rangedMultiplier += multiplier; };
+			inline void AddBaseMovement			 (float speed)					{ this->baseStat.movementSpeed += speed; };
+
+			inline void AddBaseMagicDamage		 (float damage)					{ this->baseStat.magicDamage += damage; };
+			inline void AddBaseMagicMulitplier	 (float multiplier)				{ this->baseStat.magicMultiplier += multiplier; };
+			inline void AddBaseMagicResistance	 (float resistance)				{ this->baseStat.magicResistance += resistance; };
+			inline void AddBaseNatureResistance  (float resistance)				{ this->baseStat.natureResistance += resistance; };
+			inline void AddBaseFireResistance	 (float resistance)				{ this->baseStat.fireResistance += resistance; };
+			inline void AddBaseWaterResistance	 (float resistance)				{ this->baseStat.waterResistance += resistance; };
+
+			//Stat Removers
+			inline void RemoveBaseStrength			(int str)					   { this->baseStat.str -= str;};
+			inline void RemoveBaseAgility			(int agi)					   { this->baseStat.agi -= agi;};
+			inline void RemoveBaseWhisdom			(int whi)					   { this->baseStat.whi -= whi;};
+			inline void RemoveArmourCap				(int cap)					   { this->baseStat.armorCap -= cap;};
+
+			inline void RemoveBaseMaxHealth			(float health)				   { this->baseStat.health -= health; };
+			inline void RemoveBaseDamage			(float damage)				   { this->baseStat.damage -= damage; };
+			inline void RemoveBaseDamageMultipyier	(float multiplier)			   { this->baseStat.meleeMultiplier -= multiplier; };
+			inline void RemoveBasePhysicalResistance(float resistance)			   { this->baseStat.physicalResistance -= resistance; };
+
+			inline void RemoveBaseRangedDamage		(float damage)				   { this->baseStat.rangedDamage -= damage; };
+			inline void RemoveBaseRangedMulitplier	(float multiplier)			   { this->baseStat.rangedMultiplier -= multiplier; };
+			inline void RemoveBaseMovement			(float speed)				   { this->baseStat.movementSpeed -= speed; };
+
+			inline void RemoveBaseMagicDamage		(float damage)				   { this->baseStat.magicDamage -= damage; };
+			inline void RemoveBaseMagicMulitplier	(float multiplier)			   { this->baseStat.magicMultiplier -= multiplier; };
+			inline void RemoveBaseMagicResistance	(float resistance)			   { this->baseStat.magicResistance -= resistance; };
+			inline void RemoveBaseNatureResistance	(float resistance)			   { this->baseStat.natureResistance -= resistance; };
+			inline void RemoveBaseFireResistance	(float resistance)			   { this->baseStat.fireResistance -= resistance; };
+			inline void RemoveBaseWaterResistance	(float resistance)			   { this->baseStat.waterResistance -= resistance; };
 			inline void SetHealth(float amount) { health = amount; };
 
 			virtual float GetMaxHealth() { return health; };

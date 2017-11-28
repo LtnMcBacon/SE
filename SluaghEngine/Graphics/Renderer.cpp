@@ -458,7 +458,10 @@ int SE::Graphics::Renderer::Render()
 				rect.bottom = (rect.bottom / (float)job.originalScreenHeight)*height;
 				//origin = { job.info.anchor.x*(job.info.width / (float)job.originalScreenWidth)* width, job.info.anchor.y*(job.info.height / (float)job.originalScreenHeight)*height };
 			}
-
+			else
+			{
+				int i = 0;
+			}
 			rect.left += width * job.info.screenAnchor.x;
 			rect.top += height * job.info.screenAnchor.y;
 			rect.right += width * job.info.screenAnchor.x;

@@ -1419,9 +1419,17 @@ void SE::Gameplay::Room::Load()
 void SE::Gameplay::Room::Unload()
 {
 	for (int x = 0; x < 25; x++)
+	{
 		for (int y = 0; y < 25; y++)
-			for(auto e : roomEntities[x][y])
-			CoreInit::managers.entityManager->Destroy(e);
+		{
+			for (auto e : roomEntities[x][y])
+			{
+				CoreInit::managers.entityManager->Destroy(e);
+			}
+			roomEntities[x][y].clear();
+		}
+	}
+
 	loaded = false;
 	/*for (auto enemy : enemyUnits)
 	{
@@ -1559,13 +1567,13 @@ float Room::RotatePainting(int x, int y) {
 	float rotation = 0;
 
 
-	if ((tileValues[x + 1][y] == id_Floor))
+	if ((tileValues[x - 1][y] == id_Floor))
 		rotation = 180;
 	else if ( (tileValues[x][y + 1] == id_Floor ))
 		rotation = 90;
 	else if ((tileValues[x][y - 1] == id_Floor ))
 		rotation = -90;
-	else if ( (tileValues[x - 1][y] == id_Floor ))
+	else if ( (tileValues[x + 1][y] == id_Floor ))
 		rotation = 0;
 
 
@@ -1725,7 +1733,7 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	SE::Core::IParticleSystemManager::CreateInfo info;
 	info.systemFile = Utilz::GUID("floorTorchFire.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
-	CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
+	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities[x][y].push_back(entFire);
 
 }
@@ -1898,7 +1906,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	auto rand = CoreInit::subSystems.window->GetRand();
 	int randValue = (rand % 500); // 2% chance a wall will have painting
 
-	if ( 0 < randValue && randValue <= 10 )
+	if (0 < randValue && randValue <= 10)
 	{
 		auto test = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
@@ -1909,9 +1917,9 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.transformManager->SetRotation(test, 0.0f, RotatePainting(args.x, args.y), 0.0f);
 		CoreInit::managers.renderableManager->CreateRenderableObject(test, { Meshes[Meshes::Painting] });
 		CoreInit::managers.materialManager->Create(test, matInfoPainting);
-		CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
+		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 
-		roomEntities[args.x][args.y].push_back(args.ent);
+		roomEntities[args.x][args.y].push_back(test);
 
 	}
 
@@ -1982,9 +1990,9 @@ float Room::FloorCheck(int x, int y)
 }
 void SE::Gameplay::Room::ResetTempTileValues()
 {
-	for (int y = 24; y >= 0; y--)
+	for (int x = 0; x < 25; x++)
 	{
-		for (int x = 0; x < 25; x++)
+		for (int y = 0; y < 25; y++)
 		{
 			if (tileValues[x][y] == (char)100)
 			{

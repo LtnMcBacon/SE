@@ -66,6 +66,7 @@
     <ClCompile Include="PausState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
+    <ClCompile Include="PerkFactory.cpp" />
     <ClCompile Include="PerkImporter.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="Items.cpp" />
     <ClCompile Include="TransistionCountdownDoneCondition.cpp" />
     <ClCompile Include="TransistionToRoomLeaf.cpp" />
+    <ClCompile Include="TutorialState.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +149,7 @@
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
@@ -187,6 +190,7 @@
     <ClInclude Include="..\includes\Gameplay\Items.h" />
     <ClInclude Include="..\includes\Gameplay\TransistionCountdownDoneCondition.h" />
     <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TutorialState.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />

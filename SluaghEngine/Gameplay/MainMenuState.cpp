@@ -37,6 +37,8 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
 
+	
+
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
 	
@@ -74,10 +76,13 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		this->CurrentState = State::CHARACTER_CREATION_STATE;
 	};
-
-	auto quitGame = []()->bool
+	auto startTutorial = [this]()->void
 	{
-
+		this->CurrentState = State::TUTORIAL_STATE;
+	};
+	auto quitGame = [this]()->void
+	{
+		this->CurrentState = State::QUIT_GAME;
 	};
 
 	auto options = [this]() ->void
@@ -87,6 +92,11 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
+	std::function<void()> shutDown = quitGame;
+
+
+	bool perhaps = false;
+	bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
 
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
@@ -97,12 +107,13 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		if (button.rectName == "startGameBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			
 		}
-		/*else if (button.rectName == "quitBtn")
+		else if (button.rectName == "quitBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Quit Game");
-		}*/
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
+		}
 		/*else if (button.rectName == "optionsBtn")
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Options");

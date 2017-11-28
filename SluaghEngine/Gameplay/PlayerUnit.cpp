@@ -41,6 +41,18 @@ bool SE::Gameplay::PlayerUnit::AnimationUpdate(AvailableAnimations animationToRu
 	ProfileReturn(CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[animationToRun][0], animationPlayInfos[animationToRun].size(), 1.f, animationFlags));
 	
 }
+std::vector<SE::Gameplay::DamageEvent>& SE::Gameplay::PlayerUnit::GetDamageEvents()
+{
+	return DamageEventVector;
+}
+std::vector<SE::Gameplay::HealingEvent>& SE::Gameplay::PlayerUnit::GetHealingEvents()
+{
+	return HealingEventVector;
+}
+std::vector<SE::Gameplay::ConditionEvent>& SE::Gameplay::PlayerUnit::GetConditionEvents()
+{
+	return ConditionEventVector;
+}
 #undef max
 
 void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
@@ -295,6 +307,11 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 	godMode = on;
 }
 
+void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
+{
+	this->newStat.movementSpeed = speed;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;
@@ -319,13 +336,13 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	// Handle input and apply movement
 	if (inputs.upButton)
-		yMovement += 1.0f;
+		yMovement += newStat.movementSpeed;
 	if (inputs.downButton)
-		yMovement -= 1.0f;
+		yMovement -= newStat.movementSpeed;
 	if (inputs.leftButton)
-		xMovement -= 1.0f;
+		xMovement -= newStat.movementSpeed;
 	if (inputs.rightButton)
-		xMovement += 1.0f;
+		xMovement += newStat.movementSpeed;
 
 	float tempX = xMovement;
 	float tempY = yMovement;
@@ -388,27 +405,27 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	bool ci = false;
 
 	auto newItem = 0;
-	if (w->ButtonPressed(GameInput::ONE))
+	if (input.one)
 	{
 		newItem = 0;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::TWO))
+	else if (input.two)
 	{
 		newItem = 1;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::THREE))
+	else if (input.three)
 	{
 		newItem = 2;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FOUR))
+	else if (input.four)
 	{
 		newItem = 3;;
 		ci = true;
 	}
-	else if (w->ButtonPressed(GameInput::FIVE))
+	else if (input.five)
 	{
 		newItem = 4;;
 		ci = true;
@@ -416,7 +433,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (ci && attacking == false)
 	{
-		if (!w->ButtonDown(GameInput::SHOWINFO))
+		if (!input.showInfo)
 		{
 
 			auto item = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)));
@@ -439,6 +456,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 				auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Charges", 0));
 				if (charges > 0)
 				{
+					CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
+					uint8_t soundToPlay;
+
+					currentSound = playerHealingSounds[CoreInit::subSystems.window->GetRand() % nrHealingSounds];
+
+					CoreInit::managers.audioManager->PlaySound(this->unitEntity.id, currentSound);
 					health += std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Health", 0));
 					charges--;
 					if (charges == 0)
@@ -764,96 +787,6 @@ int SE::Gameplay::PlayerUnit::getSkillVectorSize()
 	return skills.size();
 }
 
-std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
-{
-	return skills.at(skillNumber).skillName;
-}
-
-SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
-{
-	return skills.at(skillNumber).atkType;
-}
-
-SE::Gameplay::DamageType SE::Gameplay::PlayerUnit::getDamageType(int skillNumber)
-{
-	return skills.at(skillNumber).damageType;
-}
-
-SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
-{
-	return skills.at(skillNumber).boon;
-}
-
-SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
-{
-	return skills.at(skillNumber).bane;
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).animation;
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).particle;
-}
-
-SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber)
-{
-	return skills.at(skillNumber).projectileFileGUID;
-}
-
-float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
-{
-	return skills.at(skillNumber).skillDamage;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonEffectValue(int skillNumber)
-{
-	return skills.at(skillNumber).boonEffectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonRange(int skillNumber)
-{
-	return skills.at(skillNumber).boonRange;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonDuration(int skillNumber)
-{
-	return skills.at(skillNumber).boonDuration;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneEffetValue(int skillNumber)
-{
-	return skills.at(skillNumber).baneEffectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneRange(int skillNumber)
-{
-	return skills.at(skillNumber).baneRange;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneDuration(int skillNumber)
-{
-	return skills.at(skillNumber).baneDuration;
-}
-
-float SE::Gameplay::PlayerUnit::getCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).cooldown;
-}
-
-float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
-{
-	skills.clear();
-}
-
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
 	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");
@@ -1004,12 +937,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
 
-	items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
+	/*items[currentItem] = Item::Weapon::Create(WeaponType(std::rand() % 3));
 	CoreInit::managers.guiManager->SetTexturePos(items[currentItem], 45 + currentItem * 60, -55);
 	Item::Pickup(items[currentItem]);
 	Item::Equip(unitEntity,items[currentItem]);
 
-	SetCurrentWeaponStats();
+	SetCurrentWeaponStats();*/
 	itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
 	/*itemSelectedEntity = CoreInit::managers.entityManager->Create();
@@ -1040,6 +973,13 @@ SE::Gameplay::PlayerUnit::~PlayerUnit()
 	StartProfile;
 
 	this->DestroyEntity();
+	for (int i = 0; i < 5; i++)
+		if (auto item = (std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[i], "Item", -1))); item != -1)
+		{
+			CoreInit::managers.entityManager->DestroyNow(items[i]);
+		}
+
+
 
 	ProfileReturnVoid;
 }

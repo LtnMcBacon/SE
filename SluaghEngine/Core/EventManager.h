@@ -170,7 +170,6 @@ namespace SE
 			std::vector<size_t> eventsToTrigger;
 			std::unordered_map<Utilz::GUID, size_t, Utilz::GUID::Hasher> triggerEventToIndex;
 		
-
 			void TriggerEvent(const TriggerEventStruct& tvs);
 		};
 	}
