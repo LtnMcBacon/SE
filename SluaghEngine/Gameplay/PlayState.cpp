@@ -132,7 +132,15 @@ PlayState::~PlayState()
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
-	
+	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(usePrompt);
+	CoreInit::managers.entityManager->DestroyNow(soundEnt);
+	for (auto& s : skillIndicators)
+	{
+		CoreInit::managers.entityManager->DestroyNow(s.Image);
+		CoreInit::managers.entityManager->DestroyNow(s.frame);
+	}
+
 	ProfileReturnVoid;
 }
 
@@ -253,6 +261,16 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
+	auto ducks = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+	if(ducks != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+	{
+		CoreInit::managers.textManager->SetTextPos(usePrompt, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, true);
+	}
+	else
+	{
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, false);
+	}
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
@@ -581,12 +599,14 @@ void PlayState::InitializePlayer(void* playerInfo)
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
+
+				auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+				player->AddItem(startWeapon, 0);
 				return;
 			}
 		}
 	}
-	auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
-	player->AddItem(startWeapon, 0);
+	
 
 	ProfileReturnVoid;
 }
@@ -628,6 +648,13 @@ void SE::Gameplay::PlayState::InitializeOther()
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+	usePrompt = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo promptCreateInfo;
+	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
+	promptCreateInfo.info.scale = { 0.3f, 0.3f };
+	promptCreateInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
