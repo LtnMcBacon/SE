@@ -70,7 +70,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
 			projectileInfo.shader = shader;
 
-			if (loaded.materialName != "NONE")
+			if (loaded.materialName != "NONE" && loaded.materialName != "")
 				projectileInfo.materialFile = loaded.materialName;;
 
 			CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
@@ -81,7 +81,7 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 				CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
 			}
 
-			if (loaded.soundName != "NONE")
+			if (loaded.soundName != "NONE" && loaded.soundName != "")
 			{
 				Core::IAudioManager::CreateInfo audioInfo;
 				audioInfo.soundFile = loaded.soundName;
@@ -146,12 +146,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 
 	std::string line;
 	int position = 0;
-	float fileVersion = -1.0f;
+	std::string fileVersion = "0.0";
 	int nrOfProjectilesToParse = -1;
 	LoadedProjectile loaded;
 
 	GetLine(fileData, line, position);
-	fileVersion = (float)atof(line.c_str());
+	fileVersion = line;
 	GetLine(fileData, line, position);
 	nrOfProjectilesToParse = atoi(line.c_str());
 	auto tempTest = this->ptrs.player;
@@ -178,7 +178,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		GetLine(fileData, line, position);
 		loaded.timeToLive = (float)atof(line.c_str());
 
-		if (fileVersion < 1.1)
+		if (fileVersion < "1.1")
 		{
 			loaded.boundToOwner = false;
 		}
@@ -196,7 +196,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		loaded.particleEffect = line;
 		GetLine(fileData, line, position);
 
-		if (fileVersion < 1.4)
+		if (fileVersion < "1.4")
 		{
 			loaded.materialName = "Cube.mat";
 			//loaded.soundName = "DefaultAttackSound.wav";
@@ -258,12 +258,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 
 		projectileInfo.shader = shader;
 
-		if(loaded.materialName != "NONE")
+		if(loaded.materialName != "NONE" && loaded.materialName != "")
 			projectileInfo.materialFile = material;
 
 		CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
 
-		if (loaded.soundName != "NONE")
+		if (loaded.soundName != "NONE" && loaded.soundName != "")
 		{
 			Core::IAudioManager::CreateInfo audioInfo;
 			audioInfo.soundFile = loaded.soundName;
@@ -1575,8 +1575,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 
 		auto clickPos = rayO + rayD * distance;
 
-		p->SetXPosition(DirectX::XMVectorGetX(clickPos));
-		p->SetYPosition(DirectX::XMVectorGetY(clickPos));
+		p->PositionEntity(DirectX::XMVectorGetX(clickPos), DirectX::XMVectorGetZ(clickPos));
 
 		return false;
 	};
