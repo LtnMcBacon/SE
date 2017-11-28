@@ -28,6 +28,8 @@ namespace SE
 			inline PlayerUnit* GetSluagh() { return theSluagh; };
 			void ToggleRendering(bool render);
 
+			void InitializeSluagh();
+
 		private:
 			enum class UtilityMapEnum
 			{

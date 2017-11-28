@@ -42,7 +42,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed = 1.f);
 
 
 			/**
@@ -339,7 +339,8 @@ namespace SE
 			inline void  RemoveCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown -= currentCooldown; };
 			
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
-			inline void ToggleAsSluagh(bool sluagh) { isSluagh = sluagh; };
+
+			void ToggleAsSluagh(bool sluagh);
 
 
 
@@ -362,11 +363,13 @@ namespace SE
 
 			bool isStunned = false;
 			bool attacking = false;
-			float attackSpeed = 1.0f;
+			float attackSpeed = 5.f;
 			float attackCooldown = 0.f;
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25]);
+			void SavePlayerToFile(Utilz::GUID sluaghFile);
 			~PlayerUnit();
 		};
 
