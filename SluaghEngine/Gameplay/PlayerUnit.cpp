@@ -787,96 +787,6 @@ int SE::Gameplay::PlayerUnit::getSkillVectorSize()
 	return skills.size();
 }
 
-std::string SE::Gameplay::PlayerUnit::getSkillName(int skillNumber)
-{
-	return skills.at(skillNumber).skillName;
-}
-
-SE::Gameplay::DamageSources SE::Gameplay::PlayerUnit::getAttackType(int skillNumber)
-{
-	return skills.at(skillNumber).atkType;
-}
-
-SE::Gameplay::DamageType SE::Gameplay::PlayerUnit::getDamageType(int skillNumber)
-{
-	return skills.at(skillNumber).damageType;
-}
-
-SE::Gameplay::Boons SE::Gameplay::PlayerUnit::getBoon(int skillNumber)
-{
-	return skills.at(skillNumber).boon;
-}
-
-SE::Gameplay::Banes SE::Gameplay::PlayerUnit::getBanes(int skillNumber)
-{
-	return skills.at(skillNumber).bane;
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getAnimation(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).animation;
-}
-
-unsigned short int SE::Gameplay::PlayerUnit::getParticle(int skillNumber)
-{
-	return (unsigned short int)skills.at(skillNumber).particle;
-}
-
-SE::Utilz::GUID SE::Gameplay::PlayerUnit::getProjectileReferemce(int skillNumber)
-{
-	return skills.at(skillNumber).projectileFileGUID;
-}
-
-float SE::Gameplay::PlayerUnit::getSkillDamage(int skillNumber)
-{
-	return skills.at(skillNumber).skillDamage;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonEffectValue(int skillNumber)
-{
-	return skills.at(skillNumber).boonEffectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonRange(int skillNumber)
-{
-	return skills.at(skillNumber).boonRange;
-}
-
-float SE::Gameplay::PlayerUnit::getBoonDuration(int skillNumber)
-{
-	return skills.at(skillNumber).boonDuration;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneEffetValue(int skillNumber)
-{
-	return skills.at(skillNumber).baneEffectValue;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneRange(int skillNumber)
-{
-	return skills.at(skillNumber).baneRange;
-}
-
-float SE::Gameplay::PlayerUnit::getBaneDuration(int skillNumber)
-{
-	return skills.at(skillNumber).baneDuration;
-}
-
-float SE::Gameplay::PlayerUnit::getCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).cooldown;
-}
-
-float SE::Gameplay::PlayerUnit::getCurrentCooldown(int skillNumber)
-{
-	return skills.at(skillNumber).currentCooldown;
-}
-
-void SE::Gameplay::PlayerUnit::flushSkills(std::vector<Skill> skills)
-{
-	skills.clear();
-}
-
 void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
 {
 	isSluagh = sluagh;
@@ -978,14 +888,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	PlayerSounds();
 	InitializeAnimationInfo();
 
-
-
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
-	
-	
-	
-	
-	
 	
 	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
 	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
