@@ -11,12 +11,16 @@
 #include "IManager.h"
 #include <Utilz\GUID.h>
 #include <variant>
+#include <optional>
+#include <fstream>
+
 using namespace std::literals;
 
 namespace SE
 {
 	namespace Core
 	{
+
 		/** The DataManager is used to associate basic datatypes to an entity.
 		* Example code:
 		* @code
@@ -71,6 +75,11 @@ namespace SE
 			*/
 			virtual values GetValue(const Entity entity, const Utilz::GUID key, const values default_value) = 0;
 
+
+			virtual void Copy(const Entity to, const Entity from) = 0;
+			virtual std::optional<std::reference_wrapper< std::unordered_map<Utilz::GUID, values, Utilz::GUID::Hasher>>> GetAllValues(const Entity entity) = 0;
+			virtual bool WriteToFile(const Entity entity, std::ofstream& file) = 0;
+			virtual void CreateFromFile(const Entity entity, std::ifstream& file) = 0;
 		protected:
 			IDataManager() {};
 		};
@@ -79,6 +88,9 @@ namespace SE
 		* @brief Create an instance of the DataManager
 		**/
 		DECLDIR_CORE IDataManager* CreateDataManager(const IDataManager::InitializationInfo& info);
+
+
+	
 	}
 }
 

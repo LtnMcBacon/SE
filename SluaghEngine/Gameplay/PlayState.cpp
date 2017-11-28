@@ -604,6 +604,14 @@ void PlayState::InitializePlayer(void* playerInfo)
 				player->AddItem(startWeapon, 0);
 				auto wc = Item::Copy(startWeapon);
 				player->AddItem(wc, 1);
+				auto pot = Item::Consumable::Create();
+				player->AddItem(pot, 2);
+				auto pc = Item::Copy(pot);
+				player->AddItem(pc, 3);
+
+				Item::WriteToFile(pot, "sw.itm");
+				auto fromFile = Item::Create("sw.itm");
+				player->AddItem(fromFile, 4);
 				return;
 			}
 		}
