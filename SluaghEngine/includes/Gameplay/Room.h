@@ -100,7 +100,8 @@ namespace SE
 				WoodFloor,
 				FanzyWall,
 				LightStoneWall,
-				LightStoneWallWood
+				LightStoneWallWood,
+				Window
 			};
 
 			struct CreationArguments

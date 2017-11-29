@@ -1256,6 +1256,8 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
 
 
+	Materials[Materials::Window] = { "WindowOpen.mat" };
+
 
 	Prop Chair;
 	Chair.guid = Meshes[Meshes::Chair];
@@ -1769,7 +1771,7 @@ void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 
 
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::WoodFloor];
+	matInfo.materialFile = Materials[Materials::Window];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
@@ -1778,6 +1780,8 @@ void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 
 	roomEntities[args.x][args.y].push_back(args.ent);
 
+
+	// Base window mesh (wall)
 	auto entWindow = CoreInit::managers.entityManager->Create();
 	matInfo.materialFile = args.wallMat;
 	CoreInit::managers.transformManager->Create(entWindow);
