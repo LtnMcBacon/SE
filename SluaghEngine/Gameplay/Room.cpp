@@ -82,8 +82,8 @@ void SE::Gameplay::Room::UpdateHpBars(float playerX, float playerY)
 
 		float w = DirectX::XMVectorGetW(screenPos);
 
-		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.window->Width());
-		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.window->Height());
+		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
+		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
 
 		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
 		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
