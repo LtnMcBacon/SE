@@ -889,6 +889,16 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	if (!player->IsAlive())
 		returnValue = State::WIN_STATE;
+	
+	if(sluaghDoorsOpen)
+	{
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+		if(sluaghRoom)
+		{
+			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+				returnValue = State::WIN_STATE;
+		}
+	}
 
 	ProfileReturn(returnValue);
 
