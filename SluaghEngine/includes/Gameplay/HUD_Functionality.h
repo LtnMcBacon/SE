@@ -68,7 +68,7 @@ namespace SE
 			std::string printSkillDesc(ButtonElement button);
 
 			void DrawButtons();
-			void DrawButtonText(ButtonElement button);
+			void DrawButtonText(ButtonElement &button);
 			void ButtonHover(int mousePosX, int mousePosY,bool pressed, bool released);
 			void DeleteButtons();
 			void HideButtons();

@@ -18,7 +18,7 @@ SE::Gameplay::Status SE::Gameplay::CalculateTimeToRoomTransistionLeaf::Update()
 			enemyBlackboard->closestDoorDirection
 		);
 
-		enemyBlackboard->timeToRoomTransisition = distance*2.5f;
+		enemyBlackboard->timeToRoomTransisition = distance/2.5f;
 
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 	}
