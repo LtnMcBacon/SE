@@ -24,6 +24,7 @@ namespace SE::Gameplay
 		Utilz::Timer timer;
 		State stateToReturn;
 		float totTime;
+		bool hack;
 	};
 }
 

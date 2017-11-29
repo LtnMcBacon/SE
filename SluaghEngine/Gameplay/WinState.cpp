@@ -45,11 +45,13 @@ SE::Gameplay::WinState::WinState()
 	Core::IAnimationManager::CreateInfo deadcinfo2;
 	deadcinfo2.mesh = "MCModell.mesh";
 	deadcinfo2.skeleton = "MCModell.skel";
-	Utilz::GUID anims2[] = { "DeathAnim_MCModell.anim" };
+	Utilz::GUID anims2[] = { "DeathAnim_MCModell.anim","TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
 	deadcinfo2.animations = anims2;
 	man.animationManager->CreateAnimatedObject(sluaghSoul, deadcinfo2);
 	man.animationManager->Start(sluaghSoul, anims2, 1, 2.0f, Core::AnimationFlags::IMMEDIATE);
-	
+	man.animationManager->ToggleTransparency(sluaghSoul, true);
+	man.animationManager->ToggleVisible(sluaghSoul, true);
+	man.transformManager->SetPosition(sluaghSoul, { 300.0f, 0.0f, 0.0f });
 
 	auto l = man.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
@@ -72,6 +74,7 @@ SE::Gameplay::WinState::WinState()
 	stateToReturn = State::WIN_STATE;
 	timer.Tick();
 	totTime = 0.0f;
+	hack = true;
 }
 
 SE::Gameplay::WinState::~WinState()
@@ -84,10 +87,18 @@ SE::Gameplay::IGameState::State SE::Gameplay::WinState::Update(void*&)
 	timer.Tick();
 	float dt = timer.GetDelta<std::ratio<1,1>>();
 	totTime += dt;
+	
 	if(totTime > 2.0f)
 	{
-		man.animationManager->ToggleVisible(sluaghSoul, true);
+		if(hack)
+		{
+			man.transformManager->SetPosition(sluaghSoul, man.transformManager->GetPosition(deadSluagh));
+			hack = false;
+			Utilz::GUID an[] = { "TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
+			man.animationManager->Start(sluaghSoul, an, 2, 5.0f, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
+		}
 		man.transformManager->Move(sluaghSoul, DirectX::XMFLOAT3(0.0f, 0.5f * dt, 0.0f));
+
 	}
 	if (sys.window->ButtonPressed(Window::KeyReturn))
 		return State::CHARACTER_CREATION_STATE;
