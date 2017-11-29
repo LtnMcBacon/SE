@@ -2,6 +2,7 @@
 #include "CoreInit.h"
 #include <Profiler.h>
 #include <TutorialState.h>
+#include <OptionState.h>
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
@@ -110,6 +111,12 @@ void SE::Gameplay::Game::Run()
 					delete state;
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					CoreInit::subSystems.window->UpdateTime();
+					break;
+				}
+				case SE::Gameplay::IGameState::State::OPTION_STATE:
+				{
+					delete state;
+					state = new SE::Gameplay::OptionState();
 					break;
 				}
 				case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
