@@ -125,6 +125,8 @@ PlayState::~PlayState()
 	StartProfile;
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("killself");
+	
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -693,6 +695,11 @@ void SE::Gameplay::PlayState::InitializeOther()
 		this->player->SetSpeed(speed);
 
 	}, "setspeed", "setspeed <value>");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		this->player->Suicide();
+
+	}, "killself", "Kills the player character");
 	
 	ProfileReturnVoid;
 }
@@ -881,7 +888,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateHUD(dt);
 
 	if (!player->IsAlive())
-		returnValue = State::GAME_OVER_STATE;
+		returnValue = State::WIN_STATE;
 
 	ProfileReturn(returnValue);
 

@@ -312,6 +312,11 @@ void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
 	this->newStat.movementSpeed = speed;
 }
 
+void SE::Gameplay::PlayerUnit::Suicide()
+{
+	this->health = -100.0f;
+}
+
 void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAngleY)
 {
 	StartProfile;

@@ -393,6 +393,9 @@
     <ClCompile Include="PerkFactory.cpp">
       <Filter>Source Files\Perks</Filter>
     </ClCompile>
+    <ClCompile Include="WinState.cpp">
+      <Filter>Source Files\IGameState</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -682,6 +685,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h">
       <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\WinState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

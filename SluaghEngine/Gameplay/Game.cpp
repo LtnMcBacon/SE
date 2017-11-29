@@ -2,6 +2,7 @@
 #include "CoreInit.h"
 #include <Profiler.h>
 #include <TutorialState.h>
+#include "WinState.h"
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
@@ -77,9 +78,9 @@ void SE::Gameplay::Game::Run()
 			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
 			{
 				CoreInit::subSystems.window->StopRecording();
-				CoreInit::engine->EndFrame();
-				return;
+				
 			}
+
 			switch (newState)
 			{
 				case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
@@ -121,9 +122,16 @@ void SE::Gameplay::Game::Run()
 					CoreInit::managers.entityManager->DestroyAll();
 					state = new TutorialState();
 					break;
+				case SE::Gameplay::IGameState::State::WIN_STATE:
+					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
+					state = new WinState();
+					break;
 				case SE::Gameplay::IGameState::State::QUIT_GAME:
 					
 					running = false;
+					break;
+				default:
 					break;
 			 }
 
