@@ -14,6 +14,7 @@ New Bugs:  -- Make sure all new bugs have an issue --
 
 Warnings:
 This must now be followed. -- If any critical changes/other might cause trouble --
+You may no longer use the pull request feature in Visual Studio. Use Github instead.
 
 
 Make sure all of these boxes are checked.
