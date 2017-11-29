@@ -92,6 +92,70 @@ void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity wep, Cor
 
 }
 
+void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity compareWith)
+{
+	long posY = -40;
+	long textHeigth = 35;
+	Core::ITextManager::CreateInfo tci;
+	auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Damage", 0));
+	auto damageCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Damage", 0));
+	if (damage > damageCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (damage < damageCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	tci.font = "CloisterBlack.spritefont";
+	tci.info.posX = -40;
+	tci.info.posY = posY;
+	tci.info.screenAnchor = { 0.5f, 0.5f };
+	tci.info.anchor = { 1.0f,0.0f };
+	tci.info.scale = { 0.4f, 1.0f };
+	tci.info.height = textHeigth;
+	tci.info.text = L"Skada";
+	auto textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+
+	auto health = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Health", 0));
+	auto healthCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Health", 0));
+	if (health > healthCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (health < healthCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	//tci.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	tci.info.posY = posY;
+	tci.info.text = L"Hälsa";
+	textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+
+
+	Core::IGUIManager::CreateInfo ciback;
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Type", -1));
+
+	ciback.texture = weaponInfo[type].backTex;
+	ciback.textureInfo.width = 125;
+	ciback.textureInfo.height = 125;
+	ciback.textureInfo.posX = -25;
+	ciback.textureInfo.posY = 0;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0f, 0.5f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+
+	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderItemInfo");
+
+}
+
 void SE::Gameplay::Item::Weapon::Equip(Core::Entity wep, Core::Entity to)
 {
 	auto wType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(wep, "Type", -1));
@@ -101,7 +165,7 @@ void SE::Gameplay::Item::Weapon::Equip(Core::Entity wep, Core::Entity to)
 	CoreInit::managers.transformManager->SetRotation(wep, weaponInfo[wType].equipRot.x, weaponInfo[wType].equipRot.y, weaponInfo[wType].equipRot.z);
 	CoreInit::managers.animationManager->AttachToEntity(to, wep, weaponInfo[wType].equipJoint, weaponInfo[wType].slotIndex);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, true);
-
+	CoreInit::managers.dataManager->SetValue(wep, "Equipped", true);
 }
 
 void SE::Gameplay::Item::Weapon::UnEquip(Core::Entity wep, Core::Entity from)
@@ -111,5 +175,5 @@ void SE::Gameplay::Item::Weapon::UnEquip(Core::Entity wep, Core::Entity from)
 	CoreInit::managers.guiManager->SetTexture(wep, weaponInfo[wType].icon);
 	CoreInit::managers.animationManager->DettachFromEntity(from, weaponInfo[wType].slotIndex);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(wep, false);
-
+	CoreInit::managers.dataManager->SetValue(wep, "Equipped", false);
 }

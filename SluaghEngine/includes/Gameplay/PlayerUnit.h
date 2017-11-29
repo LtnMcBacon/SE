@@ -78,6 +78,7 @@ namespace SE
 			static const uint8_t MAX_ITEMS = 5;
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
+			uint8_t showingItem = 0;
 			Core::Entity itemSelectedEntity;
 			Stats weaponStats;
 			bool displaying = false;
@@ -176,7 +177,10 @@ namespace SE
 			{
 				return items[currentItem];
 			}
-
+			inline Core::Entity GetItemToCompareWith()const
+			{
+				return items[showingItem];
+			}
 			/**
 			* @brief	Update the players movement
 			*

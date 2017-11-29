@@ -430,7 +430,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		newItem = 4;;
 		ci = true;
 	}
-
+	if (ci && input.showInfo)
+	{
+		showingItem = newItem;
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+	}
 	if (ci && attacking == false)
 	{
 		if (!input.showInfo)
@@ -571,10 +575,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	if (input.actionButton && attackCooldown <= 0.0f)
 	{
-		if (auto wep = std::get_if<int32_t>(&CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
+		if (auto equipped = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Equipped", false)); equipped)
 		{
-			if (ItemType(*wep) == ItemType::WEAPON)
-			{
 				// Only allow attacking if attack animation is not already playing and attacking is false
 				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/attackSpeed) && attacking == false)
 				{
@@ -597,7 +599,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 					attackCooldown = 1.0f / attackSpeed;
 				}
-			}
+			
 		}
 		
 	}
@@ -887,65 +889,6 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 
 	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
 	
-	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
-	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
-	{
-		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP) && !isSluagh;
-	};
-	
-	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
-	{
-		auto slot = -1;
-		if (CoreInit::subSystems.window->ButtonPressed(GameInput::ONE))
-		{
-			slot = 0;
-		}
-		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::TWO))
-		{
-			slot = 1;
-		}
-		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::THREE))
-		{
-			slot = 2;
-		}
-		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FOUR))
-		{
-			slot = 3;
-		}
-		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FIVE))
-		{
-			slot = 4;
-		}
-
-		if (slot != -1)
-		{
-
-			auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-			if (item != -1)
-			{
-				Item::ToggleRenderEquiuppedInfo(items[slot], unitEntity);				
-			}
-		}				
-	};
-
-
-	Core::IEventManager::EntityEventCallbacks stopRenderItemInfo;
-	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent)
-	{
-		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) ||( CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && !CoreInit::subSystems.window->ButtonDown(GameInput::PICKUP));
-	};
-
-	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
-	{
-		CoreInit::managers.entityManager->DestroyNow(ent);
-		//CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
-	};
-
-
-	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderItemInfo", startRenderItemInfo);
-	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderItemInfo", stopRenderItemInfo);
-
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
 
 	itemSelectedEntity = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);

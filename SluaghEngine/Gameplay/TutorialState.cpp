@@ -155,7 +155,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	subSystems.window->UpdateTime();
 	scriptToRun = &TutorialState::GreetingScript;
 
-//scriptToRun = &TutorialState::SpawnaGlastigScript;
+//scriptToRun = &TutorialState::SpawnAndScript;
 
 }
 
@@ -372,47 +372,34 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EntityEventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	Core::IEventManager::EntityEventCallbacks renderItemInfoEC;
+	renderItemInfoEC.triggerCheck = [pe](const Core::Entity ent)
 	{
-		auto vis = std::get<bool>(managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
-			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
-		return managers.collisionManager->CheckCollision(ent, pe);
+
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+			return false;
+
+		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
 
-
-	startrenderWIC.triggerCallback = [pe, this, ent](const Core::Entity ent2)
+	renderItemInfoEC.triggerCallback = [pe, this,ent](const Core::Entity ent2)
 	{
-		managers.dataManager->SetValue(pe, "WICV", true);
-		Item::ToggleRenderPickupInfo(ent2);
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "Render");
+		Item::RenderItemInfo(ent2, player->GetItemToCompareWith());
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", true);
 		scriptToRun = &TutorialState::PickupWeaponScript;
 		managers.entityManager->Destroy(ent);
 	};
 
-	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
-	{
-		if (auto parent = std::get_if<Core::Entity>(&managers.dataManager->GetValue(ent, "Parent", false)))
-		{
-			if (!managers.collisionManager->CheckCollision(*parent, pe)) {
-				return true;
-			}
-		}
-
-		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
-	};
-
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
-	{
-		managers.entityManager->DestroyNow(ent);
-		auto parent = std::get<Core::Entity>(managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
-		managers.dataManager->SetValue(pe, "WICV", false);
-	};
-	managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
-	managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("RenderItemInfo", renderItemInfoEC);
+	CoreInit::managers.eventManager->RegisterTriggerEvent("StopRenderItemInfo", [pe](const Core::Entity ent) {
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "StopRender");
+		CoreInit::managers.entityManager->Destroy(ent);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", false);
+	});
 
 	Core::IEventManager::EntityEventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this](const Core::Entity ent) {
@@ -456,44 +443,31 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EntityEventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	Core::IEventManager::EntityEventCallbacks renderItemInfoEC;
+	renderItemInfoEC.triggerCheck = [pe](const Core::Entity ent)
 	{
-		auto vis = std::get<bool>(managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
-			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
-		return managers.collisionManager->CheckCollision(ent, pe);
-	};
 
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+			return false;
+
+		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
+	};
+	renderItemInfoEC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
-		managers.dataManager->SetValue(pe, "WICV", true);
-		Item::ToggleRenderPickupInfo(ent);
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "Render");
+		Item::RenderItemInfo(ent, player->GetItemToCompareWith());
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", true);
 	};
 
-	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
-	{
-		if (auto parent = std::get_if<Core::Entity>(&managers.dataManager->GetValue(ent, "Parent", false)))
-		{
-			if (!managers.collisionManager->CheckCollision(*parent, pe)) {
-				return true;
-			}
-		}
-
-		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
-	};
-
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
-	{
-		managers.entityManager->DestroyNow(ent);
-		auto parent = std::get<Core::Entity>(managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
-		managers.dataManager->SetValue(pe, "WICV", false);
-	};
-	managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
-	managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
+	CoreInit::managers.eventManager->RegisterEntityEvent("RenderItemInfo", renderItemInfoEC);
+	CoreInit::managers.eventManager->RegisterTriggerEvent("StopRenderItemInfo", [pe](const Core::Entity ent) {
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "StopRender");
+		CoreInit::managers.entityManager->Destroy(ent);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", false);
+	});
 
 	Core::IEventManager::EntityEventCallbacks pickUpEvent;
 	pickUpEvent.triggerCallback = [this, ent](const Core::Entity ent2) {
@@ -506,6 +480,7 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 			managers.dataManager->SetValue(ent2, "Pickup", true);
 			scriptToRun = &TutorialState::UtmärktPickupWeaponScript;
 			managers.entityManager->Destroy(ent);
+			CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", false);
 		}
 
 
@@ -1022,12 +997,27 @@ void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
 	Utilz::GUID anims[] = { "TopSwordAttackAnim_MCModell.anim","BottomIdleAnim_MCModell.anim" };
 	managers.animationManager->Start(sluagh, anims, 2, 2, Core::AnimationFlags::IMMEDIATE);
 
+	auto sword = Item::Weapon::Create(Item::Weapon::Type::SWORD);
+	Item::Equip(sword, sluagh);
+
+
+
+	auto& l = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo d;
+	d.radius = 100.0f;
+	d.pos = { 0.0f, 10.0f, 0.0f };
+	d.color = { 1, 1, 1 };
+	managers.lightManager->Create(l, d);
+	managers.lightManager->ToggleLight(l, true);
 
 	managers.eventManager->SetLifetime(sluagh, 4.0f);
 
-	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, sword, l](Core::Entity ent) {
 		scriptToRun = &TutorialState::EndTutorialScript;
 		managers.entityManager->Destroy(ent);
+		managers.entityManager->Destroy(sword);
+		managers.entityManager->Destroy(l);
 	});
 
 	managers.eventManager->RegisterEntitytoEvent(sluagh, "OnDeath");

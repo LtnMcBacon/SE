@@ -50,6 +50,7 @@ namespace SE
 			void ToggleRenderPickupInfo(Core::Entity ent);
 			void ToggleRenderEquiuppedInfo(Core::Entity item, Core::Entity parent);
 
+			void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 
 			Core::Entity Copy(Core::Entity toCopy);
 			void WriteToFile(Core::Entity ent,const std::string& filename);

@@ -24,6 +24,13 @@ static size_t dmgOverlayIndex = 0;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		currentRoom->RemoveEnemyFromRoom(nullptr);
+	}, "kill","Kill all enemies");
+
+
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
 		if (argc >= 3)
@@ -58,7 +65,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		else
 		{
 			con->PrintChannel("give", "Usage:");
-			con->PrintChannel("give", "give ItemType Type");
+			con->PrintChannel("give", "give ItemType Type Slot");
 			con->PrintChannel("give", "ItemTypes:");
 			con->PrintChannel("give", "\tWeapon - 0:");
 			con->PrintChannel("give", "\tConsumable - 1");
@@ -71,8 +78,50 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			con->PrintChannel("give", "\tHp - 0");
 		}
 	}, "give", "Give the player an item");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Weapon::Create(wType), pos);
+				break;
+			}
 
-
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Consumable::Create(cType), pos);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("drop", "Usage:");
+			con->PrintChannel("drop", "drop ItemType Type");
+			con->PrintChannel("drop", "ItemTypes:");
+			con->PrintChannel("drop", "\tWeapon - 0:");
+			con->PrintChannel("drop", "\tConsumable - 1");
+			con->PrintChannel("drop", "");
+			con->PrintChannel("drop", "WeaponTypes:");
+			con->PrintChannel("drop", "\tSword - 0");
+			con->PrintChannel("drop", "\tCrossbow - 1");
+			con->PrintChannel("drop", "\tWand - 2");
+			con->PrintChannel("drop", "ConsumableTypes:");
+			con->PrintChannel("drop", "\tHp - 0");
+		}
+	}, "drop", "Drop item at players feet");
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
@@ -174,6 +223,8 @@ PlayState::~PlayState()
 	StartProfile;
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
 	CoreInit::subSystems.devConsole->RemoveCommand("give");
+	CoreInit::subSystems.devConsole->RemoveCommand("kill");
+	CoreInit::subSystems.devConsole->RemoveCommand("drop");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
 	delete projectileManager;
 	delete player;
@@ -776,11 +827,9 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			player->AddItem(ent, 4);
 		}
-
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", false);
 		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
-
-
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
 		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
@@ -790,46 +839,37 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		}
 		return false;
 	};
+	CoreInit::managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
-	Core::IEventManager::EntityEventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	Core::IEventManager::EntityEventCallbacks renderItemInfoEC;
+	renderItemInfoEC.triggerCheck = [pe](const Core::Entity ent)
 	{
-		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
-			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
+
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+			return false;
+
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
-	
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
+
+	renderItemInfoEC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
-		Item::ToggleRenderPickupInfo(ent);
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "Render");
+		Item::RenderItemInfo(ent, player->GetItemToCompareWith());
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", true);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoItem", ent);
+
 	};
 
-	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
-	{
-		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
-		{
-			if (!CoreInit::managers.collisionManager->CheckCollision(*parent, pe)) {
-				return true;
-			}	
-		}
+	CoreInit::managers.eventManager->RegisterEntityEvent("RenderItemInfo", renderItemInfoEC);
+	CoreInit::managers.eventManager->RegisterTriggerEvent("StopRenderItemInfo", [pe](const Core::Entity ent) {
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "StopRender");
+		CoreInit::managers.entityManager->Destroy(ent);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", false);
+	});
 
-		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
-	};
-
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
-	{
-		CoreInit::managers.entityManager->DestroyNow(ent);	
-		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
-	};
-	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
-	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
 
 	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {
@@ -861,6 +901,21 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		ProfileReturn(returnValue);
 	}
 	
+	if (!input->ButtonDown(GameInput::SHOWINFO))
+	{
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+	}
+	else
+	{
+		auto pe = player->GetEntity();
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		{
+			auto item = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(pe, "InfoItem", Core::Entity()));
+			if(!CoreInit::managers.collisionManager->CheckCollision(pe, item))
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		}
+		
+	}
 	if (!sluaghDoorsOpen)
 	{
 		int totalEnemiesLeft = 0;

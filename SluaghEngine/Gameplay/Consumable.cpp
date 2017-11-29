@@ -120,3 +120,66 @@ void SE::Gameplay::Item::Consumable::ToggleRenderEquiuppedInfo(Core::Entity ent,
 {
 	renconsInfo(ent, parent, -245, true);
 }
+
+void SE::Gameplay::Item::Consumable::RenderItemInfo(Core::Entity item, Core::Entity compareWith)
+{
+	long posY = -40;
+	long textHeigth = 35;
+	Core::ITextManager::CreateInfo tci;
+	auto health = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Health", 0));
+	auto healthCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Health", 0));
+	if (health > healthCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (health < healthCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	//tci.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	tci.font = "CloisterBlack.spritefont";
+	tci.info.posX = -40;
+	tci.info.posY = posY;
+	tci.info.screenAnchor = { 0.5f, 0.5f };
+	tci.info.anchor = { 1.0f,0.0f };
+	tci.info.scale = { 0.4f, 1.0f };
+	tci.info.height = textHeigth;
+	tci.info.text = L"Hälsa";
+	auto textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+
+
+	auto charges = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Charges", 0));
+	auto chargesCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Charges", 0));
+	if (charges > chargesCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (charges < chargesCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	tci.info.posY = posY;
+	tci.info.text = L"Klunkar";
+	textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+
+
+	Core::IGUIManager::CreateInfo ciback;
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Type", -1));
+	ciback.texture = consInfo[type].backTex;
+	ciback.textureInfo.width = 125;
+	ciback.textureInfo.height = 125;
+	ciback.textureInfo.posX = -25;
+	ciback.textureInfo.posY = 0;
+	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
+	ciback.textureInfo.anchor = { 1.0f, 0.5f };
+	auto weaponBack = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.guiManager->Create(weaponBack, ciback);
+
+	CoreInit::managers.guiManager->ToggleRenderableTexture(weaponBack, true);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(weaponBack, "StopRenderItemInfo");
+}

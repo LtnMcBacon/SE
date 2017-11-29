@@ -424,7 +424,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent, DirectX::XMFLOAT3 pos)
 	CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "ItemPickup");
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "RenderItemInfo");
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "RoomChange");
 }
 
@@ -437,7 +437,7 @@ void SE::Gameplay::Item::Drop(Core::Entity ent)
 	CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "ItemPickup");
-	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "RenderItemInfo");
 }
 
 void SE::Gameplay::Item::Pickup(Core::Entity ent)
@@ -447,7 +447,7 @@ void SE::Gameplay::Item::Pickup(Core::Entity ent)
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(ent, true);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "ItemPickup");
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RenderItemInfo");
 	CoreInit::managers.particleSystemManager->Destroy(ent);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RoomChange");
 }
@@ -457,7 +457,7 @@ void SE::Gameplay::Item::GodPickup(Core::Entity ent)
 	CoreInit::managers.collisionManager->Destroy(ent);
 	CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
 	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "ItemPickup");
-	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
+	CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "RenderItemInfo");
 	CoreInit::managers.particleSystemManager->Destroy(ent);
 }
 
@@ -496,4 +496,24 @@ void SE::Gameplay::Item::ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entit
 		Weapon::ToggleRenderEquiuppedInfo(ent, parent);
 	else if (item == ItemType::CONSUMABLE)
 		Consumable::ToggleRenderEquiuppedInfo(ent, parent);
+}
+
+void SE::Gameplay::Item::RenderItemInfo(Core::Entity item, Core::Entity compareWith)
+{
+	auto itemType = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+	if (itemType == ItemType::WEAPON)
+	{
+		if(auto itemTypeCW = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Item", -1))); itemTypeCW == ItemType::WEAPON)
+			Weapon::RenderItemInfo(item, compareWith);
+		else
+			Weapon::RenderItemInfo(item, item);
+	}
+
+	else if (itemType == ItemType::CONSUMABLE)
+	{
+		if (auto itemTypeCW = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Item", -1))); itemTypeCW == ItemType::CONSUMABLE)
+			Consumable::RenderItemInfo(item, compareWith);
+		else
+			Consumable::RenderItemInfo(item, item);
+	}
 }

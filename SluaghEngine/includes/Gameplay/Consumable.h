@@ -15,6 +15,8 @@ namespace SE::Gameplay::Item::Consumable
 	void CreateMeta(Core::Entity ent);
 	void ToggleRenderPickupInfo(Core::Entity ent);
 	void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
+
+	void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 }
 
 #endif //SE_GAMEPLAY_CONSUMABLE_H_
