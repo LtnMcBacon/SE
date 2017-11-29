@@ -19,7 +19,7 @@ This must now be followed. -- If any critical changes/other might cause trouble 
 You may no longer use the pull request feature in Visual Studio. Use Github instead.
 
 
-Make sure all of these boxes are checked.
+-- Make sure all of these boxes are checked --
 - [x] -- I have checked all the boxes. --
 - [ ] I have a local backup of Latest Build/Asset.
 - [ ] I have added new assets to Latest Build/Asset.
