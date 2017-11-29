@@ -84,13 +84,14 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	{
 		/*Create sluagh from data*/
 		theSluagh = new PlayerUnit(in, 15, 15, roomMap);
+		theSluagh->ToggleAsSluagh(true);
 
 	}
 	else
 	{
 		/*Copy the current player*/
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
-
+		theSluagh->ToggleAsSluagh(true);
 		auto playerItems = thePlayer->GetAllItems();
 		for(int i = 0; i < 5; i++)
 		{
@@ -104,7 +105,6 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	theSluagh->UpdatePlayerRotation(rotX, rotY);
 	theSluagh->SetZPosition(0.9f);
 	theSluagh->PositionEntity(15.5f, 15.5f);
-	theSluagh->ToggleAsSluagh(true);
 }
 
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
