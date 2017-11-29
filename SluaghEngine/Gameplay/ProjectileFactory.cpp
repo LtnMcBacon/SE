@@ -210,6 +210,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		}
 		else
 		{
+			GetLine(fileData, line, position);
 			loaded.materialName = line;
 			GetLine(fileData, line, position);
 			loaded.soundName = line;
