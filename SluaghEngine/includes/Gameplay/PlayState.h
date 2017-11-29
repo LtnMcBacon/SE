@@ -71,6 +71,8 @@ namespace SE
 			void CheckForRoomTransition();
 			void UpdateHUD(float dt);
 
+			void UpdateDeathCamera();
+
 			HUDParser playStateGUI;
 			std::string OptionalButtons[2]
 			{
@@ -122,6 +124,9 @@ namespace SE
 			SE::Utilz::GUID sounds[3];
 
 			bool noShow = false;
+			bool deathSequence = false;
+			static float deathTimer = 0.0f;
+			Core::Entity cameraDummy;
 
 		protected:
 

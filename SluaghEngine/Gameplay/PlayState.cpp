@@ -338,8 +338,16 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
 }
-static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
+void SE::Gameplay::PlayState::UpdateDeathCamera() {
+
+	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, 0.01f, 0.0f, 1.0f };
+	//CoreInit::managers.transformManager->Move(cameraDummy, -5 * cameraTranslation);
+	//CoreInit::managers.transformManager->Rotate(cameraDummy, 0.0f, -0.01f, 0.0f);
+	
+}
+
+static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
 void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 {
@@ -855,7 +863,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	player->Update(dt, movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
-
+	
 	blackBoard.playerPositionX = player->GetXPosition();
 	blackBoard.playerPositionY = player->GetYPosition();
 	blackBoard.deltaTime = dt;
@@ -883,8 +891,31 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	CheckForRoomTransition();
 	UpdateHUD(dt);
 
-	if (!player->IsAlive())
-		returnValue = State::GAME_OVER_STATE;
+	if (!player->IsAlive() && deathSequence == false) {
+
+		deathSequence = true;
+
+		// Create dummy entity and initialize it with player position
+		XMFLOAT3 playerPos = XMFLOAT3{ player->GetXPosition(), player->GetYPosition(), player->GetZPosition() };
+		CoreInit::managers.transformManager->Create(cameraDummy, playerPos);
+
+		// We must unbind the camera from the player
+		CoreInit::managers.transformManager->UnbindChild(cam);
+
+		// Bind the camera to the dummy entity
+		CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, true);
+
+	}
+
+	if(deathSequence == true){
+
+		deathTimer += dt;
+
+		UpdateDeathCamera();
+		
+		if(deathTimer > 5)
+			returnValue = State::GAME_OVER_STATE;
+	}
 
 	ProfileReturn(returnValue);
 
