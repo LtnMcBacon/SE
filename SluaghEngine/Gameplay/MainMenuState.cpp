@@ -55,7 +55,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 		}
 		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 40, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
 		}
 		
 	}
@@ -111,7 +111,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 		if (button.rectName == "startGameBtn")
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 200, button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 120, button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
 			
 		}
 		else if (button.rectName == "quitBtn")
@@ -120,7 +120,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 		}
 		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 105, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
 		}
 
 	}

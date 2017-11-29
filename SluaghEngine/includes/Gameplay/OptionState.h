@@ -29,7 +29,6 @@ namespace SE
 
 		public:
 			OptionState();
-			OptionState(Window::IWindow* Input);
 			~OptionState();
 
 			/**
@@ -56,7 +55,7 @@ namespace SE
 			float voiceVol = 0;
 			float bakgroundVol = 0;
 
-			std::map<std::string, int> buttonEnt;
+			std::map<std::string, SE::Core::Entity> buttonEnt;
 			SE::Core::Entity boxNames[5];
 		protected:
 
