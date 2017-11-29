@@ -31,11 +31,12 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 
 	auto options = [this]() ->void
 	{
-		//this->CurrentState = 
+		this->CurrentState = State::OPTION_STATE;
 	};
 
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
+	std::function<void()> option = options;
 
 	
 
@@ -54,7 +55,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 		}
 		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 40, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
 		}
 		
 	}
@@ -64,6 +65,7 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 	ProfileReturnVoid;
 	
 }
+
 MainMenuState::MainMenuState(Window::IWindow * Input)
 {
 	StartProfile;
@@ -87,12 +89,13 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 
 	auto options = [this]() ->void
 	{
-		//this->CurrentState = 
+		this->CurrentState = State::OPTION_STATE;
 	};
 
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
 	std::function<void()> shutDown = quitGame;
+	std::function<void()> option = options;
 
 
 	bool perhaps = false;
@@ -108,17 +111,17 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 		if (button.rectName == "startGameBtn")
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 200, button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 120, button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
 			
 		}
 		else if (button.rectName == "quitBtn")
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
 		}
-		/*else if (button.rectName == "optionsBtn")
+		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Options");
-		}*/
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 105, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
+		}
 
 	}
 	fileParser.GUIButtons.DrawButtons();
