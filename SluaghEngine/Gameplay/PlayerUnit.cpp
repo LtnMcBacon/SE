@@ -983,14 +983,135 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	StopProfile;
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25])
+SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25])
+	: GameUnit(xPos, yPos, 100)
 {
 
+	StartProfile;
+	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+
+	input.read((char*)&baseStat, sizeof(baseStat));
+	skills.resize(2);
+	input.read((char*)&skills[0], sizeof(skills[0]));
+	input.read((char*)&skills[1], sizeof(skills[1]));
+
+	for (int i = 0; i < MAX_ITEMS; i++)
+		items[i] = Item::Create(input);
+
+	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
+	sai.animationCount = 4;
+
+	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim", "TopIdleAnim_MCModell.anim",
+		"DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim", "TopHitAnim_MCModell.anim" };
+	sai.animations = anims;
+
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
+
+	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+
+	PlayerSounds();
+	InitializeAnimationInfo();
+
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+
+	Core::IEventManager::EntityEventCallbacks startRenderItemInfo;
+	startRenderItemInfo.triggerCheck = [this](const Core::Entity ent)
+	{
+		return CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP) && !isSluagh;
+	};
+
+	startRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
+	{
+		auto slot = -1;
+		if (CoreInit::subSystems.window->ButtonPressed(GameInput::ONE))
+		{
+			slot = 0;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::TWO))
+		{
+			slot = 1;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::THREE))
+		{
+			slot = 2;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FOUR))
+		{
+			slot = 3;
+		}
+		else if (CoreInit::subSystems.window->ButtonPressed(GameInput::FIVE))
+		{
+			slot = 4;
+		}
+
+		if (slot != -1)
+		{
+
+			auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+			if (item != -1)
+			{
+				Item::ToggleRenderEquiuppedInfo(items[slot], unitEntity);
+			}
+		}
+	};
+
+
+	Core::IEventManager::EntityEventCallbacks stopRenderItemInfo;
+	stopRenderItemInfo.triggerCheck = [](const Core::Entity ent)
+	{
+		return !CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) || (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO) && !CoreInit::subSystems.window->ButtonDown(GameInput::PICKUP));
+	};
+
+	stopRenderItemInfo.triggerCallback = [this](const Core::Entity ent)
+	{
+		CoreInit::managers.entityManager->DestroyNow(ent);
+	};
+
+
+	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderItemInfo", startRenderItemInfo);
+	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderItemInfo", stopRenderItemInfo);
+
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(unitEntity, "StartRenderItemInfo");
+
+
+	
+	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
+	
+
+	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::SavePlayerToFile(Utilz::GUID sluaghFile)
+void SE::Gameplay::PlayerUnit::SavePlayerToFile(std::ofstream &toSave)
 {
+	StartProfile;
+	/*Save Stats*/
+	toSave.write((char*)&baseStat, sizeof(baseStat));
 
+	/*Save Skills*/
+	for (auto skill : skills)
+		toSave.write((char*)&skill, sizeof(skill));
+
+	/*Save Perks*/
+	
+
+	/*Save Weapons*/
+	for (int i = 0; i < MAX_ITEMS; i++)
+		Item::WriteToFile(items[i], toSave);
+	StopProfile;
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

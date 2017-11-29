@@ -78,14 +78,17 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in);
 	
 
+	/*Create copy of the player*/
+	char roomMap[25][25]; room->GetMap(roomMap);
 	if(in.is_open())
 	{
 		/*Create sluagh from data*/
+		theSluagh = new PlayerUnit(in, 15, 15, roomMap);
+
 	}
 	else
 	{
-		/*Create copy of the player*/
-		char roomMap[25][25]; room->GetMap(roomMap);
+		/*Copy the current player*/
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
 
 		auto playerItems = thePlayer->GetAllItems();

@@ -368,8 +368,8 @@ namespace SE
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
-			PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25]);
-			void SavePlayerToFile(Utilz::GUID sluaghFile);
+			PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25]);
+			void SavePlayerToFile(std::ofstream &toSave);
 			~PlayerUnit();
 		};
 
