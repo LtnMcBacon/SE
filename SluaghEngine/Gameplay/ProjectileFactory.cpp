@@ -124,7 +124,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 		startPos++;
 	}
 
-	if (file[startPos] != '\r' && startPos < file.size())
+	if ( startPos < file.size() && file[startPos] != '\r')
 	{
 		nrOfLetters++;
 		startPos++;
@@ -210,7 +210,6 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		}
 		else
 		{
-			GetLine(fileData, line, position);
 			loaded.materialName = line;
 			GetLine(fileData, line, position);
 			loaded.soundName = line;
