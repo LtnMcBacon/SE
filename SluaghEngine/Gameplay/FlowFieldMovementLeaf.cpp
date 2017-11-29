@@ -132,7 +132,8 @@ Status FlowFieldMovementLeaf::Update()
 	flowField->SampleFromMap(myPos, xMovement, yMovement);
 	/*Inside the player or a wall, move towards closest non-blocked wall*/
 	int numberOfSamples = 0;
-	if(xMovement == 0.f && yMovement == 0.f)
+	//if(xMovement == 0.f && yMovement == 0.f)
+	if(ceil(xPos) == ceil(gameBlackboard->playerPositionX) && ceil(yPos) == ceil(gameBlackboard->playerPositionY))
 	{
 		for(int i = 0; i < 9; i++)
 		{

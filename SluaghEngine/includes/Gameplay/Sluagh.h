@@ -13,6 +13,7 @@ namespace SE
 			PlayerUnit* thePlayer;
 			PlayerUnit* theSluagh;
 
+			float commitmentTime = 0.f;
 			PlayerUnit::MovementInput previousMovement;
 			PlayerUnit::ActionInput previousAction;
 			SluaghRoom* room;
@@ -62,6 +63,7 @@ namespace SE
 			float UtilityForChangingWeapon(float dt, int& weaponToSwapFor);
 			float UtilityForUsingItem(float dt, int& item);
 			float UtilityForMoveInDirection(float dt, MovementDirection dir);
+			void ClearMap();
 
 			void CalculateSkillUtilities(float dt);
 			void CalculateWeaponChangeUtilities(float dt);
