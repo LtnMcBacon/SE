@@ -48,7 +48,7 @@ SE::Gameplay::WinState::WinState()
 	Utilz::GUID anims2[] = { "DeathAnim_MCModell.anim","TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
 	deadcinfo2.animations = anims2;
 	man.animationManager->CreateAnimatedObject(sluaghSoul, deadcinfo2);
-	man.animationManager->Start(sluaghSoul, anims2, 1, 2.0f, Core::AnimationFlags::IMMEDIATE);
+	man.animationManager->Start(sluaghSoul, anims2, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
 	man.animationManager->ToggleTransparency(sluaghSoul, true);
 	man.animationManager->ToggleVisible(sluaghSoul, true);
 	man.transformManager->SetPosition(sluaghSoul, { 300.0f, 0.0f, 0.0f });
@@ -75,6 +75,7 @@ SE::Gameplay::WinState::WinState()
 	timer.Tick();
 	totTime = 0.0f;
 	hack = true;
+	hack2 = true;
 }
 
 SE::Gameplay::WinState::~WinState()
@@ -90,12 +91,18 @@ SE::Gameplay::IGameState::State SE::Gameplay::WinState::Update(void*&)
 	
 	if(totTime > 2.0f)
 	{
+			
 		if(hack)
 		{
 			man.transformManager->SetPosition(sluaghSoul, man.transformManager->GetPosition(deadSluagh));
 			hack = false;
-			Utilz::GUID an[] = { "TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
-			man.animationManager->Start(sluaghSoul, an, 2, 5.0f, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
+			
+		}
+		if (totTime > 4.0f && hack2)
+		{
+			//Utilz::GUID an[] = { "TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
+			//man.animationManager->Start(sluaghSoul, an, 2, 5.0f, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
+			hack2 = false;
 		}
 		man.transformManager->Move(sluaghSoul, DirectX::XMFLOAT3(0.0f, 0.5f * dt, 0.0f));
 

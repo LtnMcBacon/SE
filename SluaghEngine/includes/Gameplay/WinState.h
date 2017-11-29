@@ -25,6 +25,7 @@ namespace SE::Gameplay
 		State stateToReturn;
 		float totTime;
 		bool hack;
+		bool hack2;
 	};
 }
 
