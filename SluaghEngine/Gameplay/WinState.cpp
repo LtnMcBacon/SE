@@ -48,7 +48,7 @@ SE::Gameplay::WinState::WinState()
 	Utilz::GUID anims2[] = { "DeathAnim_MCModell.anim","TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
 	deadcinfo2.animations = anims2;
 	man.animationManager->CreateAnimatedObject(sluaghSoul, deadcinfo2);
-	man.animationManager->Start(sluaghSoul, anims2, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
+	man.animationManager->Start(sluaghSoul, anims2, 1, 2.0f, Core::AnimationFlags::IMMEDIATE);
 	man.animationManager->ToggleTransparency(sluaghSoul, true);
 	man.animationManager->ToggleVisible(sluaghSoul, true);
 	man.transformManager->SetPosition(sluaghSoul, { 300.0f, 0.0f, 0.0f });
@@ -70,12 +70,19 @@ SE::Gameplay::WinState::WinState()
 	man.textManager->SetTextPos(victoryText, sys.window->Width() / 2 - 505, sys.window->Height() / 2 + 200);
 	man.textManager->ToggleRenderableText(victoryText, true);
 
+	infoText = man.entityManager->Create();
+	textci.info.text = L"TRYCK PÅ RETUR FÖR ATT GÅ TILLBAKA TILL MENYN";
+	textci.info.scale = { 0.25f, 0.25f };
+	textci.info.colour = { 0.2f,0.8f,0.2f,1.0f };
+	man.textManager->Create(infoText, textci);
+	man.textManager->SetTextPos(infoText, sys.window->Width() / 2 - 250, sys.window->Height() / 2 + 320);
+	man.textManager->ToggleRenderableText(infoText, true);
+
 	sys.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
 	stateToReturn = State::WIN_STATE;
 	timer.Tick();
 	totTime = 0.0f;
 	hack = true;
-	hack2 = true;
 }
 
 SE::Gameplay::WinState::~WinState()
@@ -95,15 +102,11 @@ SE::Gameplay::IGameState::State SE::Gameplay::WinState::Update(void*&)
 		if(hack)
 		{
 			man.transformManager->SetPosition(sluaghSoul, man.transformManager->GetPosition(deadSluagh));
-			hack = false;
-			
+			Utilz::GUID an[] = { "TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
+			man.animationManager->Start(sluaghSoul, an, 2, 5.0f, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
+			hack = false;			
 		}
-		if (totTime > 4.0f && hack2)
-		{
-			//Utilz::GUID an[] = { "TopIdleAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim" };
-			//man.animationManager->Start(sluaghSoul, an, 2, 5.0f, Core::AnimationFlags::BLENDTO | Core::AnimationFlags::LOOP);
-			hack2 = false;
-		}
+
 		man.transformManager->Move(sluaghSoul, DirectX::XMFLOAT3(0.0f, 0.5f * dt, 0.0f));
 
 	}

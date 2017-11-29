@@ -17,15 +17,12 @@ namespace SE::Gameplay
 		Core::Entity cam;
 		Core::Entity deadSluagh;
 		Core::Entity sluaghSoul;
-		Core::Entity victoriousScot;
 		Core::Entity victoryText;
-		Core::Entity quitButton;
-		Core::Entity newCharacterButton;
+		Core::Entity infoText;
 		Utilz::Timer timer;
 		State stateToReturn;
 		float totTime;
 		bool hack;
-		bool hack2;
 	};
 }
 
