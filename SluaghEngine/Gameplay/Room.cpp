@@ -1924,18 +1924,18 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 
 	if (0 < randValue && randValue <= 10)
 	{
-		auto test = CoreInit::managers.entityManager->Create();
+		auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
 		matInfoPainting.shader = Norm;
 		matInfoPainting.materialFile = Materials[Materials::Wood];
-		CoreInit::managers.transformManager->Create(test);
-		CoreInit::managers.transformManager->SetPosition(test, DirectX::XMFLOAT3(args.x + 0.5f, 1.0f, args.y + 0.5f));
-		CoreInit::managers.transformManager->SetRotation(test, 0.0f, RotatePainting(args.x, args.y), 0.0f);
-		CoreInit::managers.renderableManager->CreateRenderableObject(test, { Meshes[Meshes::Painting] });
-		CoreInit::managers.materialManager->Create(test, matInfoPainting);
+		CoreInit::managers.transformManager->Create(PaintingEnt);
+		CoreInit::managers.transformManager->SetPosition(PaintingEnt, DirectX::XMFLOAT3(args.x + 0.5f, 1.0f, args.y + 0.5f));
+		CoreInit::managers.transformManager->SetRotation(PaintingEnt, 0.0f, RotatePainting(args.x, args.y), 0.0f);
+		CoreInit::managers.renderableManager->CreateRenderableObject(PaintingEnt, { Meshes[Meshes::Painting] });
+		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 
-		roomEntities[args.x][args.y].push_back(test);
+		roomEntities[args.x][args.y].push_back(PaintingEnt);
 
 	}
 
