@@ -80,7 +80,9 @@ namespace SE
 				Potatosack_open,
 				Fireplace,
 				Painting,
-				Window
+				Window,
+				Window_open,
+				Window_closed
 			};
 			enum class Materials {
 				Stone,

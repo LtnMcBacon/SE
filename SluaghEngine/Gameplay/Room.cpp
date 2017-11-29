@@ -1233,7 +1233,8 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
 	Meshes[Meshes::Painting] = { "Painting.mesh" };
 	Meshes[Meshes::Window] = { "Window.mesh" };
-
+	Meshes[Meshes::Window_open] = { "WindowOpen.mesh" };
+	Meshes[Meshes::Window_closed] = { "WindowClosed.mesh" };
 
 	// Materials
 	Materials[Materials::Stone] = { "Cube.mat" };
@@ -1743,15 +1744,50 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 }
 void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 {
+	int x = args.x;
+	int y = args.y;
+	SE::Utilz::GUID WindowGUID = Meshes[Meshes::Window_open];
+
+	float rotation = 0;
+
+
+	if (x < 24 && (tileValues[x + 1][y] == id_Floor))
+		rotation = 180;
+	else if (y < 24 && (tileValues[x][y + 1] == id_Floor))
+		rotation = 90;
+	else if (y > 0 && (tileValues[x][y - 1] == id_Floor)) {
+		rotation = -90;
+		WindowGUID = Meshes[Meshes::Window_closed];
+	}
+	else if (x > 0 && (tileValues[x - 1][y] == id_Floor))
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+
+
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = Materials[Materials::WoodFloor];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
-	CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, RotatePainting(args.x, args.y), 0.0f);
-	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Window] });
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, rotation, 0.0f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { WindowGUID });
 
 	roomEntities[args.x][args.y].push_back(args.ent);
+
+	auto entWindow = CoreInit::managers.entityManager->Create();
+	matInfo.materialFile = args.wallMat;
+	CoreInit::managers.transformManager->Create(entWindow);
+	CoreInit::managers.transformManager->SetPosition(entWindow, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
+	CoreInit::managers.transformManager->SetRotation(entWindow, 0.0f, rotation, 0.0f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(entWindow, { Meshes[Meshes::Window] });
+	CoreInit::managers.materialManager->Create(entWindow, matInfo);
+
+	roomEntities[args.x][args.y].push_back(entWindow);
+
 }
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
