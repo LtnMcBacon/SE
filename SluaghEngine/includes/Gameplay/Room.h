@@ -79,7 +79,8 @@ namespace SE
 				Potatosack_closed,
 				Potatosack_open,
 				Fireplace,
-				Painting
+				Painting,
+				Window
 			};
 			enum class Materials {
 				Stone,
@@ -131,6 +132,7 @@ namespace SE
 			static const char id_Wall     = 255;
 			static const char id_Pillar   = 225;
 			static const char id_Bush     = 13;
+			static const char id_Window = 180;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -644,6 +646,7 @@ namespace SE
 
 			void CreateFire(int x, int y);
 
+			void CreateWindows(CreationArguments &args);
 			/**
 			* @brief set Room door pointer to values
 			*/

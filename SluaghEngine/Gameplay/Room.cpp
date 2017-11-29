@@ -1232,6 +1232,7 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Potatosack_open] = { "Potato_Sack_Open.mesh" };
 	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
 	Meshes[Meshes::Painting] = { "Painting.mesh" };
+	Meshes[Meshes::Window] = { "Window.mesh" };
 
 
 	// Materials
@@ -1347,6 +1348,9 @@ Room::Room(Utilz::GUID fileName)
 	};
 	propItemToFunction[id_Door2] = [this](CreationArguments &args) {
 		this->CreateDoor(args);
+	};
+	propItemToFunction[id_Window] = [this](CreationArguments &args) {
+		this->CreateWindows(args);
 	};
 
 	RandomizeWallAndFloorTexture(wallTexture, floorTexture);
@@ -1567,13 +1571,13 @@ float Room::RotatePainting(int x, int y) {
 	float rotation = 0;
 
 
-	if ((tileValues[x - 1][y] == id_Floor))
+	if ( x < 24 && (tileValues[x + 1][y] == id_Floor))
 		rotation = 180;
-	else if ( (tileValues[x][y + 1] == id_Floor ))
+	else if ( y < 24 && (tileValues[x][y + 1] == id_Floor ))
 		rotation = 90;
-	else if ((tileValues[x][y - 1] == id_Floor ))
+	else if ( y > 0 &&(tileValues[x][y - 1] == id_Floor ))
 		rotation = -90;
-	else if ( (tileValues[x + 1][y] == id_Floor ))
+	else if ( x > 0  && (tileValues[x - 1][y] == id_Floor ))
 		rotation = 0;
 
 
@@ -1736,6 +1740,18 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities[x][y].push_back(entFire);
 
+}
+void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
+{
+	Core::IMaterialManager::CreateInfo matInfo;
+	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.shader = Norm;
+	CoreInit::managers.materialManager->Create(args.ent, matInfo);
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, RotatePainting(args.x, args.y), 0.0f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Window] });
+
+	roomEntities[args.x][args.y].push_back(args.ent);
 }
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
