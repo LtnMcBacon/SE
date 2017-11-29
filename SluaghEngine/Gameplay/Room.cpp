@@ -1244,18 +1244,13 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush] = { "Bush.mat" };
 	Materials[Materials::Dirt] = { "brownPlane.mat" };
 	Materials[Materials::Grass] = { "GreenPlane.mat" };
-
 	Materials[Materials::Wood] = { "Wood_plane.mat" };
 	Materials[Materials::OutsideWall] = { "StoneWallPlane.mat" };
-
-
 	Materials[Materials::StoneFloor2] = { "StoneFloor2.mat" };
 	Materials[Materials::WoodFloor] = { "WoodFloor.mat" };
 	Materials[Materials::FanzyWall] = { "FanzyWall.mat" };
 	Materials[Materials::LightStoneWall] = { "LightStoneWall.mat" };
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
-
-
 	Materials[Materials::Window] = { "WindowOpen.mat" };
 
 
