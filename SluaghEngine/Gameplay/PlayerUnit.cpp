@@ -657,7 +657,9 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 
 	
-	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+	if (!isSluagh)
+	{
+		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
 	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
 	if (isitem != -1)
@@ -673,11 +675,10 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		
 		Item::Drop(items[slot], p);
 
+		}
+		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
+		Item::Pickup(item);
 	}
-
-	CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
-	Item::Pickup(item);
-
 
 	items[slot] = item;
 	

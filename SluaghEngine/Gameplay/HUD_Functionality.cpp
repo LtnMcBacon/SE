@@ -526,7 +526,7 @@ namespace SE
 			resolutionYIncrease = heightDif*scaledHeight;
 		}
 
-		void HUDButtons::DrawButtonText(ButtonElement button)
+		void HUDButtons::DrawButtonText(ButtonElement &button)
 		{
 			StartProfile;
 			auto entText = CoreInit::managers.entityManager->Create();

@@ -46,6 +46,7 @@ void SE::Gameplay::Sluagh::Update(float dt, std::vector<ProjectileData>& project
 	{
 		projectile.target = ValidTarget::PLAYER;
 	}
+
 	ProfileReturnVoid;
 }
 
@@ -86,6 +87,14 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 		/*Create copy of the player*/
 		char roomMap[25][25]; room->GetMap(roomMap);
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
+
+		auto playerItems = thePlayer->GetAllItems();
+		for(int i = 0; i < 5; i++)
+		{
+			theSluagh->AddItem(Item::Copy(playerItems[i]), i);
+		}
+		
+
 	}
 	float rotX, rotY;
 	thePlayer->GetRotation(rotX, rotY);
@@ -98,6 +107,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
 	StartProfile;
+	ClearMap();
 
 	CalculateSkillUtilities(dt);
 	CalculateWeaponChangeUtilities(dt);
@@ -198,8 +208,41 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 {
 	StartProfile;
-
 	
+	auto sluaghWeapons = theSluagh->GetAllItems();
+	float maxUtility = 0.f;
+	int32_t type;
+	for (int i = 0; i < 5; i++)
+	{
+		ItemType itemType;
+		if ((type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Type", -1))) != -1)
+		{
+			float swapUtility = 0.f;
+			auto itemType = ItemType(type);
+			switch (itemType)
+			{
+			case ItemType::CONSUMABLE:
+				if(theSluagh->GetHealth() < theSluagh->GetMaxHealth()/2.f)
+					swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Health", 0)) / 5.f;
+				break;
+
+			
+			case ItemType::WEAPON:
+				
+				break;
+
+			default:;
+			}
+
+			if (maxUtility < swapUtility)
+			{
+				maxUtility = swapUtility;
+				item = i;
+			}
+
+		}
+	}
+
 
 	ProfileReturnConst(0.f);
 }
@@ -255,8 +298,10 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if(lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove > 2.0f)
+		if (distAfterMove > 2.0f && !lineOfSightAfterMove)
 			utilityValue = 0.f;
 		
 	}
@@ -289,9 +334,11 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if (lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove < 2.0f)
-			utilityValue = 0.f;		
+		if (distAfterMove > 2.0f)
+			utilityValue = 0.f;
 	}
 	else if(playerWeaponType == Item::Weapon::Type::NONE) /*CONFUSED SCREAMING*/
 	{
@@ -302,8 +349,10 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer > distAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 
+		if (lineOfSightAfterMove)
+			utilityValue += 1.f;
 
-		if (distAfterMove < 2.0f)
+		if (distAfterMove > 2.0f)
 			utilityValue = 0.f;
 	}
 	else /*Player Ranged, Sluagh Ranged*/
@@ -344,6 +393,11 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 	theSluagh->PositionEntity(xPos, yPos);
 
 	ProfileReturnConst(utilityValue);
+}
+
+void SE::Gameplay::Sluagh::ClearMap()
+{
+	utilityMap.clear();
 }
 
 void SE::Gameplay::Sluagh::CalculateSkillUtilities(float dt)
@@ -519,15 +573,39 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 void SE::Gameplay::Sluagh::DecideMovementInput(float dt, PlayerUnit::MovementInput& movement,
 	PlayerUnit::ActionInput& action)
 {
-
-	if (.50f < utilityMap[UtilityMapEnum::MOVE_UP])
+	bool moved = false;
+	if (0.50f < utilityMap[UtilityMapEnum::MOVE_UP])
+	{
 		movement.upButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_LEFT])
+	{
 		movement.leftButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_DOWN])
+	{
 		movement.downButton = true;
+		moved = true;
+	}
 	if (0.50f < utilityMap[UtilityMapEnum::MOVE_RIGHT])
+	{
 		movement.rightButton = true;
+		moved = true;
+	}
 
+	if(moved)
+	{
+		commitmentTime += 5.f;
+		previousMovement = movement;
+	}
+	else
+	{
+		movement = previousMovement;
+		commitmentTime -= dt;
+		if (commitmentTime < 0.f)
+			ProfileReturnVoid;
+	}
 
 }

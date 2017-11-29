@@ -151,6 +151,12 @@
     <Filter Include="Header Files\Items">
       <UniqueIdentifier>{a08f9362-6e53-4fda-81e8-2dfd4b9874c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\IGameState\OptionState">
+      <UniqueIdentifier>{4f27e3c0-0506-4463-b7a5-78d5077be776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IGameState\OptionState">
+      <UniqueIdentifier>{1b3a5f1c-13db-4933-9640-ecc88ec0289a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -404,6 +410,9 @@
     </ClCompile>
     <ClCompile Include="Consumable.cpp">
       <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionState.cpp">
+      <Filter>Source Files\IGameState\OptionState</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -700,6 +709,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\Consumable.h">
       <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\OptionState.h">
+      <Filter>Header Files\IGameState\OptionState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

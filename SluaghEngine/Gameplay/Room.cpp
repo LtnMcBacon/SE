@@ -496,8 +496,8 @@ float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, Dire
 	{
 		if(DoorArr[i].active)
 		{
-			float doorDist = sqrtf((startX - DoorArr[i].posX)*(startX - DoorArr[i].posY) +
-				(startY - DoorArr[i].posX)*(startY - DoorArr[i].posY));
+			float doorDist = sqrtf((startX - DoorArr[i].posX)*(startX - DoorArr[i].posX) +
+				(startY - DoorArr[i].posY)*(startY - DoorArr[i].posY));
 			if(doorDist < distance)
 			{
 				distance = doorDist;

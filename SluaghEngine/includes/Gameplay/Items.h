@@ -16,7 +16,8 @@ namespace SE
 		{
 			WEAPON,
 			CONSUMABLE,
-			NUM_TYPES
+			NUM_TYPES,
+			NONE
 		};
 		
 
