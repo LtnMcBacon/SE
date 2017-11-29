@@ -1,6 +1,16 @@
-Make sure you have the following checkboxes filled.
+Connected to issue #nr
 
-- [ ] The PR is connected with an issue.
-- [ ] You have added new assets to the asset folder.
-- [ ] You have NOT overwriten any existing assets. (Only when the PR has been merged can you overwrite)
-- [ ] List all the bugs that this PR resolved. If no bug issue exists, create it.
+Additions:
+* Added a pull request template
+
+Changes:
+* Added changes example to template
+
+Bugs Resolved:
+#nr  What you did to fix it 
+
+New Bugs:  -- Make sure all new bugs have an issue --
+#nr I made everyone unhappy. -- Short description, more in issue -- 
+
+Warnings:
+This must now be follow. -- If any critical changes/other might cause trouble --
