@@ -28,13 +28,21 @@ namespace SE
 		**/
 		class Room
 		{
-		private:
+		protected:
 			
-			Room* adjacentRooms[4] = {};
+			struct HpBar
+			{
+				Core::Entity bar; // the moving bar representing the hp
+				Core::Entity frame; // the frame around the bar
+			};
+
+			Utilz::GUID myRoomFile;
+			Room* adjacentRooms[4] = {nullptr};
 			std::vector<EnemyUnit*> enemyUnits;
 			FlowField* roomField;
-			std::vector<SE::Core::Entity> roomEntities;
+			
 			std::vector<Core::Entity> itemsInRoom;
+			std::vector<HpBar> hpBars;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
@@ -69,7 +77,12 @@ namespace SE
 				Candlestick_tri,
 				PotGroup1,
 				Potatosack_closed,
-				Potatosack_open
+				Potatosack_open,
+				Fireplace,
+				Painting,
+				Window,
+				Window_open,
+				Window_closed
 			};
 			enum class Materials {
 				Stone,
@@ -82,14 +95,20 @@ namespace SE
 				Dirt,
 				Grass,
 				Wood, 
-				OutsideWall
+				OutsideWall,
+				StoneFloor2,
+				WoodFloor,
+				FanzyWall,
+				LightStoneWall,
+				LightStoneWallWood,
+				Window
 			};
 
 			struct CreationArguments
 			{
 				SE::Core::Entity ent;
-				int i;
-				int j;
+				int x;
+				int y;
 				int doorCounter;
 				Core::IMaterialManager::CreateInfo mat;
 				SE::Utilz::GUID wallMat;
@@ -116,6 +135,7 @@ namespace SE
 			static const char id_Wall     = 255;
 			static const char id_Pillar   = 225;
 			static const char id_Bush     = 13;
+			static const char id_Window = 180;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -149,32 +169,69 @@ namespace SE
 			};
 
 			void CloseDoor(DirectionToAdjacentRoom DoorNr);
+			void OpenDoor(DirectionToAdjacentRoom DoorNr);
 			/*@brief store values from raw file*/
 			/*@warning may replace "char map" ????*/
 
 			/**
+			* @brief	Reverse the direction for the enumerator that defines the connection between two rooms.
 			*
-			* @brief DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
+			* @details	This help function is used to reverse the enumerator that defines the connection between two rooms.
+			* Mainly, this is used when we need to update the flow fields in adjacent rooms; since the connection from
+			* current room -> adjacent room is the reverse of adjacent room -> current room, this function can be called
+			* on the direction the current room has defined for the connection.
 			*
-			* @details DirectionToAdjacentRoom is used to define the direction of an adjacent room in the Room class.
+			* For instance, if we send in DIRECTION_ADJACENT_ROOM_NORTH to this function, we will get
+			* DIRECTION_ADJACENT_ROOM_SOUTH back.
 			*
-			* @warning Note that only four directions are allowed!
+			* @param[in] currentDirection The direction for the connection that we want to know the reverse of.
 			*
-			* @sa Read the warning at ReverseDirection before modifying!
 			*
-			**/
-		private:
+			* @retval DIRECTION_ADJACENT_ROOM_NORTH The reverse of the inputed direction is North.
+			* @retval DIRECTION_ADJACENT_ROOM_EAST	The reverse of the inputed direction is East.
+			* @retval DIRECTION_ADJACENT_ROOM_SOUTH The reverse of the inputed direction is South.
+			* @retval DIRECTION_ADJACENT_ROOM_WEST	The reverse of the inputed direction is West.
+			*
+			* @warning If the enum "DirectionToAdjacentRoom" is modified, this function will no longer work!
+			*
+			* Example code:
+			* @code
+			* for(int i = 0; i < 4; i++)
+			* {
+			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
+			*	if(adjacentRooms[directionToRoom])
+			* 		adjacentRooms[directionToRoom]->UpdateFlowField(ReverseDirection(directionToRoom));
+			* }
+			* @endcode
+			*/
+			inline static DirectionToAdjacentRoom ReverseDirection(DirectionToAdjacentRoom currentDirection)
+			{
+				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
+			}
+			inline Core::Entity GetEntity()const
+			{
+				return roomEntity;
+			}
+		protected:
 
 			struct DoorData
 			{
-				int doorEntityPos = -1;
-				bool active = true;
-				float xPos, yPos;
-				DirectionToAdjacentRoom side;
+				float posX;
+				float posY;
+				size_t tileX;
+				size_t tileY;
+				bool active = false;
 			};
 			DoorData DoorArr[4];
 
 			char tileValues[25][25];
+			std::vector<Core::Entity> roomEntities[25][25];
+			Core::Entity roomEntity;
+			SE::Utilz::GUID wallTexture;
+			SE::Utilz::GUID floorTexture;
+
+			void UpdateHpBars(float playerX, float playerY);
+
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
 			*
@@ -221,41 +278,7 @@ namespace SE
 			*/
 			void UpdateFlowField(DirectionToAdjacentRoom exit);
 
-			/**
-			* @brief	Reverse the direction for the enumerator that defines the connection between two rooms.
-			*
-			* @details	This help function is used to reverse the enumerator that defines the connection between two rooms.
-			* Mainly, this is used when we need to update the flow fields in adjacent rooms; since the connection from
-			* current room -> adjacent room is the reverse of adjacent room -> current room, this function can be called
-			* on the direction the current room has defined for the connection.
-			*
-			* For instance, if we send in DIRECTION_ADJACENT_ROOM_NORTH to this function, we will get
-			* DIRECTION_ADJACENT_ROOM_SOUTH back.
-			*
-			* @param[in] currentDirection The direction for the connection that we want to know the reverse of.
-			*
-			*
-			* @retval DIRECTION_ADJACENT_ROOM_NORTH The reverse of the inputed direction is North.
-			* @retval DIRECTION_ADJACENT_ROOM_EAST	The reverse of the inputed direction is East.
-			* @retval DIRECTION_ADJACENT_ROOM_SOUTH The reverse of the inputed direction is South.
-			* @retval DIRECTION_ADJACENT_ROOM_WEST	The reverse of the inputed direction is West.
-			*
-			* @warning If the enum "DirectionToAdjacentRoom" is modified, this function will no longer work!
-			*
-			* Example code:
-			* @code
-			* for(int i = 0; i < 4; i++)
-			* {
-			*	DirectionToAdjacentRoom directionToRoom = DirectionToAdjacentRoom(i); //Works because the enum is 0->3
-			*	if(adjacentRooms[directionToRoom])
-			* 		adjacentRooms[directionToRoom]->UpdateFlowField(ReverseDirection(directionToRoom));
-			* }
-			* @endcode
-			*/
-			inline static DirectionToAdjacentRoom ReverseDirection(DirectionToAdjacentRoom currentDirection)
-			{
-				return DirectionToAdjacentRoom((int(currentDirection) + 2) % 4);
-			}
+			
 
 			/**
 			* @brief	Update all the AIs in the room
@@ -327,7 +350,7 @@ namespace SE
 			/**
 			* @brief	Function for checking if a projectile has hit any enemy
 			*/
-			bool ProjectileAgainstEnemies(Projectile& projectile);
+			virtual bool ProjectileAgainstEnemies(Projectile& projectile);
 
 			/**
 			* @brief	Function for loding in a raw file to the rooms
@@ -348,6 +371,7 @@ namespace SE
 			* @brief Places enemies in the room on free tiles
 			*/
 			void CreateEnemies();
+			
 			/**
 			* @brief Creates wall ent for the room
 			*/
@@ -356,8 +380,12 @@ namespace SE
 			void RandomizeWallAndFloorTexture(SE::Utilz::GUID &wallGuid, SE::Utilz::GUID &floorGuid);
 
 		public:
+
 			Room(Utilz::GUID fileName);
-			~Room();
+			virtual ~Room();
+
+			void Load();
+			void Unload();
 
 			void InitializeAdjacentFlowFields();
 
@@ -411,7 +439,9 @@ namespace SE
 			*/
 			inline void AddAdjacentRoomByDirection(DirectionToAdjacentRoom direction, Room* roomToAdd)
 			{
-				adjacentRooms[int(direction)] = roomToAdd;
+				DoorArr[size_t(direction)].active = true;
+				tileValues[DoorArr[size_t(direction)].tileX][DoorArr[size_t(direction)].tileY] = id_Door1;
+				adjacentRooms[size_t(direction)] = roomToAdd;
 			}
 
 			/**
@@ -486,7 +516,7 @@ namespace SE
 			* @retval void No return value
 			*
 			*/
-			void Update(float dt, float playerX, float playerY);
+			virtual void Update(float dt, float playerX, float playerY);
 
 			/**
 			* @brief	Check for collision (2D-Plan)
@@ -537,7 +567,7 @@ namespace SE
 			/**
 			* @brief	Generates random props
 			*/
-			Prop GenerateRandomProp(int x, int y, CreationArguments &args);
+			Prop GenerateRandomProp(int x, int y, CreationArguments &args, float &rot);
 
 			/**
 			* @brief
@@ -607,7 +637,19 @@ namespace SE
 			* We then need to set that other tile value to 100. This is a temporary number so it gets ignored on the next loop though the tileValues array.
 			*/
 			void ResetTempTileValues();
+
+			/**
+			* @brief Checks if a prop is against a wall
+			@details Uses the x and y coordinates to check for walls on either side. Dir is the axis you want to want to look for walls.
+			* Returns true if walls are found. Also sets appropriate rotation.
+			*/
+			bool CheckPropAgainstWall(int x, int y, int propId, std::string dir, float & rot);
 		
+			float RotatePainting(int x, int y);
+
+			void CreateFire(int x, int y);
+
+			void CreateWindows(CreationArguments &args);
 			/**
 			* @brief set Room door pointer to values
 			*/
@@ -618,11 +660,12 @@ namespace SE
 				{
 					for (int j = 0; j < 25; j++)
 					{
-						toReturn[i][j] = tileValues[i][j];
+						toReturn[i][j] = tileValues[i][j] == id_Torch ? id_Floor : tileValues[i][j];
 					}
 				}
 			}
 			bool beingRendered = false;
+			bool loaded = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
 		};
 

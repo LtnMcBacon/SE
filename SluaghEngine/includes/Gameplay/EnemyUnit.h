@@ -151,6 +151,11 @@ namespace SE
 				return myRoom;
 			}
 
+			float GetMaxHealth() const
+			{
+				return maxHealth;
+			}
+
 		private:
 			EnemyUnit() = delete;
 			EnemyUnit(const EnemyUnit& other) = delete;
@@ -164,6 +169,7 @@ namespace SE
 
 			Room* myRoom;
 			float radius;
+			float maxHealth;
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;

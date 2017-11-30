@@ -274,6 +274,10 @@ namespace SE
 			inline void RemoveBaseNatureResistance	(float resistance)			   { this->baseStat.natureResistance -= resistance; };
 			inline void RemoveBaseFireResistance	(float resistance)			   { this->baseStat.fireResistance -= resistance; };
 			inline void RemoveBaseWaterResistance	(float resistance)			   { this->baseStat.waterResistance -= resistance; };
+			inline void SetHealth(float amount) { health = amount; };
+
+			virtual float GetMaxHealth() { return health; };
+
 
 			inline void RemoveBaseAttackCooldown	(float cooldown)			   { this->baseStat.attackCooldown -= cooldown; };
 

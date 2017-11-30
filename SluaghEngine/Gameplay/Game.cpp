@@ -1,6 +1,9 @@
 #include <Game.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <TutorialState.h>
+#include "WinState.h"
+#include <OptionState.h>
 
 void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 {
@@ -51,34 +54,6 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	state =  new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 
-
-
-	Core::IEventManager::EventCallbacks roomChangeEvent;
-	roomChangeEvent.triggerCheck = [](Core::Entity ent, void* data)
-	{
-		return *(bool*)data;
-	};
-
-	roomChangeEvent.triggerCallback = [](Core::Entity ent, void* data)
-	{
-		auto vis = std::get<bool>( CoreInit::managers.dataManager->GetValue(ent, "Visible", false));
-		if (*(bool*)data && !vis)
-		{
-			
-			CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "WeaponPickUp");
-			CoreInit::managers.eventManager->RegisterEntitytoEvent(ent, "StartRenderWIC");
-			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, true);
-		
-		}
-		else if(!*(bool*)data && vis)
-		{
-			CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "StartRenderWIC");
-			CoreInit::managers.eventManager->UnregisterEntitytoEvent(ent, "WeaponPickUp");
-			CoreInit::managers.renderableManager->ToggleRenderableObject(ent, false);
-		}
-			
-	};
-	CoreInit::managers.eventManager->RegisterEventCallback("RoomChange", roomChangeEvent);
 }
 
 void SE::Gameplay::Game::Run()
@@ -104,9 +79,9 @@ void SE::Gameplay::Game::Run()
 			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
 			{
 				CoreInit::subSystems.window->StopRecording();
-				CoreInit::engine->EndFrame();
-				return;
+				
 			}
+
 			switch (newState)
 			{
 				case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
@@ -114,6 +89,7 @@ void SE::Gameplay::Game::Run()
 					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 						CoreInit::subSystems.window->StopRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					break;
 				}
@@ -122,6 +98,7 @@ void SE::Gameplay::Game::Run()
 					/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 						CoreInit::subSystems.window->StopRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
 					break;
 				}
@@ -129,19 +106,39 @@ void SE::Gameplay::Game::Run()
 				{
 					/*CoreInit::subSystems.window->StartRecording();*/
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::CharacterCreationState(CoreInit::subSystems.window);
 					break;
 				}
 				case SE::Gameplay::IGameState::State::PLAY_STATE:
 				{
 					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
 					CoreInit::subSystems.window->UpdateTime();
 					break;
 				}
+				case SE::Gameplay::IGameState::State::OPTION_STATE:
+				{
+					delete state;
+					state = new SE::Gameplay::OptionState();
+					break;
+				}
+				case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
+					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
+					state = new TutorialState();
+					break;
+				case SE::Gameplay::IGameState::State::WIN_STATE:
+					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
+					state = new WinState();
+					break;
 				case SE::Gameplay::IGameState::State::QUIT_GAME:
 					
 					running = false;
+					break;
+				default:
 					break;
 			 }
 

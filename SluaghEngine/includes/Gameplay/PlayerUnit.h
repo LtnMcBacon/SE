@@ -43,7 +43,7 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed = 1.f);
 
 
 			/**
@@ -79,12 +79,18 @@ namespace SE
 			static const uint8_t MAX_ITEMS = 5;
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
+			uint8_t showingItem = 0;
 			Core::Entity itemSelectedEntity;
 			Stats weaponStats;
 			bool displaying = false;
 			bool hideP = false;
+			bool godMode = false;
 			void SetCurrentWeaponStats();
 		public:
+			//Cheats
+			void SetGodMode(bool on);
+			void SetSpeed(float speed);
+			void Suicide();
 
 			std::vector<DamageEvent>& GetDamageEvents();
 			std::vector<HealingEvent>& GetHealingEvents();
@@ -95,14 +101,15 @@ namespace SE
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
-				
+
+
 				bool mouseRightDown;
 				float mousePosX;
 				float mousePosY;
 
 				MovementInput()
 				{
-					
+
 				}
 
 				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
@@ -121,20 +128,24 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool actionButton;
-				bool skill1Button;
-				bool skill2Button;
+				bool actionButton = false;
+				bool skill1Button = false;
+				bool skill2Button = false;
 
-				ActionInput()
-				{
+				bool one = false;
+				bool two = false;
+				bool three = false;
+				bool four = false;
+				bool five = false;
 
-				}
+				bool showInfo = false;
 
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
 					actionButton = action;
+
 				}
 			};
 
@@ -171,6 +182,27 @@ namespace SE
 			{
 				return items[currentItem];
 			}
+			inline Core::Entity GetItemToCompareWith()const
+			{
+				return items[showingItem];
+			}
+			/**
+			* @brief	Update the players movement
+			*
+			* @details	This function updates the position of the player and checks so that it is a legal position,
+			* if not it tries to retain as much of the movement as possible
+			*
+			* @param [in] dt Delta time for this frame
+			* @param [in] MovementInput input data
+			*
+			* @retval void No value
+			*
+			*/
+			void UpdateMovement(float dt, const MovementInput& inputs);
+
+			void GetRotation(float &rotX, float &rotY) { rotX = rotMov[0]; rotY = rotMov[1]; };
+
+			Core::Entity* GetAllItems() { return items; };
 		private:
 
 			PlayerUnit() {};
@@ -191,7 +223,7 @@ namespace SE
 			uint8_t nrHealingColdSounds = 1;
 			SE::Utilz::GUID playerHealingColdSounds[1];
 			SE::Utilz::GUID currentSound;
-			
+
 			/**
 			* @brief	Sets the sounds for the player
 			*
@@ -200,19 +232,6 @@ namespace SE
 
 
 
-			/**
-			* @brief	Update the players movement
-			*
-			* @details	This function updates the position of the player and checks so that it is a legal position,
-			* if not it tries to retain as much of the movement as possible
-			*
-			* @param [in] dt Delta time for this frame
-			* @param [in] MovementInput input data
-			*
-			* @retval void No value
-			*
-			*/
-			void UpdateMovement(float dt, const MovementInput& inputs);
 
 
 			/**
@@ -263,7 +282,7 @@ namespace SE
 			* @param [in] The new given element type.
 			**/
 			void changeElementType(DamageType element);
-		
+
 		public:
 			int getSkillVectorSize();
 
@@ -328,7 +347,14 @@ namespace SE
 			inline void  RemoveCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown -= cooldown; };
 			inline void  RemoveCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown -= currentCooldown; };
 			
-		private:		
+			inline std::vector<Skill> &GetAllSkills() { return skills; };
+
+			void ToggleAsSluagh(bool sluagh);
+
+
+
+
+		private:
 			std::vector<Skill> skills;
 			std::vector<Perk> perks;
 			
@@ -345,13 +371,21 @@ namespace SE
 			
 
 			//void changeElementType(Gameplay::DamageTypes element);
-			
+
 			bool isStunned = false;
+			bool attacking = false;
+			float attackSpeed = 5.f;
+			float attackCooldown = 0.f;
+			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, Perk* importPerks , float xPos, float yPos, char mapForRoom[25][25]);
+			//PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25]);
+			void SavePlayerToFile(Utilz::GUID sluaghFile);
 			~PlayerUnit();
 		};
 
 	}
 }
+
 #endif

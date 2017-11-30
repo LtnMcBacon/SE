@@ -18,7 +18,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 2;
-	nrOfPerks = 2;
+	nrOfPerks = 0;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -114,12 +114,12 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			getPerks();
 		}
 	}
-	if (selectedPerks == nrOfPerks)
-	{
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
-	}
+	//if (selectedPerks == nrOfPerks)
+	//{
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
+	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
+	//}
 
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
@@ -208,10 +208,11 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorY = 100;
 
 		std::string skillName;
+		std::string skillDesc;
 		unsigned short int skillInfo[8];
 		
 		unsigned int index = sf.getRandomSkillIndex();
-		sf.readSkillInfo(index, skillName, skillInfo);
+		sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 
 	
 		int count = 0;
@@ -229,7 +230,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -243,7 +244,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{
@@ -263,7 +264,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					j = 0;
 					p = 0;
 					index = sf.getRandomSkillIndex();
-					sf.readSkillInfo(index, skillName, skillInfo);
+					sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 				}
 				else
 				{
@@ -277,7 +278,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 						j = 0;
 						p = 0;
 						index = sf.getRandomSkillIndex();
-						sf.readSkillInfo(index, skillName, skillInfo);
+						sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 					}
 					else
 					{

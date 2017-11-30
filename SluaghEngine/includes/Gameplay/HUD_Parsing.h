@@ -61,16 +61,16 @@ namespace SE
 			std::vector<HUDElement> perkButtonVec;
 			
 
-			std::vector<HUDElement> optionsMenu;
+			std::vector<HUDElement> OptionalButtons;
 
-			std::vector<HUDElement> optionButtons;
+			
 
 			HUDParser();
 			~HUDParser();
 			void ParseFiles(Utilz::GUID fileName);
 			void ParseSkillButtons(Utilz::GUID fileName);
 			void ParsePerks(Utilz::GUID fileName);
-			void ParseOptionMenu(Utilz::GUID fileName);
+			void ParseOptionalButtons(Utilz::GUID fileName);
 			void InitiateTextures();
 			void ResolutionChange(int& elementWidth, int& elementHeight);
 			

@@ -6,6 +6,8 @@
 #include <Gameplay/Room.h>
 #include "EnemyUnit.h"
 #include "CoreInit.h"
+#include <DirectXMath.h>
+using namespace DirectX;
 
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
@@ -46,12 +48,9 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 
 			Projectile temp(inputData, projData);
 
-			CoreInit::managers.transformManager->SetPosition(temp.GetEntity(),
-			                                                 DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
+			CoreInit::managers.transformManager->SetPosition(temp.GetEntity(), DirectX::XMFLOAT3(projData.startPosX, 0.5f, projData.startPosY));
 			CoreInit::managers.transformManager->SetRotation(temp.GetEntity(), 0.0f, projData.startRotation, 0.0f);
-			CoreInit::managers.transformManager->SetScale(temp.GetEntity(),
-			                                              DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale,
-			                                                                loaded.meshScale));
+			CoreInit::managers.transformManager->SetScale(temp.GetEntity(), DirectX::XMFLOAT3(loaded.meshScale, loaded.meshScale, loaded.meshScale));
 
 			if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
 			{
@@ -67,14 +66,28 @@ void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& 
 			}
 
 			Core::IMaterialManager::CreateInfo projectileInfo;
-			Utilz::GUID material = Utilz::GUID("Cube.mat");
-			Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+			Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
 			projectileInfo.shader = shader;
-			projectileInfo.materialFile = material;
+
+			if (loaded.materialName != "NONE" && loaded.materialName != "")
+				projectileInfo.materialFile = loaded.materialName;;
+
 			CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
 
-			CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), {Utilz::GUID(loaded.meshName)});
-			CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+			if (loaded.meshName != "NONE.mesh" && loaded.meshName != ".mesh" && loaded.meshName != "NONE" && loaded.meshName != "")
+			{
+				CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { Utilz::GUID(loaded.meshName) });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+			}
+
+			if (loaded.soundName != "NONE" && loaded.soundName != "")
+			{
+				Core::IAudioManager::CreateInfo audioInfo;
+				audioInfo.soundFile = loaded.soundName;
+				audioInfo.soundType = SE::Audio::StereoPanSound;
+				CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
+				CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
+			}
 
 			for (int j = 0; j < loaded.nrOfBehaviours; j++)
 			{
@@ -94,6 +107,13 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 {
 	StartProfile;
 
+	if (file[pos] == '\n')
+	{
+		pos++;
+		line = "";
+		ProfileReturnVoid;
+	}
+
 	int nrOfLetters = 0;
 	int startPos = pos;
 	int toNextLine = 2;
@@ -103,7 +123,7 @@ void SE::Gameplay::ProjectileFactory::GetLine(const std::string& file, std::stri
 		startPos++;
 	}
 
-	if (file[startPos] != '\r' && startPos < file.size())
+	if ( startPos < file.size() && file[startPos] != '\r')
 	{
 		nrOfLetters++;
 		startPos++;
@@ -132,12 +152,12 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 
 	std::string line;
 	int position = 0;
-	float fileVersion = -1.0f;
+	std::string fileVersion = "0.0";
 	int nrOfProjectilesToParse = -1;
 	LoadedProjectile loaded;
 
 	GetLine(fileData, line, position);
-	fileVersion = (float)atof(line.c_str());
+	fileVersion = line;
 	GetLine(fileData, line, position);
 	nrOfProjectilesToParse = atoi(line.c_str());
 	auto tempTest = this->ptrs.player;
@@ -164,7 +184,7 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		GetLine(fileData, line, position);
 		loaded.timeToLive = (float)atof(line.c_str());
 
-		if (fileVersion < 1.1)
+		if (fileVersion < "1.1")
 		{
 			loaded.boundToOwner = false;
 		}
@@ -180,6 +200,21 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		loaded.meshScale = (float)atof(line.c_str());
 		GetLine(fileData, line, position);
 		loaded.particleEffect = line;
+
+		if (fileVersion < "1.4")
+		{
+			loaded.materialName = "Cube.mat";
+			//loaded.soundName = "DefaultAttackSound.wav";
+			loaded.soundName = "NONE";
+		}
+		else
+		{
+			GetLine(fileData, line, position);
+			loaded.materialName = line;
+			GetLine(fileData, line, position);
+			loaded.soundName = line;
+		}
+
 		GetLine(fileData, line, position);
 		loaded.nrOfBehaviours = atoi(line.c_str());
 
@@ -212,7 +247,6 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 
 		if (loaded.particleEffect != "NONE" && loaded.particleEffect != "")
 		{
-			
 			CoreInit::managers.particleSystemManager->CreateSystem(temp.GetEntity(), {loaded.particleEffect});
 			CoreInit::managers.particleSystemManager->ToggleVisible(temp.GetEntity(), true);
 		}
@@ -225,14 +259,30 @@ void SE::Gameplay::ProjectileFactory::LoadNewProjectiles(const ProjectileData& d
 		}
 
 		Core::IMaterialManager::CreateInfo projectileInfo;
-		Utilz::GUID material = Utilz::GUID("Cube.mat");
-		Utilz::GUID shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+		Utilz::GUID shader = Utilz::GUID("SimpleLightPS.hlsl");
+		Utilz::GUID material = loaded.materialName;
+
 		projectileInfo.shader = shader;
-		projectileInfo.materialFile = material;
+
+		if(loaded.materialName != "NONE" && loaded.materialName != "")
+			projectileInfo.materialFile = material;
+
 		CoreInit::managers.materialManager->Create(temp.GetEntity(), projectileInfo);
 
-		CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), {Utilz::GUID(loaded.meshName)});
-		CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+		if (loaded.soundName != "NONE" && loaded.soundName != "")
+		{
+			Core::IAudioManager::CreateInfo audioInfo;
+			audioInfo.soundFile = loaded.soundName;
+			audioInfo.soundType = SE::Audio::StereoPanSound;
+			CoreInit::managers.audioManager->Create(temp.GetEntity(), audioInfo);
+			CoreInit::managers.audioManager->PlaySound(temp.GetEntity(), loaded.soundName);
+		}
+
+		if (loaded.meshName != "NONE.mesh" && loaded.meshName != ".mesh" && loaded.meshName != "NONE" && loaded.meshName != "")
+		{
+			CoreInit::managers.renderableManager->CreateRenderableObject(temp.GetEntity(), { Utilz::GUID(loaded.meshName) });
+			CoreInit::managers.renderableManager->ToggleRenderableObject(temp.GetEntity(), true);
+		}
 
 		for (int j = 0; j < loaded.nrOfBehaviours; j++)
 		{
@@ -419,7 +469,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 
 			for (int i = powCounter - 1; i > 0; i--)
 			{
-				parameterData[i] = functionIndex % int(pow(10, i - 1)) + 48;
+				parameterData[i] = functionIndex % int(pow(10, i)) + 48;
 				functionIndex = functionIndex / 10;
 			}
 			parameterData[0] = functionIndex + 48;
@@ -616,7 +666,7 @@ SpeedAddDynamicBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourP
 	auto speed = [speedModifier](Projectile* p, float dt) -> bool
 	{
 		float speed = p->GetSpeed();
-		speed += speed * dt * speedModifier;
+		speed += dt * speedModifier;
 		p->SetSpeed(speed);
 
 		return false;
@@ -1024,7 +1074,7 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::ENEMY)
@@ -1032,13 +1082,13 @@ CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return(CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::OBJECT)
@@ -1046,13 +1096,13 @@ CollidedWithObjectConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return(CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
 		if (p->GetCollisionType() == CollisionType::PLAYER)
@@ -1060,7 +1110,7 @@ CollidedWithPlayerConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(CollisionCheck);
+	return (CollisionCheck);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
@@ -1083,7 +1133,7 @@ SetDamageBasedOnDTBehaviour(std::vector<BehaviourParameter> parameters)
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
 UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
+	//StartProfile;
 	float minHealth = std::get<float>(parameters[0].data);
 	std::weak_ptr<GameUnit*> owner = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
 
@@ -1100,7 +1150,7 @@ UserHealthAboveConditionBehaviour(std::vector<BehaviourParameter> parameters)
 		return false;
 	};
 
-	ProfileReturnConst(AboveHealth);
+	return (AboveHealth);
 }
 
 std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::
@@ -1162,7 +1212,7 @@ StunOwnerUnitBehaviour(std::vector<BehaviourParameter> parameters)
 			ConditionEvent::ConditionType conditionType;
 			conditionType.unionType = 0;
 			conditionType.condition.boon = Boons::CONDITIONAL_BOONS_STUN;
-			ConditionEvent cEvent(conditionType, duration);
+			ConditionEvent cEvent(conditionType, 0.f, duration);
 			unit->AddConditionEvent(cEvent);
 		}
 
@@ -1199,7 +1249,6 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 std::function<bool(SE::Gameplay::Projectile * projectile, float dt)> SE::Gameplay::ProjectileFactory::
 CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters)
 {
-	StartProfile;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[0].data);
 	auto CreateParticles = [ownerPtr](Projectile* p, float dt) -> bool
 	{
@@ -1216,7 +1265,7 @@ CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter
 		return false;
 	};
 
-	ProfileReturnConst(CreateParticles);
+	return (CreateParticles);
 }
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
@@ -1345,6 +1394,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	float amount = std::get<float>(parameters[0].data);
 
 	auto OpacitySetter = [amount](Projectile* p, float dt) -> bool
@@ -1358,6 +1408,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters)
 {
+	StartProfile;
 	float amount = std::get<float>(parameters[0].data);
 
 	auto OpacityModifier = [amount](Projectile* p, float dt) -> bool
@@ -1367,6 +1418,175 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	};
 
 	ProfileReturnConst(OpacityModifier);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto staticHeal = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = amount;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(staticHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerDynamicBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto dynamicHeal = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = amount * dt;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(dynamicHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float percentage = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto staticPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = percentage * unit->GetMaxHealth();
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(staticPercentageHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float percentage = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto dynamicPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			SE::Gameplay::HealingEvent hEvent;
+			hEvent.amount = percentage * unit->GetMaxHealth() * dt;
+			hEvent.originalAmount = hEvent.amount;
+			hEvent.type = SE::Gameplay::HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT; // wild assumption
+
+			unit->AddHealingEvent(hEvent);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(dynamicPercentageHeal);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOwnerHealthStaticBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto healthSetStatic = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			unit->SetHealth(amount);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(healthSetStatic);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetOwnerHealthPercentBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float amount = std::get<float>(parameters[0].data);
+	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
+
+	auto healthSetPercentage = [amount, ownerPtr](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = ownerPtr.lock())
+		{
+			auto unit = *owner.get();
+			unit->SetHealth(amount * unit->GetMaxHealth());
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(healthSetPercentage);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	auto window = CoreInit::subSystems.window;
+
+	auto setToMousePos = [window](Projectile* p, float dt) -> bool
+	{
+		int mouseX, mouseY;
+		window->GetMousePos(mouseX, mouseY);
+
+		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMVECTOR rayD;
+
+		auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+		auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+		CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mouseX, mouseY, width, height, rayO, rayD);
+
+		float distance = DirectX::XMVectorGetY(rayO) / -DirectX::XMVectorGetY(rayD);
+
+		auto clickPos = rayO + rayD * distance;
+
+		p->PositionEntity(DirectX::XMVectorGetX(clickPos), DirectX::XMVectorGetZ(clickPos));
+
+		return false;
+	};
+
+	ProfileReturnConst(setToMousePos);
 }
 
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
@@ -1411,8 +1631,13 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CreateDecalBehaviour, this, std::placeholders::_1)); // s, f, p
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetDecalOpacityBehaviour, this, std::placeholders::_1)); // f
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::ModifyDecalOpacityBehaviour, this, std::placeholders::_1)); // f
-
-
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerDynamicBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerPercentageStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::HealOwnerPercentageDynamicBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthStaticBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthPercentBehaviour, this, std::placeholders::_1)); // f, o
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetPositionToMouseBehaviour, this, std::placeholders::_1)); // 
 
 }
 

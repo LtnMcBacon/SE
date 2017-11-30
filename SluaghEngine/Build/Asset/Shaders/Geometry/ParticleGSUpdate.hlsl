@@ -21,11 +21,16 @@ cbuffer velocityBuffer : register(b0)
 	float radialValue;
 	float gravityValue;
 	float pSize;
+	float dt;
 	int circular;
 	int gravityCheck;
 	int emit;
 	int particlePath;
 };
+cbuffer lockBuffer : register(b1)
+{
+	bool locked;
+}
 cbuffer ParticleTransform : register(b2)
 {
 	float4x4 World;
@@ -105,38 +110,48 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			if(circular)
 			{
 				if (input[0].pos.x != emitPos.x || input[0].pos.y != emitPos.y)
-					input[0].pos += (input[0].velocity + radialVector * radialValue + tanVector * tangentialValue) * speed;
+					input[0].pos += (input[0].velocity + radialVector * radialValue + tanVector * tangentialValue) * dt * speed;
 				else
-					input[0].pos += input[0].velocity * speed;
+					input[0].pos += input[0].velocity * dt* speed;
 			}
 			else
 			{
-				input[0].pos += input[0].velocity * speed;
+				input[0].pos += input[0].velocity * dt * speed;
 			}
 			if (gravityCheck)
 			{
-				input[0].pos += gravity * gravityValue * speed;
+				input[0].pos += gravity * gravityValue * dt * speed;
 			}	
 			ptStream.Append(input[0]);
 			ptStream.RestartStrip();
 		}
-		else if (!equal(input[0].pos, endPos))
+		else if (particlePath == 1)
 		{
-			float3 finalDirection = endPos - input[0].pos;
-			
-			input[0].velocity = finalDirection;
-			if (input[0].age < 0.25)
+			if(!equal(input[0].pos, endPos))
 			{
-				input[0].opacity += 1/60.0f;
+				if(locked)
+				{
+					float3 finalDirection = endPos - input[0].pos;
+					input[0].velocity = finalDirection;
+				}
+				else	
+				{
+					input[0].velocity = float3(0, 0, 0);
+				}
+				if (input[0].age < 0.25)
+				{
+					input[0].opacity += 1/60.0f;
 				
-			}
-			else
-				input[0].opacity = 1 - input[0].age/ lifeTime;
+				}
+				else
+					input[0].opacity = 1 - input[0].age/ lifeTime;
 	
-			input[0].pos += input[0].velocity * speed;
+				input[0].pos += input[0].velocity * dt * speed;
 			
-			ptStream.Append(input[0]);
-			ptStream.RestartStrip();
+				ptStream.Append(input[0]);
+				ptStream.RestartStrip();
+			}
+
 		}
 		
 		

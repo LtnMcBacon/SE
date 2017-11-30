@@ -107,7 +107,7 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 			{
 				//Move up
 				createdEnemy->SetZPosition(1.5f);
-				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 1.5f, 0 });
+				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 0.8f, 0 });
 
 				//Insert entity for sword here.
 				auto swordEntity = CoreInit::managers.entityManager->Create();
@@ -118,8 +118,8 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 				swordInfo.transparent = false;
 
 				CoreInit::managers.transformManager->Create(swordEntity);
-				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.07f, 0.15f, 0.5f });
-				CoreInit::managers.transformManager->Rotate(swordEntity, -0.25f, 0.2f, 1.5f);
+				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
+				CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
 				CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), "Weapon", swordEntity);
 				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);

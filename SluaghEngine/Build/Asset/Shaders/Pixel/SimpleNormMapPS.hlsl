@@ -8,13 +8,12 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
-	uint4 castShadow;
 };
 
 cbuffer LightDataBuffer : register(b2)
 {
 	uint4 nrOfLights;
-	Light pointLights[20];
+	Light pointLights[64];
 };
 
 cbuffer CameraPos : register(b3)
@@ -78,29 +77,36 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	{
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
-		float divby = (distance / pointLights[i].pos.w) + 1.0f;
-		attenuation = (1.0f / (divby * divby)) - 0.25f;
-	
-		light /= distance;
-	
-		float normalDotLight = saturate(dot(normalWorld.xyz, light));
-	
-	
-		if (i == nrOfLights.y)
+		if(distance < pointLights[i].pos.w)
 		{
-			float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
-			float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
-			if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
-				shadowFactor = 0.25f;
+			
+			light /= distance;
+			float normalDotLight = saturate(dot(normalWorld.xyz, light));
+			if(normalDotLight > 0.0f)
+			{
+				float divby = (distance / pointLights[i].pos.w) + 1.0f;
+				float intensity = pointLights[i].colour.w;
+				attenuation = (intensity / (divby * divby)) - intensity / 4;
+				
+			
+				if (i == nrOfLights.y)
+				{
+					float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
+					float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+					float ndist = distance / pointLights[i].pos.w;
+					if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
+						shadowFactor = ndist;
+				}
+			
+				//Calculate specular term
+				float3 V = eyePos.xyz - input.PosInW.xyz;
+				float3 H = normalize(light + V);
+				float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
+				float3 colour = pointLights[i].colour.xyz * specular.xyz;
+				specularContribution += power * colour * normalDotLight * shadowFactor;
+				diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
+			}
 		}
-	
-		//Calculate specular term
-		float3 V = eyePos.xyz - input.PosInW.xyz;
-		float3 H = normalize(light + V);
-		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
-		float3 colour = pointLights[i].colour.xyz * specular.xyz;
-		specularContribution += power * colour * normalDotLight * shadowFactor;
-		diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 	}
 	
 	PS_OUT output;

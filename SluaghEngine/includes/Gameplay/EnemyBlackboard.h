@@ -52,6 +52,10 @@ namespace SE
 			Boons activeCondition = Boons::CONDITIONAL_BOONS_NONE;
 			Banes activeBane = Banes::CONDITIONAL_BANES_NONE;
 			float attackCooldown = 0.f;
+			float secondaryAttackCooldown = 0.f;
+
+			float timeToRoomTransisition = 0.f;
+
 			Room::DirectionToAdjacentRoom closestDoorDirection;
 
 		};

@@ -154,7 +154,11 @@ static const auto invoke = [](auto& map, auto& guid, auto data, auto& callback, 
 		errors.Push_Back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 		return -1;
 	}
-
+	if (iresult & SE::ResourceHandler::InvokeReturn::SEMI_FAIL)
+	{
+		errors.Push_Back("Resource semi-failed in InvokeCallback, GUID: " + std::to_string(guid.id));
+		return -2;
+	}
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_RAM)
 		SE::Utilz::OperateSingle(map, guid, decRef);
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_VRAM)
@@ -176,6 +180,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		Utilz::OperateSingle(map, guid, setupInfo, guid, load, error, errors, loadFlags);
 		if (error)
 			return -1;
+
 
 		if (load)
 		{
@@ -290,8 +295,9 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	auto total = mem + rawData.size;
 	if (total >= limit)
 	{
+		errors.Push_Back("Unloading stuff. Limit: " + std::to_string(toMB(limit)) + "mb, Current: " + std::to_string(toMB(total))+ "mb");
 		auto needed = total - limit;
-		EvictResources(map, rawData.size, needed);
+		EvictResources(map, rawData.size, needed);	
 	}
 
 	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
@@ -361,6 +367,25 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		return -1;
 	}
 
+	size_t ramTot = 0;
+	Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
+		for (auto& r : map)
+		{
+			if (r.second.state & State::LOADED)
+				ramTot += r.second.data.size;
+		}
+	});
+	size_t vramTot = 0;
+	Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
+		for (auto& r : map)
+		{
+			if (r.second.state & State::LOADED)
+				vramTot += r.second.data.size;
+		}
+	});
+#include <Utilz\Memory.h>
+	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(ramTot)) + "mb VRAM: " + std::to_string(toMB(vramTot))+ "mb");
+
 	return 0;
 }
 static const auto linearEvict = [](auto& map, auto& out)
@@ -405,7 +430,7 @@ void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unor
 	if(order.size())
 		Utilz::Operate(map, evictResources, order, needed);
 
-
+	errors.Push_Back("Unloaded " + std::to_string(order.size()) + " resources");
 
 }
 //

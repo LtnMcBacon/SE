@@ -239,11 +239,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
 	//initInfo.winState = Window::WindowState::Playback;
-	initInfo.width = engineInit.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
-	initInfo.height = engineInit.subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
-	initInfo.fullScreen = engineInit.subSystems.optionsHandler->GetOptionBool("Window", "fullscreen", false);
-	initInfo.file = "Recordings/hej.bin";
-	
+	initInfo.file = "Recordings/RecordingWednesday Wed Nov 22 094339 2017.bin";
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
 	auto result= engine->Init(engineInit);

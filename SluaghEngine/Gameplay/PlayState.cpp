@@ -4,7 +4,9 @@
 #include "CoreInit.h"
 #include "EnemyFactory.h"
 #include <GameBlackboard.h>
-
+#include "SluaghRoom.h"
+#include <string>
+#include <Items.h>
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else
@@ -22,6 +24,104 @@ static size_t dmgOverlayIndex = 0;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		currentRoom->RemoveEnemyFromRoom(nullptr);
+	}, "kill","Kill all enemies");
+
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			uint8_t slot = 0;
+			if (argc == 4)
+				slot = std::stoi(argv[3]);
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				
+				
+				player->AddItem(Item::Weapon::Create(wType), slot);
+				break;
+			}
+				
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				player->AddItem(Item::Consumable::Create(cType), slot);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("give", "Usage:");
+			con->PrintChannel("give", "give ItemType Type Slot");
+			con->PrintChannel("give", "ItemTypes:");
+			con->PrintChannel("give", "\tWeapon - 0:");
+			con->PrintChannel("give", "\tConsumable - 1");
+			con->PrintChannel("give", "");
+			con->PrintChannel("give", "WeaponTypes:");
+			con->PrintChannel("give", "\tSword - 0");
+			con->PrintChannel("give", "\tCrossbow - 1");
+			con->PrintChannel("give", "\tWand - 2");
+			con->PrintChannel("give", "ConsumableTypes:");
+			con->PrintChannel("give", "\tHp - 0");
+		}
+	}, "give", "Give the player an item");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Weapon::Create(wType), pos);
+				break;
+			}
+
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Consumable::Create(cType), pos);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("drop", "Usage:");
+			con->PrintChannel("drop", "drop ItemType Type");
+			con->PrintChannel("drop", "ItemTypes:");
+			con->PrintChannel("drop", "\tWeapon - 0:");
+			con->PrintChannel("drop", "\tConsumable - 1");
+			con->PrintChannel("drop", "");
+			con->PrintChannel("drop", "WeaponTypes:");
+			con->PrintChannel("drop", "\tSword - 0");
+			con->PrintChannel("drop", "\tCrossbow - 1");
+			con->PrintChannel("drop", "\tWand - 2");
+			con->PrintChannel("drop", "ConsumableTypes:");
+			con->PrintChannel("drop", "\tHp - 0");
+		}
+	}, "drop", "Drop item at players feet");
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
@@ -35,37 +135,24 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
 		}
-		//else if (button.rectName == "DamageOverlay")
-		//{
-		//	playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
-		//
-		//	dmgOverlayIndex = tempPos;
-		//	
-		//}
+		else if (button.rectName == "EnemyHpFrame")
+		{
+
+		}
+		else if (button.rectName == "EnemyHp")
+		{
+
+		}
 
 		tempPos++;
 	}
 
-
-	//playStateGUI.GUIButtons.ButtonEntityVec[dmgOverlayIndex]
-
-	/*playStateGUI.GUIButtons.CreateButton(50,650,50, 50,0,"tempButton",NULL);
-	playStateGUI.GUIButtons.CreateButton(125, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(200, 650, 50, 50, 0, "tempButton", NULL);
-
-	playStateGUI.GUIButtons.CreateButton(930, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1030, 650, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1130, 650, 50, 50, 0, "tempButton", NULL);
-
-	playStateGUI.GUIButtons.CreateButton(930, 575, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1030, 575, 50, 50, 0, "tempButton", NULL);
-	playStateGUI.GUIButtons.CreateButton(1130, 575, 50, 50, 0, "tempButton", NULL);*/
 	playStateGUI.GUIButtons.DrawButtons();
 
 	InitializeRooms();
 	InitializePlayer(passedInfo);
-	InitializeEnemies();
 	InitializeOther();
+	InitializeEnemies();
 
 	/* Play sounds */
 	currentSound = 0u;
@@ -86,20 +173,77 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	
 	projectileManager = new ProjectileManager(temp);
 
-
 	InitWeaponPickups();
 	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
+
+
+	sluaghRoomX = worldWidth - 1;
+	sluaghRoomY = worldHeight - 1;
+	/*Initialize Sluagh*/
+	delete rooms[sluaghRoomX * worldHeight + sluaghRoomY];
+	rooms[sluaghRoomX * worldHeight  + sluaghRoomY] = new SluaghRoom("Room18.room", player, projectileManager);
+
+
+	for (int x = 0; x < worldWidth; x++)
+	{
+		for (int y = 0; y < worldHeight; y++)
+		{
+			auto room = GetRoom(x, y).value();
+			if (auto leftRoom = GetRoom(x - 1, y); leftRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom));
+			if (auto rightRoom = GetRoom(x + 1, y); rightRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom));
+			if (auto upRoom = GetRoom(x, y + 1); upRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom));
+			if (auto downRoom = GetRoom(x, y - 1); downRoom.has_value())
+				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
+		}
+	}
+
+
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+
+	CloseDoorsToRoom(sluaghRoomX, sluaghRoomY);
+
+	currentRoom->Load();
+	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
+	blackBoard.currentRoom = currentRoom;
+	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+	currentRoom->RenderRoom(true);
+	currentRoom->InitializeAdjacentFlowFields();
+
 	ProfileReturnVoid;
 }
 
 PlayState::~PlayState()
 {
 	StartProfile;
+	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("give");
+	CoreInit::subSystems.devConsole->RemoveCommand("kill");
+	CoreInit::subSystems.devConsole->RemoveCommand("drop");
+	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("killself");
+	
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
-	for (auto room : rooms)
-		delete room;
+	for (int x = 0; x < worldWidth; x++)
+		for (int y = 0; y < worldHeight; y++)
+			if (auto room = GetRoom(x, y); room.has_value())
+				delete *room;
+	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(usePrompt);
+	CoreInit::managers.entityManager->DestroyNow(soundEnt);
+	for (auto& s : skillIndicators)
+	{
+		CoreInit::managers.entityManager->DestroyNow(s.Image);
+		CoreInit::managers.entityManager->DestroyNow(s.frame);
+	}
+
 	ProfileReturnVoid;
 }
 
@@ -122,7 +266,30 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	{
 		movement.rightButton = true;
 	}
-
+	if (input->ButtonDown(GameInput::SHOWINFO))
+	{
+		action.showInfo = true;
+	}
+	if (input->ButtonPressed(GameInput::ONE))
+	{
+		action.one = true;
+	}
+	else if (input->ButtonPressed(GameInput::TWO))
+	{
+		action.two = true;
+	}
+	else if (input->ButtonPressed(GameInput::THREE))
+	{
+		action.three = true;
+	}
+	else if (input->ButtonPressed(GameInput::FOUR))
+	{
+		action.four = true;
+	}
+	else if (input->ButtonPressed(GameInput::FIVE))
+	{
+		action.five = true;
+	}
 	int mX, mY;
 	input->GetMousePos(mX, mY);
 
@@ -130,13 +297,13 @@ void PlayState::UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::Act
 	DirectX::XMVECTOR rayD;
 
 
-	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 800);
-	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 640);
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
 	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
 
 	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
 
-	auto clickPos = rayO + rayD*distance;
+	auto clickPos = rayO + rayD * distance;
 
 	movement.mousePosX = DirectX::XMVectorGetX(clickPos);
 	movement.mousePosY = DirectX::XMVectorGetZ(clickPos);
@@ -167,90 +334,95 @@ void SE::Gameplay::PlayState::UpdateProjectiles(std::vector<ProjectileData>& new
 	currentRoom->CheckProjectileCollision(projectileManager->GetAllProjectiles());
 	projectileManager->UpdateProjectileActions(input->GetDelta());
 
-
 }
+template<class T>
+void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T& y)
+{
+
+	switch (dir)
+	{
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH:
+		y+=1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST:
+		x += 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH:
+		y -= 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST:
+		x -= 1;
+		break;
+	case SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE:
+		break;
+	default:
+		break;
+	}
+}
+
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
-
+	auto ducks = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
+	if(ducks != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+	{
+		CoreInit::managers.textManager->SetTextPos(usePrompt, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, true);
+	}
+	else
+	{
+		CoreInit::managers.textManager->ToggleRenderableText(usePrompt, false);
+	}
 	if (input->ButtonPressed(uint32_t(GameInput::INTERACT)))
 	{
-		SE::Gameplay::Room::DirectionToAdjacentRoom dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition());
-
-		if (dir != SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
+		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{
-			currentRoom->RenderRoom(false);
+			int x = currentRoomX, y = currentRoomY;
+			GetRoomPosFromDir(dir, x, y);
 
-			if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH)
+			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
-				currentRoom = rooms[currentRoomIndex + sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex + sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet - 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH)
-			{
-				currentRoom = rooms[currentRoomIndex - sqrt(rooms.size())];
-				currentRoomIndex = currentRoomIndex - sqrt(rooms.size());
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, xToSet, yToSet);
-				player->PositionEntity(xToSet, yToSet + 1);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST)
-			{
-				currentRoom = rooms[currentRoomIndex - 1];
-				currentRoomIndex = currentRoomIndex - 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, xToSet, yToSet);
-				player->PositionEntity(xToSet + 1, yToSet);
-			}
-			else if (dir == SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST)
-			{
-				currentRoom = rooms[currentRoomIndex + 1];
-				currentRoomIndex = currentRoomIndex + 1;
-				float xToSet, yToSet;
-				xToSet = yToSet = -999999;
-				currentRoom->GetPositionOfActiveDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, xToSet, yToSet);
-				player->PositionEntity(xToSet - 1, yToSet);
-			}
+				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
 
-			currentRoom->RenderRoom(true);
-			projectileManager->RemoveAllProjectiles();
+				currentRoom->RenderRoom(false);
 
-			char newMap[25][25];
-			currentRoom->GetMap(newMap);
+				currentRoomX = x;
+				currentRoomY = y;
+				blackBoard.currentRoom = currentRoom = *newRoom;
+				blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
+				projectileManager->RemoveAllProjectiles();
 
-			char** tempPtr = new char*[25];
+				char newMap[25][25];
+				currentRoom->GetMap(newMap);
 
-			for (int i = 0; i < 25; i++)
-			{
-				tempPtr[i] = new char[25];
-				for (int j = 0; j < 25; j++)
+				char** tempPtr = new char*[25];
+
+				for (int i = 0; i < 25; i++)
 				{
-					tempPtr[i][j] = newMap[i][j];
+					tempPtr[i] = new char[25];
+					for (int j = 0; j < 25; j++)
+					{
+						tempPtr[i][j] = newMap[i][j];
+					}
 				}
+
+				player->UpdateMap(tempPtr);
+				currentRoom->InitializeAdjacentFlowFields();
+
+				currentRoom->RenderRoom(true);
+			
+
+				float xToSet, yToSet;
+				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
+				GetRoomPosFromDir(dir, xToSet, yToSet);
+				player->PositionEntity(xToSet, yToSet);
+
+
+				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
 			}
-
-			player->UpdateMap(tempPtr);
-			currentRoom->InitializeAdjacentFlowFields();
-			for (int i = 0; i < 25; i++)
-			{
-				delete tempPtr[i];
-			}
-
-			delete tempPtr;
-
-			/**
-			*	Must be put in change room once the function is done!
-			*/
-			blackBoard.currentRoom = currentRoom;
-			blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-			numberOfFreeFrames = 15;
+		
 		}
 	}
 
@@ -260,95 +432,108 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
+	
+	for (int i = 0; i < 2; i++)
+	{
+		if (player->GetCurrentCooldown(i) > 0.0f)
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, std::to_wstring(int(ceil(player->GetCurrentCooldown(i)))));
+		else
+			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
+	}
+}
+static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
 
+void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Load the new adjacent rooms
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		if (!(sx == ax && sy == ay)) // Exluding the one we where in.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Load();
+			}
+		}
+	}
+}
 
+void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
+{
+	for (auto a : adjIndices)
+	{
+		// Unload adjacent room to previous room
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		if (!(sx == ax && sy == ay)) // Excluding the one we are changing to.
+		{
+			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+			{
+				(*adjRoom)->Unload();
+			}
 
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::CloseDoorsToRoom(int x, int y)
+{
+	for (auto a : adjIndices)
+	{
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
+		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+		{
+			adjRoom.value()->CloseDoor(Room::ReverseDirection(dir));
+		}
+	}
+}
+
+void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
+{
+	for (auto a : adjIndices)
+	{
+		int ax = x + std::get<0>(a);
+		int ay = y + std::get<1>(a);
+		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
+		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
+		{
+			adjRoom.value()->OpenDoor(Room::ReverseDirection(dir));
+		}
+	}
 }
 
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	uint32_t nrOfRooms = 0;
-	Utilz::GUID* RoomArr;
+	worldWidth = 2;
+	worldHeight = 2;
 	auto subSystem = engine->GetSubsystems();
-	int sideLength = 3;
-	int nrOfRoomsToCreate = sideLength * sideLength;
-	int nrOfRoomsCreated = 0;
-	
 
-	subSystem.resourceHandler->LoadResource("RoomGeneration.txt", [&nrOfRooms, &RoomArr](auto GUID, auto data, auto size)
-	{
-		nrOfRooms = *(uint32_t *)data;
-		RoomArr = new Utilz::GUID[nrOfRooms];
-		memcpy(RoomArr, (char*)data + sizeof(uint32_t), sizeof(Utilz::GUID) * nrOfRooms);
-		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-	});
+	auto s = std::chrono::high_resolution_clock::now();
 
-	int randomValues[9];
-	int counter = 0;
+	std::vector<Utilz::GUID> roomGuids;
+	subSystem.resourceHandler->GetAllGUIDsWithExtension("room", roomGuids);
 
-	while (nrOfRoomsCreated < nrOfRoomsToCreate)
-	{
-		int random = CoreInit::subSystems.window->GetRand() % nrOfRooms;
-		randomValues[counter] = random; 
-		counter++;
-		
-		Gameplay::Room* temp = new Gameplay::Room(RoomArr[random]);
+	if (!roomGuids.size())
+		throw std::exception("No rooms found");
 
-		rooms.push_back(temp);
-		nrOfRoomsCreated++;
-		temp->RenderRoom(false);
-	}
+	rooms = new Room*[worldWidth * worldHeight];
+	for (int i = 0; i < worldWidth*worldHeight; i++)
+		rooms[i] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
-	for (int i = 0; i < nrOfRoomsToCreate; i++)
-	{
-		if (i < sideLength) // top row
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, rooms[i - sideLength]);
-		}
+	currentRoomX = 0;
+	currentRoomY = 0;
+	currentRoom = GetRoom(currentRoomX, currentRoomY).value();
 
-		if (i % sideLength == sideLength - 1) // right side
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, rooms[i + 1]);
-		}
+	auto e = std::chrono::high_resolution_clock::now();
 
-		if (i % sideLength == 0) // left side
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, rooms[i - 1]);
-		}
-
-		if (i >= sideLength * (sideLength - 1)) // bottom row
-		{
-			rooms[i]->CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-		}
-		else
-		{
-			rooms[i]->AddAdjacentRoomByDirection(SE::Gameplay::Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, rooms[i + sideLength]);
-		}
-
-
-
-	}
-
-	currentRoomIndex = 0;
-	blackBoard.currentRoom = currentRoom = rooms[0];
-	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
-	currentRoom->RenderRoom(true);
-	currentRoom->InitializeAdjacentFlowFields();
-	delete[] RoomArr;
+	auto diff = std::chrono::duration<float>(e - s).count();
+	CoreInit::subSystems.devConsole->Print("Room Load Time: %f", diff);
 	ProfileReturnVoid;
 }
 void SE::Gameplay::PlayState::InitializeEnemies()
@@ -357,55 +542,147 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	char map[25][25];
 
 	EnemyCreationStruct eStruct;
-	int en = std::rand() % 3 + 4;
-	EnemyUnit** enemies = new EnemyUnit*[en];
-	for(auto& room : rooms)
+	int counter = 0;
+
+	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
+		auto& room = rooms[r];
 		room->GetMap(map);
 		eStruct.information.clear();
-
-		for (int i = 0; i < en; i++)
+	//	enemiesInEachRoom = 2;
+		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
+		Room::DirectionToAdjacentRoom throwAway;
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
+			int x, y;
+			float playerDistanceX = 0.f;
+			float playerDistanceY = 0.f;
 			pos enemyPos;
 			do
 			{
-				enemyPos.x = CoreInit::subSystems.window->GetRand() % 25;
-				enemyPos.y = CoreInit::subSystems.window->GetRand() % 25;
-			} while (map[int(enemyPos.x)][int(enemyPos.y)]);
+				x = CoreInit::subSystems.window->GetRand() % 25;
+				y = CoreInit::subSystems.window->GetRand() % 25;
+				playerDistanceX = player->GetXPosition() - x;
+				playerDistanceY = player->GetYPosition() - y;
+			} while (map[x][y] || (room->DistanceToClosestDoor(x, y, throwAway) < 5.5f) || sqrtf(playerDistanceX*playerDistanceX + playerDistanceY*playerDistanceY) < 5.5f);
 
+
+			float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
+			int xOffset = 0, yOffset = 0;
+			if (rotation == 0)
+			{
+				yOffset = 1;
+			}
+			else if (rotation == 90)
+			{
+				xOffset = 1;
+			}
+			else if (rotation == 180)
+			{
+				yOffset = -1;
+			}
+			else if (rotation == 270)
+			{
+				xOffset = -1;
+			}
+			enemyPos.x = x + 0.5f;
+			enemyPos.y = y -0.5f;
+	
 			EnemyCreationData data;
-			data.type = ENEMY_TYPE_RANDOM;
+			if (counter < 1)
+			{
+				data.type = ENEMY_TYPE_BODACH;
+			}
+			else if(counter < 4)
+			{
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_BODACH;
+				else
+					data.type = ENEMY_TYPE_GLAISTIG;
+			}
+			else 
+			{
+				data.type = ENEMY_TYPE_RANDOM;
+			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
 			eStruct.information.push_back(data);
 		}
-		
+
 		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
-		for (int i = 0; i < en; i++)
+		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}
+		if (!(++counter % 3))
+			enemiesInEachRoom++;
+		delete[] enemies;
+
 
 	}
-	delete[] enemies;
 	ProfileReturnVoid;
 }
-
+#include <Items.h>
 void PlayState::InitializePlayer(void* playerInfo)
 {
 	StartProfile;
 	char map[25][25];
 	currentRoom->GetMap(map);
 	PlayStateData* tempPtr = (PlayStateData*)playerInfo;
-	
+
+	skillIndicators[0].maxCooldown = tempPtr->skills[0].cooldown;
+	skillIndicators[1].maxCooldown = tempPtr->skills[1].cooldown;
+
+	skillIndicators[0].frame = CoreInit::managers.entityManager->Create();
+	skillIndicators[1].frame = CoreInit::managers.entityManager->Create();
+	skillIndicators[0].Image = CoreInit::managers.entityManager->Create();
+	skillIndicators[1].Image = CoreInit::managers.entityManager->Create();
+
+	SE::Core::IGUIManager::CreateInfo indicatorInfo;
+	indicatorInfo.texture = "Q.png";
+	indicatorInfo.textureInfo.posX = 1000;
+	indicatorInfo.textureInfo.posY = 600;
+	indicatorInfo.textureInfo.height = 100;
+	indicatorInfo.textureInfo.width = 100;
+	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.anchor = {0.0f, 0.0f};
+
+	SE::Core::ITextManager::CreateInfo textInfo;
+	textInfo.font = "CloisterBlack.spritefont";
+	textInfo.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	textInfo.info.layerDepth = indicatorInfo.textureInfo.layerDepth / 2;
+	textInfo.info.anchor = { 0.0f, 0.0f };
+	textInfo.info.height = indicatorInfo.textureInfo.height;
+	textInfo.info.width = indicatorInfo.textureInfo.width;
+	textInfo.info.posX = indicatorInfo.textureInfo.posX - 15;
+	textInfo.info.posY = indicatorInfo.textureInfo.posY;
+	textInfo.info.text = L"";
+
+	CoreInit::managers.guiManager->Create(skillIndicators[0].frame, indicatorInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[0].frame, true);
+	CoreInit::managers.textManager->Create(skillIndicators[0].Image, textInfo);
+	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[0].Image, true);
+
+	indicatorInfo.texture = "E.png";
+	indicatorInfo.textureInfo.posX = 1150;
+	indicatorInfo.textureInfo.posY = 600;
+
+	textInfo.info.text = L"";
+	textInfo.info.posX = indicatorInfo.textureInfo.posX - 15;
+	textInfo.info.posY = indicatorInfo.textureInfo.posY;
+
+	CoreInit::managers.guiManager->Create(skillIndicators[1].frame, indicatorInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(skillIndicators[1].frame, true);
+	CoreInit::managers.textManager->Create(skillIndicators[1].Image, textInfo);
+	CoreInit::managers.textManager->ToggleRenderableText(skillIndicators[1].Image, true);
 
 	for (int x = 0; x < 25; x++)
 	{
 		for (int y = 0; y < 25; y++)
 		{
-			if (map[x][y] == (char)22)
+			if (map[x][y] == 0)
 			{
 				float rotation = ceilf((currentRoom->FloorCheck(x, y) * (180 / 3.1416) - 270) - 0.5f);
 				int xOffset = 0, yOffset = 0;
@@ -429,10 +706,25 @@ void PlayState::InitializePlayer(void* playerInfo)
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
-				break;
+
+				auto startWeapon = Item::Weapon::Create(Item::Weapon::Type(std::rand() % 3));
+				player->AddItem(startWeapon, 0);
+				//auto wc = Item::Copy(startWeapon);
+				//player->AddItem(wc, 1);
+				//auto pot = Item::Consumable::Create();
+				//player->AddItem(pot, 2);
+				//auto pc = Item::Copy(pot);
+				//player->AddItem(pc, 3);
+
+				//Item::WriteToFile(pot, "sw.itm");
+				//auto fromFile = Item::Create("sw.itm");
+				//player->AddItem(fromFile, 4);
+				return;
 			}
 		}
 	}
+	
+
 	ProfileReturnVoid;
 }
 
@@ -441,9 +733,10 @@ void SE::Gameplay::PlayState::InitializeOther()
 	StartProfile;
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
-	cInfo.aspectRatio = (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 800) / (float)CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
-	cam = CoreInit::managers.cameraManager->GetActive();
-	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
+	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
+	cam = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.cameraManager->Create(cam, cInfo);
+	CoreInit::managers.cameraManager->SetActive(cam);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -468,22 +761,61 @@ void SE::Gameplay::PlayState::InitializeOther()
 	SE::Core::ILightManager::CreateInfo lightInfo;
 	lightInfo.pos = { 0.0f, 0.0f, 0.0f };
 	lightInfo.color = { 0.74f, 0.92f, 0.95f };
-	lightInfo.radius = 15.0f;
-
+	lightInfo.radius = 10.5f;
+	lightInfo.intensity = 1.3f;
 	CoreInit::managers.lightManager->Create(dummy, lightInfo);
 	CoreInit::managers.lightManager->ToggleLight(dummy, true);
 	CoreInit::managers.lightManager->SetShadowCaster(dummy);
+
+	usePrompt = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo promptCreateInfo;
+	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
+	promptCreateInfo.info.scale = { 0.3f, 0.3f };
+	promptCreateInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		bool god = true;
+		if (argc == 2)
+			if (std::string(argv[1]) == "0")
+				god = false;
+
+		this->player->SetGodMode(god);
+		if (god)
+			back->Print("Godmode on");
+		else
+			back->Print("Godmode off");
+		
+	}, "tgm", "Toggles godmode.");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		float speed = 5.0f;
+		if (argc > 1)
+		{
+			try
+			{
+				speed = std::stof(argv[1]);
+			}catch(...){}
+		}
+		this->player->SetSpeed(speed);
+
+	}, "setspeed", "setspeed <value>");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		this->player->Suicide();
+
+	}, "killself", "Kills the player character");
+	
 	ProfileReturnVoid;
 }
 #include <Items.h>
-
 void SE::Gameplay::PlayState::InitWeaponPickups()
 {
 	StartProfile;
 	auto pe = player->GetEntity();
 
-	Core::IEventManager::EventCallbacks pickUpEvent;
-	pickUpEvent.triggerCallback = [this](const Core::Entity ent, void* data) {
+	Core::IEventManager::EntityEventCallbacks pickUpEvent;
+	pickUpEvent.triggerCallback = [this](const Core::Entity ent) {
 
 		CoreInit::subSystems.devConsole->Print("Picked up item %s.", std::get<std::string>(CoreInit::managers.dataManager->GetValue(ent, "Name", "NaN"s)).c_str());
 
@@ -507,58 +839,66 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			player->AddItem(ent, 4);
 		}
-
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", false);
 		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
 
-	pickUpEvent.triggerCheck = [pe](const Core::Entity ent, void* data) {
-		if(CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
+	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
+		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::PICKUP))
 		{
 			return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 		}
 		return false;
 	};
+	CoreInit::managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
-	Core::IEventManager::EventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
+	Core::IEventManager::EntityEventCallbacks renderItemInfoEC;
+	renderItemInfoEC.triggerCheck = [pe](const Core::Entity ent)
 	{
-		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
-			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
+
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+			return false;
+
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
-	
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent, void*data)
+
+	renderItemInfoEC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
-		Item::ToggleRenderPickupInfo(ent);
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "Render");
+		Item::RenderItemInfo(ent, player->GetItemToCompareWith());
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", true);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoItem", ent);
+
 	};
 
-	Core::IEventManager::EventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent, void* data)
-	{
-		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
+	CoreInit::managers.eventManager->RegisterEntityEvent("RenderItemInfo", renderItemInfoEC);
+	CoreInit::managers.eventManager->RegisterTriggerEvent("StopRenderItemInfo", [pe](const Core::Entity ent) {
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "StopRender");
+		CoreInit::managers.entityManager->Destroy(ent);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", false);
+	});
+
+
+
+	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {
+
+		if (auto roomEnt = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Room", false)))
 		{
-			if (!CoreInit::managers.collisionManager->CheckCollision(*parent, pe)) {
-				return true;
-			}	
+			if ((*roomEnt) == currentRoom->GetEntity())
+			{
+				Item::Drop(ent);
+			}
+			{
+				Item::GodPickup(ent);
+			}
+
 		}
+	});
 
-		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
-	};
-
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent, void*data)
-	{
-		CoreInit::managers.entityManager->DestroyNow(ent);	
-		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
-	};
-	CoreInit::managers.eventManager->RegisterEventCallback("StartRenderWIC", startrenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEventCallback("WeaponPickUp", pickUpEvent);
 	ProfileReturnVoid;
 }
 
@@ -573,8 +913,51 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		ProfileReturn(returnValue);
 	}
 	
+	if (!input->ButtonDown(GameInput::SHOWINFO))
+	{
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+	}
+	else
+	{
+		auto pe = player->GetEntity();
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		{
+			auto item = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(pe, "InfoItem", Core::Entity()));
+			if(!CoreInit::managers.collisionManager->CheckCollision(pe, item))
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		}
+		
+	}
+	if (!sluaghDoorsOpen)
+	{
+		int totalEnemiesLeft = 0;
+		for (int x = 0; x < worldWidth; x++)
+			for (int y = 0; y < worldHeight; y++)
+				totalEnemiesLeft += GetRoom(x, y).value()->NumberOfEnemiesInRoom();
+
+		if (totalEnemiesLeft <= 2) {
+			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
+			sluaghDoorsOpen = true;
+			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+			sluaghRoom->InitSluagh();
+			Core::ITextManager::CreateInfo ti;
+			ti.font = "Ancient.spritefont";
+			ti.info.text = L"Vägen till din död har öppnats...";
+			ti.info.screenAnchor = { 0.5f, 0.5f };
+			ti.info.anchor = { 0.5f,0.5f };
+			ti.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+			auto slt = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.textManager->Create(slt, ti);
+			CoreInit::managers.textManager->ToggleRenderableText(slt, true);
+			CoreInit::managers.eventManager->SetLifetime(slt, 5);
+
+
+		}
+	}
+
+
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
-	PlayerUnit::ActionInput actionInput(false, false);
+	PlayerUnit::ActionInput actionInput;
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
@@ -614,7 +997,17 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateHUD(dt);
 
 	if (!player->IsAlive())
-		returnValue = State::GAME_OVER_STATE;
+		returnValue = State::WIN_STATE;
+	
+	if(sluaghDoorsOpen)
+	{
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+		if(sluaghRoom)
+		{
+			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+				returnValue = State::WIN_STATE;
+		}
+	}
 
 	ProfileReturn(returnValue);
 

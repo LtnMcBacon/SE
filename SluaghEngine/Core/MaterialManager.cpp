@@ -118,8 +118,8 @@ SE::Core::MaterialManager::MaterialManager(const InitializationInfo & initInfoIn
 	Graphics::RenderTarget rt;
 	rt.bindAsShaderResource = true;
 	rt.format = Graphics::TextureFormat::R8G8B8A8_UNORM;
-	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
-	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 640);
+	rt.width = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	rt.height = initInfo.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 	rt.clearColor[0] = 0.0f;
 	rt.clearColor[1] = 0.0f;
 	rt.clearColor[2] = 0.0f;
@@ -175,7 +175,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, materialCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_RAM);
 		if (res < 0)
-			return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SEMI_FAIL;
 
 
 		ResourceHandler::Callbacks textureCallbacks;
@@ -195,7 +195,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		}
 
 		if (!toUpdate.push({ guid, info.materialFile, mdata, entity }))
-			return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SEMI_FAIL;
 
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};

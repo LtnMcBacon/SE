@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+#include <Utilz\Timer.h>
 #include <unordered_map>
 #include <random>
 #include <Particle_Editor\ParticleEmitter.h>
@@ -54,7 +55,7 @@ namespace SE
 		private:
 			InitializationInfo initInfo;
 			Graphics::Pipeline updatePipeline;
-
+			Utilz::Timer time;
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -93,6 +94,7 @@ namespace SE
 				float radialValue;
 				float gravityValue;
 				float pSize;
+				float dt;
 				unsigned int circular;
 				unsigned int gravityCheck;
 				unsigned int emit;
@@ -101,6 +103,7 @@ namespace SE
 			struct ParticleSystemData
 			{
 				bool firstRun;
+				bool locked;
 				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
@@ -115,6 +118,7 @@ namespace SE
 				DirectX::XMFLOAT2 velocityRange[3]; 
 				DirectX::XMFLOAT2 emitRange[3];
 			};
+
 			struct DirtyEntityInfo {
 				size_t transformIndex;
 				Entity entity;

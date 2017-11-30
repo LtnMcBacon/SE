@@ -24,6 +24,24 @@ using namespace Graphics;
 #else
 #pragma comment(lib, "Core.lib")
 #endif
+
+enum ActionButton
+{
+	Exit,
+	Hide,
+	Show,
+	Up,
+	Down,
+	Left,
+	Right,
+	Fullscreen,
+	Rise,
+	Sink,
+	RotLeft,
+	RotRight,
+	RotUp,
+	RotDown
+};
 // Variables for randomization of particle attributes
 float velocityRangeX[2] = { -1.0f , 1.0f };
 float velocityRangeY[2] = { -1.0f , 1.0f };
@@ -34,6 +52,8 @@ float emitRangeZ[2] = { 0.0f, 0.0f };
 float startPos[3] = { 0, 0, 0 };
 float endPos[3] = { 0, 0, 0 };
 bool RandVelocity = false;
+bool imported = false;
+Utilz::GUID importedTexture;
 struct ParticleDataStruct {
 	float vel[3];
 	float pad;
@@ -54,6 +74,7 @@ struct ParticleDataStruct {
 	float radialValue;
 	float gravityValue;
 	float pSize;
+	float dt;
 	unsigned int circular;
 	unsigned int gravityCheck;
 	unsigned int emit;
@@ -79,9 +100,36 @@ int main()
 	int changedTexture = 0;
 	char particleName[100] = "";
 	char loadSystem[100] = "";
+
+
+
+	auto camera = engine->GetManagers().entityManager->Create();
+	engine->GetManagers().cameraManager->Create(camera);
+	engine->GetManagers().cameraManager->SetActive(camera);
+	engine->GetManagers().transformManager->SetForward(camera, XMVECTOR{0, 0, 1.0f});
+	engine->GetManagers().transformManager->SetRotation(camera, 0, 0, 0);
+	engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
+
+
+	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
+	subSystem.window->MapActionButton(ActionButton::Hide, Window::KeyO);
+	subSystem.window->MapActionButton(ActionButton::Show, Window::KeyK);
+	subSystem.window->MapActionButton(ActionButton::Up, Window::KeyW);
+	subSystem.window->MapActionButton(ActionButton::Down, Window::KeyS);
+	subSystem.window->MapActionButton(ActionButton::Left, Window::KeyA);
+	subSystem.window->MapActionButton(ActionButton::Right, Window::KeyD);
+	subSystem.window->MapActionButton(ActionButton::Fullscreen, Window::KeyF10);
+	subSystem.window->MapActionButton(ActionButton::RotLeft, Window::KeyLeft);
+	subSystem.window->MapActionButton(ActionButton::RotRight, Window::KeyRight);
+	subSystem.window->MapActionButton(ActionButton::RotUp, Window::KeyUp);
+	subSystem.window->MapActionButton(ActionButton::RotDown, Window::KeyDown);
+
+	subSystem.window->MapActionButton(ActionButton::Rise, Window::KeyShiftL);
+	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
+
 	
 	bool exportWindow = false;
-	
+	subSystem.devConsole->Toggle();
 	ImGui::SetCurrentContext((ImGuiContext*)subSystem.devConsole->GetContext());
 	srand(time.GetDelta());
 
@@ -135,8 +183,8 @@ int main()
 	Particle p;
 	p.opacity = 1.0f;
 	//Pipeline for the update geometry shader
-	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 100000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
-	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 100000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer1", nullptr, 0, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
+	pipelineHandler->CreateBuffer("OutStreamBuffer2", &p, 1, sizeof(Particle), 10000, BufferFlags::BIND_VERTEX | BufferFlags::BIND_STREAMOUT);
 	pipeline.IAStage.vertexBuffer = "OutStreamBuffer1";
 	pipeline.IAStage.topology = PrimitiveTopology::POINT_LIST;
 	pipeline.IAStage.inputLayout = "ParticleVS.hlsl";
@@ -151,13 +199,13 @@ int main()
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(XMLoadFloat3(&eyePos), XMLoadFloat3(&lookAt), XMLoadFloat3(&upVec));
 
 	XMFLOAT4X4 cameraMatrix;
-	XMMATRIX camera = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
-	XMMATRIX viewProj = viewMatrix * camera;
+	XMMATRIX cameraM = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)window->Width() / window->Height(), 0.01f, 100.0f));
+	XMMATRIX viewProj = viewMatrix * cameraM;
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view, viewMatrix);
 	DirectX::XMStoreFloat4x4(&cameraMatrix, viewProj);
 
-
+	
 	//Constant buffer for the geometry shader that updates the particles, also connected to ImGui
 
 	ParticleDataStruct movBuffer = createParticleBuffer();
@@ -230,25 +278,89 @@ int main()
 	Utilz::GUID texName = renderParticleJob.pipeline.PSStage.textures[0];//Default texture for exporting
 	while (!window->ButtonPressed(Window::KeyEscape))
 	{
-		
 		time.Tick();
-		if (changedTexture)
+		float dt = time.GetDelta<std::ratio<1, 1>>();
+		
+		XMFLOAT4X4 view = engine->GetManagers().cameraManager->GetView(camera);
+		XMMATRIX tViewProj = XMLoadFloat4x4(&engine->GetManagers().cameraManager->GetViewProjection(camera));
+		tViewProj = XMMatrixTranspose(tViewProj);
+		 XMStoreFloat4x4(&cameraMatrices.viewProj, tViewProj);
+		XMFLOAT3 eyePos = engine->GetManagers().transformManager->GetPosition(camera);
+		constantBuffer.eyePosition = eyePos;
+		constantBuffer.upVector = XMFLOAT3(view._12, view._22, view._32);
+		//Camera movement
+		if (subSystem.window->ButtonDown(ActionButton::Up))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Down))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 0.0f, -1.01f*dt });
+		if (subSystem.window->ButtonDown(ActionButton::Right))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 1.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Left))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ -1.01f*dt, 0.0f, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Rise))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, -1.01f*dt, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::Sink))
+			engine->GetManagers().transformManager->Move(camera, DirectX::XMFLOAT3{ 0.0f, 1.01f*dt, 0.0f });
+		if (subSystem.window->ButtonDown(ActionButton::RotLeft))
+			engine->GetManagers().transformManager->Rotate(camera, 0.0f, 0.4f * dt, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotRight))
+			engine->GetManagers().transformManager->Rotate(camera, 0.0f, -0.4f * dt, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotUp))
+			engine->GetManagers().transformManager->Rotate(camera, -0.4f * dt, 0.0f, 0.0f);
+		if (subSystem.window->ButtonDown(ActionButton::RotDown))
+			engine->GetManagers().transformManager->Rotate(camera, 0.4f * dt, 0.0f, 0.0f);
+
+
+		if (changedTexture || imported)
 		{
-			ResourceHandle->LoadResource(tempText, [&pipelineHandler](auto guid, void* data, size_t size) {
-				Graphics::TextureDesc texDesc;
-				texDesc = *(TextureDesc*)data;
-				data = (char*)data + sizeof(TextureDesc);
-				pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
-				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
-			});
-			renderParticleJob.pipeline.PSStage.textures[0] = tempText;
-			texName = tempText;
+			if (!imported)
+			{
+				ResourceHandle->LoadResource(tempText, [&pipelineHandler](auto guid, void* data, size_t size) {
+					Graphics::TextureDesc texDesc;
+					texDesc = *(TextureDesc*)data;
+					data = (char*)data + sizeof(TextureDesc);
+					pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				renderParticleJob.pipeline.PSStage.textures[0] = tempText;
+				texName = tempText;
+
+			}
+			else
+			{
+				ResourceHandle->LoadResource(importedTexture, [&pipelineHandler](auto guid, void* data, size_t size) {
+					Graphics::TextureDesc texDesc;
+					texDesc = *(TextureDesc*)data;
+					data = (char*)data + sizeof(TextureDesc);
+					pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
+					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+				});
+				texName = importedTexture;
+				renderParticleJob.pipeline.PSStage.textures[0] = importedTexture;
+				imported = false;
+			}
+			//renderParticleJob.pipeline.PSStage.textures[0] = Utilz::GUID(21045996);
+			
 		
 			changedTexture = 0;
 		}
 		engine->BeginFrame();
 		//Putting each separate window withing a Begin/End() section
 		//Window for emit specific properties
+		ImGui::Begin("Camera");
+		//ImGui::BeginMenuBar();
+
+		//ImGui::EndMenuBar();
+		
+	
+		if (ImGui::Button("Reset Camera"))
+		{
+			
+			engine->GetManagers().transformManager->SetRotation(camera, 0.0f, 0.0f, 0.0f);
+			engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
+		}
+		ImGui::End();
+
 		ImGui::Begin("Emit Attributes");
 		ImGui::SliderFloat("Direction X", &movBuffer.vel[0], -1.0f, 1.0f);
 		ImGui::SliderFloat("Direction Y", &movBuffer.vel[1], -1.0f, 1.0f);
@@ -262,6 +374,18 @@ int main()
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
 	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
+		if (ImGui::Button("Reset Sliders"))
+		{
+			for (size_t i = 0; i < 2; i++)
+			{
+				emitRangeX[i] = 0.0f;
+				emitRangeY[i] = 0.0f;
+				emitRangeZ[i] = 0.0f;
+				velocityRangeX[i] = 0.0f;
+				velocityRangeY[i] = 0.0f;
+				velocityRangeZ[i] = 0.0f;
+			}
+		}
 		if (ImGui::Button("Start/Stop Emit")) {
 			movBuffer.emit ^= 1;
 		}		
@@ -299,7 +423,7 @@ int main()
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 10.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.00100f, 0.0100f, "%.7f");
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.1f, 1.0f);
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
@@ -313,6 +437,17 @@ int main()
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
 		ImGui::Checkbox("Random direction", &RandVelocity);
 		ImGui::InputText("Texture file", tempText, 100);
+		if (ImGui::Button("Reset Sliders"))
+		{
+			movBuffer.radialValue = 0;
+			movBuffer.tangentValue = 0;
+			for (size_t i = 0; i < 3; i++)
+			{
+				movBuffer.gravity[i] = 0.0f;
+			}
+		}
+		
+
 		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		
 		if (ImGui::Button("Export/Import Settings")) exportWindow ^= 1;
@@ -344,10 +479,17 @@ int main()
 			if (ImGui::Button("Export"))
 				exportParticleInfo(texName, movBuffer, particleName, RandVelocity, velocityRange, emitRange);
 			ImGui::InputText("Load file", loadSystem, 100);
-			if (ImGui::Button("Import"))
+			if (ImGui::Button("Import")) {
 				ImportParticleSystem(loadSystem, renderParticleJob, movBuffer);
+				imported = true;
+			}
+			
 			ImGui::End();
 		}
+		//float dt = time.GetDelta<std::ratio<1, 1>>();
+		//float dt = time.GetDelta();
+		//dt = 10;
+		movBuffer.dt = dt;
 		//** swapping renderjobs for particle outstream
 		std::swap(updateParticleJob.pipeline.SOStage.streamOutTarget, updateParticleJob.pipeline.IAStage.vertexBuffer);
 		renderParticleJob.pipeline.IAStage.vertexBuffer = updateParticleJob.pipeline.SOStage.streamOutTarget;
@@ -385,7 +527,8 @@ ParticleDataStruct createParticleBuffer()
 	}
 	movBuffer.gravityValue = 0.0f;
 	movBuffer.pSize = 0.1f;
-	movBuffer.speed = 0.001;
+	movBuffer.dt = 0.01f;
+	movBuffer.speed = 0.05f;
 	movBuffer.emitRate = 0.01;
 	movBuffer.lifeTime = 5.0f;
 	movBuffer.circular = 0;
@@ -407,6 +550,7 @@ void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char file
 	{
 		velocityRange[i] = velocityArr[i];
 		emitRange[i] = emitArr[i];
+		pInfo.emitPos[i] = 0;
 	}
 
 	file += ".pts";
@@ -455,6 +599,7 @@ void ImportParticleSystem(char fileName[], RenderJob &renderJob, ParticleDataStr
 	memcpy(&velocityRange, velocityRangeBuf, sizeof(XMFLOAT2) * 3);
 	memcpy(&emitRange, emitRangeBuf, sizeof(XMFLOAT2) * 3);
 
+	tempData.emitPos[2] = 1.0f;
 	//Setting the global variables
 	RandVelocity = tempRandVeloctity;
 
@@ -471,8 +616,9 @@ void ImportParticleSystem(char fileName[], RenderJob &renderJob, ParticleDataStr
 	emitRangeY[0] = emitRange[1].y;
 	emitRangeZ[1] = emitRange[2].x;
 	emitRangeZ[0] = emitRange[2].y;
-
+	
 	//Changing the texture from the loaded file
+	importedTexture = texName;
 	renderJob.pipeline.PSStage.textures[0] = texName;
 
 	//Loading the the cbuffer for the UpdateParticleJob
