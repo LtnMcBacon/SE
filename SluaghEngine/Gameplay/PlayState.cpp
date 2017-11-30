@@ -1008,7 +1008,6 @@ IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
-	static float deathTimer = 0.0f;
 
 	if(numberOfFreeFrames < 0)
 	{
@@ -1122,8 +1121,10 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
 		
-		if(deathTimer > 20)
+		if (deathTimer > 15){
+			deathTimer = 0.0f;
 			returnValue = State::MAIN_MENU_STATE;
+		}
 	}
 
 	ProfileReturn(returnValue);

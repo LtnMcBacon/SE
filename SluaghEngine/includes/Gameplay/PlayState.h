@@ -127,6 +127,7 @@ namespace SE
 
 			bool noShow = false;
 			bool deathSequence = false;
+			float deathTimer = 0.0f;
 			Core::Entity deathText;
 			Core::Entity cameraDummy;
 
