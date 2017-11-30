@@ -133,6 +133,8 @@ PlayState::~PlayState()
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
 	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
+	CoreInit::managers.entityManager->DestroyNow(deathText);
 	CoreInit::managers.entityManager->DestroyNow(usePrompt);
 	CoreInit::managers.entityManager->DestroyNow(soundEnt);
 	for (auto& s : skillIndicators)
@@ -339,11 +341,81 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 	}
 }
 
-void SE::Gameplay::PlayState::UpdateDeathCamera() {
+std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 
-	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, 0.01f, 0.0f, 1.0f };
-	//CoreInit::managers.transformManager->Move(cameraDummy, -5 * cameraTranslation);
-	//CoreInit::managers.transformManager->Rotate(cameraDummy, 0.0f, -0.01f, 0.0f);
+	int value = min(CoreInit::subSystems.window->GetRand(), 4);
+
+	switch (value) {
+
+	case 0:
+		return L"DU ÄR DÖD";
+		
+	case 1:
+		return L"BÄTTRE LYCKA NÄSTA GÅNG";
+		
+	case 2:
+		return L"DU HAR AVLIDIT. FÖRSÖK IGEN.";
+
+	case 3:
+		return L"SPELARTIPS: DÖ INTE";
+
+	case 4:
+		return L"DU GÅR MOT LJUSET...";
+
+	}
+}
+
+void SE::Gameplay::PlayState::InitializeDeathSequence() {
+
+	deathText = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo deathInfo;
+	deathInfo.info.text = GenerateDeathMessage();
+	deathInfo.info.scale = { 1.0f, 1.0f };
+	deathInfo.info.posX = 0;
+	deathInfo.info.posY = 0;
+	deathInfo.info.anchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.5f };
+	deathInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(deathText, deathInfo);
+
+	CoreInit::managers.textManager->SetTextColour(deathText, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
+	//CoreInit::managers.textManager->SetTextPos(deathText, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+	CoreInit::managers.textManager->ToggleRenderableText(deathText, true);
+
+	// Create dummy entity and initialize it with player position
+	cameraDummy = CoreInit::managers.entityManager->Create();
+
+	// Get the player entity
+	auto playerEntity = player->GetEntity();
+
+	XMFLOAT3 playerPos = CoreInit::managers.transformManager->GetPosition(playerEntity);
+
+	CoreInit::managers.transformManager->Create(cameraDummy, playerPos);
+
+	XMFLOAT3 playerForward = CoreInit::managers.transformManager->GetForward(playerEntity);
+
+	// We must unbind the camera from the player
+	CoreInit::managers.transformManager->UnbindChild(cam);
+
+	// Bind the camera to the dummy entity
+	CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, false);
+}
+
+void SE::Gameplay::PlayState::UpdateDeathCamera(float dt) {
+
+	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, -0.01f, 0.0f, 1.0f };
+	CoreInit::managers.transformManager->Rotate(cameraDummy, 0.00f, -0.5f * dt, 0.0f);
+
+	XMFLOAT3 camPos = CoreInit::managers.transformManager->GetPosition(cam);
+	XMFLOAT3 dummyPos = CoreInit::managers.transformManager->GetPosition(cameraDummy);
+
+	XMVECTOR a = XMLoadFloat3(&camPos);
+	XMVECTOR b = XMLoadFloat3(&dummyPos);
+
+	XMFLOAT3 difVec;
+	XMStoreFloat3(&difVec, XMVector3Normalize(b - a) * dt * 0.2f);
+
+	CoreInit::managers.transformManager->Move(cam, difVec);
 	
 }
 
@@ -816,6 +888,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
+	static float deathTimer = 0.0f;
+
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;
@@ -894,26 +968,16 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	if (!player->IsAlive() && deathSequence == false) {
 
 		deathSequence = true;
-
-		// Create dummy entity and initialize it with player position
-		XMFLOAT3 playerPos = XMFLOAT3{ player->GetXPosition(), player->GetYPosition(), player->GetZPosition() };
-		CoreInit::managers.transformManager->Create(cameraDummy, playerPos);
-
-		// We must unbind the camera from the player
-		CoreInit::managers.transformManager->UnbindChild(cam);
-
-		// Bind the camera to the dummy entity
-		CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, true);
-
+		InitializeDeathSequence();
 	}
 
 	if(deathSequence == true){
 
 		deathTimer += dt;
 
-		UpdateDeathCamera();
+		UpdateDeathCamera(dt);
 		
-		if(deathTimer > 5)
+		if(deathTimer > 20)
 			returnValue = State::GAME_OVER_STATE;
 	}
 
