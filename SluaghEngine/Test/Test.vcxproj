@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{6532BB0E-34A8-4940-B718-89EA03D2DE5C}</ProjectGuid>
+    <RootNamespace>Test</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)External Dependencies\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\includes</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Build\lib\$(Platform)\*.dll" "$(ProjectDir)"
+copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AllocatorTest.cpp" />
+    <ClCompile Include="AudioTest.cpp" />
+    <ClCompile Include="BehavioursTest.cpp" />
+    <ClCompile Include="BehvaiouralTreeFactoryTest.cpp" />
+    <ClCompile Include="BloomTest.cpp" />
+    <ClCompile Include="BoundingTest.cpp" />
+    <ClCompile Include="ComputeTest.cpp" />
+    <ClCompile Include="ConsoleTest.cpp" />
+    <ClCompile Include="DebugRenderTest.cpp" />
+    <ClCompile Include="DecalTest.cpp" />
+    <ClCompile Include="EnemyFacotryTest.cpp" />
+    <ClCompile Include="EnemyMovementTest.cpp" />
+    <ClCompile Include="EntityManagerTest.cpp" />
+    <ClCompile Include="GameStateTest.cpp" />
+    <ClCompile Include="GarbageTest.cpp" />
+    <ClCompile Include="GlaistigTest.cpp" />
+    <ClCompile Include="HUDTest.cpp" />
+    <ClCompile Include="ImageLoadTest.cpp" />
+    <ClCompile Include="INITest.cpp" />
+    <ClCompile Include="FlowFieldTest.cpp" />
+    <ClCompile Include="InitGraphicsTest.cpp" />
+    <ClCompile Include="InstancingTest.cpp" />
+    <ClCompile Include="LightTest.cpp" />
+    <ClCompile Include="MaterialManagerTest.cpp" />
+    <ClCompile Include="ObjLoaderTest.cpp" />
+    <ClCompile Include="ParticleTest.cpp" />
+    <ClCompile Include="PickingTest.cpp" />
+    <ClCompile Include="PlaybackProjectileTest.cpp" />
+    <ClCompile Include="PlayerMovementTest.cpp" />
+    <ClCompile Include="ProjectileTest.cpp" />
+    <ClCompile Include="RecordingProjectileTest.cpp" />
+    <ClCompile Include="RandRoomTest.cpp" />
+    <ClCompile Include="RecordingTest.cpp" />
+    <ClCompile Include="RenderableManagerTest.cpp" />
+    <ClCompile Include="ResourceHandlerTest.cpp" />
+    <ClCompile Include="RoomCreationTest.cpp" />
+    <ClCompile Include="ShadowTest.cpp" />
+    <ClCompile Include="SkeletonAnimationTest.cpp" />
+    <ClCompile Include="SluaghTest.cpp" />
+    <ClCompile Include="SkillTest.cpp" />
+    <ClCompile Include="Test.cpp" />
+    <ClCompile Include="ThreadPoolTest.cpp" />
+    <ClCompile Include="TransformManagerTest.cpp" />
+    <ClCompile Include="TransformTest.cpp" />
+    <ClCompile Include="WindowTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AllocatorTest.h" />
+    <ClInclude Include="AudioTest.h" />
+    <ClInclude Include="BehaviouralTreeFactoryTest.h" />
+    <ClInclude Include="BehavioursTest.h" />
+    <ClInclude Include="BloomTest.h" />
+    <ClInclude Include="BoundingTest.h" />
+    <ClInclude Include="DecalTest.h" />
+    <ClInclude Include="ComputeTest.h" />
+    <ClInclude Include="EnemyFactoryTest.h" />
+    <ClInclude Include="ConsoleTest.h" />
+    <ClInclude Include="EnemyMovementTest.h" />
+    <ClInclude Include="DebugRenderTest.h" />
+    <ClInclude Include="EntityManagerTest.h" />
+    <ClInclude Include="FlowFieldTest.h" />
+    <ClInclude Include="GameStateTest.h" />
+    <ClInclude Include="GarbageTest.h" />
+    <ClInclude Include="GlaistigTest.h" />
+    <ClInclude Include="HUDTest.h" />
+    <ClInclude Include="SkillTest.h" />
+    <ClInclude Include="ImageLoadTest.h" />
+    <ClInclude Include="INITest.h" />
+    <ClInclude Include="InitGraphicsTest.h" />
+    <ClInclude Include="InstancingTest.h" />
+    <ClInclude Include="LightTest.h" />
+    <ClInclude Include="MaterialManagerTest.h" />
+    <ClInclude Include="ObjLoaderTest.h" />
+    <ClInclude Include="PickingTest.h" />
+    <ClInclude Include="PlaybackProjectileTest.h" />
+    <ClInclude Include="PlayerMovementTest.h" />
+    <ClInclude Include="ProjectileTest.h" />
+    <ClInclude Include="RandRoomTest.h" />
+    <ClInclude Include="RecordingProjectileTest.h" />
+    <ClInclude Include="RecordingTest.h" />
+    <ClInclude Include="RenderableManagerTest.h" />
+    <ClInclude Include="ResourceHandlerTest.h" />
+    <ClInclude Include="RoomCreationTest.h" />
+    <ClInclude Include="ShadowTest.h" />
+    <ClInclude Include="SkeletonAnimationTest.h" />
+    <ClInclude Include="SlaughTest.h" />
+    <ClInclude Include="Test.h" />
+    <ClInclude Include="ThreadPoolTest.h" />
+    <ClInclude Include="TransformManagerTest.h" />
+    <ClInclude Include="TransformTest.h" />
+    <ClInclude Include="WindowTest.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
