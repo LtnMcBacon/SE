@@ -89,6 +89,7 @@ namespace SE
 			//Cheats
 			void SetGodMode(bool on);
 			void SetSpeed(float speed);
+			void Suicide();
 
 			std::vector<DamageEvent>& GetDamageEvents();
 			std::vector<HealingEvent>& GetHealingEvents();

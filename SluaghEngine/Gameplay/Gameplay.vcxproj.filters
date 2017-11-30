@@ -411,6 +411,9 @@
     <ClCompile Include="Consumable.cpp">
       <Filter>Source Files\Items</Filter>
     </ClCompile>
+    <ClCompile Include="WinState.cpp">
+      <Filter>Source Files\IGameState</Filter>
+    </ClCompile>
     <ClCompile Include="OptionState.cpp">
       <Filter>Source Files\IGameState\OptionState</Filter>
     </ClCompile>
@@ -712,6 +715,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\OptionState.h">
       <Filter>Header Files\IGameState\OptionState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\WinState.h">
+      <Filter>Header Files\IGameState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

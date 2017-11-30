@@ -226,6 +226,8 @@ PlayState::~PlayState()
 	CoreInit::subSystems.devConsole->RemoveCommand("kill");
 	CoreInit::subSystems.devConsole->RemoveCommand("drop");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("killself");
+	
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -732,8 +734,9 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
-	cam = CoreInit::managers.cameraManager->GetActive();
-	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
+	cam = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.cameraManager->Create(cam, cInfo);
+	CoreInit::managers.cameraManager->SetActive(cam);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -797,6 +800,11 @@ void SE::Gameplay::PlayState::InitializeOther()
 		this->player->SetSpeed(speed);
 
 	}, "setspeed", "setspeed <value>");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		this->player->Suicide();
+
+	}, "killself", "Kills the player character");
 	
 	ProfileReturnVoid;
 }
@@ -989,7 +997,17 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateHUD(dt);
 
 	if (!player->IsAlive())
-		returnValue = State::GAME_OVER_STATE;
+		returnValue = State::WIN_STATE;
+	
+	if(sluaghDoorsOpen)
+	{
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+		if(sluaghRoom)
+		{
+			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+				returnValue = State::WIN_STATE;
+		}
+	}
 
 	ProfileReturn(returnValue);
 
