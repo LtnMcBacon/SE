@@ -256,8 +256,8 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 		break;
 	}
 }
-
-
+#include <Utilz\CPUTimeCluster.h>
+static SE::Utilz::CPUTimeCluster streamingTimes;
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
@@ -275,16 +275,23 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{
+			streamingTimes.Start("Full");
 			int x = currentRoomX, y = currentRoomY;
 			GetRoomPosFromDir(dir, x, y);
 
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
+				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				streamingTimes.Stop("Unload");
+				streamingTimes.Start("Load");
 				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
-
+				streamingTimes.Stop("Load");
+				streamingTimes.Start("StopRender");
 				currentRoom->RenderRoom(false);
+				streamingTimes.Stop("StopRender");
 
+				streamingTimes.Start("Other");
 				currentRoomX = x;
 				currentRoomY = y;
 				blackBoard.currentRoom = currentRoom = *newRoom;
@@ -308,8 +315,14 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				player->UpdateMap(tempPtr);
 				currentRoom->InitializeAdjacentFlowFields();
 
+				streamingTimes.Stop("Other");
+
+
+				streamingTimes.Start("StartRender");
 				currentRoom->RenderRoom(true);
-			
+				streamingTimes.Stop("StartRender");
+
+				
 
 				float xToSet, yToSet;
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
@@ -319,7 +332,12 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
 			}
-		
+			streamingTimes.Stop("Full");
+
+			Utilz::TimeMap times;
+			streamingTimes.GetMap(times);
+			for(auto& t : times)
+				CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
 		}
 	}
 
