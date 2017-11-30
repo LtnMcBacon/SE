@@ -47,6 +47,7 @@ namespace SE
 				PAUSE_STATE = 4,
 				TUTORIAL_STATE = 5,
 				OPTION_STATE = 6,
+				WIN_STATE = 7,
 				QUIT_GAME
 			};
 
