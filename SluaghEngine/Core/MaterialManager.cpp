@@ -175,7 +175,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 
 		auto res = initInfo.resourceHandler->LoadResource(info.materialFile, materialCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_RAM);
 		if (res < 0)
-			return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SEMI_FAIL;
 
 
 		ResourceHandler::Callbacks textureCallbacks;
@@ -195,7 +195,7 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		}
 
 		if (!toUpdate.push({ guid, info.materialFile, mdata, entity }))
-			return ResourceHandler::InvokeReturn::FAIL;
+			return ResourceHandler::InvokeReturn::SEMI_FAIL;
 
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
