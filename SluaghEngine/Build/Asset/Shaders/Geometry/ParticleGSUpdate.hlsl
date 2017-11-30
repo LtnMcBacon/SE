@@ -59,7 +59,7 @@ bool equal(float3 start, float3 end)
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
-	input[0].age += 1 / 60.0f;
+	input[0].age += dt;
 	
 	if	(input[0].type == P_EMITTER)
 	{
