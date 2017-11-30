@@ -26,6 +26,8 @@ I like trains.
 
 - [x] -- I have checked all the boxes. --
 - [ ] I have a local backup of Latest Build/Asset.
-- [ ] This PR adds/changes Latest Build/Asset.
+- [ ] This PR adds assets to Latest Build/Asset.
+- [ ] I have added the new assets to Latest Build/Asset
+- [ ] This PR changes assets in Latest Build/Asset.
 - [ ] I have NOT overwritten any existing assets in Latest Build/Asset. (Only after merge is this allowed).
 - [ ] I have merged my branch with master and it works as expected.
