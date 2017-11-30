@@ -353,8 +353,8 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 
 
 
-	ResourceHandler::Callbacks pixelShaderCallbacks;
-	pixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	ResourceHandler::Callbacks topPixelShaderCallbacks;
+	topPixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		*usize = size;
 		int res = subSystem.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
@@ -362,15 +362,36 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 			return ResourceHandler::LoadReturn::FAIL;
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
-	pixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+	topPixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
-	pixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+	topPixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
 
 	};
-	res = subSystem.resourceHandler->LoadResource("FogPS.hlsl", pixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	res = subSystem.resourceHandler->LoadResource("FogTopPS.hlsl", topPixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
-		throw std::exception("Could not load fog pixel shader");
+		throw std::exception("Could not load fog top pixel shader");
+
+
+
+	ResourceHandler::Callbacks bottomPixelShaderCallbacks;
+	bottomPixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	bottomPixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	bottomPixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogBottomPS.hlsl", bottomPixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog bottom pixel shader");
 
 
 
@@ -456,7 +477,17 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 	fogSampler.filter = Graphics::Filter::ANISOTROPIC;
 	fogSampler.maxAnisotropy = 4;
 
-	subSystem.renderer->GetPipelineHandler()->CreateSamplerState("FogSampler", fogSampler);
+	subSystem.renderer->GetPipelineHandler()->CreateSamplerState("FogSs", fogSampler);
+
+
+
+	Graphics::DepthStencilState fogDss;
+
+	fogDss.enableDepth = true;
+	fogDss.writeDepth = false;
+	fogDss.comparisonOperation = Graphics::ComparisonOperation::LESS_EQUAL;
+
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateDepthStencilState("FogDss", fogDss);
 }
 void SE::Gameplay::PlayState::InitializeEnemies()
 {

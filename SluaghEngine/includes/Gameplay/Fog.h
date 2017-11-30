@@ -46,10 +46,10 @@ namespace SE
 			bool rjInitialized = false;
 			bool rjEnabled = false;
 
-			unsigned int topPlaneRjHandle = -1;
+			unsigned int topPlaneRjHandles[2] = { (unsigned int)-1, (unsigned int)-1 };
 			unsigned int bottomPlaneRjHandle = -1;
 
-			Graphics::RenderJob topPlaneRj;
+			Graphics::RenderJob topPlaneRjs[2];
 			Graphics::RenderJob bottomPlaneRj;
 
 			Plane *topPlane;
@@ -70,11 +70,11 @@ namespace SE
 			Fog();
 			~Fog();
 
-			void Set(bool status);
-			void SetTileValues(char tileValues[25][25]);
+			void Enable(bool status);
+			void Instantiate(char tileValues[25][25], float *time);
 
 		private:
-			void CreatePlane();
+			void CreatePlane(float *time);
 			void AddAdjacentTiles(unsigned int column, unsigned int row);
 			unsigned int GetSlopeCount();
 			void SetFirstWall();

@@ -1066,7 +1066,7 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	}
 	beingRendered = render;
 
-	fog.Set(render);
+	fog.Enable(render);
 }
 
 SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY)
@@ -1374,7 +1374,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			}
 		}
 
-		fog.SetTileValues(tileValues);
+		fog.Instantiate(tileValues, &time);
 	
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
