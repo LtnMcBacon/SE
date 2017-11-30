@@ -59,7 +59,7 @@ bool equal(float3 start, float3 end)
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
-	input[0].age += 1 / 60.0f;
+	input[0].age += dt;
 	
 	if	(input[0].type == P_EMITTER)
 	{
@@ -100,9 +100,9 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			tanVector.y = tanX;
 			
 			
-			if (input[0].age < 0.5)
+			if (input[0].age < 0.25)
 			{
-				input[0].opacity += 1/60.0f;
+				input[0].opacity += dt;
 				
 			}
 			else
@@ -140,7 +140,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 				}
 				if (input[0].age < 0.25)
 				{
-					input[0].opacity += 1/60.0f;
+					input[0].opacity += dt;
 				
 				}
 				else
