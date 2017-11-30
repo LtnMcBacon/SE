@@ -237,6 +237,11 @@ int SE::Core::DecalManager::Remove(const Entity& entity)
 	ProfileReturn(index != -1 ? 0 : -1);
 }
 
+void SE::Core::DecalManager::ToggleVisible(const Entity& entity, bool visible)
+{
+
+}
+
 void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)
 {
 	StartProfile;
