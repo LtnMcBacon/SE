@@ -74,6 +74,17 @@ void SE::Core::EntityManager::DestroyNow(const Entity& e)
 	}
 }
 
+void SE::Core::EntityManager::DestroyAll()
+{
+	for (uint32_t i = 0; i < _generationCount; ++i)
+	{
+		Entity e = (_generation[i] << Entity::ENTITY_INDEX_BITS) | i;
+		_destroyCallbacks[e.Index()](e);
+		_destroyCallbacks[e.Index()].Clear();
+		++_generation[i];
+	}
+}
+
 void SE::Core::EntityManager::RegisterDestroyCallback(const Entity & e, const Utilz::Delegate<void(const Entity&)>& callback)
 {
 	_ASSERT(_generation[e.Index()] == e.Gen());
