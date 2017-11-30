@@ -484,6 +484,8 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 		return L"FÖRSÖKER DU ENS?";
 
 	}
+
+	return L"NÅGONTING HAR GÅTT SNETT";
 }
 
 void SE::Gameplay::PlayState::InitializeDeathSequence() {
