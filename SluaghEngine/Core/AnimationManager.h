@@ -52,6 +52,7 @@ namespace SE
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
 			void ToggleShadow(const Entity& entity, bool on) override;
+			void ToggleTransparency(const Entity& entity, bool on) override;
 
 		private:
 			/**

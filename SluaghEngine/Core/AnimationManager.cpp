@@ -805,6 +805,17 @@ void SE::Core::AnimationManager::ToggleShadow(const Entity& entity, bool on)
 	ProfileReturnVoid;
 }
 
+void SE::Core::AnimationManager::ToggleTransparency(const Entity& entity, bool on)
+{
+	StartProfile;
+	const auto exists = entityToIndex.find(entity);
+	if (exists != entityToIndex.end())
+	{
+		renderableManager->ToggleTransparency(entity, on);
+	}
+	ProfileReturnVoid;
+}
+
 void SE::Core::AnimationManager::Allocate(size_t size)
 {
 	StartProfile;

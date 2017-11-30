@@ -62,6 +62,11 @@ namespace SE
 			*/
 			virtual void DestroyNow(const Entity& e) = 0;
 
+			/*
+			 *@brief Destroys all entities.
+			 */
+			virtual void DestroyAll() = 0;
+
 			/**
 			* @brief    Register a destroy callback for an entity.
 			* @param[in] e The entity to bind to.
