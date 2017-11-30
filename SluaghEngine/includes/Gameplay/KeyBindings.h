@@ -1,0 +1,28 @@
+#ifndef _SE_GAMEPLAY_KEYBINDINGS_H
+#define _SE_GAMEPLAY_KEYBINDINGS_H
+
+enum GameInput : uint32_t
+{
+	ONE,
+	TWO,
+	THREE,
+	FOUR,
+	FIVE,
+	EXIT_GAME,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
+	SKILL1,
+	SKILL2,
+	ACTION,
+	CONSOLE,
+	STEP,
+	INTERACT,
+	SHOWINFO,
+	PICKUP
+};
+
+
+
+#endif
