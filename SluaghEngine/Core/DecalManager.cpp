@@ -244,7 +244,7 @@ void SE::Core::DecalManager::ToggleVisible(const Entity& entity, bool visible)
 	{
 		const auto index = entityToTransformIndex[entity];
 		float& op = decalToTransforms[tex->second].opacity[index];
-		if ((!visible && op < 0.0f) || (visible && op > 0.0f))
+		if ((visible && op < 0.0f) || (!visible && op > 0.0f))
 			op = -op;
 	}
 }
