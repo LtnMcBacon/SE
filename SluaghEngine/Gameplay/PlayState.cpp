@@ -20,11 +20,13 @@ PlayState::PlayState()
 {
 
 }
-static size_t dmgOverlayIndex = 0;
+static size_t dmgOverlayIndex = 0; 
+static std::ofstream streamTimings;
+bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
-
+	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
 		currentRoom->RemoveEnemyFromRoom(nullptr);
@@ -221,6 +223,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+
+	if (streamTimings.is_open())
+		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
 	CoreInit::subSystems.devConsole->RemoveCommand("give");
 	CoreInit::subSystems.devConsole->RemoveCommand("kill");
@@ -362,7 +367,10 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 	}
 }
 #include <Utilz\CPUTimeCluster.h>
+#include <Utilz\Memory.h>
+static int streamCount = 0;
 static SE::Utilz::CPUTimeCluster streamingTimes;
+
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
 	StartProfile;
@@ -441,8 +449,43 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 			Utilz::TimeMap times;
 			streamingTimes.GetMap(times);
-			for(auto& t : times)
-				CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
+			if (firstFrame)
+			{
+				streamTimings.open("StreamTimings.csv", std::ios::trunc);
+				if (streamTimings.is_open())
+				{
+					streamTimings << "count,RAM_T,VRAM_T,RAM_R,VRAM_R";
+					for (auto& t : times)
+						streamTimings << "," << t.first.c_str();
+				}
+				firstFrame = false;
+			}
+			if (streamTimings.is_open())
+			{
+				streamTimings << std::endl;
+				streamTimings << streamCount++;
+				streamTimings << "," << toMB( Utilz::Memory::GetPhysicalProcessMemory());
+				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());
+				streamTimings << "," << toMB(Utilz::Memory::GetPhysicalProcessMemory()); // Should be from resoruce handler
+				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());// Should be from resoruce handler
+				auto beg = times.begin();
+				if (beg != times.end())
+				{
+					streamTimings << (*beg).second;
+					beg++;
+				}
+				while (beg != times.end())
+				{
+					streamTimings << "," << (*beg).second;
+					beg++;
+				}
+				
+				for (auto& t : times)
+				{
+					CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
+
+				}
+			}
 		}
 	}
 
