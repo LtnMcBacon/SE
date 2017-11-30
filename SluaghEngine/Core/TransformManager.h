@@ -188,6 +188,8 @@ namespace SE
 			*/
 			uint32_t ActiveTransforms() const override;
 
+			void UnbindChild(const Entity& child)override;
+
 			/**
 			* @brief	Called each frame, to update the state.
 			*/

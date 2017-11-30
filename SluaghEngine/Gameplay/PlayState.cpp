@@ -236,6 +236,8 @@ PlayState::~PlayState()
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
 	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
+	CoreInit::managers.entityManager->DestroyNow(deathText);
 	CoreInit::managers.entityManager->DestroyNow(usePrompt);
 	CoreInit::managers.entityManager->DestroyNow(soundEnt);
 	for (auto& s : skillIndicators)
@@ -441,8 +443,110 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
 }
-static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
+std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
+
+	int value = CoreInit::subSystems.window->GetRand() % 11;
+
+	switch (value) {
+
+	case 0:
+		return L"DU ÄR DÖD";
+		
+	case 1:
+		return L"BÄTTRE LYCKA NÄSTA GÅNG";
+		
+	case 2:
+		return L"DU HAR AVLIDIT. FÖRSÖK IGEN.";
+
+	case 3:
+		return L"SPELARTIPS: DÖ INTE";
+
+	case 4:
+		return L"DU GÅR MOT LJUSET...";
+
+	case 5:
+		return L"NU SLIPPER DU SKOTTEN I ALLA FALL";
+
+	case 6:
+		return L"HIMLEN HAR FÅTT SIG EN NY ÄNGEL";
+
+	case 7:
+		return L"ÄR DU HÄR IGEN?";
+
+	case 8:
+		return L"SPELARTIPS: DU KAN FÖRSVARA DIG";
+
+	case 9:
+		return L"SPELARTIPS: FIENDERNA ÄR FARLIGA";
+
+	case 10:
+		return L"FÖRSÖKER DU ENS?";
+
+	}
+
+	return L"NÅGONTING HAR GÅTT SNETT";
+}
+
+void SE::Gameplay::PlayState::InitializeDeathSequence() {
+
+	deathText = CoreInit::managers.entityManager->Create();
+	Core::ITextManager::CreateInfo deathInfo;
+	deathInfo.info.text = GenerateDeathMessage();
+	deathInfo.info.scale = { 0.7f, 0.7f };
+	deathInfo.info.posX = 0;
+	deathInfo.info.posY = 0;
+	deathInfo.info.anchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
+	deathInfo.font = "Knights.spritefont";
+	CoreInit::managers.textManager->Create(deathText, deathInfo);
+
+	CoreInit::managers.textManager->SetTextColour(deathText, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
+	//CoreInit::managers.textManager->SetTextPos(deathText, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+	CoreInit::managers.textManager->ToggleRenderableText(deathText, true);
+
+	// Create dummy entity and initialize it with player position
+	cameraDummy = CoreInit::managers.entityManager->Create();
+
+	// Get the player entity
+	auto playerEntity = player->GetEntity();
+
+	XMFLOAT3 playerPos = CoreInit::managers.transformManager->GetPosition(playerEntity);
+
+	CoreInit::managers.transformManager->Create(cameraDummy, playerPos);
+
+	XMFLOAT3 playerForward = CoreInit::managers.transformManager->GetForward(playerEntity);
+
+	// We must unbind the camera from the player
+	CoreInit::managers.transformManager->UnbindChild(cam);
+
+	// Bind the camera to the dummy entity
+	CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, false);
+}
+
+void SE::Gameplay::PlayState::UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit) {
+
+	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, -0.01f, 0.0f, 1.0f };
+	CoreInit::managers.transformManager->Rotate(cameraDummy, 0.00f, rotValue * dt, 0.0f);
+
+	XMFLOAT3 camPos = CoreInit::managers.transformManager->GetPosition(cam);
+	XMFLOAT3 dummyPos = CoreInit::managers.transformManager->GetPosition(cameraDummy);
+
+	XMVECTOR camPosXM = XMLoadFloat3(&camPos);
+	XMVECTOR dummyPosXM = XMLoadFloat3(&dummyPos);
+
+	XMFLOAT3 difVec;
+	XMStoreFloat3(&difVec, XMVector3Normalize(dummyPosXM - camPosXM) * zoomValue * dt);
+
+	if(camPos.y >= zoomLimit){
+
+		CoreInit::managers.transformManager->Move(cam, difVec);
+
+	}
+	
+}
+
+static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
 void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 {
@@ -906,6 +1010,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
+
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;
@@ -968,7 +1073,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	player->Update(dt, movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
-
+	
 	blackBoard.playerPositionX = player->GetXPosition();
 	blackBoard.playerPositionY = player->GetYPosition();
 	blackBoard.deltaTime = dt;
@@ -996,8 +1101,6 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	CheckForRoomTransition();
 	UpdateHUD(dt);
 
-	if (!player->IsAlive())
-		returnValue = State::WIN_STATE;
 	
 	if(sluaghDoorsOpen)
 	{
@@ -1006,6 +1109,23 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
 				returnValue = State::WIN_STATE;
+		}
+	}
+	if (!player->IsAlive() && deathSequence == false) {
+
+		deathSequence = true;
+		InitializeDeathSequence();
+	}
+
+	if(deathSequence == true){
+
+		deathTimer += dt;
+
+		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
+		
+		if (deathTimer > 15){
+			deathTimer = 0.0f;
+			returnValue = State::MAIN_MENU_STATE;
 		}
 	}
 
