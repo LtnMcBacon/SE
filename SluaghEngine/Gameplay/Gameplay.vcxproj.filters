@@ -357,6 +357,9 @@
     <ClCompile Include="PerkFactory.cpp">
       <Filter>Source Files\Perks</Filter>
     </ClCompile>
+    <ClCompile Include="..\includes\Gameplay\Perk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\EventStructs.h">
@@ -615,6 +618,12 @@
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h">
+      <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="PerkHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Perk.h">
       <Filter>Header Files\Perks</Filter>
     </ClInclude>
   </ItemGroup>

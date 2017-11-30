@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Gameplay\Perk.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
     <ClCompile Include="AnimationRunningCondition.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\Perk.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
@@ -171,6 +173,7 @@
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
+    <ClInclude Include="PerkHandler.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -5,6 +5,7 @@
 #include <PlayerUnit.h>
 #include <Skill.h>
 
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -143,13 +144,13 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			float attrArray[8];
 			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
 
-			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
-			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
-			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
-			infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
-			infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
-			infoToPass->skills[i].animation = chosenSkills.at(i).animation;
-			infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
+			infoToPass->skills[i].skillName				= chosenSkills.at(i).skillName;
+			infoToPass->skills[i].atkType				= chosenSkills.at(i).atkType;
+			infoToPass->skills[i].damageType			= chosenSkills.at(i).damageType;
+			infoToPass->skills[i].boon					= chosenSkills.at(i).boon;
+			infoToPass->skills[i].bane					= chosenSkills.at(i).bane;
+			infoToPass->skills[i].animation				= chosenSkills.at(i).animation;
+			infoToPass->skills[i].particle				= chosenSkills.at(i).particle;
 			
 			infoToPass->skills[i].projectileFileGUID	= chosenSkills[i].projectileFileGUID;
 			infoToPass->skills[i].skillDamage			= attrArray[0];
@@ -162,10 +163,25 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].cooldown				= attrArray[7];
 		}
 
-		for (size_t i = 0; i < nrOfPerks; i++)
+		for (auto& perk: chosenPerks)
 		{
-			infoToPass->perks[i] = chosenPerks.at(i);
+			Pfactory.PickedPerks.push_back(perk);
 		}
+		Pfactory.iteratePerks();
+		Perk exportPerks[3];
+		Perk tempPerk;
+
+		for (size_t i = 0; i < Pfactory.PickedPerks.size(); i++)
+		{
+			tempPerk.perkFunctions = Pfactory.perkFuncVector[i];
+			tempPerk.intToEnum = Pfactory.PickedPerks[i].condition;
+			
+			exportPerks[i] = tempPerk;
+			infoToPass->perks[i] = exportPerks[i];
+		}
+
+		
+		
 
 
 		passableInfo = infoToPass;

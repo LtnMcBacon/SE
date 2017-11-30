@@ -5,29 +5,26 @@
 #include <vector>
 #include <functional>
 #include <map>
-#include <Gameplay\PlayerUnit.h>
+
 #include <Gameplay\ProjectileData.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
-
+		class PlayerUnit;
+		
 		class PerkFaktory
 		{
 		public:
 			
-			PlayerUnit* player;
-			std::vector<ProjectileData>* Projectiles;
-			
-	
 			std::vector<PerkData> PickedPerks;
-			std::vector<std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs,float deltaTime,bool condition)>> perkBehavior;
+
 			std::vector<std::vector<std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)>>> perkFuncVector;
 
-			std::vector<std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs,float deltaTime,bool condition)>> perkFunctions;
+			std::vector<std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)>> perkFunctions;
 
-			std::unordered_map<int, std::function<void(PlayerUnit* player,std::vector<ProjectileData>& Projs,float deltaTime,bool condition)>,Utilz::GUID::Hasher> perkMapping;
+			std::vector<std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)>> perkBehavior;
 			
 			bool HealthMultiP = false;
 			bool skillCD = false;
@@ -44,7 +41,16 @@ namespace SE
 			bool natureLock = false;
 
 			float duration = 5;
+			 
 
+			PerkFaktory();
+			~PerkFaktory();
+
+			std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> initiateFuncs(int value, int funcEnum);
+			void iteratePerks();
+
+
+		private:
 
 			////	PERK ROADMAP \\\\
 
@@ -108,20 +114,7 @@ namespace SE
 				Fire_lock = 47,											// done
 				Nature_lock = 48										// done
 			};
-
-
-
-			 
-
-			PerkFaktory();
-			~PerkFaktory();
-
-			void initiateFuncs(int value, int funcEnum, bool switchPerk);
-			void initateMap();
-
-
-		private:
-
+			
 		};
 	}
 }

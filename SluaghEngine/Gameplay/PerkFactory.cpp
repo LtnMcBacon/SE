@@ -1,4 +1,6 @@
 #include <Gameplay\PerkFactory.h>
+#include <Gameplay\PlayerUnit.h>
+#include "CoreInit.h"
 using namespace SE;
 using namespace Gameplay;
 PerkFaktory::PerkFaktory()
@@ -9,16 +11,9 @@ PerkFaktory::~PerkFaktory()
 {
 }
 
-void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
+std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> PerkFaktory::initiateFuncs(int value, int funcEnum)
 {
-
-	if (switchPerk)
-	{
-		perkFuncVector.push_back(perkFunctions);
-		perkFunctions.clear();
-	}
-	
-	int placeHolder2 = 0;
+	float placeHolder2 = 0;
 	float placeHolder3 = 0;
 
 
@@ -26,127 +21,17 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 	{
 	case 0:
 
-		// not implemented
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 0");
 		break;
 	case 1:
-		break;
-	case 2:
-		break;
-	case 3:
-		break;
-	case 4:
-		break;
-	case 5:
-		break;
-	case 6:
-		break;
-	case 7:
-		break;
-	case 8:
-		break;
-	case 9:
-		break;
-	case 10:
-		break;
-	case 11:
-		break;
-	case 12:
-		break;
-	case 13:
-		break;
-	case 14:
-		break;
-	case 15:
-		break;
-	case 16:
-		break;
-	case 17:
-		break;
-	case 18:
-		break;
-	case 19:
-		break;
-	case 20:
-		break;
-	case 21:
-		break;
-	case 22:
-		break;
-	case 23:
-		break;
-	case 24:
-		break;
-	case 25:
-		break;
-	case 26:
-		break;
-	case 27:
-		break;
-	case 28:
-		break;
-	case 29:
-		break;
-	case 30:
-		break;
-	case 31:
-		break;
-	case 32:
-		break;
-	case 33:
-		break;
-	case 34:
-		break;
-	case 35:
-		break;
-	case 36:
-		break;
-	case 37:
-		break;
-	case 38:
-		break;
-	case 39:
-		break;
-	case 40:
-		break;
-	case 41:
-		break;
-	case 42:
-		break;
-	case 43:
-		break;
-	case 44:
-		break;
-	case 45:
-		break;
-	case 46:
-		break;
-	case 47:
-		break;
-	case 48:
-		break;
-
-	default:
-		break;
-	}
-
-	auto PhysicalResistance = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 	{
-		if (condition)
+		auto PhysicalResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-
-			for (auto& Event : DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::PHYSICAL)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
@@ -161,32 +46,24 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
+
+
 			
 
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> PhysicalResistanceFunc = PhysicalResistance;
-	perkFunctions.push_back(PhysicalResistanceFunc);
-	perkMapping.insert({ 1,PhysicalResistanceFunc});
-
-
-	auto WaterResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> PhysicalResistanceFunc = PhysicalResistance;
+		return PhysicalResistanceFunc;
+		break;
+	}
+		
+	case 2:
 	{
-		if (condition)
+		auto WaterResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-
-			for (auto& Event : DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::WATER)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
@@ -196,34 +73,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (Event.type == DamageType::WATER)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterResistanceFunc = WaterResistance;
-	perkFunctions.push_back(WaterResistanceFunc);
-	perkMapping.insert({ 2,WaterResistanceFunc});
-
-
-	auto FireResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterResistanceFunc = WaterResistance;
+		return WaterResistanceFunc;
+		break;
+	}
+	case 3:
 	{
-		if (condition)
+		auto FireResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-			for (auto& Event: DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::FIRE)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
@@ -232,35 +100,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (Event.type == DamageType::FIRE)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireResistanceFunc = FireResistance;
-	perkFunctions.push_back(FireResistanceFunc);
-	perkMapping.insert({ 3,FireResistanceFunc });
-
-
-	auto NatureResistance = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireResistanceFunc = FireResistance;
+		return FireResistanceFunc;
+		break;
+	}
+	case 4:
 	{
-		if (condition)
+		auto NatureResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-
-			for (auto& Event : DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::NATURE)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -270,35 +128,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (Event.type == DamageType::NATURE)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureResistanceFunc = NatureResistance;
-	perkFunctions.push_back(NatureResistanceFunc);
-	perkMapping.insert({ 4,NatureResistanceFunc});
-
-
-	auto MagicResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureResistanceFunc = NatureResistance;
+		return NatureResistanceFunc;
+		break;
+	}
+	case 5:
 	{
-		if (condition)
+		auto MagicResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-
-			for (auto& Event : DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::MAGIC)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -308,35 +156,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (Event.type == DamageType::MAGIC)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicResistanceFunc = MagicResistance;
-	perkFunctions.push_back(MagicResistanceFunc);
-	perkMapping.insert({ 5,MagicResistanceFunc });
-
-
-
-	auto RangedResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicResistanceFunc = MagicResistance;
+		return MagicResistanceFunc;
+		break;
+	}
+	case 6:
 	{
-		if (condition)
+		auto RangedResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-			for (auto& Event : DmgVector)
+			if (condition)
 			{
-				if (Event.type == DamageType::RANGED)
-				{
-					int reduced = Event.amount *(value / 100);
-					Event.amount -= reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -345,261 +183,248 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (Event.type == DamageType::RANGED)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangedResistanceFunc = RangedResistance;
-	perkFunctions.push_back(RangedResistanceFunc);
-	perkMapping.insert({ 6,RangedResistanceFunc});
-
-
-	auto StrengthFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangedResistanceFunc = RangedResistance;
+		return RangedResistanceFunc;
+		break;
+	}
+	case 7:
 	{
-		if (condition)
+
+		auto StrengthFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			player->AddNewStrength(value);
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3 >0)
 			{
 				placeHolder3 -= deltaTime;
 				player->AddNewStrength(value);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> StrengthFlatFunc = StrengthFlat;
-	perkFunctions.push_back(StrengthFlatFunc);
-	perkMapping.insert({ 7,StrengthFlatFunc });
-
-
-	auto AgilityFlat = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> StrengthFlatFunc = StrengthFlat;
+		return StrengthFlatFunc;
+		break;
+	}
+	case 8:
 	{
-		if (condition)
+
+		auto AgilityFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			player->AddNewAgility(value);
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+			
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 				player->AddNewAgility(value);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AgilityFlatFunc = AgilityFlat;
-	perkFunctions.push_back(AgilityFlatFunc);
-	perkMapping.insert({ 8,AgilityFlatFunc });
-
-
-	auto IntelligenceFlat = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AgilityFlatFunc = AgilityFlat;
+		return AgilityFlatFunc;
+		break;
+	}
+	case 9:
 	{
-		if (condition)
+
+		auto IntelligenceFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			player->AddNewWhisdom(value);
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+		
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 				player->AddNewWhisdom(value);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> IntelligenceFlatFunc = IntelligenceFlat;
-	perkFunctions.push_back(IntelligenceFlatFunc);
-	perkMapping.insert({ 9,IntelligenceFlatFunc });
-
-
-	auto HealthFlat = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> IntelligenceFlatFunc = IntelligenceFlat;
+		return IntelligenceFlatFunc;
+		break;
+	}
+	case 10:
 	{
-		if (condition)
+
+		auto HealthFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			player->AddNewMaxHealth(value);
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
 				player->AddNewMaxHealth(value);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealthFlatFunc = HealthFlat;
-	perkFunctions.push_back(HealthFlatFunc);
-	perkMapping.insert({ 10,HealthFlatFunc });
-
-
-	auto intMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealthFlatFunc = HealthFlat;
+		return HealthFlatFunc;
+		break;
+	}
+	case 11:
 	{
-		if (condition)
+
+		auto intMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			if (!intMult)
+			if (condition)
 			{
-				int wis = player->GetBaseWhisdom();
-				int newWis = wis*(value / 100);
-				player->SetBaseWhisdom(newWis);
-				intMult = true;
+				if (!intMult)
+				{
+					int wis = player->GetBaseWhisdom();
+					float newWis = wis*(value / 100.f);
+					player->SetBaseWhisdom(newWis);
+					intMult = true;
+				}
 			}
-		}
-		
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> intMultiplierFunc = intMultiplier;
-	perkFunctions.push_back(intMultiplierFunc);
-	perkMapping.insert({ 11,intMultiplierFunc });
 
-
-	auto strMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> intMultiplierFunc = intMultiplier;
+		return intMultiplierFunc;
+		break;
+	}
+	case 12:
 	{
-		if (condition)
+
+		auto strMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			if (!strMult)
+			if (condition)
 			{
-				int str = player->GetBaseStrength();
-				int newStr = str*(value / 100);
-				player->SetBaseStrength(newStr);
-				strMult = true;
+				if (!strMult)
+				{
+					int str = player->GetBaseStrength();
+					float newStr = str*(value / 100.f);
+					player->SetBaseStrength(newStr);
+					strMult = true;
+				}
 			}
-		}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> strMultiplierFunc = strMultiplier;
-	perkFunctions.push_back(strMultiplierFunc);
-	perkMapping.insert({ 12,strMultiplierFunc });
-
-
-	auto agiMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> strMultiplierFunc = strMultiplier;
+		return strMultiplierFunc;
+		break;
+	}
+	case 13:
 	{
-		if (condition)
+
+		auto agiMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			if (!agiMult)
+			if (condition)
 			{
-				int agi = player->GetBaseAgility();
-				int newAgi = agi*(value / 100);
-				player->SetBaseAgility(newAgi);
-				agiMult = true;
+				if (!agiMult)
+				{
+					int agi = player->GetBaseAgility();
+					float newAgi = agi*(value / 100.f);
+					player->SetBaseAgility(newAgi);
+					agiMult = true;
+				}
 			}
-		}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> agiMultiplierFunc = agiMultiplier;
-	perkFunctions.push_back(agiMultiplierFunc);
-	perkMapping.insert({ 13,agiMultiplierFunc });
-
-
-	auto HealthMulti = [value, this](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> agiMultiplierFunc = agiMultiplier;
+		return agiMultiplierFunc;
+		break;
+	}
+	case 14:
 	{
-		if (condition)
-		{
 
-			if (!HealthMultiP)
+		auto HealthMulti = [value, this](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
+		{
+			if (condition)
 			{
-				int maxHP = player->GetBaseMaxHealth();
-				int newMaxHP = maxHP * (value / 100);
-				player->AddBaseMaxHealth(value);
-				HealthMultiP = true;
+
+				if (!HealthMultiP)
+				{
+					int maxHP = player->GetBaseMaxHealth();
+					float newMaxHP = maxHP * (value / 100.f);
+					player->AddBaseMaxHealth(value);
+					HealthMultiP = true;
+				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealthMultiFunc = HealthMulti;
-	perkFunctions.push_back(HealthMultiFunc);
-	perkMapping.insert({ 14,HealthMultiFunc });
-
-
-	auto DamageMulti = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealthMultiFunc = HealthMulti;
+		return HealthMultiFunc;
+		break;
+	}
+	case 15:
 	{
-		if (condition)
+
+		auto DamageMulti = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			float meleeDmg = player->GetBaseMeleeDamageMultiplier();
-			float rangedDmg = player->GetBaseRangedMulitplier();
-			float magicDmg = player->GetBaseMagicMulitplier();
+			if (condition)
+			{
+				placeHolder3 = duration;
 
-			float newMelee = meleeDmg * (value / 100);
-			float newRanged = rangedDmg * (value / 100);
-			float newMagic = magicDmg * (value / 100);
-
-			player->AddNewMeleeDamageMultiplier(newMelee);
-			player->AddNewRangedMulitplier(newRanged);
-			player->AddNewMagicMulitplier(newMagic);
-
-		}
-		else
-		{
-			if (placeHolder3>0)
+			}
+			
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 				float meleeDmg = player->GetBaseMeleeDamageMultiplier();
 				float rangedDmg = player->GetBaseRangedMulitplier();
 				float magicDmg = player->GetBaseMagicMulitplier();
 
-				float newMelee = meleeDmg * (value / 100);
-				float newRanged = rangedDmg * (value / 100);
-				float newMagic = magicDmg * (value / 100);
+				float newMelee = meleeDmg * (value / 100.f);
+				float newRanged = rangedDmg * (value / 100.f);
+				float newMagic = magicDmg * (value / 100.f);
 
 				player->AddNewMeleeDamageMultiplier(newMelee);
 				player->AddNewRangedMulitplier(newRanged);
 				player->AddNewMagicMulitplier(newMagic);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> DamageMultiFunc = DamageMulti;
-	perkFunctions.push_back(DamageMultiFunc);
-	perkMapping.insert({ 15,DamageMultiFunc });
-
-
-
-	auto MeleeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> DamageMultiFunc = DamageMulti;
+		return DamageMultiFunc;
+		break;
+	}
+	case 16:
 	{
-		if (condition)
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 16");
+		break;
+	}
+	case 17:
+	{
+
+		auto MeleeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			for (auto& projectile : Projs)
+			if (condition)
 			{
-				if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_MELEE)
-				{
-					int reduced = projectile.eventDamage.amount *(value / 100);
-					projectile.eventDamage.amount += reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
-			if (placeHolder3>0)
+			
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 				for (auto& projectile : Projs)
 				{
 					if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_MELEE)
 					{
-						int reduced = projectile.eventDamage.amount *(value / 100);
+						float reduced = projectile.eventDamage.amount *(value / 100.f);
 						projectile.eventDamage.amount += reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MeleeDamageFunc = MeleeDamage;
-	perkFunctions.push_back(MeleeDamageFunc);
-	perkMapping.insert({ 17,MeleeDamageFunc});
-
-
-	auto RangeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MeleeDamageFunc = MeleeDamage;
+		return MeleeDamageFunc;
+		break;
+	}
+	case 18:
 	{
-		if (condition)
+
+		auto RangeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			for (auto& projectile : Projs)
+			if (condition)
 			{
-				if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_RANGED)
-				{
-					int reduced = projectile.eventDamage.amount *(value / 100);
-					projectile.eventDamage.amount += reduced;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
@@ -607,354 +432,373 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 				{
 					if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_RANGED)
 					{
-						int reduced = projectile.eventDamage.amount *(value / 100);
+						float reduced = projectile.eventDamage.amount *(value / 100.f);
 						projectile.eventDamage.amount += reduced;
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangeDamageFunc = RangeDamage;
-	perkFunctions.push_back(RangeDamageFunc);
-	perkMapping.insert({ 18,RangeDamageFunc});
-
-	
-
-	auto AttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangeDamageFunc = RangeDamage;
+		return RangeDamageFunc;
+		break;
+	}
+	case 19:
 	{
-		if (condition)
+
+		auto AttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			float AS = player->GetBaseAttackSpeed();
-			float newAS = AS * (value / 100);
-			player->AddNewAttackSpeed(newAS);
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
 				float AS = player->GetBaseAttackSpeed();
-				float newAS = AS * (value / 100);
+				float newAS = AS * (value / 100.f);
 				player->AddNewAttackSpeed(newAS);
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AttackSpeedFunc = AttackSpeed;
-	perkFunctions.push_back(AttackSpeedFunc);
-	perkMapping.insert({ 19,AttackSpeedFunc });
-
-	
-	auto ConsecutiveDmG = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
-	{
-		if (condition)
-		{
-
-			placeHolder3 = duration;
-
-			placeHolder2 += value;
-
-			float rangedDMG = player->GetBaseRangedMulitplier();
-			float meleeDMG = player->GetBaseMeleeDamageMultiplier();
-			float magicDMG = player->GetBaseMagicMulitplier();
-
-			float newRangedDMG = rangedDMG + (placeHolder2 / 100);
-			float newMeleeDMG = meleeDMG + (placeHolder2 / 100);
-			float newMagicDMG = magicDMG + (placeHolder2 / 100);
-
-			player->AddNewRangedMulitplier(newRangedDMG);
-			player->AddNewMeleeDamageMultiplier(newMeleeDMG);
-			player->AddNewMagicMulitplier(newMagicDMG);
-
-		}
-		else
-		{
 			
-			if(placeHolder3 >0)
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AttackSpeedFunc = AttackSpeed;
+		return AttackSpeedFunc;
+		break;
+	}
+	case 20:
+	{
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 20");
+		break;
+	}
+	case 21:
+	{
+
+		auto ConsecutiveDmG = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		{
+			if (condition)
 			{
-				placeHolder3 -= deltaTime;
+
+				placeHolder3 = duration;
+
+				placeHolder2 += value;
+
 				float rangedDMG = player->GetBaseRangedMulitplier();
 				float meleeDMG = player->GetBaseMeleeDamageMultiplier();
 				float magicDMG = player->GetBaseMagicMulitplier();
 
-				float newRangedDMG = rangedDMG + (placeHolder2 / 100);
-				float newMeleeDMG = meleeDMG + (placeHolder2 / 100);
-				float newMagicDMG = magicDMG + (placeHolder2 / 100);
+				float newRangedDMG = rangedDMG + (placeHolder2 / 100.f);
+				float newMeleeDMG = meleeDMG + (placeHolder2 / 100.f);
+				float newMagicDMG = magicDMG + (placeHolder2 / 100.f);
 
 				player->AddNewRangedMulitplier(newRangedDMG);
 				player->AddNewMeleeDamageMultiplier(newMeleeDMG);
 				player->AddNewMagicMulitplier(newMagicDMG);
+
 			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveDmGFunc = ConsecutiveDmG;
-	perkFunctions.push_back(ConsecutiveDmGFunc);
-	perkMapping.insert({ 21,ConsecutiveDmGFunc });
-
-
-	auto ConsecutiveAttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-
-			placeHolder2 += value;
-			float AS = player->GetBaseAttackSpeed();
-			float newAS = AS * (placeHolder2 / 100);
-			player->AddNewAttackSpeed(newAS);
-
-		}
-		else
-		{
-			if (placeHolder3>0)
+			else
 			{
-				placeHolder3 -= deltaTime;
-				float AS = player->GetBaseAttackSpeed();
-				float newAS = AS * (placeHolder2 / 100);
-				player->AddNewAttackCooldown(newAS);
+
+				if (placeHolder3 >0)
+				{
+					placeHolder3 -= deltaTime;
+					float rangedDMG = player->GetBaseRangedMulitplier();
+					float meleeDMG = player->GetBaseMeleeDamageMultiplier();
+					float magicDMG = player->GetBaseMagicMulitplier();
+
+					float newRangedDMG = rangedDMG + (placeHolder2 / 100.f);
+					float newMeleeDMG = meleeDMG + (placeHolder2 / 100.f);
+					float newMagicDMG = magicDMG + (placeHolder2 / 100.f);
+
+					player->AddNewRangedMulitplier(newRangedDMG);
+					player->AddNewMeleeDamageMultiplier(newMeleeDMG);
+					player->AddNewMagicMulitplier(newMagicDMG);
+				}
+			}
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveDmGFunc = ConsecutiveDmG;
+		return ConsecutiveDmGFunc;
+		break;
+	}
+	case 22:
+	{
+
+		auto ConsecutiveAttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+
 			}
 			
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveAttackSpeedFunc = ConsecutiveAttackSpeed;
-	perkFunctions.push_back(ConsecutiveAttackSpeedFunc);
-	perkMapping.insert({ 22,ConsecutiveAttackSpeedFunc });
-
-
-	auto ConsecutiveMeleeDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-
-			placeHolder2 += value;
-			float AD = player->GetBaseMeleeDamageMultiplier();
-			float newAD = AD + (placeHolder2 / 100);
-			player->AddNewMeleeDamageMultiplier(newAD);
-
-		}
-		else
-		{
-			if (placeHolder3>0)
-			{
-				placeHolder3 -= deltaTime;
-				float AD = player->GetBaseMeleeDamageMultiplier();
-				float newAD = AD * (placeHolder2 / 100);
-				player->AddNewMeleeDamageMultiplier(newAD);
-			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveMeleeDmgFunc = ConsecutiveMeleeDmg;
-	perkFunctions.push_back(ConsecutiveMeleeDmgFunc);
-	perkMapping.insert({ 23,ConsecutiveMeleeDmgFunc });
-
-
-	auto ConsecutiveRangedDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-
-			placeHolder2 += value;
-			float AD = player->GetBaseRangedMulitplier();
-			float newAD = AD + (placeHolder2 / 100);
-			player->AddNewRangedMulitplier(newAD);
-		}
-		else
-		{
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
+				float AS = player->GetBaseAttackSpeed();
+				float newAS = AS * (placeHolder2 / 100.f);
+				player->AddNewAttackCooldown(newAS);
+			}
+
+			
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveAttackSpeedFunc = ConsecutiveAttackSpeed;
+		return ConsecutiveAttackSpeedFunc;
+		break;
+	}
+	case 23:
+	{
+
+		auto ConsecutiveMeleeDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+
+				placeHolder2 += value;
+				float AD = player->GetBaseMeleeDamageMultiplier();
+				float newAD = AD + (placeHolder2 / 100.f);
+				player->AddNewMeleeDamageMultiplier(newAD);
+
+			}
+			else
+			{
+				if (placeHolder3>0)
+				{
+					placeHolder3 -= deltaTime;
+					float AD = player->GetBaseMeleeDamageMultiplier();
+					float newAD = AD * (placeHolder2 / 100.f);
+					player->AddNewMeleeDamageMultiplier(newAD);
+				}
+			}
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveMeleeDmgFunc = ConsecutiveMeleeDmg;
+		return ConsecutiveMeleeDmgFunc;
+		break;
+	}
+	case 24:
+	{
+
+		auto ConsecutiveRangedDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+
+				placeHolder2 += value;
 				float AD = player->GetBaseRangedMulitplier();
-				float newAD = AD * (placeHolder2 / 100);
+				float newAD = AD + (placeHolder2 / 100.f);
 				player->AddNewRangedMulitplier(newAD);
 			}
+			else
+			{
+				if (placeHolder3 > 0)
+				{
+					placeHolder3 -= deltaTime;
+					float AD = player->GetBaseRangedMulitplier();
+					float newAD = AD * (placeHolder2 / 100.f);
+					player->AddNewRangedMulitplier(newAD);
+				}
+			}
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveRangedDmgFunc = ConsecutiveRangedDmg;
+		return ConsecutiveRangedDmgFunc;
+		break;
+	}
+	case 25:
+	{
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 25");
+		break;
+	}
+	case 26:
+	{
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 26");
+		break;
+	}
+	case 27:
+	{
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 27");
+		break;
+	}
+	case 28:
+	{
+
+		auto skillCooldown = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+				if (!skillCD)
+				{
+					int currentCooldown = player->GetCooldown(0);
+					int currentCooldown2 = player->GetCooldown(1);
+
+					float newCD = currentCooldown * (value / 100.f);
+					float newCD2 = currentCooldown2 * (value / 100.f);
+
+					player->SetCooldown(0, newCD);
+					player->SetCooldown(1, newCD2);
+					skillCD = true;
+				}
+			}
+
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> skillCooldownFunc = skillCooldown;
+		return skillCooldownFunc;
+		break;
+	}
+	case 29:
+	{
+
+		auto AdaptiveSkillCD = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+
+				float currentCD = player->GetCurrentCooldown(0);
+				float currentCD2 = player->GetCurrentCooldown(1);
+
+				float newCD = currentCD - value;
+				float newCD2 = currentCD2 - value;
+				if (newCD < 0)
+				{
+					newCD = 0;
+				}
+				if (newCD2 < 0)
+				{
+					newCD2 = 0;
+				}
+				player->SetCurrentCooldown(0, newCD);
+				player->SetCurrentCooldown(1, newCD2);
+			}
+
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AdaptiveSkillCDFunc = AdaptiveSkillCD;
+		return AdaptiveSkillCDFunc;
+		break;
+	}
+	case 30:
+	{
+
+		auto SkillDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+
+				if (!skillDamage)
+				{
+					float skillDmg1 = player->GetSkillDamage(0);
+					float skillDmg2 = player->GetSkillDamage(1);
+
+					float newSkillDmg1 = skillDmg1 * (value / 100.f);
+					float newSkillDmg2 = skillDmg2 * (value / 100.f);
+
+					player->AddSkillDamage(0, newSkillDmg1);
+					player->AddSkillDamage(1, newSkillDmg2);
+
+					skillDamage = true;
+				}
+			}
+
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> SkillDmgFunc = SkillDmg;
+		return SkillDmgFunc;
+		break;
+	}
+	case 31:
+	{
+
+		auto MovementSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+
+			}
 			
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveRangedDmgFunc = ConsecutiveRangedDmg;
-	perkFunctions.push_back(ConsecutiveRangedDmgFunc);
-	perkMapping.insert({ 24,ConsecutiveRangedDmgFunc });
-
-
-
-
-	auto skillCooldown = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			if (!skillCD)
-			{
-				int currentCooldown = player->GetCooldown(0);
-				int currentCooldown2 = player->GetCooldown(1);
-
-				int newCD = currentCooldown * (value / 100);
-				int newCD2 = currentCooldown2 * (value / 100);
-
-				player->SetCooldown(0, newCD);
-				player->SetCooldown(1, newCD2);
-				skillCD = true;
-			}
-		}
-		
-		
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> skillCooldownFunc = skillCooldown;
-	perkFunctions.push_back(skillCooldownFunc);
-	perkMapping.insert({ 28,skillCooldownFunc });
-
-	auto AdaptiveSkillCD = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			
-			float currentCD = player->GetCurrentCooldown(0);
-			float currentCD2 = player->GetCurrentCooldown(1);
-		
-			float newCD = currentCD - value;
-			float newCD2 = currentCD2 - value;
-			if (newCD < 0)
-			{
-				newCD = 0;
-			}
-			if (newCD2 < 0)
-			{
-				newCD2 = 0;
-			}
-			player->SetCurrentCooldown(0, newCD);
-			player->SetCurrentCooldown(1, newCD2);
-		}
-	
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AdaptiveSkillCDFunc = AdaptiveSkillCD;
-	perkFunctions.push_back(AdaptiveSkillCDFunc);
-	perkMapping.insert({ 29,AdaptiveSkillCDFunc });
-
-
-	auto SkillDmg = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			
-			if (!skillDamage)
-			{
-				float skillDmg1 = player->GetSkillDamage(0);
-				float skillDmg2 = player->GetSkillDamage(1);
-
-				float newSkillDmg1 = skillDmg1 *  (value / 100);
-				float newSkillDmg2 = skillDmg2 *  (value / 100);
-		
-				player->AddSkillDamage(0, newSkillDmg1);
-				player->AddSkillDamage(1, newSkillDmg2);
-				
-				skillDamage = true;
-			}
-		}
-		
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> SkillDmgFunc = SkillDmg;
-	perkFunctions.push_back(SkillDmgFunc);
-	perkMapping.insert({ 30,SkillDmgFunc });
-
-
-	auto MovementSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			float MS = player->GetBaseMovement();
-
-			placeHolder2 = MS * (value / 100);
-
-			player->AddNewMovement(placeHolder2);
-
-		}
-		else
-		{
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 
 				float MS = player->GetBaseMovement();
 
-				placeHolder2 = MS * (value / 100);
+				placeHolder2 = MS * (value / 100.f);
 
 				player->AddNewMovement(placeHolder2);
 			}
+
 			
-		}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MovementSpeedFunc = MovementSpeed;
-	perkFunctions.push_back(MovementSpeedFunc);
-	perkMapping.insert({ 31,MovementSpeedFunc });
-
-
-	auto maxHpPercentHeal = [value](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MovementSpeedFunc = MovementSpeed;
+		return MovementSpeedFunc;
+		break;
+	}
+	case 32:
 	{
-		if (condition)
+
+		auto maxHpPercentHeal = [value](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
 		{
+			if (condition)
+			{
 
-			float MaxHP = player->GetNewMaxHealth();
-			float Healing = MaxHP * (value / 100);
-			HealingEvent Heal;
-			Heal.originalAmount = Healing;
-			player->AddHealingEvent(Heal);
-		}
+				float MaxHP = player->GetNewMaxHealth();
+				float Healing = MaxHP * (value / 100.f);
+				HealingEvent Heal;
+				Heal.originalAmount = Healing;
+				player->AddHealingEvent(Heal);
+			}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> maxHpPercentHealFunc = maxHpPercentHeal;
-	perkFunctions.push_back(maxHpPercentHealFunc);
-	perkMapping.insert({ 32,maxHpPercentHealFunc });
-
-	auto flatHPHeal = [value](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> maxHpPercentHealFunc = maxHpPercentHeal;
+		return maxHpPercentHealFunc;
+		break;
+	}
+	case 33:
 	{
-		if (condition)
+
+		auto flatHPHeal = [value](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
 		{
+			if (condition)
+			{
 
-			HealingEvent Heal;
-			Heal.originalAmount = value;
-			player->AddHealingEvent(Heal);
-		}
+				HealingEvent Heal;
+				Heal.originalAmount = value;
+				player->AddHealingEvent(Heal);
+			}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> flatHPHealFunc = flatHPHeal;
-	perkFunctions.push_back(flatHPHealFunc);
-	perkMapping.insert({ 33,flatHPHealFunc });
-
-	auto HealImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> flatHPHealFunc = flatHPHeal;
+		return flatHPHealFunc;
+		break;
+	}
+	case 34:
 	{
-		if (condition)
+
+		auto HealImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			player->ClearHealingEvents();	
-		}
-		else
-		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+				
+			}
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
 				player->ClearHealingEvents();
 			}
-		}
-		
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealImmuneFunc = HealImmune;
-	perkFunctions.push_back(HealImmuneFunc);
-	perkMapping.insert({ 34,HealImmuneFunc });
-
-	auto PhysicalImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> HealImmuneFunc = HealImmune;
+		return HealImmuneFunc;
+		break;
+	}
+	case 35:
 	{
-		if (condition)
+
+		auto PhysicalImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
-		
-			for (int i = 0; i < DmgVector.size(); i++)
+			if (condition)
 			{
-				if (DmgVector[i].type == DamageType::PHYSICAL)
-				{
-					DmgVector.erase(DmgVector.begin()+i);
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
-			if (placeHolder3>0)
+			
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
@@ -967,32 +811,20 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
 
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> PhysicalImmuneFunc = PhysicalImmune;
-	perkFunctions.push_back(PhysicalImmuneFunc);
-	perkMapping.insert({ 35,PhysicalImmuneFunc });
-
-
-	auto WaterImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> PhysicalImmuneFunc = PhysicalImmune;
+		return PhysicalImmuneFunc;
+		break;
+	}
+	case 36:
 	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
-			for (int i = 0; i < DmgVector.size(); i++)
-			{
-				if (DmgVector[i].type == DamageType::WATER)
-				{
-					DmgVector.erase(DmgVector.begin()+i);
-					i = 0;
-				}
-			}
-		}
-		else
+		auto WaterImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -1007,32 +839,20 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterImmuneFunc = WaterImmune;
-	perkFunctions.push_back(WaterImmuneFunc);
-	perkMapping.insert({ 36,WaterImmuneFunc });
-
-
-	auto FireImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterImmuneFunc = WaterImmune;
+		return WaterImmuneFunc;
+		break;
+	}
+	case 37:
 	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
-			for (int i = 0; i < DmgVector.size(); i++)
-			{
-				if (DmgVector[i].type == DamageType::FIRE)
-				{
-					DmgVector.erase(DmgVector.begin()+i);
-					i = 0;
-				}
-			}
-		}
-		else
+		auto FireImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
@@ -1047,30 +867,20 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireImmuneFunc = FireImmune;
-	perkFunctions.push_back(FireImmuneFunc);
-	perkMapping.insert({ 37,FireImmuneFunc });
-
-
-	auto NatureImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireImmuneFunc = FireImmune;
+		return FireImmuneFunc;
+		break;
+	}
+	case 38:
 	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
-			for (int i = 0; i < DmgVector.size(); i++)
-			{
-				if (DmgVector[i].type == DamageType::NATURE)
-				{
-					DmgVector.erase(DmgVector.begin() + i);
-					i = 0;
-				}
-			}
-		}
-		else
+		auto NatureImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -1085,35 +895,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureImmuneFunc = NatureImmune;
-	perkFunctions.push_back(NatureImmuneFunc);
-	perkMapping.insert({ 38,NatureImmuneFunc });
-
-	auto SlowImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureImmuneFunc = NatureImmune;
+		return NatureImmuneFunc;
+		break;
+	}
+	case 39:
 	{
-		if (condition)
+
+		auto SlowImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
-
-
-			for (int i = 0; i < CndVector.size(); i++)
+			if (condition)
 			{
-				if (CndVector[i].bane == Banes::CONDITIONAL_BANES_SLOW)
-				{
-					CndVector.erase(CndVector.begin() + i);
-					i = 0;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
 				std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
-
 
 				for (int i = 0; i < CndVector.size(); i++)
 				{
@@ -1124,37 +924,25 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> SlowImmuneFunc = SlowImmune;
-	perkFunctions.push_back(SlowImmuneFunc);
-	perkMapping.insert({ 39,SlowImmuneFunc });
-
-
-	auto StunImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> SlowImmuneFunc = SlowImmune;
+		return SlowImmuneFunc;
+		break;
+	}
+	case 40:
 	{
-		if (condition)
+
+		auto StunImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
-
-
-			for (int i = 0; i < CndVector.size(); i++)
+			if (condition)
 			{
-				if (CndVector[i].bane == Banes::CONDITIONAL_BANES_STUN)
-				{
-					CndVector.erase(CndVector.begin() + i);
-					i = 0;
-				}
+				placeHolder3 = duration;
 			}
-		}
-		else
-		{
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
 				std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
-
-
 				for (int i = 0; i < CndVector.size(); i++)
 				{
 					if (CndVector[i].bane == Banes::CONDITIONAL_BANES_STUN)
@@ -1164,30 +952,21 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> StunImmuneFunc = StunImmune;
-	perkFunctions.push_back(StunImmuneFunc);
-	perkMapping.insert({ 40,StunImmuneFunc });
-
-
-	auto MagicImmune = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> StunImmuneFunc = StunImmune;
+		return StunImmuneFunc;
+		break;
+	}
+	case 41:
 	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
-			for (int i = 0; i < DmgVector.size(); i++)
-			{
-				if (DmgVector[i].type == DamageType::MAGIC)
-				{
-					DmgVector.erase(DmgVector.begin() + i);
-					i = 0;
-				}
-			}
-		}
-		else
+		auto MagicImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+			
 			if (placeHolder3>0)
 			{
 				placeHolder3 -= deltaTime;
@@ -1202,178 +981,186 @@ void PerkFaktory::initiateFuncs(int value,int funcEnum, bool switchPerk)
 					}
 				}
 			}
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicImmuneFunc = MagicImmune;
-	perkFunctions.push_back(MagicImmuneFunc);
-	perkMapping.insert({ 41,MagicImmuneFunc });
-
-
-	auto MeleeLock = [value,this,placeHolder2,placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+			
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicImmuneFunc = MagicImmune;
+		return MagicImmuneFunc;
+		break;
+	}
+	case 42:
 	{
-		if (condition)
+
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 42");
+		break;
+	}
+	case 43:
+	{
+
+		auto MeleeLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-
-			placeHolder3 = duration;
-			meleeLock = true;
-
-		}
-		else
-		{
-
-			if (placeHolder3<=0)
+			if (condition)
 			{
-				meleeLock = false;
-
+				placeHolder3 = duration;
+			}
+			
+			if (placeHolder3 > 0)
+			{
+				placeHolder3 -= deltaTime;
+				meleeLock = true;
 			}
 			else
 			{
-				placeHolder3 -= deltaTime;
+				meleeLock = false;
 			}
 			
-			
-		}
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MeleeLockFunc = MeleeLock;
-	perkFunctions.push_back(MeleeLockFunc);
-	perkMapping.insert({ 43,MeleeLockFunc });
-
-
-	auto RangeLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MeleeLockFunc = MeleeLock;
+		return MeleeLockFunc;
+		break;
+	}
+	case 44:
 	{
-		if (condition)
+
+		auto RangeLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			rangeLock = true;
-		}
-		else
-		{
-			if (placeHolder3 <= 0)
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+			if (placeHolder3 > 0)
+			{
+				placeHolder3 -= deltaTime;
+				rangeLock = true;
+			}
+			else
 			{
 				rangeLock = false;
 			}
-			else
+			
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangeLockFunc = RangeLock;
+		return RangeLockFunc;
+		break;
+	}
+	case 45:
+	{
+
+		auto MagicLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+
+			}
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
+				magicLock = true;
 			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> RangeLockFunc = RangeLock;
-	perkFunctions.push_back(RangeLockFunc);
-	perkMapping.insert({ 44,RangeLockFunc });
-
-
-	auto MagicLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = 5;
-			magicLock = true;
-		}
-		else
-		{
-			if (placeHolder3 <= 0)
+			else
 			{
 				magicLock = false;
 			}
-			else
+			
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicLockFunc = MagicLock;
+		return MagicLockFunc;
+		break;
+	}
+	case 46:
+	{
+
+		auto WaterLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+			
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
-
+				waterLock = true;
 			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> MagicLockFunc = MagicLock;
-	perkFunctions.push_back(MagicLockFunc);
-	perkMapping.insert({ 45,MagicLockFunc });
-
-
-	auto WaterLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			waterLock = true;
-		}
-		else
-		{
-			if (placeHolder3 <= 0)
+			else
 			{
 				waterLock = false;
 			}
-			else
+			
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterLockFunc = WaterLock;
+		return WaterLockFunc;
+		break;
+	}
+	case 47:
+	{
+
+		auto FireLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+				placeHolder3 = duration;
+			}
+			if (placeHolder3 > 0)
 			{
 				placeHolder3 -= deltaTime;
-
+				fireLock = true;
 			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> WaterLockFunc = WaterLock;
-	perkFunctions.push_back(WaterLockFunc);
-	perkMapping.insert({ 46,WaterLockFunc });
-
-
-	auto FireLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-	{
-		if (condition)
-		{
-			placeHolder3 = duration;
-			fireLock = true;
-		}
-		else
-		{
-			if (placeHolder3 <= 0)
+			else
 			{
 				fireLock = false;
 			}
-			else
-			{
-				placeHolder3 -= deltaTime;
+			
 
-			}
-		}
-
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireLockFunc = FireLock;
-	perkFunctions.push_back(FireLockFunc);
-	perkMapping.insert({ 47,FireLockFunc });
-
-
-	auto NatureLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> FireLockFunc = FireLock;
+		return FireLockFunc;
+		break;
+	}
+	case 48:
 	{
-		if (condition)
+
+		auto NatureLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
-			placeHolder3 = duration;
-			natureLock = true;
-		}
-		else
-		{
-			if (placeHolder3 <= 0)
+			if (condition)
 			{
-				natureLock = false;
+				placeHolder3 = duration;
 			}
 			else
 			{
-				placeHolder3 -= deltaTime;
+				if (placeHolder3 > 0)
+				{
+					placeHolder3 -= deltaTime;
+					natureLock = true;
+				}
+				else
+				{
+					natureLock = false;
+				}
 			}
-		}
 
-	}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureLockFunc = NatureLock;
-	perkFunctions.push_back(NatureLockFunc);
-	perkMapping.insert({ 48,NatureLockFunc });
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureLockFunc = NatureLock;
+		return NatureLockFunc;
+		break;
+	}
 
-
-
-	
-
-
-
+	default:
+		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: Out of bounds");
+		break;
+	}
 }
 
-void PerkFaktory::initateMap()
+void PerkFaktory::iteratePerks()
 {
-	//parameters a;
-	//PlayerUnit* play;
-	//a.player = play;
 	
-
-
-
+	for (int i = 0; i < PickedPerks.size(); i++)
+	{
+		for (int j = 0; j < PickedPerks[i].typeSize; j++)
+		{
+			perkBehavior.push_back(initiateFuncs(PickedPerks[i].values[j], PickedPerks[i].types[j]));
+		}
+		for (int p = 0; p < PickedPerks[i].checkSize; p++)
+		{
+			perkBehavior.push_back(initiateFuncs(0, PickedPerks[i].checks[p]));
+		}
+		perkFuncVector.push_back(perkBehavior);
+		perkBehavior.clear();
+	}
 }

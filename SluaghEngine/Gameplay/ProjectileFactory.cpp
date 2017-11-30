@@ -5,7 +5,6 @@
 #include <Gameplay/PlayerUnit.h>
 #include <Gameplay/Room.h>
 #include "EnemyUnit.h"
-
 #include "CoreInit.h"
 
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
