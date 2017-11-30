@@ -215,6 +215,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->RenderRoom(true);
 	currentRoom->InitializeAdjacentFlowFields();
 
+	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
+
 	ProfileReturnVoid;
 }
 
@@ -1119,13 +1121,18 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	if(deathSequence == true){
 
+		if (CoreInit::subSystems.window->ButtonPressed(Window::KeyReturn)) {
+
+			returnValue = State::CHARACTER_CREATION_STATE;
+		}
+
 		deathTimer += dt;
 
 		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
 		
 		if (deathTimer > 15){
 			deathTimer = 0.0f;
-			returnValue = State::MAIN_MENU_STATE;
+			returnValue = State::CHARACTER_CREATION_STATE;
 		}
 	}
 
