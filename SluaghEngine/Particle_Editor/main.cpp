@@ -102,13 +102,20 @@ int main()
 	char loadSystem[100] = "";
 
 
-
+	
 	auto camera = engine->GetManagers().entityManager->Create();
-	engine->GetManagers().cameraManager->Create(camera);
+	Core::ICameraManager::CreateInfo info;
+	info.aspectRatio = 16.0f / 9.0f;
+	info.farPlance = 100.0f;
+	info.nearPlane = 0.01f;
+	info.posistion = XMFLOAT3{ 0.0f, 1.0f, -5.0f };
+	info.rotation = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
+	engine->GetManagers().cameraManager->Create(camera, info);
 	engine->GetManagers().cameraManager->SetActive(camera);
-	engine->GetManagers().transformManager->SetForward(camera, XMVECTOR{0, 0, 1.0f});
-	engine->GetManagers().transformManager->SetRotation(camera, 0, 0, 0);
-	engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
+
+//	engine->GetManagers().transformManager->SetForward(camera, XMVECTOR{0, 0, 1.0f});
+//	engine->GetManagers().transformManager->SetRotation(camera, 0, 0, 0);
+//	engine->GetManagers().transformManager->SetPosition(camera, { 0.0f, 1.0f, -5.0f });
 
 
 	subSystem.window->MapActionButton(ActionButton::Exit, Window::KeyEscape);
