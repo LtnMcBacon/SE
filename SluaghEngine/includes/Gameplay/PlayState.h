@@ -49,6 +49,8 @@ namespace SE
 			*/
 			State Update(void*& passableInfo);
 
+			void ToggleFlowField(bool showFlowField);
+
 			
 		private:
 
@@ -65,6 +67,10 @@ namespace SE
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
 			void InitWeaponPickups();
+
+			void CreateFlowFieldRendering();
+			void DestroyFlowFieldRendering();
+			void UpdateFlowFieldRendering();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
@@ -122,6 +128,9 @@ namespace SE
 			SE::Utilz::GUID sounds[3];
 
 			bool noShow = false;
+			bool showFlowField = false;
+			std::vector<SE::Core::Entity> flowFieldEntities;
+
 
 		protected:
 

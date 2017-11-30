@@ -12,15 +12,39 @@ SE::Gameplay::Status SE::Gameplay::CalculateTimeToRoomTransistionLeaf::Update()
 		myStatus = Status::BEHAVIOUR_FAILURE;
 	else
 	{
-		float distance = enemyBlackboard->ownerPointer->GetCurrentRoom()->DistanceToClosestDoor(
-			enemyBlackboard->ownerPointer->GetXPosition(),
-			enemyBlackboard->ownerPointer->GetYPosition(),
-			enemyBlackboard->closestDoorDirection
-		);
+		
+		Room::DirectionToAdjacentRoom directionToPlayer;
+		bool foundRoom = false;
+		for(int i = 0; i < 4; i++)
+		{
+			auto direction = Room::DirectionToAdjacentRoom(i);
+			if(enemyBlackboard->ownerPointer->GetCurrentRoom() == gameBlackboard->currentRoom->GetAdjacentRoomByDirection(direction))
+			{
+				directionToPlayer = Room::ReverseDirection(direction);
+				foundRoom = true;
+				break;
+			}
+		}
 
-		enemyBlackboard->timeToRoomTransisition = distance/2.5f;
 
-		myStatus = Status::BEHAVIOUR_SUCCESS;
+		if (foundRoom)
+		{
+			float distance = enemyBlackboard->ownerPointer->GetCurrentRoom()->DistanceToDoorInDirection(
+				enemyBlackboard->ownerPointer->GetXPosition(),
+				enemyBlackboard->ownerPointer->GetYPosition(),
+				directionToPlayer
+			);
+			distance += distance / 2.5f;
+			distance /= 5.f;
+			enemyBlackboard->timeToRoomTransisition = distance;
+			enemyBlackboard->closestDoorDirection = directionToPlayer;
+			myStatus = Status::BEHAVIOUR_SUCCESS;
+		}
+		else
+		{
+			enemyBlackboard->timeToRoomTransisition = 0.f;
+			myStatus = Status::BEHAVIOUR_FAILURE;
+		}
 	}
 
 

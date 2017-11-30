@@ -125,6 +125,7 @@ PlayState::~PlayState()
 	StartProfile;
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("tff");
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -140,6 +141,10 @@ PlayState::~PlayState()
 		CoreInit::managers.entityManager->DestroyNow(s.Image);
 		CoreInit::managers.entityManager->DestroyNow(s.frame);
 	}
+
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
 
 	ProfileReturnVoid;
 }
@@ -318,6 +323,13 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 
 				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
+
+				if(showFlowField)
+				{
+					DestroyFlowFieldRendering();
+					CreateFlowFieldRendering();
+					UpdateFlowFieldRendering();
+				}
 			}
 		
 		}
@@ -697,6 +709,19 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	}, "setspeed", "setspeed <value>");
 	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		
+		this->ToggleFlowField(!this->showFlowField);
+		if (this->showFlowField)
+		{
+			back->Print("FlowField Rendering on");
+			
+		}
+		else
+			back->Print("FlowField Rendering off");
+
+	}, "tff", "Toggles FlowField Rendering.");
+
 	ProfileReturnVoid;
 }
 #include <Items.h>
@@ -804,6 +829,100 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	ProfileReturnVoid;
 }
 
+void PlayState::CreateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{
+			if(!flowField->IsBlocked(x, y))
+			{
+				auto arrowEntity = CoreInit::managers.entityManager->Create();
+				
+				CoreInit::managers.transformManager->Create(arrowEntity, XMFLOAT3{ float(x) + 0.5f, 1.5f, float(y) + 0.5f });
+				CoreInit::managers.transformManager->Scale(arrowEntity, 0.5f);
+				CoreInit::managers.renderableManager->CreateRenderableObject(arrowEntity, { "Arrow.mesh" });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(arrowEntity, true);
+				flowFieldEntities.push_back(arrowEntity);
+			}
+		}
+	StopProfile;
+}
+
+void PlayState::DestroyFlowFieldRendering()
+{
+	StartProfile;
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
+	StopProfile;
+}
+
+void PlayState::UpdateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+	int counter = 0;
+	float xRot;
+	float yRot;
+	pos mapPos;
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{ 
+			if (!flowField->IsBlocked(x, y))
+			{
+				mapPos = { float(x), float(y) };
+				flowField->SampleFromMap(mapPos, xRot, yRot);
+
+				if (xRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, 0.0f, 0.0f);
+				}
+				else if (xRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI, 0.0f);
+				}
+				else if (yRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+				}
+				else if (yRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+
+				}
+				else if (xRot == 0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+				else if (xRot == -0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+
+				counter++;
+			}
+			
+		}
+	StopProfile;
+}
+
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
@@ -886,7 +1005,29 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	if (!player->IsAlive())
 		returnValue = State::GAME_OVER_STATE;
 
+	if (showFlowField)
+		UpdateFlowFieldRendering();
+
 	ProfileReturn(returnValue);
 
+}
+
+void PlayState::ToggleFlowField(bool showFlowField)
+{
+	StartProfile;
+	if(this->showFlowField != showFlowField)
+	{
+		this->showFlowField = showFlowField;
+		if(showFlowField)
+		{
+			CreateFlowFieldRendering();
+			UpdateFlowFieldRendering();
+		}
+		else
+		{
+			DestroyFlowFieldRendering();
+		}
+	}
+	StopProfile;
 }
 

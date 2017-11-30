@@ -625,6 +625,8 @@ namespace SE
 			 */
 			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
 
+			float DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const;
+
 			/**
 			* @brief Resets the tilevalues from 100 to 0
 			*
