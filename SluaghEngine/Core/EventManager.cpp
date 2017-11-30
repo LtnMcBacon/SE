@@ -220,7 +220,7 @@ void SE::Core::EventManager::Frame(Utilz::TimeCluster * timer)
 		for (auto& ent : triggerEvents[_event].entitesRegistered)
 			triggerEvents[_event].callback(ent);
 	}
-
+	eventsToTrigger.clear();
 
 
 	timer->Stop("EventManager");
