@@ -73,7 +73,7 @@ namespace SE
 
 			std::wstring GenerateDeathMessage();
 			void InitializeDeathSequence();
-			void UpdateDeathCamera(float dt);
+			void UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit);
 
 			HUDParser playStateGUI;
 			std::string OptionalButtons[2]

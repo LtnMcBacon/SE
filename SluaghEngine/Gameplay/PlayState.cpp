@@ -343,7 +343,7 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 
 std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 
-	int value = min(CoreInit::subSystems.window->GetRand(), 4);
+	int value = CoreInit::subSystems.window->GetRand() % 11;
 
 	switch (value) {
 
@@ -362,6 +362,24 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 	case 4:
 		return L"DU GÅR MOT LJUSET...";
 
+	case 5:
+		return L"NU SLIPPER DU SKOTTEN I ALLA FALL";
+
+	case 6:
+		return L"HIMLEN HAR FÅTT SIG EN NY ÄNGEL";
+
+	case 7:
+		return L"ÄR DU HÄR IGEN?";
+
+	case 8:
+		return L"SPELARTIPS: DU KAN FÖRSVARA DIG";
+
+	case 9:
+		return L"SPELARTIPS: FIENDERNA ÄR FARLIGA";
+
+	case 10:
+		return L"FÖRSÖKER DU ENS?";
+
 	}
 }
 
@@ -370,11 +388,11 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathText = CoreInit::managers.entityManager->Create();
 	Core::ITextManager::CreateInfo deathInfo;
 	deathInfo.info.text = GenerateDeathMessage();
-	deathInfo.info.scale = { 1.0f, 1.0f };
+	deathInfo.info.scale = { 0.7f, 0.7f };
 	deathInfo.info.posX = 0;
 	deathInfo.info.posY = 0;
 	deathInfo.info.anchor = { 0.5f, 0.5f };
-	deathInfo.info.screenAnchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
@@ -401,21 +419,25 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, false);
 }
 
-void SE::Gameplay::PlayState::UpdateDeathCamera(float dt) {
+void SE::Gameplay::PlayState::UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit) {
 
 	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, -0.01f, 0.0f, 1.0f };
-	CoreInit::managers.transformManager->Rotate(cameraDummy, 0.00f, -0.5f * dt, 0.0f);
+	CoreInit::managers.transformManager->Rotate(cameraDummy, 0.00f, rotValue * dt, 0.0f);
 
 	XMFLOAT3 camPos = CoreInit::managers.transformManager->GetPosition(cam);
 	XMFLOAT3 dummyPos = CoreInit::managers.transformManager->GetPosition(cameraDummy);
 
-	XMVECTOR a = XMLoadFloat3(&camPos);
-	XMVECTOR b = XMLoadFloat3(&dummyPos);
+	XMVECTOR camPosXM = XMLoadFloat3(&camPos);
+	XMVECTOR dummyPosXM = XMLoadFloat3(&dummyPos);
 
 	XMFLOAT3 difVec;
-	XMStoreFloat3(&difVec, XMVector3Normalize(b - a) * dt * 0.2f);
+	XMStoreFloat3(&difVec, XMVector3Normalize(dummyPosXM - camPosXM) * zoomValue * dt);
 
-	CoreInit::managers.transformManager->Move(cam, difVec);
+	if(camPos.y >= zoomLimit){
+
+		CoreInit::managers.transformManager->Move(cam, difVec);
+
+	}
 	
 }
 
@@ -975,10 +997,10 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 		deathTimer += dt;
 
-		UpdateDeathCamera(dt);
+		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
 		
 		if(deathTimer > 20)
-			returnValue = State::GAME_OVER_STATE;
+			returnValue = State::MAIN_MENU_STATE;
 	}
 
 	ProfileReturn(returnValue);
