@@ -185,6 +185,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100;
