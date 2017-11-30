@@ -955,8 +955,8 @@ void SE::Gameplay::PlayerUnit::SavePlayerToFile(std::ofstream &toSave)
 	toSave.write((char*)&baseStat, sizeof(baseStat));
 
 	/*Save Skills*/
-	for (auto skill : skills)
-		toSave.write((char*)&skill, sizeof(skill));
+	for (int i = 0; i < 2; i++)
+		toSave.write((char*)&skills[i], sizeof(skills[i]));
 
 	/*Save Perks*/
 	

@@ -75,7 +75,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	std::string appdata(appdataBuffer);
 	free(appdataBuffer);
 	appdata += "\\Sluagh\\";
-	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in);
+	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in|std::ios::binary);
 	
 
 	/*Create copy of the player*/
@@ -85,6 +85,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 		/*Create sluagh from data*/
 		theSluagh = new PlayerUnit(in, 15, 15, roomMap);
 		theSluagh->ToggleAsSluagh(true);
+		in.close();
 
 	}
 	else

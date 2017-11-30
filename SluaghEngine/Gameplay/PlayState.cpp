@@ -728,9 +728,23 @@ void PlayState::InitializePlayer(void* playerInfo)
 				//auto pc = Item::Copy(pot);
 				//player->AddItem(pc, 3);
 
-				//Item::WriteToFile(pot, "sw.itm");
-				//auto fromFile = Item::Create("sw.itm");
-				//player->AddItem(fromFile, 4);
+				/*std::ofstream out("sw.itm", std::ios::binary);
+				if(out.is_open())
+				{
+					Item::WriteToFile(startWeapon,out);
+					Item::WriteToFile(startWeapon, out);
+					out.close();
+					std::ifstream in("sw.itm", std::ios::binary);
+					if (in.is_open())
+					{
+						auto fromFile = Item::Create(in);
+						player->AddItem(fromFile, 3);
+						fromFile = Item::Create(in);
+						player->AddItem(fromFile, 4);
+					}
+				}*/
+
+				
 				return;
 			}
 		}
@@ -1125,7 +1139,20 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		if(sluaghRoom)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+			{
 				returnValue = State::WIN_STATE;
+
+				char* appdataBuffer;
+				size_t bcount;
+				if (_dupenv_s(&appdataBuffer, &bcount, "APPDATA"))
+					throw std::exception("Failed to retrieve path to appdata.");
+				std::string appdata(appdataBuffer);
+				free(appdataBuffer);
+				appdata += "\\Sluagh\\";
+				std::ofstream out(appdata + "sluaghFile.sluagh", std::ios::out | std::ios::binary);
+				player->SavePlayerToFile(out);
+				out.close();
+			}
 		}
 	}
 
