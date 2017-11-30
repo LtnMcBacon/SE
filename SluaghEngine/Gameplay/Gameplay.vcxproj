@@ -100,6 +100,7 @@
     <ClCompile Include="TransistionToRoomLeaf.cpp" />
     <ClCompile Include="TutorialState.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
+    <ClCompile Include="WinState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TutorialState.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\WinState.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
   </ItemGroup>

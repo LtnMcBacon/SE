@@ -106,8 +106,10 @@ SE::Gameplay::TutorialState::TutorialState()
 	Core::Entity cam;
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
-	cam = managers.cameraManager->GetActive();
-	managers.cameraManager->UpdateCamera(cam, cInfo);
+	cam = managers.entityManager->Create();
+	managers.cameraManager->Create(cam, cInfo);
+	managers.cameraManager->SetActive(cam);
+	
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
