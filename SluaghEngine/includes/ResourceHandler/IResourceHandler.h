@@ -36,14 +36,16 @@ namespace SE
 		{
 			SUCCESS = 1 << 0,
 			FAIL = 1 << 1,
-			NO_DELETE = 1 << 2
+			SEMI_FAIL = 1 << 2,
+			NO_DELETE = 1 << 3
 		};
 
 		enum class InvokeReturn {
 			FAIL = 1 << 1,
 			SUCCESS = 1 << 2,
 			DEC_RAM  = 1 << 3,
-			DEC_VRAM = 1 << 4
+			DEC_VRAM = 1 << 4,
+			SEMI_FAIL = 1 << 5
 		};
 
 		enum class LoadFlags {

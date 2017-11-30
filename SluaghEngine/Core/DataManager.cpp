@@ -95,6 +95,7 @@ std::ifstream& operator>>(std::ifstream& in, std::pair<const SE::Utilz::GUID, SE
 		char* buff = new char[len];
 		in.read(buff, len);
 		value.second = std::string(buff, len);
+		delete[] buff;
 		break;
 	}
 	case 5:
