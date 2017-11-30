@@ -154,7 +154,11 @@ static const auto invoke = [](auto& map, auto& guid, auto data, auto& callback, 
 		errors.Push_Back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 		return -1;
 	}
-
+	if (iresult & SE::ResourceHandler::InvokeReturn::SEMI_FAIL)
+	{
+		errors.Push_Back("Resource semi-failed in InvokeCallback, GUID: " + std::to_string(guid.id));
+		return -2;
+	}
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_RAM)
 		SE::Utilz::OperateSingle(map, guid, decRef);
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_VRAM)

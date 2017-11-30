@@ -145,6 +145,12 @@
     <Filter Include="Source Files\Perks">
       <UniqueIdentifier>{ae18b683-1a04-47df-b06d-326c5d3c82b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Items">
+      <UniqueIdentifier>{069e3f6c-34a0-47b5-94a4-8e332e8d79f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Items">
+      <UniqueIdentifier>{a08f9362-6e53-4fda-81e8-2dfd4b9874c3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\IGameState\OptionState">
       <UniqueIdentifier>{4f27e3c0-0506-4463-b7a5-78d5077be776}</UniqueIdentifier>
     </Filter>
@@ -342,9 +348,6 @@
     <ClCompile Include="PauseAnimationsLeaf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Items.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
@@ -398,6 +401,15 @@
     </ClCompile>
     <ClCompile Include="PerkFactory.cpp">
       <Filter>Source Files\Perks</Filter>
+    </ClCompile>
+    <ClCompile Include="Items.cpp">
+      <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Consumable.cpp">
+      <Filter>Source Files\Items</Filter>
     </ClCompile>
     <ClCompile Include="WinState.cpp">
       <Filter>Source Files\IGameState</Filter>
@@ -644,9 +656,6 @@
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\Items.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
@@ -694,6 +703,15 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h">
       <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Weapon.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Items.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Consumable.h">
+      <Filter>Header Files\Items</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\OptionState.h">
       <Filter>Header Files\IGameState\OptionState</Filter>

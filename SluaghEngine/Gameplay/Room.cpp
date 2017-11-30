@@ -1514,6 +1514,11 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 
 void SE::Gameplay::Room::RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit * enemyToRemove)
 {
+	if (enemyToRemove == nullptr)
+	{
+		for (auto enemy : enemyUnits)
+			enemy->SetHealth(-1);
+	}
 	int counter = 0;
 	for(auto enemy : enemyUnits)
 	{
