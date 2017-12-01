@@ -131,7 +131,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
 				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
 				break;
-			case Boons::CONDITIONAL_BOONS_SLOW:
+			case Boons::CONDITIONAL_BOONS_ATTACK_SPEED:
 				break;
 			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 				break;
@@ -486,10 +486,19 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
+
+		if (skills[0].atkType == DamageSources::DAMAGE_SOURCE_SELFCAST)
+			temp.target = ValidTarget::PLAYER;
+		else
+			temp.target = ValidTarget::ENEMIES;
+
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		ConditionEvent::ConditionType boonType;
+		boonType.condition.boon = skills[0].boon;
+		ConditionEventVector.push_back(ConditionEvent(boonType, skills[0].boonEffectValue, skills[0].boonEffectValue));
+
 		if (!isSluagh)
 		{
 			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
@@ -531,6 +540,10 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].damageType, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
+
+		ConditionEvent::ConditionType boonType;
+		boonType.condition.boon = skills[1].boon;
+		ConditionEventVector.push_back(ConditionEvent(boonType, skills[1].boonEffectValue, skills[1].boonEffectValue));
 
 		if (!isSluagh)
 		{
@@ -613,6 +626,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		attacking = false;
 		attackCooldown = 0.f;
 	}
+
+
 
 	ResolveEvents(dt);
 	ClearConditionEvents();

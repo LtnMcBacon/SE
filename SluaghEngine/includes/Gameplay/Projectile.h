@@ -280,6 +280,16 @@ namespace SE
 				lifeTime = value;
 			}
 
+			inline void SetExtentX(float value)
+			{
+				extentX = value;
+			}
+
+			inline void SetExtentY(float value)
+			{
+				extentY = value;
+			}
+
 			inline DamageEvent GetDamageEvent()
 			{
 				return eventDamage;

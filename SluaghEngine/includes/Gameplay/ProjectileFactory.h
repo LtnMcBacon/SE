@@ -340,7 +340,20 @@ namespace SE
 			**/
 			std::function<bool(Projectile* projectile, float dt)> SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters); // 
 
+			/**
+			* @brief	Adds a condition based on if the projectiles LifeTime is larger than the minimum
+			**/
+			std::function<bool(Projectile* projectile, float dt)> MinimumLifeTimeConditionBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision height
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetHeightBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision width
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetWidthBehaviour(std::vector<BehaviourParameter> parameters); // f
 
 
 

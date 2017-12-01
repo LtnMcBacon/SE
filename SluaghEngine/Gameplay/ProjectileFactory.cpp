@@ -1499,7 +1499,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
-	float percentage = std::get<float>(parameters[0].data);
+	float percentage = std::get<float>(parameters[0].data) / 100;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
 
 	auto dynamicPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
@@ -1590,6 +1590,49 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(setToMousePos);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::MinimumLifeTimeConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float minimumLife = std::get<float>(parameters[0].data);
+
+	auto lifeTimeChecker = [minimumLife](Projectile* p, float dt) -> bool
+	{
+		return minimumLife <= p->GetLifeTime();
+	};
+
+	ProfileReturnConst(lifeTimeChecker);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetHeightBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float newHeight = std::get<float>(parameters[0].data);
+
+	auto heightSetter = [newHeight](Projectile* p, float dt) -> bool
+	{
+		p->SetExtentY(newHeight);
+
+		return false;
+	};
+
+	ProfileReturnConst(heightSetter);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetWidthBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float newWidth = std::get<float>(parameters[0].data);
+
+	auto widthSetter = [newWidth](Projectile* p, float dt) -> bool
+	{
+		p->SetExtentX(newWidth);
+
+		return false;
+	};
+
+	ProfileReturnConst(widthSetter);
+}
+
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
 {
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::BounceBehaviour, this, std::placeholders::_1)); // 
@@ -1639,6 +1682,9 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthStaticBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthPercentBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetPositionToMouseBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::MinimumLifeTimeConditionBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetHeightBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetWidthBehaviour, this, std::placeholders::_1)); // f
 
 }
 
