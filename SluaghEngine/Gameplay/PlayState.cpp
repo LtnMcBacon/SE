@@ -694,8 +694,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 2;
+	worldWidth = 5;
+	worldHeight = 5;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -786,7 +786,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			}
 			else 
 			{
-				data.type = ENEMY_TYPE_RANDOM;
+				data.type = ENEMY_TYPE_RANDOM; //  Crashes.
 			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
