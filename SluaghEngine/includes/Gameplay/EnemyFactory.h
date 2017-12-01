@@ -4,14 +4,17 @@
 #include <Utilz/GUID.h>
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
+#include <Core/Entity.h>
 
 namespace SE
 {
 	namespace Gameplay
 	{
 		class BehaviouralTreeFactory;
+		class BehaviouralTree;
 		class EnemyUnit;
 		struct GameBlackboard;
+		struct EnemyBlackboard;
 
 
 		enum EnemyType
@@ -124,6 +127,14 @@ namespace SE
 			*
 			*/
 			void CreateEnemies(const EnemyCreationStruct &descriptions, GameBlackboard* gameBlackboard, EnemyUnit** unitArray);
+
+			/**
+			 * @brief Create an entity and load all "entity related" data into the system (meshes, animations...)
+			 */
+			void CreateEntityDataForEnemyType(EnemyType type, const Core::Entity &myEntity);
+			EnemyUnit* CreateEnemyDataForEnemyType(EnemyType type, bool useVariation);
+			BehaviouralTree* CreateBehaviouralTreeForEnemyType(EnemyType type, GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard);
+
 
 			EnemyFactory();
 			~EnemyFactory();
