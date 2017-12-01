@@ -1992,7 +1992,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 
 	if (0 < randValue && randValue <= 10)
 	{
-		auto PaintingEnt = CoreInit::managers.entityManager->Create();
+		const auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
 		matInfoPainting.shader = Norm;
 		matInfoPainting.materialFile = Materials[Materials::Wood];
@@ -2014,11 +2014,11 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);
 		//CoreInit::managers.decalManager->ToggleVisible(PaintingEnt, true);
 
-		DirectX::XMFLOAT3 paintingForward = CoreInit::managers.transformManager->GetForward(PaintingEnt);
+		const DirectX::XMFLOAT3 paintingForward = CoreInit::managers.transformManager->GetForward(PaintingEnt);
 
 		DirectX::XMFLOAT4X4 decalTrans;
-		DirectX::XMMATRIX decalTranslation = DirectX::XMMatrixTranslation(0.0f + paintingForward.x * 0.25f, 0.75f, 0.0f + paintingForward.z * 0.25f);
-		DirectX::XMMATRIX decalScaling = DirectX::XMMatrixScaling(0.945f, 1.14f, 0.65f);
+		const DirectX::XMMATRIX decalTranslation = DirectX::XMMatrixTranslation(0.0f + paintingForward.x * 0.25f, 0.75f, 0.0f + paintingForward.z * 0.25f);
+		const DirectX::XMMATRIX decalScaling = DirectX::XMMatrixScaling(0.945f, 1.14f, 0.65f);
 		DirectX::XMStoreFloat4x4(&decalTrans, decalScaling * decalTranslation);
 
 		CoreInit::managers.decalManager->SetLocalTransform(PaintingEnt, (float*)&decalTrans);
