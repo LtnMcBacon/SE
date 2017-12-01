@@ -788,15 +788,21 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
-			eStruct.information.push_back(data);
+			//eStruct.information.push_back(data);
+		
+			auto enemy = eFactory.CreateEnemyDataForEnemyType(data.type, data.useVariation);
+			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
+			enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
+			enemy->PositionEntity(data.startX, data.startY);
+			room->AddEnemyToRoom(enemy);
 		}
 
-		eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
+	/*	eFactory.CreateEnemies(eStruct, &blackBoard, enemies);
 
 		for (int i = 0; i < enemiesInEachRoom; i++)
 		{
 			room->AddEnemyToRoom(enemies[i]);
-		}
+		}*/
 		if (!(++counter % 3))
 			enemiesInEachRoom++;
 		delete[] enemies;

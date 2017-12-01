@@ -63,20 +63,23 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		newEnemy->SetZPosition(1.5f);
 		newEnemy->PositionEntity(desc.startX, desc.startY);
 		newEnemy->SetBehaviouralTree(CreateBehaviouralTreeForEnemyType(type, gameBlackboard, newEnemy->GetEnemyBlackboard()));
-		CreateEntityDataForEnemyType(type, newEnemy->GetEntity());		
+		newEnemy->SetEntity(CreateEntityDataForEnemyType(type));
 		unitArray[numberOfCreatedEnemies++] = newEnemy;
 	}
 	
 	StopProfile;
 }
 
-void EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, const Core::Entity &myEntity)
+Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
 {
 	StartProfile;
 	auto const enemyCreationData = enemyData.find(type);
+	auto newEntity = CoreInit::managers.entityManager->Create();
+
 
 	if (enemyCreationData != enemyData.end())
 	{
+		CoreInit::managers.transformManager->Create(newEntity);
 
 		/*Fix with managers*/
 		Core::IAnimationManager::CreateInfo cInfo;
@@ -85,22 +88,22 @@ void EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, const Core::Enti
 		cInfo.mesh = enemyCreationData->second.meshGUID;
 		cInfo.skeleton = enemyCreationData->second.skeletonGUID;
 
-		CoreInit::managers.animationManager->CreateAnimatedObject(myEntity, cInfo);
-		CoreInit::managers.animationManager->ToggleVisible(myEntity, true);
+				CoreInit::managers.animationManager->CreateAnimatedObject(newEntity, cInfo);
+		CoreInit::managers.animationManager->ToggleVisible(newEntity, true);
 
 		Core::IMaterialManager::CreateInfo enemyInfo;
 		enemyInfo.materialFile = enemyCreationData->second.materialGUID;
 		enemyInfo.shader = enemyCreationData->second.shaderGUID;
-		CoreInit::managers.materialManager->Create(myEntity, enemyInfo);
+		CoreInit::managers.materialManager->Create(newEntity, enemyInfo);
 
-		CoreInit::managers.audioManager->Create(myEntity, { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
-		CoreInit::managers.dataManager->SetValue(myEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
+		CoreInit::managers.audioManager->Create(newEntity, { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
+		CoreInit::managers.dataManager->SetValue(newEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
 
 
 		if (type == ENEMY_TYPE_NUCKELAVEE)
 		{
 			//Move up
-			CoreInit::managers.transformManager->Move(myEntity, DirectX::XMFLOAT3{ 0, 0.8f, 0 });
+			CoreInit::managers.transformManager->Move(newEntity, DirectX::XMFLOAT3{ 0, 0.8f, 0 });
 
 			//Insert entity for sword here.
 			auto swordEntity = CoreInit::managers.entityManager->Create();
@@ -113,14 +116,17 @@ void EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, const Core::Enti
 			CoreInit::managers.transformManager->Create(swordEntity);
 			CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
 			CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
-			CoreInit::managers.dataManager->SetValue(myEntity, "Weapon", swordEntity);
+			CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
 			CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
 			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
 
-			CoreInit::managers.animationManager->AttachToEntity(myEntity, swordEntity, "LHand", 0);
+			CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
 		}
+
+		ProfileReturnConst( newEntity);
 	}
-	StopProfile;
+
+	ProfileReturnConst(newEntity);
 }
 
 EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVariation)
@@ -139,7 +145,7 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		}
 	
 
-		createdEnemy = new EnemyUnit(nullptr, 0.f, 0.f, enemyHealth);
+		createdEnemy = new EnemyUnit(type, nullptr, 0.f, 0.f, enemyHealth);
 		createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
 		/*To do: Add the rest of the data here!*/
 
