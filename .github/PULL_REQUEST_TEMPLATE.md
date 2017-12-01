@@ -2,11 +2,21 @@
 
 Connected to issue #nr
 
-Additions:
-* Added a pull request template
+Additions: -- New Things --
+Added a pull request template
+* Additions
+* Changes
+* New Issues
+* Bugs Resolved
+* New bugs
+* Warnings
+* Notes
+* Checklist
 
-Changes: 
-* Added changes example to template
+
+Changes: -- Changes to something already existing --
+Changed the text under Additions
+* Additions now contains a list of all areas.
 -- This is related to the above point.
 
 New Issues: -- If none remove --
