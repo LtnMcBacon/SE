@@ -85,6 +85,7 @@ namespace SE
 			Core::Entity cam;
 			Core::Entity dummy;
 			Core::Entity usePrompt;
+			Core::Entity returnPrompt;
 			PlayerUnit* player;
 
 			uint8_t worldWidth = 4;

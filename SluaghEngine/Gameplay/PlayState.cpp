@@ -217,6 +217,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->RenderRoom(true);
 	currentRoom->InitializeAdjacentFlowFields();
 
+	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
+
 	ProfileReturnVoid;
 }
 
@@ -243,6 +245,7 @@ PlayState::~PlayState()
 	CoreInit::managers.entityManager->DestroyNow(dummy);
 	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
 	CoreInit::managers.entityManager->DestroyNow(deathText);
+	CoreInit::managers.entityManager->DestroyNow(returnPrompt);
 	CoreInit::managers.entityManager->DestroyNow(usePrompt);
 	CoreInit::managers.entityManager->DestroyNow(soundEnt);
 	for (auto& s : skillIndicators)
@@ -552,6 +555,8 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 void SE::Gameplay::PlayState::InitializeDeathSequence() {
 
 	deathText = CoreInit::managers.entityManager->Create();
+	returnPrompt = CoreInit::managers.entityManager->Create();
+
 	Core::ITextManager::CreateInfo deathInfo;
 	deathInfo.info.text = GenerateDeathMessage();
 	deathInfo.info.scale = { 0.7f, 0.7f };
@@ -560,11 +565,22 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathInfo.info.anchor = { 0.5f, 0.5f };
 	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
+
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
+	deathInfo.info.text = L"TRYCK RETUR FÖR ATT ÅTERGÅ TILL MENYN";
+	deathInfo.info.scale = { 0.3f, 0.3f };
+	deathInfo.info.posX = 0;
+	deathInfo.info.posY = 0;
+	deathInfo.info.anchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.90f };
+
+	CoreInit::managers.textManager->Create(returnPrompt, deathInfo);
+
 	CoreInit::managers.textManager->SetTextColour(deathText, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
-	//CoreInit::managers.textManager->SetTextPos(deathText, CoreInit::subSystems.window->Width() / 2, CoreInit::subSystems.window->Height() / 2);
+	CoreInit::managers.textManager->SetTextColour(returnPrompt, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
 	CoreInit::managers.textManager->ToggleRenderableText(deathText, true);
+	CoreInit::managers.textManager->ToggleRenderableText(returnPrompt, true);
 
 	// Create dummy entity and initialize it with player position
 	cameraDummy = CoreInit::managers.entityManager->Create();
@@ -1180,13 +1196,18 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	if(deathSequence == true){
 
+		if (CoreInit::subSystems.window->ButtonPressed(Window::KeyReturn)) {
+
+			returnValue = State::CHARACTER_CREATION_STATE;
+		}
+
 		deathTimer += dt;
 
 		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
 		
 		if (deathTimer > 15){
 			deathTimer = 0.0f;
-			returnValue = State::MAIN_MENU_STATE;
+			returnValue = State::CHARACTER_CREATION_STATE;
 		}
 	}
 
