@@ -468,22 +468,10 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());
 				streamTimings << "," << toMB(Utilz::Memory::GetPhysicalProcessMemory()); // Should be from resoruce handler
 				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());// Should be from resoruce handler
-				auto beg = times.begin();
-				if (beg != times.end())
-				{
-					streamTimings << (*beg).second;
-					beg++;
-				}
-				while (beg != times.end())
-				{
-					streamTimings << "," << (*beg).second;
-					beg++;
-				}
-				
 				for (auto& t : times)
 				{
+					streamTimings << "," << t.second;
 					CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
-
 				}
 			}
 		}
