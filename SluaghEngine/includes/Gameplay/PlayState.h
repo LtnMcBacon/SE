@@ -89,8 +89,8 @@ namespace SE
 			Core::Entity usePrompt;
 			PlayerUnit* player;
 
-			uint8_t worldWidth = 8;
-			uint8_t worldHeight = 8;
+			uint8_t worldWidth;
+			uint8_t worldHeight;
 
 
 			inline std::optional<Room*> GetRoom(int x, int y)
