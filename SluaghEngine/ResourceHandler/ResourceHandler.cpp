@@ -254,6 +254,40 @@ bool SE::ResourceHandler::ResourceHandler::IsResourceLoaded(const Utilz::GUID & 
 	return found;
 }
 
+bool SE::ResourceHandler::ResourceHandler::Exist(const Utilz::GUID guid)
+{
+	return diskLoader->Exist(guid, nullptr);
+}
+
+size_t SE::ResourceHandler::ResourceHandler::GetMemoryUsed(ResourceType type)
+{
+	if (type & ResourceType::RAM)
+	{
+		size_t ramTot = 0;
+		Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					ramTot += r.second.data.size;
+			}
+		});
+		return ramTot;
+	}
+	else if (type & ResourceType::VRAM)
+	{
+		size_t vramTot = 0;
+		Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					vramTot += r.second.data.size;
+			}
+		});
+		return vramTot;
+	}
+	return 0;
+}
+
 static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& errors)
 {
 	if (r.state & SE::ResourceHandler::State::DEAD)
@@ -368,24 +402,8 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		return -1;
 	}
 
-	size_t ramTot = 0;
-	Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
-		for (auto& r : map)
-		{
-			if (r.second.state & State::LOADED)
-				ramTot += r.second.data.size;
-		}
-	});
-	size_t vramTot = 0;
-	Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
-		for (auto& r : map)
-		{
-			if (r.second.state & State::LOADED)
-				vramTot += r.second.data.size;
-		}
-	});
 #include <Utilz\Memory.h>
-	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(ramTot)) + "mb VRAM: " + std::to_string(toMB(vramTot))+ "mb");
+	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::RAM))) + "mb VRAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::VRAM))) + "mb");
 
 	return 0;
 }

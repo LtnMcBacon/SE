@@ -49,6 +49,8 @@ namespace SE
 			*/
 			State Update(void*& passableInfo);
 
+			void ToggleFlowField(bool showFlowField);
+
 			
 		private:
 
@@ -65,6 +67,10 @@ namespace SE
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();
 			void InitWeaponPickups();
+
+			void CreateFlowFieldRendering();
+			void DestroyFlowFieldRendering();
+			void UpdateFlowFieldRendering();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
@@ -88,8 +94,8 @@ namespace SE
 			Core::Entity returnPrompt;
 			PlayerUnit* player;
 
-			uint8_t worldWidth = 4;
-			uint8_t worldHeight = 4;
+			uint8_t worldWidth;
+			uint8_t worldHeight;
 
 
 			inline std::optional<Room*> GetRoom(int x, int y)
@@ -131,6 +137,9 @@ namespace SE
 			float deathTimer = 0.0f;
 			Core::Entity deathText;
 			Core::Entity cameraDummy;
+			bool showFlowField = false;
+			std::vector<SE::Core::Entity> flowFieldEntities;
+
 
 		protected:
 

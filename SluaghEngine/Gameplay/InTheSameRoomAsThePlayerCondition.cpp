@@ -19,7 +19,10 @@ SE::Gameplay::Status SE::Gameplay::InTheSameRoomAsThePlayerCondition::Update()
 {
 	StartProfile;
 	if (enemyBlackboard->ownerPointer->GetCurrentRoom() == gameBlackboard->currentRoom)
+	{
 		myStatus = Status::BEHAVIOUR_SUCCESS;
+		enemyBlackboard->timeToRoomTransisition = 0.f;
+	}
 	else
 		myStatus = Status::BEHAVIOUR_FAILURE;
 	ProfileReturnConst(myStatus);

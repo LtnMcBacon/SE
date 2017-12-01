@@ -75,19 +75,24 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	std::string appdata(appdataBuffer);
 	free(appdataBuffer);
 	appdata += "\\Sluagh\\";
-	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in);
+	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in|std::ios::binary);
 	
 
+	/*Create copy of the player*/
+	char roomMap[25][25]; room->GetMap(roomMap);
 	if(in.is_open())
 	{
 		/*Create sluagh from data*/
+		theSluagh = new PlayerUnit(in, 15, 15, roomMap);
+		theSluagh->ToggleAsSluagh(true);
+		in.close();
+
 	}
 	else
 	{
-		/*Create copy of the player*/
-		char roomMap[25][25]; room->GetMap(roomMap);
+		/*Copy the current player*/
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
-
+		theSluagh->ToggleAsSluagh(true);
 		auto playerItems = thePlayer->GetAllItems();
 		for(int i = 0; i < 5; i++)
 		{
@@ -101,7 +106,6 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	theSluagh->UpdatePlayerRotation(rotX, rotY);
 	theSluagh->SetZPosition(0.9f);
 	theSluagh->PositionEntity(15.5f, 15.5f);
-	theSluagh->ToggleAsSluagh(true);
 }
 
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -129,7 +133,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = skillToCheck.skillDamage*5.f/skillToCheck.cooldown;
+	float utilityValue = skillToCheck.skillDamage*2.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }
@@ -226,12 +230,8 @@ float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 					swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Health", 0)) / 5.f;
 				break;
 
-			
-			case ItemType::WEAPON:
-				
+			default:
 				break;
-
-			default:;
 			}
 
 			if (maxUtility < swapUtility)
