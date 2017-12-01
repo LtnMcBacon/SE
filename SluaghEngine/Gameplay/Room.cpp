@@ -1988,9 +1988,13 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 		
+		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
+		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
+		auto paintingToUse = std::rand() % paintingTexturesCount;
+
 		Core::DecalCreateInfo decalInfo;
 		decalInfo.opacity = 0.50f;
-		decalInfo.textureName = "painting1.png";
+		decalInfo.textureName = paintingTextures[paintingToUse];
 
 		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);
 		//CoreInit::managers.decalManager->ToggleVisible(PaintingEnt, true);
