@@ -31,10 +31,10 @@ static const std::array<WeaponInfo, 3> weaponInfo = { {
 
 SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
-	return Create(Weapon::Type(std::rand() % int(Weapon::Type::NONE)));
+	return Create(Weapon::Type(std::rand() % int(Weapon::Type::NONE)), false);
 }
 
-SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type)
+SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base)
 {
 	auto wep = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(ItemType::WEAPON));
@@ -43,7 +43,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type)
 	CoreInit::managers.dataManager->SetValue(wep, "Str", Stats::GetRandStr());
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", Stats::GetRandAgi());
 	CoreInit::managers.dataManager->SetValue(wep, "Wis", Stats::GetRandWil());
-	CoreInit::managers.dataManager->SetValue(wep, "Damage", 3);
+	CoreInit::managers.dataManager->SetValue(wep, "Damage", base  ? 3 : Stats::GetRandDamage());
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(Stats::GetRandomDamageType()));
 	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(type)].attAnim.id);
 	CoreInit::managers.dataManager->SetValue(wep, "AttProj", weaponInfo[size_t(type)].projectile.id);
