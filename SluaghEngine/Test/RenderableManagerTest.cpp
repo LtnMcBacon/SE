@@ -82,8 +82,8 @@ bool SE::Test::RenderableManagerTest::Run(DevConsole::IConsole * console)
 
 
 
-	auto& mainC = managers.entityManager->Create();
-	auto& camera = managers.entityManager->Create();
+	auto mainC = managers.entityManager->Create();
+	auto camera = managers.entityManager->Create();
 
 	managers.cameraManager->Create(camera);
 	managers.cameraManager->SetActive(camera);

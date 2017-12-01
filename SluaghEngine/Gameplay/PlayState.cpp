@@ -20,11 +20,13 @@ PlayState::PlayState()
 {
 
 }
-static size_t dmgOverlayIndex = 0;
+static size_t dmgOverlayIndex = 0; 
+static std::ofstream streamTimings;
+bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
-
+	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
 		currentRoom->RemoveEnemyFromRoom(nullptr);
@@ -221,6 +223,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+
+	if (streamTimings.is_open())
+		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
 	CoreInit::subSystems.devConsole->RemoveCommand("give");
 	CoreInit::subSystems.devConsole->RemoveCommand("kill");
@@ -361,7 +366,10 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 		break;
 	}
 }
-
+#include <Utilz\CPUTimeCluster.h>
+#include <Utilz\Memory.h>
+static int streamCount = 0;
+static SE::Utilz::CPUTimeCluster streamingTimes;
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
@@ -380,16 +388,23 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{
+			streamingTimes.Start("Full");
 			int x = currentRoomX, y = currentRoomY;
 			GetRoomPosFromDir(dir, x, y);
 
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
+				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				streamingTimes.Stop("Unload");
+				streamingTimes.Start("Load");
 				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
-
+				streamingTimes.Stop("Load");
+				streamingTimes.Start("StopRender");
 				currentRoom->RenderRoom(false);
+				streamingTimes.Stop("StopRender");
 
+				streamingTimes.Start("Other");
 				currentRoomX = x;
 				currentRoomY = y;
 				blackBoard.currentRoom = currentRoom = *newRoom;
@@ -413,8 +428,14 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				player->UpdateMap(tempPtr);
 				currentRoom->InitializeAdjacentFlowFields();
 
+				streamingTimes.Stop("Other");
+
+
+				streamingTimes.Start("StartRender");
 				currentRoom->RenderRoom(true);
-			
+				streamingTimes.Stop("StartRender");
+
+				
 
 				float xToSet, yToSet;
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
@@ -424,7 +445,47 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
 			}
-		
+			streamingTimes.Stop("Full");
+
+			Utilz::TimeMap times;
+			streamingTimes.GetMap(times);
+			if (firstFrame)
+			{
+				streamTimings.open("StreamTimings.csv", std::ios::trunc);
+				if (streamTimings.is_open())
+				{
+					streamTimings << "count,RAM_T,VRAM_T,RAM_R,VRAM_R";
+					for (auto& t : times)
+						streamTimings << "," << t.first.c_str();
+				}
+				firstFrame = false;
+			}
+			if (streamTimings.is_open())
+			{
+				streamTimings << std::endl;
+				streamTimings << streamCount++;
+				streamTimings << "," << toMB( Utilz::Memory::GetPhysicalProcessMemory());
+				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());
+				streamTimings << "," << toMB(Utilz::Memory::GetPhysicalProcessMemory()); // Should be from resoruce handler
+				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());// Should be from resoruce handler
+				auto beg = times.begin();
+				if (beg != times.end())
+				{
+					streamTimings << (*beg).second;
+					beg++;
+				}
+				while (beg != times.end())
+				{
+					streamTimings << "," << (*beg).second;
+					beg++;
+				}
+				
+				for (auto& t : times)
+				{
+					CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
+
+				}
+			}
 		}
 	}
 

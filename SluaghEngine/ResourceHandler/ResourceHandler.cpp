@@ -298,6 +298,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		errors.Push_Back("Unloading stuff. Limit: " + std::to_string(toMB(limit)) + "mb, Current: " + std::to_string(toMB(total))+ "mb");
 		auto needed = total - limit;
 		EvictResources(map, rawData.size, needed);	
+		errors.Push_Back("Current after: " + std::to_string(toMB(evictInfo.getCurrentMemoryUsage())));
 	}
 
 	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
@@ -398,14 +399,14 @@ static const auto linearEvict = [](auto& map, auto& out)
 	}
 };
 
-static const auto evictResources = [](auto& map, auto& order, size_t needed)
+static const auto evictResources = [](auto& map, auto& order, size_t needed, size_t& total, size_t& count)
 {
-	size_t total = 0;
 	for (auto& r : order)
 	{
 		auto& re = map[r];
 		if (!(re.state & SE::ResourceHandler::State::IMMUTABLE) && re.state & SE::ResourceHandler::State::DEAD && re.state & SE::ResourceHandler::State::LOADED && re.ref == 0)
 		{
+			count++;
 			total += re.data.size;
 			re.state = re.state ^ SE::ResourceHandler::State::LOADED;
 			if (re.state & SE::ResourceHandler::State::RAW)
@@ -417,8 +418,11 @@ static const auto evictResources = [](auto& map, auto& order, size_t needed)
 			else	
 				re.destroyCallback(r, re.data.data, re.data.size);
 			
+			if (total >= needed)
+				break;
 		}
 	}
+
 };
 
 void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed)
@@ -427,11 +431,13 @@ void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unor
 	std::vector<Utilz::GUID> order;
 	Utilz::Operate(map, linearEvict, order);
 
-	if(order.size())
-		Utilz::Operate(map, evictResources, order, needed);
-
-	errors.Push_Back("Unloaded " + std::to_string(order.size()) + " resources");
-
+	if (order.size())
+	{
+		size_t count = 0;
+		size_t total = 0;
+		Utilz::Operate(map, evictResources, order, needed, total, count);
+		errors.Push_Back("Unloaded " + std::to_string(count) + " resources, " + std::to_string(toMB( total)) + "mb");
+	}
 }
 //
 //void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)
