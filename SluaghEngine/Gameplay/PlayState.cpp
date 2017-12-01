@@ -462,12 +462,14 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 			if (streamTimings.is_open())
 			{
+				auto rhi = CoreInit::subSystems.resourceHandler->GetInfo();
+				
 				streamTimings << std::endl;
 				streamTimings << streamCount++;
-				streamTimings << "," << toMB( Utilz::Memory::GetPhysicalProcessMemory());
-				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());
-				streamTimings << "," << toMB(Utilz::Memory::GetPhysicalProcessMemory()); // Should be from resoruce handler
-				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());// Should be from resoruce handler
+				streamTimings << "," << toMB(rhi.RAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(rhi.VRAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::RAM)); // Should be from resoruce handler
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::VRAM));// Should be from resoruce handler
 				for (auto& t : times)
 				{
 					streamTimings << "," << t.second;
