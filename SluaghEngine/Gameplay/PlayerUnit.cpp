@@ -5,6 +5,7 @@
 #include "CoreInit.h"
 #include <KeyBindings.h>
 #include <Items.h>
+#include <Gameplay\PerkFactory.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -412,22 +413,22 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (input.two)
 	{
-		newItem = 1;;
+		newItem = 1;
 		ci = true;
 	}
 	else if (input.three)
 	{
-		newItem = 2;;
+		newItem = 2;
 		ci = true;
 	}
 	else if (input.four)
 	{
-		newItem = 3;;
+		newItem = 3;
 		ci = true;
 	}
 	else if (input.five)
 	{
-		newItem = 4;;
+		newItem = 4;
 		ci = true;
 	}
 
@@ -572,7 +573,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown -= dt;
 	}
 
-	if (input.actionButton && attackCooldown <= 0.0f)
+	if (input.actionButton && newStat.attackCooldown <= 0.0f)
 	{
 		if (auto wep = std::get_if<int32_t>(&CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", false)))
 		{
@@ -598,21 +599,22 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					attackCooldown = 1.0f / attackSpeed;
+					newStat.attackCooldown = 1.0f / newStat.attackSpeed;
 				}
 			}
 		}
 		
 	}
 
-	if (attackCooldown > 0.f)
+	if (newStat.attackCooldown > 0.f)
 	{
-		attackCooldown -= dt;
+		newStat.attackCooldown -= dt;
 	}
-	else if (attackCooldown <= 0.f){
-		attacking = false;
-		attackCooldown = 0.f;
-	}
+	if (newStat.attackCooldown < 0.f)
+		newStat.attackCooldown = 0.f;
+
+
+	handlePerks(dt, this, newProjectiles);
 
 	ResolveEvents(dt);
 	ClearConditionEvents();
@@ -650,6 +652,22 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		ClearHealingEvents();
 	}
 	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , std::vector<ProjectileData>& newProjectiles)
+{
+	int nrOf = newProjectiles.size();
+	bool cond = false;
+	for (auto& perk: perks)
+	{
+		cond = perk.checkConditions(newProjectiles,this);
+		for (auto& func: perk.perkFunctions)
+		{
+			func(this,newProjectiles,deltaTime,cond);
+		}
+	}
+
+
 }
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
@@ -690,11 +708,11 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 void SE::Gameplay::PlayerUnit::calcStrChanges()
 {
 	StartProfile;
-	if (baseStat.str > 5)
+	if (newStat.str > 5)
 	{
-		int increment = baseStat.str - 5;
-		newStat.health = baseStat.health * (1.f + (0.05f * increment));
-		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
+		int increment = newStat.str - 5;
+		newStat.health = newStat.health * (1.f + (0.05f * increment));
+		newStat.damage = newStat.damage * (1.f + (0.05f * increment));
 	}
 	else if (baseStat.str < 5)
 	{
@@ -787,6 +805,7 @@ int SE::Gameplay::PlayerUnit::getSkillVectorSize()
 	return skills.size();
 }
 
+
 void SE::Gameplay::PlayerUnit::PlayerSounds()
 {
 	playerAggroSounds[0] = Utilz::GUID("Bullar.wav");
@@ -826,7 +845,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -839,6 +858,11 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 		this->skills.push_back(skills[0]);
 		this->skills.push_back(skills[1]);
 		this->skills.push_back(skills[2]);
+	}
+	if (importPerks != nullptr)
+	{
+		this->perks.push_back(importPerks[0]);
+		this->perks.push_back(importPerks[1]);
 	}
 
 	Core::IAnimationManager::CreateInfo sai;

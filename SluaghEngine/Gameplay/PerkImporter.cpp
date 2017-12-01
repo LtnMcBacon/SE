@@ -40,6 +40,9 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileName)
 			memcpy(&tempData.typeSize, (char*)data + head, sizeof(int));
 			head += sizeof(int);
 
+			memcpy(&tempData.condition, (char*)data + head, sizeof(int));
+			head += sizeof(int);
+
 			for (size_t i = 0; i < tempData.typeSize; i++)
 			{
 				int type = -1;

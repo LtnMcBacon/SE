@@ -7,6 +7,7 @@
 #include <Gameplay\Skill.h>
 #include <map>
 #include "Core/IAnimationManager.h"
+#include <Gameplay\Perk.h>
 
 namespace SE
 {
@@ -165,6 +166,9 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
+			void handlePerks(float deltaTime, PlayerUnit* player, std::vector<ProjectileData>& newProjectiles);
+
+			
 			inline float GetMaxHealth()
 			{
 				return newStat.health;
@@ -346,7 +350,8 @@ namespace SE
 
 		private:
 			std::vector<Skill> skills;
-
+			std::vector<Perk> perks;
+			
 			/**
 			* @brief		Removes all the skills from the list.
 			*
@@ -357,16 +362,13 @@ namespace SE
 			//void movePlayerSkillsToAI();
 
 			SkillFactory SF;
+			
 
 			//void changeElementType(Gameplay::DamageTypes element);
 
 			bool isStunned = false;
-			bool attacking = false;
-			float attackSpeed = 1.0f;
-			float attackCooldown = 0.f;
-			bool isSluagh = false;
 		public:
-			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Skill* skills, Perk* importPerks , float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
 		};
 
