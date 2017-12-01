@@ -1245,6 +1245,8 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Window] = { "Window.mesh" };
 	Meshes[Meshes::Window_open] = { "WindowOpen.mesh" };
 	Meshes[Meshes::Window_closed] = { "WindowClosed.mesh" };
+	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
+	Meshes[Meshes::Fireplace_open] = { "FireplaceOpen.mesh" };
 
 	// Materials
 	Materials[Materials::Stone] = { "Cube.mat" };
@@ -1262,6 +1264,12 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::LightStoneWall] = { "LightStoneWall.mat" };
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
 	Materials[Materials::Window] = { "WindowOpen.mat" };
+	Materials[Materials::Fireplace] = { "Fireplace.mat" };
+	Materials[Materials::Pillar] = { "Pillar_short.mat" };
+	Materials[Materials::PotatosackOpen] = { "Potato_Sack_Open.mat" };
+	Materials[Materials::PotatosackClosed] = { "Potato_Sack_Closed.mat" };
+
+#pragma region RNGprops
 
 
 	Prop Chair;
@@ -1302,11 +1310,11 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop PotatoSackOpen;
 	PotatoSackOpen.guid = Meshes[Meshes::Potatosack_open];
-	PotatoSackOpen.matGuid = Materials[Materials::Dirt];
+	PotatoSackOpen.matGuid = Materials[Materials::PotatosackOpen];
 
 	Prop PotatoSackClosed;
 	PotatoSackClosed.guid = Meshes[Meshes::Potatosack_closed];
-	PotatoSackClosed.matGuid = Materials[Materials::Dirt];
+	PotatoSackClosed.matGuid = Materials[Materials::PotatosackClosed];
 
 	Prop Bush;
 	Bush.guid = Meshes[Meshes::Bush];
@@ -1314,13 +1322,18 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop Fireplace;
 	Fireplace.guid = Meshes[Meshes::Fireplace];
-	Fireplace.matGuid = Materials[Materials::Stone];
+	Fireplace.matGuid = Materials[Materials::Fireplace];
 
+	Prop FireplaceOpen;
+	FireplaceOpen.guid = Meshes[Meshes::Fireplace_open];
+	FireplaceOpen.matGuid = Materials[Materials::Fireplace];
+
+#pragma endregion
 
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace, FireplaceOpen };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1651,7 +1664,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			rand = CoreInit::subSystems.window->GetRand();
 			propId = (rand % nrOfProps);
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "y", rot))
 				{
 					propCheck = true;
@@ -1683,7 +1697,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			propId = (rand % nrOfProps);
 			rot = 1.5708;
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "x", rot))
 				{
 					propCheck = true;
@@ -1896,7 +1911,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 void SE::Gameplay::Room::CreatePillar(CreationArguments &args)
 {
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = Materials[Materials::Pillar];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Pillar_short] });
