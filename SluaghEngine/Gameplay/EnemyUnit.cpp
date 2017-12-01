@@ -37,6 +37,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			ci.textureName = "bloodSpatt.png";
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 20);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });

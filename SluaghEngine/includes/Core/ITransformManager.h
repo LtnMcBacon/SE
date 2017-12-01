@@ -203,6 +203,8 @@ namespace SE
 			*/
 			virtual uint32_t ActiveTransforms() const = 0;
 
+			virtual void UnbindChild(const Entity& child) = 0;
+
 			virtual  void RegisterSetDirty(const Utilz::Delegate<void(const Entity& entity, size_t index)>& callback) = 0;
 
 			virtual inline const DirectX::XMFLOAT4X4* GetCleanedTransforms()const = 0;

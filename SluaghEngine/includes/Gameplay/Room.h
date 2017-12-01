@@ -79,7 +79,11 @@ namespace SE
 				Potatosack_closed,
 				Potatosack_open,
 				Fireplace,
-				Painting
+				Fireplace_open,
+				Painting,
+				Window,
+				Window_open,
+				Window_closed
 			};
 			enum class Materials {
 				Stone,
@@ -97,7 +101,13 @@ namespace SE
 				WoodFloor,
 				FanzyWall,
 				LightStoneWall,
-				LightStoneWallWood
+				LightStoneWallWood,
+				Window,
+				Fireplace,
+				Fireplace_open,
+				Pillar,
+				PotatosackOpen,
+				PotatosackClosed
 			};
 
 			struct CreationArguments
@@ -131,6 +141,7 @@ namespace SE
 			static const char id_Wall     = 255;
 			static const char id_Pillar   = 225;
 			static const char id_Bush     = 13;
+			static const char id_Window = 180;
 			
 			/*Needed:
 			 * Representation of the room module(s) that build the room
@@ -625,6 +636,8 @@ namespace SE
 			 */
 			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
 
+			float DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const;
+
 			/**
 			* @brief Resets the tilevalues from 100 to 0
 			*
@@ -644,6 +657,7 @@ namespace SE
 
 			void CreateFire(int x, int y);
 
+			void CreateWindows(CreationArguments &args);
 			/**
 			* @brief set Room door pointer to values
 			*/

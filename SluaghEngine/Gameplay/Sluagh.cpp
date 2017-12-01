@@ -75,19 +75,24 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	std::string appdata(appdataBuffer);
 	free(appdataBuffer);
 	appdata += "\\Sluagh\\";
-	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in);
+	std::ifstream in(appdata + "sluaghFile.sluagh", std::ios::in|std::ios::binary);
 	
 
+	/*Create copy of the player*/
+	char roomMap[25][25]; room->GetMap(roomMap);
 	if(in.is_open())
 	{
 		/*Create sluagh from data*/
+		theSluagh = new PlayerUnit(in, 15, 15, roomMap);
+		theSluagh->ToggleAsSluagh(true);
+		in.close();
+
 	}
 	else
 	{
-		/*Create copy of the player*/
-		char roomMap[25][25]; room->GetMap(roomMap);
+		/*Copy the current player*/
 		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
-
+		theSluagh->ToggleAsSluagh(true);
 		auto playerItems = thePlayer->GetAllItems();
 		for(int i = 0; i < 5; i++)
 		{
@@ -101,7 +106,6 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	theSluagh->UpdatePlayerRotation(rotX, rotY);
 	theSluagh->SetZPosition(0.9f);
 	theSluagh->PositionEntity(15.5f, 15.5f);
-	theSluagh->ToggleAsSluagh(true);
 }
 
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
@@ -129,7 +133,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = skillToCheck.skillDamage*5.f/skillToCheck.cooldown;
+	float utilityValue = skillToCheck.skillDamage*2.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }
@@ -142,9 +146,9 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 	auto playerWeapon = thePlayer->GetCurrentItem();
 
 	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(playerWeapon, "Type", -1));
-	WeaponType playerWeaponType = WeaponType::NONE;
+	Item::Weapon::Type playerWeaponType = Item::Weapon::Type::NONE;
 	if (type != int32_t(-1))
-		playerWeaponType = WeaponType(type);
+		playerWeaponType = Item::Weapon::Type(type);
 	
 	auto sluaghWeapons = theSluagh->GetAllItems();
 
@@ -153,10 +157,10 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 		if((type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Type", -1))) != -1)
 		{
 			float swapUtility = 0.f;
-			auto sluaghWeaponType = WeaponType(type);
+			auto sluaghWeaponType = Item::Weapon::Type(type);
 			switch(sluaghWeaponType)
 			{
-			case WeaponType::SWORD:
+			case Item::Weapon::Type::SWORD:
 				if (distanceToPlayer > 2.5f)
 				{
 					swapUtility = 0.f;
@@ -164,7 +168,7 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 				}
 				else
 					swapUtility += 1.f;
-				if (playerWeaponType == WeaponType::CROSSBOW || playerWeaponType == WeaponType::WAND)
+				if (playerWeaponType == Item::Weapon::Type::CROSSBOW || playerWeaponType == Item::Weapon::Type::WAND)
 				{
 					/*Disadvantage for the Sluagh*/
 					swapUtility -= 0.5f;
@@ -173,14 +177,14 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 
 				break;
 				
-			case WeaponType::CROSSBOW: /*Fall through, only checking ranged*/
-			case WeaponType::WAND:
+			case Item::Weapon::Type::CROSSBOW: /*Fall through, only checking ranged*/
+			case Item::Weapon::Type::WAND:
 				if (distanceToPlayer < 2.5f)
 				{
 					swapUtility -= 1.f;
 					break;
 				}
-				if (playerWeaponType == WeaponType::SWORD)
+				if (playerWeaponType == Item::Weapon::Type::SWORD)
 				{
 					/*Disadvantage for the Sluagh*/
 					swapUtility += 0.5f;
@@ -226,12 +230,8 @@ float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 					swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Health", 0)) / 5.f;
 				break;
 
-			
-			case ItemType::WEAPON:
-				
+			default:
 				break;
-
-			default:;
 			}
 
 			if (maxUtility < swapUtility)
@@ -258,14 +258,14 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		
 
 	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(thePlayer->GetCurrentItem(), "Type", -1));
-	WeaponType playerWeaponType = WeaponType::NONE;
+	Item::Weapon::Type playerWeaponType = Item::Weapon::Type::NONE;
 	if (type != int32_t(-1))
-		playerWeaponType = WeaponType(type);
+		playerWeaponType = Item::Weapon::Type(type);
 
 	type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(theSluagh->GetCurrentItem(), "Type", -1));
-	WeaponType sluaghWeaponType = WeaponType::NONE;
+	Item::Weapon::Type sluaghWeaponType = Item::Weapon::Type::NONE;
 	if (type != int32_t(-1))
-		sluaghWeaponType = WeaponType(type);
+		sluaghWeaponType = Item::Weapon::Type(type);
 
 	PlayerUnit::MovementInput moveEvaluate(false, false, false, false, false, thePlayer->GetXPosition(), thePlayer->GetYPosition());
 
@@ -289,7 +289,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 
 
 	/*Check the weapon combinations, adapt the behaviour after that*/
-	if(sluaghWeaponType == WeaponType::SWORD && playerWeaponType == WeaponType::SWORD) /*Both wields melee weapon -> Sluagh moves towards the player*/
+	if(sluaghWeaponType == Item::Weapon::Type::SWORD && playerWeaponType == Item::Weapon::Type::SWORD) /*Both wields melee weapon -> Sluagh moves towards the player*/
 	{
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
@@ -305,7 +305,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 			utilityValue = 0.f;
 		
 	}
-	else if((sluaghWeaponType == WeaponType::CROSSBOW || sluaghWeaponType == WeaponType::WAND) && playerWeaponType == WeaponType::SWORD) /*Player Melee, Sluagh Ranged*/
+	else if((sluaghWeaponType == Item::Weapon::Type::CROSSBOW || sluaghWeaponType == Item::Weapon::Type::WAND) && playerWeaponType == Item::Weapon::Type::SWORD) /*Player Melee, Sluagh Ranged*/
 	{
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
@@ -325,7 +325,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		else
 			utilityValue += 0.75f;
 	}
-	else if(sluaghWeaponType == WeaponType::SWORD && (playerWeaponType == WeaponType::CROSSBOW || playerWeaponType == WeaponType::WAND)) /*Player Ranged, Sluagh Melee*/
+	else if(sluaghWeaponType == Item::Weapon::Type::SWORD && (playerWeaponType == Item::Weapon::Type::CROSSBOW || playerWeaponType == Item::Weapon::Type::WAND)) /*Player Ranged, Sluagh Melee*/
 	{
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
@@ -340,7 +340,7 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distAfterMove > 2.0f)
 			utilityValue = 0.f;
 	}
-	else if(playerWeaponType == WeaponType::NONE) /*CONFUSED SCREAMING*/
+	else if(playerWeaponType == Item::Weapon::Type::NONE) /*CONFUSED SCREAMING*/
 	{
 		float xDifference = theSluagh->GetXPosition() - thePlayer->GetXPosition();
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();

@@ -79,7 +79,7 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	cachedViewProj = DirectX::XMLoadFloat4x4(&vp);
 
 	initInfo.transformManager->RegisterSetDirty({ this, &DecalManager::SetDirty });
-	
+	initInfo.eventManager->RegisterToToggleVisible({ this, &DecalManager::ToggleVisible });
 }
 
 SE::Core::DecalManager::~DecalManager()
@@ -169,7 +169,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 		});
 	}
 	entities.push_back(entity);
-
+	ToggleVisible(entity, false);
 	ProfileReturnConst(0);
 }
 
@@ -235,6 +235,18 @@ int SE::Core::DecalManager::Remove(const Entity& entity)
 		Destroy(index);
 	
 	ProfileReturn(index != -1 ? 0 : -1);
+}
+
+void SE::Core::DecalManager::ToggleVisible(const Entity& entity, bool visible)
+{
+	const auto tex = entityToTextureGuid.find(entity);
+	if (tex != entityToTextureGuid.end())
+	{
+		const auto index = entityToTransformIndex[entity];
+		float& op = decalToTransforms[tex->second].opacity[index];
+		if ((visible && op < 0.0f) || (!visible && op > 0.0f))
+			op = -op;
+	}
 }
 
 void SE::Core::DecalManager::SetDirty(const Entity& entity, size_t index)

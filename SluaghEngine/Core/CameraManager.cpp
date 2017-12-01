@@ -86,8 +86,8 @@ void SE::Core::CameraManager::UpdateCamera(const CreateInfo & info)
 		cameraData.aspectRatio[currentActive.activeCamera] = info.aspectRatio;
 		cameraData.nearPlane[currentActive.activeCamera] = info.nearPlane;
 		cameraData.farPlane[currentActive.activeCamera] = info.farPlance;
-
-		initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
+		if(initInfo.entityManager->Alive(cameraData.entity[currentActive.activeCamera]))
+			initInfo.transformManager->SetAsDirty(currentActive.activeCamera);
 	}
 	StopProfile;
 }

@@ -76,6 +76,7 @@ namespace SE
 			NATURE,
 			RANGED,
 			MAGIC,
+			NUM_TYPES
 		};
 
 		/**

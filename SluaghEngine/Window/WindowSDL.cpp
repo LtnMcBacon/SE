@@ -384,11 +384,19 @@ bool SE::Window::WindowSDL::RegisterOnEventCallback(const OnEventCallback & call
 
 int SE::Window::WindowSDL::Width() const
 {
+	int w;
+	int h;
+	SDL_GetWindowSize(window, &w, &h);
+	return w;
 	return width;
 }
 
 int SE::Window::WindowSDL::Height() const
 {
+	int w;
+	int h;
+	SDL_GetWindowSize(window, &w, &h);
+	return h;
 	return height;
 }
 
@@ -415,11 +423,11 @@ bool SE::Window::WindowSDL::SetWindow(int inHeight, int inWidth, bool inFullscre
 	{
 		SDL_SetWindowSize(window, width, height);
 	}
-	int w;
+	/*int w;
 	int h;
 	SDL_GetWindowSize(window, &w, &h);
 	width = w;
-	height = h;
+	height = h;*/
 
 	ProfileReturn(changed);
 }
