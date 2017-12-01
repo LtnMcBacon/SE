@@ -275,14 +275,13 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	
 		OtherSkills.push_back(index);
 		nrOfOtherSkills++;
-		skill.skillName = skillName;
-		skill.atkType	= static_cast<DamageSources>(skillInfo[0]);
-		skill.damageType	= static_cast<DamageType>(skillInfo[1]);
-		skill.boon		= static_cast<Boons>(skillInfo[2]);
-		skill.bane		= static_cast<Banes>(skillInfo[3]);
-		skill.animation = 0;
-		skill.particle	= 0;
-		
+		skill.skillName	 = skillName;
+		skill.atkType	 = static_cast<DamageSources>(skillInfo[0]);
+		skill.damageType = static_cast<DamageType>(skillInfo[1]);
+		skill.boon		 = static_cast<Boons>(1 << skillInfo[2]);
+		skill.bane		 = static_cast<Banes>(1 << skillInfo[3]);
+		skill.animation	 = 0;
+		skill.particle	 = 0;
 	
 		auto SkillIndexReturn = [this, index, skill]()->void
 		{
