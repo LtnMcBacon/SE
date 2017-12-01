@@ -343,10 +343,7 @@ namespace SE
 			inline void  RemoveCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown -= currentCooldown; };
 			
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
-			inline void ToggleAsSluagh(bool sluagh) { isSluagh = sluagh; };
-
-
-
+			inline void ToggleAsSluagh(bool sluagh) { this->isSluagh = sluagh; };
 
 		private:
 			std::vector<Skill> skills;
@@ -366,7 +363,9 @@ namespace SE
 
 			//void changeElementType(Gameplay::DamageTypes element);
 
+			bool attacking = false;
 			bool isStunned = false;
+			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, Perk* importPerks , float xPos, float yPos, char mapForRoom[25][25]);
 			~PlayerUnit();
