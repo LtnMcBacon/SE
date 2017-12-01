@@ -510,6 +510,15 @@ float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, Dire
 	return distance;
 }
 
+float SE::Gameplay::Room::DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const
+{
+	float distX = DoorArr[int(direction)].posX - startX;
+	float distY = DoorArr[int(direction)].posY - startY;
+
+
+	return sqrtf(distX*distX + distY*distY);
+}
+
 
 bool SE::Gameplay::Room::LineCollision(LinePoint p1, LinePoint q1, LinePoint p2, LinePoint q2)
 {
@@ -1362,10 +1371,13 @@ Room::Room(Utilz::GUID fileName)
 		// reset temporary tilevalues where a single prop is overlapping another tile 
 		//ResetTempTileValues();
 
+
+	//Used for flowField creation
+	char tempMap[25][25];
 	for (int x = 0; x < 25; x++)
 		for (int y = 0; y < 25; y++)
 		{
-			if (!tileValues[x][y])
+			if(!(tempMap[x][y] = tileValues[x][y] == id_Torch ? id_Floor : tileValues[x][y]))
 			{
 				start.x = x;
 				start.y = y;
@@ -1391,7 +1403,7 @@ Room::Room(Utilz::GUID fileName)
 			}
 
 
-	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
+	roomField = new FlowField(tempMap, 1.0f, start, 0.0f, 0.0f);
 
 	roomEntity = CoreInit::managers.entityManager->Create();
 
@@ -2032,23 +2044,6 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		CoreInit::managers.transformManager->Create(lightEnt, { args.x + 0.5f, 1.0f, args.y + 0.5f });
 		CoreInit::managers.lightManager->Create(lightEnt, createInfo);
 		roomEntities[args.x][args.y].push_back(lightEnt);
-
-	/*	int arrPos = -1;
-		if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-		else if (j - 1 >= 0 && tileValues[i][j - 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-		else if (j + 1 < 25 && tileValues[i][j + 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-		else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
-
-		DoorArr[arrPos].doorEntityPos = roomEntities.size() - 1;
-		DoorArr[arrPos].xPos = i + 0.5f;
-		DoorArr[arrPos].yPos = j + 0.5f;
-		DoorArr[arrPos].active = true;
-		DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
-*/
 
 }
 
