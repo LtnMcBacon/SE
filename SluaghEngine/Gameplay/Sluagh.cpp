@@ -133,7 +133,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = skillToCheck.skillDamage*5.f/skillToCheck.cooldown;
+	float utilityValue = skillToCheck.skillDamage*2.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }
@@ -230,12 +230,8 @@ float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 					swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Health", 0)) / 5.f;
 				break;
 
-			
-			case ItemType::WEAPON:
-				
+			default:
 				break;
-
-			default:;
 			}
 
 			if (maxUtility < swapUtility)
