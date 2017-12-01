@@ -1990,7 +1990,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		
 		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
 		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
-		auto paintingToUse = std::rand() % paintingTexturesCount;
+		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
 
 		Core::DecalCreateInfo decalInfo;
 		decalInfo.opacity = 0.50f;
