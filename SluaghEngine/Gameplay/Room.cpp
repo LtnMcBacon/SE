@@ -7,7 +7,7 @@
 #include <math.h>
 #include <algorithm>
 #include <Items.h>
-
+#include <EnemyUnit.h>
 
 
 using namespace SE;
@@ -1434,15 +1434,16 @@ void SE::Gameplay::Room::Unload()
 	}
 	 
 	loaded = false;
-	/*for (auto enemy : enemyUnits)
+	for (auto enemy : enemyUnits)
 	{
-		enemy->DestroyEntity();
 		if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
 		{
 			CoreInit::managers.entityManager->Destroy(*weapon);
 		}
+		enemy->DestroyEntity();
+		
 
-	}*/
+	}
 }
 
 void SE::Gameplay::Room::InitializeAdjacentFlowFields()

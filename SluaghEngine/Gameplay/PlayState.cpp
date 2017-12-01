@@ -637,6 +637,9 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 			{
 				(*adjRoom)->Load();
+				auto enemiesInRoom = (*adjRoom)->GetEnemiesInRoom();
+				for (auto enemy : enemiesInRoom)
+					eFactory.CreateEntityDataForEnemyType(enemy->GetType());
 			}
 		}
 	}

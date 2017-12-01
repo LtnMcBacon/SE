@@ -76,11 +76,11 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
 	auto const enemyCreationData = enemyData.find(type);
 	auto newEntity = CoreInit::managers.entityManager->Create();
 
+	CoreInit::managers.transformManager->Create(newEntity);
 
 	if (enemyCreationData != enemyData.end())
 	{
-		CoreInit::managers.transformManager->Create(newEntity);
-
+		
 		/*Fix with managers*/
 		Core::IAnimationManager::CreateInfo cInfo;
 		cInfo.animationCount = 0;

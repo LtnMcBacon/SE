@@ -166,9 +166,13 @@ namespace SE
 				return myRoom;
 			}
 
-			float GetMaxHealth() const
+			inline float GetMaxHealth() const
 			{
 				return maxHealth;
+			}
+			inline EnemyType GetType()const
+			{
+				return myType;
 			}
 
 		private:
