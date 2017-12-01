@@ -324,6 +324,14 @@ public:
 	{
 		AdjustV(*this, parent, child);
 	}
+	void OffsetUV(float uOffset, float vOffset)
+	{
+		for (unsigned int vertexI = 0; vertexI < 6; vertexI++)
+		{
+			vertices[vertexI].uv[0] += uOffset;
+			vertices[vertexI].uv[1] += vOffset;
+		}
+	}
 };
 
 class SE::Gameplay::Fog::Plane
@@ -386,6 +394,19 @@ public:
 			memcpy(pVertexBuffer + vertexI, &extraQuads[quadI], 2 * 3 * sizeof(Vertex));
 
 			vertexI += 2 * 3;
+		}
+	}
+	void OffsetUvs(float uOffset, float vOffset)
+	{
+		for (unsigned int quadI = 0; quadI < 27 * 27; quadI++)
+		{
+			if (quads_used[quadI])
+				quads[quadI].OffsetUV(uOffset, vOffset);
+		}
+
+		for (unsigned int extraQuadI = 0; extraQuadI < extraQuads.size(); extraQuadI++)
+		{
+			extraQuads[extraQuadI].OffsetUV(uOffset, vOffset);
 		}
 	}
 };
@@ -541,6 +562,30 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 			slopeIndex++;
 
 		} while (slopeIndex < slopeCount);
+	}
+
+
+	{
+		float uvSum[2] = {};
+		unsigned int uvSum_count = 0;
+
+		for (int rowI = -1; rowI < 26; rowI++)
+		{
+			for (int columnI = -1; columnI < 26; columnI++)
+			{
+				if (topPlane->GetQuadStatus(columnI + 1, rowI + 1))
+				{
+					uvSum[0] += columnI + 0.5;
+					uvSum[1] += rowI + 0.5;
+
+					uvSum_count++;
+				}
+			}
+		}
+
+		float centerOffset[2] = { uvSum[0] / uvSum_count - 12.5, uvSum[1] / uvSum_count - 12.5 };
+
+		topPlane->OffsetUvs(centerOffset[0], centerOffset[1]);
 	}
 
 
