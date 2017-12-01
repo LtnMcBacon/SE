@@ -68,6 +68,8 @@ namespace SE
 						toPass->AddChild(child->CopyBehaviour(gameBlackboard, enemyBlackboard));
 					return toPass;
 				}
+
+			size_t SizeOfBehaviour() const override;
 		};
 	}
 }

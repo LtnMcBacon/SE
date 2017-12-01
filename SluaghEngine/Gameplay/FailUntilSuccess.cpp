@@ -28,3 +28,8 @@ FailUntilSuccess::~FailUntilSuccess()
 {
 
 }
+
+size_t SE::Gameplay::FailUntilSuccess::SizeOfBehaviour() const
+{
+	return sizeof(*this) + myChild->SizeOfBehaviour();
+}

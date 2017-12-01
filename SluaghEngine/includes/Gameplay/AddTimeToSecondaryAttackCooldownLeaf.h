@@ -21,6 +21,8 @@ namespace SE
 
 			AddTimeToSecondaryAttackCooldownLeaf(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard, float time);
 			~AddTimeToSecondaryAttackCooldownLeaf() override;
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

@@ -28,6 +28,8 @@ namespace SE
 			{
 				return new MoveTowardsPlayerLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

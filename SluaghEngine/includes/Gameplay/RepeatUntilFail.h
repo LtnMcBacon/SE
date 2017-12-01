@@ -45,7 +45,9 @@ namespace SE
 			{
 				return new RepeatUntilFail(enemyBlackboard, gameBlackboard,
 					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard));
-			};
+			}
+
+			size_t SizeOfBehaviour() const override;;
 		};
 	}
 }

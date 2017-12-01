@@ -26,7 +26,9 @@ namespace SE
 			inline IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override
 			{
 				return new AnimationRunningCondition(enemyBlackboard, gameBlackboard, animationsToCheck);
-			};
+			}
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

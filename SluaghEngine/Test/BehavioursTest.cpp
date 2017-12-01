@@ -42,6 +42,8 @@ public:
 	{
 		return nullptr;
 	};
+
+	size_t SizeOfBehaviour() const override { return sizeof(*this); };
 private:
 	int ticksBeforeSuccess;
 };

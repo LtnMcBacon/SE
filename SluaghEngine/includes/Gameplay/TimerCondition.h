@@ -21,6 +21,8 @@ namespace SE
 
 			TimerCondition(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard, float startTime);
 			~TimerCondition() override;
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 
 

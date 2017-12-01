@@ -37,6 +37,8 @@ namespace SE
 				return new Succeeder(enemyBlackboard, gameBlackboard, 
 					myChild->CopyBehaviour(gameBlackboard,	enemyBlackboard));
 			}
+
+			size_t SizeOfBehaviour() const override;
 		};
 
 	}

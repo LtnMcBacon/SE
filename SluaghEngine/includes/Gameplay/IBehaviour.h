@@ -128,7 +128,10 @@ namespace SE
 			 */
 			virtual IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const = 0;
 
-
+			/**
+			 * @behaviour Returns the memorysize of the current behaviour, including it's child behaviours sizes
+			 */
+			virtual size_t	SizeOfBehaviour() const = 0;
 		};
 
 	}

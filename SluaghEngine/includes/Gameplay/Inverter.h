@@ -44,6 +44,8 @@ namespace SE
 				return new Inverter(enemyBlackboard, gameBlackboard,
 					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard));
 			}
+
+			size_t SizeOfBehaviour() const override;
 		};
 
 		

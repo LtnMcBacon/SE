@@ -24,6 +24,8 @@ namespace SE
 			{
 				return new AnimationLeaf(enemyBlackboard, gameBlackboard, animationGUID, animationDuration, animationFlags);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this) + animationGUID.size()*sizeof(Utilz::GUID); };
 		};
 	}
 }

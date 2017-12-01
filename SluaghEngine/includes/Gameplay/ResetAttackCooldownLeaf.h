@@ -21,6 +21,8 @@ namespace SE
 
 			ResetAttackCooldownLeaf(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard);
 			~ResetAttackCooldownLeaf() override;
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

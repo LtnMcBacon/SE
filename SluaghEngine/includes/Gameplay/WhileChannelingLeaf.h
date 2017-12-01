@@ -26,6 +26,8 @@ namespace SE
 			{
 				return new WhileChannelingLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 
 		

@@ -22,7 +22,9 @@ namespace SE
 			{
 				return new StunnedCondition(enemyBlackboard, gameBlackboard);
 			};
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
+
 	}
 }
 #endif

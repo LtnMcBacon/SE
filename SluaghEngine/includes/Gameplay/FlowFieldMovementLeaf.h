@@ -43,6 +43,8 @@ namespace SE
 			{
 				return new FlowFieldMovementLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

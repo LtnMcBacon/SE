@@ -20,7 +20,9 @@ namespace SE
 
 			RangeToPlayerCondition(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard, float min, float max);
 			~RangeToPlayerCondition() override;
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
+
 
 
 

@@ -62,6 +62,8 @@ namespace SE
 				return new Repeater(enemyBlackboard, gameBlackboard,
 					myChild->CopyBehaviour(gameBlackboard, enemyBlackboard), repeatLimit);
 			}
+
+			size_t SizeOfBehaviour() const override;
 		};
 	}
 }

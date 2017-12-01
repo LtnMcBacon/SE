@@ -21,6 +21,8 @@ namespace SE
 
 			TickDownAttackCooldownLeaf(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard);
 			~TickDownAttackCooldownLeaf() override;
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

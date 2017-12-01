@@ -22,6 +22,8 @@ namespace SE
 			{
 				return new LineOfSightCondition(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

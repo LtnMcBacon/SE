@@ -19,7 +19,7 @@ namespace SE
 		private:
 
 			std::map<Utilz::GUID, BehaviouralTree*, Utilz::GUID::Compare> behaviouralTrees;
-
+			size_t totalMemorySize = 0;
 			struct NodeData
 			{
 				std::string Type;

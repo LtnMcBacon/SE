@@ -36,6 +36,9 @@ namespace SE
 			{
 				return new StopAnimationsLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

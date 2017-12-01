@@ -22,6 +22,8 @@ namespace SE
 			{
 				return new ObstacleOnPositionCondition(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

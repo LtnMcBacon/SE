@@ -32,6 +32,8 @@ namespace SE
 			{
 				return new StopChannelingLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

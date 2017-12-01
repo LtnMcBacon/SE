@@ -29,6 +29,8 @@ namespace SE
 			{
 				return new PauseAnimationsLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

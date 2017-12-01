@@ -31,6 +31,7 @@ namespace SE
 			~IDecorator() override;
 
 			IBehaviour* CopyBehaviour(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const override = 0;
+			size_t SizeOfBehaviour() const override = 0;
 		};
 	}
 }

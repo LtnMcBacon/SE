@@ -20,3 +20,8 @@ Succeeder::Succeeder(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlack
 Succeeder::~Succeeder()
 {
 }
+
+size_t SE::Gameplay::Succeeder::SizeOfBehaviour() const
+{
+	return sizeof(*this) + myChild->SizeOfBehaviour();
+}

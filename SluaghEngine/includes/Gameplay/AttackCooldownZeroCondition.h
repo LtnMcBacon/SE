@@ -21,6 +21,8 @@ namespace SE
 
 			AttackCooldownZeroCondition(GameBlackboard* gameBlackBoard, EnemyBlackboard* enemyBlackBoard);
 			~AttackCooldownZeroCondition() override;
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

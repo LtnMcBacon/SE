@@ -1,5 +1,6 @@
 #ifndef SE_GAMEPLAY_BEHAVIOURAL_TREE_H
 #define SE_GAMEPLAY_BEHAVIOURAL_TREE_H
+#include "Utilz/CPUTimeCluster.h"
 
 /*The Behavioural Tree and its components are based upon:
  * -The descriptions in the GPU pro series
@@ -30,6 +31,11 @@ namespace SE
 		class BehaviouralTree
 		{
 		private:
+			static Utilz::CPUTimeCluster behaviouralTimer;
+			static bool firstInitialize;
+			static size_t numberOfActiveTrees;
+			static bool firstTick;
+			static size_t memoryUsage;
 			BehaviouralTree() = delete;
 		public:
 			BehaviouralTree* CopyTree(GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard) const;
@@ -47,6 +53,10 @@ namespace SE
 			*/
 			void Tick();
 
+			/**
+			 * @brief Memory size of this tree, including the EnemyBlackboard but EXCLUDING the gameBlackboard.
+			 */
+			size_t SizeOfTree();
 		protected:
 			IBehaviour* rootBehaviour;
 

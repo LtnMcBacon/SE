@@ -37,3 +37,8 @@ SE::Gameplay::RepeatUntilFail::~RepeatUntilFail()
 {
 
 }
+
+size_t SE::Gameplay::RepeatUntilFail::SizeOfBehaviour() const
+{
+	return sizeof(*this) + myChild->SizeOfBehaviour();
+}

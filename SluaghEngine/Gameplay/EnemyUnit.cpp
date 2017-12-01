@@ -174,7 +174,6 @@ void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
 		myBlackboard->checkedThisFrame = false;
-		
 		myBehaviouralTree->Tick();
 	}
 

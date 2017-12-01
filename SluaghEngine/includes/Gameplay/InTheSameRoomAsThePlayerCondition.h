@@ -24,6 +24,8 @@ namespace SE
 			{
 				return new InTheSameRoomAsThePlayerCondition(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

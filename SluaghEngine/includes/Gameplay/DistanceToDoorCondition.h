@@ -27,6 +27,8 @@ namespace SE
 			{
 				return new DistanceToDoorCondition(enemyBlackboard, gameBlackboard, maxDistance);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

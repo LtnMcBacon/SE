@@ -44,3 +44,8 @@ Repeater::~Repeater()
 {
 
 }
+
+size_t SE::Gameplay::Repeater::SizeOfBehaviour() const
+{
+	return sizeof(*this) + myChild->SizeOfBehaviour();
+}

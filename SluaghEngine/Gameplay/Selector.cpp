@@ -39,3 +39,12 @@ Selector::~Selector()
 {
 
 }
+
+size_t SE::Gameplay::Selector::SizeOfBehaviour() const
+{
+	size_t sizeOfChildrens = 0;
+	for (auto child : myChildren)
+		sizeOfChildrens += child->SizeOfBehaviour();
+
+	return sizeOfChildrens + sizeof(*this) + myChildren.size() * sizeof(IBehaviour*);
+}

@@ -45,6 +45,8 @@ namespace SE
 			{
 				return new LeapAtPlayerLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

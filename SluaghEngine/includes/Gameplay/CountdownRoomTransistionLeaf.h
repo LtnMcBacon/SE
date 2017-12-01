@@ -27,6 +27,8 @@ namespace SE
 			{
 				return new CountdownRoomTransistionLeaf(enemyBlackboard, gameBlackboard);
 			};
+
+			size_t SizeOfBehaviour() const override { return sizeof(*this); };
 		};
 	}
 }

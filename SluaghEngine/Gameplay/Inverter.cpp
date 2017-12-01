@@ -24,3 +24,8 @@ Inverter::~Inverter()
 {
 
 }
+
+size_t Inverter::SizeOfBehaviour() const
+{
+	return sizeof(*this) + myChild->SizeOfBehaviour();
+}

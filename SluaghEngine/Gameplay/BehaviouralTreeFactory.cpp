@@ -250,10 +250,6 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateFailUntilSuccess(dataArray, nodeID);
 	}
-	else
-	{
-		int a = 0;
-	}
 
 	ProfileReturn(finishedBehaviour);
 }
@@ -760,7 +756,7 @@ BehaviouralTree* BehaviouralTreeFactory::BuildBehaviouralTree(const Utilz::GUID&
 
 
 	BehaviouralTree* toPass = loadedTree->second->CopyTree(gameBlackboard, enemyBlackboard);
-
+	totalMemorySize += loadedTree->second->SizeOfTree();
 	ProfileReturn(toPass);
 }
 
