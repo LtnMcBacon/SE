@@ -38,6 +38,11 @@ namespace SE
 			*/
 			int Remove(const Entity& entity) override;
 
+			/*
+			* @brief See IDecalManager
+			*/
+			void ToggleVisible(const Entity& entity, bool visible)override;
+
 			void Destroy(const Entity& entity) override;
 
 		private:
