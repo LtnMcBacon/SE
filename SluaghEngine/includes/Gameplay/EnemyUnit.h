@@ -136,6 +136,11 @@ namespace SE
 				myBlackboard = blackboard;
 			}
 
+			inline EnemyBlackboard* GetEnemyBlackboard()
+			{
+				return myBlackboard;
+			}
+
 			inline void SetBehaviouralTree(BehaviouralTree* behaviouralTree)
 			{
 				myBehaviouralTree = behaviouralTree;
