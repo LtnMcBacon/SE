@@ -82,6 +82,13 @@ namespace SE
 			 */
 			virtual int Remove(const Entity& entity) = 0;
 
+			/*
+			* @brief Toggles visibility of a decal
+			* @param[in] entity The entity to toggle the visibility of
+			* @param[in] visible true for on, false for off.
+			*/
+			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
+
 		private:
 
 		protected:

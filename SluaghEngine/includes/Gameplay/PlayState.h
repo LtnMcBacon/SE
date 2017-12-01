@@ -71,6 +71,10 @@ namespace SE
 			void CheckForRoomTransition();
 			void UpdateHUD(float dt);
 
+			std::wstring GenerateDeathMessage();
+			void InitializeDeathSequence();
+			void UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit);
+
 			HUDParser playStateGUI;
 			std::string OptionalButtons[2]
 			{
@@ -81,6 +85,7 @@ namespace SE
 			Core::Entity cam;
 			Core::Entity dummy;
 			Core::Entity usePrompt;
+			Core::Entity returnPrompt;
 			PlayerUnit* player;
 
 			uint8_t worldWidth = 4;
@@ -122,6 +127,10 @@ namespace SE
 			SE::Utilz::GUID sounds[3];
 
 			bool noShow = false;
+			bool deathSequence = false;
+			float deathTimer = 0.0f;
+			Core::Entity deathText;
+			Core::Entity cameraDummy;
 
 		protected:
 

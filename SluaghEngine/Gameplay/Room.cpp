@@ -185,6 +185,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100;
@@ -1527,6 +1528,11 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 
 void SE::Gameplay::Room::RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit * enemyToRemove)
 {
+	if (enemyToRemove == nullptr)
+	{
+		for (auto enemy : enemyUnits)
+			enemy->SetHealth(-1);
+	}
 	int counter = 0;
 	for(auto enemy : enemyUnits)
 	{
@@ -1984,6 +1990,22 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.renderableManager->CreateRenderableObject(PaintingEnt, { Meshes[Meshes::Painting] });
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
+		
+		Core::DecalCreateInfo decalInfo;
+		decalInfo.opacity = 0.50f;
+		decalInfo.textureName = "painting1.png";
+
+		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);
+		//CoreInit::managers.decalManager->ToggleVisible(PaintingEnt, true);
+
+		DirectX::XMFLOAT3 paintingForward = CoreInit::managers.transformManager->GetForward(PaintingEnt);
+
+		DirectX::XMFLOAT4X4 decalTrans;
+		DirectX::XMMATRIX decalTranslation = DirectX::XMMatrixTranslation(0.0f + paintingForward.x * 0.25f, 0.75f, 0.0f + paintingForward.z * 0.25f);
+		DirectX::XMMATRIX decalScaling = DirectX::XMMatrixScaling(0.945f, 1.14f, 0.65f);
+		DirectX::XMStoreFloat4x4(&decalTrans, decalScaling * decalTranslation);
+
+		CoreInit::managers.decalManager->SetLocalTransform(PaintingEnt, (float*)&decalTrans);
 
 		roomEntities[args.x][args.y].push_back(PaintingEnt);
 
