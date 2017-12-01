@@ -1432,11 +1432,11 @@ void SE::Gameplay::Room::Unload()
 			roomEntities[x][y].clear();
 		}
 	}
-
+	 
 	loaded = false;
 	/*for (auto enemy : enemyUnits)
 	{
-		CoreInit::managers.entityManager->Destroy(enemy->GetEntity());
+		enemy->DestroyEntity();
 		if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
 		{
 			CoreInit::managers.entityManager->Destroy(*weapon);
