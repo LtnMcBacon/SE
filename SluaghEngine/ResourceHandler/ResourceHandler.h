@@ -66,6 +66,11 @@ namespace SE
 
 			bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) override;
 
+			bool Exist(const Utilz::GUID guid)override;
+
+			size_t GetMemoryUsed(ResourceType type)override;
+
+
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
 			*
