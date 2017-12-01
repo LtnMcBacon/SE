@@ -79,6 +79,7 @@ namespace SE
 				Potatosack_closed,
 				Potatosack_open,
 				Fireplace,
+				Fireplace_open,
 				Painting,
 				Window,
 				Window_open,
@@ -101,7 +102,12 @@ namespace SE
 				FanzyWall,
 				LightStoneWall,
 				LightStoneWallWood,
-				Window
+				Window,
+				Fireplace,
+				Fireplace_open,
+				Pillar,
+				PotatosackOpen,
+				PotatosackClosed
 			};
 
 			struct CreationArguments
