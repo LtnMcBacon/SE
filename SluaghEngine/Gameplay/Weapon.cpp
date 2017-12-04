@@ -12,7 +12,6 @@ struct WeaponInfo
 	SE::Utilz::GUID mesh;
 	SE::Utilz::GUID mat;
 	SE::Utilz::GUID shader;
-	SE::Utilz::GUID projectile;
 	SE::Utilz::GUID attAnim;
 	SE::Utilz::GUID equipJoint;
 	int slotIndex;
@@ -22,12 +21,34 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{ "Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl", "playerMeleeProjectiles.SEP", "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
-	{ "Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl", "CrossbowAttack.SEP", "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
-	{ "Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl", "WandAttack.SEP", "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
+	{ "Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
+	{ "Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
+	{ "Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
 	} };
 
+struct ProjectileInfo
+{
+	float damageMod;
+	SE::Utilz::GUID projectile;
+};
 
+static const std::vector<std::vector<ProjectileInfo>> projectiles = 
+{
+	{
+		{ 1.0f, "playerMeleeProjectiles.SEP" },
+		{ 1.0f, "playerMeleeProjectiles.SEP" }
+	},
+
+	{
+		{ 1.0f, "CrossbowAttack.SEP" },
+		{ 1.0f, "CrossbowAttack.SEP" }
+	},
+
+	{
+		{ 1.0f, "WandAttack.SEP" },
+		{ 1.0f, "WandAttack.SEP" }
+	}
+};
 
 SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 {
@@ -43,10 +64,13 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	CoreInit::managers.dataManager->SetValue(wep, "Str", Stats::GetRandStr());
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", Stats::GetRandAgi());
 	CoreInit::managers.dataManager->SetValue(wep, "Wis", Stats::GetRandWil());
-	CoreInit::managers.dataManager->SetValue(wep, "Damage", base  ? 3 : Stats::GetRandDamage());
+	
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(Stats::GetRandomDamageType()));
 	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(type)].attAnim.id);
-	CoreInit::managers.dataManager->SetValue(wep, "AttProj", weaponInfo[size_t(type)].projectile.id);
+
+	auto randProjectile = std::rand() % projectiles[size_t(type)].size();
+	CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
+	CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
 	CreateMeta(wep);
 
 
