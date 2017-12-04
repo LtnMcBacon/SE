@@ -89,7 +89,7 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
 		cInfo.skeleton = enemyCreationData->second.skeletonGUID;
 
 				CoreInit::managers.animationManager->CreateAnimatedObject(newEntity, cInfo);
-		CoreInit::managers.animationManager->ToggleVisible(newEntity, true);
+	//	CoreInit::managers.animationManager->ToggleVisible(newEntity, true);
 
 		Core::IMaterialManager::CreateInfo enemyInfo;
 		enemyInfo.materialFile = enemyCreationData->second.materialGUID;
