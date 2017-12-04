@@ -1060,7 +1060,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid, SE::Utilz::GUID &floorGuid)
 {
 	auto rand = CoreInit::subSystems.window->GetRand();
-	auto randNr = (rand % 4);
+	auto randNr = (rand % 6);
 
 	if (IsOutside == true)
 	{
@@ -1082,6 +1082,12 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		case 3:
 			wallGuid = Materials[Materials::LightStoneWallWood];
 			break;
+		case 4:
+			wallGuid = Materials[Materials::DarkStoneWall]; 
+			break; 
+		case 5:
+			wallGuid = Materials[Materials::julWall]; 
+
 		}
 	}
 
@@ -1265,6 +1271,8 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::FanzyWall] = { "FanzyWall.mat" };
 	Materials[Materials::LightStoneWall] = { "LightStoneWall.mat" };
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
+	Materials[Materials::julWall] = { "julWall.mat" }; 
+	Materials[Materials::DarkStoneWall] = { "DarkStoneWall.mat" };
 	Materials[Materials::Window] = { "WindowOpen.mat" };
 	Materials[Materials::Fireplace] = { "Fireplace.mat" };
 	Materials[Materials::Pillar] = { "Pillar_short.mat" };

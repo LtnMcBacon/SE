@@ -84,8 +84,7 @@ namespace SE
 				Painting,
 				Window,
 				Window_open,
-				Window_closed
-				Painting,
+				Window_closed,
 				Tree,
 				Well
 			};
@@ -111,9 +110,10 @@ namespace SE
 				Fireplace_open,
 				Pillar,
 				PotatosackOpen,
-				PotatosackClosed
-				LightStoneWallWood, 
-				Well
+				PotatosackClosed,
+				Well,
+				julWall, 
+				DarkStoneWall
 			};
 
 			struct CreationArguments
