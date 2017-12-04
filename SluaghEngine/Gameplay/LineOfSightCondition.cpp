@@ -1,5 +1,6 @@
 #include "LineOfSightCondition.h"
 #include "Room.h"
+#include <EnemyUnit.h>
 #include "GameBlackboard.h"
 #include "EnemyBlackboard.h"
 #include <Profiler.h>
