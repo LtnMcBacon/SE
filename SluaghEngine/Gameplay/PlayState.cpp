@@ -972,8 +972,8 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	aimDecal = CoreInit::managers.entityManager->Create();
 	DirectX::XMFLOAT4X4 dectrans;
-	DirectX::XMStoreFloat4x4(&dectrans, DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
-	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 1.0f});
+	DirectX::XMStoreFloat4x4(&dectrans,DirectX::XMMatrixScaling(0.5f, 0.5f, 0.05f) * DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 0.5f});
 	CoreInit::managers.decalManager->SetLocalTransform(aimDecal, (float*)&dectrans);
 	CoreInit::managers.decalManager->ToggleVisible(aimDecal, true);
 	
@@ -1273,6 +1273,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
+	UpdateAimDecal();
 
 	float dt = min(1 / 30.f, input->GetDelta());
 
@@ -1380,3 +1381,26 @@ void PlayState::ToggleFlowField(bool showFlowField)
 	StopProfile;
 }
 
+void PlayState::UpdateAimDecal()
+{
+	int mX, mY;
+	input->GetMousePos(mX, mY);
+
+	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+	DirectX::XMVECTOR rayD;
+
+
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
+	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+
+	auto clickPos = rayO + rayD * distance;
+
+	DirectX::XMFLOAT3 decalPos;
+	DirectX::XMStoreFloat3(&decalPos, clickPos);
+
+	CoreInit::managers.transformManager->SetPosition(aimDecal, decalPos);
+
+}

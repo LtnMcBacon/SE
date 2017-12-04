@@ -98,6 +98,8 @@ namespace SE
 			uint8_t worldWidth;
 			uint8_t worldHeight;
 
+			void UpdateAimDecal();
+
 
 			inline std::optional<Room*> GetRoom(int x, int y)
 			{
