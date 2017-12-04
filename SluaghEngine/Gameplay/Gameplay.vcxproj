@@ -204,7 +204,6 @@
     <ClInclude Include="..\includes\Gameplay\WinState.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
-    <ClInclude Include="PerkHandler.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

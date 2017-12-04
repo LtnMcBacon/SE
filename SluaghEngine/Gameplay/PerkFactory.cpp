@@ -13,28 +13,39 @@ PerkFaktory::~PerkFaktory()
 
 std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> PerkFaktory::initiateFuncs(int value, int funcEnum)
 {
-	float placeHolder2 = 0;
-	float placeHolder3 = 0;
-
+	float consecutiveValue = 0;
+	float timer = 0;
+	float duration = 5.f;
+	bool intMult = false;
+	bool strMult = false;
+	bool agiMult = false;
+	bool HealthMultiP = false;
+	bool skillCD = false;
+	bool skillDamage = false;
+	bool meleeLock = false;
+	bool rangeLock = false;
+	bool magicLock = false;
+	bool waterLock = false;
+	bool fireLock = false;
+	bool natureLock = false;
 
 	switch (funcEnum)
 	{
 	case 0:
-
 		CoreInit::subSystems.devConsole->Print("Faulty perk Error! NR: 0");
 		break;
 	case 1:
 	{
-		auto PhysicalResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto PhysicalResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (auto& Event : DmgVector)
@@ -46,10 +57,6 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 					}
 				}
 			}
-
-
-			
-
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> PhysicalResistanceFunc = PhysicalResistance;
 		return PhysicalResistanceFunc;
 		break;
@@ -57,16 +64,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 		
 	case 2:
 	{
-		auto WaterResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto WaterResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (auto& Event : DmgVector)
@@ -85,16 +92,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	}
 	case 3:
 	{
-		auto FireResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto FireResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 				for (auto& Event : DmgVector)
 				{
@@ -112,16 +119,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	}
 	case 4:
 	{
-		auto NatureResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto NatureResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (auto& Event : DmgVector)
@@ -140,16 +147,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	}
 	case 5:
 	{
-		auto MagicResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto MagicResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (auto& Event : DmgVector)
@@ -168,16 +175,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	}
 	case 6:
 	{
-		auto RangedResistance = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto RangedResistance = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 				for (auto& Event : DmgVector)
 				{
@@ -196,15 +203,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 7:
 	{
 
-		auto StrengthFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto StrengthFlat = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3 >0)
+			if (timer >0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				player->AddNewStrength(value);
 			}
 			
@@ -215,16 +222,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 8:
 	{
 
-		auto AgilityFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto AgilityFlat = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				player->AddNewAgility(value);
 			}
 			
@@ -235,16 +242,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 9:
 	{
 
-		auto IntelligenceFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto IntelligenceFlat = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 		
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				player->AddNewWhisdom(value);
 			}
 			
@@ -255,15 +262,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 10:
 	{
 
-		auto HealthFlat = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto HealthFlat = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				player->AddNewMaxHealth(value);
 			}
 			
@@ -274,7 +281,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 11:
 	{
 
-		auto intMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto intMultiplier = [value, duration, consecutiveValue, timer, intMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -294,7 +301,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 12:
 	{
 
-		auto strMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto strMultiplier = [value, duration, consecutiveValue, timer, strMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -314,7 +321,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 13:
 	{
 
-		auto agiMultiplier = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto agiMultiplier = [value, duration, consecutiveValue, timer, agiMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -334,7 +341,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 14:
 	{
 
-		auto HealthMulti = [value, this](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)->void
+		auto HealthMulti = [value, duration, HealthMultiP](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -354,17 +361,17 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 15:
 	{
 
-		auto DamageMulti = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto DamageMulti = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				float meleeDmg = player->GetBaseMeleeDamageMultiplier();
 				float rangedDmg = player->GetBaseRangedMulitplier();
 				float magicDmg = player->GetBaseMagicMulitplier();
@@ -391,16 +398,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 17:
 	{
 
-		auto MeleeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto MeleeDamage = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				for (auto& projectile : Projs)
 				{
 					if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_MELEE)
@@ -418,16 +425,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 18:
 	{
 
-		auto RangeDamage = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto RangeDamage = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				for (auto& projectile : Projs)
 				{
 					if (projectile.eventDamage.source == DamageSources::DAMAGE_SOURCE_RANGED)
@@ -445,15 +452,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 19:
 	{
 
-		auto AttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto AttackSpeed = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				float AS = player->GetBaseAttackSpeed();
 				float newAS = AS * (value / 100.f);
 				player->AddNewAttackSpeed(newAS);
@@ -472,22 +479,22 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 21:
 	{
 
-		auto ConsecutiveDmG = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		auto ConsecutiveDmG = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
 
-				placeHolder3 = duration;
+				timer = duration;
 
-				placeHolder2 += value;
+				consecutiveValue += value;
 
 				float rangedDMG = player->GetBaseRangedMulitplier();
 				float meleeDMG = player->GetBaseMeleeDamageMultiplier();
 				float magicDMG = player->GetBaseMagicMulitplier();
 
-				float newRangedDMG = rangedDMG + (placeHolder2 / 100.f);
-				float newMeleeDMG = meleeDMG + (placeHolder2 / 100.f);
-				float newMagicDMG = magicDMG + (placeHolder2 / 100.f);
+				float newRangedDMG = rangedDMG + (consecutiveValue / 100.f);
+				float newMeleeDMG = meleeDMG + (consecutiveValue / 100.f);
+				float newMagicDMG = magicDMG + (consecutiveValue / 100.f);
 
 				player->AddNewRangedMulitplier(newRangedDMG);
 				player->AddNewMeleeDamageMultiplier(newMeleeDMG);
@@ -497,16 +504,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			else
 			{
 
-				if (placeHolder3 >0)
+				if (timer >0)
 				{
-					placeHolder3 -= deltaTime;
+					timer -= deltaTime;
 					float rangedDMG = player->GetBaseRangedMulitplier();
 					float meleeDMG = player->GetBaseMeleeDamageMultiplier();
 					float magicDMG = player->GetBaseMagicMulitplier();
 
-					float newRangedDMG = rangedDMG + (placeHolder2 / 100.f);
-					float newMeleeDMG = meleeDMG + (placeHolder2 / 100.f);
-					float newMagicDMG = magicDMG + (placeHolder2 / 100.f);
+					float newRangedDMG = rangedDMG + (consecutiveValue / 100.f);
+					float newMeleeDMG = meleeDMG + (consecutiveValue / 100.f);
+					float newMagicDMG = magicDMG + (consecutiveValue / 100.f);
 
 					player->AddNewRangedMulitplier(newRangedDMG);
 					player->AddNewMeleeDamageMultiplier(newMeleeDMG);
@@ -521,19 +528,19 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 22:
 	{
 
-		auto ConsecutiveAttackSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		auto ConsecutiveAttackSpeed = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				float AS = player->GetBaseAttackSpeed();
-				float newAS = AS * (placeHolder2 / 100.f);
+				float newAS = AS * (consecutiveValue / 100.f);
 				player->AddNewAttackCooldown(newAS);
 			}
 
@@ -546,25 +553,25 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 23:
 	{
 
-		auto ConsecutiveMeleeDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		auto ConsecutiveMeleeDmg = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
-				placeHolder2 += value;
+				consecutiveValue += value;
 				float AD = player->GetBaseMeleeDamageMultiplier();
-				float newAD = AD + (placeHolder2 / 100.f);
+				float newAD = AD + (consecutiveValue / 100.f);
 				player->AddNewMeleeDamageMultiplier(newAD);
 
 			}
 			else
 			{
-				if (placeHolder3>0)
+				if (timer>0)
 				{
-					placeHolder3 -= deltaTime;
+					timer -= deltaTime;
 					float AD = player->GetBaseMeleeDamageMultiplier();
-					float newAD = AD * (placeHolder2 / 100.f);
+					float newAD = AD * (consecutiveValue / 100.f);
 					player->AddNewMeleeDamageMultiplier(newAD);
 				}
 			}
@@ -576,24 +583,24 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 24:
 	{
 
-		auto ConsecutiveRangedDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		auto ConsecutiveRangedDmg = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
-				placeHolder2 += value;
+				consecutiveValue += value;
 				float AD = player->GetBaseRangedMulitplier();
-				float newAD = AD + (placeHolder2 / 100.f);
+				float newAD = AD + (consecutiveValue / 100.f);
 				player->AddNewRangedMulitplier(newAD);
 			}
 			else
 			{
-				if (placeHolder3 > 0)
+				if (timer > 0)
 				{
-					placeHolder3 -= deltaTime;
+					timer -= deltaTime;
 					float AD = player->GetBaseRangedMulitplier();
-					float newAD = AD * (placeHolder2 / 100.f);
+					float newAD = AD * (consecutiveValue / 100.f);
 					player->AddNewRangedMulitplier(newAD);
 				}
 			}
@@ -623,7 +630,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 28:
 	{
 
-		auto skillCooldown = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto skillCooldown = [value, duration, consecutiveValue, timer, skillCD](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -649,7 +656,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 29:
 	{
 
-		auto AdaptiveSkillCD = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto AdaptiveSkillCD = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -679,7 +686,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 30:
 	{
 
-		auto SkillDmg = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto SkillDmg = [value, duration, consecutiveValue, timer, skillDamage](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
@@ -707,23 +714,23 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 31:
 	{
 
-		auto MovementSpeed = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
+		auto MovementSpeed = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 
 				float MS = player->GetBaseMovement();
 
-				placeHolder2 = MS * (value / 100.f);
+				consecutiveValue = MS * (value / 100.f);
 
-				player->AddNewMovement(placeHolder2);
+				player->AddNewMovement(consecutiveValue);
 			}
 
 			
@@ -771,16 +778,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 34:
 	{
 
-		auto HealImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto HealImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 				
 			}
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				player->ClearHealingEvents();
 			}
 
@@ -791,16 +798,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 35:
 	{
 
-		auto PhysicalImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto PhysicalImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (int i = 0; i < DmgVector.size(); i++)
@@ -819,15 +826,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 36:
 	{
 
-		auto WaterImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto WaterImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (int i = 0; i < DmgVector.size(); i++)
@@ -847,15 +854,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 37:
 	{
 
-		auto FireImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto FireImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (int i = 0; i < DmgVector.size(); i++)
@@ -875,15 +882,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 38:
 	{
 
-		auto NatureImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto NatureImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (int i = 0; i < DmgVector.size(); i++)
@@ -903,16 +910,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 39:
 	{
 
-		auto SlowImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto SlowImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
 
 				for (int i = 0; i < CndVector.size(); i++)
@@ -932,16 +939,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 40:
 	{
 
-		auto StunImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto StunImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<ConditionEvent> CndVector = player->GetConditionEvents();
 				for (int i = 0; i < CndVector.size(); i++)
 				{
@@ -960,16 +967,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 41:
 	{
 
-		auto MagicImmune = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto MagicImmune = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3>0)
+			if (timer>0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				std::vector<DamageEvent> DmgVector = player->GetDamageEvents();
 
 				for (int i = 0; i < DmgVector.size(); i++)
@@ -995,16 +1002,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 43:
 	{
 
-		auto MeleeLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto MeleeLock = [value, duration, consecutiveValue, timer, meleeLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				meleeLock = true;
 			}
 			else
@@ -1019,15 +1026,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 44:
 	{
 
-		auto RangeLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto RangeLock = [value, duration, consecutiveValue, timer, rangeLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				rangeLock = true;
 			}
 			else
@@ -1043,16 +1050,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 45:
 	{
 
-		auto MagicLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto MagicLock = [value, duration, consecutiveValue, timer, magicLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 
 			}
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				magicLock = true;
 			}
 			else
@@ -1068,16 +1075,16 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 46:
 	{
 
-		auto WaterLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto WaterLock = [value, duration, consecutiveValue, timer, waterLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				waterLock = true;
 			}
 			else
@@ -1093,15 +1100,15 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 47:
 	{
 
-		auto FireLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto FireLock = [value, duration, consecutiveValue, timer, fireLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
-			if (placeHolder3 > 0)
+			if (timer > 0)
 			{
-				placeHolder3 -= deltaTime;
+				timer -= deltaTime;
 				fireLock = true;
 			}
 			else
@@ -1117,17 +1124,17 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 48:
 	{
 
-		auto NatureLock = [value, this, placeHolder2, placeHolder3](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		auto NatureLock = [value, duration, consecutiveValue, timer, natureLock](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
 			{
-				placeHolder3 = duration;
+				timer = duration;
 			}
 			else
 			{
-				if (placeHolder3 > 0)
+				if (timer > 0)
 				{
-					placeHolder3 -= deltaTime;
+					timer -= deltaTime;
 					natureLock = true;
 				}
 				else
