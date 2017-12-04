@@ -3,6 +3,7 @@
 #include "EnemyBlackboard.h"
 #include "GameBlackboard.h"
 #include "Room.h"
+#include <EnemyUnit.h>
 
 SE::Gameplay::Status SE::Gameplay::CalculateTimeToRoomTransistionLeaf::Update()
 {
