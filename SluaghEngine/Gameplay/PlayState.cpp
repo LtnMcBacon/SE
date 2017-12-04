@@ -26,6 +26,7 @@ bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+	CoreInit::subSystems.window->ToggleCursor(false);
 	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
@@ -225,7 +226,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
-
+	CoreInit::subSystems.window->ToggleCursor(true);
 	if (streamTimings.is_open())
 		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
