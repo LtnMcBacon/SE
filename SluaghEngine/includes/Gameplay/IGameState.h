@@ -15,8 +15,8 @@ namespace SE
 
 		struct PlayStateData
 		{
-			Skill skills[3];
-			PerkData perks[3];
+			Skill skills[2];
+			PerkData perks[2];
 		};
 
 		/**
@@ -46,6 +46,8 @@ namespace SE
 				CHARACTER_CREATION_STATE = 3,
 				PAUSE_STATE = 4,
 				TUTORIAL_STATE = 5,
+				OPTION_STATE = 6,
+				WIN_STATE = 7,
 				QUIT_GAME
 			};
 

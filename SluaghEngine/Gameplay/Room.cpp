@@ -82,8 +82,8 @@ void SE::Gameplay::Room::UpdateHpBars(float playerX, float playerY)
 
 		float w = DirectX::XMVectorGetW(screenPos);
 
-		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.window->Width());
-		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.window->Height());
+		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
+		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
 
 		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
 		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
@@ -185,6 +185,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100;
@@ -507,6 +508,15 @@ float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, Dire
 	}
 	
 	return distance;
+}
+
+float SE::Gameplay::Room::DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const
+{
+	float distX = DoorArr[int(direction)].posX - startX;
+	float distY = DoorArr[int(direction)].posY - startY;
+
+
+	return sqrtf(distX*distX + distY*distY);
 }
 
 
@@ -1232,9 +1242,13 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Potatosack_open] = { "Potato_Sack_Open.mesh" };
 	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
 	Meshes[Meshes::Painting] = { "Painting.mesh" };
+	Meshes[Meshes::Window] = { "Window.mesh" };
+	Meshes[Meshes::Window_open] = { "WindowOpen.mesh" };
+	Meshes[Meshes::Window_closed] = { "WindowClosed.mesh" };
+	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
+	Meshes[Meshes::Fireplace_open] = { "FireplaceOpen.mesh" };
 	Meshes[Meshes::Tree] = { "tree.mesh" }; 
 	Meshes[Meshes::Well] = { "well.mesh" };
-
 
 	// Materials
 	Materials[Materials::Stone] = { "Cube.mat" };
@@ -1244,18 +1258,21 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Bush] = { "Bush.mat" };
 	Materials[Materials::Dirt] = { "brownPlane.mat" };
 	Materials[Materials::Grass] = { "GreenPlane.mat" };
-
 	Materials[Materials::Wood] = { "Wood_plane.mat" };
 	Materials[Materials::OutsideWall] = { "StoneWallPlane.mat" };
-
-
 	Materials[Materials::StoneFloor2] = { "StoneFloor2.mat" };
 	Materials[Materials::WoodFloor] = { "WoodFloor.mat" };
 	Materials[Materials::FanzyWall] = { "FanzyWall.mat" };
 	Materials[Materials::LightStoneWall] = { "LightStoneWall.mat" };
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
+	Materials[Materials::Window] = { "WindowOpen.mat" };
+	Materials[Materials::Fireplace] = { "Fireplace.mat" };
+	Materials[Materials::Pillar] = { "Pillar_short.mat" };
+	Materials[Materials::PotatosackOpen] = { "Potato_Sack_Open.mat" };
+	Materials[Materials::PotatosackClosed] = { "Potato_Sack_Closed.mat" };
 
 	Materials[Materials::Well] = { "well.mat" }; 
+#pragma region RNGprops
 
 	Prop Chair;
 	Chair.guid = Meshes[Meshes::Chair];
@@ -1295,11 +1312,11 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop PotatoSackOpen;
 	PotatoSackOpen.guid = Meshes[Meshes::Potatosack_open];
-	PotatoSackOpen.matGuid = Materials[Materials::Dirt];
+	PotatoSackOpen.matGuid = Materials[Materials::PotatosackOpen];
 
 	Prop PotatoSackClosed;
 	PotatoSackClosed.guid = Meshes[Meshes::Potatosack_closed];
-	PotatoSackClosed.matGuid = Materials[Materials::Dirt];
+	PotatoSackClosed.matGuid = Materials[Materials::PotatosackClosed];
 
 	Prop Bush;
 	Bush.guid = Meshes[Meshes::Bush];
@@ -1307,8 +1324,13 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop Fireplace;
 	Fireplace.guid = Meshes[Meshes::Fireplace];
-	Fireplace.matGuid = Materials[Materials::Stone];
+	Fireplace.matGuid = Materials[Materials::Fireplace];
 
+	Prop FireplaceOpen;
+	FireplaceOpen.guid = Meshes[Meshes::Fireplace_open];
+	FireplaceOpen.matGuid = Materials[Materials::Fireplace];
+
+#pragma endregion
 	Prop Tree; 
 	Tree.guid = Meshes[Meshes::Tree]; 
 	Tree.matGuid = Materials[Materials::Wood]; 
@@ -1318,7 +1340,7 @@ Room::Room(Utilz::GUID fileName)
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace, FireplaceOpen };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1359,6 +1381,9 @@ Room::Room(Utilz::GUID fileName)
 	propItemToFunction[id_Tree] = [this](CreationArguments &args) {
 		this->CreateTree(args);
 	};
+	propItemToFunction[id_Window] = [this](CreationArguments &args) {
+		this->CreateWindows(args);
+	};
 
 
 
@@ -1371,10 +1396,13 @@ Room::Room(Utilz::GUID fileName)
 		// reset temporary tilevalues where a single prop is overlapping another tile 
 		//ResetTempTileValues();
 
+
+	//Used for flowField creation
+	char tempMap[25][25];
 	for (int x = 0; x < 25; x++)
 		for (int y = 0; y < 25; y++)
 		{
-			if (!tileValues[x][y])
+			if(!(tempMap[x][y] = tileValues[x][y] == id_Torch ? id_Floor : tileValues[x][y]))
 			{
 				start.x = x;
 				start.y = y;
@@ -1400,7 +1428,7 @@ Room::Room(Utilz::GUID fileName)
 			}
 
 
-	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
+	roomField = new FlowField(tempMap, 1.0f, start, 0.0f, 0.0f);
 
 	roomEntity = CoreInit::managers.entityManager->Create();
 
@@ -1524,6 +1552,11 @@ bool Room::AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd, DirectionToAdjace
 
 void SE::Gameplay::Room::RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit * enemyToRemove)
 {
+	if (enemyToRemove == nullptr)
+	{
+		for (auto enemy : enemyUnits)
+			enemy->SetHealth(-1);
+	}
 	int counter = 0;
 	for(auto enemy : enemyUnits)
 	{
@@ -1579,13 +1612,13 @@ float Room::RotatePainting(int x, int y) {
 	float rotation = 0;
 
 
-	if ((tileValues[x - 1][y] == id_Floor))
+	if ( x < 24 && (tileValues[x + 1][y] == id_Floor))
 		rotation = 180;
-	else if ( (tileValues[x][y + 1] == id_Floor ))
+	else if ( y < 24 && (tileValues[x][y + 1] == id_Floor ))
 		rotation = 90;
-	else if ((tileValues[x][y - 1] == id_Floor ))
+	else if ( y > 0 &&(tileValues[x][y - 1] == id_Floor ))
 		rotation = -90;
-	else if ( (tileValues[x + 1][y] == id_Floor ))
+	else if ( x > 0  && (tileValues[x - 1][y] == id_Floor ))
 		rotation = 0;
 
 
@@ -1643,7 +1676,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			rand = CoreInit::subSystems.window->GetRand();
 			propId = (rand % nrOfProps);
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "y", rot))
 				{
 					propCheck = true;
@@ -1675,7 +1709,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			propId = (rand % nrOfProps);
 			rot = 1.5708;
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "x", rot))
 				{
 					propCheck = true;
@@ -1757,6 +1792,55 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
 	//CoreInit::managers.particleSystemManager->ToggleVisible(entFire, true);
 	roomEntities[x][y].push_back(entFire);
+
+}
+void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
+{
+	int x = args.x;
+	int y = args.y;
+	SE::Utilz::GUID WindowGUID = Meshes[Meshes::Window_open];
+
+	float rotation = 0;
+
+
+	if (x < 24 && (tileValues[x + 1][y] == id_Floor))
+		rotation = 180;
+	else if (y < 24 && (tileValues[x][y + 1] == id_Floor))
+		rotation = 90;
+	else if (y > 0 && (tileValues[x][y - 1] == id_Floor)) {
+		rotation = -90;
+		WindowGUID = Meshes[Meshes::Window_closed];
+	}
+	else if (x > 0 && (tileValues[x - 1][y] == id_Floor))
+		rotation = 0;
+
+
+	rotation += 270;
+
+	rotation *= 3.1416 / 180;
+
+
+	Core::IMaterialManager::CreateInfo matInfo;
+	matInfo.materialFile = Materials[Materials::Window];
+	matInfo.shader = Norm;
+	CoreInit::managers.materialManager->Create(args.ent, matInfo);
+	CoreInit::managers.transformManager->SetPosition(args.ent, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, rotation, 0.0f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { WindowGUID });
+
+	roomEntities[args.x][args.y].push_back(args.ent);
+
+
+	// Base window mesh (wall)
+	auto entWindow = CoreInit::managers.entityManager->Create();
+	matInfo.materialFile = args.wallMat;
+	CoreInit::managers.transformManager->Create(entWindow);
+	CoreInit::managers.transformManager->SetPosition(entWindow, DirectX::XMFLOAT3(args.x + 0.5f, 1.5f, args.y + 0.5f));
+	CoreInit::managers.transformManager->SetRotation(entWindow, 0.0f, rotation, 0.0f);
+	CoreInit::managers.renderableManager->CreateRenderableObject(entWindow, { Meshes[Meshes::Window] });
+	CoreInit::managers.materialManager->Create(entWindow, matInfo);
+
+	roomEntities[args.x][args.y].push_back(entWindow);
 
 }
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
@@ -1862,7 +1946,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 void SE::Gameplay::Room::CreatePillar(CreationArguments &args)
 {
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = Materials[Materials::Pillar];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Pillar_short] });
@@ -1943,18 +2027,38 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 
 	if (0 < randValue && randValue <= 10)
 	{
-		auto test = CoreInit::managers.entityManager->Create();
+		const auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
 		matInfoPainting.shader = Norm;
 		matInfoPainting.materialFile = Materials[Materials::Wood];
-		CoreInit::managers.transformManager->Create(test);
-		CoreInit::managers.transformManager->SetPosition(test, DirectX::XMFLOAT3(args.x + 0.5f, 1.0f, args.y + 0.5f));
-		CoreInit::managers.transformManager->SetRotation(test, 0.0f, RotatePainting(args.x, args.y), 0.0f);
-		CoreInit::managers.renderableManager->CreateRenderableObject(test, { Meshes[Meshes::Painting] });
-		CoreInit::managers.materialManager->Create(test, matInfoPainting);
+		CoreInit::managers.transformManager->Create(PaintingEnt);
+		CoreInit::managers.transformManager->SetPosition(PaintingEnt, DirectX::XMFLOAT3(args.x + 0.5f, 1.0f, args.y + 0.5f));
+		CoreInit::managers.transformManager->SetRotation(PaintingEnt, 0.0f, RotatePainting(args.x, args.y), 0.0f);
+		CoreInit::managers.renderableManager->CreateRenderableObject(PaintingEnt, { Meshes[Meshes::Painting] });
+		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
+		
+		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
+		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
+		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
 
-		roomEntities[args.x][args.y].push_back(test);
+		Core::DecalCreateInfo decalInfo;
+		decalInfo.opacity = 0.50f;
+		decalInfo.textureName = paintingTextures[paintingToUse];
+
+		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);
+		//CoreInit::managers.decalManager->ToggleVisible(PaintingEnt, true);
+
+		const DirectX::XMFLOAT3 paintingForward = CoreInit::managers.transformManager->GetForward(PaintingEnt);
+
+		DirectX::XMFLOAT4X4 decalTrans;
+		const DirectX::XMMATRIX decalTranslation = DirectX::XMMatrixTranslation(0.0f + paintingForward.x * 0.25f, 0.75f, 0.0f + paintingForward.z * 0.25f);
+		const DirectX::XMMATRIX decalScaling = DirectX::XMMatrixScaling(0.945f, 1.14f, 0.65f);
+		DirectX::XMStoreFloat4x4(&decalTrans, decalScaling * decalTranslation);
+
+		CoreInit::managers.decalManager->SetLocalTransform(PaintingEnt, (float*)&decalTrans);
+
+		roomEntities[args.x][args.y].push_back(PaintingEnt);
 
 	}
 
@@ -1994,23 +2098,6 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		CoreInit::managers.transformManager->Create(lightEnt, { args.x + 0.5f, 1.0f, args.y + 0.5f });
 		CoreInit::managers.lightManager->Create(lightEnt, createInfo);
 		roomEntities[args.x][args.y].push_back(lightEnt);
-
-	/*	int arrPos = -1;
-		if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-		else if (j - 1 >= 0 && tileValues[i][j - 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-		else if (j + 1 < 25 && tileValues[i][j + 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-		else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
-
-		DoorArr[arrPos].doorEntityPos = roomEntities.size() - 1;
-		DoorArr[arrPos].xPos = i + 0.5f;
-		DoorArr[arrPos].yPos = j + 0.5f;
-		DoorArr[arrPos].active = true;
-		DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
-*/
 
 }
 

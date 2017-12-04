@@ -343,3 +343,4 @@ transformGarbageHist.txt
 ParsedAssets/
 !ParseFiles.bat
 !Build/Asset/Shaders/*
+*.csv

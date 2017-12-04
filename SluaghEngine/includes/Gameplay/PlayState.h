@@ -49,6 +49,8 @@ namespace SE
 			*/
 			State Update(void*& passableInfo);
 
+			void ToggleFlowField(bool showFlowField);
+
 			
 		private:
 
@@ -66,10 +68,18 @@ namespace SE
 			void InitializeOther();
 			void InitWeaponPickups();
 
+			void CreateFlowFieldRendering();
+			void DestroyFlowFieldRendering();
+			void UpdateFlowFieldRendering();
+
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
 			void CheckForRoomTransition();
 			void UpdateHUD(float dt);
+
+			std::wstring GenerateDeathMessage();
+			void InitializeDeathSequence();
+			void UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit);
 
 			HUDParser playStateGUI;
 			std::string OptionalButtons[2]
@@ -81,10 +91,11 @@ namespace SE
 			Core::Entity cam;
 			Core::Entity dummy;
 			Core::Entity usePrompt;
+			Core::Entity returnPrompt;
 			PlayerUnit* player;
 
-			uint8_t worldWidth = 4;
-			uint8_t worldHeight = 4;
+			uint8_t worldWidth;
+			uint8_t worldHeight;
 
 
 			inline std::optional<Room*> GetRoom(int x, int y)
@@ -122,6 +133,13 @@ namespace SE
 			SE::Utilz::GUID sounds[3];
 
 			bool noShow = false;
+			bool deathSequence = false;
+			float deathTimer = 0.0f;
+			Core::Entity deathText;
+			Core::Entity cameraDummy;
+			bool showFlowField = false;
+			std::vector<SE::Core::Entity> flowFieldEntities;
+
 
 		protected:
 

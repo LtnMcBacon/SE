@@ -62,6 +62,7 @@ namespace SE::Gameplay
 
 		void WaitForMovementInputScript(float dt);
 
+		void NonSuspiciousScript(float dt);
 
 		void(TutorialState::*scriptToRun)(float);
 

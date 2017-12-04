@@ -15,6 +15,7 @@ namespace SE
 			~SluaghRoom() override;
 			void Update(float dt, float playerX, float playerY) override;
 			void InitSluagh();
+			Sluagh* GetSluagh() const { return theSluagh; };
 		private:
 			bool ProjectileAgainstEnemies(Projectile& projectile) override;
 			ProjectileManager* projectileManagers;

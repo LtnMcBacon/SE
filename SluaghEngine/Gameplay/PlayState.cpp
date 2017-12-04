@@ -6,7 +6,7 @@
 #include <GameBlackboard.h>
 #include "SluaghRoom.h"
 #include <string>
-
+#include <Items.h>
 #ifdef _DEBUG
 #pragma comment(lib, "UtilzD.lib")
 #else
@@ -20,10 +20,110 @@ PlayState::PlayState()
 {
 
 }
-static size_t dmgOverlayIndex = 0;
+static size_t dmgOverlayIndex = 0; 
+static std::ofstream streamTimings;
+bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+	firstFrame = true;
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		currentRoom->RemoveEnemyFromRoom(nullptr);
+	}, "kill","Kill all enemies");
+
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			uint8_t slot = 0;
+			if (argc == 4)
+				slot = std::stoi(argv[3]);
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				
+				
+				player->AddItem(Item::Weapon::Create(wType), slot);
+				break;
+			}
+				
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				player->AddItem(Item::Consumable::Create(cType), slot);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("give", "Usage:");
+			con->PrintChannel("give", "give ItemType Type Slot");
+			con->PrintChannel("give", "ItemTypes:");
+			con->PrintChannel("give", "\tWeapon - 0:");
+			con->PrintChannel("give", "\tConsumable - 1");
+			con->PrintChannel("give", "");
+			con->PrintChannel("give", "WeaponTypes:");
+			con->PrintChannel("give", "\tSword - 0");
+			con->PrintChannel("give", "\tCrossbow - 1");
+			con->PrintChannel("give", "\tWand - 2");
+			con->PrintChannel("give", "ConsumableTypes:");
+			con->PrintChannel("give", "\tHp - 0");
+		}
+	}, "give", "Give the player an item");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		if (argc >= 3)
+		{
+			auto type = ItemType(std::stoi(argv[1]));
+			switch (type)
+			{
+			case SE::Gameplay::ItemType::WEAPON:
+			{
+				auto wType = Item::Weapon::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Weapon::Create(wType), pos);
+				break;
+			}
+
+			case SE::Gameplay::ItemType::CONSUMABLE:
+			{
+				auto cType = Item::Consumable::Type(std::stoi(argv[2]));
+				auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+				Item::Drop(Item::Consumable::Create(cType), pos);
+				break;
+			}
+			case SE::Gameplay::ItemType::NUM_TYPES:
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			con->PrintChannel("drop", "Usage:");
+			con->PrintChannel("drop", "drop ItemType Type");
+			con->PrintChannel("drop", "ItemTypes:");
+			con->PrintChannel("drop", "\tWeapon - 0:");
+			con->PrintChannel("drop", "\tConsumable - 1");
+			con->PrintChannel("drop", "");
+			con->PrintChannel("drop", "WeaponTypes:");
+			con->PrintChannel("drop", "\tSword - 0");
+			con->PrintChannel("drop", "\tCrossbow - 1");
+			con->PrintChannel("drop", "\tWand - 2");
+			con->PrintChannel("drop", "ConsumableTypes:");
+			con->PrintChannel("drop", "\tHp - 0");
+		}
+	}, "drop", "Drop item at players feet");
 	this->input = Input;
 	this->engine = engine;
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
@@ -117,14 +217,25 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->RenderRoom(true);
 	currentRoom->InitializeAdjacentFlowFields();
 
+	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
+
 	ProfileReturnVoid;
 }
 
 PlayState::~PlayState()
 {
 	StartProfile;
+
+	if (streamTimings.is_open())
+		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
+	CoreInit::subSystems.devConsole->RemoveCommand("give");
+	CoreInit::subSystems.devConsole->RemoveCommand("kill");
+	CoreInit::subSystems.devConsole->RemoveCommand("drop");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("tff");
+	CoreInit::subSystems.devConsole->RemoveCommand("killself");
+	
 	delete projectileManager;
 	delete player;
 	//delete currentRoom;
@@ -133,6 +244,9 @@ PlayState::~PlayState()
 			if (auto room = GetRoom(x, y); room.has_value())
 				delete *room;
 	CoreInit::managers.entityManager->DestroyNow(dummy);
+	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
+	CoreInit::managers.entityManager->DestroyNow(deathText);
+	CoreInit::managers.entityManager->DestroyNow(returnPrompt);
 	CoreInit::managers.entityManager->DestroyNow(usePrompt);
 	CoreInit::managers.entityManager->DestroyNow(soundEnt);
 	for (auto& s : skillIndicators)
@@ -140,6 +254,10 @@ PlayState::~PlayState()
 		CoreInit::managers.entityManager->DestroyNow(s.Image);
 		CoreInit::managers.entityManager->DestroyNow(s.frame);
 	}
+
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
 
 	ProfileReturnVoid;
 }
@@ -256,7 +374,10 @@ void GetRoomPosFromDir(SE::Gameplay::Room::DirectionToAdjacentRoom dir, T& x, T&
 		break;
 	}
 }
-
+#include <Utilz\CPUTimeCluster.h>
+#include <Utilz\Memory.h>
+static int streamCount = 0;
+static SE::Utilz::CPUTimeCluster streamingTimes;
 
 void SE::Gameplay::PlayState::CheckForRoomTransition()
 {
@@ -275,16 +396,23 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 	{
 		if (auto dir = currentRoom->CheckForTransition(player->GetXPosition(), player->GetYPosition()); dir != Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NONE)
 		{
+			streamingTimes.Start("Full");
 			int x = currentRoomX, y = currentRoomY;
 			GetRoomPosFromDir(dir, x, y);
 
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
+				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
+				streamingTimes.Stop("Unload");
+				streamingTimes.Start("Load");
 				LoadAdjacentRooms(x, y, currentRoomX, currentRoomY);
-
+				streamingTimes.Stop("Load");
+				streamingTimes.Start("StopRender");
 				currentRoom->RenderRoom(false);
+				streamingTimes.Stop("StopRender");
 
+				streamingTimes.Start("Other");
 				currentRoomX = x;
 				currentRoomY = y;
 				blackBoard.currentRoom = currentRoom = *newRoom;
@@ -308,8 +436,14 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				player->UpdateMap(tempPtr);
 				currentRoom->InitializeAdjacentFlowFields();
 
+				streamingTimes.Stop("Other");
+
+
+				streamingTimes.Start("StartRender");
 				currentRoom->RenderRoom(true);
-			
+				streamingTimes.Stop("StartRender");
+
+				
 
 				float xToSet, yToSet;
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
@@ -318,8 +452,45 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 
 				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
+
+				if(showFlowField)
+				{
+					DestroyFlowFieldRendering();
+					CreateFlowFieldRendering();
+					UpdateFlowFieldRendering();
+				}
 			}
-		
+			streamingTimes.Stop("Full");
+
+			Utilz::TimeMap times;
+			streamingTimes.GetMap(times);
+			if (firstFrame)
+			{
+				streamTimings.open("StreamTimings.csv", std::ios::trunc);
+				if (streamTimings.is_open())
+				{
+					streamTimings << "count,RAM_T,VRAM_T,RAM_R,VRAM_R";
+					for (auto& t : times)
+						streamTimings << "," << t.first.c_str();
+				}
+				firstFrame = false;
+			}
+			if (streamTimings.is_open())
+			{
+				auto rhi = CoreInit::subSystems.resourceHandler->GetInfo();
+				
+				streamTimings << std::endl;
+				streamTimings << streamCount++;
+				streamTimings << "," << toMB(rhi.RAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(rhi.VRAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::RAM)); // Should be from resoruce handler
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::VRAM));// Should be from resoruce handler
+				for (auto& t : times)
+				{
+					streamTimings << "," << t.second;
+					CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
+				}
+			}
 		}
 	}
 
@@ -338,8 +509,123 @@ void SE::Gameplay::PlayState::UpdateHUD(float dt)
 			CoreInit::managers.textManager->SetText(skillIndicators[i].Image, L"");
 	}
 }
-static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
+std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
+
+	int value = CoreInit::subSystems.window->GetRand() % 11;
+
+	switch (value) {
+
+	case 0:
+		return L"DU ÄR DÖD";
+		
+	case 1:
+		return L"BÄTTRE LYCKA NÄSTA GÅNG";
+		
+	case 2:
+		return L"DU HAR AVLIDIT. FÖRSÖK IGEN.";
+
+	case 3:
+		return L"SPELARTIPS: DÖ INTE";
+
+	case 4:
+		return L"DU GÅR MOT LJUSET...";
+
+	case 5:
+		return L"NU SLIPPER DU SKOTTEN I ALLA FALL";
+
+	case 6:
+		return L"HIMLEN HAR FÅTT SIG EN NY ÄNGEL";
+
+	case 7:
+		return L"ÄR DU HÄR IGEN?";
+
+	case 8:
+		return L"SPELARTIPS: DU KAN FÖRSVARA DIG";
+
+	case 9:
+		return L"SPELARTIPS: FIENDERNA ÄR FARLIGA";
+
+	case 10:
+		return L"FÖRSÖKER DU ENS?";
+
+	}
+
+	return L"NÅGONTING HAR GÅTT SNETT";
+}
+
+void SE::Gameplay::PlayState::InitializeDeathSequence() {
+
+	deathText = CoreInit::managers.entityManager->Create();
+	returnPrompt = CoreInit::managers.entityManager->Create();
+
+	Core::ITextManager::CreateInfo deathInfo;
+	deathInfo.info.text = GenerateDeathMessage();
+	deathInfo.info.scale = { 0.7f, 0.7f };
+	deathInfo.info.posX = 0;
+	deathInfo.info.posY = 0;
+	deathInfo.info.anchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
+	deathInfo.font = "Knights.spritefont";
+
+	CoreInit::managers.textManager->Create(deathText, deathInfo);
+
+	deathInfo.info.text = L"TRYCK RETUR FÖR ATT ÅTERGÅ TILL MENYN";
+	deathInfo.info.scale = { 0.3f, 0.3f };
+	deathInfo.info.posX = 0;
+	deathInfo.info.posY = 0;
+	deathInfo.info.anchor = { 0.5f, 0.5f };
+	deathInfo.info.screenAnchor = { 0.5f, 0.90f };
+
+	CoreInit::managers.textManager->Create(returnPrompt, deathInfo);
+
+	CoreInit::managers.textManager->SetTextColour(deathText, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
+	CoreInit::managers.textManager->SetTextColour(returnPrompt, XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
+	CoreInit::managers.textManager->ToggleRenderableText(deathText, true);
+	CoreInit::managers.textManager->ToggleRenderableText(returnPrompt, true);
+
+	// Create dummy entity and initialize it with player position
+	cameraDummy = CoreInit::managers.entityManager->Create();
+
+	// Get the player entity
+	auto playerEntity = player->GetEntity();
+
+	XMFLOAT3 playerPos = CoreInit::managers.transformManager->GetPosition(playerEntity);
+
+	CoreInit::managers.transformManager->Create(cameraDummy, playerPos);
+
+	XMFLOAT3 playerForward = CoreInit::managers.transformManager->GetForward(playerEntity);
+
+	// We must unbind the camera from the player
+	CoreInit::managers.transformManager->UnbindChild(cam);
+
+	// Bind the camera to the dummy entity
+	CoreInit::managers.transformManager->BindChild(cameraDummy, cam, true, false);
+}
+
+void SE::Gameplay::PlayState::UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit) {
+
+	auto cameraTranslation = DirectX::XMVECTOR{ 0.0f, -0.01f, 0.0f, 1.0f };
+	CoreInit::managers.transformManager->Rotate(cameraDummy, 0.00f, rotValue * dt, 0.0f);
+
+	XMFLOAT3 camPos = CoreInit::managers.transformManager->GetPosition(cam);
+	XMFLOAT3 dummyPos = CoreInit::managers.transformManager->GetPosition(cameraDummy);
+
+	XMVECTOR camPosXM = XMLoadFloat3(&camPos);
+	XMVECTOR dummyPosXM = XMLoadFloat3(&dummyPos);
+
+	XMFLOAT3 difVec;
+	XMStoreFloat3(&difVec, XMVector3Normalize(dummyPosXM - camPosXM) * zoomValue * dt);
+
+	if(camPos.y >= zoomLimit){
+
+		CoreInit::managers.transformManager->Move(cam, difVec);
+
+	}
+	
+}
+
+static const std::vector<std::tuple<int, int, Room::DirectionToAdjacentRoom>> adjIndices = { { -1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST },{ 1,0, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST },{ 0, 1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH },{ 0,-1, Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH } };
 
 void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 {
@@ -407,8 +693,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 2;
+	worldWidth = 4;
+	worldHeight = 4;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -440,7 +726,6 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	int counter = 0;
-
 	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
 		auto& room = rooms[r];
@@ -604,7 +889,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
 
-				auto startWeapon = Item::Weapon::Create(WeaponType(std::rand() % 3));
+				auto startWeapon = Item::Weapon::Create(Item::Weapon::Type(std::rand() % 3));
 				player->AddItem(startWeapon, 0);
 				//auto wc = Item::Copy(startWeapon);
 				//player->AddItem(wc, 1);
@@ -613,9 +898,23 @@ void PlayState::InitializePlayer(void* playerInfo)
 				//auto pc = Item::Copy(pot);
 				//player->AddItem(pc, 3);
 
-				//Item::WriteToFile(pot, "sw.itm");
-				//auto fromFile = Item::Create("sw.itm");
-				//player->AddItem(fromFile, 4);
+				/*std::ofstream out("sw.itm", std::ios::binary);
+				if(out.is_open())
+				{
+					Item::WriteToFile(startWeapon,out);
+					Item::WriteToFile(startWeapon, out);
+					out.close();
+					std::ifstream in("sw.itm", std::ios::binary);
+					if (in.is_open())
+					{
+						auto fromFile = Item::Create(in);
+						player->AddItem(fromFile, 3);
+						fromFile = Item::Create(in);
+						player->AddItem(fromFile, 4);
+					}
+				}*/
+
+				
 				return;
 			}
 		}
@@ -631,8 +930,9 @@ void SE::Gameplay::PlayState::InitializeOther()
 	//Setup camera to the correct perspective and bind it to the players position
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = CoreInit::subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (1280.0f / 720.0f));
-	cam = CoreInit::managers.cameraManager->GetActive();
-	CoreInit::managers.cameraManager->UpdateCamera(cam, cInfo);
+	cam = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.cameraManager->Create(cam, cInfo);
+	CoreInit::managers.cameraManager->SetActive(cam);
 
 	float cameraRotationX = DirectX::XM_PI / 3;
 	float cameraRotationY = DirectX::XM_PI / 3;
@@ -696,7 +996,26 @@ void SE::Gameplay::PlayState::InitializeOther()
 		this->player->SetSpeed(speed);
 
 	}, "setspeed", "setspeed <value>");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		this->player->Suicide();
+
+	}, "killself", "Kills the player character");
 	
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		
+		this->ToggleFlowField(!this->showFlowField);
+		if (this->showFlowField)
+		{
+			back->Print("FlowField Rendering on");
+			
+		}
+		else
+			back->Print("FlowField Rendering off");
+
+	}, "tff", "Toggles FlowField Rendering.");
+
 	ProfileReturnVoid;
 }
 #include <Items.h>
@@ -730,11 +1049,9 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		{
 			player->AddItem(ent, 4);
 		}
-
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", false);
 		CoreInit::managers.dataManager->SetValue(ent, "Pickup", true);
 	};
-
-
 
 	pickUpEvent.triggerCheck = [pe](const Core::Entity ent) {
 		if (CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
@@ -744,46 +1061,37 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		}
 		return false;
 	};
+	CoreInit::managers.eventManager->RegisterEntityEvent("ItemPickup", pickUpEvent);
 
-	Core::IEventManager::EntityEventCallbacks startrenderWIC;
-	startrenderWIC.triggerCheck = [pe](const Core::Entity ent)
+	Core::IEventManager::EntityEventCallbacks renderItemInfoEC;
+	renderItemInfoEC.triggerCheck = [pe](const Core::Entity ent)
 	{
-		auto vis = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "WICV", false));
-		if (vis && !CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
-			return false;
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
+
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+			return false;
+
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
 	};
-	
-	startrenderWIC.triggerCallback = [pe, this](const Core::Entity ent)
+
+	renderItemInfoEC.triggerCallback = [pe, this](const Core::Entity ent)
 	{
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", true);
-		Item::ToggleRenderPickupInfo(ent);
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "Render");
+		Item::RenderItemInfo(ent, player->GetItemToCompareWith());
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", true);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoItem", ent);
+
 	};
 
-	Core::IEventManager::EntityEventCallbacks stoprenderWIC;
-	stoprenderWIC.triggerCheck = [pe](const Core::Entity ent)
-	{
-		if (auto parent = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(ent, "Parent", false)))
-		{
-			if (!CoreInit::managers.collisionManager->CheckCollision(*parent, pe)) {
-				return true;
-			}	
-		}
+	CoreInit::managers.eventManager->RegisterEntityEvent("RenderItemInfo", renderItemInfoEC);
+	CoreInit::managers.eventManager->RegisterTriggerEvent("StopRenderItemInfo", [pe](const Core::Entity ent) {
+		CoreInit::subSystems.devConsole->PrintChannel("Debug", "StopRender");
+		CoreInit::managers.entityManager->Destroy(ent);
+		CoreInit::managers.dataManager->SetValue(pe, "InfoVisible", false);
+	});
 
-		return (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO)) || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP);
-	};
-
-	stoprenderWIC.triggerCallback = [pe](const Core::Entity ent)
-	{
-		CoreInit::managers.entityManager->DestroyNow(ent);	
-		auto parent = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(ent, "Parent", Core::Entity()));
-		CoreInit::managers.dataManager->SetValue(pe, "WICV", false);
-	};
-	CoreInit::managers.eventManager->RegisterEntityEvent("StartRenderWIC", startrenderWIC);
-	CoreInit::managers.eventManager->RegisterEntityEvent("StopRenderWIC", stoprenderWIC);
-	CoreInit::managers.eventManager->RegisterEntityEvent("WeaponPickUp", pickUpEvent);
 
 
 	CoreInit::managers.eventManager->RegisterTriggerEvent("RoomChange", [this](Core::Entity ent) {
@@ -804,10 +1112,105 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	ProfileReturnVoid;
 }
 
+void PlayState::CreateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{
+			if(!flowField->IsBlocked(x, y))
+			{
+				auto arrowEntity = CoreInit::managers.entityManager->Create();
+				
+				CoreInit::managers.transformManager->Create(arrowEntity, XMFLOAT3{ float(x) + 0.5f, 1.5f, float(y) + 0.5f });
+				CoreInit::managers.transformManager->Scale(arrowEntity, 0.5f);
+				CoreInit::managers.renderableManager->CreateRenderableObject(arrowEntity, { "Arrow.mesh" });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(arrowEntity, true);
+				flowFieldEntities.push_back(arrowEntity);
+			}
+		}
+	StopProfile;
+}
+
+void PlayState::DestroyFlowFieldRendering()
+{
+	StartProfile;
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
+	StopProfile;
+}
+
+void PlayState::UpdateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+	int counter = 0;
+	float xRot;
+	float yRot;
+	pos mapPos;
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{ 
+			if (!flowField->IsBlocked(x, y))
+			{
+				mapPos = { float(x), float(y) };
+				flowField->SampleFromMap(mapPos, xRot, yRot);
+
+				if (xRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, 0.0f, 0.0f);
+				}
+				else if (xRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI, 0.0f);
+				}
+				else if (yRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+				}
+				else if (yRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+
+				}
+				else if (xRot == 0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+				else if (xRot == -0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+
+				counter++;
+			}
+			
+		}
+	StopProfile;
+}
+
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
+
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;
@@ -815,6 +1218,21 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		ProfileReturn(returnValue);
 	}
 	
+	if (!input->ButtonDown(GameInput::SHOWINFO))
+	{
+		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+	}
+	else
+	{
+		auto pe = player->GetEntity();
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		{
+			auto item = std::get<Core::Entity>(CoreInit::managers.dataManager->GetValue(pe, "InfoItem", Core::Entity()));
+			if(!CoreInit::managers.collisionManager->CheckCollision(pe, item))
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		}
+		
+	}
 	if (!sluaghDoorsOpen)
 	{
 		int totalEnemiesLeft = 0;
@@ -855,7 +1273,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	player->Update(dt, movementInput, newProjectiles, actionInput);
 
 	UpdateProjectiles(newProjectiles);
-
+	
 	blackBoard.playerPositionX = player->GetXPosition();
 	blackBoard.playerPositionY = player->GetYPosition();
 	blackBoard.deltaTime = dt;
@@ -883,10 +1301,75 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	CheckForRoomTransition();
 	UpdateHUD(dt);
 
-	if (!player->IsAlive())
-		returnValue = State::GAME_OVER_STATE;
+	
+	if(sluaghDoorsOpen)
+	{
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+		if(sluaghRoom)
+		{
+			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+			{
+				returnValue = State::WIN_STATE;
+
+				char* appdataBuffer;
+				size_t bcount;
+				if (_dupenv_s(&appdataBuffer, &bcount, "APPDATA"))
+					throw std::exception("Failed to retrieve path to appdata.");
+				std::string appdata(appdataBuffer);
+				free(appdataBuffer);
+				appdata += "\\Sluagh\\";
+				std::ofstream out(appdata + "sluaghFile.sluagh", std::ios::out | std::ios::binary);
+				player->SavePlayerToFile(out);
+				out.close();
+			}
+		}
+	}
+	if (!player->IsAlive() && deathSequence == false) {
+
+		deathSequence = true;
+		InitializeDeathSequence();
+	}
+
+	if(deathSequence == true){
+
+		if (CoreInit::subSystems.window->ButtonPressed(Window::KeyReturn)) {
+
+			returnValue = State::CHARACTER_CREATION_STATE;
+		}
+
+		deathTimer += dt;
+
+		UpdateDeathCamera(dt, -0.5f, 0.2f, 3.0f);
+		
+		if (deathTimer > 15){
+			deathTimer = 0.0f;
+			returnValue = State::CHARACTER_CREATION_STATE;
+		}
+	}
+
+	if (showFlowField)
+		UpdateFlowFieldRendering();
 
 	ProfileReturn(returnValue);
 
+}
+
+void PlayState::ToggleFlowField(bool showFlowField)
+{
+	StartProfile;
+	if(this->showFlowField != showFlowField)
+	{
+		this->showFlowField = showFlowField;
+		if(showFlowField)
+		{
+			CreateFlowFieldRendering();
+			UpdateFlowFieldRendering();
+		}
+		else
+		{
+			DestroyFlowFieldRendering();
+		}
+	}
+	StopProfile;
 }
 

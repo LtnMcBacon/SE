@@ -78,6 +78,7 @@ namespace SE
 			static const uint8_t MAX_ITEMS = 5;
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
+			uint8_t showingItem = 0;
 			Core::Entity itemSelectedEntity;
 			Stats weaponStats;
 			bool displaying = false;
@@ -88,6 +89,7 @@ namespace SE
 			//Cheats
 			void SetGodMode(bool on);
 			void SetSpeed(float speed);
+			void Suicide();
 
 			std::vector<DamageEvent>& GetDamageEvents();
 			std::vector<HealingEvent>& GetHealingEvents();
@@ -176,7 +178,10 @@ namespace SE
 			{
 				return items[currentItem];
 			}
-
+			inline Core::Entity GetItemToCompareWith()const
+			{
+				return items[showingItem];
+			}
 			/**
 			* @brief	Update the players movement
 			*
@@ -368,8 +373,8 @@ namespace SE
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
-			PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25]);
-			void SavePlayerToFile(Utilz::GUID sluaghFile);
+			PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25]);
+			void SavePlayerToFile(std::ofstream &toSave);
 			~PlayerUnit();
 		};
 

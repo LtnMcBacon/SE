@@ -36,14 +36,16 @@ namespace SE
 		{
 			SUCCESS = 1 << 0,
 			FAIL = 1 << 1,
-			NO_DELETE = 1 << 2
+			SEMI_FAIL = 1 << 2,
+			NO_DELETE = 1 << 3
 		};
 
 		enum class InvokeReturn {
 			FAIL = 1 << 1,
 			SUCCESS = 1 << 2,
 			DEC_RAM  = 1 << 3,
-			DEC_VRAM = 1 << 4
+			DEC_VRAM = 1 << 4,
+			SEMI_FAIL = 1 << 5
 		};
 
 		enum class LoadFlags {
@@ -87,7 +89,7 @@ namespace SE
 			float tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
 			EvictPolicy nloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
 			EvictStrickness evictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
-			std::function<size_t()> getCurrentMemoryUsage = []()->size_t { return ~0; }; /**< The callback the resource handler will use to get the memory limit*/
+			std::function<size_t()> getCurrentMemoryUsage = []()->size_t { return ~0; }; /**< The callback the resource handler will use to get the memory used right now*/
 		};
 
 		struct InitializationInfo
@@ -178,7 +180,24 @@ namespace SE
 			**/
 			virtual void UnloadResource(const Utilz::GUID& guid, ResourceType type) = 0;
 
+			/**
+			* @brief Checks if a resource is loaded or not.
+			*
+			**/
 			virtual bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) = 0;
+
+			/**
+			* @brief	Checks if a resource exist.
+			*
+			**/
+			virtual bool Exist(const Utilz::GUID guid) = 0;
+				
+			/**
+			* @brief	Get the amount resource memory that is currently in memory.
+			*
+			**/
+			virtual size_t GetMemoryUsed(ResourceType type) = 0;
+
 
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
