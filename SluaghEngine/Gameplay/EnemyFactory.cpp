@@ -59,79 +59,123 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		{
 			type = desc.type;
 		}
-		auto const enemyCreationData = enemyData.find(type);
-		if (enemyCreationData != enemyData.end())
-		{
-			EnemyUnit* createdEnemy = nullptr;
-			int enemyHealth = enemyCreationData->second.baseHealth;
-			if (desc.useVariation)
-			{
-				int healthVariation = enemyCreationData->second.baseHealthVariation;
-				enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
-			}
-
-			createdEnemy = new EnemyUnit(nullptr, desc.startX, desc.startY, enemyHealth);
-			/*To do: Add the rest of the data here!*/
-
-			EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
-
-			createdEnemy->SetBehaviouralTree(SEBTFactory->BuildBehaviouralTree(
-				enemyCreationData->second.behaviouralTreeGUID,
-				gameBlackboard,
-				enemyBlackboard));
-
-			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
-
-
-			/*Fix with managers*/
-			Core::IAnimationManager::CreateInfo cInfo;
-			cInfo.animationCount = 0;
-			cInfo.animations = nullptr;
-			cInfo.mesh = enemyCreationData->second.meshGUID;
-			cInfo.skeleton = enemyCreationData->second.skeletonGUID;
-
-			CoreInit::managers.animationManager->CreateAnimatedObject(createdEnemy->GetEntity(), cInfo);
-			CoreInit::managers.animationManager->ToggleVisible(createdEnemy->GetEntity(), true);
-			//CoreInit::managers.animationManager->ToggleShadow(createdEnemy->GetEntity(), true);
-			Core::IMaterialManager::CreateInfo enemyInfo;
-			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
-			enemyInfo.shader = enemyCreationData->second.shaderGUID;
-			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
-
-			CoreInit::managers.audioManager->Create(createdEnemy->GetEntity(), { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
-			CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
-
-			createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
-
-			if(type == ENEMY_TYPE_NUCKELAVEE)
-			{
-				//Move up
-				createdEnemy->SetZPosition(1.5f);
-				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 0.8f, 0 });
-
-				//Insert entity for sword here.
-				auto swordEntity = CoreInit::managers.entityManager->Create();
-
-				Core::IRenderableManager::CreateInfo swordInfo;
-				swordInfo.meshGUID = "Sword.mesh";
-				//swordInfo.shadow = true;
-				swordInfo.transparent = false;
-
-				CoreInit::managers.transformManager->Create(swordEntity);
-				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
-				CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
-				CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), "Weapon", swordEntity);
-				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
-				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
-
-				CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), swordEntity, "LHand", 0);
-			}
-
-			unitArray[numberOfCreatedEnemies++] = createdEnemy;
-		}
+		auto newEnemy = CreateEnemyDataForEnemyType(type, desc.useVariation);
+		newEnemy->SetZPosition(1.5f);
+		newEnemy->PositionEntity(desc.startX, desc.startY);
+		newEnemy->SetBehaviouralTree(CreateBehaviouralTreeForEnemyType(type, gameBlackboard, newEnemy->GetEnemyBlackboard()));
+		newEnemy->SetEntity(CreateEntityDataForEnemyType(type));
+		unitArray[numberOfCreatedEnemies++] = newEnemy;
 	}
 	
 	StopProfile;
+}
+
+Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
+{
+	StartProfile;
+	auto const enemyCreationData = enemyData.find(type);
+	auto newEntity = CoreInit::managers.entityManager->Create();
+
+	CoreInit::managers.transformManager->Create(newEntity);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		
+		/*Fix with managers*/
+		Core::IAnimationManager::CreateInfo cInfo;
+		cInfo.animationCount = 0;
+		cInfo.animations = nullptr;
+		cInfo.mesh = enemyCreationData->second.meshGUID;
+		cInfo.skeleton = enemyCreationData->second.skeletonGUID;
+
+				CoreInit::managers.animationManager->CreateAnimatedObject(newEntity, cInfo);
+	//	CoreInit::managers.animationManager->ToggleVisible(newEntity, true);
+
+		Core::IMaterialManager::CreateInfo enemyInfo;
+		enemyInfo.materialFile = enemyCreationData->second.materialGUID;
+		enemyInfo.shader = enemyCreationData->second.shaderGUID;
+		CoreInit::managers.materialManager->Create(newEntity, enemyInfo);
+
+		CoreInit::managers.audioManager->Create(newEntity, { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
+		CoreInit::managers.dataManager->SetValue(newEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
+
+
+		if (type == ENEMY_TYPE_NUCKELAVEE)
+		{
+			//Move up
+			CoreInit::managers.transformManager->Move(newEntity, DirectX::XMFLOAT3{ 0, 0.8f, 0 });
+
+			//Insert entity for sword here.
+			auto swordEntity = CoreInit::managers.entityManager->Create();
+
+			Core::IRenderableManager::CreateInfo swordInfo;
+			swordInfo.meshGUID = "Sword.mesh";
+			//swordInfo.shadow = true;
+			swordInfo.transparent = false;
+
+			CoreInit::managers.transformManager->Create(swordEntity);
+			CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
+			CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
+			CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
+			CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
+			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+			CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
+		}
+
+		ProfileReturnConst( newEntity);
+	}
+
+	ProfileReturnConst(newEntity);
+}
+
+EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVariation)
+{
+	StartProfile;
+
+	auto const enemyCreationData = enemyData.find(type);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		EnemyUnit* createdEnemy = nullptr;
+		int enemyHealth = enemyCreationData->second.baseHealth;
+		if (useVariation)
+		{
+			int healthVariation = enemyCreationData->second.baseHealthVariation;
+			enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
+		}
+	
+
+		createdEnemy = new EnemyUnit(type, nullptr, 0.f, 0.f, enemyHealth);
+		createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
+		/*To do: Add the rest of the data here!*/
+
+		EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
+
+		createdEnemy->SetEnemyBlackboard(enemyBlackboard);
+
+
+
+
+		ProfileReturnConst(createdEnemy);
+	}
+	ProfileReturnConst(nullptr);
+}
+
+BehaviouralTree* EnemyFactory::CreateBehaviouralTreeForEnemyType(EnemyType type, GameBlackboard* gameBlackboard,
+	EnemyBlackboard* enemyBlackboard)
+{
+	StartProfile;
+	auto const enemyCreationData = enemyData.find(type);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		ProfileReturnConst(SEBTFactory->BuildBehaviouralTree(
+			enemyCreationData->second.behaviouralTreeGUID,
+			gameBlackboard,
+			enemyBlackboard));
+	}
+	ProfileReturnConst(nullptr);
 }
 
 EnemyFactory::EnemyFactory()

@@ -1,7 +1,6 @@
 #ifndef _SE_GAMEPLAY_ROOM_H_
 #define _SE_GAMEPLAY_ROOM_H_
 #include <vector>
-#include "EnemyUnit.h"
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
@@ -11,6 +10,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
+		class EnemyUnit;
 		/**
 		*
 		* @brief The class definint the rooms as used by Gameplay
@@ -224,6 +224,10 @@ namespace SE
 			inline Core::Entity GetEntity()const
 			{
 				return roomEntity;
+			}
+			inline std::vector<EnemyUnit*> GetEnemiesInRoom()const
+			{
+				return enemyUnits;
 			}
 		protected:
 

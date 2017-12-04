@@ -4,26 +4,21 @@
 #include <Utilz/GUID.h>
 #include <map>
 #include <ResourceHandler\IResourceHandler.h>
+#include <Core/Entity.h>
+#include "EnemyUnit.h"
 
 namespace SE
 {
 	namespace Gameplay
 	{
 		class BehaviouralTreeFactory;
-		class EnemyUnit;
+		class BehaviouralTree;
+
 		struct GameBlackboard;
+		struct EnemyBlackboard;
 
 
-		enum EnemyType
-		{
-			ENEMY_TYPE_BODACH,
-			ENEMY_TYPE_GLAISTIG,
-			ENEMY_TYPE_NUCKELAVEE,
-			/*ENEMY_TYPE_PECH_MELEE,
-			ENEMY_TYPE_PECH_RANGED,*/
-			ENEMY_TYPE_RANDOM
-		};
-
+		
 
 		/**
 		*
@@ -124,6 +119,14 @@ namespace SE
 			*
 			*/
 			void CreateEnemies(const EnemyCreationStruct &descriptions, GameBlackboard* gameBlackboard, EnemyUnit** unitArray);
+
+			/**
+			 * @brief Create an entity and load all "entity related" data into the system (meshes, animations...)
+			 */
+			Core::Entity CreateEntityDataForEnemyType(EnemyType type);
+			EnemyUnit* CreateEnemyDataForEnemyType(EnemyType type, bool useVariation);
+			BehaviouralTree* CreateBehaviouralTreeForEnemyType(EnemyType type, GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard);
+
 
 			EnemyFactory();
 			~EnemyFactory();
