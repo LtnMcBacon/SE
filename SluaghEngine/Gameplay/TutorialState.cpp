@@ -959,9 +959,12 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	managers.textManager->ToggleRenderableText(ent, true);
 
 	managers.eventManager->SetLifetime(ent, 7.0f);
-
+	subSystems.window->MapActionButton(0, Window::KeySpace);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
-		scriptToRun = &TutorialState::GåTillSluaghSvartScript;
+		if(subSystems.window->ButtonDown(0))
+			scriptToRun = &TutorialState::NonSuspiciousScript;
+		else
+			scriptToRun = &TutorialState::GåTillSluaghSvartScript;
 		managers.entityManager->Destroy(ent);
 	});
 
@@ -1057,4 +1060,34 @@ void SE::Gameplay::TutorialState::WaitForMovementInputScript(float dt)
 	{
 		scriptToRun = &TutorialState::BraJobbatMovementScript;
 	}
+}
+
+void SE::Gameplay::TutorialState::NonSuspiciousScript(float dt)
+{
+	auto greeting = managers.entityManager->Create();
+	Core::IAudioManager::CreateInfo aci;
+	aci.soundFile = "Greeting.wav";
+	aci.soundType = Audio::SoundIndexName::BakgroundSound;
+	managers.audioManager->Create(greeting, aci);
+	managers.audioManager->PlaySound(greeting, "Greeting.wav");
+
+	Core::IGUIManager::CreateInfo gci;
+	gci.texture = "Greeting.sei";
+	gci.textureInfo.width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
+	gci.textureInfo.height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
+	managers.guiManager->Create(greeting, gci);
+	managers.guiManager->ToggleRenderableTexture(greeting, true);
+
+	managers.eventManager->SetLifetime(greeting, 8.0f);
+
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
+		scriptToRun = &TutorialState::EndTutorialScript;
+		managers.entityManager->Destroy(ent);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(greeting, "OnDeath");
+
+
+	scriptToRun = &TutorialState::NothingScript;
 }

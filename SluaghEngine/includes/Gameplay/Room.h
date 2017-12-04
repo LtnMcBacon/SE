@@ -79,6 +79,7 @@ namespace SE
 				Potatosack_closed,
 				Potatosack_open,
 				Fireplace,
+				Fireplace_open,
 				Painting,
 				Window,
 				Window_open,
@@ -101,7 +102,12 @@ namespace SE
 				FanzyWall,
 				LightStoneWall,
 				LightStoneWallWood,
-				Window
+				Window,
+				Fireplace,
+				Fireplace_open,
+				Pillar,
+				PotatosackOpen,
+				PotatosackClosed
 			};
 
 			struct CreationArguments
@@ -633,6 +639,8 @@ namespace SE
 			 * @brief Get distance to closest (open) door
 			 */
 			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
+
+			float DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const;
 
 			/**
 			* @brief Resets the tilevalues from 100 to 0

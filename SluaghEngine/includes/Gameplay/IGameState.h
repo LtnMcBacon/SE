@@ -15,8 +15,8 @@ namespace SE
 
 		struct PlayStateData
 		{
-			Skill skills[3];
-			PerkData perks[3];
+			Skill skills[2];
+			PerkData perks[2];
 		};
 
 		/**

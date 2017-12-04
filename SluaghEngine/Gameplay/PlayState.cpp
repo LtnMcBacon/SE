@@ -237,6 +237,7 @@ PlayState::~PlayState()
 	CoreInit::subSystems.devConsole->RemoveCommand("kill");
 	CoreInit::subSystems.devConsole->RemoveCommand("drop");
 	CoreInit::subSystems.devConsole->RemoveCommand("setspeed");
+	CoreInit::subSystems.devConsole->RemoveCommand("tff");
 	CoreInit::subSystems.devConsole->RemoveCommand("killself");
 	
 	delete projectileManager;
@@ -257,6 +258,10 @@ PlayState::~PlayState()
 		CoreInit::managers.entityManager->DestroyNow(s.Image);
 		CoreInit::managers.entityManager->DestroyNow(s.frame);
 	}
+
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
 
 	ProfileReturnVoid;
 }
@@ -451,6 +456,13 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 
 				CoreInit::managers.eventManager->TriggerEvent("RoomChange", true);
+
+				if(showFlowField)
+				{
+					DestroyFlowFieldRendering();
+					CreateFlowFieldRendering();
+					UpdateFlowFieldRendering();
+				}
 			}
 			streamingTimes.Stop("Full");
 
@@ -469,28 +481,18 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			}
 			if (streamTimings.is_open())
 			{
+				auto rhi = CoreInit::subSystems.resourceHandler->GetInfo();
+				
 				streamTimings << std::endl;
 				streamTimings << streamCount++;
-				streamTimings << "," << toMB( Utilz::Memory::GetPhysicalProcessMemory());
-				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());
-				streamTimings << "," << toMB(Utilz::Memory::GetPhysicalProcessMemory()); // Should be from resoruce handler
-				streamTimings << "," << toMB(CoreInit::subSystems.renderer->GetVRam());// Should be from resoruce handler
-				auto beg = times.begin();
-				if (beg != times.end())
-				{
-					streamTimings << (*beg).second;
-					beg++;
-				}
-				while (beg != times.end())
-				{
-					streamTimings << "," << (*beg).second;
-					beg++;
-				}
-				
+				streamTimings << "," << toMB(rhi.RAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(rhi.VRAM.getCurrentMemoryUsage());
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::RAM)); // Should be from resoruce handler
+				streamTimings << "," << toMB(CoreInit::subSystems.resourceHandler->GetMemoryUsed(ResourceHandler::ResourceType::VRAM));// Should be from resoruce handler
 				for (auto& t : times)
 				{
+					streamTimings << "," << t.second;
 					CoreInit::subSystems.devConsole->PrintChannel("Streaming", "%s - %f", t.first.c_str(), t.second);
-
 				}
 			}
 		}
@@ -731,7 +733,6 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	int counter = 0;
-
 	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
 		auto& room = rooms[r];
@@ -910,9 +911,23 @@ void PlayState::InitializePlayer(void* playerInfo)
 				//auto pc = Item::Copy(pot);
 				//player->AddItem(pc, 3);
 
-				//Item::WriteToFile(pot, "sw.itm");
-				//auto fromFile = Item::Create("sw.itm");
-				//player->AddItem(fromFile, 4);
+				/*std::ofstream out("sw.itm", std::ios::binary);
+				if(out.is_open())
+				{
+					Item::WriteToFile(startWeapon,out);
+					Item::WriteToFile(startWeapon, out);
+					out.close();
+					std::ifstream in("sw.itm", std::ios::binary);
+					if (in.is_open())
+					{
+						auto fromFile = Item::Create(in);
+						player->AddItem(fromFile, 3);
+						fromFile = Item::Create(in);
+						player->AddItem(fromFile, 4);
+					}
+				}*/
+
+				
 				return;
 			}
 		}
@@ -1000,6 +1015,20 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	}, "killself", "Kills the player character");
 	
+	
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
+		
+		this->ToggleFlowField(!this->showFlowField);
+		if (this->showFlowField)
+		{
+			back->Print("FlowField Rendering on");
+			
+		}
+		else
+			back->Print("FlowField Rendering off");
+
+	}, "tff", "Toggles FlowField Rendering.");
+
 	ProfileReturnVoid;
 }
 #include <Items.h>
@@ -1094,6 +1123,100 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 	});
 
 	ProfileReturnVoid;
+}
+
+void PlayState::CreateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{
+			if(!flowField->IsBlocked(x, y))
+			{
+				auto arrowEntity = CoreInit::managers.entityManager->Create();
+				
+				CoreInit::managers.transformManager->Create(arrowEntity, XMFLOAT3{ float(x) + 0.5f, 1.5f, float(y) + 0.5f });
+				CoreInit::managers.transformManager->Scale(arrowEntity, 0.5f);
+				CoreInit::managers.renderableManager->CreateRenderableObject(arrowEntity, { "Arrow.mesh" });
+				CoreInit::managers.renderableManager->ToggleRenderableObject(arrowEntity, true);
+				flowFieldEntities.push_back(arrowEntity);
+			}
+		}
+	StopProfile;
+}
+
+void PlayState::DestroyFlowFieldRendering()
+{
+	StartProfile;
+	for (auto entity : flowFieldEntities)
+		CoreInit::managers.entityManager->Destroy(entity);
+	flowFieldEntities.clear();
+	StopProfile;
+}
+
+void PlayState::UpdateFlowFieldRendering()
+{
+	StartProfile;
+	auto flowField = currentRoom->GetFlowFieldMap();
+	int counter = 0;
+	float xRot;
+	float yRot;
+	pos mapPos;
+	for(int x = 0; x < 25; x++)
+		for(int y = 0; y < 25; y++)
+		{ 
+			if (!flowField->IsBlocked(x, y))
+			{
+				mapPos = { float(x), float(y) };
+				flowField->SampleFromMap(mapPos, xRot, yRot);
+
+				if (xRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, 0.0f, 0.0f);
+				}
+				else if (xRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI, 0.0f);
+				}
+				else if (yRot == 1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV2, 0.0f);
+				}
+				else if (yRot == -1.0f)
+				{
+					CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV2, 0.0f);
+
+				}
+				else if (xRot == 0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, -DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+				else if (xRot == -0.707f)
+				{
+					if (yRot == 0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI + DirectX::XM_PIDIV4, 0.0f);
+					}
+					else if (yRot == -0.707f)
+					{
+						CoreInit::managers.transformManager->SetRotation(flowFieldEntities[counter], 0.0f, DirectX::XM_PI - DirectX::XM_PIDIV4, 0.0f);
+					}
+				}
+
+				counter++;
+			}
+			
+		}
+	StopProfile;
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)
@@ -1198,7 +1321,20 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		if(sluaghRoom)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
+			{
 				returnValue = State::WIN_STATE;
+
+				char* appdataBuffer;
+				size_t bcount;
+				if (_dupenv_s(&appdataBuffer, &bcount, "APPDATA"))
+					throw std::exception("Failed to retrieve path to appdata.");
+				std::string appdata(appdataBuffer);
+				free(appdataBuffer);
+				appdata += "\\Sluagh\\";
+				std::ofstream out(appdata + "sluaghFile.sluagh", std::ios::out | std::ios::binary);
+				player->SavePlayerToFile(out);
+				out.close();
+			}
 		}
 	}
 	if (!player->IsAlive() && deathSequence == false) {
@@ -1224,7 +1360,29 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		}
 	}
 
+	if (showFlowField)
+		UpdateFlowFieldRendering();
+
 	ProfileReturn(returnValue);
 
+}
+
+void PlayState::ToggleFlowField(bool showFlowField)
+{
+	StartProfile;
+	if(this->showFlowField != showFlowField)
+	{
+		this->showFlowField = showFlowField;
+		if(showFlowField)
+		{
+			CreateFlowFieldRendering();
+			UpdateFlowFieldRendering();
+		}
+		else
+		{
+			DestroyFlowFieldRendering();
+		}
+	}
+	StopProfile;
 }
 
