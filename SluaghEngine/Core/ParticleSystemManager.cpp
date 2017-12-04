@@ -2,7 +2,8 @@
 #include <Profiler.h>
 #include <Utilz\Timer.h>
 #include <algorithm>
-
+#include <Core\IEngine.h>
+#include "CameraManager.h"
 #undef min
 #undef max
 
@@ -14,7 +15,7 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
-
+	
 	initInfo.transformManager->RegisterSetDirty({this, &ParticleSystemManager::UpdateDirtyPos});
 	initInfo.eventManager->RegisterToToggleVisible({this, &ParticleSystemManager::ToggleVisible});
 
@@ -136,6 +137,15 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
+
+	
+	//CPB.camPos = initInfo.transformManager->GetPosition(activeCam);
+//	auto camForward = DirectX::XMLoadFloat3(&initInfo.transformManager->GetForward(activeCam));
+	//CPB.camRight = initInfo.transformManager->GetRight(activeCam);
+//	auto camPosVec = DirectX::XMLoadFloat3(&CPB.camPos);
+//	auto camRightVec = DirectX::XMLoadFloat3(&CPB.camRight);
+//	auto camUpVec = DirectX::XMVector3Cross(camForward, camRightVec);
+	
 	if (find == entityToIndex.end()) // The entity had no system
 	{
 		/*Register the entity*/
@@ -210,9 +220,10 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 																			  sizeof(ParticleSystemFileInfo));
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("ParticleTransform", &PSD.transform,
 																			  sizeof(DirectX::XMFLOAT4X4));
+				//initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CamBuffer", &PSD.CPB, sizeof(camPosBuffer));
 			}
 		});
-
+		
 		
 		//time.GetDelta<std::ratio<1, 1>>();
 		particleSystemData[newEntry].updateJob.vertexCount = 1;
@@ -377,6 +388,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 		}
 		dirtyEntites.clear();
 	}
+
 	//Swapping the buffers for the update and render particle jobs
 	for (size_t i = 0; i < particleSystemData.size(); i++)
 	{
@@ -384,6 +396,15 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 		{
 			if (!particleSystemData[i].firstRun)
 			{
+				if (particleSystemData[i].particleFileInfo.circular == 1)
+				{
+					int a = 1;
+				}
+				particleSystemData[i].CPB.camPos = initInfo.transformManager->GetPosition(initInfo.cameraManager->GetActive());
+				particleSystemData[i].CPB.camRight = initInfo.transformManager->GetRight(initInfo.cameraManager->GetActive());
+				particleSystemData[i].CPB.pad = 0;
+				particleSystemData[i].CPB.pad1 = 0;
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CamBuffer", &particleSystemData[i].CPB, sizeof(camPosBuffer));
 				particleSystemData[i].updateJob.vertexCount = 0;
 				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget,particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
 				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;

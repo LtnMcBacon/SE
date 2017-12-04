@@ -10,6 +10,7 @@ struct VS_IN {
 	float opacity : OPACITY;
 	float age : AGE;
 	uint type : TYPE;
+	uint bloom : BLOOM;
 };
 struct VS_OUT {
 	float3 pos : POSITION;
@@ -23,7 +24,7 @@ struct VS_OUT {
 	float opacity : OPACITY;
 	float age : AGE;
 	uint type : TYPE;
-
+	uint bloom : BLOOM;
 };
 VS_OUT VS_main(VS_IN input)
 {
@@ -36,6 +37,7 @@ VS_OUT VS_main(VS_IN input)
 	output.age = input.age;
 	output.type = input.type;
 	output.pos = input.pos;
+	output.bloom = input.bloom;
 	
 	return output;
 }

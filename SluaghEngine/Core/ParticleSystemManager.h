@@ -72,6 +72,15 @@ namespace SE
 
 			std::default_random_engine generator;
 
+			struct camPosBuffer
+			{
+				DirectX::XMFLOAT3 camRight;
+				float pad;
+				DirectX::XMFLOAT3 camPos;
+				float pad1;
+			};
+	
+
 			struct ParticleSystemFileInfo
 			{
 	
@@ -104,6 +113,7 @@ namespace SE
 			{
 				bool firstRun;
 				bool locked;
+				camPosBuffer CPB;
 				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
@@ -123,6 +133,7 @@ namespace SE
 				size_t transformIndex;
 				Entity entity;
 			};
+			
 			std::vector<DirtyEntityInfo> dirtyEntites;
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;
