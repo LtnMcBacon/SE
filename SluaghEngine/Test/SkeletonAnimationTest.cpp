@@ -115,7 +115,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;	
 	info.materialFile = material;

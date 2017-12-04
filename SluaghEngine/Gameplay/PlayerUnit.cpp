@@ -799,7 +799,7 @@ void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
 	}
 	else
 	{
-		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		auto material = Utilz::GUID("MCModell.mat");
 		info.shader = shader;
 		info.materialFile = material;
@@ -871,13 +871,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;
 	info.materialFile = material;
 
 	CoreInit::managers.materialManager->Create(unitEntity, info);
-
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
@@ -923,7 +922,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;
 	info.materialFile = material;
