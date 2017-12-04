@@ -132,6 +132,7 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
 EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVariation)
 {
 	StartProfile;
+
 	auto const enemyCreationData = enemyData.find(type);
 
 	if (enemyCreationData != enemyData.end())

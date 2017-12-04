@@ -211,6 +211,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	CloseDoorsToRoom(sluaghRoomX, sluaghRoomY);
 
 	currentRoom->Load();
+	auto enemiesInRoom = currentRoom->GetEnemiesInRoom();
+	for (auto enemy : enemiesInRoom)
+		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+
 	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
 	blackBoard.currentRoom = currentRoom;
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
@@ -639,7 +643,7 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				(*adjRoom)->Load();
 				auto enemiesInRoom = (*adjRoom)->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
-					eFactory.CreateEntityDataForEnemyType(enemy->GetType());
+					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
 			}
 		}
 	}
@@ -694,8 +698,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 5;
-	worldHeight = 5;
+	worldWidth = 9;
+	worldHeight = 9;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -786,7 +790,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			}
 			else 
 			{
-				data.type = ENEMY_TYPE_RANDOM; //  Crashes.
+					data.type = EnemyType(std::rand() % 3);
 			}
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
@@ -795,7 +799,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		
 			auto enemy = eFactory.CreateEnemyDataForEnemyType(data.type, data.useVariation);
 			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
-			enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
+			//enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
 			enemy->PositionEntity(data.startX, data.startY);
 			room->AddEnemyToRoom(enemy);
 		}
