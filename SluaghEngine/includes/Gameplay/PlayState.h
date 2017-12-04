@@ -92,6 +92,7 @@ namespace SE
 			Core::Entity dummy;
 			Core::Entity usePrompt;
 			Core::Entity returnPrompt;
+			Core::Entity aimDecal;
 			PlayerUnit* player;
 
 			uint8_t worldWidth;

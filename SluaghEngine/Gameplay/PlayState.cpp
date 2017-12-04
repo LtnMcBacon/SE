@@ -969,6 +969,13 @@ void SE::Gameplay::PlayState::InitializeOther()
 	promptCreateInfo.info.scale = { 0.3f, 0.3f };
 	promptCreateInfo.font = "Knights.spritefont";
 	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
+
+	aimDecal = CoreInit::managers.entityManager->Create();
+	DirectX::XMFLOAT4X4 dectrans;
+	DirectX::XMStoreFloat4x4(&dectrans, DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 1.0f});
+	CoreInit::managers.decalManager->SetLocalTransform(aimDecal, (float*)&dectrans);
+	CoreInit::managers.decalManager->ToggleVisible(aimDecal, true);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
