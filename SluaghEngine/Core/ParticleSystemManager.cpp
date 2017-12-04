@@ -396,15 +396,6 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 		{
 			if (!particleSystemData[i].firstRun)
 			{
-				if (particleSystemData[i].particleFileInfo.circular == 1)
-				{
-					int a = 1;
-				}
-				particleSystemData[i].CPB.camPos = initInfo.transformManager->GetPosition(initInfo.cameraManager->GetActive());
-				particleSystemData[i].CPB.camRight = initInfo.transformManager->GetRight(initInfo.cameraManager->GetActive());
-				particleSystemData[i].CPB.pad = 0;
-				particleSystemData[i].CPB.pad1 = 0;
-				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("CamBuffer", &particleSystemData[i].CPB, sizeof(camPosBuffer));
 				particleSystemData[i].updateJob.vertexCount = 0;
 				std::swap(particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget,particleSystemData[i].updateJob.pipeline.IAStage.vertexBuffer);
 				particleSystemData[i].renderJob.pipeline.IAStage.vertexBuffer = particleSystemData[i].updateJob.pipeline.SOStage.streamOutTarget;

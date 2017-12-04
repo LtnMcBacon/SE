@@ -72,15 +72,6 @@ namespace SE
 
 			std::default_random_engine generator;
 
-			struct camPosBuffer
-			{
-				DirectX::XMFLOAT3 camRight;
-				float pad;
-				DirectX::XMFLOAT3 camPos;
-				float pad1;
-			};
-	
-
 			struct ParticleSystemFileInfo
 			{
 	
@@ -108,12 +99,12 @@ namespace SE
 				unsigned int gravityCheck;
 				unsigned int emit;
 				unsigned int particlePath;
+				unsigned int bloomCheck;
 			};
 			struct ParticleSystemData
 			{
 				bool firstRun;
 				bool locked;
-				camPosBuffer CPB;
 				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;

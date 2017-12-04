@@ -247,8 +247,8 @@ void SE::Core::Engine::InitManagers()
 
 	InitTransformManager();
 	InitAudioManager();
-	InitCameraManager();
 	InitParticleSystemManager();
+	InitCameraManager();
 	InitCollisionManager();
 	InitRenderableManager();
 	InitAnimationManager();
@@ -301,9 +301,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
 		info.eventManager = managers.eventManager;
-		info.cameraManager = managers.cameraManager;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
-
 	}
 	managersVec.push_back(managers.particleSystemManager);
 }

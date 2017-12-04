@@ -16,7 +16,6 @@
 #include "IRenderableManager.h"
 #include <DevConsole\IConsole.h>
 #include "IEventManager.h"
-#include "ICameraManager.h"
 
 namespace SE
 {
@@ -34,7 +33,6 @@ namespace SE
 				ITransformManager* transformManager;
 				IRenderableManager* renderableManager;
 				IEventManager* eventManager;
-				ICameraManager* cameraManager;
 			};
 
 			struct CreateInfo
