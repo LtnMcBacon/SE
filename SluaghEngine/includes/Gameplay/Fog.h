@@ -17,10 +17,6 @@ namespace SE
 		private:
 			static unsigned int fogIndex;
 
-			class Vertex;
-			class Quad;
-			class Plane;
-
 			static const char id_Props = 137;
 			static const char id_Torch = 203;
 			static const char id_Floor = 0;
@@ -31,15 +27,24 @@ namespace SE
 			static const char id_Pillar = 225;
 			static const char id_Bush = 13;
 
+			const float roomCenter[2] = { 12.5, 12.5 };
+
 			const float padding = 10.f;
 			const float height = 3.1f;
 			const float slopeTopOffset[2] = { 0.3f, height - 0.3f };
 			const float slopeMiddleOffset[2] = { 0.3f, height / 2.f };
 			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
 
-			Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;
-			Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_4;
+			static const unsigned int minimumCenterSpaceRadius = 3;
+			static const unsigned int maximumCenterOffsetRadius = 8;
+			static const unsigned int spaceCheckRotationIterationCount = 16;
 
+			static const Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;
+			static const Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_4;
+
+			class Vertex;
+			class Quad;
+			class Plane;
 
 			char tileValues[25][25];
 
@@ -80,6 +85,8 @@ namespace SE
 			void SetFirstWall();
 			void ContinueToNextWall();
 			void AddSlope(unsigned int slopeIndex);
+			float GetFreeSpaceAt(float column, float row);
+			void AdjustOptimalCenter(float (&centerPosition)[2]);
 			char GetTileValue(unsigned int column, unsigned int row);
 		};
 	}

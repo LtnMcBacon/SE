@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 
 #undef min
@@ -361,7 +362,10 @@ public:
 	}
 	bool GetQuadStatus(unsigned int column, unsigned int row)
 	{
-		return quads_used[row * 27 + column];
+		if (row * 27 + column < 27 * 27)
+			return quads_used[row * 27 + column];
+		else
+			return true;
 	}
 	unsigned int GetQuadCount()
 	{
@@ -566,26 +570,63 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 
 
 	{
-		float uvSum[2] = {};
-		unsigned int uvSum_count = 0;
+		float positionSum[2] = {};
+		unsigned int positionSum_count = 0;
 
-		for (int rowI = -1; rowI < 26; rowI++)
+		for (unsigned int rowI = 0; rowI < 25; rowI++)
 		{
-			for (int columnI = -1; columnI < 26; columnI++)
+			for (unsigned int columnI = 0; columnI < 25; columnI++)
 			{
-				if (topPlane->GetQuadStatus(columnI + 1, rowI + 1))
+				if (!topPlane->GetQuadStatus(columnI + 1, rowI + 1))
 				{
-					uvSum[0] += columnI + 0.5;
-					uvSum[1] += rowI + 0.5;
+					positionSum[0] += columnI + 0.5;
+					positionSum[1] += rowI + 0.5;
 
-					uvSum_count++;
+					positionSum_count++;
 				}
 			}
 		}
 
-		float centerOffset[2] = { uvSum[0] / uvSum_count - 12.5, uvSum[1] / uvSum_count - 12.5 };
+		float positionAverage[2] = { positionSum[0] / positionSum_count, positionSum[1] / positionSum_count };
 
-		topPlane->OffsetUvs(centerOffset[0], centerOffset[1]);
+
+		float optimalCenter[2] = { positionAverage[0], positionAverage[1] };
+		float freeSpaceRadius = GetFreeSpaceAt(positionAverage[0], positionAverage[1]);
+
+		float offset = 1;
+		unsigned int rotationIterationCount = 8;
+		while (freeSpaceRadius < minimumCenterSpaceRadius && offset <= maximumCenterOffsetRadius)
+		{
+			float rotationSine = sin(6.283 / rotationIterationCount);
+			float rotationCosine = cos(6.283 / rotationIterationCount);
+			
+			float rotationVector[2] = { 0, offset };
+
+			for (unsigned int rotationI = 0; rotationI < rotationIterationCount; rotationI++)
+			{
+				float new_freeSpaceRadius = GetFreeSpaceAt(positionAverage[0] + rotationVector[0], positionAverage[1] + rotationVector[1]);
+
+				if (new_freeSpaceRadius > freeSpaceRadius)
+				{
+					optimalCenter[0] = positionAverage[0] + rotationVector[0];
+					optimalCenter[1] = positionAverage[1] + rotationVector[1];
+
+					freeSpaceRadius = new_freeSpaceRadius;
+				}
+
+				rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
+				rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+			}
+
+			offset++;
+			rotationIterationCount *= 2;
+		}
+
+		if (freeSpaceRadius < minimumCenterSpaceRadius)
+			AdjustOptimalCenter(optimalCenter);
+
+
+		topPlane->OffsetUvs(12.5 - optimalCenter[0], 12.5 - optimalCenter[1]);
 	}
 
 
@@ -1283,6 +1324,96 @@ void SE::Gameplay::Fog::AddSlope(unsigned int slopeIndex)
 			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomRight, Quad::Vertices::BottomRight);
 			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
 		}
+	}
+}
+
+float SE::Gameplay::Fog::GetFreeSpaceAt(float column, float row)
+{
+	if (column > 24 || row > 24 || topPlane->GetQuadStatus(column + 1, row + 1))
+		return 0;
+
+
+	float rotationSine = sin(6.283 / spaceCheckRotationIterationCount);
+	float rotationCosine = cos(6.283 / spaceCheckRotationIterationCount);
+
+
+	float freeSpace = 1;
+
+	do {
+		float rotationVector[2] = { 0, freeSpace };
+
+		for (unsigned int rotationI = 0; rotationI < spaceCheckRotationIterationCount; rotationI++)
+		{
+			if (!topPlane->GetQuadStatus(column + rotationVector[0] + 1, row + rotationVector[1] + 1))
+			{
+				freeSpace += 1.f / spaceCheckRotationIterationCount;
+			}
+
+			rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
+			rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+		}
+
+	} while (freeSpace - (long)freeSpace < 0.00001 && freeSpace < 25);
+
+
+	freeSpace -= (freeSpace - (long)freeSpace) / 1.5f;
+
+	float centerOffsetVector[2] = { column + 0.5 - roomCenter[0], row + 0.5 - roomCenter[1] };
+	float centerOffsetDistance = sqrt(centerOffsetVector[0] * centerOffsetVector[0] + centerOffsetVector[1] * centerOffsetVector[1]);
+
+	freeSpace += centerOffsetDistance / 1.5f;
+
+
+	return freeSpace;
+}
+
+void SE::Gameplay::Fog::AdjustOptimalCenter(float (&centerPosition)[2])
+{
+	if (centerPosition[0] > 25 || centerPosition[1] > 25 || topPlane->GetQuadStatus(centerPosition[0] + 1, centerPosition[1] + 1))
+		return;
+
+
+	float rotationSine = sin(6.283 / spaceCheckRotationIterationCount);
+	float rotationCosine = cos(6.283 / spaceCheckRotationIterationCount);
+
+
+	unsigned int freeSpace = 1;
+
+	for (unsigned int moveI = 0; moveI < 10; moveI++)
+	{
+		unsigned int positionSum[2] = {};
+		unsigned int positionCount = 0;
+
+		do {
+			float rotationVector[2] = { 0, freeSpace };
+
+			for (unsigned int rotationI = 0; rotationI < spaceCheckRotationIterationCount; rotationI++)
+			{
+				if (topPlane->GetQuadStatus(centerPosition[0] + rotationVector[0] + 1, centerPosition[1] + rotationVector[1] + 1))
+				{
+					positionSum[0] += centerPosition[0] + rotationVector[0];
+					positionSum[1] += centerPosition[1] + rotationVector[1];
+
+					positionCount++;
+				}
+
+				rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
+				rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+			}
+
+			if (!positionCount)
+				freeSpace++;
+
+		} while (!positionCount);
+
+
+		float centerOffsetVector[2] = { (float)positionSum[0] / positionCount - centerPosition[0], (float)positionSum[1] / positionCount - centerPosition[1] };
+		float centerOffsetDistance = sqrt(centerOffsetVector[0] * centerOffsetVector[0] + centerOffsetVector[1] * centerOffsetVector[1]);
+
+		float centerOffsetVector_normalized[2] = { centerOffsetVector[0] / centerOffsetDistance, centerOffsetVector[1] / centerOffsetDistance };
+
+		centerPosition[0] += (1 - moveI / 10.f) * centerOffsetVector_normalized[0];
+		centerPosition[1] += (1 - moveI / 10.f) * centerOffsetVector_normalized[1];
 	}
 }
 
