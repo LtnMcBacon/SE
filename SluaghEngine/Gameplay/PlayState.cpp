@@ -228,23 +228,45 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		float x, y, z;
 	} vertices[4];
 	
-	vertices[0].x = -100.0f; vertices[0].y = -0.04f; vertices[0].z = -100.0f;
-	vertices[1].x = -100.0f; vertices[1].y = -0.04f; vertices[1].z = 100.0f;
-	vertices[2].x = 100.0f; vertices[2].y = -0.04f; vertices[2].z = -100.0f;
-	vertices[3].x = 100.0f; vertices[3].y = -0.04f; vertices[3].z = 100.0f;
+	vertices[0].x = -100.0f; vertices[0].y = -0.01f; vertices[0].z = -100.0f;
+	vertices[1].x = -100.0f; vertices[1].y = -0.01f; vertices[1].z = 100.0f;
+	vertices[2].x = 100.0f; vertices[2].y = -0.01f; vertices[2].z = -100.0f;
+	vertices[3].x = 100.0f; vertices[3].y = -0.01f; vertices[3].z = 100.0f;
 
 	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("DummyPlane", vertices, 4, sizeof(float) * 3, false);
-
+	const std::string dummyShader = "cbuffer OncePerFrame : register(b1)\
+	{\
+		float4x4 View;\
+		float4x4 ViewProj;\
+	};\
+	\
+	struct VS_IN\
+	{\
+		float3 Pos : POSITION;\
+	};\
+	\
+	struct VS_OUT\
+	{\
+		float4 Pos : SV_Position;\
+	};\
+	\
+	VS_OUT VS_main(VS_IN input)\
+	{\
+		VS_OUT output = (VS_OUT)0;\
+		output.Pos = mul(float4(input.Pos, 1.0f), ViewProj);\
+		return output;\
+	}";
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexShaderFromSource("DummyPlaneVS.hlsl", dummyShader, "VS_main", "vs_5_0");
 	Graphics::RenderJob dummyJob;
 	dummyJob.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
-	dummyJob.pipeline.IAStage.inputLayout = "PositionPassThroughVS.hlsl";
+	dummyJob.pipeline.IAStage.inputLayout = "DummyPlaneVS.hlsl";
 	dummyJob.pipeline.IAStage.vertexBuffer = "DummyPlane";
-	dummyJob.pipeline.VSStage.shader = "SimpleVS.hlsl";
+	dummyJob.pipeline.VSStage.shader = "DummyPlaneVS.hlsl";
 	dummyJob.pipeline.OMStage.renderTargetCount = 1;
 	dummyJob.pipeline.OMStage.renderTargets[0] = "backbuffer";
 	dummyJob.pipeline.OMStage.depthStencilView = "backbuffer";
 	dummyJob.vertexCount = 4;
-	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_0);
+	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
 
 
 	ProfileReturnVoid;

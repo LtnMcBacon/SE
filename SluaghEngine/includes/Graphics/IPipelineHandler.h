@@ -26,6 +26,7 @@ namespace SE
 
 			virtual int CreateViewport(const Utilz::GUID& id, const Viewport& viewport) = 0;
 
+			virtual int CreateVertexShaderFromSource(const Utilz::GUID& id, const std::string& sourceCode, const std::string& entrypoint, const std::string& shaderModel) = 0;
 			virtual int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) = 0;
 			virtual int CreateGeometryShaderStreamOut(const Utilz::GUID& id, void* data, size_t size) = 0;
