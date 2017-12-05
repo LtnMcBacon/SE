@@ -254,6 +254,40 @@ bool SE::ResourceHandler::ResourceHandler::IsResourceLoaded(const Utilz::GUID & 
 	return found;
 }
 
+bool SE::ResourceHandler::ResourceHandler::Exist(const Utilz::GUID guid)
+{
+	return diskLoader->Exist(guid, nullptr);
+}
+
+size_t SE::ResourceHandler::ResourceHandler::GetMemoryUsed(ResourceType type)
+{
+	if (type & ResourceType::RAM)
+	{
+		size_t ramTot = 0;
+		Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					ramTot += r.second.data.size;
+			}
+		});
+		return ramTot;
+	}
+	else if (type & ResourceType::VRAM)
+	{
+		size_t vramTot = 0;
+		Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					vramTot += r.second.data.size;
+			}
+		});
+		return vramTot;
+	}
+	return 0;
+}
+
 static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& errors)
 {
 	if (r.state & SE::ResourceHandler::State::DEAD)
@@ -298,6 +332,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		errors.Push_Back("Unloading stuff. Limit: " + std::to_string(toMB(limit)) + "mb, Current: " + std::to_string(toMB(total))+ "mb");
 		auto needed = total - limit;
 		EvictResources(map, rawData.size, needed);	
+		errors.Push_Back("Current after: " + std::to_string(toMB(evictInfo.getCurrentMemoryUsage())));
 	}
 
 	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
@@ -332,6 +367,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 
 				error = true;
 			}
+			resource.loadedAt = std::chrono::high_resolution_clock::now();
 		});
 		if (error)
 		{
@@ -343,6 +379,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	{
 		data = rawData;
 	}
+	
 	}
 	{
 		Utilz::OperateSingle(map, job.guid, [&job, data](auto& resource)
@@ -367,24 +404,8 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		return -1;
 	}
 
-	size_t ramTot = 0;
-	Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
-		for (auto& r : map)
-		{
-			if (r.second.state & State::LOADED)
-				ramTot += r.second.data.size;
-		}
-	});
-	size_t vramTot = 0;
-	Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
-		for (auto& r : map)
-		{
-			if (r.second.state & State::LOADED)
-				vramTot += r.second.data.size;
-		}
-	});
 #include <Utilz\Memory.h>
-	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(ramTot)) + "mb VRAM: " + std::to_string(toMB(vramTot))+ "mb");
+	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::RAM))) + "mb VRAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::VRAM))) + "mb");
 
 	return 0;
 }
@@ -398,14 +419,25 @@ static const auto linearEvict = [](auto& map, auto& out)
 	}
 };
 
-static const auto evictResources = [](auto& map, auto& order, size_t needed)
+static const auto fifoEvict = [](auto& map, auto& out)
 {
-	size_t total = 0;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			out.push_back(resource.first);
+		}
+	}
+};
+
+
+static const auto evictResources = [](auto& map, auto& order, size_t needed, size_t& total, size_t& count)
+{
 	for (auto& r : order)
 	{
 		auto& re = map[r];
 		if (!(re.state & SE::ResourceHandler::State::IMMUTABLE) && re.state & SE::ResourceHandler::State::DEAD && re.state & SE::ResourceHandler::State::LOADED && re.ref == 0)
 		{
+			count++;
 			total += re.data.size;
 			re.state = re.state ^ SE::ResourceHandler::State::LOADED;
 			if (re.state & SE::ResourceHandler::State::RAW)
@@ -417,8 +449,11 @@ static const auto evictResources = [](auto& map, auto& order, size_t needed)
 			else	
 				re.destroyCallback(r, re.data.data, re.data.size);
 			
+			if (total >= needed)
+				break;
 		}
 	}
+
 };
 
 void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed)
@@ -427,11 +462,13 @@ void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unor
 	std::vector<Utilz::GUID> order;
 	Utilz::Operate(map, linearEvict, order);
 
-	if(order.size())
-		Utilz::Operate(map, evictResources, order, needed);
-
-	errors.Push_Back("Unloaded " + std::to_string(order.size()) + " resources");
-
+	if (order.size())
+	{
+		size_t count = 0;
+		size_t total = 0;
+		Utilz::Operate(map, evictResources, order, needed, total, count);
+		errors.Push_Back("Unloaded " + std::to_string(count) + " resources, " + std::to_string(toMB( total)) + "mb");
+	}
 }
 //
 //void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)

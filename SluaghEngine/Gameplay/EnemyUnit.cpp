@@ -37,6 +37,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			ci.textureName = "bloodSpatt.png";
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 20);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
@@ -207,11 +208,12 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ProfileReturnVoid;
 }
 
-SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
+SE::Gameplay::EnemyUnit::EnemyUnit(EnemyType myType, const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
 	extraSampleCoords{xPos, yPos},
 	previousMovement{0,0},
-	sample(0)
+	sample(0),
+	myType(myType)
 {
 	this->maxHealth = maxHealth;
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/

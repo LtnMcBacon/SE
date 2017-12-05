@@ -7,7 +7,7 @@
 #include <math.h>
 #include <algorithm>
 #include <Items.h>
-
+#include <EnemyUnit.h>
 
 
 using namespace SE;
@@ -185,6 +185,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			ci.textureName = "bloodSpatt.png";			
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100;
@@ -507,6 +508,15 @@ float SE::Gameplay::Room::DistanceToClosestDoor(float startX, float startY, Dire
 	}
 	
 	return distance;
+}
+
+float SE::Gameplay::Room::DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const
+{
+	float distX = DoorArr[int(direction)].posX - startX;
+	float distY = DoorArr[int(direction)].posY - startY;
+
+
+	return sqrtf(distX*distX + distY*distY);
 }
 
 
@@ -1050,7 +1060,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid, SE::Utilz::GUID &floorGuid)
 {
 	auto rand = CoreInit::subSystems.window->GetRand();
-	auto randNr = (rand % 4);
+	auto randNr = (rand % 6);
 
 	if (IsOutside == true)
 	{
@@ -1072,6 +1082,12 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		case 3:
 			wallGuid = Materials[Materials::LightStoneWallWood];
 			break;
+		case 4:
+			wallGuid = Materials[Materials::DarkStoneWall]; 
+			break; 
+		case 5:
+			wallGuid = Materials[Materials::julWall]; 
+
 		}
 	}
 
@@ -1235,6 +1251,10 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Window] = { "Window.mesh" };
 	Meshes[Meshes::Window_open] = { "WindowOpen.mesh" };
 	Meshes[Meshes::Window_closed] = { "WindowClosed.mesh" };
+	Meshes[Meshes::Fireplace] = { "Fireplace.mesh" };
+	Meshes[Meshes::Fireplace_open] = { "FireplaceOpen.mesh" };
+	Meshes[Meshes::Tree] = { "tree.mesh" }; 
+	Meshes[Meshes::Well] = { "well.mesh" };
 
 	// Materials
 	Materials[Materials::Stone] = { "Cube.mat" };
@@ -1251,8 +1271,16 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::FanzyWall] = { "FanzyWall.mat" };
 	Materials[Materials::LightStoneWall] = { "LightStoneWall.mat" };
 	Materials[Materials::LightStoneWallWood] = { "LightStoneWallWood.mat" };
+	Materials[Materials::julWall] = { "julWall.mat" }; 
+	Materials[Materials::DarkStoneWall] = { "DarkStoneWall.mat" };
 	Materials[Materials::Window] = { "WindowOpen.mat" };
+	Materials[Materials::Fireplace] = { "Fireplace.mat" };
+	Materials[Materials::Pillar] = { "Pillar_short.mat" };
+	Materials[Materials::PotatosackOpen] = { "Potato_Sack_Open.mat" };
+	Materials[Materials::PotatosackClosed] = { "Potato_Sack_Closed.mat" };
 
+	Materials[Materials::Well] = { "well.mat" }; 
+#pragma region RNGprops
 
 	Prop Chair;
 	Chair.guid = Meshes[Meshes::Chair];
@@ -1292,11 +1320,11 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop PotatoSackOpen;
 	PotatoSackOpen.guid = Meshes[Meshes::Potatosack_open];
-	PotatoSackOpen.matGuid = Materials[Materials::Dirt];
+	PotatoSackOpen.matGuid = Materials[Materials::PotatosackOpen];
 
 	Prop PotatoSackClosed;
 	PotatoSackClosed.guid = Meshes[Meshes::Potatosack_closed];
-	PotatoSackClosed.matGuid = Materials[Materials::Dirt];
+	PotatoSackClosed.matGuid = Materials[Materials::PotatosackClosed];
 
 	Prop Bush;
 	Bush.guid = Meshes[Meshes::Bush];
@@ -1304,13 +1332,23 @@ Room::Room(Utilz::GUID fileName)
 
 	Prop Fireplace;
 	Fireplace.guid = Meshes[Meshes::Fireplace];
-	Fireplace.matGuid = Materials[Materials::Stone];
+	Fireplace.matGuid = Materials[Materials::Fireplace];
+
+	Prop FireplaceOpen;
+	FireplaceOpen.guid = Meshes[Meshes::Fireplace_open];
+	FireplaceOpen.matGuid = Materials[Materials::Fireplace];
+
+#pragma endregion
+	Prop Tree; 
+	Tree.guid = Meshes[Meshes::Tree]; 
+	Tree.matGuid = Materials[Materials::Wood]; 
+
 
 
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace, FireplaceOpen };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1321,6 +1359,7 @@ Room::Room(Utilz::GUID fileName)
 		PotatoSackClosed,
 		PotatoSackOpen,
 		FloorTorch
+		
 	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
@@ -1347,24 +1386,31 @@ Room::Room(Utilz::GUID fileName)
 	propItemToFunction[id_Door2] = [this](CreationArguments &args) {
 		this->CreateDoor(args);
 	};
+	propItemToFunction[id_Tree] = [this](CreationArguments &args) {
+		this->CreateTree(args);
+	};
 	propItemToFunction[id_Window] = [this](CreationArguments &args) {
 		this->CreateWindows(args);
 	};
 
-	RandomizeWallAndFloorTexture(wallTexture, floorTexture);
+
 
 
 	pos start;
 	loadfromFile(fileName);
+	RandomizeWallAndFloorTexture(wallTexture, floorTexture);
 	//	CreateEntities();
 
 		// reset temporary tilevalues where a single prop is overlapping another tile 
 		//ResetTempTileValues();
 
+
+	//Used for flowField creation
+	char tempMap[25][25];
 	for (int x = 0; x < 25; x++)
 		for (int y = 0; y < 25; y++)
 		{
-			if (!tileValues[x][y])
+			if(!(tempMap[x][y] = tileValues[x][y] == id_Torch ? id_Floor : tileValues[x][y]))
 			{
 				start.x = x;
 				start.y = y;
@@ -1390,7 +1436,7 @@ Room::Room(Utilz::GUID fileName)
 			}
 
 
-	roomField = new FlowField(tileValues, 1.0f, start, 0.0f, 0.0f);
+	roomField = new FlowField(tempMap, 1.0f, start, 0.0f, 0.0f);
 
 	roomEntity = CoreInit::managers.entityManager->Create();
 
@@ -1431,17 +1477,18 @@ void SE::Gameplay::Room::Unload()
 			roomEntities[x][y].clear();
 		}
 	}
-
+	 
 	loaded = false;
-	/*for (auto enemy : enemyUnits)
+	for (auto enemy : enemyUnits)
 	{
-		CoreInit::managers.entityManager->Destroy(enemy->GetEntity());
 		if (auto weapon = std::get_if<Core::Entity>(&CoreInit::managers.dataManager->GetValue(enemy->GetEntity(), "Weapon", false)))
 		{
 			CoreInit::managers.entityManager->Destroy(*weapon);
 		}
+		enemy->DestroyEntity();
+		
 
-	}*/
+	}
 }
 
 void SE::Gameplay::Room::InitializeAdjacentFlowFields()
@@ -1638,7 +1685,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			rand = CoreInit::subSystems.window->GetRand();
 			propId = (rand % nrOfProps);
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "y", rot))
 				{
 					propCheck = true;
@@ -1670,7 +1718,8 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			propId = (rand % nrOfProps);
 			rot = 1.5708;
 
-			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace]) {
+			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
 				if (CheckPropAgainstWall(x, y, propId, "x", rot))
 				{
 					propCheck = true;
@@ -1716,13 +1765,23 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 	}
 
 	// 1x1 tile props
-	nrOfProps = propVectors[PropTypes::GENERIC].size();
-	rand = CoreInit::subSystems.window->GetRand();
-	propId = (rand % nrOfProps);
 
-	ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
-	ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
+	if (IsOutside)
+	{
+		ret.guid = Meshes[Meshes::Well];
+		ret.matGuid = Materials[Materials::Well];
+	}
+	else
+	{
+		nrOfProps = propVectors[PropTypes::GENERIC].size();
+		rand = CoreInit::subSystems.window->GetRand();
+		propId = (rand % nrOfProps);
 
+		ret.guid = propVectors[PropTypes::GENERIC][propId].guid;
+		ret.matGuid = propVectors[PropTypes::GENERIC][propId].matGuid;
+
+	}
+	
 	if (ret.guid == Meshes[Meshes::FloorTorch])
 	{
 		CreateFire(x, y);
@@ -1814,6 +1873,19 @@ void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 	CreateFloor(args);
 }
 
+void SE::Gameplay::Room::CreateTree(CreationArguments &args)
+{
+	Core::IMaterialManager::CreateInfo matInfo;
+	matInfo.materialFile = Materials[Materials::Wood];
+	matInfo.shader = Norm;
+	CoreInit::managers.materialManager->Create(args.ent, matInfo);
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Tree] });
+
+	roomEntities[args.x][args.y].push_back(args.ent);
+
+	CreateFloor(args);
+}
+
 void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 {
 	Core::IMaterialManager::CreateInfo matInfo;
@@ -1883,7 +1955,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 void SE::Gameplay::Room::CreatePillar(CreationArguments &args)
 {
 	Core::IMaterialManager::CreateInfo matInfo;
-	matInfo.materialFile = Materials[Materials::Stone];
+	matInfo.materialFile = Materials[Materials::Pillar];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Pillar_short] });
@@ -1964,7 +2036,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 
 	if (0 < randValue && randValue <= 10)
 	{
-		auto PaintingEnt = CoreInit::managers.entityManager->Create();
+		const auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
 		matInfoPainting.shader = Norm;
 		matInfoPainting.materialFile = Materials[Materials::Wood];
@@ -1974,6 +2046,26 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.renderableManager->CreateRenderableObject(PaintingEnt, { Meshes[Meshes::Painting] });
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
+		
+		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
+		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
+		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
+
+		Core::DecalCreateInfo decalInfo;
+		decalInfo.opacity = 0.50f;
+		decalInfo.textureName = paintingTextures[paintingToUse];
+
+		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);
+		//CoreInit::managers.decalManager->ToggleVisible(PaintingEnt, true);
+
+		const DirectX::XMFLOAT3 paintingForward = CoreInit::managers.transformManager->GetForward(PaintingEnt);
+
+		DirectX::XMFLOAT4X4 decalTrans;
+		const DirectX::XMMATRIX decalTranslation = DirectX::XMMatrixTranslation(0.0f + paintingForward.x * 0.25f, 0.75f, 0.0f + paintingForward.z * 0.25f);
+		const DirectX::XMMATRIX decalScaling = DirectX::XMMatrixScaling(0.945f, 1.14f, 0.65f);
+		DirectX::XMStoreFloat4x4(&decalTrans, decalScaling * decalTranslation);
+
+		CoreInit::managers.decalManager->SetLocalTransform(PaintingEnt, (float*)&decalTrans);
 
 		roomEntities[args.x][args.y].push_back(PaintingEnt);
 
@@ -2008,30 +2100,20 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		Core::ILightManager::CreateInfo createInfo;
 		createInfo.color = DirectX::XMFLOAT3(0.8f, 0.0f, 0.8f);
 		createInfo.pos = { args.x + 0.5f, 1.0f, args.y + 0.5f };
-		createInfo.intensity = 1.0f;
-		createInfo.radius = 5.0f;
+		createInfo.intensity = 5.0f;
+		createInfo.radius = 3.0f;
 
 		auto lightEnt = CoreInit::managers.entityManager->Create();
 		CoreInit::managers.transformManager->Create(lightEnt, { args.x + 0.5f, 1.0f, args.y + 0.5f });
 		CoreInit::managers.lightManager->Create(lightEnt, createInfo);
 		roomEntities[args.x][args.y].push_back(lightEnt);
 
-	/*	int arrPos = -1;
-		if (i - 1 >= 0 && tileValues[i - 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-		else if (j - 1 >= 0 && tileValues[i][j - 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-		else if (j + 1 < 25 && tileValues[i][j + 1] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
-		else if (i + 1 < 25 && tileValues[i + 1][j] == 0)
-			arrPos = int(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+		Core::IParticleSystemManager::CreateInfo createPartInfo;
+		createPartInfo.systemFile = "voidrift.pts";
 
-		DoorArr[arrPos].doorEntityPos = roomEntities.size() - 1;
-		DoorArr[arrPos].xPos = i + 0.5f;
-		DoorArr[arrPos].yPos = j + 0.5f;
-		DoorArr[arrPos].active = true;
-		DoorArr[arrPos].side = Room::DirectionToAdjacentRoom(arrPos);
-*/
+		CoreInit::managers.particleSystemManager->CreateSystem(lightEnt, createPartInfo);
+
+		roomEntities[args.x][args.y].push_back(lightEnt);
 
 }
 
