@@ -79,23 +79,27 @@ namespace SE
 	
 		enum class EvictPolicy
 		{
-			Linear,
-			FIFO
+			LINEAR,
+			FIFO,
+			LIFO,
+			RANDOM,
+			LEST_USED,
+			MOST_USED
 		};
 
 		struct EvictInfo
 		{
 			size_t max = 256_mb;
 			float tryUnloadWhenOver = 0.5f; /**< The resource handler will start trying to unload resource when the max times this factor is over current usage.*/
-			EvictPolicy nloadingStrategy = EvictPolicy::Linear; /**< How the resource handler will look for resources to evict. */
+			EvictPolicy nloadingStrategy = EvictPolicy::LINEAR; /**< How the resource handler will look for resources to evict. */
 			EvictStrickness evictStrickness = EvictStrickness::SEMI_HARD; /**< How strict the resource handler should be when checking if resources need to be unloaded. */
 			std::function<size_t()> getCurrentMemoryUsage = []()->size_t { return ~0; }; /**< The callback the resource handler will use to get the memory used right now*/
 		};
 
 		struct InitializationInfo
 		{
-			EvictInfo RAM = { 256_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
-			EvictInfo VRAM = { 512_mb, 0.5f, EvictPolicy::Linear, EvictStrickness::SEMI_HARD };
+			EvictInfo RAM = { 256_mb, 0.5f, EvictPolicy::LINEAR, EvictStrickness::SEMI_HARD };
+			EvictInfo VRAM = { 512_mb, 0.5f, EvictPolicy::LINEAR, EvictStrickness::SEMI_HARD };
 		};
 
 		/**
