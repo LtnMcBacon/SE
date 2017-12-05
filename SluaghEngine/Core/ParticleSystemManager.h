@@ -99,6 +99,7 @@ namespace SE
 				unsigned int gravityCheck;
 				unsigned int emit;
 				unsigned int particlePath;
+				unsigned int bloomCheck;
 			};
 			struct ParticleSystemData
 			{
@@ -123,6 +124,7 @@ namespace SE
 				size_t transformIndex;
 				Entity entity;
 			};
+			
 			std::vector<DirtyEntityInfo> dirtyEntites;
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;
