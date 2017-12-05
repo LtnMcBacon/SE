@@ -1890,8 +1890,14 @@ void SE::Gameplay::Room::CreateTree(CreationArguments &args)
 void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 {
 	Core::IMaterialManager::CreateInfo matInfo;
+
 	// Create floor
 	auto entFloor = CoreInit::managers.entityManager->Create();
+
+	CoreInit::managers.transformManager->Create(entFloor);
+	CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(args.x + 0.5f, 0.0f, args.y + 0.5f));
+	CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Meshes[Meshes::Floor] });
+
 	if (tileValues[args.x][args.y] == id_Bush) // bush 
 	{
 		matInfo.materialFile = Materials[Materials::Dirt];
@@ -1903,12 +1909,41 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	else
 	{
 		matInfo.materialFile = args.floorMat;
+
+		if (tileValues[args.x][args.y] == id_Door1) 
+		{
+
+			const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png" };
+			const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
+			const uint32_t carpetToUse = std::rand() % carpetTexturesCount;
+
+			Core::DecalCreateInfo decalFloorInfo;
+			decalFloorInfo.opacity = 1.0f;
+			decalFloorInfo.textureName = carpetTextures[carpetToUse];
+
+			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
+			const DirectX::XMFLOAT3 doorForward = CoreInit::managers.transformManager->GetRight(args.ent);
+
+			CoreInit::managers.decalManager->Create(entFloor, decalFloorInfo);
+
+			DirectX::XMFLOAT4X4 floorDecalTrans;
+			DirectX::XMMATRIX floorDecalTranslation = DirectX::XMMatrixTranslation(doorForward.x * 1.5f, 0.1f * floorForward.y, 1.5f * doorForward.z);
+			DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(0.90f, 0.90f, 0.05f);
+			DirectX::XMMATRIX floorDecalRotation = DirectX::XMMatrixRotationX(DirectX::XM_PI / 2);
+			
+			if (doorForward.x < 0.0f) {
+
+				floorDecalRotation *= DirectX::XMMatrixRotationY(FloorCheck(args.x, args.y));
+			}
+
+			DirectX::XMStoreFloat4x4(&floorDecalTrans, floorDecalScaling * floorDecalRotation * floorDecalTranslation);
+
+			CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
+		}
+		
 	}
-	
+
 	matInfo.shader = Norm;
-	CoreInit::managers.transformManager->Create(entFloor);
-	CoreInit::managers.transformManager->SetPosition(entFloor, DirectX::XMFLOAT3(args.x + 0.5f, 0.0f, args.y + 0.5f));
-	CoreInit::managers.renderableManager->CreateRenderableObject(entFloor, { Meshes[Meshes::Floor] });
 	CoreInit::managers.materialManager->Create(entFloor, matInfo);
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
 	roomEntities[args.x][args.y].push_back(entFloor);
@@ -1918,6 +1953,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	//{
 	//	tileValues[args.x][args.y] = id_Floor;
 	//}
+
 }
 
 void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
@@ -2080,6 +2116,9 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 	int i = args.x;
 	int j = args.y;
 
+	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Door] });
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, FloorCheck(i, j), 0.0f);
+
 		CreateFloor(args);
 
 		matInfo.materialFile = Materials[Materials::DoorMat];
@@ -2092,8 +2131,6 @@ void SE::Gameplay::Room::CreateDoor(CreationArguments & args)
 		{
 			matInfo.shader = Norm;
 		}
-		CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Door] });
-		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, FloorCheck(i, j), 0.0f);
 
 		CoreInit::managers.materialManager->Create(args.ent, matInfo);
 		roomEntities[args.x][args.y].push_back(args.ent);
