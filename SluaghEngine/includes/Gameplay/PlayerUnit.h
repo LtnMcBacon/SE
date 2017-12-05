@@ -372,6 +372,7 @@ namespace SE
 
 			//void changeElementType(Gameplay::DamageTypes element);
 
+			bool attacking = false;
 			bool isStunned = false;
 			bool attacking = false;
 			float attackSpeed = 5.f;
