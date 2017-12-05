@@ -275,6 +275,9 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
+
+	//Show the cursor again if we exit the playstate
+	CoreInit::subSystems.window->ToggleCursor(true);
 	CoreInit::subSystems.renderer->RemoveRenderJob(dummyBoxJobID);
 	if (streamTimings.is_open())
 		streamTimings.close();
@@ -1276,7 +1279,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
-
+	//Only show cursor if the devConsole is on
+	CoreInit::subSystems.window->ToggleCursor(CoreInit::subSystems.devConsole->IsVisible());
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;

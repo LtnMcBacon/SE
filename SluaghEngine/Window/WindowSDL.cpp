@@ -580,5 +580,9 @@ void SE::Window::WindowSDL::RecordToFile()
 
 void SE::Window::WindowSDL::ToggleCursor(bool on)
 {
-	ShowCursor(on);
+	if (on)
+		while (ShowCursor(on) < 0){}
+	else
+		while (ShowCursor(on) >= 0){}
+	
 }
