@@ -335,7 +335,10 @@ namespace SE
 			{
 				return unitEntity;
 			}
-
+			inline const void SetEntity(Core::Entity ent)
+			{
+				unitEntity = ent;
+			}
 			inline float GetExtent()
 			{
 				return extents;

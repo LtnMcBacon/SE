@@ -157,7 +157,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	subSystems.window->UpdateTime();
 	scriptToRun = &TutorialState::GreetingScript;
 
-//scriptToRun = &TutorialState::SpawnAndScript;
+//scriptToRun = &TutorialState::SpawnaGlastigScript;
 
 }
 

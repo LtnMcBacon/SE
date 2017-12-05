@@ -702,19 +702,19 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	{
 		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
-	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-	if (isitem != -1)
-	{
-		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-		p.y = 0;
-		if (currentItem == slot)
+		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+		if (isitem != -1)
 		{
-			auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-			if (ctype == ItemType::WEAPON)
-				Item::Unequip(items[currentItem], unitEntity);
-		}
-		
-		Item::Drop(items[slot], p);
+			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+			p.y = 0;
+			if (currentItem == slot)
+			{
+				auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+				if (ctype == ItemType::WEAPON)
+					Item::Unequip(items[currentItem], unitEntity);
+			}
+
+			Item::Drop(items[slot], p);
 
 		}
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
@@ -925,7 +925,7 @@ void SE::Gameplay::PlayerUnit::ToggleAsSluagh(bool sluagh)
 	}
 	else
 	{
-		auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+		auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 		auto material = Utilz::GUID("MCModell.mat");
 		info.shader = shader;
 		info.materialFile = material;
@@ -997,13 +997,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;
 	info.materialFile = material;
 
 	CoreInit::managers.materialManager->Create(unitEntity, info);
-
 	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
 	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
 	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
@@ -1049,7 +1048,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 	sai.animations = anims;
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;
 	info.materialFile = material;
