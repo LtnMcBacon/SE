@@ -14,6 +14,7 @@ namespace SE
 			PlayerUnit* theSluagh;
 
 			float commitmentTime = 0.f;
+			float timeSinceMovement = 0.f;
 			PlayerUnit::MovementInput previousMovement;
 			PlayerUnit::ActionInput previousAction;
 			SluaghRoom* room;
@@ -30,6 +31,7 @@ namespace SE
 			void ToggleRendering(bool render);
 
 			void InitializeSluagh();
+			bool SluaghMovedPreviousFrame();
 
 		private:
 			enum class UtilityMapEnum

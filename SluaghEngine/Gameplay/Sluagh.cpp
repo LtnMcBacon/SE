@@ -108,6 +108,21 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	theSluagh->PositionEntity(15.5f, 15.5f);
 }
 
+bool SE::Gameplay::Sluagh::SluaghMovedPreviousFrame()
+{
+	StartProfile;
+	if (previousMovement.upButton == previousMovement.downButton)
+	{
+		if (previousMovement.leftButton == previousMovement.upButton)
+		{
+			ProfileReturnConst(false);
+		}
+		else if (previousMovement.leftButton || previousMovement.downButton)
+			ProfileReturnConst(true);
+	}
+	ProfileReturnConst(true);
+}
+
 void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action)
 {
 	StartProfile;
@@ -250,7 +265,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingItem(float dt, int & item)
 float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirection dir)
 {
 	StartProfile;
-	
+	/*CHECK COLLISION YOU TWAT! Utility 0 if you collide!*/
 	float utilityValue = 0.f;
 
 	float xPos = theSluagh->GetXPosition();
@@ -597,15 +612,48 @@ void SE::Gameplay::Sluagh::DecideMovementInput(float dt, PlayerUnit::MovementInp
 
 	if(moved)
 	{
-		commitmentTime += 5.f;
+		commitmentTime += 0.5f;
 		previousMovement = movement;
+		timeSinceMovement = 0.f;
 	}
 	else
 	{
+		if (SluaghMovedPreviousFrame())
+			timeSinceMovement = 0.f;
+		else
+			timeSinceMovement += dt;
+		/*Foce a bit of movement*/
+		if(2.5 < timeSinceMovement)
+		{
+			for(int i = 0; i < 10; i++)
+			{
+				switch(CoreInit::subSystems.window->GetRand()%4)
+				{
+				case 0:
+					previousMovement.upButton != previousMovement.upButton;
+					break;
+				case 1:
+					previousMovement.downButton != previousMovement.downButton;
+					break;
+				case 2:
+					previousMovement.rightButton != previousMovement.rightButton;
+					break;
+				case 3:
+					previousMovement.leftButton != previousMovement.leftButton;
+					break;
+				}
+			}
+			commitmentTime += 0.5f;
+		}
+
 		movement = previousMovement;
-		commitmentTime -= dt;
-		if (commitmentTime < 0.f)
-			ProfileReturnVoid;
+		if (commitmentTime <= 0.f)
+		{
+			commitmentTime = 0.f;
+		}
+		else
+			commitmentTime -= dt;
+
 	}
 
 }
