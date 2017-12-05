@@ -67,6 +67,10 @@ namespace SE
 			float UtilityForMoveInDirection(float dt, MovementDirection dir);
 			void ClearMap();
 
+
+			float CalculateWeaponDamageAfterResistances(PlayerUnit* unit, const Core::Entity &weaponEntity);//Can be used both for the Sluagh and the Player
+			float CalculateSkillDamageAfterResistances(PlayerUnit* unit, Skill& skillToCheck);
+			float CalculateTimeToLiveDifference(const Core::Entity &weaponEntity); // <1 indicates that the player will live longer, >1 that the Sluagh will live longer. The weapon of the player will be calculated as current equiped.
 			void CalculateSkillUtilities(float dt);
 			void CalculateWeaponChangeUtilities(float dt);
 			void CalculateUseItemUtilities(float dt);

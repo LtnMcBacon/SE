@@ -286,6 +286,8 @@ namespace SE
 			inline std::shared_ptr<GameUnit*> GetSharedPtr() const{ return mySelf; }  ;
 			//Transforms and the like will be created inside the EnemyFactory, and outside of this class. During the sprint, this will most likely be done in the playstate
 
+			inline Stats& GetNewStat() { return newStat; };
+
 		protected:
 			Stats baseStat;
 			Stats newStat;

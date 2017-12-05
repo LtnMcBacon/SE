@@ -148,7 +148,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = skillToCheck.skillDamage*2.5f/skillToCheck.cooldown;
+	float utilityValue = CalculateSkillDamageAfterResistances(thePlayer, skillToCheck)*2.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }
@@ -179,7 +179,6 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 				if (distanceToPlayer > 2.5f)
 				{
 					swapUtility = 0.f;
-					break;
 				}
 				else
 					swapUtility += 1.f;
@@ -188,7 +187,7 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 					/*Disadvantage for the Sluagh*/
 					swapUtility -= 0.5f;
 				}
-				swapUtility += 2.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Damage", 0))/5.f;
+				swapUtility += 2.0f*CalculateWeaponDamageAfterResistances(thePlayer, sluaghWeapons[i]) /2.f;
 
 				break;
 				
@@ -196,16 +195,14 @@ float SE::Gameplay::Sluagh::UtilityForChangingWeapon(float dt, int & weaponToSwa
 			case Item::Weapon::Type::WAND:
 				if (distanceToPlayer < 2.5f)
 				{
-					swapUtility -= 1.f;
-					break;
+					swapUtility -= 0.5f;
 				}
 				if (playerWeaponType == Item::Weapon::Type::SWORD)
 				{
-					/*Disadvantage for the Sluagh*/
+					/*Advantage for the Sluagh*/
 					swapUtility += 0.5f;
 				}
-				swapUtility += 1.0f*std::get<int32_t>(CoreInit::managers.dataManager->GetValue(sluaghWeapons[i], "Damage", 0)) / 5.f;
-
+				swapUtility += 1.0f*CalculateWeaponDamageAfterResistances(thePlayer, sluaghWeapons[i]) / 2.f;
 				break;
 
 			default: ;
@@ -329,8 +326,9 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		if (distanceToPlayer < distAfterMove && lineOfSightAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 		else if (distAfterMove < 2.0f)
+		{
 			utilityValue -= 0.5f;
-
+		}
 		if (lineOfSightBeforeMove && !lineOfSightAfterMove) /*Moved behing object... not good*/
 			utilityValue -= 0.5f;
 		else if (!lineOfSightBeforeMove && lineOfSightAfterMove) /*Moved so we could see, pretty good*/
@@ -376,12 +374,12 @@ float SE::Gameplay::Sluagh::UtilityForMoveInDirection(float dt, MovementDirectio
 		float yDifference = theSluagh->GetYPosition() - thePlayer->GetYPosition();
 		float distAfterMove = sqrtf(xDifference*xDifference + yDifference*yDifference);
 
-
 		if (distanceToPlayer < distAfterMove && lineOfSightAfterMove)
 			utilityValue += abs(distanceToPlayer - distAfterMove)*20.f;
 		else if (distAfterMove < 2.0f)
+		{
 			utilityValue -= 0.5f;
-
+		}
 		if (lineOfSightBeforeMove && !lineOfSightAfterMove) /*Moved behing object... not good*/
 			utilityValue -= 0.5f;
 		else if (!lineOfSightBeforeMove && lineOfSightAfterMove) /*Moved so we could see, pretty good*/
@@ -415,9 +413,125 @@ void SE::Gameplay::Sluagh::ClearMap()
 	utilityMap.clear();
 }
 
+float SE::Gameplay::Sluagh::CalculateWeaponDamageAfterResistances(PlayerUnit * unit, const Core::Entity &weaponEntity)
+{
+	auto ElementalType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Element", -1));
+	if(ElementalType != int32_t(-1))
+	{
+		auto unitStats = unit->GetNewStat();
+		auto weaponDamage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Damage", 0.f));
+		switch(DamageType(ElementalType))
+		{
+		case DamageType::PHYSICAL: return weaponDamage*(1.0f - unitStats.physicalResistance);
+		case DamageType::FIRE: return weaponDamage*(1.0f - unitStats.fireResistance);
+		case DamageType::WATER: return weaponDamage*(1.0f - unitStats.waterResistance);
+		case DamageType::NATURE: return weaponDamage*(1.0f - unitStats.natureResistance);
+		case DamageType::RANGED: return weaponDamage*(1.0f - unitStats.physicalResistance);
+		case DamageType::MAGIC: return weaponDamage*(1.0f - unitStats.magicResistance);
+		default: return 0.f;
+		}
+	}
+	return 0.f;
+}
+
+float SE::Gameplay::Sluagh::CalculateSkillDamageAfterResistances(PlayerUnit * unit, Skill & skillToCheck)
+{
+
+	auto unitStats = unit->GetNewStat();
+	switch (skillToCheck.damageType)
+	{
+	case DamageType::PHYSICAL: return skillToCheck.skillDamage*(1.0f - unitStats.physicalResistance);
+	case DamageType::FIRE: return skillToCheck.skillDamage*(1.0f - unitStats.fireResistance);
+	case DamageType::WATER: return skillToCheck.skillDamage*(1.0f - unitStats.waterResistance);
+	case DamageType::NATURE: return skillToCheck.skillDamage*(1.0f - unitStats.natureResistance);
+	case DamageType::RANGED: return skillToCheck.skillDamage*(1.0f - unitStats.physicalResistance);
+	case DamageType::MAGIC: return skillToCheck.skillDamage*(1.0f - unitStats.magicResistance);
+	default: return 0.f;
+	}
+
+}
+
+float SE::Gameplay::Sluagh::CalculateTimeToLiveDifference(const Core::Entity &weaponEntity)
+{
+	float sluaghDamage = 0.f;
+	float playerDamage = 0.f;
+	auto playerStats = thePlayer->GetNewStat();
+	auto sluaghStats = theSluagh->GetNewStat();
+
+	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(thePlayer->GetCurrentItem(), "Type", -1));
+	Item::Weapon::Type playerWeaponType = Item::Weapon::Type::NONE;
+	if (type != int32_t(-1))
+		playerWeaponType = Item::Weapon::Type(type);
+
+	type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Type", -1));
+	Item::Weapon::Type sluaghWeaponType = Item::Weapon::Type::NONE;
+	if (type != int32_t(-1))
+		sluaghWeaponType = Item::Weapon::Type(type);
+
+	if (sluaghWeaponType != Item::Weapon::Type::NONE)
+	{
+		auto ElementalType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Element", -1));
+		if (ElementalType != int32_t(-1))
+		{
+			auto weaponDamage = std::get<float>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Damage", 0.f));
+			switch (DamageType(ElementalType))
+			{
+			case DamageType::PHYSICAL: sluaghDamage = weaponDamage*(1.0f - playerStats.physicalResistance); break;
+			case DamageType::FIRE: sluaghDamage = weaponDamage*(1.0f - playerStats.fireResistance); break;
+			case DamageType::WATER: sluaghDamage = weaponDamage*(1.0f - playerStats.waterResistance); break;
+			case DamageType::NATURE: sluaghDamage = weaponDamage*(1.0f - playerStats.natureResistance); break;
+			case DamageType::RANGED: sluaghDamage = weaponDamage*(1.0f - playerStats.physicalResistance); break;
+			case DamageType::MAGIC: sluaghDamage = weaponDamage*(1.0f - playerStats.magicResistance); break;
+			default: break;
+			}
+		}
+	}
+	if (playerWeaponType != Item::Weapon::Type::NONE)
+	{
+		auto ElementalType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Element", -1));
+		if (ElementalType != int32_t(-1))
+		{
+			auto weaponDamage = std::get<float>(CoreInit::managers.dataManager->GetValue(weaponEntity, "Damage", 0.f));
+			switch (DamageType(ElementalType))
+			{
+			case DamageType::PHYSICAL: playerDamage = weaponDamage*(1.0f - sluaghStats.physicalResistance); break;
+			case DamageType::FIRE: playerDamage = weaponDamage*(1.0f - sluaghStats.fireResistance); break;
+			case DamageType::WATER: playerDamage = weaponDamage*(1.0f - sluaghStats.waterResistance); break;
+			case DamageType::NATURE: playerDamage = weaponDamage*(1.0f - sluaghStats.natureResistance); break;
+			case DamageType::RANGED: playerDamage = weaponDamage*(1.0f - sluaghStats.physicalResistance); break;
+			case DamageType::MAGIC: playerDamage = weaponDamage*(1.0f - sluaghStats.magicResistance); break;
+			default: break;
+			}
+		}
+	}
+
+	sluaghDamage /= sluaghStats.attackSpeed;
+	playerDamage /= playerStats.attackSpeed;
+	if (sluaghWeaponType == Item::Weapon::Type::SWORD && distanceToPlayer < 2.f)
+	{
+		sluaghDamage = 0.f;
+	}
+
+	if (playerWeaponType == Item::Weapon::Type::SWORD && distanceToPlayer < 2.f)
+	{
+		playerDamage = 0.f;
+	}
+
+	float sluaghLifeTime = 0.f;
+	float playerLifeTime = 0.f;
+
+	if(playerDamage <= 0.05f)
+	{
+		sluaghLifeTime = theSluagh->GetHealth() / playerDamage;
+	}
+	
+
+	return 0.0f;
+}
+
 void SE::Gameplay::Sluagh::CalculateSkillUtilities(float dt)
 {
-		float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
+	float xDist = thePlayer->GetXPosition() - theSluagh->GetXPosition();
 	float yDist = thePlayer->GetYPosition() - theSluagh->GetYPosition();
 	distanceToPlayer = sqrtf(xDist*xDist + yDist*yDist);
 
