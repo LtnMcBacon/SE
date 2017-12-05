@@ -188,6 +188,7 @@ void SE::Core::Engine::InitSubSystems()
 		ResourceHandler::InitializationInfo info;
 		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
 		info.RAM.tryUnloadWhenOver = 0.5;
+		info.RAM.nloadingStrategy = ResourceHandler::EvictPolicy::RANDOM;
 		info.RAM.getCurrentMemoryUsage = [this]() { return Utilz::Memory::GetVirtualProcessMemory() - subSystems.renderer->GetVRam(); };
 		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
 		info.VRAM.tryUnloadWhenOver = 0.5;
