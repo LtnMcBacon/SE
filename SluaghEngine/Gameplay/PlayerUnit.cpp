@@ -328,13 +328,7 @@ void SE::Gameplay::PlayerUnit::UpdatePlayerRotation(float camAngleX, float camAn
 void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & inputs)
 {
 	StartProfile;
-	//if(stunDuration)
-	//{
-	//	stunDuration -= dt;
-	//	if (stunDuration < 0)
-	//		stunDuration = 0.f;
-	//	ProfileReturnVoid;
-	//}
+
 	dt *= newStat.movementSpeed;
 	float xMovement = 0.f;
 	float yMovement = 0.f;
@@ -666,19 +660,19 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	{
 		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
 
-	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-	if (isitem != -1)
-	{
-		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-		p.y = 0;
-		if (currentItem == slot)
+		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+		if (isitem != -1)
 		{
-			auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-			if (ctype == ItemType::WEAPON)
-				Item::Unequip(items[currentItem], unitEntity);
-		}
-		
-		Item::Drop(items[slot], p);
+			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+			p.y = 0;
+			if (currentItem == slot)
+			{
+				auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+				if (ctype == ItemType::WEAPON)
+					Item::Unequip(items[currentItem], unitEntity);
+			}
+
+			Item::Drop(items[slot], p);
 
 		}
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
@@ -903,14 +897,74 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	StopProfile;
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Utilz::GUID sluaghFile, float xPos, float yPos, char mapForRoom[25][25])
+SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25])
+	: GameUnit(xPos, yPos, 100)
 {
 
+	StartProfile;
+	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
+	extents = 0.25f; /*Should not be hardcoded! Obviously*/
+
+	input.read((char*)&baseStat, sizeof(baseStat));
+	skills.resize(2);
+	input.read((char*)&skills[0], sizeof(skills[0]));
+	input.read((char*)&skills[1], sizeof(skills[1]));
+
+	for (int i = 0; i < MAX_ITEMS; i++)
+		items[i] = Item::Create(input);
+
+	Core::IAnimationManager::CreateInfo sai;
+	sai.mesh = "MCModell.mesh";
+	sai.skeleton = "MCModell.skel";
+	sai.animationCount = 4;
+
+	Utilz::GUID anims[] = { "BottomRunAnim_MCModell.anim", "BottomIdleAnim_MCModell.anim", "TopRunAnim_MCModell.anim", "TopIdleAnim_MCModell.anim",
+		"DeathAnim_MCModell.anim", "TopAttackAnim_MCModell.anim", "TopHitAnim_MCModell.anim" };
+	sai.animations = anims;
+
+	Core::IMaterialManager::CreateInfo info;
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
+	auto material = Utilz::GUID("MCModell.mat");
+	info.shader = shader;
+	info.materialFile = material;
+
+	CoreInit::managers.materialManager->Create(unitEntity, info);
+
+	CoreInit::managers.animationManager->CreateAnimatedObject(unitEntity, sai);
+	CoreInit::managers.animationManager->ToggleShadow(unitEntity, true);
+	CoreInit::managers.collisionManager->CreateBoundingHierarchy(unitEntity, "MCModell.mesh");
+
+	CoreInit::managers.animationManager->ToggleVisible(unitEntity, true);
+
+	PlayerSounds();
+	InitializeAnimationInfo();
+
+	CoreInit::managers.animationManager->Start(unitEntity, &animationPlayInfos[PLAYER_IDLE_ANIMATION][0], animationPlayInfos[PLAYER_IDLE_ANIMATION].size(), 1.f, Core::AnimationFlags::LOOP | Core::AnimationFlags::IMMEDIATE);
+
+	itemSelectedEntity = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.entityManager->Destroy(itemSelectedEntity);
+	
+
+	StopProfile;
 }
 
-void SE::Gameplay::PlayerUnit::SavePlayerToFile(Utilz::GUID sluaghFile)
+void SE::Gameplay::PlayerUnit::SavePlayerToFile(std::ofstream &toSave)
 {
+	StartProfile;
+	/*Save Stats*/
+	toSave.write((char*)&baseStat, sizeof(baseStat));
 
+	/*Save Skills*/
+	for (int i = 0; i < 2; i++)
+		toSave.write((char*)&skills[i], sizeof(skills[i]));
+
+	/*Save Perks*/
+	
+
+	/*Save Weapons*/
+	for (int i = 0; i < MAX_ITEMS; i++)
+		Item::WriteToFile(items[i], toSave);
+	StopProfile;
 }
 
 SE::Gameplay::PlayerUnit::~PlayerUnit()

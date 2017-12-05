@@ -1,7 +1,6 @@
 #ifndef _SE_GAMEPLAY_ROOM_H_
 #define _SE_GAMEPLAY_ROOM_H_
 #include <vector>
-#include "EnemyUnit.h"
 #include "FlowField.h"
 #include "Projectile.h"
 #include <Utilz\GUID.h>
@@ -11,6 +10,7 @@ namespace SE
 {
 	namespace Gameplay
 	{
+		class EnemyUnit;
 		/**
 		*
 		* @brief The class definint the rooms as used by Gameplay
@@ -79,6 +79,7 @@ namespace SE
 				Potatosack_closed,
 				Potatosack_open,
 				Fireplace,
+				Fireplace_open,
 				Painting,
 				Window,
 				Window_open,
@@ -101,7 +102,12 @@ namespace SE
 				FanzyWall,
 				LightStoneWall,
 				LightStoneWallWood,
-				Window
+				Window,
+				Fireplace,
+				Fireplace_open,
+				Pillar,
+				PotatosackOpen,
+				PotatosackClosed
 			};
 
 			struct CreationArguments
@@ -211,6 +217,10 @@ namespace SE
 			inline Core::Entity GetEntity()const
 			{
 				return roomEntity;
+			}
+			inline std::vector<EnemyUnit*> GetEnemiesInRoom()const
+			{
+				return enemyUnits;
 			}
 		protected:
 
@@ -629,6 +639,8 @@ namespace SE
 			 * @brief Get distance to closest (open) door
 			 */
 			float DistanceToClosestDoor(float startX, float startY, DirectionToAdjacentRoom &direction) const;
+
+			float DistanceToDoorInDirection(float startX, float startY, DirectionToAdjacentRoom direction) const;
 
 			/**
 			* @brief Resets the tilevalues from 100 to 0
