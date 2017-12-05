@@ -1271,7 +1271,6 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->Update(dt, movementInput, newProjectiles, actionInput);
-
 	UpdateProjectiles(newProjectiles);
 	
 	blackBoard.playerPositionX = player->GetXPosition();

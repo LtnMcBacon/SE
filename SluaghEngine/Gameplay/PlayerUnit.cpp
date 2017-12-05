@@ -139,45 +139,44 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 		}
 		else
 		{
-			/*switch (ConditionEventVector[i].bane)
+			switch (ConditionEventVector[i].bane)
 			{
 			case Banes::CONDITIONAL_BANES_NONE:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
-			break;
+				break;
 			case Banes::CONDITIONAL_BANES_DAMAGE:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
-			break;
+				this->newStat.meleeMultiplier -= this->baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_STUN:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
-			break;
+				this->isStunned = true;
+				break;
 			case Banes::CONDITIONAL_BANES_ROOT:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
-			break;
+				this->newStat.movementSpeed = 0;
+				break;
 			case Banes::CONDITIONAL_BANES_BLOODLETTING:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
-			break;
+				this->health -= this->baseStat.damage * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_UNCOVER:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
-			break;
+				break;
 			case Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
-			break;
+				this->newStat.physicalResistance -= this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
-			break;
+				this->newStat.magicResistance -= this->baseStat.magicResistance * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_FIRE_WEAKNESS:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
-			break;
+				this->newStat.fireResistance -= this->baseStat.fireResistance * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_WATER_WEAKNESS:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
-			break;
+				this->newStat.waterResistance -= this->baseStat.waterResistance * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_NATURE_WEAKNESS:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
-			break;
+				this->newStat.natureResistance -= this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
+				break;
 			case Banes::CONDITIONAL_BANES_SLOW:
-			myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
-			break;
-			}*/
+				this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				break;
+			}
 		}
 		if (ConditionEventVector[i].duration > 0.f)
 		{
@@ -333,16 +332,18 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 	float xMovement = 0.f;
 	float yMovement = 0.f;
 
-	// Handle input and apply movement
-	if (inputs.upButton)
-		yMovement += newStat.movementSpeed;
-	if (inputs.downButton)
-		yMovement -= newStat.movementSpeed;
-	if (inputs.leftButton)
-		xMovement -= newStat.movementSpeed;
-	if (inputs.rightButton)
-		xMovement += newStat.movementSpeed;
-
+	if (!this->isStunned)
+	{
+		// Handle input and apply movement
+		if (inputs.upButton)
+			yMovement += newStat.movementSpeed;
+		if (inputs.downButton)
+			yMovement -= newStat.movementSpeed;
+		if (inputs.leftButton)
+			xMovement -= newStat.movementSpeed;
+		if (inputs.rightButton)
+			xMovement += newStat.movementSpeed;
+	}
 	float tempX = xMovement;
 	float tempY = yMovement;
 
@@ -387,8 +388,10 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 
 	tempRot.y = side * DirectX::XMVectorGetY(DirectX::XMVector3AngleBetweenVectors(defaultVector, mouseVector));
 
-	CoreInit::managers.transformManager->SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
-
+	if (!this->isStunned)
+	{
+		CoreInit::managers.transformManager->SetRotation(this->unitEntity, tempRot.x, tempRot.y, tempRot.z);
+	}
 	//-----------------------
 
 	/*Move the entity in the normalized direction*/
@@ -400,9 +403,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 	auto w = CoreInit::subSystems.window;
-
 	bool ci = false;
-
 	auto newItem = 0;
 	if (input.one)
 	{
@@ -477,6 +478,20 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+	this->newStat.str += weaponStats.str;
+	this->newStat.agi += weaponStats.agi;
+	this->newStat.whi += weaponStats.whi;
+
+	this->newStat.damage += weaponStats.damage;
+	this->newStat.health += weaponStats.health;
+
+	this->newStat.damageType = weaponStats.damageType;
+	this->newStat.weapon = weaponStats.weapon;
+
+	this->calcNewStrChanges();
+	this->calcNewAgiChanges();
+	this->calcNewWhiChanges();
+
 	int nrOfSKills = skills.size();
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
@@ -490,6 +505,20 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
+		if (skills[0].boon != Boons(1 << 0))
+		{
+			ConditionEvent::ConditionType condition;
+			condition.unionType = 0;
+			condition.condition.boon = skills[0].boon;
+			ConditionEventVector.push_back(ConditionEvent(condition, skills[0].boonEffectValue, skills[0].boonDuration));
+		}
+		if (skills[0].bane != Banes(1 << 0))
+		{
+			ConditionEvent::ConditionType condition;
+			condition.unionType = 1;
+			condition.condition.bane = skills[0].bane;
+			ConditionEventVector.push_back(ConditionEvent(condition, skills[0].boonEffectValue, skills[0].baneDuration));
+		}
 		if (!isSluagh)
 		{
 			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
@@ -531,7 +560,20 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.eventDamage = DamageEvent(skills[1].atkType, skills[1].damageType, skills[1].skillDamage);
 		//temp.healingEvent = skills[1]->GetHealingEvent();
 		//temp.conditionEvent = skills[1]->GetConditionEvent();
-
+		if (skills[1].boon != Boons(1 << 0))
+		{
+			ConditionEvent::ConditionType condition;
+			condition.unionType = 0;
+			condition.condition.boon = skills[1].boon;
+			ConditionEventVector.push_back(ConditionEvent(condition, skills[1].boonEffectValue, skills[1].boonDuration));
+		}
+		if (skills[1].bane != Banes(1 << 0))
+		{
+			ConditionEvent::ConditionType condition;
+			condition.unionType = 1;
+			condition.condition.bane = skills[1].bane;
+			ConditionEventVector.push_back(ConditionEvent(condition, skills[1].boonEffectValue, skills[1].baneDuration));
+		}
 		if (!isSluagh)
 		{
 			CoreInit::managers.audioManager->StopSound(this->unitEntity.id, currentSound);
@@ -571,13 +613,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		skills[1].currentCooldown -= dt;
 	}
-
-	if (input.actionButton && attackCooldown <= 0.0f)
+	
+	if (input.actionButton && this->newStat.attackCooldown <= 0.0f)
 	{
 		if (auto equipped = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Equipped", false)); equipped)
 		{
 				// Only allow attacking if attack animation is not already playing and attacking is false
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/attackSpeed) && attacking == false)
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/ this->newStat.attackSpeed) && attacking == false)
 				{
 					attacking = true;
 
@@ -588,7 +630,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.startPosY = this->yPos;
 					temp.target = ValidTarget::ENEMIES;
 
-					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage + weaponStats.damage);
+					temp.eventDamage = DamageEvent(weaponStats.weapon, weaponStats.damageType, newStat.damage);
 					temp.ownerUnit = mySelf;
 
 					Utilz::GUID p = Utilz::GUID(std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "AttProj", false)));
@@ -596,26 +638,26 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					attackCooldown = 1.0f / attackSpeed;
+					this->newStat.attackCooldown = 1.0f / this->newStat.attackSpeed;
 				}
 			
 		}
 		
 	}
 
-	if (attackCooldown > 0.f)
+	if (this->newStat.attackCooldown > 0.f)
 	{
-		attackCooldown -= dt;
+		this->newStat.attackCooldown -= dt;
 	}
-	else if (attackCooldown <= 0.f){
+	else if (this->newStat.attackCooldown <= 0.f){
 		attacking = false;
-		attackCooldown = 0.f;
+		this->newStat.attackCooldown = 0.f;
 	}
 
 	ResolveEvents(dt);
-	ClearConditionEvents();
-	ClearDamageEvents();
-	ClearHealingEvents();
+	//ClearConditionEvents();
+	//ClearDamageEvents();
+	//ClearHealingEvents();
 	StopProfile;
 
 }
@@ -640,8 +682,10 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		health = GetMaxHealth();
 	if (health > 0.f)
 	{
-		UpdateMovement(dt, mInputs);
+		ClearNewStats();
+		isStunned = false;
 		UpdateActions(dt, newProjectiles, aInput);
+		UpdateMovement(dt, mInputs);
 
 		ClearConditionEvents();
 		ClearDamageEvents();
@@ -653,8 +697,6 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
-
-
 	
 	if (!isSluagh)
 	{
@@ -686,7 +728,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 }
 
 
-void SE::Gameplay::PlayerUnit::calcStrChanges()
+void SE::Gameplay::PlayerUnit::calcBaseStrChanges()
 {
 	StartProfile;
 	if (baseStat.str > 5)
@@ -716,7 +758,7 @@ void SE::Gameplay::PlayerUnit::calcStrChanges()
 	}
 	StopProfile;
 }
-void SE::Gameplay::PlayerUnit::calcAgiChanges()
+void SE::Gameplay::PlayerUnit::calcBaseAgiChanges()
 {
 	StartProfile;
 	if (baseStat.agi > 5)
@@ -737,7 +779,7 @@ void SE::Gameplay::PlayerUnit::calcAgiChanges()
 	}
 	StopProfile;
 }
-void SE::Gameplay::PlayerUnit::calcWhiChanges()
+void SE::Gameplay::PlayerUnit::calcBaseWhiChanges()
 {
 	StartProfile;
 	if (baseStat.whi > 5)
@@ -750,6 +792,90 @@ void SE::Gameplay::PlayerUnit::calcWhiChanges()
 		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
 	}
 	else if (baseStat.whi < 5)
+	{
+		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
+		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
+		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
+	}
+	else
+	{
+		newStat.magicDamage = baseStat.magicDamage;
+		newStat.magicResistance = baseStat.magicResistance;
+		newStat.natureResistance = baseStat.natureResistance;
+		newStat.fireResistance = baseStat.fireResistance;
+		newStat.waterResistance = baseStat.waterResistance;
+	}
+	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::calcNewStrChanges()
+{
+	StartProfile;
+	if (newStat.str > 5)
+	{
+		int increment = newStat.str - 5;
+		newStat.health = baseStat.health * (1.f + (0.05f * increment));
+		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
+	}
+	else if (newStat.str < 5)
+	{
+		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
+		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
+
+		if (newStat.str <= 3)
+		{
+			newStat.armorCap = 2;
+		}
+		else if (newStat.str == 1)
+		{
+			newStat.armorCap = 1;
+		}
+	}
+	else
+	{
+		newStat.health = baseStat.health;
+		newStat.damage = baseStat.damage;
+	}
+	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::calcNewAgiChanges()
+{
+	StartProfile;
+	if (newStat.agi > 5)
+	{
+		int increment = newStat.agi - 5;
+		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
+		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
+	}
+	else if (newStat.agi < 5)
+	{
+		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
+		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
+	}
+	else
+	{
+		newStat.rangedDamage = baseStat.rangedDamage;
+		newStat.movementSpeed = baseStat.movementSpeed;
+	}
+	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::calcNewWhiChanges()
+{
+	StartProfile;
+	if (newStat.whi > 5)
+	{
+		int increment = newStat.whi - 5;
+		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
+		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
+		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
+		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
+		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
+	}
+	else if (newStat.whi < 5)
 	{
 		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
 		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));

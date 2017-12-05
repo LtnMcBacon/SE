@@ -158,6 +158,14 @@ namespace SE
 			*	Entity_Which_Vectors_I_Want_To_Clear.ClearConditionEvents();
 			*/
 			void ClearConditionEvents();
+			/*
+			* @brief	Clears the new stats struct
+			*
+			* @details	resets all the values in newStat
+			*
+			* @warning Dont call this if you have valuable information stored in the struct
+			*/
+			void ClearNewStats();
 
 			inline float GetHealth() const { return health; };
 			inline float GetXPosition() { return xPos; };
