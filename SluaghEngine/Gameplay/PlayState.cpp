@@ -1458,6 +1458,9 @@ void PlayState::UpdateAimDecal()
 
 	DirectX::XMFLOAT3 decalPos;
 	DirectX::XMStoreFloat3(&decalPos, clickPos);
+	if (currentRoom->IsWall(decalPos.x, decalPos.z))
+		decalPos.y = 3.0f;
+	
 	CoreInit::managers.transformManager->SetPosition(aimDecal, decalPos);
 
 }
