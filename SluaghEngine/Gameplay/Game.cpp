@@ -66,11 +66,11 @@ void SE::Gameplay::Game::Run()
 	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	//!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME))
 
-	auto quitGame = [this]()->void
+	/*auto quitGame = [this]()->void
 	{
 		this->running = false;
 	};
-	std::function<void()> shutDown = quitGame;
+	std::function<void()> shutDown = quitGame;*/
 
 	while (running)
 	{
@@ -78,8 +78,8 @@ void SE::Gameplay::Game::Run()
 
 		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 		{
-			paused = !paused;
-			//running = false;
+			//paused = !paused;
+			running = false;
 		}
 
 		if (!paused)
@@ -147,7 +147,6 @@ void SE::Gameplay::Game::Run()
 						state = new WinState();
 						break;
 					case SE::Gameplay::IGameState::State::QUIT_GAME:
-					
 						running = false;
 						break;
 					default:
@@ -159,8 +158,8 @@ void SE::Gameplay::Game::Run()
 
 		}
 		else {
-			fileParser.GUIButtons.CreateButton(500, 500, 150, 50, 1, "ShutdownButton", shutDown);
-			fileParser.GUIButtons.DrawButtons();
+			/*fileParser.GUIButtons.CreateButton(500, 500, 150, 50, 1, "ShutdownButton", shutDown);
+			fileParser.GUIButtons.DrawButtons();*/
 		}
 			CoreInit::engine->EndFrame();
 	}

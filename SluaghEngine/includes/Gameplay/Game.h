@@ -26,7 +26,7 @@ namespace SE
 			Window::IWindow* input;
 			SE::Core::IEngine* engine;
 			SE::Gameplay::IGameState::State currentState;
-			HUDParser fileParser;
+			//HUDParser fileParser;
 
 		public:
 			void Initiate(Core::IEngine* engine);
