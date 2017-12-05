@@ -53,6 +53,7 @@ float startPos[3] = { 0, 0, 0 };
 float endPos[3] = { 0, 0, 0 };
 bool RandVelocity = false;
 bool imported = false;
+
 Utilz::GUID importedTexture;
 struct ParticleDataStruct {
 	float vel[3];
@@ -79,6 +80,7 @@ struct ParticleDataStruct {
 	unsigned int gravityCheck;
 	unsigned int emit;
 	unsigned int particlePath;
+	unsigned int bloomCheck;
 };
 ParticleDataStruct createParticleBuffer();
 void exportParticleInfo(Utilz::GUID texName, ParticleDataStruct pInfo, char fileName[], bool randomVelocity, XMFLOAT2 velocityArr[], XMFLOAT2 emitArr[]);
@@ -201,7 +203,7 @@ int main()
 	
 	pipelineHandler->CreateDepthStencilState("noDepth", {false, false, ComparisonOperation::NO_COMPARISON });
 	XMFLOAT3 lookAt = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT3 eyePos = { 0.0f, 0.0f, -5.0f };
+	XMFLOAT3 eyePos = { 0.0f, 1.0f, -5.0f };
 	XMFLOAT3 upVec = { 0.0f, 1.0f, 0.0f };
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(XMLoadFloat3(&eyePos), XMLoadFloat3(&lookAt), XMLoadFloat3(&upVec));
 
@@ -217,16 +219,32 @@ int main()
 
 	ParticleDataStruct movBuffer = createParticleBuffer();
 
-
+	//Particle constant buffer to get the right and up vector
+	struct PCB {
+		XMFLOAT3 upVector;
+		float pad;
+		XMFLOAT3 eyePosition;
+		float pad2;
+	};
+	PCB constantBuffer;
+	constantBuffer.eyePosition = eyePos;
+	constantBuffer.upVector = upVec;
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
+	identity._41 = 0.0f;
+	identity._42 = 2.0f;
+	identity._43 = 0.0f;
+	auto wMatrix = XMLoadFloat4x4(&identity);
+	wMatrix = XMMatrixTranspose(wMatrix);
+	XMStoreFloat4x4(&identity, wMatrix);
 
 	RenderJob updateParticleJob;
 	updateParticleJob.pipeline = pipeline;
-	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer, &identity](int a, int b) {
+	updateParticleJob.mappingFunc.push_back([&pipelineHandler, &movBuffer, &identity, &constantBuffer](int a, int b) {
 		pipelineHandler->UpdateConstantBuffer("velocityBuffer", &movBuffer, sizeof(ParticleDataStruct));
 		pipelineHandler->UpdateConstantBuffer("ParticleTransform", &identity, sizeof(XMFLOAT4X4));
+		pipelineHandler->UpdateConstantBuffer("CamBuffer", &constantBuffer, sizeof(PCB));
 	});
 	updateParticleJob.vertexCount = 1;
 	int updateParticleJobID = Renderer->AddRenderJob(updateParticleJob, SE::Graphics::RenderGroup::PRE_PASS_0);
@@ -252,18 +270,7 @@ int main()
 	RenderJob renderParticleJob;
 	renderParticleJob.pipeline = RPP;
 
-	//Particle constant buffer to get the right and up vector
-	struct PCB {
-		XMFLOAT3 upVector;
-		float pad;
-		XMFLOAT3 eyePosition;
-		float pad2;
-	};
-	
 
-	PCB constantBuffer;
-	constantBuffer.eyePosition = eyePos;
-	constantBuffer.upVector = upVec;
 
 	struct CameraMatrices {
 		XMFLOAT4X4 view;
@@ -287,7 +294,7 @@ int main()
 	{
 		time.Tick();
 		float dt = time.GetDelta<std::ratio<1, 1>>();
-		
+		constantBuffer.eyePosition = engine->GetManagers().transformManager->GetPosition(camera);
 		XMFLOAT4X4 view = engine->GetManagers().cameraManager->GetView(camera);
 		XMMATRIX tViewProj = XMLoadFloat4x4(&engine->GetManagers().cameraManager->GetViewProjection(camera));
 		tViewProj = XMMatrixTranspose(tViewProj);
@@ -379,6 +386,7 @@ int main()
 		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
 		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
+		ImGui::SliderFloat("Emit X", &movBuffer.emitPos[0], -5.0, 5.0f);
 	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
 		if (ImGui::Button("Reset Sliders"))
@@ -401,12 +409,11 @@ int main()
 		float randEmitX = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeX[1]/*Max*/ - emitRangeX[0]/*Min*/) + emitRangeX[0];
 		float randEmitY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeY[1] - emitRangeY[0]) + emitRangeY[0];
 		float randEmitZ = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (emitRangeZ[1] - emitRangeZ[0]) + emitRangeZ[0];
-		
 
 		movBuffer.emitRange[0] = randEmitX;
 		movBuffer.emitRange[1] = randEmitY;
 		movBuffer.emitRange[2] = randEmitZ;
-
+		
 		if (RandVelocity && !movBuffer.particlePath)
 		{
 			float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (velocityRangeX[1]/*Max*/ - velocityRangeX[0]/*Min*/) + velocityRangeX[0];
@@ -443,6 +450,11 @@ int main()
 		ImGui::CheckboxFlags("Enable Gravity", &movBuffer.gravityCheck, 1);
 		ImGui::CheckboxFlags("Circular", &movBuffer.circular, 1);
 		ImGui::Checkbox("Random direction", &RandVelocity);
+		ImGui::CheckboxFlags("Bloom", &movBuffer.bloomCheck, 1);
+		if (movBuffer.bloomCheck == 0)
+		{
+			int a = 0;
+		}
 		ImGui::InputText("Texture file", tempText, 100);
 		if (ImGui::Button("Reset Sliders"))
 		{
@@ -516,7 +528,7 @@ int main()
 ParticleDataStruct createParticleBuffer()
 {
 	float velocity[3] = { 0.0f, 1.0f , 0.0f };
-	float emitPosition[3] = { 0.0f, 0.0f, 1.0f };
+	float emitPosition[3] = { 0.0f, 0.0f, 0.0f };
 	ParticleDataStruct movBuffer;
 	movBuffer.vel[0] = velocity[0];
 	movBuffer.vel[1] = velocity[1];
@@ -543,6 +555,7 @@ ParticleDataStruct createParticleBuffer()
 	movBuffer.radialValue = 0.0f;
 	movBuffer.emit = 0;
 	movBuffer.particlePath = 0;
+	movBuffer.bloomCheck = 1;
 
 	return movBuffer;
 }

@@ -26,6 +26,7 @@ cbuffer velocityBuffer : register(b0)
 	int gravityCheck;
 	int emit;
 	int particlePath;
+	int bloomCheck;
 };
 cbuffer lockBuffer : register(b1)
 {
@@ -34,6 +35,13 @@ cbuffer lockBuffer : register(b1)
 cbuffer ParticleTransform : register(b2)
 {
 	float4x4 World;
+};
+cbuffer CamBuffer : register(b3)
+{
+	float3 camUpVector;
+	float padCam;
+	float3 eyePos;
+	float padCam2;
 };
 struct ParticleInfo {
 	float3 pos : POSITION;
@@ -47,6 +55,7 @@ struct ParticleInfo {
 	float opacity : OPACITY;
 	float age : AGE;
 	uint type : TYPE;
+	uint bloom : BLOOM;
 };
 bool equal(float3 start, float3 end)
 {
@@ -75,10 +84,12 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.opacity = 0.0f;
 			particle.age = 0.0f;
 			particle.type = 1;
+			particle.bloom = bloomCheck;
 			particle.pad = 0;
 			particle.pad2 = 0;
 			particle.pad4 = 0;
 			particle.pad5 = 0;
+		
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
@@ -91,14 +102,11 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 		float3 startPosition = input[0].startEmitPos;
 		if (input[0].age <= lifeTime && !particlePath)
 		{
-			float3 radialVector = (input[0].pos - input[0].startEmitPos) * 1;
-			normalize(radialVector);
-			radialVector.z = 0;
-			float tanX = radialVector.x;
-			float3 tanVector = radialVector;
-			tanVector.x = -tanVector.y;
-			tanVector.y = tanX;
-			
+			float3 radialVector = (input[0].startEmitPos - input[0].pos);
+			radialVector = normalize(radialVector);
+			float3 lookAt = eyePos - input[0].startEmitPos;
+			lookAt = normalize(lookAt);
+			float3 tanVector = cross(radialVector, lookAt);
 			
 			if (input[0].age < 0.25)
 			{
@@ -107,10 +115,10 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			}
 			else
 				input[0].opacity = 1 - input[0].age/ lifeTime;
-			if(circular)
+			if(circular == 1)
 			{
-				if (input[0].pos.x != emitPos.x || input[0].pos.y != emitPos.y)
-					input[0].pos += (input[0].velocity + radialVector * radialValue + tanVector * tangentialValue) * dt * speed;
+				if (!equal(input[0].pos, emitPos))
+					input[0].pos += ((radialVector * radialValue) + (tanVector * tangentialValue)) * dt;
 				else
 					input[0].pos += input[0].velocity * dt* speed;
 			}
