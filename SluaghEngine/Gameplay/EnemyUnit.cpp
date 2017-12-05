@@ -8,7 +8,6 @@
 void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 {
 	StartProfile;
-	
 	// only basic at the moment
 	myBlackboard->activeBane = Banes::CONDITIONAL_BANES_NONE;
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
@@ -155,7 +154,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	DamageEventVector.clear();
 	ConditionEventVector.clear();
 
-
+	this->newStat.damage = 1000.f;
 
 	ProfileReturnVoid;
 
@@ -198,6 +197,7 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		/*
 		* Code body
 		*/
+		ClearNewStats();
 		ResolveEvents(dt);
 		DecideAction(dt);
 		PerformAction(dt);
@@ -208,11 +208,12 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 	ProfileReturnVoid;
 }
 
-SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
+SE::Gameplay::EnemyUnit::EnemyUnit(EnemyType myType, const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
 	extraSampleCoords{xPos, yPos},
 	previousMovement{0,0},
-	sample(0)
+	sample(0),
+	myType(myType)
 {
 	this->maxHealth = maxHealth;
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
