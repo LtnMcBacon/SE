@@ -52,7 +52,8 @@ namespace SE
 				BUSHES,
 				BIGPROPS,
 				GENERIC,
-				MEDIUM
+				MEDIUM, 
+				TREE
 			};
 
 			enum class Meshes {
@@ -83,7 +84,9 @@ namespace SE
 				Painting,
 				Window,
 				Window_open,
-				Window_closed
+				Window_closed,
+				Tree,
+				Well
 			};
 			enum class Materials {
 				Stone,
@@ -107,7 +110,10 @@ namespace SE
 				Fireplace_open,
 				Pillar,
 				PotatosackOpen,
-				PotatosackClosed
+				PotatosackClosed,
+				Well,
+				julWall, 
+				DarkStoneWall
 			};
 
 			struct CreationArguments
@@ -141,6 +147,7 @@ namespace SE
 			static const char id_Wall     = 255;
 			static const char id_Pillar   = 225;
 			static const char id_Bush     = 13;
+			static const char id_Tree	  = 35; 
 			static const char id_Window = 180;
 			
 			/*Needed:
@@ -583,6 +590,12 @@ namespace SE
 			* @brief
 			*/
 			void CreateBush(CreationArguments &args);
+
+			/**
+			* @brief
+			*/
+			void CreateTree(CreationArguments &args);
+
 			/**
 			* @brief	
 			*/
