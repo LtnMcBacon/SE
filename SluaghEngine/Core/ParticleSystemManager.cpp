@@ -137,14 +137,6 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 {
 	StartProfile;
 	auto find = entityToIndex.find(entity);
-
-	
-	//CPB.camPos = initInfo.transformManager->GetPosition(activeCam);
-//	auto camForward = DirectX::XMLoadFloat3(&initInfo.transformManager->GetForward(activeCam));
-	//CPB.camRight = initInfo.transformManager->GetRight(activeCam);
-//	auto camPosVec = DirectX::XMLoadFloat3(&CPB.camPos);
-//	auto camRightVec = DirectX::XMLoadFloat3(&CPB.camRight);
-//	auto camUpVec = DirectX::XMVector3Cross(camForward, camRightVec);
 	
 	if (find == entityToIndex.end()) // The entity had no system
 	{
