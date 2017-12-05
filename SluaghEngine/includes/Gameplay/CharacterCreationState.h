@@ -88,7 +88,7 @@ namespace SE
 				"Kasta_Sten.HuD"
 			};
 
-			std::string perkButtonFiles[16]
+			std::string perkButtonFiles[18]
 			{
 				"Krigs_herre.HuD",
 				"Tom_i_skallen.HuD",
@@ -105,11 +105,13 @@ namespace SE
 				"Rocka_och_rulla.HuD",
 				"Som_fisken_i_vattnet.HuD",
 				"Veva_upp.HuD",
-				"Vulkan.HuD"
+				"Vulkan.HuD",
+				"Masochism.HuD",
+				"Tunga_slag.HuD"
 				
 			};
 
-			std::string Perkfiles[16]
+			std::string Perkfiles[18]
 			{
 				 "Krigs_herre.prk",
 				 "Tom_i_skallen.prk",
@@ -127,6 +129,8 @@ namespace SE
 				 "Som_fisken_i_vattnet.prk",
 				 "Veva_upp.prk",
 				 "Vulkan.prk",
+				 "Masochism.prk",
+				 "Tunga_slag.prk"
 			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;

@@ -323,7 +323,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					anchorY,
 					skillButton.Width,
 					skillButton.Height,
-					0.1,
+					0.5,
 					skillButton.rectName,
 					skillChoice,
 					skillInfo,

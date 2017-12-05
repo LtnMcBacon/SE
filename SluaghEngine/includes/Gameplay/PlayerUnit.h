@@ -390,6 +390,7 @@ namespace SE
 
 			//void changeElementType(Gameplay::DamageTypes element);
 
+			bool isStunned = false;
 			bool attacking = false;
 			bool isSluagh = false;
 		public:

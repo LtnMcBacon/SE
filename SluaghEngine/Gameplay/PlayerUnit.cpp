@@ -90,8 +90,6 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 		}
 	
 	}
-	
-	
 
 	for (int i = 0; i < ConditionEventVector.size(); i++)
 	{

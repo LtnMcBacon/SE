@@ -126,6 +126,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	}, "drop", "Drop item at players feet");
 	this->input = Input;
 	this->engine = engine;
+
 	playStateGUI.ParseFiles("PlayStateGui.HuD");
 	playStateGUI.InitiateTextures();
 	int tempPos = 0;
@@ -133,9 +134,19 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		if (button.rectName == "HealthBar")
 		{
+			bool perhaps = false;
+			bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
+			if (fullscreen)
+			{
+				button.Width = button.Width / 1.5;
+				button.Height = button.Height / 1.5;
+				button.PositionX = button.PositionX / 1.5;
+				button.PositionY = button.PositionY / 1.5;
+			}
 			// here's the health bar.
 			playStateGUI.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, NULL, button.textName, button.hoverTex, button.PressTex);
 			healthBarPos = tempPos;
+
 		}
 		else if (button.rectName == "EnemyHpFrame")
 		{
@@ -503,7 +514,10 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 void SE::Gameplay::PlayState::UpdateHUD(float dt)
 {
+	
+	
 	CoreInit::managers.guiManager->SetTextureDimensions(playStateGUI.GUIButtons.ButtonEntityVec[healthBarPos], playStateGUI.GUIButtons.Buttons[healthBarPos].Width, playStateGUI.GUIButtons.Buttons[healthBarPos].Height * (1 - player->GetHealth() / player->GetMaxHealth()));
+	
 	
 	for (int i = 0; i < 2; i++)
 	{
