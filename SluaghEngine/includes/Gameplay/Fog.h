@@ -35,8 +35,8 @@ namespace SE
 			const float slopeMiddleOffset[2] = { 0.3f, height / 2.f };
 			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
 
-			static const unsigned int minimumCenterSpaceRadius = 3;
-			static const unsigned int maximumCenterOffsetRadius = 8;
+			static const unsigned int minimumCenterSpaceRadius = 5;
+			static const unsigned int maximumCenterOffsetRadius = 10;
 			static const unsigned int spaceCheckRotationIterationCount = 16;
 
 			static const Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;

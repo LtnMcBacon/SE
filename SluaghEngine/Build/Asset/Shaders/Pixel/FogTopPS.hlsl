@@ -50,8 +50,10 @@ float4 PS_main(PS_IN input) : SV_TARGET
     //float2 centerOffset = { input.position.x - WINDOW_RESOLUTION_HALF.x, (WINDOW_RESOLUTION.y - input.position.y) - WINDOW_RESOLUTION_HALF.y };
     //centerOffset = normalize(centerOffset);
 
+    //float centerOffset_oldX = centerOffset.x;
+
     //centerOffset.x = VIEW_ROTATION_INVERSE_COSINE * centerOffset.x - VIEW_ROTATION_INVERSE_SINE * centerOffset.y;
-    //centerOffset.y = VIEW_ROTATION_INVERSE_SINE * centerOffset.x + VIEW_ROTATION_INVERSE_COSINE * centerOffset.y;
+    //centerOffset.y = VIEW_ROTATION_INVERSE_SINE * centerOffset_oldX + VIEW_ROTATION_INVERSE_COSINE * centerOffset.y;
 
     //uvOffset += CENTER_ATTRACTION_STRENGTH * centerOffset;
     uvOffset *= FOG_SPEED * clock;

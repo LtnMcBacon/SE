@@ -362,7 +362,7 @@ public:
 	}
 	bool GetQuadStatus(unsigned int column, unsigned int row)
 	{
-		if (row * 27 + column < 27 * 27)
+		if (column < 27 && row < 27)
 			return quads_used[row * 27 + column];
 		else
 			return true;
@@ -600,6 +600,7 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 			float rotationSine = sin(6.283 / rotationIterationCount);
 			float rotationCosine = cos(6.283 / rotationIterationCount);
 			
+
 			float rotationVector[2] = { 0, offset };
 
 			for (unsigned int rotationI = 0; rotationI < rotationIterationCount; rotationI++)
@@ -614,8 +615,11 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 					freeSpaceRadius = new_freeSpaceRadius;
 				}
 
+
+				float rotationVector_oldX = rotationVector[0];
+
 				rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
-				rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+				rotationVector[1] = rotationSine * rotationVector_oldX + rotationCosine * rotationVector[1];
 			}
 
 			offset++;
@@ -1339,7 +1343,11 @@ float SE::Gameplay::Fog::GetFreeSpaceAt(float column, float row)
 
 	float freeSpace = 1;
 
+	float freeSpace_old;
 	do {
+		freeSpace_old = freeSpace;
+
+
 		float rotationVector[2] = { 0, freeSpace };
 
 		for (unsigned int rotationI = 0; rotationI < spaceCheckRotationIterationCount; rotationI++)
@@ -1349,19 +1357,24 @@ float SE::Gameplay::Fog::GetFreeSpaceAt(float column, float row)
 				freeSpace += 1.f / spaceCheckRotationIterationCount;
 			}
 
+
+			float rotationVector_oldX = rotationVector[0];
+
 			rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
-			rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+			rotationVector[1] = rotationSine * rotationVector_oldX + rotationCosine * rotationVector[1];
 		}
 
-	} while (freeSpace - (long)freeSpace < 0.00001 && freeSpace < 25);
+	} while (freeSpace - (long)freeSpace < 0.00001 && freeSpace != freeSpace_old);
 
 
 	freeSpace -= (freeSpace - (long)freeSpace) / 1.5f;
 
-	float centerOffsetVector[2] = { column + 0.5 - roomCenter[0], row + 0.5 - roomCenter[1] };
+	float centerOffsetVector[2] = { column - roomCenter[0], row - roomCenter[1] };
 	float centerOffsetDistance = sqrt(centerOffsetVector[0] * centerOffsetVector[0] + centerOffsetVector[1] * centerOffsetVector[1]);
 
-	freeSpace += centerOffsetDistance / 1.5f;
+	float maxOffsetDistance = sqrt(roomCenter[0] * roomCenter[0] + roomCenter[1] * roomCenter[1]);
+
+	freeSpace += (1 - (centerOffsetDistance / maxOffsetDistance)) / 1.5f;
 
 
 	return freeSpace;
@@ -1369,7 +1382,7 @@ float SE::Gameplay::Fog::GetFreeSpaceAt(float column, float row)
 
 void SE::Gameplay::Fog::AdjustOptimalCenter(float (&centerPosition)[2])
 {
-	if (centerPosition[0] > 25 || centerPosition[1] > 25 || topPlane->GetQuadStatus(centerPosition[0] + 1, centerPosition[1] + 1))
+	if (centerPosition[0] >= 25 || centerPosition[1] >= 25 || topPlane->GetQuadStatus(centerPosition[0] + 1, centerPosition[1] + 1))
 		return;
 
 
@@ -1377,13 +1390,12 @@ void SE::Gameplay::Fog::AdjustOptimalCenter(float (&centerPosition)[2])
 	float rotationCosine = cos(6.283 / spaceCheckRotationIterationCount);
 
 
-	unsigned int freeSpace = 1;
-
 	for (unsigned int moveI = 0; moveI < 10; moveI++)
 	{
-		unsigned int positionSum[2] = {};
-		unsigned int positionCount = 0;
+		float wallPositionSum[2] = {};
+		unsigned int wallPositionCount = 0;
 
+		float freeSpace = 0.25;
 		do {
 			float rotationVector[2] = { 0, freeSpace };
 
@@ -1391,29 +1403,34 @@ void SE::Gameplay::Fog::AdjustOptimalCenter(float (&centerPosition)[2])
 			{
 				if (topPlane->GetQuadStatus(centerPosition[0] + rotationVector[0] + 1, centerPosition[1] + rotationVector[1] + 1))
 				{
-					positionSum[0] += centerPosition[0] + rotationVector[0];
-					positionSum[1] += centerPosition[1] + rotationVector[1];
+					wallPositionSum[0] += (unsigned int)(centerPosition[0] + rotationVector[0]) + 0.5;
+					wallPositionSum[1] += (unsigned int)(centerPosition[1] + rotationVector[1]) + 0.5;
 
-					positionCount++;
+					wallPositionCount++;
 				}
 
+
+				float rotationVector_oldX = rotationVector[0];
+
 				rotationVector[0] = rotationCosine * rotationVector[0] - rotationSine * rotationVector[1];
-				rotationVector[1] = rotationSine * rotationVector[0] + rotationCosine * rotationVector[1];
+				rotationVector[1] = rotationSine * rotationVector_oldX + rotationCosine * rotationVector[1];
 			}
 
-			if (!positionCount)
-				freeSpace++;
+			if (!wallPositionCount)
+				freeSpace += std::min(1.f, freeSpace);
 
-		} while (!positionCount);
+		} while (!wallPositionCount);
 
 
-		float centerOffsetVector[2] = { (float)positionSum[0] / positionCount - centerPosition[0], (float)positionSum[1] / positionCount - centerPosition[1] };
-		float centerOffsetDistance = sqrt(centerOffsetVector[0] * centerOffsetVector[0] + centerOffsetVector[1] * centerOffsetVector[1]);
+		float wallOffsetVector[2] = { wallPositionSum[0] / wallPositionCount - centerPosition[0], wallPositionSum[1] / wallPositionCount - centerPosition[1] };
+		float wallOffsetDistance = sqrt(wallOffsetVector[0] * wallOffsetVector[0] + wallOffsetVector[1] * wallOffsetVector[1]);
 
-		float centerOffsetVector_normalized[2] = { centerOffsetVector[0] / centerOffsetDistance, centerOffsetVector[1] / centerOffsetDistance };
+		float wallOffsetVector_normalized[2] = { wallOffsetVector[0] / wallOffsetDistance, wallOffsetVector[1] / wallOffsetDistance };
 
-		centerPosition[0] += (1 - moveI / 10.f) * centerOffsetVector_normalized[0];
-		centerPosition[1] += (1 - moveI / 10.f) * centerOffsetVector_normalized[1];
+		float stepSizeMultiplier = std::min(1.f, wallOffsetDistance / 1.5f);
+
+		centerPosition[0] -= (1 - moveI / 10.f) * stepSizeMultiplier * wallOffsetVector_normalized[0];
+		centerPosition[1] -= (1 - moveI / 10.f) * stepSizeMultiplier * wallOffsetVector_normalized[1];
 	}
 }
 
