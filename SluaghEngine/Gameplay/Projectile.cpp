@@ -109,6 +109,8 @@ void SE::Gameplay::Projectile::UpdateBounding()
 
 	rect.lowerRightX += xPos;
 	rect.lowerRightY += yPos;
+
+	rect.radius = sqrt(extentX * extentX + extentY * extentY);
 	StopProfile;
 }
 

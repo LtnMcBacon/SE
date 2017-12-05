@@ -1234,7 +1234,7 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 		if (p->GetCollisionType() != CollisionType::OBJECT)
 			if (auto owner = ownerPtr.lock())
 			{
-				auto unit = *owner.get();
+				auto& unit = *owner.get();
 				HealingEvent hEvent;
 				hEvent.amount = p->GetProjectileDamageEvent().amount * percent;
 				hEvent.type = HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT;
@@ -1378,9 +1378,10 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	float height = CoreInit::managers.transformManager->GetPosition(std::get<Projectile*>(parameters[2].data)->GetEntity()).y;
 
 	DirectX::XMFLOAT4X4 tempMat;
-	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 0.05f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
+	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 1.1f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
 
 	CoreInit::managers.decalManager->Create(std::get<Projectile*>(parameters[2].data)->GetEntity(), decalInfo);
+	CoreInit::managers.decalManager->ToggleVisible(std::get<Projectile*>(parameters[2].data)->GetEntity(), true);
 	//CoreInit::managers.transformManager->SetRotation(std::get<Projectile*>(parameters[2].data)->GetEntity(), 1.57079632679, 0.0f, 0.0f);
 	//CoreInit::managers.transformManager->SetScale(std::get<Projectile*>(parameters[2].data)->GetEntity(), { 3.0f, 3.0f, 3.0f });
 	CoreInit::managers.decalManager->SetLocalTransform(std::get<Projectile*>(parameters[2].data)->GetEntity(), (float*)&tempMat);
