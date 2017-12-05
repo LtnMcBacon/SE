@@ -620,8 +620,6 @@ namespace SE
 			* @brief
 			*/
 			void CreateDoor(CreationArguments &args);
-
-
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
