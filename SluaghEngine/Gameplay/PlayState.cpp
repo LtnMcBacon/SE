@@ -223,13 +223,37 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
 
+	struct
+	{
+		float x, y, z;
+	} vertices[4];
+	
+	vertices[0].x = -100.0f; vertices[0].y = -0.01f; vertices[0].z = -100.0f;
+	vertices[1].x = -100.0f; vertices[1].y = -0.01f; vertices[1].z = 100.0f;
+	vertices[2].x = 100.0f; vertices[2].y = -0.01f; vertices[2].z = -100.0f;
+	vertices[3].x = 1100.0f; vertices[3].y = -0.01f; vertices[3].z = 1100.0f;
+
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("DummyPlane", vertices, 4, sizeof(float) * 3, false);
+
+	Graphics::RenderJob dummyJob;
+	dummyJob.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
+	dummyJob.pipeline.IAStage.inputLayout = "PositionPassThroughVS.hlsl";
+	dummyJob.pipeline.IAStage.vertexBuffer = "DummyPlane";
+	dummyJob.pipeline.VSStage.shader = "SimpleVS.hlsl";
+	dummyJob.pipeline.OMStage.renderTargetCount = 1;
+	dummyJob.pipeline.OMStage.renderTargets[0] = "backbuffer";
+	dummyJob.pipeline.OMStage.depthStencilView = "backbuffer";
+	dummyJob.vertexCount = 4;
+	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_0);
+
+
 	ProfileReturnVoid;
 }
 
 PlayState::~PlayState()
 {
 	StartProfile;
-
+	CoreInit::subSystems.renderer->RemoveRenderJob(dummyBoxJobID);
 	if (streamTimings.is_open())
 		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
