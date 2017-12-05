@@ -704,10 +704,10 @@ bool Room::PointInsideWall(float x, float y)
 
 bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 {
-	int right = tileValues[x + 1][y];
-	int left = tileValues[x - 1][y];
-	int up = tileValues[x][y + 1];
-	int down = tileValues[x][y - 1];
+	char right = tileValues[x + 1][y];
+	char left = tileValues[x - 1][y];
+	char up = tileValues[x][y + 1];
+	char down = tileValues[x][y - 1];
 	if (x == 24 || y == 24 || x == 0 || y == 0)
 	{
 		
@@ -724,7 +724,25 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Top] });
 			}
-			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
+			else if (up == (char)13)
+			{
+				if (side != 2 || side != 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Corner] });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+				else if (side == 2)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Passage] });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
+				}
+				else if (side == 14)
+				{
+					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::OneSide] });
+					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
+				}
+			}
+			else if (down == (char)13)
 			{
 				if (side != 2 || side != 6)
 				{
@@ -740,24 +758,6 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 				{
 					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::OneSide] });
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
-				}
-			}
-			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
-			{			
-				if (side != 2 || side != 14)
-				{
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Corner] });
-					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
-				}
-				else if (side == 2)
-				{
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Passage] });
-					CoreInit::managers.transformManager->SetRotation(ent, 0.0, 0.0, 0.0);
-				}
-				else if (side == 14)
-				{
-					CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::OneSide] });
-					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PIDIV2, 0.0);
 				}
 			}
 			else
@@ -779,7 +779,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Top] });
 			}
-			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
+			else if (right == (char)13)
 			{
 				if (side != 7 || side != 35)
 				{
@@ -797,7 +797,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
 				}	
 			}
-			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
+			else if (left ==  (char)13)
 			{			
 				if (side != 7 || side != 14)
 				{
@@ -834,7 +834,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Top] });
 			}
-			else if (tileValues[x][y - 1] == (char)22 || tileValues[x][y - 1] == (char)48)
+			else if (down == (char)13)
 			{	
 				if (side != 5 || side != 15)
 				{
@@ -852,7 +852,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, -DirectX::XM_PIDIV2, 0.0);
 				}
 			}
-			else if (tileValues[x][y + 1] == (char)22 || tileValues[x][y + 1] == (char)48)
+			else if (up == (char)13)
 			{
 				if (side != 5 || side != 35)
 				{
@@ -889,7 +889,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 			{
 				CoreInit::managers.renderableManager->CreateRenderableObject(ent, { Meshes[Meshes::Top] });
 			}
-			else if (tileValues[x - 1][y] == (char)22 || tileValues[x - 1][y] == (char)48)
+			else if (left == (char)13)
 			{
 				if (side != 3 || side != 15)
 				{
@@ -907,7 +907,7 @@ bool SE::Gameplay::Room::CreateWall(SE::Core::Entity ent, int x, int y)
 					CoreInit::managers.transformManager->SetRotation(ent, 0.0, DirectX::XM_PI, 0.0);
 				}
 			}
-			else if (tileValues[x + 1][y] == (char)22 || tileValues[x + 1][y] == (char)48)
+			else if (right == (char)13)
 			{
 				if (side != 3 || side != 6)
 				{
@@ -1601,6 +1601,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			for (int x = 0; x < 25; x++)
 			{
 				tileValues[x][y] = (char)(in[counter]);
+				char hej = tileValues[x][y];
 				if (in[counter] == id_Bush)
 				{
 					IsOutside = true;
