@@ -93,6 +93,7 @@ namespace SE
 				uint32_t ref;
 				std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 				State state = State::DEAD;
+				std::chrono::high_resolution_clock::time_point loadedAt;
 			};
 
 			Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher> guidToRAMEntry;
