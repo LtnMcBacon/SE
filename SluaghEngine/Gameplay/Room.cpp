@@ -1866,21 +1866,32 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	{
 		matInfo.materialFile = args.floorMat;
 
-		Core::DecalCreateInfo decalFloorInfo;
-		decalFloorInfo.opacity = 1.0f;
-		decalFloorInfo.textureName = "CowWhite.png";
-
-		const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
-		const DirectX::XMFLOAT3 doorForward = CoreInit::managers.transformManager->GetRight(args.ent);
-
 		if (tileValues[args.x][args.y] == id_Door1) 
 		{
+
+			const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png" };
+			const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
+			const uint32_t carpetToUse = std::rand() % carpetTexturesCount;
+
+			Core::DecalCreateInfo decalFloorInfo;
+			decalFloorInfo.opacity = 1.0f;
+			decalFloorInfo.textureName = carpetTextures[carpetToUse];
+
+			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
+			const DirectX::XMFLOAT3 doorForward = CoreInit::managers.transformManager->GetRight(args.ent);
+
 			CoreInit::managers.decalManager->Create(entFloor, decalFloorInfo);
 
 			DirectX::XMFLOAT4X4 floorDecalTrans;
-			const DirectX::XMMATRIX floorDecalTranslation = DirectX::XMMatrixTranslation(doorForward.x * 1.5f, 0.3f * floorForward.y, 1.5f * doorForward.z);
-			const DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(1.5f, 1.5f, 1.5f);
-			const DirectX::XMMATRIX floorDecalRotation = DirectX::XMMatrixRotationX(90);
+			DirectX::XMMATRIX floorDecalTranslation = DirectX::XMMatrixTranslation(doorForward.x * 1.5f, 0.1f * floorForward.y, 1.5f * doorForward.z);
+			DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(0.90f, 0.90f, 0.05f);
+			DirectX::XMMATRIX floorDecalRotation = DirectX::XMMatrixRotationX(DirectX::XM_PI / 2);
+			
+			if (doorForward.x < 0.0f) {
+
+				floorDecalRotation *= DirectX::XMMatrixRotationY(FloorCheck(args.x, args.y));
+			}
+
 			DirectX::XMStoreFloat4x4(&floorDecalTrans, floorDecalScaling * floorDecalRotation * floorDecalTranslation);
 
 			CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
