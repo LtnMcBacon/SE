@@ -254,19 +254,37 @@ namespace SE
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
 			*			by weapon types, perks, skills or elements.
 			**/
-			void calcStrChanges();
+			void calcBaseStrChanges();
 			/**
 			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
 			*			by weapon types, perks, skills or elements.
 			**/
-			void calcAgiChanges();
+			void calcBaseAgiChanges();
 			/**
 			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
 			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
 			*			by weapon types, perks, skills or elements.
 			**/
-			void calcWhiChanges();
+			void calcBaseWhiChanges();
+			/**
+			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewStrChanges();
+			/**
+			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewAgiChanges();
+			/**
+			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewWhiChanges();
 			/**
 			* @brief	  Changes the equipped armor type.
 			* @param [in] The new given armor type.
@@ -373,10 +391,6 @@ namespace SE
 			//void changeElementType(Gameplay::DamageTypes element);
 
 			bool attacking = false;
-			bool isStunned = false;
-			
-			float attackSpeed = 5.f;
-			float attackCooldown = 0.f;
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, Perk* importPerks , float xPos, float yPos, char mapForRoom[25][25]);
