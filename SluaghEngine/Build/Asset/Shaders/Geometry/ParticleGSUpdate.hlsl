@@ -108,12 +108,6 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
 			
-			//float tanX = radialVector.x;
-			//float3 tanVector = radialVector;
-			//tanVector.x = -tanVector.y;
-			//tanVector.y = tanX;
-			//tanVector.z = -radialVector.z;
-
 			if (input[0].age < 0.25)
 			{
 				input[0].opacity += dt;
