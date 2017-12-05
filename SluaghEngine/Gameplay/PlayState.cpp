@@ -228,10 +228,10 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		float x, y, z;
 	} vertices[4];
 	
-	vertices[0].x = -100.0f; vertices[0].y = -0.01f; vertices[0].z = -100.0f;
-	vertices[1].x = -100.0f; vertices[1].y = -0.01f; vertices[1].z = 100.0f;
-	vertices[2].x = 100.0f; vertices[2].y = -0.01f; vertices[2].z = -100.0f;
-	vertices[3].x = 1100.0f; vertices[3].y = -0.01f; vertices[3].z = 1100.0f;
+	vertices[0].x = -100.0f; vertices[0].y = -0.04f; vertices[0].z = -100.0f;
+	vertices[1].x = -100.0f; vertices[1].y = -0.04f; vertices[1].z = 100.0f;
+	vertices[2].x = 100.0f; vertices[2].y = -0.04f; vertices[2].z = -100.0f;
+	vertices[3].x = 100.0f; vertices[3].y = -0.04f; vertices[3].z = 100.0f;
 
 	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("DummyPlane", vertices, 4, sizeof(float) * 3, false);
 
