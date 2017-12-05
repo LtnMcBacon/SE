@@ -156,6 +156,7 @@
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\Perk.h" />
+    <ClInclude Include="..\includes\Gameplay\perkConditionEnum.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />

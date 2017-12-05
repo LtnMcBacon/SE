@@ -644,9 +644,6 @@
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\Slaugh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -715,6 +712,9 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\WinState.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\perkConditionEnum.h">
+      <Filter>Header Files\Perks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

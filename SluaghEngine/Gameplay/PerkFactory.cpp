@@ -281,26 +281,6 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	case 11:
 	{
 
-		auto intMultiplier = [value, duration, consecutiveValue, timer, intMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
-		{
-			if (condition)
-			{
-				if (!intMult)
-				{
-					int wis = player->GetBaseWhisdom();
-					float newWis = wis*(value / 100.f);
-					player->SetBaseWhisdom(newWis);
-					intMult = true;
-				}
-			}
-
-		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> intMultiplierFunc = intMultiplier;
-		return intMultiplierFunc;
-		break;
-	}
-	case 12:
-	{
-
 		auto strMultiplier = [value, duration, consecutiveValue, timer, strMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
 		{
 			if (condition)
@@ -316,6 +296,26 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> strMultiplierFunc = strMultiplier;
 		return strMultiplierFunc;
+		break;
+	}
+	case 12:
+	{
+
+		auto intMultiplier = [value, duration, consecutiveValue, timer, intMult](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)mutable->void
+		{
+			if (condition)
+			{
+				if (!intMult)
+				{
+					int wis = player->GetBaseWhisdom();
+					float newWis = wis*(value / 100.f);
+					player->SetBaseWhisdom(newWis);
+					intMult = true;
+				}
+			}
+
+		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> intMultiplierFunc = intMultiplier;
+		return intMultiplierFunc;
 		break;
 	}
 	case 13:
@@ -485,9 +485,13 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 
 				timer = duration;
+			}
+			
 
+			if (timer >0)
+			{
+				timer -= deltaTime;
 				consecutiveValue += value;
-
 				float rangedDMG = player->GetBaseRangedMulitplier();
 				float meleeDMG = player->GetBaseMeleeDamageMultiplier();
 				float magicDMG = player->GetBaseMagicMulitplier();
@@ -499,27 +503,12 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 				player->AddNewRangedMulitplier(newRangedDMG);
 				player->AddNewMeleeDamageMultiplier(newMeleeDMG);
 				player->AddNewMagicMulitplier(newMagicDMG);
-
 			}
 			else
 			{
-
-				if (timer >0)
-				{
-					timer -= deltaTime;
-					float rangedDMG = player->GetBaseRangedMulitplier();
-					float meleeDMG = player->GetBaseMeleeDamageMultiplier();
-					float magicDMG = player->GetBaseMagicMulitplier();
-
-					float newRangedDMG = rangedDMG + (consecutiveValue / 100.f);
-					float newMeleeDMG = meleeDMG + (consecutiveValue / 100.f);
-					float newMagicDMG = magicDMG + (consecutiveValue / 100.f);
-
-					player->AddNewRangedMulitplier(newRangedDMG);
-					player->AddNewMeleeDamageMultiplier(newMeleeDMG);
-					player->AddNewMagicMulitplier(newMagicDMG);
-				}
+				consecutiveValue = 0;
 			}
+			
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveDmGFunc = ConsecutiveDmG;
 		return ConsecutiveDmGFunc;
@@ -533,15 +522,18 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			if (condition)
 			{
 				timer = duration;
-
 			}
-			
 			if (timer > 0)
 			{
 				timer -= deltaTime;
 				float AS = player->GetBaseAttackSpeed();
+				consecutiveValue += value;
 				float newAS = AS * (consecutiveValue / 100.f);
 				player->AddNewAttackCooldown(newAS);
+			}
+			else
+			{
+				consecutiveValue = 0;
 			}
 
 			
@@ -559,22 +551,21 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer = duration;
 
+			}
+			
+			if (timer>0)
+			{
+				timer -= deltaTime;
 				consecutiveValue += value;
 				float AD = player->GetBaseMeleeDamageMultiplier();
-				float newAD = AD + (consecutiveValue / 100.f);
+				float newAD = AD * (consecutiveValue / 100.f);
 				player->AddNewMeleeDamageMultiplier(newAD);
-
 			}
 			else
 			{
-				if (timer>0)
-				{
-					timer -= deltaTime;
-					float AD = player->GetBaseMeleeDamageMultiplier();
-					float newAD = AD * (consecutiveValue / 100.f);
-					player->AddNewMeleeDamageMultiplier(newAD);
-				}
+				consecutiveValue = 0;
 			}
+			
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveMeleeDmgFunc = ConsecutiveMeleeDmg;
 		return ConsecutiveMeleeDmgFunc;
@@ -589,21 +580,21 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer = duration;
 
+			}
+	
+			if (timer > 0)
+			{
+				timer -= deltaTime;
 				consecutiveValue += value;
 				float AD = player->GetBaseRangedMulitplier();
-				float newAD = AD + (consecutiveValue / 100.f);
+				float newAD = AD * (consecutiveValue / 100.f);
 				player->AddNewRangedMulitplier(newAD);
 			}
 			else
 			{
-				if (timer > 0)
-				{
-					timer -= deltaTime;
-					float AD = player->GetBaseRangedMulitplier();
-					float newAD = AD * (consecutiveValue / 100.f);
-					player->AddNewRangedMulitplier(newAD);
-				}
+				consecutiveValue = 0;
 			}
+			
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> ConsecutiveRangedDmgFunc = ConsecutiveRangedDmg;
 		return ConsecutiveRangedDmgFunc;

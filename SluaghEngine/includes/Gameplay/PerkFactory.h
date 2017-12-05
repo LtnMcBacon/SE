@@ -71,8 +71,8 @@ namespace SE
 				Intelligence_flat_increase = 9,							// done				
 				Health_flat_increase = 10,								// done
 				Strength_Percent_increase = 11,							// done
-				Agility_Percent_increase = 12,							// done
-				Intelligence_Percent_increase = 13,						// done
+				Intelligence_Percent_increase = 12,						// done
+				Agility_Percent_increase = 13,							// done
 				Health_Percent_increase = 14,							// done
 				//DAMAGE INCREASE
 				Damage_Percent_increase = 15,							// done

@@ -426,16 +426,16 @@ namespace SE
 						description += L"Hälsa adderat: ";
 						break;
 					case 11:
-						description += L"Styrka % ökning: ";
+						description += L"Styrka % : ";
 						break;
 					case 12:
-						description += L"Smidighet % ökning: ";
+						description += L"Intelligens % : ";
 						break;
 					case 13:
-						description += L"Intelligens % ökning: ";
+						description += L"Smidighet % : ";
 						break;
 					case 14:
-						description += L"Hälsa % ökning: ";
+						description += L"Hälsa % : ";
 						break;
 					case 15:
 						description += L"Skada % ökning: ";

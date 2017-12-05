@@ -6,6 +6,7 @@
 #include <KeyBindings.h>
 #include <Items.h>
 #include <Gameplay\PerkFactory.h>
+#include <Gameplay\perkConditionEnum.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -891,6 +892,12 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 	{
 		this->perks.push_back(importPerks[0]);
 		this->perks.push_back(importPerks[1]);
+
+		perkConditions myCond = static_cast<perkConditions>(this->perks[0].intToEnum);
+		perkConditions secondCond = static_cast<perkConditions>(this->perks[1].intToEnum);
+
+		this->perks[0].myCondition = myCond;
+		this->perks[1].myCondition = secondCond;
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
