@@ -880,8 +880,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 	{
 		this->skills.push_back(skills[0]);
 		this->skills.push_back(skills[1]);
-		this->skills.push_back(skills[2]);
+		
 	}
+
 	if (importPerks != nullptr)
 	{
 		this->perks.push_back(importPerks[0]);
