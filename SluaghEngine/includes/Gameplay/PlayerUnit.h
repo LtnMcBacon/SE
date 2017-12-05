@@ -374,7 +374,7 @@ namespace SE
 
 			bool attacking = false;
 			bool isStunned = false;
-			bool attacking = false;
+			
 			float attackSpeed = 5.f;
 			float attackCooldown = 0.f;
 			bool isSluagh = false;
