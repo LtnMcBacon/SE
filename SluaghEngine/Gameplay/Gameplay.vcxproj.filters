@@ -186,9 +186,6 @@
     <ClCompile Include="PlayState.cpp">
       <Filter>Source Files\IGameState\PlayState</Filter>
     </ClCompile>
-    <ClCompile Include="PausState.cpp">
-      <Filter>Source Files\IGameState\PausState</Filter>
-    </ClCompile>
     <ClCompile Include="GameOverState.cpp">
       <Filter>Source Files\IGameState\GameOverState</Filter>
     </ClCompile>
@@ -416,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="OptionState.cpp">
       <Filter>Source Files\IGameState\OptionState</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseState.cpp">
+      <Filter>Source Files\IGameState\PausState</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
