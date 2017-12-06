@@ -543,9 +543,21 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
 			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
 			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+			struct MapEntry
+			{
+				std::string name;
+				float value;
+				bool operator<(const MapEntry& other) const { return name < other.name; };
+			};
+			std::vector<MapEntry> sortedEntries;
 			for (auto& m : map)
 			{
-				ImGui::TextUnformatted(m.first); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+				sortedEntries.push_back({ m.first.c_str(), m.second });
+			}
+			std::sort(sortedEntries.begin(), sortedEntries.end());
+			for (auto& e : sortedEntries)
+			{
+				ImGui::TextUnformatted(e.name.c_str()); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(e.value).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
 			}
 
 
