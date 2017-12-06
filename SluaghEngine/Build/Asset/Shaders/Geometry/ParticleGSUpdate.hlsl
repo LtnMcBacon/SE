@@ -140,13 +140,8 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 				{
 					input[0].velocity = float3(0, 0, 0);
 				}
-				if (input[0].age < 0.25)
-				{
-					input[0].opacity += dt;
-				
-				}
-				else
-					input[0].opacity = 1 - input[0].age/ lifeTime;
+
+				input[0].opacity = 1 - input[0].age/ lifeTime;
 	
 				input[0].pos += input[0].velocity * dt * speed;
 			
