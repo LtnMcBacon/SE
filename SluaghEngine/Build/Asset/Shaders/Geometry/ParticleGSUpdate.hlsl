@@ -108,12 +108,6 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
 			
-		//	if (input[0].age < 0.10)
-		//	{
-		//		input[0].opacity += dt;
-				
-		//	}
-		//	else
 			input[0].opacity = 1 - input[0].age/ lifeTime;
 			if(circular == 1)
 			{
