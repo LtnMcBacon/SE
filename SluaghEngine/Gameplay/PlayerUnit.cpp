@@ -731,9 +731,6 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 			if (pit == ItemType::WEAPON)
 				Item::Unequip(items[currentItem], unitEntity);
 
-			Item::Equip(items[currentItem], unitEntity);
-
-			SetCurrentWeaponStats();
 		}
 
 		Item::Drop(items[slot], p);
@@ -743,12 +740,20 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	if (!isSluagh)
 	{
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
+		Item::Pickup(item);
+	}
+	else
+	{
+		Item::GodPickup(item);
 	}
 
-	Item::Pickup(item);
 	items[slot] = item;
-	
-
+	if (itype == ItemType::WEAPON)
+	{
+		currentItem = slot;
+		Item::Equip(items[currentItem], unitEntity);
+		SetCurrentWeaponStats();
+	}
 	StopProfile;
 }
 

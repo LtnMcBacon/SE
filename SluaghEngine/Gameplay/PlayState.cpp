@@ -978,7 +978,6 @@ void PlayState::InitializePlayer(void* playerInfo)
 
 				auto startWeapon = Item::Weapon::Create(Item::Weapon::Type(std::rand() % 3));
 				player->AddItem(startWeapon, 0);
-				Item::Equip(player->GetEntity(), startWeapon);
 				//auto wc = Item::Copy(startWeapon);
 				//player->AddItem(wc, 1);
 				//auto pot = Item::Consumable::Create();
