@@ -81,7 +81,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.startEmitPos = input[0].pos;
 			particle.velocity = float3(velocityVec.x, velocityVec.y, velocityVec.z);
 			particle.size = pSize;
-			particle.opacity = 0.0f;
+			particle.opacity = 0.85f;
 			particle.age = 0.0f;
 			particle.type = 1;
 			particle.bloom = bloomCheck;
@@ -108,7 +108,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
 			
-			if (input[0].age < 0.25)
+			if (input[0].age < 0.15)
 			{
 				input[0].opacity += dt;
 				

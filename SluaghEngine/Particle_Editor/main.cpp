@@ -437,7 +437,7 @@ int main()
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 10.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.1f, 1.0f);
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.1f, 5.0f);
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
