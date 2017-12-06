@@ -56,6 +56,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 	paused = false;
 	running = true;
+	buttonsExist = false;
 }
 
 void SE::Gameplay::Game::Run()
@@ -67,11 +68,11 @@ void SE::Gameplay::Game::Run()
 	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	//!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME))
 
-	/*auto quitGame = [this]()->void
+	auto quitGame = [this]()->void
 	{
 		this->running = false;
 	};
-	std::function<void()> shutDown = quitGame;*/
+	std::function<void()> shutDown = quitGame;
 
 	while (running)
 	{
@@ -79,8 +80,13 @@ void SE::Gameplay::Game::Run()
 
 		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 		{
-			//paused = !paused;
-			running = false;
+			if (paused == true)
+			{
+				fileParser.GUIButtons.DeleteButtons();
+				buttonsExist = false;
+			}
+			paused = !paused;
+			//running = false;
 		}
 
 		if (!paused)
@@ -159,8 +165,13 @@ void SE::Gameplay::Game::Run()
 
 		}
 		else {
-			/*fileParser.GUIButtons.CreateButton(500, 500, 150, 50, 1, "ShutdownButton", shutDown);
-			fileParser.GUIButtons.DrawButtons();*/
+			if (!buttonsExist)
+			{
+				fileParser.GUIButtons.CreateButton(500, 90, 150, 50, 1, "ResumeButton", shutDown);
+				fileParser.GUIButtons.CreateButton(500, 200, 150, 50, 1, "ShutdownButton", shutDown);
+				fileParser.GUIButtons.DrawButtons();
+				buttonsExist = true;
+			}
 		}
 			CoreInit::engine->EndFrame();
 	}
