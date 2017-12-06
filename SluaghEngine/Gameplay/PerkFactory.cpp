@@ -633,8 +633,10 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 					float newCD = currentCooldown * (value / 100.f);
 					float newCD2 = currentCooldown2 * (value / 100.f);
 
-					player->SetCooldown(0, newCD);
-					player->SetCooldown(1, newCD2);
+					float skill1CD = newCD + currentCooldown;
+					float skill2CD = newCD2 + currentCooldown2;
+					player->SetCooldown(0, skill1CD);
+					player->SetCooldown(1, skill2CD);
 					skillCD = true;
 				}
 			}
