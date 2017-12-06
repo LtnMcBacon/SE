@@ -92,10 +92,14 @@ namespace SE
 			Core::Entity dummy;
 			Core::Entity usePrompt;
 			Core::Entity returnPrompt;
+			Core::Entity aimDecal;
+			uint32_t dummyBoxJobID;
 			PlayerUnit* player;
 
 			uint8_t worldWidth;
 			uint8_t worldHeight;
+
+			void UpdateAimDecal();
 
 
 			inline std::optional<Room*> GetRoom(int x, int y)
