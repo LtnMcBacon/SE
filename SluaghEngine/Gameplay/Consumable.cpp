@@ -51,7 +51,7 @@ void SE::Gameplay::Item::Consumable::CreateMeta(Core::Entity ent)
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 5;
 	icon.textureInfo.posY = -60;
-	icon.textureInfo.layerDepth = 0;
+	icon.textureInfo.layerDepth = 1;
 
 	CoreInit::managers.guiManager->Create(ent, icon);
 }

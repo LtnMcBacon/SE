@@ -748,6 +748,7 @@ namespace SE
 				ButtonGuiManager.texture = ButtonElement.textName;
 				
 				CoreInit::managers.guiManager->Create(entity, ButtonGuiManager);
+				//CoreInit::managers.guiManager->SetTextureLayerDepth(entity, 1);
 
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
 

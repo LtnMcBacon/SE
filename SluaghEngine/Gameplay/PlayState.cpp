@@ -904,7 +904,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	indicatorInfo.textureInfo.posY = 600;
 	indicatorInfo.textureInfo.height = 100;
 	indicatorInfo.textureInfo.width = 100;
-	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.layerDepth = 0.1;
 	indicatorInfo.textureInfo.anchor = {0.0f, 0.0f};
 
 	SE::Core::ITextManager::CreateInfo textInfo;
