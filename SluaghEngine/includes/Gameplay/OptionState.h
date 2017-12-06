@@ -50,6 +50,7 @@ namespace SE
 			IGameState::State CurrentState = State::OPTION_STATE;
 		private:
 			bool fullscreen = false;
+			bool wasFullscreen = false;
 			float masterVol = 0;
 			float effectVol = 0;
 			float voiceVol = 0;

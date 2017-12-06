@@ -57,8 +57,9 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 		{
 			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 40, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
 		}
-		
 	}
+
+	
 	fileParser.GUIButtons.DrawButtons();
 
 	this->input = Input;

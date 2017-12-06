@@ -5,6 +5,7 @@
 #include <Gameplay\PerkImporter.h>
 #include <string>
 #include <vector>
+#include <Gameplay\PerkFactory.h>
 //#include <SkillFactory.h>
 //#include <PlayerUnit.h>
 #include <Gameplay\Skill.h>
@@ -49,6 +50,7 @@ namespace SE
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
 			PerkImporter perks;
+			PerkFaktory Pfactory;
 			/*void SkillBtns(int nrOfSkills);
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
@@ -86,23 +88,49 @@ namespace SE
 				"Kasta_Sten.HuD"
 			};
 
-			std::string perkButtonFiles[5]
+			std::string perkButtonFiles[18]
 			{
-				"Fire_Resistance.HuD",
-				"Life_Steal.HuD",
-				"Melee_Damage.HuD",
-				"Range_Damage.HuD",
-				"Stat_Increase.HuD"
+				"Krigs_herre.HuD",
+				"Tom_i_skallen.HuD",
+				"Bokmal.HuD",
+				"Bumling.HuD",
+				"Eldig.HuD",
+				"Frostig.HuD",
+				"Trollformel_kastare.HuD",
+				"Heta_grejer.HuD",
+				"Mitt_i_prick.HuD",
+				"Dunkel_ande.HuD",
+				"Nulifiera.HuD",
+				"Oljad_blixt.HuD",
+				"Rocka_och_rulla.HuD",
+				"Som_fisken_i_vattnet.HuD",
+				"Veva_upp.HuD",
+				"Vulkan.HuD",
+				"Masochism.HuD",
+				"Tunga_slag.HuD"
 				
 			};
 
-			std::string Perkfiles[5]
+			std::string Perkfiles[18]
 			{
-				 "Fire_Resistance.prk",
-				 "Life_Steal.prk",
-				 "Melee_Damage.prk",
-				 "Range_Damage.prk",
-				 "Stat_Increase.prk"
+				 "Krigs_herre.prk",
+				 "Tom_i_skallen.prk",
+				 "Bokmal.prk",
+				 "Bumling.prk",
+				 "Eldig.prk",
+				 "Frostig.prk",
+				 "Trollformel_kastare.prk",
+				 "Heta_grejer.prk",
+				 "Mitt_i_prick.prk",
+				 "Dunkel_ande.prk",
+				 "Nulifiera.prk",
+				 "Oljad_blixt.prk",
+				 "Rocka_och_rulla.prk",
+				 "Som_fisken_i_vattnet.prk",
+				 "Veva_upp.prk",
+				 "Vulkan.prk",
+				 "Masochism.prk",
+				 "Tunga_slag.prk"
 			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;

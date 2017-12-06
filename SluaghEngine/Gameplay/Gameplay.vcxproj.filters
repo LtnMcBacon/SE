@@ -157,6 +157,12 @@
     <Filter Include="Header Files\IGameState\OptionState">
       <UniqueIdentifier>{1b3a5f1c-13db-4933-9640-ecc88ec0289a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Button_class">
+      <UniqueIdentifier>{4e642f92-1f40-45bc-b7f1-7671e6a9a300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Button_class">
+      <UniqueIdentifier>{9d86e402-1478-400b-9035-9d4454a9c258}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -321,12 +327,6 @@
     <ClCompile Include="SkillFactory.cpp">
       <Filter>Source Files\Skills</Filter>
     </ClCompile>
-    <ClCompile Include="HUD_Parsing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HUD_Functionality.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AnimationLeaf.cpp">
       <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClCompile>
@@ -413,6 +413,15 @@
     </ClCompile>
     <ClCompile Include="OptionState.cpp">
       <Filter>Source Files\IGameState\OptionState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\Gameplay\Perk.cpp">
+      <Filter>Source Files\Perks</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_Parsing.cpp">
+      <Filter>Source Files\Button_class</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_Functionality.cpp">
+      <Filter>Source Files\Button_class</Filter>
     </ClCompile>
     <ClCompile Include="PauseState.cpp">
       <Filter>Source Files\IGameState\PausState</Filter>
@@ -569,9 +578,6 @@
     <ClInclude Include="..\includes\Gameplay\Game.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StunnedCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
     </ClInclude>
@@ -608,12 +614,6 @@
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h">
       <Filter>Header Files\Skills</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
@@ -631,12 +631,6 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
-      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\PerkData.h">
       <Filter>Header Files\Perks</Filter>
@@ -718,6 +712,24 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\WinState.h">
       <Filter>Header Files\IGameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\perkConditionEnum.h">
+      <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Perk.h">
+      <Filter>Header Files\Perks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\HUD_Parsing.h">
+      <Filter>Header Files\Button_class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\HUD_Functionality.h">
+      <Filter>Header Files\Button_class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
