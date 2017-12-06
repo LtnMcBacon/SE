@@ -65,7 +65,7 @@
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="OptionState.cpp" />
     <ClCompile Include="PauseAnimationsLeaf.cpp" />
-    <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
     <ClCompile Include="PerkFactory.cpp" />
