@@ -53,15 +53,15 @@ namespace SE
 			}
 			inline static int GetRandStr()
 			{
-				return std::rand() % (MAX_STR + 1) - MAX_STR;
+				return std::rand() % (MAX_STR + 1) - MAX_STR/2;
 			}
 			inline static int GetRandAgi()
 			{
-				return std::rand() % (MAX_AGI + 1) - MAX_AGI;
+				return std::rand() % (MAX_AGI + 1) - MAX_AGI/2;
 			}
 			inline static int GetRandWil()
 			{
-				return std::rand() % (MAX_WHI + 1) - MAX_WHI;
+				return std::rand() % (MAX_WHI + 1) - MAX_WHI/2;
 			}
 			inline static int GetRandHealth()
 			{

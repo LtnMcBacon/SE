@@ -1078,7 +1078,10 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 	skills[1].skillName = std::string("");
 
 	for (int i = 0; i < MAX_ITEMS; i++)
+	{
 		items[i] = Item::Create(input);
+
+	}
 
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
