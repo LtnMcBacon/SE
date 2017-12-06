@@ -31,6 +31,12 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		currentRoom->RemoveEnemyFromRoom(nullptr);
 	}, "kill","Kill all enemies");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		static bool render = true;
+		render = !render;
+		currentRoom->ToggleRenderingOfWallsAndFloor(render);
+	}, "twf", "Stop rendering walls and floor for room.");
 
 
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
@@ -779,8 +785,8 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 				xOffset = -1;
 			}
-			enemyPos.x = x + 0.5f;
-			enemyPos.y = y -0.5f;
+			enemyPos.x = x;// +0.5f;
+			enemyPos.y = y;// -0.5f;
 	
 			EnemyCreationData data;
 			if (counter < 1)
@@ -961,7 +967,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
-	CoreInit::managers.transformManager->Move(cam, -15 * cameraTranslation);
+	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
 	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
 	//Create a default light

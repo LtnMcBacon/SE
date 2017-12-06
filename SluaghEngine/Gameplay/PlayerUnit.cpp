@@ -698,33 +698,34 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 	
+	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
+	{
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+		if (currentItem == slot)
+		{
+			auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (pit == ItemType::WEAPON)
+				Item::Unequip(items[currentItem], unitEntity);
+
+			Item::Equip(items[currentItem], unitEntity);
+
+			SetCurrentWeaponStats();
+		}
+
+		Item::Drop(items[slot], p);
+
+	}
+		
 	if (!isSluagh)
 	{
-		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-
-		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-		if (isitem != -1)
-		{
-			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-			p.y = 0;
-			if (currentItem == slot)
-			{
-				auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-				if (pit == ItemType::WEAPON)
-					Item::Unequip(items[currentItem], unitEntity);
-
-				Item::Equip(items[currentItem], unitEntity);
-
-				SetCurrentWeaponStats();
-			}
-
-			Item::Drop(items[slot], p);
-
-		}
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
-		Item::Pickup(item);
 	}
 
+	Item::Pickup(item);
 	items[slot] = item;
 	
 

@@ -169,7 +169,7 @@ namespace SE
 			};
 
 		public:
-
+			void ToggleRenderingOfWallsAndFloor(bool toggle);
 			enum class DirectionToAdjacentRoom
 			{
 

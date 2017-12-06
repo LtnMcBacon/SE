@@ -2226,6 +2226,14 @@ bool SE::Gameplay::Room::CheckPropAgainstWall(int x, int y, int propId, std::str
 	return besideWall;
 }
 
+void SE::Gameplay::Room::ToggleRenderingOfWallsAndFloor(bool toggle)
+{
+	for (int x = 0; x < 25; x++)
+		for (int y = 0; y < 25; y++)
+			for (auto& e : roomEntities[x][y])
+				CoreInit::managers.eventManager->ToggleVisible(e, toggle);
+}
+
 void Room::CloseDoor(SE::Gameplay::Room::DirectionToAdjacentRoom DoorNr)
 {
 	if (DoorArr[size_t(DoorNr)].active)
