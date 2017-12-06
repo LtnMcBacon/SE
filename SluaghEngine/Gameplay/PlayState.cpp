@@ -154,7 +154,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	InitializeRooms();
 	InitializePlayer(passedInfo);
 	InitializeOther();
-	InitializeEnemies();
+	//InitializeEnemies();
 
 	/* Play sounds */
 	currentSound = 0u;
