@@ -91,7 +91,7 @@ void SE::Gameplay::Game::Run()
 
 		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 		{
-			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE)
+			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE || SE::Gameplay::IGameState::State::OPTION_STATE || SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 			{
 				if (paused == true)
 				{
