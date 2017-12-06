@@ -32,7 +32,7 @@ namespace SE
 			int DestroyIndexBuffer(const Utilz::GUID& id) override;
 			int DestroyVertexBuffer(const Utilz::GUID& id) override;
 
-			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport) override;
 
 			int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
