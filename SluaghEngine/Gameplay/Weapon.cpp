@@ -41,12 +41,13 @@ static const std::vector<std::vector<ProjectileInfo>> projectiles =
 
 	{
 		{ 1.0f, "CrossbowAttack.SEP" },
-		{ 1.0f, "CrossbowAttack.SEP" }
+		{ 10.0f, "BoomerangArrow.SEP" },
+		{ 0.5f, "TripleArrow.SEP" }
 	},
-
 	{
+		{ 0.75f, "TronWand.SEP" },
 		{ 1.0f, "WandAttack.SEP" },
-		{ 1.0f, "WandAttack.SEP" }
+		{ 0.25f, "WandVortex.SEP" }
 	}
 };
 
