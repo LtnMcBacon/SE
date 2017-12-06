@@ -382,11 +382,11 @@ int main()
 		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
-		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
+		ImGui::InputFloat2("Emit range X", &emitRangeX[0]);
+		ImGui::InputFloat2("Emit range Y", &emitRangeY[0]);
+		ImGui::InputFloat2("Emit range Z", &emitRangeZ[0]);
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
-		ImGui::SliderFloat("Emit X", &movBuffer.emitPos[0], -5.0, 5.0f);
+	//	ImGui::SliderFloat("Emit X", &movBuffer.emitPos[0], -5.0, 5.0f);
 	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
 		if (ImGui::Button("Reset Sliders"))
