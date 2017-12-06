@@ -62,6 +62,12 @@ namespace SE
 				float maxCooldown;
 			}skillIndicators[2];
 
+			struct MiniMap {
+
+				Core::Entity map;
+				Core::Entity frame;
+			};
+
 			void InitializeRooms();
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
@@ -71,6 +77,8 @@ namespace SE
 			void CreateFlowFieldRendering();
 			void DestroyFlowFieldRendering();
 			void UpdateFlowFieldRendering();
+
+			void CreateMiniMap(const int width, const int height);
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
@@ -100,7 +108,6 @@ namespace SE
 			uint8_t worldHeight;
 
 			void UpdateAimDecal();
-
 
 			inline std::optional<Room*> GetRoom(int x, int y)
 			{
@@ -136,6 +143,7 @@ namespace SE
 			float soundTime = 0.0f;
 			SE::Utilz::GUID sounds[3];
 
+			MiniMap miniMap;
 			bool noShow = false;
 			bool deathSequence = false;
 			float deathTimer = 0.0f;

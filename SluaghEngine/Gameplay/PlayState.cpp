@@ -166,6 +166,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	InitializePlayer(passedInfo);
 	InitializeOther();
 	InitializeEnemies();
+	CreateMiniMap(100, 70);
 
 	/* Play sounds */
 	currentSound = 0u;
@@ -1287,6 +1288,29 @@ void PlayState::UpdateFlowFieldRendering()
 			
 		}
 	StopProfile;
+}
+
+void PlayState::CreateMiniMap(const int width, const int height) {
+
+	// Create the entity for the mini map frame
+	miniMap.map = CoreInit::managers.entityManager->Create();
+
+	// Create the information for the minimap entities
+	Core::IGUIManager::CreateInfo miniMapInfo;
+	miniMapInfo.texture = "MiniMap.jpg";
+	miniMapInfo.textureInfo.colour = XMFLOAT4{ 0.0f, 0.0f, 0.0f, 0.5f };
+	miniMapInfo.textureInfo.posX = 0.0f - 10.0f;
+	miniMapInfo.textureInfo.posY = 0.0f;
+	miniMapInfo.textureInfo.height = height;
+	miniMapInfo.textureInfo.width = width;
+	miniMapInfo.textureInfo.anchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.layerDepth = 0.011f;
+
+	// Create the GUI element
+	CoreInit::managers.guiManager->Create(miniMap.map, miniMapInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.map, true);
+
 }
 
 IGameState::State PlayState::Update(void*& passableInfo)
