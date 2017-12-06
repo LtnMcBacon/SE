@@ -19,6 +19,7 @@ namespace SE
 			PlayerUnit::ActionInput previousAction;
 			SluaghRoom* room;
 			float distanceToPlayer;
+			float actionCooldown = 0.f;
 
 			Sluagh() = delete;
 		public:
