@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Gameplay\Perk.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
     <ClCompile Include="AddTimeToSecondaryAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
@@ -65,7 +66,7 @@
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
     <ClCompile Include="OptionState.cpp" />
     <ClCompile Include="PauseAnimationsLeaf.cpp" />
-    <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
     <ClCompile Include="PerkFactory.cpp" />
@@ -154,6 +155,8 @@
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\Perk.h" />
+    <ClInclude Include="..\includes\Gameplay\perkConditionEnum.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
     <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
@@ -200,7 +203,6 @@
     <ClInclude Include="..\includes\Gameplay\Weapon.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\WinState.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

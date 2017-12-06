@@ -91,7 +91,7 @@ bool SE::Test::PlayerMovementTest::Run(SE::DevConsole::IConsole* console)
 	char map[25][25];
 	testRoom->GetMap(map);
 
-	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr, nullptr, 1.5f, 1.5f, map);
+	Gameplay::PlayerUnit* player = new Gameplay::PlayerUnit(nullptr,nullptr, 1.5f, 1.5f, map);
 
 
 

@@ -24,6 +24,7 @@ namespace SE
 
 			int MergeHandlers(IPipelineHandler* other) override;
 
+			int CreateVertexShaderFromSource(const Utilz::GUID& id, const std::string& sourceCode, const std::string& entrypoint, const std::string& shaderModel) override;
 			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
@@ -31,7 +32,7 @@ namespace SE
 			int DestroyIndexBuffer(const Utilz::GUID& id) override;
 			int DestroyVertexBuffer(const Utilz::GUID& id) override;
 
-			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport) override;
 
 			int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;

@@ -1638,20 +1638,32 @@ float Room::RotatePainting(int x, int y) {
 	ProfileReturnConst(rotation);
 
 }
-float Room::WallCheck(int x, int y)
+float Room::WallCheck(int x, int y, float &retX, float &retZ)
 {
 	StartProfile;
 	float rotation = 0;
 
 
-	if (x - 1 >= 0 && ( tileValues[x - 1][y] == id_Wall || tileValues[x - 1][y] == id_Pillar  ))
+	if (x - 1 >= 0 && (tileValues[x - 1][y] == id_Wall || tileValues[x - 1][y] == id_Pillar)) {
+		retX = 0.40;
+		retZ = 0.50;
 		rotation = 180;
-	else if (y - 1 >= 0 && ( tileValues[x][y - 1] == id_Wall || tileValues[x][y - 1] == id_Pillar))
+	}
+	else if (y - 1 >= 0 && (tileValues[x][y - 1] == id_Wall || tileValues[x][y - 1] == id_Pillar)) {
+		retX = 0.50;
+		retZ = 0.40;
 		rotation = 90;																
-	else if (y + 1 < 25 && ( tileValues[x][y + 1] == id_Wall || tileValues[x][y + 1] == id_Pillar))
+	}
+	else if (y + 1 < 25 && (tileValues[x][y + 1] == id_Wall || tileValues[x][y + 1] == id_Pillar)) {
+		retX = 0.50;
+		retZ = 0.60;
 		rotation = -90;																
-	else if (x + 1 < 25 && ( tileValues[x + 1][y] == id_Wall || tileValues[x + 1][y] == id_Pillar))
+	}
+	else if (x + 1 < 25 && (tileValues[x + 1][y] == id_Wall || tileValues[x + 1][y] == id_Pillar)) {
+		retX = 0.60;
+		retZ = 0.50;
 		rotation = 0;
+	}
 
 
 	rotation += 270;
@@ -1853,6 +1865,17 @@ void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 	roomEntities[args.x][args.y].push_back(entWindow);
 
 }
+
+bool Room::IsWall(int x, int y) const
+{
+	if(x < 25 && x >= 0 && y < 25 && y >= 0)
+	{
+		if (tileValues[x][y] == id_Wall)
+			return true;
+	}
+	return false;
+}
+
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
 	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
@@ -1959,8 +1982,13 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 {
 	auto entFire = CoreInit::managers.entityManager->Create();
+
+	float x;
+	float z;
+
+	auto ignoreMe = WallCheck(args.x, args.y, x, z);
 	CoreInit::managers.transformManager->Create(entFire);
-	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.x + 0.41, 2.18f, args.y + 0.48));
+	CoreInit::managers.transformManager->SetPosition(entFire, DirectX::XMFLOAT3(args.x + x, 2.18f, args.y + z));
 	SE::Core::IParticleSystemManager::CreateInfo info;
 	info.systemFile = Utilz::GUID("torchFlame.pts");
 	CoreInit::managers.particleSystemManager->CreateSystem(entFire, info);
@@ -1979,7 +2007,7 @@ void SE::Gameplay::Room::CreateTorch(CreationArguments &args)
 	matInfo.materialFile = Materials[Materials::FloorStone];
 	matInfo.shader = Norm;
 	CoreInit::managers.materialManager->Create(args.ent, matInfo);
-	CoreInit::managers.transformManager->SetRotation(args.ent, 0, WallCheck(args.x, args.y), 0);
+	CoreInit::managers.transformManager->SetRotation(args.ent, 0, WallCheck(args.x, args.y, x, z), 0);
 	CoreInit::managers.renderableManager->CreateRenderableObject(args.ent, { Meshes[Meshes::Torch] });
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(args.ent, true);
 

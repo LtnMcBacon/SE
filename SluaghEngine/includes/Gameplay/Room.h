@@ -579,7 +579,7 @@ namespace SE
 			/**
 			* @brief	Checks the wall to rotate the torch in that direction
 			*/
-			float WallCheck(int x, int y);
+			float WallCheck(int x, int y, float &retX, float &retZ);
 
 			/**
 			* @brief	Generates random props
@@ -687,6 +687,9 @@ namespace SE
 					}
 				}
 			}
+
+			bool IsWall(int x, int y) const;
+
 			bool beingRendered = false;
 			bool loaded = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };
