@@ -308,7 +308,7 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 
 void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
 {
-	this->newStat.movementSpeed = speed;
+	this->baseStat.movementSpeed = speed;
 }
 
 void SE::Gameplay::PlayerUnit::Suicide()
