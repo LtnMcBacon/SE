@@ -42,6 +42,11 @@ void SE::Core::ImGuiConsole::Toggle()
 	showConsole = !showConsole;
 }
 
+bool SE::Core::ImGuiConsole::IsVisible()
+{
+	return showConsole;
+}
+
 void SE::Core::ImGuiConsole::BeginFrame()
 {
 	ImGuiDX11SDL_NewFrame();
