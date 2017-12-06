@@ -299,8 +299,73 @@ static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& er
 	if (!(r.state & SE::ResourceHandler::State::LOADING))
 		error = false;
 };
+static const auto linearEvict = [](auto& map, auto& out)
+{
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			out.push_back(resource.first);
+		}
+	}
+};
 
-int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job)
+template<class COMP, class KEY, class VAL>
+void insert(std::vector<KEY> &sortArray, KEY key, std::vector<VAL> &valueArray, VAL value) {
+	std::vector<KEY>::iterator it = std::lower_bound(sortArray.begin(), sortArray.end(), key, COMP()); // find proper position in descending order
+	it = sortArray.insert(it, key); // insert before iterator it
+	auto pos = it - sortArray.begin();
+	valueArray.insert(valueArray.begin() + pos, value); // insert before iterator it
+}
+
+static const auto fifoEvict = [](auto& map, auto& out)
+{
+	std::vector<std::chrono::high_resolution_clock::time_point> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::less<std::chrono::high_resolution_clock::time_point>>(sortArr, resource.second.loadedAt, out, resource.first);
+		}
+	}
+};
+
+static const auto lifoEvict = [](auto& map, auto& out)
+{
+	std::vector<std::chrono::high_resolution_clock::time_point> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::greater<std::chrono::high_resolution_clock::time_point>>(sortArr, resource.second.loadedAt, out, resource.first);
+		}
+	}
+};
+
+static const auto randomEvict = [](auto& map, auto& out)
+{
+	linearEvict(map, out);
+	std::random_shuffle(out.begin(), out.end());
+};
+
+static const auto lufoEvict = [](auto& map, auto& out)
+{
+	std::vector<size_t> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::less<size_t>>(sortArr, resource.second.timesLoaded, out, resource.first);
+		}
+	}
+};
+static const auto mufoEvict = [](auto& map, auto& out)
+{
+	std::vector<size_t> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::greater<size_t>>(sortArr, resource.second.timesLoaded, out, resource.first);
+		}
+	}
+};
+int SE::ResourceHandler::ResourceHandler::Load(entryMap& map, const EvictInfo& evictInfo, LoadJob job)
 {
 
 	// Do some checks
@@ -331,7 +396,22 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	{
 		errors.Push_Back("Unloading stuff. Limit: " + std::to_string(toMB(limit)) + "mb, Current: " + std::to_string(toMB(total))+ "mb");
 		auto needed = total - limit;
-		EvictResources(map, rawData.size, needed);	
+
+		std::vector<Utilz::GUID> order;
+		if(evictInfo.nloadingStrategy == EvictPolicy::LINEAR)
+			Utilz::Operate(map, linearEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::FIFO)
+			Utilz::Operate(map, fifoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::LIFO)
+			Utilz::Operate(map, lifoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::RANDOM)
+			Utilz::Operate(map, randomEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::LEST_USED)
+			Utilz::Operate(map, lufoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::MOST_USED)
+			Utilz::Operate(map, mufoEvict, order);
+
+		EvictResources(map, order, needed);
 		errors.Push_Back("Current after: " + std::to_string(toMB(evictInfo.getCurrentMemoryUsage())));
 	}
 
@@ -367,6 +447,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 
 				error = true;
 			}
+			
 		});
 		if (error)
 		{
@@ -378,10 +459,13 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	{
 		data = rawData;
 	}
+	
 	}
 	{
 		Utilz::OperateSingle(map, job.guid, [&job, data](auto& resource)
 		{
+			resource.loadedAt = std::chrono::high_resolution_clock::now();
+			resource.timesLoaded++;
 			resource.state = resource.state ^ State::LOADING | State::LOADED;
 			if (!job.callbacks.destroyCallback)
 				resource.state |= State::RAW;
@@ -407,15 +491,8 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 
 	return 0;
 }
-static const auto linearEvict = [](auto& map, auto& out)
-{
-	for (auto& resource : map) {
-		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) &&  resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
-		{
-			out.push_back(resource.first);
-		}
-	}
-};
+
+
 
 static const auto evictResources = [](auto& map, auto& order, size_t needed, size_t& total, size_t& count)
 {
@@ -443,12 +520,9 @@ static const auto evictResources = [](auto& map, auto& order, size_t needed, siz
 
 };
 
-void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed)
+void SE::ResourceHandler::ResourceHandler::EvictResources(entryMap& map,
+	const std::vector<Utilz::GUID>& order, size_t needed)
 {
-	int i = 0;
-	std::vector<Utilz::GUID> order;
-	Utilz::Operate(map, linearEvict, order);
-
 	if (order.size())
 	{
 		size_t count = 0;

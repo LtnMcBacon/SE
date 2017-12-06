@@ -8,6 +8,16 @@ namespace SE
 {
 	namespace Gameplay
 	{
+		enum EnemyType
+		{
+			ENEMY_TYPE_BODACH,
+			ENEMY_TYPE_GLAISTIG,
+			ENEMY_TYPE_NUCKELAVEE,
+			/*ENEMY_TYPE_PECH_MELEE,
+			ENEMY_TYPE_PECH_RANGED,*/
+			ENEMY_TYPE_RANDOM
+		};
+
 		class FlowField;
 		class BehaviouralTree;
 		struct EnemyBlackboard;
@@ -136,6 +146,11 @@ namespace SE
 				myBlackboard = blackboard;
 			}
 
+			inline EnemyBlackboard* GetEnemyBlackboard()
+			{
+				return myBlackboard;
+			}
+
 			inline void SetBehaviouralTree(BehaviouralTree* behaviouralTree)
 			{
 				myBehaviouralTree = behaviouralTree;
@@ -151,9 +166,13 @@ namespace SE
 				return myRoom;
 			}
 
-			float GetMaxHealth() const
+			inline float GetMaxHealth() const
 			{
 				return maxHealth;
+			}
+			inline EnemyType GetType()const
+			{
+				return myType;
 			}
 
 		private:
@@ -173,13 +192,14 @@ namespace SE
 			float extraSampleCoords[2] = {};
 			float previousMovement[2] = {};
 			int sample = 0;
-
+			EnemyType myType;
 			bool deathAnimationPlaying = false;
 			Utilz::GUID deathAnimation;
 
 		public:
+
 			//EnemyUnit(); <- Create a "real" constructor
-			EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth);
+			EnemyUnit(EnemyType myType, const FlowField* roomFlowField, float xPos, float yPos, float maxHealth);
 			~EnemyUnit();
 		};
 
