@@ -99,6 +99,7 @@ void SE::Gameplay::Game::Run()
 					buttonsExist = false;
 				}
 				paused = !paused;
+				CoreInit::subSystems.window->ToggleCursor(true);
 
 			}
 			else {
