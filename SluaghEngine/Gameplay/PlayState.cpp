@@ -179,11 +179,11 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	CoreInit::managers.audioManager->SetCameraEnt(CoreInit::managers.cameraManager->GetActive());
 
 
-	sluaghRoomX = worldWidth - 1;
-	sluaghRoomY = worldHeight - 1;
-	/*Initialize Sluagh*/
-	delete rooms[sluaghRoomX * worldHeight + sluaghRoomY];
-	rooms[sluaghRoomX * worldHeight  + sluaghRoomY] = new SluaghRoom("Room18.room", player, projectileManager);
+	//sluaghRoomX = worldWidth - 1;
+	//sluaghRoomY = worldHeight - 1;
+	///*Initialize Sluagh*/
+	//delete rooms[sluaghRoomX * worldHeight + sluaghRoomY];
+	//rooms[sluaghRoomX * worldHeight  + sluaghRoomY] = new SluaghRoom("Room18.room", player, projectileManager);
 
 
 	for (int x = 0; x < worldWidth; x++)
@@ -203,13 +203,13 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	}
 
 
-	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	/*GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
 	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
 	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
 	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
 
 	CloseDoorsToRoom(sluaghRoomX, sluaghRoomY);
-
+*/
 	currentRoom->Load();
 	auto enemiesInRoom = currentRoom->GetEnemiesInRoom();
 	for (auto enemy : enemiesInRoom)
@@ -1246,7 +1246,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		}
 		
 	}
-	if (!sluaghDoorsOpen)
+	/*if (!sluaghDoorsOpen)
 	{
 		int totalEnemiesLeft = 0;
 		for (int x = 0; x < worldWidth; x++)
@@ -1271,7 +1271,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 
 		}
-	}
+	}*/
 
 
 	PlayerUnit::MovementInput movementInput(false, false, false, false, false, 0.0f, 0.0f);
@@ -1314,7 +1314,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateHUD(dt);
 
 	
-	if(sluaghDoorsOpen)
+	/*if(sluaghDoorsOpen)
 	{
 		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
 		if(sluaghRoom)
@@ -1335,7 +1335,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 				out.close();
 			}
 		}
-	}
+	}*/
 	if (!player->IsAlive() && deathSequence == false) {
 
 		deathSequence = true;
