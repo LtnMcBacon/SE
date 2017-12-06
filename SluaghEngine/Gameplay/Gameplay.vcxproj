@@ -203,7 +203,6 @@
     <ClInclude Include="..\includes\Gameplay\Weapon.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\WinState.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="CoreInit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

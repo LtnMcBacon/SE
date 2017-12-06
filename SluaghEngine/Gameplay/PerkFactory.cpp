@@ -52,7 +52,7 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 				{
 					if (Event.type == DamageType::PHYSICAL)
 					{
-						int reduced = Event.amount *(value / 100);
+						float reduced = Event.amount *(value / 100.f);
 						Event.amount -= reduced;
 					}
 				}
