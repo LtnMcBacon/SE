@@ -234,6 +234,52 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
 
+	struct
+	{
+		float x, y, z;
+	} vertices[4];
+	
+	vertices[0].x = -100.0f; vertices[0].y = -0.01f; vertices[0].z = -100.0f;
+	vertices[1].x = -100.0f; vertices[1].y = -0.01f; vertices[1].z = 100.0f;
+	vertices[2].x = 100.0f; vertices[2].y = -0.01f; vertices[2].z = -100.0f;
+	vertices[3].x = 100.0f; vertices[3].y = -0.01f; vertices[3].z = 100.0f;
+
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("DummyPlane", vertices, 4, sizeof(float) * 3, false);
+	const std::string dummyShader = "cbuffer OncePerFrame : register(b1)\
+	{\
+		float4x4 View;\
+		float4x4 ViewProj;\
+	};\
+	\
+	struct VS_IN\
+	{\
+		float3 Pos : POSITION;\
+	};\
+	\
+	struct VS_OUT\
+	{\
+		float4 Pos : SV_Position;\
+	};\
+	\
+	VS_OUT VS_main(VS_IN input)\
+	{\
+		VS_OUT output = (VS_OUT)0;\
+		output.Pos = mul(float4(input.Pos, 1.0f), ViewProj);\
+		return output;\
+	}";
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexShaderFromSource("DummyPlaneVS.hlsl", dummyShader, "VS_main", "vs_5_0");
+	Graphics::RenderJob dummyJob;
+	dummyJob.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
+	dummyJob.pipeline.IAStage.inputLayout = "DummyPlaneVS.hlsl";
+	dummyJob.pipeline.IAStage.vertexBuffer = "DummyPlane";
+	dummyJob.pipeline.VSStage.shader = "DummyPlaneVS.hlsl";
+	dummyJob.pipeline.OMStage.renderTargetCount = 1;
+	dummyJob.pipeline.OMStage.renderTargets[0] = "backbuffer";
+	dummyJob.pipeline.OMStage.depthStencilView = "backbuffer";
+	dummyJob.vertexCount = 4;
+	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
+
+
 	ProfileReturnVoid;
 }
 
@@ -241,6 +287,9 @@ PlayState::~PlayState()
 {
 	StartProfile;
 
+	//Show the cursor again if we exit the playstate
+	CoreInit::subSystems.window->ToggleCursor(true);
+	CoreInit::subSystems.renderer->RemoveRenderJob(dummyBoxJobID);
 	if (streamTimings.is_open())
 		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
@@ -996,6 +1045,13 @@ void SE::Gameplay::PlayState::InitializeOther()
 	promptCreateInfo.info.scale = { 0.3f, 0.3f };
 	promptCreateInfo.font = "Knights.spritefont";
 	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
+
+	aimDecal = CoreInit::managers.entityManager->Create();
+	DirectX::XMFLOAT4X4 dectrans;
+	DirectX::XMStoreFloat4x4(&dectrans,DirectX::XMMatrixScaling(0.5f, 0.5f, 0.05f) * DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 0.5f});
+	CoreInit::managers.decalManager->SetLocalTransform(aimDecal, (float*)&dectrans);
+	CoreInit::managers.decalManager->ToggleVisible(aimDecal, true);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
@@ -1237,7 +1293,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
-
+	//Only show cursor if the devConsole is on
+	CoreInit::subSystems.window->ToggleCursor(CoreInit::subSystems.devConsole->IsVisible());
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;
@@ -1293,6 +1350,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
+	UpdateAimDecal();
 
 	float dt = min(1 / 30.f, input->GetDelta());
 
@@ -1399,3 +1457,28 @@ void PlayState::ToggleFlowField(bool showFlowField)
 	StopProfile;
 }
 
+void PlayState::UpdateAimDecal()
+{
+	int mX, mY;
+	input->GetMousePos(mX, mY);
+
+	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+	DirectX::XMVECTOR rayD;
+
+
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
+	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+
+	auto clickPos = rayO + rayD * distance;
+
+	DirectX::XMFLOAT3 decalPos;
+	DirectX::XMStoreFloat3(&decalPos, clickPos);
+	if (currentRoom->IsWall(decalPos.x, decalPos.z))
+		decalPos.y = 3.0f;
+	
+	CoreInit::managers.transformManager->SetPosition(aimDecal, decalPos);
+
+}

@@ -60,6 +60,11 @@ void SE::DevConsole::CMDConsole::Hide()
 	FreeConsole();
 }
 
+bool SE::DevConsole::CMDConsole::IsVisible()
+{
+	return false;
+}
+
 void SE::DevConsole::CMDConsole::Toggle()
 {
 }

@@ -1884,6 +1884,17 @@ void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 	roomEntities[args.x][args.y].push_back(entWindow);
 
 }
+
+bool Room::IsWall(int x, int y) const
+{
+	if(x < 25 && x >= 0 && y < 25 && y >= 0)
+	{
+		if (tileValues[x][y] == id_Wall)
+			return true;
+	}
+	return false;
+}
+
 void SE::Gameplay::Room::CreateBush(CreationArguments &args)
 {
 	auto nrOfProps = propVectors[PropTypes::BUSHES].size();
