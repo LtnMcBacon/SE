@@ -678,8 +678,6 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	if (godMode)
-		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		ClearNewStats();
@@ -691,6 +689,8 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		ClearDamageEvents();
 		ClearHealingEvents();
 	}
+	if (godMode)
+		health = GetMaxHealth();
 	StopProfile;
 }
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)

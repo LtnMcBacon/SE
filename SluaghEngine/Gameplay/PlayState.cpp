@@ -213,7 +213,12 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->Load();
 	auto enemiesInRoom = currentRoom->GetEnemiesInRoom();
 	for (auto enemy : enemiesInRoom)
+	{
+		float xPos = enemy->GetXPosition();
+		float yPos = enemy->GetYPosition();
 		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->PositionEntity(xPos, yPos);
+	}
 
 	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
 	blackBoard.currentRoom = currentRoom;
@@ -956,7 +961,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 
 	player->UpdatePlayerRotation(cameraRotationX, cameraRotationY);
 	CoreInit::managers.transformManager->BindChild(player->GetEntity(), cam, false, true);
-	CoreInit::managers.transformManager->Move(cam, -5 * cameraTranslation);
+	CoreInit::managers.transformManager->Move(cam, -15 * cameraTranslation);
 	CoreInit::managers.transformManager->SetRotation(cam, cameraRotationX, cameraRotationY, 0);
 
 	//Create a default light
