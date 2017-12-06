@@ -56,6 +56,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
 	paused = false;
 	running = true;
+	buttonsExist = false;
 }
 
 void SE::Gameplay::Game::Run()
@@ -67,20 +68,44 @@ void SE::Gameplay::Game::Run()
 	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	//!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME))
 
-	/*auto quitGame = [this]()->void
+	auto quitGame = [this]()->void
 	{
 		this->running = false;
 	};
-	std::function<void()> shutDown = quitGame;*/
 
+	std::function<void()> shutDown = quitGame;
+
+	auto resumeGame = [this]()->void
+	{
+		this->paused = false;
+		this->buttonsExist = false;
+		this->fileParser.GUIButtons.DeleteButtons();
+	};
+
+	std::function<void()> resume = resumeGame;
+	
+	
 	while (running)
 	{
 		CoreInit::engine->BeginFrame();
 
 		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 		{
-			//paused = !paused;
-			running = false;
+			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE || SE::Gameplay::IGameState::State::OPTION_STATE || SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+			{
+				if (paused == true)
+				{
+					fileParser.GUIButtons.DeleteButtons();
+					buttonsExist = false;
+				}
+				paused = !paused;
+				CoreInit::subSystems.window->ToggleCursor(true);
+
+			}
+			else {
+				running = false;
+			}
+
 		}
 
 		if (!paused)
@@ -159,8 +184,20 @@ void SE::Gameplay::Game::Run()
 
 		}
 		else {
-			/*fileParser.GUIButtons.CreateButton(500, 500, 150, 50, 1, "ShutdownButton", shutDown);
-			fileParser.GUIButtons.DrawButtons();*/
+			if (!buttonsExist)
+			{
+				fileParser.GUIButtons.CreateButton(540, 200, 200, 80, 2, "ResumeButton", resume, false, "NULL", "bak.png", "bak1.png", "bak.png");
+				fileParser.GUIButtons.CreateButton(540, 350, 200, 80, 2, "ShutdownButton", shutDown, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
+				fileParser.GUIButtons.CreateButton(0, 0, 1280, 720, 1, "BackGround", NULL, false, "NULL", "bakgrund.png", "bakgrund.png", "bakgrund.png");
+				fileParser.GUIButtons.DrawButtons();
+				buttonsExist = true;
+			}
+
+			bool pressed = CoreInit::subSystems.window->ButtonDown(uint32_t(GameInput::ACTION));
+			bool released = CoreInit::subSystems.window->ButtonUp(uint32_t(GameInput::ACTION));
+			int mousePosX, mousePosY;
+			CoreInit::subSystems.window->GetMousePos(mousePosX, mousePosY);
+			fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 		}
 			CoreInit::engine->EndFrame();
 	}
