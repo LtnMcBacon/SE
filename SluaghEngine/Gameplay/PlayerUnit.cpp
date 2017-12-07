@@ -478,6 +478,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
 	this->newStat.whi += weaponStats.whi;
@@ -682,8 +683,6 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	if (godMode)
-		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		ClearNewStats();
@@ -695,6 +694,8 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		ClearDamageEvents();
 		ClearHealingEvents();
 	}
+	if (godMode)
+		health = GetMaxHealth();
 	StopProfile;
 }
 
@@ -718,32 +719,42 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 	
-	if (!isSluagh)
+	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
 	{
-		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-
-		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-		if (isitem != -1)
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+		if (currentItem == slot)
 		{
-			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-			p.y = 0;
-			if (currentItem == slot)
-			{
-				auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-				if (ctype == ItemType::WEAPON)
-					Item::Unequip(items[currentItem], unitEntity);
-			}
-
-			Item::Drop(items[slot], p);
+			auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (pit == ItemType::WEAPON)
+				Item::Unequip(items[currentItem], unitEntity);
 
 		}
+
+		Item::Drop(items[slot], p);
+
+	}
+		
+	if (!isSluagh)
+	{
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
 		Item::Pickup(item);
 	}
+	else
+	{
+		Item::GodPickup(item);
+	}
 
 	items[slot] = item;
-	
-
+	if (itype == ItemType::WEAPON)
+	{
+		currentItem = slot;
+		Item::Equip(items[currentItem], unitEntity);
+		SetCurrentWeaponStats();
+	}
 	StopProfile;
 }
 
@@ -1067,11 +1078,19 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 
 	input.read((char*)&baseStat, sizeof(baseStat));
 	skills.resize(2);
+	/*Memset to avoid undefined behaviour*/
 	input.read((char*)&skills[0], sizeof(skills[0]));
+	memset(&skills[0].skillName, 0, sizeof(skills[0].skillName));
+	skills[0].skillName = std::string("");
 	input.read((char*)&skills[1], sizeof(skills[1]));
+	memset(&skills[1].skillName, 0, sizeof(skills[1].skillName));
+	skills[1].skillName = std::string("");
 
 	for (int i = 0; i < MAX_ITEMS; i++)
+	{
 		items[i] = Item::Create(input);
+
+	}
 
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
