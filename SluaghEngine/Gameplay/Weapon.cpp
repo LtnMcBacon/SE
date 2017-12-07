@@ -45,8 +45,8 @@ static const std::vector<std::vector<ProjectileInfo>> projectiles =
 		{ 0.5f, "TripleArrow.SEP" }
 	},
 	{
-		{ 0.75f, "TronWand.SEP" },
 		{ 1.0f, "WandAttack.SEP" },
+		{ 0.75f, "TronWand.SEP" },
 		{ 0.25f, "WandVortex.SEP" }
 	}
 };
@@ -56,7 +56,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create()
 	return Create(Weapon::Type(std::rand() % int(Weapon::Type::NONE)), false);
 }
 
-SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base)
+SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base, int32_t projectileID)
 {
 	auto wep = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(ItemType::WEAPON));
@@ -68,10 +68,17 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(Stats::GetRandomDamageType()));
 	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(type)].attAnim.id);
-
-	auto randProjectile = std::rand() % projectiles[size_t(type)].size();
-	CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
-	CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
+	if (projectileID == -1)
+	{
+		auto randProjectile = std::rand() % projectiles[size_t(type)].size();
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
+	}
+	else
+	{
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][projectileID].projectile.id);
+	}
 	CreateMeta(wep);
 
 
