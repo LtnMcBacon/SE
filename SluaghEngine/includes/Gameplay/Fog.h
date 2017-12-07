@@ -31,9 +31,19 @@ namespace SE
 
 			const float padding = 10.f;
 			const float height = 3.1f;
+
 			const float slopeTopOffset[2] = { 0.3f, height - 0.3f };
 			const float slopeMiddleOffset[2] = { 0.3f, height / 2.f };
 			const float slopeBottomOffset[2] = { 0.6f, 0.6f };
+
+			const float rimOpacity = 0;
+			const float slopeTopOpacity = 1;
+			const float slopeMiddleOpacity = 0.667;
+			const float slopeBottomOpacity = 0.1;
+
+			const float slopeTopOpacity_door = 1;
+			const float slopeMiddleOpacity_door = 0.1;
+			const float slopeBottomOpacity_door = 0;
 
 			static const unsigned int minimumCenterSpaceRadius = 5;
 			static const unsigned int maximumCenterOffsetRadius = 10;
@@ -87,6 +97,7 @@ namespace SE
 			void AddSlope(unsigned int slopeIndex);
 			float GetFreeSpaceAt(float column, float row);
 			void AdjustOptimalCenter(float (&centerPosition)[2]);
+			bool IsOpenDoorSide(const unsigned int (&tileOutsideDoor)[2], WallSide doorSide);
 			char GetTileValue(unsigned int column, unsigned int row);
 		};
 	}

@@ -66,7 +66,7 @@ float4 PS_main(PS_IN input) : SV_TARGET
     float3 albedoColor = albedoValues.rgb;
     float albedoAlpha = albedoValues.a;
 
-    float3 normalColor = normalize(normalValues.rgb);
+    float3 normalColor = normalValues.rgb;
 
     float diffuseFactor = dot(float3(0, 0, 1), normalColor);
 
