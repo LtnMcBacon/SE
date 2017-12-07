@@ -22,7 +22,7 @@ namespace SE
 			float health = 100.f;
 			static const int MAX_HEALTH = 100;
 			float damage = 1.f;
-			static const int MAX_DAMAGE = 15;
+			static const int MAX_DAMAGE = 20;
 			float meleeMultiplier = 1.f;
 			float physicalResistance = 0.f;
 
@@ -30,9 +30,8 @@ namespace SE
 			float rangedDamage = 1.f;
 			float rangedMultiplier = 1.f;
 			float movementSpeed = 5.f;
-			float attackSpeed		= 5.f;
+			float attackSpeed		= 1.f;
 			float attackCooldown = 0.f;
-			//float healBonus			= 1.f;
 
 			//whi
 			float magicDamage = 1.f;

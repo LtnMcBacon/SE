@@ -13,8 +13,6 @@ namespace SE::Gameplay::Item::Consumable
 	Core::Entity Create();
 	Core::Entity Create(Type type);
 	void CreateMeta(Core::Entity ent);
-	void ToggleRenderPickupInfo(Core::Entity ent);
-	void ToggleRenderEquiuppedInfo(Core::Entity ent, Core::Entity parent);
 
 	void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 }
