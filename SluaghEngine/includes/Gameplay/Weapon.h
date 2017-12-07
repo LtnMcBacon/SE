@@ -13,8 +13,6 @@ namespace SE::Gameplay::Item::Weapon
 	Core::Entity Create();
 	Core::Entity Create(Type type, bool base = true);
 	void CreateMeta(Core::Entity wep);
-	void ToggleRenderPickupInfo(Core::Entity wep);
-	void ToggleRenderEquiuppedInfo(Core::Entity wep, Core::Entity parent);
 
 	void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 
