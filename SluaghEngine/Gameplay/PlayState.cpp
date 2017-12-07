@@ -31,6 +31,12 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		currentRoom->RemoveEnemyFromRoom(nullptr);
 	}, "kill","Kill all enemies");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		static bool render = true;
+		render = !render;
+		currentRoom->ToggleRenderingOfWallsAndFloor(render);
+	}, "twf", "Stop rendering walls and floor for room.");
 
 
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
@@ -224,7 +230,12 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->Load();
 	auto enemiesInRoom = currentRoom->GetEnemiesInRoom();
 	for (auto enemy : enemiesInRoom)
+	{
+		float xPos = enemy->GetXPosition();
+		float yPos = enemy->GetYPosition();
 		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->PositionEntity(xPos, yPos);
+	}
 
 	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
 	blackBoard.currentRoom = currentRoom;
@@ -769,8 +780,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 9;
-	worldHeight = 9;
+	worldWidth = 2;
+	worldHeight = 2;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -843,8 +854,8 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 				xOffset = -1;
 			}
-			enemyPos.x = x + 0.5f;
-			enemyPos.y = y -0.5f;
+			enemyPos.x = x;// +0.5f;
+			enemyPos.y = y;// -0.5f;
 	
 			EnemyCreationData data;
 			if (counter < 1)
@@ -910,7 +921,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	indicatorInfo.textureInfo.posY = 600;
 	indicatorInfo.textureInfo.height = 100;
 	indicatorInfo.textureInfo.width = 100;
-	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.layerDepth = 0.1;
 	indicatorInfo.textureInfo.anchor = {0.0f, 0.0f};
 
 	SE::Core::ITextManager::CreateInfo textInfo;

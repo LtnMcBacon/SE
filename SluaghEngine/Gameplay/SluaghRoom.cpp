@@ -39,6 +39,13 @@ void SE::Gameplay::SluaghRoom::InitSluagh()
 	StopProfile;
 }
 
+bool SE::Gameplay::SluaghRoom::GetClosestEnemy(float xPos, float yPos, float & xReturn, float & yReturn)
+{
+	xReturn = theSluagh->GetSluagh()->GetXPosition();
+	yReturn = theSluagh->GetSluagh()->GetYPosition();
+	return true;
+}
+
 bool SE::Gameplay::SluaghRoom::ProjectileAgainstEnemies(Projectile& projectile)
 {
 	StartProfile;
