@@ -93,7 +93,7 @@ void SE::Gameplay::Item::Weapon::CreateMeta(SE::Core::Entity wep)
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 10;
 	icon.textureInfo.posY = -60;
-	icon.textureInfo.layerDepth = 1;
+	icon.textureInfo.layerDepth = 0.9;
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 }

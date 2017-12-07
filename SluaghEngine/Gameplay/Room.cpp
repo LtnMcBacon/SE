@@ -1240,6 +1240,8 @@ void SE::Gameplay::Room::CreateEnemies()
 Room::Room(Utilz::GUID fileName)
 {
 
+#pragma region MeshesAndMaterials
+
 	myRoomFile = fileName;
 	StartProfile;
 	// Every prop here:
@@ -1274,6 +1276,15 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Fireplace_open] = { "FireplaceOpen.mesh" };
 	Meshes[Meshes::Tree] = { "tree.mesh" }; 
 	Meshes[Meshes::Well] = { "well.mesh" };
+	Meshes[Meshes::Fireplace_set1] = { "Fireplace_set1.mesh" };
+	Meshes[Meshes::Fireplace_set2] = { "Fireplace_set2.mesh" };
+	Meshes[Meshes::MiniTable_set1] = { "MiniTable_set1.mesh" };
+	Meshes[Meshes::Potatobag_set1] = { "Potatobag_set1.mesh" };
+	Meshes[Meshes::PotFloorTorch_set1] = { "PotFloorTorch_set1.mesh" };
+
+
+
+
 
 	// Materials
 	Materials[Materials::Stone] = { "Cube.mat" };
@@ -1297,8 +1308,18 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::Pillar] = { "Pillar_short.mat" };
 	Materials[Materials::PotatosackOpen] = { "Potato_Sack_Open.mat" };
 	Materials[Materials::PotatosackClosed] = { "Potato_Sack_Closed.mat" };
-
 	Materials[Materials::Well] = { "well.mat" }; 
+
+	Materials[Materials::Fireplace_set1] = { "Fireplace_set1.mat" };
+	Materials[Materials::Fireplace_set2] = { "Fireplace_set2.mat" };
+	Materials[Materials::MiniTable_set1] = { "MiniTable_set1.mat" };
+	Materials[Materials::Potatobag_set1] = { "Potatobag_set1.mat" };
+	Materials[Materials::PotFloorTorch_set1] = { "PotFloorTorch_set1.mat" };
+
+
+#pragma endregion
+
+
 #pragma region RNGprops
 
 	Prop Chair;
@@ -1357,17 +1378,40 @@ Room::Room(Utilz::GUID fileName)
 	FireplaceOpen.guid = Meshes[Meshes::Fireplace_open];
 	FireplaceOpen.matGuid = Materials[Materials::Fireplace];
 
-#pragma endregion
+
 	Prop Tree; 
 	Tree.guid = Meshes[Meshes::Tree]; 
 	Tree.matGuid = Materials[Materials::Wood]; 
+
+
+	Prop Fireplace_set1;
+	Fireplace_set1.guid = Meshes[Meshes::Fireplace_set1];
+	Fireplace_set1.matGuid = Materials[Materials::Fireplace_set1];
+
+	Prop Fireplace_set2;
+	Fireplace_set2.guid = Meshes[Meshes::Fireplace_set2];
+	Fireplace_set2.matGuid = Materials[Materials::Fireplace_set2];
+
+	Prop MiniTable_set1;
+	MiniTable_set1.guid = Meshes[Meshes::MiniTable_set1];
+	MiniTable_set1.matGuid = Materials[Materials::MiniTable_set1];
+
+	Prop Potatobag_set1;
+	Potatobag_set1.guid = Meshes[Meshes::Potatobag_set1];
+	Potatobag_set1.matGuid = Materials[Materials::Potatobag_set1];
+
+	Prop PotFloorTorch_set1;
+	PotFloorTorch_set1.guid = Meshes[Meshes::PotFloorTorch_set1];
+	PotFloorTorch_set1.matGuid = Materials[Materials::PotFloorTorch_set1];
+
+#pragma endregion
 
 
 
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, CandleStick_tri, Fireplace, FireplaceOpen };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, Table_long, Table_long,  CandleStick_tri, CandleStick_tri,  Fireplace, FireplaceOpen, Fireplace_set1, Fireplace_set2 };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1377,7 +1421,10 @@ Room::Room(Utilz::GUID fileName)
 		PotGroup1,
 		PotatoSackClosed,
 		PotatoSackOpen,
-		FloorTorch
+		FloorTorch,
+		MiniTable_set1,
+		Potatobag_set1,
+		PotFloorTorch_set1
 		
 	};
 
