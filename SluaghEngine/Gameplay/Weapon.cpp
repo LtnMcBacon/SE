@@ -41,7 +41,7 @@ static const std::vector<std::vector<ProjectileInfo>> projectiles =
 
 	{
 		{ 1.0f, "CrossbowAttack.SEP" },
-		{ 10.0f, "BoomerangArrow.SEP" },
+		{ 20.0f, "BoomerangArrow.SEP" },
 		{ 0.5f, "TripleArrow.SEP" }
 	},
 	{

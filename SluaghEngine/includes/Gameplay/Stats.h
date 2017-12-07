@@ -30,9 +30,8 @@ namespace SE
 			float rangedDamage = 1.f;
 			float rangedMultiplier = 1.f;
 			float movementSpeed = 5.f;
-			float attackSpeed		= 5.f;
+			float attackSpeed		= 1.f;
 			float attackCooldown = 0.f;
-			//float healBonus			= 1.f;
 
 			//whi
 			float magicDamage = 1.f;

@@ -478,6 +478,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
 	this->newStat.whi += weaponStats.whi;
