@@ -86,7 +86,12 @@ namespace SE
 				Window_open,
 				Window_closed,
 				Tree,
-				Well
+				Well,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1
 			};
 			enum class Materials {
 				Stone,
@@ -113,7 +118,12 @@ namespace SE
 				PotatosackClosed,
 				Well,
 				julWall, 
-				DarkStoneWall
+				DarkStoneWall,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1
 			};
 
 			struct CreationArguments
