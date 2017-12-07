@@ -367,6 +367,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 
 				error = true;
 			}
+			resource.loadedAt = std::chrono::high_resolution_clock::now();
 		});
 		if (error)
 		{
@@ -378,6 +379,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	{
 		data = rawData;
 	}
+	
 	}
 	{
 		Utilz::OperateSingle(map, job.guid, [&job, data](auto& resource)
@@ -416,6 +418,17 @@ static const auto linearEvict = [](auto& map, auto& out)
 		}
 	}
 };
+
+static const auto fifoEvict = [](auto& map, auto& out)
+{
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			out.push_back(resource.first);
+		}
+	}
+};
+
 
 static const auto evictResources = [](auto& map, auto& order, size_t needed, size_t& total, size_t& count)
 {

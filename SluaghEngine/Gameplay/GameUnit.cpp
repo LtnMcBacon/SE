@@ -100,6 +100,11 @@ void GameUnit::ClearConditionEvents()
 	StopProfile;
 }
 
+void SE::Gameplay::GameUnit::ClearNewStats()
+{
+	this->newStat = Stats();
+}
+
 void GameUnit::MoveEntity(float xMovement, float yMovement)
 {
 	StartProfile;

@@ -6,6 +6,7 @@ batchinstructions.txt
 # User-specific files
 *.suo
 *.user
+*.csv
 *.userosscache
 *.sln.docstates
 *.mtl
@@ -32,7 +33,7 @@ External*
 *.raw
 *.bmp
 *.SEBT
-
+*.itm
 Build\
 *.fbx
 *.wav

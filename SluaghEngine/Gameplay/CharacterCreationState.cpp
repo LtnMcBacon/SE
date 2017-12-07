@@ -144,19 +144,19 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
 			//sf.readAttributesFromFile(17, chosenSkills[i].projectileFileGUID, attrArray);
 
-			infoToPass->skills[i].skillName = chosenSkills.at(i).skillName;
-			infoToPass->skills[i].atkType	= chosenSkills.at(i).atkType;
+			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
+			infoToPass->skills[i].atkType		= chosenSkills.at(i).atkType;
 			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
-			infoToPass->skills[i].boon		= chosenSkills.at(i).boon;
-			infoToPass->skills[i].bane		= chosenSkills.at(i).bane;
-			infoToPass->skills[i].animation = chosenSkills.at(i).animation;
-			infoToPass->skills[i].particle	= chosenSkills.at(i).particle;
+			infoToPass->skills[i].boon			= Boons(1<<12);//chosenSkills.at(i).boon;
+			infoToPass->skills[i].bane			= chosenSkills.at(i).bane;
+			infoToPass->skills[i].animation		= chosenSkills.at(i).animation;
+			infoToPass->skills[i].particle		= chosenSkills.at(i).particle;
 			
 			infoToPass->skills[i].projectileFileGUID	= chosenSkills[i].projectileFileGUID;
 			infoToPass->skills[i].skillDamage			= attrArray[0];
-			infoToPass->skills[i].boonEffectValue		= attrArray[1];
+			infoToPass->skills[i].boonEffectValue		= 2.f;//attrArray[1];
 			infoToPass->skills[i].boonRange				= attrArray[2];
-			infoToPass->skills[i].boonDuration			= attrArray[3];
+			infoToPass->skills[i].boonDuration			= 10.f;// attrArray[3];
 			infoToPass->skills[i].baneEffectValue		= attrArray[4];
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
@@ -276,14 +276,13 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 	
 		OtherSkills.push_back(index);
 		nrOfOtherSkills++;
-		skill.skillName = skillName;
-		skill.atkType	= static_cast<DamageSources>(skillInfo[0]);
-		skill.damageType	= static_cast<DamageType>(skillInfo[1]);
-		skill.boon		= static_cast<Boons>(skillInfo[2]);
-		skill.bane		= static_cast<Banes>(skillInfo[3]);
-		skill.animation = 0;
-		skill.particle	= 0;
-		
+		skill.skillName	 = skillName;
+		skill.atkType	 = static_cast<DamageSources>(skillInfo[0]);
+		skill.damageType = static_cast<DamageType>(skillInfo[1]);
+		skill.boon		 = static_cast<Boons>(1 << skillInfo[2]);
+		skill.bane		 = static_cast<Banes>(1 << skillInfo[3]);
+		skill.animation	 = 0;
+		skill.particle	 = 0;
 	
 		auto SkillIndexReturn = [this, index, skill]()->void
 		{

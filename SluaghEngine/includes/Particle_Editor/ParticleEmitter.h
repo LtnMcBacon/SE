@@ -13,5 +13,6 @@ struct Particle {
 	float opacity;
 	float age;
 	uint32_t type;
+	uint32_t bloom;
 };
 #endif // !_SE_PARTICLE_EDITOR_PARTICLE_EMITTER_H_
