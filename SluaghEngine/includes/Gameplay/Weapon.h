@@ -11,10 +11,8 @@ namespace SE::Gameplay::Item::Weapon
 		NONE
 	};
 	Core::Entity Create();
-	Core::Entity Create(Type type, bool base = true);
+	Core::Entity Create(Type type, bool base = true, int32_t projectileID = -1);
 	void CreateMeta(Core::Entity wep);
-	void ToggleRenderPickupInfo(Core::Entity wep);
-	void ToggleRenderEquiuppedInfo(Core::Entity wep, Core::Entity parent);
 
 	void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 
