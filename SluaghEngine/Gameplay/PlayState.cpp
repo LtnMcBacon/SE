@@ -777,8 +777,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = std::min(2 + std::rand() % timeWon + 1, 9);
-	worldHeight = std::min(2 + std::rand() % timeWon + 1, 9);
+	worldWidth = std::min(2 + std::rand() % (timeWon + 1), 9);
+	worldHeight = std::min(2 + std::rand() % (timeWon + 1), 9);
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -1369,7 +1369,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateInput(movementInput, actionInput);
 	UpdateAimDecal();
 
-	float dt = min(1 / 30.f, input->GetDelta());
+	float dt = std::min(1 / 30.f, input->GetDelta());
 
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->Update(dt, movementInput, newProjectiles, actionInput);

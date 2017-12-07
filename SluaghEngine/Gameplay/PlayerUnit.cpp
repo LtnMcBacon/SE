@@ -758,7 +758,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		}
 
 		currentItem = slot;
-
+		items[slot] = item;
 		Item::Equip(items[currentItem], unitEntity);
 		SetCurrentWeaponStats();
 	}
