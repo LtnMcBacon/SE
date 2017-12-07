@@ -143,6 +143,31 @@ SE::Gameplay::TutorialState::TutorialState()
 
 
 #pragma endregion
+
+
+#pragma region Sounds
+	sounds = managers.entityManager->Create();
+	managers.audioManager->Create(sounds, { "AnvändMusen.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Användwasd.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Sluagh.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Bodach.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "BraJobbat.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "BraJobbatFortsätt.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "DetFinns.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "DuKan.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "DuKanOckså.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Föremål.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "GåFramTill.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Glaisdig.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Nuklavie.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Och.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "TestaNu.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "TryckNu.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Utmärkt.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "UtmärktGeNu.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Välkommen.wav", SE::Audio::VoiceSound });
+#pragma endregion
+
 	BehaviourPointers temp;
 	temp.currentRoom = &room;
 	temp.player = player;
@@ -258,7 +283,10 @@ void SE::Gameplay::TutorialState::GreetingScript(float dt)
 	managers.textManager->Create(greetingText, gti);
 	managers.textManager->ToggleRenderableText(greetingText, true);
 	managers.eventManager->SetLifetime(greetingText, 4.5f);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Välkommen.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
+	
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::WASDScript;
 	});
@@ -280,8 +308,11 @@ void SE::Gameplay::TutorialState::WASDScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(wasdText, gti);
 	managers.textManager->ToggleRenderableText(wasdText, true);
-	managers.eventManager->SetLifetime(wasdText, 6.0f);
+	managers.eventManager->SetLifetime(wasdText, 8.0f);
 	scriptToRun = &TutorialState::NoneScript;
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Användwasd.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::MouseScript;
 	});
@@ -303,7 +334,9 @@ void SE::Gameplay::TutorialState::MouseScript(float dt)
 	managers.textManager->ToggleRenderableText(mouseText, true);
 	managers.eventManager->SetLifetime(mouseText, 4.5f);
 	scriptToRun = &TutorialState::NoneScript;
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "AnvändMusen.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		w = false;
 		a = false;
@@ -326,7 +359,9 @@ void SE::Gameplay::TutorialState::BraJobbatMovementScript(float dt)
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.eventManager->SetLifetime(ent, 4.5f);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "BraJobbat.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::GlimmerPickupWeaponScript;
 	});
@@ -346,8 +381,10 @@ void SE::Gameplay::TutorialState::GlimmerPickupWeaponScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-	managers.eventManager->SetLifetime(ent, 5.5f);
-
+	managers.eventManager->SetLifetime(ent, 7.0f);
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Föremål.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::SpawnPickupWeaponScript;
 	});
@@ -366,7 +403,9 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "GåFramTill.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	scriptToRun = &TutorialState::NoneScript;
 
@@ -434,12 +473,14 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
 	gti.info.text = L"BRA JOBBAT!\nFORTSÄTT HÅLLA IN SHIFT\nOCH DUBBEL KLICKA PÅ 1 FÖR ATT PLOCKA UPP FÖREMÅLET";
-	gti.info.screenAnchor = { 0.5f,0.5f };
+	gti.info.screenAnchor = { 0.5f,0.6f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "BraJobbatFortsätt.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	scriptToRun = &TutorialState::NoneScript;
 
 
@@ -516,7 +557,10 @@ void SE::Gameplay::TutorialState::UtmärktPickupWeaponScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-	managers.eventManager->SetLifetime(ent, 10.0f);
+	managers.eventManager->SetLifetime(ent, 15.0f);
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Utmärkt.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::VisaTaPåSigVapenScript;
@@ -537,7 +581,9 @@ void SE::Gameplay::TutorialState::VisaTaPåSigVapenScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "TryckNu.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("DelVisaVapenText", [this](Core::Entity ent) {
 		managers.entityManager->Destroy(ent);
 	});
@@ -581,7 +627,9 @@ void SE::Gameplay::TutorialState::BytaVapenAddInitScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "DuKan.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("DelBytVapenText", [this](Core::Entity ent) {
 		managers.entityManager->Destroy(ent);
 	});
@@ -632,7 +680,9 @@ void SE::Gameplay::TutorialState::SlåMedVapenInitScript(float dt)
 		managers.entityManager->Destroy(ent);
 		scriptToRun = &TutorialState::NoneScript;
 	});
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "UtmärktGeNu.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	scriptToRun = &TutorialState::SlåMedVapenScript;
 	managers.eventManager->RegisterEntitytoEvent(ent, "DelSlåMedVapenScript");
 }
@@ -687,7 +737,9 @@ void SE::Gameplay::TutorialState::TestaSpellInitScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "DuKanOckså.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterTriggerEvent("TestaSkillDelText", [this](Core::Entity ent) {
 		managers.entityManager->Destroy(ent);
 	});
@@ -751,7 +803,9 @@ void SE::Gameplay::TutorialState::SpawnaTräningsDockaScript(float dt)
 		scriptToRun = &TutorialState::SpawnaFiendeScript;
 	});
 	scriptToRun = &TutorialState::NoneScript;
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "TestaNu.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
 }
 
@@ -774,6 +828,9 @@ void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		scriptToRun = &TutorialState::SpawnaGlastigScript;
 	});
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "DetFinns.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	managers.eventManager->RegisterEntitytoEvent(ent, "OnDeath");
 }
@@ -813,6 +870,10 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(glastig, gti);
 	managers.textManager->ToggleRenderableText(glastig, true);
+
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Glaisdig.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	Utilz::GUID anims[] = { "AttackAnim_Glaistig.anim" };
 	managers.animationManager->Start(glastig, anims, 1, 2, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
@@ -865,6 +926,10 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	managers.textManager->Create(bodach, gti);
 	managers.textManager->ToggleRenderableText(bodach, true);
 
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Bodach.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
+
 	Utilz::GUID anims[] = { "IdleAnim_Bodach.anim" };
 	managers.animationManager->Start(bodach, anims, 1, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(bodach, 12.0f);
@@ -916,6 +981,10 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	managers.textManager->Create(nuck, gti);
 	managers.textManager->ToggleRenderableText(nuck, true);
 
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Nuklavie.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
+
 	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
 	managers.animationManager->Start(nuck, anims, 2, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
 	managers.eventManager->SetLifetime(nuck, 12.0f);
@@ -957,6 +1026,10 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	gti.info.scale = { 0.35f ,0.35f };
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
+
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Och.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	managers.eventManager->SetLifetime(ent, 7.0f);
 	subSystems.window->MapActionButton(0, Window::KeySpace);
@@ -1005,7 +1078,9 @@ void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
 	auto sword = Item::Weapon::Create(Item::Weapon::Type::SWORD);
 	Item::Equip(sword, sluagh);
 
-
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Sluagh.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	auto& l = managers.entityManager->Create();
 	Core::ILightManager::CreateInfo d;
