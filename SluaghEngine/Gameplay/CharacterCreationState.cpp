@@ -163,13 +163,15 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].cooldown				= attrArray[7];
 		}
 
+		Perk exportPerks[2];
+		Perk tempPerk;
+
 		for (auto& perk: chosenPerks)
 		{
 			Pfactory.PickedPerks.push_back(perk);
+			
 		}
 		Pfactory.iteratePerks();
-		Perk exportPerks[3];
-		Perk tempPerk;
 
 		for (size_t i = 0; i < Pfactory.PickedPerks.size(); i++)
 		{
@@ -178,10 +180,11 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			
 			exportPerks[i] = tempPerk;
 			infoToPass->perks[i] = exportPerks[i];
+			infoToPass->perksForSlaughSave[i] = chosenPerks[i];
 		}
 
 		
-		
+		//Pfactory.ReadPerksForSlaugh("Bumling");
 
 
 		passableInfo = infoToPass;

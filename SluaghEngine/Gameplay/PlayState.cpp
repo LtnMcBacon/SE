@@ -960,7 +960,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, tempPtr->perksForSlaughSave, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
