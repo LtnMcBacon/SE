@@ -17,7 +17,7 @@ namespace SE
 			std::vector<int>checks;
 		};
 	}
-}
+} 
 
 
 #endif
