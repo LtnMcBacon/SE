@@ -131,7 +131,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
 				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
 				break;
-			case Boons::CONDITIONAL_BOONS_ATTACK_SPEED:
+			case Boons::CONDITIONAL_BOONS_SLOW:
 				break;
 			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 				break;

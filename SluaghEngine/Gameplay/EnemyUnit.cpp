@@ -148,8 +148,18 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			}
 		}
 	}
+
+	for (int i = 0; i < HealingEventVector.size(); i++)
+	{
+		this->health += HealingEventVector[i].amount;
+	}
+
+	if (this->health > this->maxHealth)
+		this->health = this->maxHealth;
+
 	DamageEventVector.clear();
 	ConditionEventVector.clear();
+	HealingEventVector.clear();
 
 	this->newStat.damage = 1000.f;
 

@@ -141,22 +141,22 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		{
 			SkillFactory sf;
 			float attrArray[8];
-			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
-			//sf.readAttributesFromFile(17, chosenSkills[i].projectileFileGUID, attrArray);
+			//sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
+			sf.readAttributesFromFile(8, chosenSkills[i].projectileFileGUID, attrArray);
 
 			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
 			infoToPass->skills[i].atkType		= chosenSkills.at(i).atkType;
 			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
-			infoToPass->skills[i].boon			= Boons(1<<12);//chosenSkills.at(i).boon;
+			infoToPass->skills[i].boon			= chosenSkills.at(i).boon;
 			infoToPass->skills[i].bane			= chosenSkills.at(i).bane;
 			infoToPass->skills[i].animation		= chosenSkills.at(i).animation;
 			infoToPass->skills[i].particle		= chosenSkills.at(i).particle;
 			
 			infoToPass->skills[i].projectileFileGUID	= chosenSkills[i].projectileFileGUID;
 			infoToPass->skills[i].skillDamage			= attrArray[0];
-			infoToPass->skills[i].boonEffectValue		= 2.f;//attrArray[1];
+			infoToPass->skills[i].boonEffectValue		= attrArray[1];
 			infoToPass->skills[i].boonRange				= attrArray[2];
-			infoToPass->skills[i].boonDuration			= 10.f;// attrArray[3];
+			infoToPass->skills[i].boonDuration			= attrArray[3];
 			infoToPass->skills[i].baneEffectValue		= attrArray[4];
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
