@@ -773,12 +773,12 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 		}
 	}
 }
-
+#undef min
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 2;
+	worldWidth = std::min(2 + std::rand() % timeWon + 1, 9);
+	worldHeight = std::min(2 + std::rand() % timeWon + 1, 9);
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -815,7 +815,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		auto& room = rooms[r];
 		room->GetMap(map);
 		eStruct.information.clear();
-		enemiesInEachRoom = 1 + timeWon % 3;
+		enemiesInEachRoom = 1 + std::min(timeWon, 3);
 		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
@@ -892,7 +892,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemiesInEachRoom++;
 		if (!(++counter % 4))
 			enemiesInEachRoom++;
-		enemiesInEachRoom %= 6;
+		enemiesInEachRoom = std::min(enemiesInEachRoom, 6);
 		delete[] enemies;
 
 
