@@ -186,8 +186,9 @@ void SE::Gameplay::Game::Run()
 		else {
 			if (!buttonsExist)
 			{
-				fileParser.GUIButtons.CreateButton(540, 200, 200, 80, 1000, "ResumeButton", resume, false, "NULL", "bak.png", "bak1.png", "bak.png");
-				fileParser.GUIButtons.CreateButton(540, 350, 200, 80, 1000, "ShutdownButton", shutDown, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
+				fileParser.GUIButtons.CreateButton(540, 50, 200, 80, 1000, "Paus", NULL, false, "NULL", "Paus.png", "Paus.png", "Paus.png");
+				fileParser.GUIButtons.CreateButton(540, 250, 200, 80, 1000, "ResumeButton", resume, false, "NULL", "SpelaVidare.png", "SpelaVidare1.png", "SpelaVidare.png");
+				fileParser.GUIButtons.CreateButton(540, 450, 200, 80, 1000, "ShutdownButton", shutDown, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
 				fileParser.GUIButtons.CreateButton(0, 0, 1280, 720, 999, "BackGround", NULL, false, "NULL", "bakgrund.png", "bakgrund.png", "bakgrund.png");
 				fileParser.GUIButtons.DrawButtons();
 				buttonsExist = true;
