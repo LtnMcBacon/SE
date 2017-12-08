@@ -37,7 +37,8 @@ namespace SE {
 			* @retval 0+ Sound sample ID
 			*
 			*/
-			size_t LoadSound(AudioFile* sound);
+			int LoadSound(AudioFile* sound);
+			int UnloadSound(int soundHandle);
 			/**
 			* @brief	Returns the requested sample
 			*
@@ -53,6 +54,7 @@ namespace SE {
 
 		private:
 			std::vector<AudioSample*> soundSample;
+			std::stack<int> freeSample;
 			
 			float masterVol;
 			float effectVol;

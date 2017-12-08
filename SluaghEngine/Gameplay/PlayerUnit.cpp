@@ -748,13 +748,21 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		Item::GodPickup(item);
 	}
 
-	items[slot] = item;
+	
 	if (itype == ItemType::WEAPON)
 	{
+		
+		if (auto isitem = ItemType( std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1))); isitem == ItemType::WEAPON)
+		{
+			Item::Unequip(items[currentItem], unitEntity);
+		}
+
 		currentItem = slot;
+		items[slot] = item;
 		Item::Equip(items[currentItem], unitEntity);
 		SetCurrentWeaponStats();
 	}
+	items[slot] = item;
 	StopProfile;
 }
 
@@ -1003,7 +1011,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks,float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -1028,6 +1036,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 
 		this->perks[0].myCondition = myCond;
 		this->perks[1].myCondition = secondCond;
+		this->perks[0].slaughPerk = slaughPerks[0];
+		this->perks[1].slaughPerk = slaughPerks[1];
+
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
