@@ -9,6 +9,9 @@ namespace SE
 
 		/*
 		 * @brief An unordered map wrapped with a mutex lock.
+		 * @details Allows for multiple readers, single writer. Two threads accessing
+		 *  and changing the same element is not safe. Only guarantee is that reading one entry
+		 *  from the map and writing another will not affect each other.
 		 */
 		template <typename Key, typename Value, typename Hasher>
 		class ThreadSafeMap
