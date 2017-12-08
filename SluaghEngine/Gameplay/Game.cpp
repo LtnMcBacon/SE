@@ -107,9 +107,9 @@ void SE::Gameplay::Game::Run()
 		{
 			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
 			{
-				CoreInit::subSystems.window->StopRecording();
-
-			}
+					CoreInit::subSystems.window->StopRecording();
+				}
+			
 
 			switch (newState)
 			{
