@@ -736,13 +736,56 @@ TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::Behavio
 	StartProfile;
 	Room* currentRoom = *ptrs.currentRoom;
 	float rotPerSecond = std::get<float>(parameters[0].data);
+	PlayerUnit* player = ptrs.player;
 
-	auto targeter = [currentRoom, rotPerSecond](Projectile* p, float dt) -> bool
+	auto targeter = [currentRoom, rotPerSecond, player](Projectile* p, float dt) -> bool
 	{
 		float xTarget, yTarget;
 
-		if (currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget))
+		if (p->GetValidTarget() == ValidTarget::ENEMIES)
 		{
+			if (currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget))
+			{
+				DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
+
+				xTarget -= p->GetXPosition();
+				yTarget -= p->GetYPosition();
+
+				float totalRot = atan2f(yTarget, xTarget) - atan2f(forward.z, forward.x);
+				int sign = -1;
+
+				if (totalRot < 0)
+					totalRot = DirectX::XM_2PI + totalRot;
+
+				// If the rotation needed is greater than PI, we should rotate counter clockwise
+				if (totalRot > DirectX::XM_PI)
+					sign = 1;
+
+				if (totalRot > 0.0000025)
+				{
+					if (totalRot > rotPerSecond * dt)
+						totalRot = rotPerSecond;
+					totalRot *= sign;
+				}
+
+				Rotation test;
+				test.force = totalRot;
+				test.style = RotationStyle::SELF;
+				p->SetRotationStyle(test);
+			}
+			else
+			{
+				Rotation test;
+				test.force = 0.0f;
+				test.style = RotationStyle::SELF;
+				p->SetRotationStyle(test);
+			}
+		}
+		else if (p->GetValidTarget() == ValidTarget::PLAYER)
+		{
+			xTarget = player->GetXPosition(),
+			yTarget = player->GetYPosition();
+
 			DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
 
 			xTarget -= p->GetXPosition();
@@ -767,13 +810,6 @@ TargetClosestEnemyBehaviour(std::vector<SE::Gameplay::ProjectileFactory::Behavio
 
 			Rotation test;
 			test.force = totalRot;
-			test.style = RotationStyle::SELF;
-			p->SetRotationStyle(test);
-		}
-		else
-		{
-			Rotation test;
-			test.force = 0.0f;
 			test.style = RotationStyle::SELF;
 			p->SetRotationStyle(test);
 		}
@@ -828,11 +864,10 @@ std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay
 TargetPlayerBehaviour(std::vector<SE::Gameplay::ProjectileFactory::BehaviourParameter> parameters)
 {
 	StartProfile;
-	Room* currentRoom = *ptrs.currentRoom;
 	PlayerUnit* player = ptrs.player;
 	float rotPerSecond = std::get<float>(parameters[0].data);
 
-	auto targeter = [currentRoom, rotPerSecond, player](Projectile* p, float dt) -> bool
+	auto targeter = [rotPerSecond, player](Projectile* p, float dt) -> bool
 	{
 		float xTarget = player->GetXPosition(),
 			yTarget = player->GetYPosition();
@@ -955,11 +990,21 @@ CloseToEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 
 	float minDistance = std::get<float>(parameters[0].data);
 	Room* currentRoom = *ptrs.currentRoom;
+	PlayerUnit* player = ptrs.player;
 
-	auto Close = [minDistance, currentRoom](Projectile* p, float dt) -> bool
+	auto Close = [minDistance, currentRoom, player](Projectile* p, float dt) -> bool
 	{
 		float xTarget, yTarget;
-		currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget);
+
+		if (p->GetValidTarget() == ValidTarget::ENEMIES || p->GetValidTarget() == ValidTarget::EVERYONE)
+		{
+			currentRoom->GetClosestEnemy(p->GetXPosition(), p->GetYPosition(), xTarget, yTarget);
+		}
+		else
+		{
+			xTarget = player->GetXPosition();
+			yTarget = player->GetYPosition();
+		}
 
 		float distance = sqrt(
 			(xTarget - p->GetXPosition()) * (xTarget - p->GetXPosition()) + (yTarget - p->GetYPosition()) * (yTarget - p->
@@ -1008,7 +1053,7 @@ CreateProjectilesBehaviour(std::vector<BehaviourParameter> parameters)
 		temp.target = p->GetValidTarget();
 		temp.eventDamage = p->GetDamageEvent();
 		temp.eventDamage.amount = temp.eventDamage.originalAmount;
-		temp.ownerUnit = p->GetSharedPtr();
+		temp.ownerUnit = p->GetOwnerPtr();
 		temp.fileNameGuid = fileName;
 
 		this->CreateNewProjectile(temp);
@@ -1077,8 +1122,9 @@ CollidedWithEnemyConditionBehaviour(std::vector<BehaviourParameter> parameters)
 	//StartProfile;
 	auto CollisionCheck = [](Projectile* p, float dt) -> bool
 	{
-		if (p->GetCollisionType() == CollisionType::ENEMY)
+		if ((p->GetCollisionType() == CollisionType::ENEMY && p->GetValidTarget() == ValidTarget::ENEMIES) || (p->GetCollisionType() == CollisionType::PLAYER && p->GetValidTarget() == ValidTarget::PLAYER))
 			return true;
+
 		return false;
 	};
 
@@ -1233,7 +1279,7 @@ LifeStealBehaviour(std::vector<BehaviourParameter> parameters)
 		if (p->GetCollisionType() != CollisionType::OBJECT)
 			if (auto owner = ownerPtr.lock())
 			{
-				auto unit = *owner.get();
+				auto& unit = *owner.get();
 				HealingEvent hEvent;
 				hEvent.amount = p->GetProjectileDamageEvent().amount * percent;
 				hEvent.type = HealingEvent::SourceType::SOURCE_TYPE_ENEMY_HIT;
@@ -1377,9 +1423,10 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	float height = CoreInit::managers.transformManager->GetPosition(std::get<Projectile*>(parameters[2].data)->GetEntity()).y;
 
 	DirectX::XMFLOAT4X4 tempMat;
-	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 0.05f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
+	DirectX::XMStoreFloat4x4(&tempMat, DirectX::XMMatrixScaling(parentScale, parentScale, parentScale * 1.1f) * DirectX::XMMatrixRotationX(1.57079632679) * DirectX::XMMatrixTranslation(0.0f, -height, 0.0f));
 
 	CoreInit::managers.decalManager->Create(std::get<Projectile*>(parameters[2].data)->GetEntity(), decalInfo);
+	CoreInit::managers.decalManager->ToggleVisible(std::get<Projectile*>(parameters[2].data)->GetEntity(), true);
 	//CoreInit::managers.transformManager->SetRotation(std::get<Projectile*>(parameters[2].data)->GetEntity(), 1.57079632679, 0.0f, 0.0f);
 	//CoreInit::managers.transformManager->SetScale(std::get<Projectile*>(parameters[2].data)->GetEntity(), { 3.0f, 3.0f, 3.0f });
 	CoreInit::managers.decalManager->SetLocalTransform(std::get<Projectile*>(parameters[2].data)->GetEntity(), (float*)&tempMat);
@@ -1498,7 +1545,7 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters)
 {
 	StartProfile;
-	float percentage = std::get<float>(parameters[0].data);
+	float percentage = std::get<float>(parameters[0].data) / 100;
 	std::weak_ptr<GameUnit*> ownerPtr = std::get<std::weak_ptr<GameUnit*>>(parameters[1].data);
 
 	auto dynamicPercentageHeal = [percentage, ownerPtr](Projectile* p, float dt) -> bool
@@ -1589,6 +1636,154 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 	ProfileReturnConst(setToMousePos);
 }
 
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::MinimumLifeTimeConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float minimumLife = std::get<float>(parameters[0].data);
+
+	auto lifeTimeChecker = [minimumLife](Projectile* p, float dt) -> bool
+	{
+		return minimumLife <= p->GetLifeTime();
+	};
+
+	ProfileReturnConst(lifeTimeChecker);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetHeightBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float newHeight = std::get<float>(parameters[0].data);
+
+	auto heightSetter = [newHeight](Projectile* p, float dt) -> bool
+	{
+		p->SetExtentY(newHeight);
+
+		return false;
+	};
+
+	ProfileReturnConst(heightSetter);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::SetWidthBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float newWidth = std::get<float>(parameters[0].data);
+
+	auto widthSetter = [newWidth](Projectile* p, float dt) -> bool
+	{
+		p->SetExtentX(newWidth);
+
+		return false;
+	};
+
+	ProfileReturnConst(widthSetter);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::TargetOwnerBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float rotPerSecond = std::get<float>(parameters[0].data);
+
+	auto targeter = [rotPerSecond](Projectile* p, float dt) -> bool
+	{
+		if (auto target = p->GetOwnerPtr().lock())
+		{
+			auto ownerPtr = *target.get();
+			float xTarget = ownerPtr->GetXPosition(), yTarget = ownerPtr->GetYPosition();
+
+			DirectX::XMFLOAT3 forward = CoreInit::managers.transformManager->GetForward(p->GetEntity());
+
+			xTarget -= p->GetXPosition();
+			yTarget -= p->GetYPosition();
+
+			float totalRot = atan2f(yTarget, xTarget) - atan2f(forward.z, forward.x);
+			int sign = -1;
+
+			if (totalRot < 0)
+				totalRot = DirectX::XM_2PI + totalRot;
+
+			// If the rotation needed is greater than PI, we should rotate counter clockwise
+			if (totalRot > DirectX::XM_PI)
+				sign = 1;
+
+			if (totalRot > 0.0000025)
+			{
+				if (totalRot > rotPerSecond * dt)
+					totalRot = rotPerSecond;
+				totalRot *= sign;
+			}
+
+			Rotation test;
+			test.force = totalRot;
+			test.style = RotationStyle::SELF;
+			p->SetRotationStyle(test);
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(targeter);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::CollidedWithOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile
+	auto CollisionCheck = [](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = p->GetOwnerPtr().lock())
+		{
+			auto unit = *owner.get();
+
+			for (int i = 0; i < p->GetUnitsHit().size(); i++)
+			{
+				if (unit == p->GetUnitsHit()[i])
+					return true;
+			}
+		}
+		return false;
+	};
+	ProfileReturnConst(CollisionCheck);
+}
+
+std::function<bool(SE::Gameplay::Projectile* projectile, float dt)> SE::Gameplay::ProjectileFactory::LockToOwnerBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	PlayerUnit* player = ptrs.player;
+
+	auto LockToOwner = [player](Projectile* p, float dt) -> bool
+	{
+		if (auto owner = p->GetOwnerPtr().lock())
+		{
+			auto unit = *owner.get();
+			p->PositionEntity(unit->GetXPosition(), unit->GetYPosition());
+
+		}
+
+		return false;
+	};
+
+	ProfileReturnConst(LockToOwner);
+}
+
+std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay::ProjectileFactory::IncreaseExtentsDynamicallyBehaviour(std::vector<BehaviourParameter> parameters)
+{
+	StartProfile;
+	float toAdd = std::get<float>(parameters[0].data);
+
+	auto extentIncreaser = [toAdd](Projectile* p, float dt) -> bool
+	{
+		float newWidth = p->GetExtentX() + toAdd * dt;
+		float newHeight = p->GetExtentY() + toAdd * dt;
+
+		p->SetExtentX(newWidth);
+		p->SetExtentY(newHeight);
+
+		return false;
+	};
+
+	ProfileReturnConst(extentIncreaser);
+}
+
 SE::Gameplay::ProjectileFactory::ProjectileFactory()
 {
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::BounceBehaviour, this, std::placeholders::_1)); // 
@@ -1638,6 +1833,13 @@ SE::Gameplay::ProjectileFactory::ProjectileFactory()
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthStaticBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetOwnerHealthPercentBehaviour, this, std::placeholders::_1)); // f, o
 	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetPositionToMouseBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::MinimumLifeTimeConditionBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetHeightBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::SetWidthBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::TargetOwnerBehaviour, this, std::placeholders::_1)); // f
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::CollidedWithOwnerConditionBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::LockToOwnerBehaviour, this, std::placeholders::_1)); // 
+	behaviourFunctions.push_back(std::bind(&ProjectileFactory::IncreaseExtentsDynamicallyBehaviour, this, std::placeholders::_1)); // f
 
 }
 

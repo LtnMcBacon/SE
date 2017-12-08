@@ -104,7 +104,7 @@ bool GameStateTest::Run(SE::DevConsole::IConsole* console)
 			case IGameState::PAUSE_STATE:
 				console->Print("Making Pause State!\n");
 				delete Game;
-				Game = new PauseState(subSystem.window);
+				Game = new PauseState(subSystem.window, subSystem.window);
 				//std::cout << "passableInfo: " << *(int*)passableInfo << std::endl;
 		
 				break;

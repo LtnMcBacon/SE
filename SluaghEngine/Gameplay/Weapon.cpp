@@ -100,7 +100,7 @@ void SE::Gameplay::Item::Weapon::CreateMeta(SE::Core::Entity wep)
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 10;
 	icon.textureInfo.posY = -60;
-	icon.textureInfo.layerDepth = 0.9;
+	icon.textureInfo.layerDepth = 0.1;
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 }
@@ -128,6 +128,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	tci.info.scale = { 0.4f, 1.0f };
 	tci.info.height = textHeigth;
 	tci.info.text = L"Skada";
+	tci.info.layerDepth = 0.1;
 	auto textEnt = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(textEnt, tci);
 	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
@@ -212,6 +213,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	ciback.textureInfo.posY = 0;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0f, 0.5f };
+	ciback.textureInfo.layerDepth = 0.1;
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
 

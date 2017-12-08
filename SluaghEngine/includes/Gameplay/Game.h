@@ -7,7 +7,7 @@
 #include <Gameplay\PlayState.h>
 #include <Gameplay\CharacterCreationState.h>
 #include <Gameplay\MainMenuState.h>
-
+#include <Gameplay\PauseState.h>
 #include <Gameplay\KeyBindings.h>
 
 #include <Core\IEngine.h>
@@ -21,9 +21,10 @@ namespace SE
 		{
 		private:
 			IGameState* state;
-			bool paused;
+			IGameState* tempState;
 			bool running;
-			bool buttonsExist;
+			bool stateOverride;
+			bool tutorialState;
 			Window::IWindow* input;
 			SE::Core::IEngine* engine;
 			SE::Gameplay::IGameState::State currentState;
