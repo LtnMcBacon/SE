@@ -17,7 +17,7 @@ SE::Gameplay::PerkImporter::~PerkImporter()
 void SE::Gameplay::PerkImporter::loadPerkData(string fileName)
 {
 		
-	//	file[fileNames[i].length()] = 0;
+	
 
 		auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)fileName, [this](auto guid, auto data, auto size)
 		{
