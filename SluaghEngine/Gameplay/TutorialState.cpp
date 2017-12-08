@@ -244,7 +244,7 @@ SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass
 
 	(*this.*scriptToRun)(dt);
 
-	return scriptToRun == &TutorialState::EndTutorialScript ? State::MAIN_MENU_STATE : State::TUTORIAL_STATE;
+	return scriptToRun == &TutorialState::EndTutorialScript ? State::TUTORIAL_STATE : State::TUTORIAL_STATE;
 }
 
 void SE::Gameplay::TutorialState::NothingScript(float dt)
@@ -1032,9 +1032,9 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	managers.audioManager->PlaySound(sounds, currentSound);
 
 	managers.eventManager->SetLifetime(ent, 7.0f);
-	subSystems.window->MapActionButton(0, Window::KeySpace);
+	subSystems.window->MapActionButton(8731479874, Window::KeySpace);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
-		if(subSystems.window->ButtonDown(0))
+		if(subSystems.window->ButtonDown(8731479874))
 			scriptToRun = &TutorialState::NonSuspiciousScript;
 		else
 			scriptToRun = &TutorialState::GåTillSluaghSvartScript;
@@ -1090,7 +1090,7 @@ void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
-	managers.eventManager->SetLifetime(sluagh, 4.0f);
+	managers.eventManager->SetLifetime(sluagh, 12.0f);
 
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, sword, l](Core::Entity ent) {
