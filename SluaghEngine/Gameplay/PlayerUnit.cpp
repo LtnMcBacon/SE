@@ -88,8 +88,6 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 		}
 	
 	}
-	
-	
 
 	for (int i = 0; i < ConditionEventVector.size(); i++)
 	{
@@ -105,8 +103,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				newStat.meleeMultiplier += baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
 				break;
 			case Boons::CONDITIONAL_BOONS_STUN:
+				this->isStunned = true;
 				break;
 			case Boons::CONDITIONAL_BOONS_ROOT:
+				this->isRooted = true;
+				this->newStat.movementSpeed = 0;
 				break;
 			case Boons::CONDITIONAL_BOONS_PROTECTION:
 				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
@@ -129,9 +130,17 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			case Boons::CONDITIONAL_BOONS_CASTSPEED:
 				break;
 			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
-				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted == false)
+				{
+					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_SLOW:
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 				break;
@@ -150,6 +159,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->isStunned = true;
 				break;
 			case Banes::CONDITIONAL_BANES_ROOT:
+				this->isRooted = true;
 				this->newStat.movementSpeed = 0;
 				break;
 			case Banes::CONDITIONAL_BANES_BLOODLETTING:
@@ -173,8 +183,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->newStat.natureResistance -= this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
 				break;
 			case Banes::CONDITIONAL_BANES_SLOW:
-				this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
-				this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			}
 		}
@@ -504,7 +517,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.target = ValidTarget::ENEMIES;
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
-		//temp.conditionEvent = skills[0]->GetConditionEvent();
 		if (skills[0].boon != Boons(1 << 0))
 		{
 			ConditionEvent::ConditionType condition;
@@ -517,7 +529,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[0].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[0].boonEffectValue, skills[0].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[0].baneEffectValue, skills[0].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -572,7 +584,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[1].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[1].boonEffectValue, skills[1].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[1].baneEffectValue, skills[1].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -684,6 +696,7 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 	{
 		ClearNewStats();
 		isStunned = false;
+		isRooted = false;
 		UpdateActions(dt, newProjectiles, aInput);
 		UpdateMovement(dt, mInputs);
 
@@ -726,7 +739,6 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 
 	StopProfile;
 }
-
 
 void SE::Gameplay::PlayerUnit::calcBaseStrChanges()
 {

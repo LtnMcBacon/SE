@@ -24,7 +24,7 @@ namespace SE
 			float damage = 1.f;
 			static const int MAX_DAMAGE = 15;
 			float meleeMultiplier = 1.f;
-			float physicalResistance = 1.f;
+			float physicalResistance = -1.f;
 
 			//agi
 			float rangedDamage = 1.f;
@@ -37,10 +37,10 @@ namespace SE
 			//whi
 			float magicDamage = 1.f;
 			float magicMultiplier = 1.f;
-			float magicResistance = 1.f;
-			float natureResistance = 1.f;
-			float fireResistance = 1.f;
-			float waterResistance = 1.f;
+			float magicResistance = -1.f;
+			float natureResistance = -1.f;
+			float fireResistance = -1.f;
+			float waterResistance = -1.f;
 
 			ArmourType armour = ArmourType::ARMOUR_TYPE_NONE;
 			DamageSources weapon = DamageSources::DAMAGE_SOURCE_MELEE;

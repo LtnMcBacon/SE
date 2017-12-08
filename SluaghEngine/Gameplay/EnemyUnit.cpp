@@ -97,6 +97,7 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 					break;
 				case Boons::CONDITIONAL_BOONS_SLOW:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
+					this->stunDuration = ConditionEventVector[i].duration;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;
@@ -111,38 +112,45 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
 				break;
 				case Banes::CONDITIONAL_BANES_DAMAGE:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
+					this->newStat.meleeMultiplier -= baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_STUN:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
+					break;
 				case Banes::CONDITIONAL_BANES_ROOT:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
+					break;
 				case Banes::CONDITIONAL_BANES_BLOODLETTING:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
+					break;
 				case Banes::CONDITIONAL_BANES_UNCOVER:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
+					break;
 				case Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
+					this->newStat.physicalResistance -= this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
+					this->newStat.magicResistance -= this->baseStat.magicResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_FIRE_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
+					this->newStat.fireResistance -= this->baseStat.fireResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_WATER_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
+					this->newStat.waterResistance -= this->baseStat.waterResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_NATURE_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
+					this->newStat.natureResistance += this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_SLOW:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
+					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					break;
 				}
 			}
 			if (ConditionEventVector[i].duration > 0.f)

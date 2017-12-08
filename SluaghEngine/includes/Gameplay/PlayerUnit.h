@@ -377,14 +377,13 @@ namespace SE
 			* @param[ín]	skills is the list that will be emptied.
 			**/
 			inline void flushSkills(std::vector<Skill> skills) { skills.clear(); };
-			//void addPlayerSkills();
-			//void movePlayerSkillsToAI();
 
 			SkillFactory SF;
 
 			//void changeElementType(Gameplay::DamageTypes element);
 
 			bool isStunned = false;
+			bool isRooted = false;
 			bool attacking = false;
 			bool isSluagh = false;
 		public:
