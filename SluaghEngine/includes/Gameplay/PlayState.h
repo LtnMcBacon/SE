@@ -84,7 +84,7 @@ namespace SE
 			void DestroyFlowFieldRendering();
 			void UpdateFlowFieldRendering();
 
-			void CreateMiniMap(const int width, const int height);
+			void CreateMiniMap();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);

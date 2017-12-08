@@ -290,7 +290,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	dummyJob.vertexCount = 4;
 	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
 
-	CreateMiniMap(200, 170);
+	CreateMiniMap();
 
 	ProfileReturnVoid;
 }
@@ -481,6 +481,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				// Set new room symbol to green
 				auto debug = newRoom->get().symbol;
 				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
+				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
 
 				// Grey out the symbol of the old room
 				auto oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
@@ -1306,7 +1307,11 @@ void PlayState::UpdateFlowFieldRendering()
 	StopProfile;
 }
 
-void PlayState::CreateMiniMap(const int width, const int height) {
+void PlayState::CreateMiniMap() {
+
+	// Set minimap width and height in pixels
+	long width = 200;
+	long height = 170;
 
 	// Get the number of rooms to offset with
 	long offsetX = 9 - worldWidth;
@@ -1319,8 +1324,8 @@ void PlayState::CreateMiniMap(const int width, const int height) {
 	Core::IGUIManager::CreateInfo miniMapInfo;
 	miniMapInfo.texture = "MiniMap.jpg";
 	miniMapInfo.textureInfo.colour = XMFLOAT4{ 0.0f, 0.0f, 0.0f, 0.5f };
-	miniMapInfo.textureInfo.posX = 0.0f - 10.0f;
-	miniMapInfo.textureInfo.posY = 0.0f;
+	miniMapInfo.textureInfo.posX = -20.0f;
+	miniMapInfo.textureInfo.posY = 20.0f;
 	miniMapInfo.textureInfo.height = height;
 	miniMapInfo.textureInfo.width = width;
 	miniMapInfo.textureInfo.anchor = { 1.0f, 0.0f };
@@ -1342,9 +1347,10 @@ void PlayState::CreateMiniMap(const int width, const int height) {
 			// Only display the symbol if the room is active
 			if (room.room != nullptr) {
 
+				// Create the symbol entity
+				room.symbol = CoreInit::managers.entityManager->Create();
+
 				// Create the information for the minimap symbols
-				// Create the information for the minimap
-				
 				Core::IGUIManager::CreateInfo roomSymbolInfo;
 				roomSymbolInfo.texture = "EmptyRoom.jpg";
 				roomSymbolInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -1355,26 +1361,39 @@ void PlayState::CreateMiniMap(const int width, const int height) {
 				roomSymbolInfo.textureInfo.layerDepth = 0.010f;
 
 				// Offset to right corner
-				roomSymbolInfo.textureInfo.posX = (0.0f - x * width / 12) - 35;
-				roomSymbolInfo.textureInfo.posY = (0.0f - y * height / 12) + 135;
+				roomSymbolInfo.textureInfo.posX = (-x * width / 12) - 50;
+				roomSymbolInfo.textureInfo.posY = (-y * height / 12) + 155;
 
+				// Center symbols according to the number of rooms
 				roomSymbolInfo.textureInfo.posX -= (offsetX * 16) / 2;
 				roomSymbolInfo.textureInfo.posY -= (offsetY * 14) / 2;
 
 				if (currentRoomX == x && currentRoomY == y) {
 
 					roomSymbolInfo.texture = "InRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, true);
 				}
 
-				if (sluaghRoomX == x && sluaghRoomY == y) {
+				else if (sluaghRoomX == x && sluaghRoomY == y) {
 
 					roomSymbolInfo.texture = "SlaughRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
 				}
 
-				// Create the GUI element
-				room.symbol = CoreInit::managers.entityManager->Create();
-				CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
-				CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, true);
+				else {
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
+				}
+
+				
 			}
 			
 		}
@@ -1412,6 +1431,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	}
 	if (!sluaghDoorsOpen)
 	{
+
 		int totalEnemiesLeft = 0;
 		for (int x = 0; x < worldWidth; x++)
 			for (int y = 0; y < worldHeight; y++)
@@ -1421,6 +1441,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
 			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(GetRoom(sluaghRoomX, sluaghRoomY)->get().symbol, true);
 			sluaghRoom->InitSluagh();
 			Core::ITextManager::CreateInfo ti;
 			ti.font = "Ancient.spritefont";
