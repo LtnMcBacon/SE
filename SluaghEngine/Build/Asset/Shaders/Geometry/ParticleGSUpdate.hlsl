@@ -107,7 +107,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			float3 lookAt = eyePos - input[0].startEmitPos;
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
-			
+			tanVector = normalize(tanVector);
 		
 			input[0].opacity = 1 - input[0].age/ lifeTime;
 			if(circular == 1)
