@@ -22,7 +22,9 @@ namespace SE
 		private:
 			IGameState* state;
 			IGameState* tempState;
+			bool running;
 			bool stateOverride;
+			bool tutorialState;
 			Window::IWindow* input;
 			SE::Core::IEngine* engine;
 			SE::Gameplay::IGameState::State currentState;

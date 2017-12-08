@@ -9,12 +9,21 @@ PauseState::PauseState()
 
 }
 
-PauseState::PauseState(Window::IWindow* Input)
+PauseState::PauseState(Window::IWindow* Input, SE::Gameplay::IGameState::State oldState)
 {
 	StartProfile;
 	this->input = Input;
 
 	this->CurrentState = PAUSE_STATE;
+
+	if (oldState == TUTORIAL_STATE) {
+		tutorialState = true;
+	}
+
+	if (CurrentState == TUTORIAL_STATE)
+	{
+		tutorialState = true;
+	}
 	
 	auto quitGame = [this]()->void
 	{
@@ -25,7 +34,13 @@ PauseState::PauseState(Window::IWindow* Input)
 
 	auto resumeGame = [this]()->void
 	{
-		this->CurrentState = PLAY_STATE;
+		if (tutorialState)
+		{
+			this->CurrentState = TUTORIAL_STATE;
+		}
+		else {
+			this->CurrentState = PLAY_STATE;
+		}
 	};
 
 	std::function<void()> resume = resumeGame;

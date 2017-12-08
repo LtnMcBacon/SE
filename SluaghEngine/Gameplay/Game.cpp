@@ -54,7 +54,9 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 
 	state = new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
+	running = true;
 	stateOverride = false;
+	tutorialState = false;
 }
 
 void SE::Gameplay::Game::Run()
@@ -77,8 +79,12 @@ void SE::Gameplay::Game::Run()
 			{
 				if (currentState == SE::Gameplay::IGameState::State::PAUSE_STATE)
 				{
-					stateOverride = true;
 					newState = SE::Gameplay::IGameState::State::PLAY_STATE;
+					if (tutorialState)
+					{
+						newState = SE::Gameplay::IGameState::State::TUTORIAL_STATE;
+					}
+					stateOverride = true;
 					CoreInit::subSystems.window->ToggleCursor(true);
 				}
 				else {
@@ -142,6 +148,7 @@ void SE::Gameplay::Game::Run()
 					state = tempState;
 				}
 				else {
+					tutorialState = false;
 					delete state;
 					CoreInit::managers.entityManager->DestroyAll();
 					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
@@ -156,9 +163,18 @@ void SE::Gameplay::Game::Run()
 				break;
 			}
 			case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
-				delete state;
-				CoreInit::managers.entityManager->DestroyAll();
-				state = new TutorialState();
+				if (currentState == SE::Gameplay::IGameState::State::PAUSE_STATE)
+				{
+					stateOverride = false;
+					delete state;
+					state = tempState;
+				}
+				else {
+					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
+					state = new TutorialState();
+					tutorialState = true;
+				}
 				break;
 			case SE::Gameplay::IGameState::State::WIN_STATE:
 				delete state;
@@ -171,7 +187,7 @@ void SE::Gameplay::Game::Run()
 			case SE::Gameplay::IGameState::State::PAUSE_STATE:
 				tempState = state;
 				stateOverride = false;
-				state = new PauseState(CoreInit::subSystems.window);
+				state = new PauseState(CoreInit::subSystems.window, currentState);
 				break;
 			default:
 				break;
