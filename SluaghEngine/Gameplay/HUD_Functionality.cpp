@@ -828,6 +828,10 @@ namespace SE
 					{
 						// hovered;
 						auto& entity = ButtonEntityVec.at(button.EntityIndex);
+						if (button.rectName == "ResumeButton")
+						{
+							int a = 0;
+						}
 						if (button.hoverTex!="")
 						{
 							CoreInit::managers.guiManager->SetTexture(entity, button.hoverTex);
