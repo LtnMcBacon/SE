@@ -57,6 +57,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	paused = false;
 	running = true;
 	buttonsExist = false;
+	menuOverride = false;
 }
 
 void SE::Gameplay::Game::Run()
@@ -84,6 +85,15 @@ void SE::Gameplay::Game::Run()
 
 	std::function<void()> resume = resumeGame;
 	
+	auto returnToMainMenu = [this]()->void
+	{
+		this->menuOverride = true;
+		this->paused = false;
+		this->buttonsExist = false;
+		this->fileParser.GUIButtons.DeleteButtons();
+	};
+
+	std::function<void()> retToMenu = returnToMainMenu;
 	
 	while (running)
 	{
@@ -91,7 +101,7 @@ void SE::Gameplay::Game::Run()
 
 		if (CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME)))
 		{
-			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE || SE::Gameplay::IGameState::State::OPTION_STATE || SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE && currentState != SE::Gameplay::IGameState::State::OPTION_STATE && currentState != SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 			{
 				if (paused == true)
 				{
@@ -110,7 +120,14 @@ void SE::Gameplay::Game::Run()
 
 		if (!paused)
 		{
-			newState = state->Update(data);
+			if (!menuOverride)
+			{
+				newState = state->Update(data);
+			}
+			else {
+				newState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
+				menuOverride = false;
+			}
 
 			if (newState != currentState)
 			{
@@ -189,6 +206,7 @@ void SE::Gameplay::Game::Run()
 				fileParser.GUIButtons.CreateButton(540, 50, 200, 80, 1000, "Paus", NULL, false, "NULL", "Paus.png", "Paus.png", "Paus.png");
 				fileParser.GUIButtons.CreateButton(540, 250, 200, 80, 1000, "ResumeButton", resume, false, "NULL", "SpelaVidare.png", "SpelaVidare1.png", "SpelaVidare.png");
 				fileParser.GUIButtons.CreateButton(540, 450, 200, 80, 1000, "ShutdownButton", shutDown, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
+				fileParser.GUIButtons.CreateButton(540, 550, 200, 80, 1000, "ShutdownButton", retToMenu, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
 				fileParser.GUIButtons.CreateButton(0, 0, 1280, 720, 999, "BackGround", NULL, false, "NULL", "bakgrund.png", "bakgrund.png", "bakgrund.png");
 				fileParser.GUIButtons.DrawButtons();
 				buttonsExist = true;
