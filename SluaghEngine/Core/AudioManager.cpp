@@ -53,6 +53,7 @@ namespace SE {
 				if (res)
 				{
 					initInfo.console->PrintChannel("Resources", "Could not load sound. GUID: %u, Error: %d",  createInfo.soundFile, res);
+					guidToSound.erase(createInfo.soundFile);
 					ProfileReturnVoid;
 				}
 			}

@@ -126,6 +126,7 @@ namespace SE {
 			StartProfile;
 			if (soundSample.size() > soundHandle)
 			{
+				delete soundSample[soundHandle]->samples;
 				delete soundSample[soundHandle];
 				soundSample[soundHandle] = nullptr;
 				freeSample.push(soundHandle);
@@ -227,8 +228,11 @@ namespace SE {
 			StartProfile;
 			for (auto& sound : soundSample)
 			{
-				delete sound->samples;
-				delete sound;
+				if (sound != nullptr)
+				{
+					delete sound->samples;
+					delete sound;
+				}
 			}
 			soundSample.clear();
 			StopProfile;
