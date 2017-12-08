@@ -478,6 +478,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
 	this->newStat.whi += weaponStats.whi;
@@ -501,7 +502,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
+
+		if (skills[0].atkType == DamageSources::DAMAGE_SOURCE_SELFCAST)
+			temp.target = ValidTarget::PLAYER;
+		else
+			temp.target = ValidTarget::ENEMIES;
+
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
 		//temp.conditionEvent = skills[0]->GetConditionEvent();
