@@ -1003,7 +1003,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks,float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -1028,6 +1028,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 
 		this->perks[0].myCondition = myCond;
 		this->perks[1].myCondition = secondCond;
+		this->perks[0].slaughPerk = slaughPerks[0];
+		this->perks[1].slaughPerk = slaughPerks[1];
+
 	}
 
 	Core::IAnimationManager::CreateInfo sai;

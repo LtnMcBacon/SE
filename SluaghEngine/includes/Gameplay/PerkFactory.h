@@ -5,7 +5,8 @@
 #include <vector>
 #include <functional>
 #include <map>
-
+#include <Gameplay\Perk.h>
+#include <Gameplay\perkConditionEnum.h>
 #include <Gameplay\ProjectileData.h>
 
 namespace SE
@@ -48,6 +49,8 @@ namespace SE
 
 			std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> initiateFuncs(int value, int funcEnum);
 			void iteratePerks();
+			
+			Perk ReadPerksForSlaugh(std::string perkName);
 
 
 		private:
