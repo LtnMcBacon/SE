@@ -668,24 +668,39 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	CollisionData cData;
 	int enemyCollidedWith = -1;
 
-	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
+	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		collidedLeft = true;
-		cData.type = CollisionType::ENEMY;
-	}
-	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
-	{
-		collidedRight = true;
-		cData.type = CollisionType::ENEMY;
+		float distance = sqrt((projectile.GetXPosition() - enemyUnits[i]->GetXPosition()) * (projectile.GetXPosition() - enemyUnits[i]->GetXPosition()) + (projectile.GetYPosition() - enemyUnits[i]->GetYPosition()) * (projectile.GetYPosition() - enemyUnits[i]->GetYPosition()));
+		float tempVal = projectile.GetBoundingRect().radius;
+		if (!projectile.CheckIfAlreadyHit(enemyUnits[i]) && projectile.GetBoundingRect().radius != 0.0f && distance < (projectile.GetBoundingRect().radius + sqrt(enemyUnits[i]->GetExtent() * enemyUnits[i]->GetExtent() * 2)))
+		{
+			enemyUnits[i]->AddDamageEvent(projectile.GetProjectileDamageEvent());
+			enemyUnits[i]->AddHealingEvent(projectile.GetProjectileHealingEvent());
+			enemyUnits[i]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+			cData.type = CollisionType::ENEMY;
+			cData.hitUnit = enemyUnits[i]->GetSharedPtr();
+			projectile.AddToHit(enemyUnits[i]);
+		}
 	}
 
-	if (enemyCollidedWith != -1)
-	{
-		enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
-		enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
-		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
-		cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
-	}
+	//if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
+	//{
+	//	collidedLeft = true;
+	//	cData.type = CollisionType::ENEMY;
+	//}
+	//else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
+	//{
+	//	collidedRight = true;
+	//	cData.type = CollisionType::ENEMY;
+	//}
+
+	//if (enemyCollidedWith != -1)
+	//{
+	//	enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
+	//	enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
+	//	enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+	//	cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
+	//}
 
 	if (cData.type != CollisionType::NONE)
 	{

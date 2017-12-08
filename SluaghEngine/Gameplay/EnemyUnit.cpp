@@ -38,10 +38,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			CoreInit::managers.eventManager->SetLifetime(bs, 20);
 			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
-
-		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
-			//CoreInit::managers.eventManager->SetLifetime(ent, 0.5f);
-			//CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
@@ -94,9 +90,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 				case Boons::CONDITIONAL_BOONS_SWIFTNESS:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SWIFTNESS;
 					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
-					break;
-				case Boons::CONDITIONAL_BOONS_SLOW:
-					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;
@@ -151,8 +144,18 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			}
 		}
 	}
+
+	for (int i = 0; i < HealingEventVector.size(); i++)
+	{
+		this->health += HealingEventVector[i].amount;
+	}
+
+	if (this->health > this->maxHealth)
+		this->health = this->maxHealth;
+
 	DamageEventVector.clear();
 	ConditionEventVector.clear();
+	HealingEventVector.clear();
 
 	this->newStat.damage = 1000.f;
 
