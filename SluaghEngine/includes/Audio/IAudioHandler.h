@@ -81,7 +81,7 @@ namespace SE {
 			*/
 			virtual int StopSound(int streamID) = 0;
 			/**
-			* @brief Removes the given sound
+			* @brief Removes the given stream
 			*
 			* @param[in] streamID The stream ID
 			*
@@ -90,6 +90,16 @@ namespace SE {
 			*
 			*/
 			virtual int RemoveSound(int streamID) = 0;
+			/**
+			* @brief Unloads the given sound
+			*
+			* @param[in] streamID The stream ID
+			*
+			* @retval 0 Tells that removestream was sucessful
+			* @retval -1 Tells that removestream was unsucessful
+			*
+			*/
+			virtual int UnloadSound(int soundHandle) = 0;
 			/**
 			* @brief Updates Pos of head and sound
 			*
