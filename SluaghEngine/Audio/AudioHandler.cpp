@@ -66,6 +66,12 @@ namespace SE {
 			ProfileReturn(audioStream.RemoveSound(streamID));
 		}
 
+		int AudioHandler::UnloadSound(int soundHandle)
+		{
+			StartProfile;
+			ProfileReturn(audioSound.UnloadSound(soundHandle));
+		}
+
 		int AudioHandler::UpdateStreamPos(int streamID, Audio::PanData panData)
 		{
 			StartProfile;
