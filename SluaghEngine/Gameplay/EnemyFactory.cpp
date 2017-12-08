@@ -138,17 +138,42 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 	if (enemyCreationData != enemyData.end())
 	{
 		EnemyUnit* createdEnemy = nullptr;
-		int enemyHealth = enemyCreationData->second.baseHealth;
+		auto const information = enemyCreationData->second;
+		int enemyHealth = information.baseHealth;
 		if (useVariation)
 		{
-			int healthVariation = enemyCreationData->second.baseHealthVariation;
+			int healthVariation = information.baseHealthVariation;
 			enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
 		}
 	
 
 		createdEnemy = new EnemyUnit(type, nullptr, 0.f, 0.f, enemyHealth);
-		createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
+		createdEnemy->SetDeathAnimation(information.deathAnimationGUID);
 		/*To do: Add the rest of the data here!*/
+
+		createdEnemy->SetBasePhysicalResistance(information.physicalResistance);
+		createdEnemy->SetBaseMagicResistance(information.magicalResistance);
+		createdEnemy->SetBaseNatureResistance(information.natureResistance);
+		createdEnemy->SetBaseFireResistance(information.fireResistance);
+		createdEnemy->SetBaseWaterResistance(information.waterResistance);
+
+		int baseStrength = information.baseStrength;
+		int baseAgility = information.baseAgility;
+		int baseWisdom = information.baseWisdom;
+
+		if(useVariation)
+		{
+			baseStrength += information.baseStrengthVariation;
+			baseAgility += information.baseAgilityVariation;
+			baseWisdom += information.baseWisdomVariation;
+
+		}
+
+		createdEnemy->SetBaseStrength(baseStrength);
+		createdEnemy->SetBaseAgility(baseAgility);
+		createdEnemy->SetBaseWhisdom(baseWisdom);
+
+		createdEnemy->SetBaseMaxHealth(enemyHealth);
 
 		EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
 
@@ -266,6 +291,24 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseStrength = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseStrengthVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseAgility = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseAgilityVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseWisdom = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseWisdomVariation = GetLineDataAsInt(line);
 
 
 		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))

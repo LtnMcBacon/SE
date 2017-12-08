@@ -72,6 +72,12 @@ namespace SE
 				int natureResistance;
 				int fireResistance;
 				int waterResistance;
+				int baseStrength;
+				int baseAgility;
+				int baseWisdom; 
+				int baseStrengthVariation;
+				int baseAgilityVariation;
+				int baseWisdomVariation;
 			};
 
 
