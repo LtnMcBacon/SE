@@ -16,6 +16,7 @@
 using namespace SE;
 using namespace Gameplay;
 using namespace DirectX;
+static int timeWon = - 1;
 PlayState::PlayState()
 {
 
@@ -26,6 +27,7 @@ bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+	timeWon++;
 	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
@@ -641,6 +643,7 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 
 void SE::Gameplay::PlayState::InitializeDeathSequence() {
 
+	timeWon = -1;
 	deathText = CoreInit::managers.entityManager->Create();
 	returnPrompt = CoreInit::managers.entityManager->Create();
 
@@ -777,12 +780,12 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 		}
 	}
 }
-
+#undef min
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 2;
-	worldHeight = 2;
+	worldWidth = std::min(2 + std::rand() % (timeWon + 1), 9);
+	worldHeight = std::min(2 + std::rand() % (timeWon + 1), 9);
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -819,7 +822,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		auto& room = rooms[r].room;
 		room->GetMap(map);
 		eStruct.information.clear();
-	//	enemiesInEachRoom = 2;
+		enemiesInEachRoom = 1 + std::min(timeWon, 3);
 		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
@@ -859,7 +862,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemyPos.y = y;// -0.5f;
 	
 			EnemyCreationData data;
-			if (counter < 1)
+			if (counter < 1 && timeWon < 2)
 			{
 				data.type = ENEMY_TYPE_BODACH;
 			}
@@ -892,8 +895,11 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}*/
-		if (!(++counter % 3))
+		if (counter == 0)
 			enemiesInEachRoom++;
+		if (!(++counter % 4))
+			enemiesInEachRoom++;
+		enemiesInEachRoom = std::min(enemiesInEachRoom, 6);
 		delete[] enemies;
 
 
@@ -978,7 +984,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, tempPtr->perksForSlaughSave, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
@@ -1466,7 +1472,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	UpdateInput(movementInput, actionInput);
 	UpdateAimDecal();
 
-	float dt = min(1 / 30.f, input->GetDelta());
+	float dt = std::min(1 / 30.f, input->GetDelta());
 
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->Update(dt, movementInput, newProjectiles, actionInput);

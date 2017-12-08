@@ -394,7 +394,7 @@ namespace SE
 			bool attacking = false;
 			bool isSluagh = false;
 		public:
-			PlayerUnit(Skill* skills, Perk* importPerks , float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Skill* skills, Perk* importPerks ,PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
 
 			PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25]);
 
