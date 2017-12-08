@@ -35,8 +35,8 @@ struct ProjectileInfo
 static const std::vector<std::vector<ProjectileInfo>> projectiles = 
 {
 	{
-		{ 1.0f, "playerMeleeProjectiles.SEP" },
-		{ 1.0f, "playerMeleeProjectiles.SEP" }
+		{ 2.0f, "playerMeleeProjectiles.SEP" },
+		{ 2.0f, "playerMeleeProjectiles.SEP" }
 	},
 
 	{
@@ -61,22 +61,22 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	auto wep = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(ItemType::WEAPON));
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(type));
-	CoreInit::managers.dataManager->SetValue(wep, "Health", Stats::GetRandHealth());
-	CoreInit::managers.dataManager->SetValue(wep, "Str", Stats::GetRandStr());
-	CoreInit::managers.dataManager->SetValue(wep, "Agi", Stats::GetRandAgi());
-	CoreInit::managers.dataManager->SetValue(wep, "Wis", Stats::GetRandWil());
+	CoreInit::managers.dataManager->SetValue(wep, "Health", base ? 0 : Stats::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(wep, "Str", base ? 0 : Stats::GetRandStr());
+	CoreInit::managers.dataManager->SetValue(wep, "Agi", base ? 0 : Stats::GetRandAgi());
+	CoreInit::managers.dataManager->SetValue(wep, "Wis", base ? 0 : Stats::GetRandWil());
 	
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(Stats::GetRandomDamageType()));
 	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(type)].attAnim.id);
 	if (projectileID == -1)
 	{
 		auto randProjectile = std::rand() % projectiles[size_t(type)].size();
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 10 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
 	}
 	else
 	{
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 10 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][projectileID].projectile.id);
 	}
 	CreateMeta(wep);
