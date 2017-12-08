@@ -17,23 +17,21 @@ SE::Gameplay::PoisonCloudLeaf::PoisonCloudLeaf(EnemyBlackboard* enemyBlackboard,
 SE::Gameplay::Status SE::Gameplay::PoisonCloudLeaf::Update()
 {
 	StartProfile;
-	if (!enemyBlackboard->channeling)
-	{
-		ProjectileData newProjectile;
+	
+	ProjectileData newProjectile;
 
-		newProjectile.fileNameGuid = poisonAttackFileGUID;
-		newProjectile.ownerUnit = enemyBlackboard->ownerPointer->GetSharedPtr();
-		newProjectile.target = ValidTarget::EVERYONE;
-		newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
-		newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
-		newProjectile.startPosZ = 1.0f;
-		newProjectile.startRotation = CoreInit::managers.transformManager->GetRotation(enemyBlackboard->ownerPointer->GetEntity()).y;;
-		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageType::NATURE, 75);
+	newProjectile.fileNameGuid = poisonAttackFileGUID;
+	newProjectile.ownerUnit = enemyBlackboard->ownerPointer->GetSharedPtr();
+	newProjectile.target = ValidTarget::EVERYONE;
+	newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
+	newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
+	newProjectile.startPosZ = 1.0f;
+	newProjectile.startRotation = CoreInit::managers.transformManager->GetRotation(enemyBlackboard->ownerPointer->GetEntity()).y;;
+	newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED, Gameplay::DamageType::NATURE, 75);
 
-		gameBlackboard->enemyProjectiles.push_back(newProjectile);
+	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 
-		enemyBlackboard->channeling = true;
-	}
+	
 	myStatus = Status::BEHAVIOUR_SUCCESS;
 
 

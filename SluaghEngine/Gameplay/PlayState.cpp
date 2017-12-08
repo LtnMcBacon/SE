@@ -234,6 +234,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		float xPos = enemy->GetXPosition();
 		float yPos = enemy->GetYPosition();
 		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 		enemy->PositionEntity(xPos, yPos);
 	}
 
@@ -719,7 +720,13 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				(*adjRoom)->Load();
 				auto enemiesInRoom = (*adjRoom)->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
+				{
+					float xPos = enemy->GetXPosition();
+					float yPos = enemy->GetYPosition();
 					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+					enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
+					enemy->PositionEntity(xPos, yPos);
+				}
 			}
 		}
 	}
@@ -854,7 +861,8 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			EnemyCreationData data;
 			if (counter < 1)
 			{
-				data.type = ENEMY_TYPE_BODACH;
+				//data.type = ENEMY_TYPE_BODACH;
+				data.type = ENEMY_TYPE_NUCKELAVEE;
 			}
 			else if(counter < 4)
 			{
@@ -876,6 +884,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
 			//enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
 			enemy->PositionEntity(data.startX, data.startY);
+			enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 			room->AddEnemyToRoom(enemy);
 		}
 
