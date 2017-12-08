@@ -6,7 +6,7 @@
 #include <Profiler.h>
 #include "CoreInit.h"
 
-const SE::Utilz::GUID SE::Gameplay::PoisonCloudLeaf::poisonAttackFileGUID = Utilz::GUID("GlaistigProjectile.SEP");
+const SE::Utilz::GUID SE::Gameplay::PoisonCloudLeaf::poisonAttackFileGUID = Utilz::GUID("NuckPoisonCloudProjectile.SEP");
 
 SE::Gameplay::PoisonCloudLeaf::PoisonCloudLeaf(EnemyBlackboard* enemyBlackboard, GameBlackboard* gameBlackboard) :
 	IBehaviour(enemyBlackboard, gameBlackboard)
