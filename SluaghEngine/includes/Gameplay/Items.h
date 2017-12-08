@@ -48,8 +48,6 @@ namespace SE
 			void GodPickup(Core::Entity ent);
 			void Equip(Core::Entity item, Core::Entity to);
 			void Unequip(Core::Entity item, Core::Entity from);
-			void ToggleRenderPickupInfo(Core::Entity ent);
-			void ToggleRenderEquiuppedInfo(Core::Entity item, Core::Entity parent);
 
 			void RenderItemInfo(Core::Entity item, Core::Entity compareWith);
 
