@@ -34,7 +34,7 @@ namespace SE
 			
 			bool checkConditions(std::vector<ProjectileData>& newProjectiles, PlayerUnit* player);
 
-			
+			PerkData slaughPerk;
 
 
 		private:
