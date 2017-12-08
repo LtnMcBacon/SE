@@ -239,6 +239,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 		enemy->PositionEntity(xPos, yPos);
 	}
 
+	CreateMiniMap();
 	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
 	blackBoard.currentRoom = currentRoom;
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
@@ -291,8 +292,6 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	dummyJob.pipeline.OMStage.depthStencilView = "backbuffer";
 	dummyJob.vertexCount = 4;
 	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
-
-	CreateMiniMap();
 
 	ProfileReturnVoid;
 }
@@ -485,9 +484,10 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
 				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
 
-				// Grey out the symbol of the old room
+				// Grey out the symbol of the old room and set it to visitéd
 				auto oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
 				CoreInit::managers.guiManager->SetTexture(oldRoom.symbol, "VisitedRoom.jpg");
+				oldRoom.visited = true;
 
 				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
@@ -730,6 +730,12 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				auto enemiesInRoom = (adjRoom)->get().room->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
 					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+
+				if (adjRoom->get().visited == false && !(ax == sluaghRoomX && ay == sluaghRoomY)) {
+
+					CoreInit::managers.guiManager->SetTexture(adjRoom->get().symbol, "EmptyRoom.jpg");
+					CoreInit::managers.guiManager->ToggleRenderableTexture(adjRoom->get().symbol, true);
+				}
 			}
 		}
 	}
@@ -1319,28 +1325,48 @@ void PlayState::CreateMiniMap() {
 	long width = 200;
 	long height = 170;
 
+	// Equal offset in both x and y from the top-right corner of the screen
+	long offset = 10;
+
 	// Get the number of rooms to offset with
 	long offsetX = 9 - worldWidth;
 	long offsetY = 9 - worldHeight;
 
 	// Create the entity for the mini map frame
 	miniMap.map = CoreInit::managers.entityManager->Create();
+	miniMap.frame = CoreInit::managers.entityManager->Create();
 
 	// Create the information for the minimap
 	Core::IGUIManager::CreateInfo miniMapInfo;
 	miniMapInfo.texture = "MiniMap.jpg";
 	miniMapInfo.textureInfo.colour = XMFLOAT4{ 0.0f, 0.0f, 0.0f, 0.5f };
-	miniMapInfo.textureInfo.posX = -20.0f;
-	miniMapInfo.textureInfo.posY = 20.0f;
+	miniMapInfo.textureInfo.posX = -20.0f - offset;
+	miniMapInfo.textureInfo.posY = 20.0f + offset;
 	miniMapInfo.textureInfo.height = height;
 	miniMapInfo.textureInfo.width = width;
 	miniMapInfo.textureInfo.anchor = { 1.0f, 0.0f };
 	miniMapInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
 	miniMapInfo.textureInfo.layerDepth = 0.011f;
 
-	// Create the GUI element
+	Core::IGUIManager::CreateInfo frameInfo;
+	frameInfo.texture = "MapFrame.png";
+	frameInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
+	frameInfo.textureInfo.posX = -5.0f - offset;
+	frameInfo.textureInfo.posY = 1.0f + offset;
+	frameInfo.textureInfo.height = height + 36;
+	frameInfo.textureInfo.width = width + 36;
+	frameInfo.textureInfo.anchor = { 1.0f, 0.0f };
+	frameInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+	frameInfo.textureInfo.layerDepth = 0.010f;
+	frameInfo.textureInfo.scale = XMFLOAT2(1.2f, 1.2f);
+
+	// Create the GUI element for the map
 	CoreInit::managers.guiManager->Create(miniMap.map, miniMapInfo);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.map, true);
+
+	// Create the GUI element for the map frame
+	CoreInit::managers.guiManager->Create(miniMap.frame, frameInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.frame, true);
 
 	// Loop through the rooms
 	for (int x = 0; x < worldWidth; x++) {
@@ -1367,8 +1393,8 @@ void PlayState::CreateMiniMap() {
 				roomSymbolInfo.textureInfo.layerDepth = 0.010f;
 
 				// Offset to right corner
-				roomSymbolInfo.textureInfo.posX = (-x * width / 12) - 50;
-				roomSymbolInfo.textureInfo.posY = (-y * height / 12) + 155;
+				roomSymbolInfo.textureInfo.posX = (-y * width / 12) - 50 - offset;
+				roomSymbolInfo.textureInfo.posY = (-x * height / 12) + 157.5 + offset;
 
 				// Center symbols according to the number of rooms
 				roomSymbolInfo.textureInfo.posX -= (offsetX * 16) / 2;
