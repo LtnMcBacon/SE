@@ -60,6 +60,7 @@ namespace SE {
 			void SetCameraEnt(const Entity& entity)override;
 			void Destroy(const Entity& entity)override;
 		private:
+			void UnloadSound(const Utilz::GUID & soundFile);
 			InitializationInfo initInfo;
 			
 			void GarbageCollection()override;
