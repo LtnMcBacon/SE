@@ -1474,6 +1474,8 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	float dt = std::min(1 / 30.f, input->GetDelta());
 
+	
+
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->Update(dt, movementInput, newProjectiles, actionInput);
 	UpdateProjectiles(newProjectiles);
@@ -1487,6 +1489,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
+
 
 	//-----sound update
 	soundTime += dt;
@@ -1526,6 +1529,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 				player->SavePlayerToFile(out);
 				out.close();
 			}
+			projectileManager->CheckCollisionBetweenUnitAndProjectiles(sluaghRoom->GetSluagh()->GetSluagh(), Gameplay::ValidTarget::ENEMIES);
 		}
 	}
 	if (!player->IsAlive() && deathSequence == false) {
