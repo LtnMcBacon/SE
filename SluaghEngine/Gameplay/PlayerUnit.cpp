@@ -188,6 +188,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 	{
 		health += healing.amount;
 	}
+
+	if (this->health > this->GetMaxHealth())
+		this->health = this->GetMaxHealth();
+	else if (this->health < 0)
+		this->health = 0;
 	
 	ProfileReturnVoid;
 

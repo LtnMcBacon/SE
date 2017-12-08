@@ -159,7 +159,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = CalculateSkillDamageAfterResistances(thePlayer, skillToCheck)*2.5f/skillToCheck.cooldown;
+	float utilityValue = CalculateSkillDamageAfterResistances(thePlayer, skillToCheck)*20.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }
