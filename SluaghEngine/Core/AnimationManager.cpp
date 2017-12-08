@@ -6,7 +6,7 @@
 
 static const SE::Utilz::GUID SkinnedVertexShader("SkinnedVS.hlsl");
 static const SE::Utilz::GUID SkinnedOncePerObject("SkinnedOncePerObject");
-
+static std::future<bool> lambda;
 SE::Core::AnimationManager::AnimationManager(const IAnimationManager::InitializationInfo & initInfo) : initInfo(initInfo)
 {
 	_ASSERT(initInfo.renderer);
@@ -20,6 +20,11 @@ SE::Core::AnimationManager::AnimationManager(const IAnimationManager::Initializa
 	initInfo.eventManager->RegisterToSetShadowRenderObjectInfo({ this, &AnimationManager::CreateShadowRenderObjectInfo });
 	initInfo.eventManager->RegisterToToggleVisible({ this, &AnimationManager::ToggleVisible });
 	initInfo.eventManager->RegisterToToggleShadow({ this, &AnimationManager::ToggleShadow });
+	initInfo.eventManager->RegisterToUpdateRenderableObject([this](const Core::Entity& ent) {
+		if (lambda.valid())
+			lambda.get();
+		renderableManager->UpdateRenderableObject(ent);
+	});
 
 	animationSystem = new AnimationSystem(initInfo.renderer);
 	auto animShadow = new AnimationShadowSystem(initInfo.renderer, animationSystem);
@@ -147,7 +152,7 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 	StopProfile;
 }
-static std::future<bool> lambda;
+
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
