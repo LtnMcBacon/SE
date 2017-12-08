@@ -1308,6 +1308,10 @@ void PlayState::UpdateFlowFieldRendering()
 
 void PlayState::CreateMiniMap(const int width, const int height) {
 
+	// Get the number of rooms to offset with
+	long offsetX = 9 - worldWidth;
+	long offsetY = 9 - worldHeight;
+
 	// Create the entity for the mini map frame
 	miniMap.map = CoreInit::managers.entityManager->Create();
 
@@ -1326,7 +1330,7 @@ void PlayState::CreateMiniMap(const int width, const int height) {
 	// Create the GUI element
 	CoreInit::managers.guiManager->Create(miniMap.map, miniMapInfo);
 	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.map, true);
-	
+
 	// Loop through the rooms
 	for (int x = 0; x < worldWidth; x++) {
 
@@ -1344,13 +1348,18 @@ void PlayState::CreateMiniMap(const int width, const int height) {
 				Core::IGUIManager::CreateInfo roomSymbolInfo;
 				roomSymbolInfo.texture = "EmptyRoom.jpg";
 				roomSymbolInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
-				roomSymbolInfo.textureInfo.posX = (0.0f - x * width / 12) - 35;
-				roomSymbolInfo.textureInfo.posY = (0.0f - y * height / 12) + 135;
 				roomSymbolInfo.textureInfo.height = height / 16;
 				roomSymbolInfo.textureInfo.width = width / 16;
 				roomSymbolInfo.textureInfo.anchor = { 1.0f, 0.0f };
 				roomSymbolInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
 				roomSymbolInfo.textureInfo.layerDepth = 0.010f;
+
+				// Offset to right corner
+				roomSymbolInfo.textureInfo.posX = (0.0f - x * width / 12) - 35;
+				roomSymbolInfo.textureInfo.posY = (0.0f - y * height / 12) + 135;
+
+				roomSymbolInfo.textureInfo.posX -= (offsetX * 16) / 2;
+				roomSymbolInfo.textureInfo.posY -= (offsetY * 14) / 2;
 
 				if (currentRoomX == x && currentRoomY == y) {
 
