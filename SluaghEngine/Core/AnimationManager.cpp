@@ -147,13 +147,13 @@ void SE::Core::AnimationManager::CreateAnimatedObject(const Entity & entity, con
 
 	StopProfile;
 }
-
+static std::future<bool> lambda;
 void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 {
 	timer->Start(("AnimationManager"));
 	GarbageCollection();
 	renderableManager->Frame(nullptr);
-	static std::future<bool> lambda;
+
 	auto dt = initInfo.window->GetDelta();
 
 	aniUpdateTime += dt;
@@ -790,6 +790,8 @@ void SE::Core::AnimationManager::ToggleVisible(const Entity & entity, bool visib
 	const auto exists = entityToIndex.find(entity);
 	if (exists != entityToIndex.end())
 	{
+		if (lambda.valid())
+			lambda.get();
 		renderableManager->ToggleRenderableObject(entity, visible);
 		if (!visible)
 			ToggleShadow(entity, visible);

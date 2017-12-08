@@ -514,7 +514,7 @@ namespace SE
 			*/
 			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd);
 			void RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit *enemyToRemove);
-			
+
 			inline const FlowField *GetFlowFieldMap() const
 			{
 				return roomField;

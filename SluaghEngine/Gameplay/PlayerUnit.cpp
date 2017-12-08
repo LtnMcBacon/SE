@@ -748,13 +748,21 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		Item::GodPickup(item);
 	}
 
-	items[slot] = item;
+	
 	if (itype == ItemType::WEAPON)
 	{
+		
+		if (auto isitem = ItemType( std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1))); isitem == ItemType::WEAPON)
+		{
+			Item::Unequip(items[currentItem], unitEntity);
+		}
+
 		currentItem = slot;
+		items[slot] = item;
 		Item::Equip(items[currentItem], unitEntity);
 		SetCurrentWeaponStats();
 	}
+	items[slot] = item;
 	StopProfile;
 }
 
