@@ -201,31 +201,31 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	sluaghRoomX = worldWidth - 1;
 	sluaghRoomY = worldHeight - 1;
 	/*Initialize Sluagh*/
-	delete rooms[sluaghRoomX * worldHeight + sluaghRoomY];
-	rooms[sluaghRoomX * worldHeight  + sluaghRoomY] = new SluaghRoom("Room18.room", player, projectileManager);
+	delete rooms[sluaghRoomX * worldHeight + sluaghRoomY].room;
+	rooms[sluaghRoomX * worldHeight  + sluaghRoomY].room = new SluaghRoom("Room18.room", player, projectileManager);
 
 
 	for (int x = 0; x < worldWidth; x++)
 	{
 		for (int y = 0; y < worldHeight; y++)
 		{
-			auto room = GetRoom(x, y).value();
+			auto room = GetRoom(x, y)->get();
 			if (auto leftRoom = GetRoom(x - 1, y); leftRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (leftRoom->get().room));
 			if (auto rightRoom = GetRoom(x + 1, y); rightRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (rightRoom->get().room));
 			if (auto upRoom = GetRoom(x, y + 1); upRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (upRoom->get().room));
 			if (auto downRoom = GetRoom(x, y - 1); downRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (downRoom->get().room));
 		}
 	}
 
 
-	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
-	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
-	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
-	GetRoom(sluaghRoomX, sluaghRoomY).value()->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
+	GetRoom(sluaghRoomX, sluaghRoomY)->get().room->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST);
+	GetRoom(sluaghRoomX, sluaghRoomY)->get().room->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST);
+	GetRoom(sluaghRoomX, sluaghRoomY)->get().room->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH);
+	GetRoom(sluaghRoomX, sluaghRoomY)->get().room->CloseDoor(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH);
 
 	CloseDoorsToRoom(sluaghRoomX, sluaghRoomY);
 
@@ -292,6 +292,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	dummyJob.vertexCount = 4;
 	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
 
+	CreateMiniMap();
 
 	ProfileReturnVoid;
 }
@@ -319,7 +320,7 @@ PlayState::~PlayState()
 	for (int x = 0; x < worldWidth; x++)
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
-				delete *room;
+				delete room->get().room;
 	CoreInit::managers.entityManager->DestroyNow(dummy);
 	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
 	CoreInit::managers.entityManager->DestroyNow(deathText);
@@ -479,6 +480,15 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
+				// Set new room symbol to green
+				auto debug = newRoom->get().symbol;
+				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
+				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
+
+				// Grey out the symbol of the old room
+				auto oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
+				CoreInit::managers.guiManager->SetTexture(oldRoom.symbol, "VisitedRoom.jpg");
+
 				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
 				streamingTimes.Stop("Unload");
@@ -492,7 +502,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				streamingTimes.Start("Other");
 				currentRoomX = x;
 				currentRoomY = y;
-				blackBoard.currentRoom = currentRoom = *newRoom;
+				blackBoard.currentRoom = currentRoom = newRoom->get().room;
 				blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 				projectileManager->RemoveAllProjectiles();
 
@@ -515,12 +525,9 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 				streamingTimes.Stop("Other");
 
-
 				streamingTimes.Start("StartRender");
 				currentRoom->RenderRoom(true);
 				streamingTimes.Stop("StartRender");
-
-				
 
 				float xToSet, yToSet;
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
@@ -719,8 +726,8 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 		{
 			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 			{
-				(*adjRoom)->Load();
-				auto enemiesInRoom = (*adjRoom)->GetEnemiesInRoom();
+				(adjRoom)->get().room->Load();
+				auto enemiesInRoom = (adjRoom)->get().room->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
 					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
 			}
@@ -739,7 +746,7 @@ void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
 		{
 			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 			{
-				(*adjRoom)->Unload();
+				(adjRoom)->get().room->Unload();
 			}
 
 		}
@@ -755,7 +762,7 @@ void SE::Gameplay::PlayState::CloseDoorsToRoom(int x, int y)
 		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
 		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 		{
-			adjRoom.value()->CloseDoor(Room::ReverseDirection(dir));
+			adjRoom->get().room->CloseDoor(Room::ReverseDirection(dir));
 		}
 	}
 }
@@ -769,7 +776,7 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
 		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 		{
-			adjRoom.value()->OpenDoor(Room::ReverseDirection(dir));
+			adjRoom->get().room->OpenDoor(Room::ReverseDirection(dir));
 		}
 	}
 }
@@ -789,13 +796,13 @@ void PlayState::InitializeRooms()
 	if (!roomGuids.size())
 		throw std::exception("No rooms found");
 
-	rooms = new Room*[worldWidth * worldHeight];
+	rooms = new RoomContainer[worldWidth * worldHeight];
 	for (int i = 0; i < worldWidth*worldHeight; i++)
-		rooms[i] = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+		rooms[i].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
 	currentRoomX = 0;
 	currentRoomY = 0;
-	currentRoom = GetRoom(currentRoomX, currentRoomY).value();
+	currentRoom = GetRoom(currentRoomX, currentRoomY)->get().room;
 
 	auto e = std::chrono::high_resolution_clock::now();
 
@@ -812,7 +819,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	int counter = 0;
 	for(size_t r = 0; r < worldWidth*worldHeight; r++)
 	{
-		auto& room = rooms[r];
+		auto& room = rooms[r].room;
 		room->GetMap(map);
 		eStruct.information.clear();
 		enemiesInEachRoom = 1 + std::min(timeWon, 3);
@@ -977,7 +984,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, tempPtr->perksForSlaughSave, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
@@ -1306,6 +1313,100 @@ void PlayState::UpdateFlowFieldRendering()
 	StopProfile;
 }
 
+void PlayState::CreateMiniMap() {
+
+	// Set minimap width and height in pixels
+	long width = 200;
+	long height = 170;
+
+	// Get the number of rooms to offset with
+	long offsetX = 9 - worldWidth;
+	long offsetY = 9 - worldHeight;
+
+	// Create the entity for the mini map frame
+	miniMap.map = CoreInit::managers.entityManager->Create();
+
+	// Create the information for the minimap
+	Core::IGUIManager::CreateInfo miniMapInfo;
+	miniMapInfo.texture = "MiniMap.jpg";
+	miniMapInfo.textureInfo.colour = XMFLOAT4{ 0.0f, 0.0f, 0.0f, 0.5f };
+	miniMapInfo.textureInfo.posX = -20.0f;
+	miniMapInfo.textureInfo.posY = 20.0f;
+	miniMapInfo.textureInfo.height = height;
+	miniMapInfo.textureInfo.width = width;
+	miniMapInfo.textureInfo.anchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.layerDepth = 0.011f;
+
+	// Create the GUI element
+	CoreInit::managers.guiManager->Create(miniMap.map, miniMapInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.map, true);
+
+	// Loop through the rooms
+	for (int x = 0; x < worldWidth; x++) {
+
+		for (int y = 0; y < worldHeight; y++) {
+
+			// Get the room for the given coordinates
+			auto& room = GetRoom(x, y)->get();
+
+			// Only display the symbol if the room is active
+			if (room.room != nullptr) {
+
+				// Create the symbol entity
+				room.symbol = CoreInit::managers.entityManager->Create();
+
+				// Create the information for the minimap symbols
+				Core::IGUIManager::CreateInfo roomSymbolInfo;
+				roomSymbolInfo.texture = "EmptyRoom.jpg";
+				roomSymbolInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
+				roomSymbolInfo.textureInfo.height = height / 16;
+				roomSymbolInfo.textureInfo.width = width / 16;
+				roomSymbolInfo.textureInfo.anchor = { 1.0f, 0.0f };
+				roomSymbolInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+				roomSymbolInfo.textureInfo.layerDepth = 0.010f;
+
+				// Offset to right corner
+				roomSymbolInfo.textureInfo.posX = (-x * width / 12) - 50;
+				roomSymbolInfo.textureInfo.posY = (-y * height / 12) + 155;
+
+				// Center symbols according to the number of rooms
+				roomSymbolInfo.textureInfo.posX -= (offsetX * 16) / 2;
+				roomSymbolInfo.textureInfo.posY -= (offsetY * 14) / 2;
+
+				if (currentRoomX == x && currentRoomY == y) {
+
+					roomSymbolInfo.texture = "InRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, true);
+				}
+
+				else if (sluaghRoomX == x && sluaghRoomY == y) {
+
+					roomSymbolInfo.texture = "SlaughRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
+				}
+
+				else {
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
+				}
+
+				
+			}
+			
+		}
+	}
+
+}
+
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
@@ -1336,15 +1437,17 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	}
 	if (!sluaghDoorsOpen)
 	{
+
 		int totalEnemiesLeft = 0;
 		for (int x = 0; x < worldWidth; x++)
 			for (int y = 0; y < worldHeight; y++)
-				totalEnemiesLeft += GetRoom(x, y).value()->NumberOfEnemiesInRoom();
+				totalEnemiesLeft += GetRoom(x, y)->get().room->NumberOfEnemiesInRoom();
 
 		if (totalEnemiesLeft <= 2) {
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
-			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(GetRoom(sluaghRoomX, sluaghRoomY)->get().symbol, true);
 			sluaghRoom->InitSluagh();
 			Core::ITextManager::CreateInfo ti;
 			ti.font = "Ancient.spritefont";
@@ -1405,7 +1508,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	
 	if(sluaghDoorsOpen)
 	{
-		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
 		if(sluaghRoom)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
@@ -1435,7 +1538,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 		if (CoreInit::subSystems.window->ButtonPressed(Window::KeyReturn)) {
 
-			returnValue = State::CHARACTER_CREATION_STATE;
+			returnValue = State::MAIN_MENU_STATE;
 		}
 
 		deathTimer += dt;
@@ -1444,7 +1547,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		
 		if (deathTimer > 15){
 			deathTimer = 0.0f;
-			returnValue = State::CHARACTER_CREATION_STATE;
+			returnValue = State::MAIN_MENU_STATE;
 		}
 	}
 

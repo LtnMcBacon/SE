@@ -62,6 +62,18 @@ namespace SE
 				float maxCooldown;
 			}skillIndicators[2];
 
+			struct MiniMap {
+
+				Core::Entity map;
+				Core::Entity frame;
+			};
+
+			struct RoomContainer {
+
+				Room* room = nullptr;
+				Core::Entity symbol;
+			};
+
 			void InitializeRooms();
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
@@ -71,6 +83,8 @@ namespace SE
 			void CreateFlowFieldRendering();
 			void DestroyFlowFieldRendering();
 			void UpdateFlowFieldRendering();
+
+			void CreateMiniMap();
 
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
@@ -101,10 +115,9 @@ namespace SE
 
 			void UpdateAimDecal();
 
-
-			inline std::optional<Room*> GetRoom(int x, int y)
+			inline std::optional<std::reference_wrapper<RoomContainer>> GetRoom(int x, int y)
 			{
-				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0  && rooms[x* worldHeight + y])
+				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0  && rooms[x* worldHeight + y].room)
 					return rooms[x* worldHeight + y];
 				else
 					return std::nullopt;
@@ -116,7 +129,7 @@ namespace SE
 			void CloseDoorsToRoom(int x, int y);
 			void OpenDoorsToRoom(int x, int y);
 
-			Room** rooms;
+			RoomContainer* rooms;
 			Room* currentRoom; 
 			int currentRoomX = 0;
 			int currentRoomY = 0;
@@ -136,6 +149,7 @@ namespace SE
 			float soundTime = 0.0f;
 			SE::Utilz::GUID sounds[3];
 
+			MiniMap miniMap;
 			bool noShow = false;
 			bool deathSequence = false;
 			float deathTimer = 0.0f;
