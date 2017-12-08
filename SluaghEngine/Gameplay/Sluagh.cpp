@@ -91,7 +91,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	else
 	{
 		/*Copy the current player*/
-		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
+		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr,nullptr, 15, 15, roomMap);
 		theSluagh->ToggleAsSluagh(true);
 		auto playerItems = thePlayer->GetAllItems();
 		for(int i = 0; i < 5; i++)
