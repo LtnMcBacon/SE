@@ -36,7 +36,7 @@ namespace SE
 				int skillIndex;
 				std::string perkName;
 				std::string skillName;
-
+				PerkData perk;
 				std::function<void()> bindButton;
 			};
 

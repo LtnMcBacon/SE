@@ -21,9 +21,13 @@ namespace SE
 		{
 		private:
 			IGameState* state;
+			bool paused;
+			bool running;
+			bool buttonsExist;
 			Window::IWindow* input;
 			SE::Core::IEngine* engine;
 			SE::Gameplay::IGameState::State currentState;
+			HUDParser fileParser;
 
 		public:
 			void Initiate(Core::IEngine* engine);

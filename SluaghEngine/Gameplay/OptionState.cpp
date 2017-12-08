@@ -19,7 +19,7 @@ OptionState::OptionState()
 	effectVol = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", effectVol);
 	voiceVol = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", voiceVol);
 	bakgroundVol = CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", bakgroundVol);
-
+	wasFullscreen = fullscreen;
 
 	auto returnToMain = [this]()->void
 	{
@@ -216,7 +216,7 @@ OptionState::OptionState()
 			cInfo.info.colour = colour;
 			cInfo.info.effect = Graphics::Effect::NoEffect;
 			cInfo.info.posX = button.PositionX;
-			cInfo.info.posY = button.PositionY + 15;
+			cInfo.info.posY = button.PositionY +15;
 			cInfo.info.width = button.Width;
 			cInfo.info.height = button.Height;
 			cInfo.info.layerDepth = 0;
@@ -844,7 +844,16 @@ IGameState::State SE::Gameplay::OptionState::Update(void *& passableInfo)
 	int mousePosX, mousePosY;
 	CoreInit::subSystems.window->GetMousePos(mousePosX, mousePosY);
 
-
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
+
+
+	bool isFullscreen = false;
+	isFullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", isFullscreen);
+
+	if (isFullscreen!= wasFullscreen)
+	{
+		fileParser.GUIButtons.reloadButtons();
+		wasFullscreen = isFullscreen;
+	}
 	ProfileReturn(CurrentState);
 }

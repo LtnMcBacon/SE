@@ -163,6 +163,22 @@ int SE::Graphics::PipelineHandler::MergeHandlers(IPipelineHandler * other)
 	return 0;
 }
 
+int SE::Graphics::PipelineHandler::CreateVertexShaderFromSource(const Utilz::GUID& id, const std::string& sourceCode,
+	const std::string& entrypoint, const std::string& shaderModel)
+{
+	const auto exists = vertexShaders.find(id);
+	if (exists != vertexShaders.end())
+		return EXISTS;
+	ID3D10Blob* blob = nullptr;
+	HRESULT hr = D3DCompile(sourceCode.c_str(), sourceCode.size(), nullptr, nullptr, nullptr, entrypoint.c_str(), shaderModel.c_str(), 0, 0, &blob, nullptr);
+	if (FAILED(hr))
+		return DEVICE_FAIL;
+	int ret = CreateVertexShader(id, blob->GetBufferPointer(), blob->GetBufferSize());
+	blob->Release();
+	return ret;
+
+}
+
 int SE::Graphics::PipelineHandler::CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount,
 	size_t stride, bool dynamic)
 {
