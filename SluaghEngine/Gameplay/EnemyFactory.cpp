@@ -189,8 +189,8 @@ EnemyFactory::EnemyFactory()
 	this->LoadEnemyIntoMemory("Bodach.SEC");
 	this->LoadEnemyIntoMemory("Glaistig.SEC");
 	this->LoadEnemyIntoMemory("Nuckelavee.SEC");
-	this->LoadEnemyIntoMemory("PechMelee.SEC");
-	this->LoadEnemyIntoMemory("PechRanged.SEC");
+	/*this->LoadEnemyIntoMemory("PechMelee.SEC");
+	this->LoadEnemyIntoMemory("PechRanged.SEC");*/
 }
 
 EnemyFactory::~EnemyFactory()

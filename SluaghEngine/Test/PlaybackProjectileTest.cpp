@@ -230,7 +230,7 @@ bool SE::Test::PlaybackProjectileTest::Run(SE::DevConsole::IConsole* console)
 					{
 						xOffset = -1;
 					}
-					player = new Gameplay::PlayerUnit(nullptr, nullptr, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+					player = new Gameplay::PlayerUnit(nullptr, nullptr, nullptr,x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 
 					break;
 				}

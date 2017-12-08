@@ -21,9 +21,9 @@ struct WeaponInfo
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{ "Sword_black.png", "Sword2.png", "Physical.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
-	{ "Crossbow_black.png", "Crossbow_silver.png", "Range.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
-	{ "Wand_black.png","Wand_silver.png", "Magic.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
+	{ "Sword_black.png", "Sword2.png", "PhysicalPickup.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
+	{ "Crossbow_black.png", "Crossbow_silver.png", "RangedPickup.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
+	{ "Wand_black.png","Wand_silver.png", "MagicPickup.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
 	} };
 
 struct ProjectileInfo
@@ -41,7 +41,7 @@ static const std::vector<std::vector<ProjectileInfo>> projectiles =
 
 	{
 		{ 1.0f, "CrossbowAttack.SEP" },
-		{ 10.0f, "BoomerangArrow.SEP" },
+		{ 20.0f, "BoomerangArrow.SEP" },
 		{ 0.5f, "TripleArrow.SEP" }
 	},
 	{
@@ -71,12 +71,12 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	if (projectileID == -1)
 	{
 		auto randProjectile = std::rand() % projectiles[size_t(type)].size();
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
 	}
 	else
 	{
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 3 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][projectileID].projectile.id);
 	}
 	CreateMeta(wep);
@@ -100,33 +100,16 @@ void SE::Gameplay::Item::Weapon::CreateMeta(SE::Core::Entity wep)
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 10;
 	icon.textureInfo.posY = -60;
-	icon.textureInfo.layerDepth = 1;
+	icon.textureInfo.layerDepth = 0.9;
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 }
 
 using namespace SE;
-static const auto wepInfo = [](SE::Core::Entity wep, Core::Entity parent, long posX, bool stop)
-{
-	
-};
-
-void SE::Gameplay::Item::Weapon::ToggleRenderPickupInfo(Core::Entity wep)
-{
-	wepInfo(wep, wep, -40, false);
-}
-
-void SE::Gameplay::Item::Weapon::ToggleRenderEquiuppedInfo(Core::Entity wep, Core::Entity parent)
-{
-
-	wepInfo(wep, parent, -245, true);
-
-
-}
 
 void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity compareWith)
 {
-	long posY = -40;
+	long posY = -100;
 	long textHeigth = 35;
 	Core::ITextManager::CreateInfo tci;
 	auto damage = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Damage", 0));
@@ -138,7 +121,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	else
 		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
 	tci.font = "CloisterBlack.spritefont";
-	tci.info.posX = -40;
+	tci.info.posX = -65;
 	tci.info.posY = posY;
 	tci.info.screenAnchor = { 0.5f, 0.5f };
 	tci.info.anchor = { 1.0f,0.0f };
@@ -168,14 +151,64 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
 	posY += textHeigth + 5;
 
+	auto str = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Str", 0));
+	auto strCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Str", 0));
+	if (str > strCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (str < strCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	//tci.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	tci.info.posY = posY;
+	tci.info.text = L"Styrka";
+	textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+
+	auto agi = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Agi", 0));
+	auto agiCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Agi", 0));
+	if (agi > agiCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (agi < agiCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	//tci.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	tci.info.posY = posY;
+	tci.info.text = L"Vighet";
+	textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
+	
+	auto wis = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Wis", 0));
+	auto wisCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Wis", 0));
+	if (agi > agiCW)
+		tci.info.colour = { 0, 1.0f, 0.0f, 1.0f };
+	else if (agi < agiCW)
+		tci.info.colour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	else
+		tci.info.colour = { 1.0f, (165 / 255.0f), 0.0f, 1.0f };
+	//tci.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	tci.info.posY = posY;
+	tci.info.text = L"Vishet"; // "Förstånd
+	textEnt = CoreInit::managers.entityManager->Create();
+	CoreInit::managers.textManager->Create(textEnt, tci);
+	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
+	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
+	posY += textHeigth + 5;
 
 	Core::IGUIManager::CreateInfo ciback;
 	auto type = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Type", -1));
 
 	ciback.texture = weaponInfo[type].backTex;
-	ciback.textureInfo.width = 125;
-	ciback.textureInfo.height = 125;
-	ciback.textureInfo.posX = -25;
+	ciback.textureInfo.width = 150;
+	ciback.textureInfo.height = 200;
+	ciback.textureInfo.posX = -40;
 	ciback.textureInfo.posY = 0;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0f, 0.5f };

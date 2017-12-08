@@ -98,7 +98,7 @@ SE::Gameplay::TutorialState::TutorialState()
 #pragma endregion
 
 
-	player = new PlayerUnit(skills, nullptr,5, 10, map);
+	player = new PlayerUnit(skills, nullptr,nullptr,5, 10, map);
 	player->SetZPosition(0.9f);
 	player->PositionEntity(5.5f, 10.5f);
 
