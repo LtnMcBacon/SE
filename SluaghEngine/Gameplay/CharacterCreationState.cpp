@@ -143,7 +143,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			SkillFactory sf;
 			float attrArray[8];
 			//sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
-			sf.readAttributesFromFile(8, chosenSkills[i].projectileFileGUID, attrArray);
+			sf.readAttributesFromFile(3, chosenSkills[i].projectileFileGUID, attrArray);
 
 			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
 			infoToPass->skills[i].atkType		= chosenSkills.at(i).atkType;

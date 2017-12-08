@@ -1053,7 +1053,7 @@ CreateProjectilesBehaviour(std::vector<BehaviourParameter> parameters)
 		temp.target = p->GetValidTarget();
 		temp.eventDamage = p->GetDamageEvent();
 		temp.eventDamage.amount = temp.eventDamage.originalAmount;
-		temp.ownerUnit = p->GetSharedPtr();
+		temp.ownerUnit = p->GetOwnerPtr();
 		temp.fileNameGuid = fileName;
 
 		this->CreateNewProjectile(temp);
