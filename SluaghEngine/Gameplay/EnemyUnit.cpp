@@ -97,6 +97,8 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 					break;
 				case Boons::CONDITIONAL_BOONS_SLOW:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
+					if (myBlackboard->conditionAmmount < ConditionEventVector[i].effectValue)
+						myBlackboard->conditionAmmount = ConditionEventVector[i].effectValue;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;

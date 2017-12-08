@@ -161,6 +161,7 @@ Status FlowFieldMovementLeaf::Update()
 	xMovementTot += xMovement;
 	yMovementTot += yMovement;
 
+
 	if (!sample)
 		SampleFromMap(yMovementTot, xMovementTot);
 
@@ -182,7 +183,8 @@ Status FlowFieldMovementLeaf::Update()
 		myStatus = Status::BEHAVIOUR_FAILURE;
 	/*Move the entity in the normalized direction*/
 
-	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime, yMovementTot*gameBlackboard->deltaTime);
+	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent, 
+		yMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent);
 
 
 	/*Save the direction for next movement*/

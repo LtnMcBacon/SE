@@ -39,7 +39,7 @@ SE::Gameplay::Status SE::Gameplay::MoveTowardsPlayerLeaf::Update()
 		moveY /= moveTot;
 	}
 
-	enemyPtr->MoveEntity(moveX*dt, moveY*dt);
+	enemyPtr->MoveEntity(moveX*dt*enemyBlackboard->movementSpeedPercent, moveY*dt*enemyBlackboard->movementSpeedPercent);
 
 	ProfileReturnConst(Status::BEHAVIOUR_SUCCESS);
 }
