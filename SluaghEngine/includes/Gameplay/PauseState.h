@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_PAUS_STATE_H
 #include "IGameState.h"
 #include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\HUD_Functionality.h>
 
 namespace SE
 {
@@ -39,6 +40,8 @@ namespace SE
 			*/
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
+			IGameState::State CurrentState;
+
 
 		private:
 		protected:

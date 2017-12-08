@@ -48,16 +48,13 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 	void* data = nullptr;
 	//state = new PlayState(CoreInit::subSystems.window, engine, nullptr);
 	//currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
-	
+
 	//CoreInit::managers.textManager->MakeFont(Utilz::GUID("EnchantedLand.spritefont"));
 	CoreInit::managers.textManager->MakeFont(Utilz::GUID("Knights.spritefont"));
 
-	state =  new MainMenuState(CoreInit::subSystems.window);
+	state = new MainMenuState(CoreInit::subSystems.window);
 	currentState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
-	paused = false;
-	running = true;
-	buttonsExist = false;
-	menuOverride = false;
+	stateOverride = false;
 }
 
 void SE::Gameplay::Game::Run()
@@ -69,32 +66,7 @@ void SE::Gameplay::Game::Run()
 	CoreInit::engine->GetSubsystems().window->UpdateTime();
 	//!CoreInit::subSystems.window->ButtonPressed(uint32_t(GameInput::EXIT_GAME))
 
-	auto quitGame = [this]()->void
-	{
-		this->running = false;
-	};
 
-	std::function<void()> shutDown = quitGame;
-
-	auto resumeGame = [this]()->void
-	{
-		this->paused = false;
-		this->buttonsExist = false;
-		this->fileParser.GUIButtons.DeleteButtons();
-	};
-
-	std::function<void()> resume = resumeGame;
-	
-	auto returnToMainMenu = [this]()->void
-	{
-		this->menuOverride = true;
-		this->paused = false;
-		this->buttonsExist = false;
-		this->fileParser.GUIButtons.DeleteButtons();
-	};
-
-	std::function<void()> retToMenu = returnToMainMenu;
-	
 	while (running)
 	{
 		CoreInit::engine->BeginFrame();
@@ -103,122 +75,113 @@ void SE::Gameplay::Game::Run()
 		{
 			if (currentState != SE::Gameplay::IGameState::State::MAIN_MENU_STATE && currentState != SE::Gameplay::IGameState::State::OPTION_STATE && currentState != SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 			{
-				if (paused == true)
+				if (currentState == SE::Gameplay::IGameState::State::PAUSE_STATE)
 				{
-					fileParser.GUIButtons.DeleteButtons();
-					buttonsExist = false;
+					stateOverride = true;
+					newState = SE::Gameplay::IGameState::State::PLAY_STATE;
+					CoreInit::subSystems.window->ToggleCursor(true);
 				}
-				paused = !paused;
-				CoreInit::subSystems.window->ToggleCursor(true);
-
+				else {
+					stateOverride = true;
+					newState = SE::Gameplay::IGameState::State::PAUSE_STATE;
+					CoreInit::subSystems.window->ToggleCursor(true);
+				}
 			}
 			else {
 				running = false;
 			}
 
 		}
-
-		if (!paused)
+		if (!stateOverride)
 		{
-			if (!menuOverride)
+			newState = state->Update(data);
+		}
+
+		if (newState != currentState)
+		{
+			if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
 			{
-				newState = state->Update(data);
-			}
-			else {
-				newState = SE::Gameplay::IGameState::State::MAIN_MENU_STATE;
-				menuOverride = false;
+				CoreInit::subSystems.window->StopRecording();
+
 			}
 
-			if (newState != currentState)
+			switch (newState)
 			{
-				if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE)
+			case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
+			{
+				/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+					CoreInit::subSystems.window->StopRecording();*/
+				delete state;
+				CoreInit::managers.entityManager->DestroyAll();
+				state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+				break;
+			}
+			case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
+			{
+				/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
+					CoreInit::subSystems.window->StopRecording();*/
+				delete state;
+				CoreInit::managers.entityManager->DestroyAll();
+				state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
+				break;
+			}
+			case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
+			{
+				/*CoreInit::subSystems.window->StartRecording();*/
+				delete state;
+				CoreInit::managers.entityManager->DestroyAll();
+				state = new SE::Gameplay::CharacterCreationState(CoreInit::subSystems.window);
+				break;
+			}
+			case SE::Gameplay::IGameState::State::PLAY_STATE:
+			{
+				if (currentState == SE::Gameplay::IGameState::State::PAUSE_STATE)
 				{
-					CoreInit::subSystems.window->StopRecording();
-				
+					stateOverride = false;
+					delete state;
+					state = tempState;
 				}
-
-				switch (newState)
-				{
-					case SE::Gameplay::IGameState::State::GAME_OVER_STATE:
-					{
-						/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
-							CoreInit::subSystems.window->StopRecording();*/
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
-						break;
-					}
-					case SE::Gameplay::IGameState::State::MAIN_MENU_STATE:
-					{
-						/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
-							CoreInit::subSystems.window->StopRecording();*/
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
-						break;
-					}
-					case SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE:
-					{
-						/*CoreInit::subSystems.window->StartRecording();*/
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new SE::Gameplay::CharacterCreationState(CoreInit::subSystems.window);
-						break;
-					}
-					case SE::Gameplay::IGameState::State::PLAY_STATE:
-					{
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
-						CoreInit::subSystems.window->UpdateTime();
-						break;
-					}
-					case SE::Gameplay::IGameState::State::OPTION_STATE:
-					{
-						delete state;
-						state = new SE::Gameplay::OptionState();
-						break;
-					}
-					case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new TutorialState();
-						break;
-					case SE::Gameplay::IGameState::State::WIN_STATE:
-						delete state;
-						CoreInit::managers.entityManager->DestroyAll();
-						state = new WinState();
-						break;
-					case SE::Gameplay::IGameState::State::QUIT_GAME:
-						running = false;
-						break;
-					default:
-						break;
-				 }
-
+				else {
+					delete state;
+					CoreInit::managers.entityManager->DestroyAll();
+					state = new SE::Gameplay::PlayState(CoreInit::subSystems.window, engine, data);
+					CoreInit::subSystems.window->UpdateTime();
+				}
+				break;
 			}
-			currentState = newState;
-
-		}
-		else {
-			if (!buttonsExist)
+			case SE::Gameplay::IGameState::State::OPTION_STATE:
 			{
-				fileParser.GUIButtons.CreateButton(540, 50, 200, 80, 1000, "Paus", NULL, false, "NULL", "Paus.png", "Paus.png", "Paus.png");
-				fileParser.GUIButtons.CreateButton(540, 250, 200, 80, 1000, "ResumeButton", resume, false, "NULL", "SpelaVidare.png", "SpelaVidare1.png", "SpelaVidare.png");
-				fileParser.GUIButtons.CreateButton(540, 450, 200, 80, 1000, "ShutdownButton", shutDown, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
-				fileParser.GUIButtons.CreateButton(540, 550, 200, 80, 1000, "ShutdownButton", retToMenu, false, "NULL", "Avsluta.png", "Avsluta1.png", "Avsluta.png");
-				fileParser.GUIButtons.CreateButton(0, 0, 1280, 720, 999, "BackGround", NULL, false, "NULL", "bakgrund.png", "bakgrund.png", "bakgrund.png");
-				fileParser.GUIButtons.DrawButtons();
-				buttonsExist = true;
+				delete state;
+				state = new SE::Gameplay::OptionState();
+				break;
+			}
+			case SE::Gameplay::IGameState::State::TUTORIAL_STATE:
+				delete state;
+				CoreInit::managers.entityManager->DestroyAll();
+				state = new TutorialState();
+				break;
+			case SE::Gameplay::IGameState::State::WIN_STATE:
+				delete state;
+				CoreInit::managers.entityManager->DestroyAll();
+				state = new WinState();
+				break;
+			case SE::Gameplay::IGameState::State::QUIT_GAME:
+				running = false;
+				break;
+			case SE::Gameplay::IGameState::State::PAUSE_STATE:
+				tempState = state;
+				stateOverride = false;
+				state = new PauseState(CoreInit::subSystems.window);
+				break;
+			default:
+				break;
 			}
 
-			bool pressed = CoreInit::subSystems.window->ButtonDown(uint32_t(GameInput::ACTION));
-			bool released = CoreInit::subSystems.window->ButtonUp(uint32_t(GameInput::ACTION));
-			int mousePosX, mousePosY;
-			CoreInit::subSystems.window->GetMousePos(mousePosX, mousePosY);
-			fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 		}
-			CoreInit::engine->EndFrame();
+		currentState = newState;
+
+		CoreInit::engine->EndFrame();
+
 	}
 	StopProfile;
 }
