@@ -97,10 +97,10 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 		for(int i = 0; i < 5; i++)
 		{
 			auto item = Item::Copy(playerItems[i]);
-			auto itemType = ItemType(std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", 4)));
+			auto itemType = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", 4)));
 			if(itemType == ItemType::WEAPON)
 			{
-				auto weaponType = ItemType(std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(item, "Type", 4)));
+				auto weaponType = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Type", 4)));
 				auto newItem = Item::Weapon::Create(Item::Weapon::Type(itemType), true, 0);
 				theSluagh->AddItem(newItem, i);
 			}
