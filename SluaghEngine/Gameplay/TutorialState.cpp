@@ -63,13 +63,13 @@ SE::Gameplay::TutorialState::TutorialState()
 	indicatorInfo.textureInfo.posY = 600;
 	indicatorInfo.textureInfo.height = 100;
 	indicatorInfo.textureInfo.width = 100;
-	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.layerDepth = 0.9;
 	indicatorInfo.textureInfo.anchor = { 0.0f, 0.0f };
 
 	SE::Core::ITextManager::CreateInfo textInfo;
 	textInfo.font = "CloisterBlack.spritefont";
 	textInfo.info.colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-	textInfo.info.layerDepth = indicatorInfo.textureInfo.layerDepth / 2;
+	textInfo.info.layerDepth = 0.9;
 	textInfo.info.anchor = { 0.0f, 0.0f };
 	textInfo.info.height = indicatorInfo.textureInfo.height;
 	textInfo.info.width = indicatorInfo.textureInfo.width;
@@ -279,6 +279,7 @@ void SE::Gameplay::TutorialState::GreetingScript(float dt)
 	gti.info.text = L"Välkommen till Sluagh";
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.layerDepth = 0.9;
 	//gti.info.scale = { 0.25f ,0.25f };
 	managers.textManager->Create(greetingText, gti);
 	managers.textManager->ToggleRenderableText(greetingText, true);
@@ -306,6 +307,7 @@ void SE::Gameplay::TutorialState::WASDScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(wasdText, gti);
 	managers.textManager->ToggleRenderableText(wasdText, true);
 	managers.eventManager->SetLifetime(wasdText, 8.0f);
@@ -330,6 +332,7 @@ void SE::Gameplay::TutorialState::MouseScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(mouseText, gti);
 	managers.textManager->ToggleRenderableText(mouseText, true);
 	managers.eventManager->SetLifetime(mouseText, 4.5f);
@@ -356,6 +359,7 @@ void SE::Gameplay::TutorialState::BraJobbatMovementScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.eventManager->SetLifetime(ent, 4.5f);
@@ -379,6 +383,7 @@ void SE::Gameplay::TutorialState::GlimmerPickupWeaponScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.eventManager->SetLifetime(ent, 7.0f);
@@ -401,6 +406,7 @@ void SE::Gameplay::TutorialState::SpawnPickupWeaponScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.audioManager->StopSound(sounds, currentSound);
@@ -476,6 +482,7 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.6f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.audioManager->StopSound(sounds, currentSound);
@@ -555,6 +562,7 @@ void SE::Gameplay::TutorialState::UtmärktPickupWeaponScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.eventManager->SetLifetime(ent, 15.0f);
@@ -579,6 +587,7 @@ void SE::Gameplay::TutorialState::VisaTaPåSigVapenScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.audioManager->StopSound(sounds, currentSound);
@@ -625,6 +634,7 @@ void SE::Gameplay::TutorialState::BytaVapenAddInitScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.audioManager->StopSound(sounds, currentSound);
@@ -673,6 +683,7 @@ void SE::Gameplay::TutorialState::SlåMedVapenInitScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.25f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	hugg = 0;
@@ -735,6 +746,7 @@ void SE::Gameplay::TutorialState::TestaSpellInitScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.audioManager->StopSound(sounds, currentSound);
@@ -795,6 +807,7 @@ void SE::Gameplay::TutorialState::SpawnaTräningsDockaScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 	managers.eventManager->SetLifetime(ent, 4.5f);
@@ -818,6 +831,7 @@ void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);	
 	
@@ -868,6 +882,7 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(glastig, gti);
 	managers.textManager->ToggleRenderableText(glastig, true);
 
@@ -923,6 +938,7 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(bodach, gti);
 	managers.textManager->ToggleRenderableText(bodach, true);
 
@@ -978,6 +994,7 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(nuck, gti);
 	managers.textManager->ToggleRenderableText(nuck, true);
 
@@ -1024,6 +1041,7 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	gti.info.screenAnchor = { 0.5f,0.25f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
 	managers.textManager->Create(ent, gti);
 	managers.textManager->ToggleRenderableText(ent, true);
 
