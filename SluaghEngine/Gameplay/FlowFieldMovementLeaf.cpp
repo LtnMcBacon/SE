@@ -162,10 +162,11 @@ Status FlowFieldMovementLeaf::Update()
 	yMovementTot += yMovement;
 
 
-	if (!sample)
-		SampleFromMap(yMovementTot, xMovementTot);
+	/*if (!sample)
+		SampleFromMap(yMovementTot, xMovementTot);*/
 
 	sample = (sample + 1) % sampleRate;
+
 	/*Check if we would collide in a wall
 	* See CorrectCollision for information
 	*/
@@ -209,7 +210,7 @@ bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)
 	xMovementTot *= gameBlackboard->deltaTime;
 	yMovementTot *= gameBlackboard->deltaTime;
 
-	float localExtent = enemyBlackboard->extents + 0.15;
+	float localExtent = enemyBlackboard->extents + 0.25;
 
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();
