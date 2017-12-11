@@ -299,9 +299,12 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	weaponStats.damage = std::get<int32_t>(dm->GetValue(cwe, "Damage", 0));
 	weaponStats.health = std::get<int32_t>(dm->GetValue(cwe, "Health", 0));
 
-	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
-	weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
-
+	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "DamageType", 0)));
+	auto type = Item::Weapon::Type(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
+	if (type == Item::Weapon::Type::SWORD)
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
+	else
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_RANGED;
 	auto an = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(cwe, "AttAnim", false));
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
