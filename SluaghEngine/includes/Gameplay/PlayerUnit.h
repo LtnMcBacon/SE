@@ -249,46 +249,6 @@ namespace SE
 			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
-			/**
-			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcBaseStrChanges();
-			/**
-			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcBaseAgiChanges();
-			/**
-			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcBaseWhiChanges();
-			/**
-			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcNewStrChanges();
-			/**
-			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcNewAgiChanges();
-			/**
-			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcNewWhiChanges();
-			/**
-			* @brief	  Changes the equipped armor type.
-			* @param [in] The new given armor type.
-			**/
 			void changeArmorType(ArmourType armoUr);
 			/**
 			* @brief	  Changes the equipped weapon type.
