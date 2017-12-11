@@ -91,7 +91,12 @@ namespace SE
 				Fireplace_set2,
 				MiniTable_set1,
 				Potatobag_set1,
-				PotFloorTorch_set1
+				PotFloorTorch_set1,
+				BagPipeTable_set1,
+				DinnerTable_set1,
+				Smalltable_crossbowAndBat_set1,
+				Smalltable_weapons_set1,
+				statue
 			};
 			enum class Materials {
 				Stone,
@@ -123,7 +128,12 @@ namespace SE
 				Fireplace_set2,
 				MiniTable_set1,
 				Potatobag_set1,
-				PotFloorTorch_set1
+				PotFloorTorch_set1,
+				BagPipeTable_set1,
+				DinnerTable_set1,
+				Smalltable_crossbowAndBat_set1,
+				Smalltable_weapons_set1,
+				statue
 			};
 
 			struct CreationArguments
@@ -514,7 +524,7 @@ namespace SE
 			*/
 			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd);
 			void RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit *enemyToRemove);
-			
+
 			inline const FlowField *GetFlowFieldMap() const
 			{
 				return roomField;
