@@ -63,14 +63,14 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		newEnemy->SetZPosition(1.5f);
 		newEnemy->PositionEntity(desc.startX, desc.startY);
 		newEnemy->SetBehaviouralTree(CreateBehaviouralTreeForEnemyType(type, gameBlackboard, newEnemy->GetEnemyBlackboard()));
-		newEnemy->SetEntity(CreateEntityDataForEnemyType(type));
+		newEnemy->SetEntity(CreateEntityDataForEnemyType(type, newEnemy->GetDamageType()));
 		unitArray[numberOfCreatedEnemies++] = newEnemy;
 	}
 	
 	StopProfile;
 }
 
-Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
+Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageType damageType)
 {
 	StartProfile;
 	auto const enemyCreationData = enemyData.find(type);
@@ -121,6 +121,23 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type)
 			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
 
 			CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
+		}
+
+		switch(damageType)
+		{
+		case DamageType::FIRE:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "fireParticle.pts" });
+			break;
+		case DamageType::WATER:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "waterParticle.pts" });
+			break;
+		case DamageType::NATURE:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "natureParticle.pts" });
+			break;
+		case DamageType::MAGIC:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "magicParticle.pts" });
+			break;
+		default: ;
 		}
 
 		ProfileReturnConst( newEntity);

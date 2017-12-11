@@ -129,7 +129,7 @@ namespace SE
 			/**
 			 * @brief Create an entity and load all "entity related" data into the system (meshes, animations...)
 			 */
-			Core::Entity CreateEntityDataForEnemyType(EnemyType type);
+			Core::Entity CreateEntityDataForEnemyType(EnemyType type, DamageType damageType);
 			EnemyUnit* CreateEnemyDataForEnemyType(EnemyType type, bool useVariation);
 			BehaviouralTree* CreateBehaviouralTreeForEnemyType(EnemyType type, GameBlackboard* gameBlackboard, EnemyBlackboard* enemyBlackboard);
 

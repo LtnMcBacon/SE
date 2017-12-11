@@ -233,7 +233,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		float xPos = enemy->GetXPosition();
 		float yPos = enemy->GetYPosition();
-		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
 		enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 		enemy->PositionEntity(xPos, yPos);
 	}
@@ -723,7 +723,7 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				{
 					float xPos = enemy->GetXPosition();
 					float yPos = enemy->GetYPosition();
-					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
 					enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 					enemy->PositionEntity(xPos, yPos);
 				}
