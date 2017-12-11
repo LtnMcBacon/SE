@@ -21,9 +21,9 @@ unsigned int SE::Gameplay::Fog::fogIndex = 0;
 class SE::Gameplay::Fog::Vertex
 {
 public:
-	float position[3];
-	float uv[2];
-	float opacity;
+	float position[3] = {};
+	float uv[2] = {};
+	float opacity = 0;
 
 public:
 	Vertex() {};
@@ -38,7 +38,7 @@ public:
 class SE::Gameplay::Fog::Quad
 {
 public:
-	enum class Vertices { TopLeft, TopRight, BottomLeft, BottomRight };
+	enum class Vertices { UNDEFINED, TopLeft, TopRight, BottomLeft, BottomRight };
 	enum class SeamOrientation { UNDEFINED, TopToBottom, BottomToTop };
 
 private:
@@ -73,6 +73,27 @@ public:
 		for (unsigned int nextVertexIndex = VertexIterator(vertex, vertexI); nextVertexIndex != UNDEFINED; nextVertexIndex = VertexIterator(vertex, vertexI))
 		{
 			vertices[nextVertexIndex] = Vertex(x, y, z, u, v, opacity);
+
+			++vertexI;
+		}
+	}
+	void SetPosition(Vertices vertex, float x, float y, float z, bool adjustUv = true)
+	{
+		unsigned int vertexI = 0;
+
+		for (unsigned int nextVertexIndex = VertexIterator(vertex, vertexI); nextVertexIndex != UNDEFINED; nextVertexIndex = VertexIterator(vertex, vertexI))
+		{
+			vertices[nextVertexIndex].position[0] = x;
+			vertices[nextVertexIndex].position[1] = y;
+			vertices[nextVertexIndex].position[2] = z;
+
+
+			if (adjustUv)
+			{
+				vertices[nextVertexIndex].uv[0] = x;
+				vertices[nextVertexIndex].uv[1] = z;
+			}
+
 
 			++vertexI;
 		}
@@ -163,12 +184,27 @@ public:
 	{
 		AdjustV(*this, parent, child);
 	}
-	void OffsetUV(float uOffset, float vOffset)
+	void OffsetUv(float offset_u, float offset_v, Vertices vertex = Vertices::UNDEFINED)
 	{
-		for (unsigned int vertexI = 0; vertexI < 6; vertexI++)
+		if (vertex == Vertices::UNDEFINED)
 		{
-			vertices[vertexI].uv[0] += uOffset;
-			vertices[vertexI].uv[1] += vOffset;
+			for (unsigned int vertexI = 0; vertexI < 6; ++vertexI)
+			{
+				vertices[vertexI].uv[0] += offset_u;
+				vertices[vertexI].uv[1] += offset_v;
+			}
+		}
+		else
+		{
+			unsigned int vertexI = 0;
+
+			for (unsigned int nextVertexIndex = VertexIterator(vertex, vertexI); nextVertexIndex != UNDEFINED; nextVertexIndex = VertexIterator(vertex, vertexI))
+			{
+				vertices[nextVertexIndex].uv[0] += offset_u;
+				vertices[nextVertexIndex].uv[1] += offset_v;
+
+				++vertexI;
+			}
 		}
 	}
 	void FlipSeam(SeamOrientation newOrientation = SeamOrientation::UNDEFINED)
@@ -244,12 +280,12 @@ public:
 					quadCorner = Vertices::TopRight;
 					quadCornerVertex = &oldTopRightVertex;
 				}
-				else if (quadCornerI == 1)
+				else if (quadCornerI == 2)
 				{
 					quadCorner = Vertices::BottomLeft;
 					quadCornerVertex = &oldBottomLeftVertex;
 				}
-				else
+				else // quadCornerI == 3
 				{
 					quadCorner = Vertices::BottomRight;
 					quadCornerVertex = &oldBottomRightVertex;
@@ -369,13 +405,84 @@ public:
 		for (unsigned int quadI = 0; quadI < 27 * 27; quadI++)
 		{
 			if (quads_used[quadI])
-				quads[quadI].OffsetUV(uOffset, vOffset);
+				quads[quadI].OffsetUv(uOffset, vOffset);
 		}
 
 		for (unsigned int extraQuadI = 0; extraQuadI < extraQuads.size(); extraQuadI++)
 		{
-			extraQuads[extraQuadI].OffsetUV(uOffset, vOffset);
+			extraQuads[extraQuadI].OffsetUv(uOffset, vOffset);
 		}
+	}
+};
+
+
+struct SE::Gameplay::Fog::EdgeAttributes
+{
+	Vertex rim;
+	Vertex top;
+	Vertex middle;
+	Vertex bottom;
+};
+
+
+class SE::Gameplay::Fog::SlopeRandomization
+{
+public:
+	EdgeAttributes offsets;
+
+public:
+	void Randomize(float multiplier = 1)
+	{
+		offsets.rim.position[0] = offsets.rim.position[2] = multiplier * GetRandomNumberWithin(0, 0, 0);
+		offsets.rim.position[1] = multiplier * GetRandomNumberWithin(-0.4, 0.15, 2.5);
+
+		offsets.top.position[0] = offsets.top.position[2] = multiplier * GetRandomNumberWithin(0, 0, 0);
+		offsets.top.position[1] = multiplier * GetRandomNumberWithin(-0.169, 0.1, 2.5);
+
+		offsets.middle.position[0] = offsets.middle.position[2] = multiplier * GetRandomNumberWithin(-0.2, 0.2, 3);
+		offsets.middle.position[1] = multiplier * GetRandomNumberWithin(-0.3, 0.3, 2.5);
+
+		offsets.bottom.position[0] = offsets.bottom.position[2] = multiplier * GetRandomNumberWithin(-0.35, 0.35, 2.5);
+		offsets.bottom.position[1] = multiplier * GetRandomNumberWithin(-0.1, 0.1, 1);
+
+
+		offsets.rim.opacity = multiplier * GetRandomNumberWithin(-0.2, 0.1, 5);
+		offsets.top.opacity = multiplier * GetRandomNumberWithin(-0.15, 0.3, 3);
+		offsets.middle.opacity = multiplier * GetRandomNumberWithin(-0.2, 0.2, 4);
+		offsets.bottom.opacity = multiplier * GetRandomNumberWithin(-0.25, 0.05, 4);
+	}
+	void Reset()
+	{
+		offsets = EdgeAttributes();
+	}
+
+private:
+	float GetRandomNumberWithin(float min, float max, float origoAttraction)
+	{
+		float randomNumber = 0;
+
+		if (min >= max)
+			return randomNumber;
+
+
+		randomNumber = rand() % RAND_MAX;
+
+		randomNumber *= (max - min) / (RAND_MAX - 1);
+		randomNumber += min;
+
+
+		if (origoAttraction)
+		{
+			float normalizationValue = (randomNumber < 0) * min + (randomNumber > 0) * max;
+
+			float attractionMultiplier = pow(fabs(randomNumber / normalizationValue), origoAttraction + 1);
+
+
+			randomNumber *= attractionMultiplier;
+		}
+
+
+		return randomNumber;
 	}
 };
 
@@ -384,6 +491,9 @@ SE::Gameplay::Fog::Fog()
 {
 	topPlane = new Plane();
 	bottomPlane = new Plane();
+
+
+	srand(time(NULL));
 }
 
 SE::Gameplay::Fog::~Fog()
@@ -516,20 +626,64 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 
 
 	{
-		SetFirstWall();
+		EdgeAttributes& attributes = EdgeAttributes();
+		SlopeRandomization& randomization = SlopeRandomization();
 
 		unsigned int slopeCount = GetSlopeCount();
 
-		unsigned int slopeIndex = 0;
+
+		SetFirstWall();
+
+
+		{
+			unsigned int nextWallTile_old[2] = { nextWallTile[0], nextWallTile[1] };
+			unsigned int currentWallTile_old[2] = { currentWallTile[0], currentWallTile[1] };
+
+			WallSide nextWallSide_old = nextWallSide;
+			WallSide currentWallSide_old = currentWallSide;
+
+
+			nextWallTile[0] = currentWallTile[0];
+			nextWallTile[1] = currentWallTile[1];
+
+			currentWallTile[0] = previousWallTile[0];
+			currentWallTile[1] = previousWallTile[1];
+
+			nextWallSide = currentWallSide;
+			currentWallSide = previousWallSide;
+
+
+			AddSlope(0, attributes, randomization, true);
+
+
+			nextWallTile[0] = nextWallTile_old[0];
+			nextWallTile[1] = nextWallTile_old[1];
+
+			currentWallTile[0] = currentWallTile_old[0];
+			currentWallTile[1] = currentWallTile_old[1];
+
+			nextWallSide = nextWallSide_old;
+			currentWallSide = currentWallSide_old;
+		}
+
+
+		unsigned int slopeIndex = 1;
 		do
 		{
-			AddSlope(slopeIndex);
+			if (slopeIndex && slopeIndex + 1 != slopeCount)
+				randomization.Randomize(randomizationMultiplier);
+			else if (slopeIndex == slopeCount)
+				randomization.Reset();
+
+
+			AddSlope(slopeIndex, attributes, randomization);
 
 			ContinueToNextWall();
 
+
 			slopeIndex++;
 
-		} while (slopeIndex < slopeCount);
+		} while (slopeIndex <= slopeCount);
 	}
 
 
@@ -903,431 +1057,289 @@ void SE::Gameplay::Fog::ContinueToNextWall()
 	}
 }
 
-void SE::Gameplay::Fog::AddSlope(unsigned int slopeIndex)
+void SE::Gameplay::Fog::AddSlope(unsigned int slopeIndex, EdgeAttributes& attributes, SlopeRandomization& randomization, bool onlyInstantiate)
 {
+	unsigned int basePosition[2] = {
+		currentWallTile[0] + (currentWallSide == WallSide::Bottom || currentWallSide == WallSide::Right),
+		currentWallTile[1] + (currentWallSide == WallSide::Top || currentWallSide == WallSide::Right)
+	};
+
+
+	bool wallIs_horizontal = currentWallSide == WallSide::Top || currentWallSide == WallSide::Bottom;
+	bool wallIs_vertical = !wallIs_horizontal;
+
+
+	int offsetMultiplier_side = (currentWallSide == WallSide::Bottom) - (currentWallSide == WallSide::Top) +
+		(currentWallSide == WallSide::Left) - (currentWallSide == WallSide::Right);
+
+
+	int offsetMultiplier_corner = (currentWallSide != nextWallSide);
+
+	offsetMultiplier_corner -= 2 *
+		((currentWallSide == WallSide::Top && nextWallSide == WallSide::Right) +
+		(currentWallSide == WallSide::Bottom && nextWallSide == WallSide::Right) +
+			(currentWallSide == WallSide::Left && nextWallSide == WallSide::Top) +
+			(currentWallSide == WallSide::Right && nextWallSide == WallSide::Top));
+
+
 	bool previousWallIsOpenDoor = IsOpenDoorSide(previousWallTile, previousWallSide);
 	bool currentWallIsOpenDoor = IsOpenDoorSide(currentWallTile, currentWallSide);
 	bool nextWallIsOpenDoor = IsOpenDoorSide(nextWallTile, nextWallSide);
 
-	bool previousEdgeAtOpenDoor = currentWallIsOpenDoor || previousWallIsOpenDoor;
 	bool nextEdgeAtOpenDoor = currentWallIsOpenDoor || nextWallIsOpenDoor;
 
-
-	float previousWallEdgeOpacity_top = !previousEdgeAtOpenDoor * slopeTopOpacity + previousEdgeAtOpenDoor * slopeTopOpacity_door;
-	float previousWallEdgeOpacity_middle = !previousEdgeAtOpenDoor * slopeMiddleOpacity + previousEdgeAtOpenDoor * slopeMiddleOpacity_door;
-	float previousWallEdgeOpacity_bottom = !previousEdgeAtOpenDoor * slopeBottomOpacity + previousEdgeAtOpenDoor * slopeBottomOpacity_door;
-
-	float nextWallEdgeOpacity_top = !nextEdgeAtOpenDoor * slopeTopOpacity + nextEdgeAtOpenDoor * slopeTopOpacity_door;
-	float nextWallEdgeOpacity_middle = !nextEdgeAtOpenDoor * slopeMiddleOpacity + nextEdgeAtOpenDoor * slopeMiddleOpacity_door;
-	float nextWallEdgeOpacity_bottom = !nextEdgeAtOpenDoor * slopeBottomOpacity + nextEdgeAtOpenDoor * slopeBottomOpacity_door;
+	bool shouldFlipSeam = previousWallIsOpenDoor;
 
 
-	if (currentWallSide == WallSide::Top)
+	float offsetMultiplier_horizontal_side = wallIs_horizontal * offsetMultiplier_side;
+	float offsetMultiplier_horizontal_corner = wallIs_horizontal * offsetMultiplier_corner;
+	float offsetMultiplier_vertical_side = wallIs_vertical * offsetMultiplier_side;
+	float offsetMultiplier_vertical_corner = wallIs_vertical * offsetMultiplier_corner;
+
+
+
+	EdgeAttributes previousEdge = attributes;
+	EdgeAttributes& nextEdge = attributes = EdgeAttributes();
+
+
+	{
+		nextEdge.rim.position[0] = basePosition[0] +
+			offsetMultiplier_vertical_side * slopeRimOffset[0] +
+			offsetMultiplier_horizontal_corner * slopeRimOffset[0];
+
+		nextEdge.rim.position[1] = slopeRimOffset[1];
+
+		nextEdge.rim.position[2] = basePosition[1] +
+			offsetMultiplier_horizontal_side * slopeRimOffset[0] +
+			offsetMultiplier_vertical_corner * slopeRimOffset[0];
+
+
+		nextEdge.top.position[0] = basePosition[0] +
+			offsetMultiplier_vertical_side * slopeTopOffset[0] +
+			offsetMultiplier_horizontal_corner * slopeTopOffset[0];
+
+		nextEdge.top.position[1] = slopeTopOffset[1];
+
+		nextEdge.top.position[2] = basePosition[1] +
+			offsetMultiplier_horizontal_side * slopeTopOffset[0] +
+			offsetMultiplier_vertical_corner * slopeTopOffset[0];
+
+
+		nextEdge.middle.position[0] = basePosition[0] +
+			offsetMultiplier_vertical_side * slopeMiddleOffset[0] +
+			offsetMultiplier_horizontal_corner * slopeMiddleOffset[0];
+
+		nextEdge.middle.position[1] = slopeMiddleOffset[1];
+
+		nextEdge.middle.position[2] = basePosition[1] +
+			offsetMultiplier_horizontal_side * slopeMiddleOffset[0] +
+			offsetMultiplier_vertical_corner * slopeMiddleOffset[0];
+
+
+		nextEdge.bottom.position[0] = basePosition[0] +
+			offsetMultiplier_vertical_side * slopeBottomOffset[0] +
+			offsetMultiplier_horizontal_corner * slopeBottomOffset[0];
+
+		nextEdge.bottom.position[1] = slopeBottomOffset[1];
+
+		nextEdge.bottom.position[2] = basePosition[1] +
+			offsetMultiplier_horizontal_side * slopeBottomOffset[0] +
+			offsetMultiplier_vertical_corner * slopeBottomOffset[0];
+	}
+
+
+	{
+		nextEdge.rim.uv[0] = nextEdge.top.uv[0] = nextEdge.middle.uv[0] = nextEdge.bottom.uv[0] =
+			slopeIndex;
+
+		nextEdge.rim.uv[1] = nextEdge.rim.position[1];
+		nextEdge.top.uv[1] = nextEdge.top.position[1];
+		nextEdge.middle.uv[1] = nextEdge.middle.position[1];
+		nextEdge.bottom.uv[1] = nextEdge.bottom.position[1];
+	}
+
+
+	{
+		nextEdge.rim.opacity = rimOpacity;
+
+		nextEdge.top.opacity = !nextEdgeAtOpenDoor * slopeTopOpacity + nextEdgeAtOpenDoor * slopeTopOpacity_door;
+
+		nextEdge.middle.opacity = !nextEdgeAtOpenDoor * slopeMiddleOpacity + nextEdgeAtOpenDoor * slopeMiddleOpacity_door;
+
+		nextEdge.bottom.opacity = !nextEdgeAtOpenDoor * slopeBottomOpacity + nextEdgeAtOpenDoor * slopeBottomOpacity_door;
+	}
+
+
+	{
+		nextEdge.rim.position[0] += randomization.offsets.rim.position[0];
+		nextEdge.rim.position[1] += randomization.offsets.rim.position[1];
+		nextEdge.rim.position[2] += randomization.offsets.rim.position[2];
+
+		nextEdge.rim.uv[0] += randomization.offsets.rim.uv[0];
+		nextEdge.rim.uv[1] += randomization.offsets.rim.uv[1];
+
+		nextEdge.rim.opacity += randomization.offsets.rim.opacity;
+
+
+		nextEdge.top.position[0] += randomization.offsets.top.position[0];
+		nextEdge.top.position[1] += randomization.offsets.top.position[1];
+		nextEdge.top.position[2] += randomization.offsets.top.position[2];
+
+		nextEdge.top.uv[0] += randomization.offsets.top.uv[0];
+		nextEdge.top.uv[1] += randomization.offsets.top.uv[1];
+
+		nextEdge.top.opacity += randomization.offsets.top.opacity;
+
+
+		nextEdge.middle.position[0] += randomization.offsets.middle.position[0];
+		nextEdge.middle.position[1] += randomization.offsets.middle.position[1];
+		nextEdge.middle.position[2] += randomization.offsets.middle.position[2];
+
+		nextEdge.middle.uv[0] += randomization.offsets.middle.uv[0];
+		nextEdge.middle.uv[1] += randomization.offsets.middle.uv[1];
+
+		nextEdge.middle.opacity += randomization.offsets.middle.opacity;
+
+
+		nextEdge.bottom.position[0] += randomization.offsets.bottom.position[0];
+		nextEdge.bottom.position[1] += randomization.offsets.bottom.position[1];
+		nextEdge.bottom.position[2] += randomization.offsets.bottom.position[2];
+
+		nextEdge.bottom.uv[0] += randomization.offsets.bottom.uv[0];
+		nextEdge.bottom.uv[1] += randomization.offsets.bottom.uv[1];
+
+		nextEdge.bottom.opacity += randomization.offsets.bottom.opacity;
+	}
+
+
+
+	if (onlyInstantiate)
+		return;
+
+
+
+	AdjustRimVertex(nextEdge.top.position);
+
+
+
 	{
 		topPlane->AddQuad();
 
 
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1);
-
-		if (nextWallSide == WallSide::Left)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else if (nextWallSide == WallSide::Top)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else // nextWallSide == WallSide::Right
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1);
-
-		if (previousWallSide == WallSide::Right)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else if (previousWallSide == WallSide::Top)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else // previousWallSide == WallSide::Left
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, previousEdge.top.position[0], previousEdge.top.position[1], previousEdge.top.position[2], previousEdge.top.opacity);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, previousEdge.rim.position[0], previousEdge.rim.position[1], previousEdge.rim.position[2], previousEdge.rim.opacity);
 
 		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
 
 
+		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, nextEdge.top.position[0], nextEdge.top.position[1], nextEdge.top.position[2], nextEdge.top.opacity);
+		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, nextEdge.rim.position[0], nextEdge.rim.position[1], nextEdge.rim.position[2], nextEdge.rim.opacity);
 
+		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
+	}
+
+
+	{
+		bottomPlane->AddQuad();
+
+
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, previousEdge.top.position[0], previousEdge.top.position[1], previousEdge.top.position[2], slopeIndex - 1, previousEdge.top.position[1], previousEdge.top.opacity);
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, previousEdge.middle.position[0], previousEdge.middle.position[1], previousEdge.middle.position[2], slopeIndex - 1, previousEdge.middle.position[1], previousEdge.middle.opacity);
+
+		bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
+
+
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, nextEdge.top.position[0], nextEdge.top.position[1], nextEdge.top.position[2], slopeIndex, nextEdge.top.position[1], nextEdge.top.opacity);
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, nextEdge.middle.position[0], nextEdge.middle.position[1], nextEdge.middle.position[2], slopeIndex, nextEdge.middle.position[1], nextEdge.middle.opacity);
+
+		bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
+
+
+
+		bottomPlane->AddQuad();
+
+
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, previousEdge.middle.position[0], previousEdge.middle.position[1], previousEdge.middle.position[2], slopeIndex - 1, previousEdge.middle.position[1], previousEdge.middle.opacity);
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, previousEdge.bottom.position[0], previousEdge.bottom.position[1], previousEdge.bottom.position[2], slopeIndex - 1, previousEdge.bottom.position[1], previousEdge.bottom.opacity);
+
+		bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopRight, Quad::Vertices::TopRight);
+		bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
+
+
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, nextEdge.middle.position[0], nextEdge.middle.position[1], nextEdge.middle.position[2], slopeIndex, nextEdge.middle.position[1], nextEdge.middle.opacity);
+		bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, nextEdge.bottom.position[0], nextEdge.bottom.position[1], nextEdge.bottom.position[2], slopeIndex, nextEdge.bottom.position[1], nextEdge.bottom.opacity);
+
+		bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopLeft, Quad::Vertices::TopLeft);
+		bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
+
+
+
+		if (shouldFlipSeam)
 		{
-			bottomPlane->AddQuad();
-			bottomPlane->AddQuad();
+			bottomPlane->GetQuad(-1).FlipSeam();
+			bottomPlane->GetQuad().FlipSeam();
+		}
+	}
+}
+
+void SE::Gameplay::Fog::AdjustRimVertex(float position[3])
+{
+	unsigned int tileOffset[2] = {};
 
 
-			if (previousWallIsOpenDoor)
-			{
-				bottomPlane->GetQuad(-1).FlipSeam();
-				bottomPlane->GetQuad().FlipSeam();
-			}
+	if (currentWallSide == WallSide::Top)
+		++tileOffset[1];
+	else if (currentWallSide == WallSide::Bottom)
+		--tileOffset[1];
+	else if (currentWallSide == WallSide::Left)
+		--tileOffset[0];
+	else // currentWallSide == WallSide::Right
+		++tileOffset[0];
 
 
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1, slopeIndex + 1, height, nextWallEdgeOpacity_top);
+	unsigned int rimTile[2] = { currentWallTile[0] + tileOffset[0] + 1, currentWallTile[1] + tileOffset[1] + 1 };
+
+	if (topPlane->GetQuadStatus(rimTile[0], rimTile[1]))
+	{
+		if (currentWallSide == WallSide::Top)
+		{
+			topPlane->GetQuad(rimTile[0], rimTile[1]).SetPosition(Quad::Vertices::BottomLeft, position[0], position[1], position[2]);
+
+			if (nextWallSide == WallSide::Top || nextWallSide == WallSide::Left)
+				topPlane->GetQuad(rimTile[0] - 1, rimTile[1]).SetPosition(Quad::Vertices::BottomRight, position[0], position[1], position[2]);
 
 			if (nextWallSide == WallSide::Left)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else if (nextWallSide == WallSide::Top)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else // nextWallSide == WallSide::Right
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopLeft, Quad::Vertices::TopLeft);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::BottomLeft);
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1, slopeIndex, height, previousWallEdgeOpacity_top);
-
-			if (previousWallSide == WallSide::Right)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else if (previousWallSide == WallSide::Top)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else // previousWallSide == WallSide::Left
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopRight, Quad::Vertices::TopRight);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::BottomRight);
+				topPlane->GetQuad(rimTile[0] - 1, rimTile[1] - 1).SetPosition(Quad::Vertices::TopRight, position[0], position[1], position[2]);
 		}
-	}
-	else if (currentWallSide == WallSide::Bottom)
-	{
-		topPlane->AddQuad();
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1]);
-
-		if (previousWallSide == WallSide::Left)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else if (previousWallSide == WallSide::Bottom)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else // previousWallSide == WallSide::Right
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1]);
-
-		if (nextWallSide == WallSide::Right)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else if (nextWallSide == WallSide::Bottom)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else // nextWallSide == WallSide::Left
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
-
-
-
+		else if (currentWallSide == WallSide::Bottom)
 		{
-			bottomPlane->AddQuad();
-			bottomPlane->AddQuad();
+			topPlane->GetQuad(rimTile[0], rimTile[1]).SetPosition(Quad::Vertices::TopRight, position[0], position[1], position[2]);
 
-
-			if (previousWallIsOpenDoor)
-			{
-				bottomPlane->GetQuad(-1).FlipSeam();
-				bottomPlane->GetQuad().FlipSeam();
-			}
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1], slopeIndex, height, previousWallEdgeOpacity_top);
-
-			if (previousWallSide == WallSide::Left)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else if (previousWallSide == WallSide::Bottom)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else // previousWallSide == WallSide::Right
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomLeft, Quad::Vertices::BottomLeft);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::TopLeft);
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1], slopeIndex + 1, height, nextWallEdgeOpacity_top);
+			if (nextWallSide == WallSide::Bottom || nextWallSide == WallSide::Right)
+				topPlane->GetQuad(rimTile[0] + 1, rimTile[1]).SetPosition(Quad::Vertices::TopLeft, position[0], position[1], position[2]);
 
 			if (nextWallSide == WallSide::Right)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else if (nextWallSide == WallSide::Bottom)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else // nextWallSide == WallSide::Left
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomRight, Quad::Vertices::BottomRight);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::TopRight);
+				topPlane->GetQuad(rimTile[0] + 1, rimTile[1] + 1).SetPosition(Quad::Vertices::BottomLeft, position[0], position[1], position[2]);
 		}
-	}
-	else if (currentWallSide == WallSide::Left)
-	{
-		topPlane->AddQuad();
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1);
-
-		if (previousWallSide == WallSide::Top)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else if (previousWallSide == WallSide::Left)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1, rimOpacity);
-		else // previousWallSide == WallSide::Bottom
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 + slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1]);
-
-		if (nextWallSide == WallSide::Bottom)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else if (nextWallSide == WallSide::Left)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1], rimOpacity);
-		else // nextWallSide == WallSide::Top
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] - slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
-
-
-
+		else if (currentWallSide == WallSide::Left)
 		{
-			bottomPlane->AddQuad();
-			bottomPlane->AddQuad();
+			topPlane->GetQuad(rimTile[0], rimTile[1]).SetPosition(Quad::Vertices::BottomRight, position[0], position[1], position[2]);
 
-
-			if (nextWallIsOpenDoor)
-			{
-				bottomPlane->GetQuad(-1).FlipSeam();
-				bottomPlane->GetQuad().FlipSeam();
-			}
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0], height, currentWallTile[1] + 1, slopeIndex, height, previousWallEdgeOpacity_top);
-
-			if (previousWallSide == WallSide::Top)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else if (previousWallSide == WallSide::Left)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1, slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else // previousWallSide == WallSide::Bottom
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopLeft, Quad::Vertices::TopLeft);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopLeft, Quad::Vertices::TopRight);
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0], height, currentWallTile[1], slopeIndex + 1, height, nextWallEdgeOpacity_top);
+			if (nextWallSide == WallSide::Left || nextWallSide == WallSide::Bottom)
+				topPlane->GetQuad(rimTile[0], rimTile[1] - 1).SetPosition(Quad::Vertices::TopRight, position[0], position[1], position[2]);
 
 			if (nextWallSide == WallSide::Bottom)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else if (nextWallSide == WallSide::Left)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else // nextWallSide == WallSide::Top
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomLeft, Quad::Vertices::BottomLeft);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomLeft, Quad::Vertices::BottomRight);
+				topPlane->GetQuad(rimTile[0] + 1, rimTile[1] - 1).SetPosition(Quad::Vertices::TopLeft, position[0], position[1], position[2]);
 		}
-	}
-	else // currentWallSide == WallSide::Right
-	{
-		topPlane->AddQuad();
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1);
-
-		if (nextWallSide == WallSide::Top)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 - slopeTopOffset[0], rimOpacity);
-		else if (nextWallSide == WallSide::Right)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1, rimOpacity);
-		else // nextWallSide == WallSide::Bottom
-			topPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + 1 + slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
-
-
-		topPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1]);
-
-		if (previousWallSide == WallSide::Bottom)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] + slopeTopOffset[0], rimOpacity);
-		else if (previousWallSide == WallSide::Right)
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1], rimOpacity);
-		else // previousWallSide == WallSide::Top
-			topPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeTopOffset[0], slopeTopOffset[1], currentWallTile[1] - slopeTopOffset[0], rimOpacity);
-
-		topPlane->GetQuad().AdjustUv(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
-
-
-
+		else // currentWallSide == WallSide::Right
 		{
-			bottomPlane->AddQuad();
-			bottomPlane->AddQuad();
+			topPlane->GetQuad(rimTile[0], rimTile[1]).SetPosition(Quad::Vertices::TopLeft, position[0], position[1], position[2]);
 
-
-			if (nextWallIsOpenDoor)
-			{
-				bottomPlane->GetQuad(-1).FlipSeam();
-				bottomPlane->GetQuad().FlipSeam();
-			}
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1, height, currentWallTile[1] + 1, slopeIndex + 1, height, nextWallEdgeOpacity_top);
+			if (nextWallSide == WallSide::Right || nextWallSide == WallSide::Top)
+				topPlane->GetQuad(rimTile[0], rimTile[1] + 1).SetPosition(Quad::Vertices::BottomLeft, position[0], position[1], position[2]);
 
 			if (nextWallSide == WallSide::Top)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 - slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 - slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else if (nextWallSide == WallSide::Right)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1, slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-			else // nextWallSide == WallSide::Bottom
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + 1 + slopeMiddleOffset[0], slopeIndex + 1, slopeMiddleOffset[1], nextWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::TopLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + 1 + slopeBottomOffset[0], slopeIndex + 1, slopeBottomOffset[1], nextWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::TopRight, Quad::Vertices::TopRight);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::TopRight, Quad::Vertices::TopLeft);
-
-
-			bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1, height, currentWallTile[1], slopeIndex, height, previousWallEdgeOpacity_top);
-
-			if (previousWallSide == WallSide::Bottom)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] + slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] + slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else if (previousWallSide == WallSide::Right)
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-			else // previousWallSide == WallSide::Top
-			{
-				bottomPlane->GetQuad(-1).SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomRight, currentWallTile[0] + 1 - slopeMiddleOffset[0], slopeMiddleOffset[1], currentWallTile[1] - slopeMiddleOffset[0], slopeIndex, slopeMiddleOffset[1], previousWallEdgeOpacity_middle);
-				bottomPlane->GetQuad().SetVertex(Quad::Vertices::BottomLeft, currentWallTile[0] + 1 - slopeBottomOffset[0], slopeBottomOffset[1], currentWallTile[1] - slopeBottomOffset[0], slopeIndex, slopeBottomOffset[1], previousWallEdgeOpacity_bottom);
-			}
-
-			bottomPlane->GetQuad(-1).AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
-
-			bottomPlane->GetQuad().AdjustV(bottomPlane->GetQuad(-1), Quad::Vertices::BottomRight, Quad::Vertices::BottomRight);
-			bottomPlane->GetQuad().AdjustV(Quad::Vertices::BottomRight, Quad::Vertices::BottomLeft);
+				topPlane->GetQuad(rimTile[0] - 1, rimTile[1] + 1).SetPosition(Quad::Vertices::BottomRight, position[0], position[1], position[2]);
 		}
 	}
 }
