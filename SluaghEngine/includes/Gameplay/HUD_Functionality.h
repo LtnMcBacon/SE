@@ -4,7 +4,7 @@
 #include <vector>
 #include <Core\IGUIManager.h>
 #include <functional>
-
+#include <Gameplay\PerkData.h>
 namespace SE
 {
 	namespace Gameplay
@@ -38,15 +38,19 @@ namespace SE
 				bool skillButton = false;
 				std::string skillName;
 				std::string perkName;
+				PerkData perk;
 				std::function<void()> bindButton;
 			};
 
 			bool wasHovering = false;
-			size_t additionalHeight = 0;
-			size_t additionalWidth = 0;
-			size_t resolutionXIncrease=0;
-			size_t resolutionYIncrease=0;
+			
+			int positionY = 0;
+			int positionX = 0;
+			int Width = 0;
+			int Height = 0;
+
 			// vector to store buttons
+			std::vector<ButtonElement> preRenderButtons;
 			std::vector<ButtonElement> Buttons;
 			std::vector<std::string> ButtonsToDelete;
 			// vector to store buttons drawing entities
@@ -62,10 +66,11 @@ namespace SE
 
 			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, bool skill,std::string perkName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
+			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, bool skill,std::string perkName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "", PerkData Perk = PerkData());
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[],std::string skillName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
+			void CreateButton(ButtonElement newButtons);
 
-			std::string printSkillDesc(ButtonElement button);
+			std::wstring printSkillDesc(ButtonElement button);
 
 			void DrawButtons();
 			void DrawButtonText(ButtonElement &button);
@@ -73,9 +78,12 @@ namespace SE
 			void DeleteButtons();
 			void HideButtons();
 			void ShowButtons();
-			void CalculateScreenPositions();
+			void CalculateScreenPositions(int& width, int& height,int& posX, int& posY);
+			void reverseScreenPositions(int width, int height, int posX, int posY);
+			void reverseScreenPositions(int& width, int& height, int& posX, int& posY,bool reference);
 			void deleteSkillPerkBtns();
 			void DeleteSpecificButtons(std::string name);
+			void reloadButtons();
 
 		};
 	}

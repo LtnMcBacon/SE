@@ -5,6 +5,7 @@
 #include <PlayerUnit.h>
 #include <Skill.h>
 
+
 using namespace SE;
 using namespace Gameplay;
 
@@ -17,7 +18,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
 	nrOfSkills = 2;
-	nrOfPerks = 0;
+	nrOfPerks = 2;
 	selectedSkills = 0;
 	renewSkillList = 0;
 	fileParser.entityIndex = 0;
@@ -113,12 +114,12 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			getPerks();
 		}
 	}
-	//if (selectedPerks == nrOfPerks)
-	//{
-	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
-	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
-	//	fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
-	//}
+	if (selectedPerks == nrOfPerks)
+	{
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
+		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
+	}
 
 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
@@ -163,10 +164,28 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 
 		}
 
-		for (size_t i = 0; i < nrOfPerks; i++)
+		Perk exportPerks[2];
+		Perk tempPerk;
+
+		for (auto& perk: chosenPerks)
 		{
-			infoToPass->perks[i] = chosenPerks.at(i);
+			Pfactory.PickedPerks.push_back(perk);
+			
 		}
+		Pfactory.iteratePerks();
+
+		for (size_t i = 0; i < Pfactory.PickedPerks.size(); i++)
+		{
+			tempPerk.perkFunctions = Pfactory.perkFuncVector[i];
+			tempPerk.intToEnum = Pfactory.PickedPerks[i].condition;
+			
+			exportPerks[i] = tempPerk;
+			infoToPass->perks[i] = exportPerks[i];
+			infoToPass->perksForSlaughSave[i] = chosenPerks[i];
+		}
+
+		
+		//Pfactory.ReadPerksForSlaugh("Bumling");
 
 
 		passableInfo = infoToPass;
@@ -308,7 +327,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					anchorY,
 					skillButton.Width,
 					skillButton.Height,
-					0.1,
+					0.5,
 					skillButton.rectName,
 					skillChoice,
 					skillInfo,
@@ -445,7 +464,7 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 			{
 				perkButton.perkName = perkName;
 				perkButton.bindButton = perkChoice;
-
+				
 				fileParser.GUIButtons.CreateButton(
 					anchorX,
 					anchorY,
@@ -459,7 +478,8 @@ void SE::Gameplay::CharacterCreationState::getPerks()
 					perkButton.textName,
 					perkButton.hoverTex,
 					perkButton.PressTex,
-					""
+					"",
+					tempPerk
 				);
 				break;
 

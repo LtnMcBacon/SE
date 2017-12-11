@@ -23,7 +23,7 @@ namespace SE
 
 			virtual void Show() = 0;
 			virtual void Hide() = 0;
-
+			virtual bool IsVisible() = 0;
 			/*
 			* @brief Toggles the console on or off.
 			*/

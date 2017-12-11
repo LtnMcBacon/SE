@@ -364,6 +364,11 @@ namespace SE
 			*/
 			virtual void UnbindCallbacks() = 0;
 
+			/**
+			* @brief Toggles the cursor on/off
+			*/
+			virtual void ToggleCursor(bool on) = 0;
+
 			/*
 			 * @brief Returns the width of the window.
 			 */

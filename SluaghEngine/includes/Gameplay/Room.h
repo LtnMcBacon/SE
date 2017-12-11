@@ -86,7 +86,12 @@ namespace SE
 				Window_open,
 				Window_closed,
 				Tree,
-				Well
+				Well,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1
 			};
 			enum class Materials {
 				Stone,
@@ -113,7 +118,12 @@ namespace SE
 				PotatosackClosed,
 				Well,
 				julWall, 
-				DarkStoneWall
+				DarkStoneWall,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1
 			};
 
 			struct CreationArguments
@@ -169,7 +179,7 @@ namespace SE
 			};
 
 		public:
-
+			void ToggleRenderingOfWallsAndFloor(bool toggle);
 			enum class DirectionToAdjacentRoom
 			{
 
@@ -579,7 +589,7 @@ namespace SE
 			/**
 			* @brief	Checks the wall to rotate the torch in that direction
 			*/
-			float WallCheck(int x, int y);
+			float WallCheck(int x, int y, float &retX, float &retZ);
 
 			/**
 			* @brief	Generates random props
@@ -620,8 +630,6 @@ namespace SE
 			* @brief
 			*/
 			void CreateDoor(CreationArguments &args);
-
-
 			/**
 			* @brief	Checks collision for the projectiles against both the walls and the enemies
 			*/
@@ -630,7 +638,7 @@ namespace SE
 			/**
 			* @brief	finds the closest enemy to xPos and yPos nad sets xReturn and yReturn to that enemies position, if no enemies exist then false is returned
 			*/
-			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
+			virtual bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
 			bool GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit);
 
 			/**
@@ -689,6 +697,9 @@ namespace SE
 					}
 				}
 			}
+
+			bool IsWall(int x, int y) const;
+
 			bool beingRendered = false;
 			bool loaded = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };

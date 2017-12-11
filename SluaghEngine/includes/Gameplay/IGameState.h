@@ -6,7 +6,8 @@
 #include <Core\IEngine.h>
 #include <Gameplay\Skill.h>
 #include <Gameplay\PerkData.h>
-
+#include <Gameplay\PerkFactory.h>
+#include <Gameplay\Perk.h>
 
 namespace SE
 {
@@ -16,7 +17,9 @@ namespace SE
 		struct PlayStateData
 		{
 			Skill skills[2];
-			PerkData perks[2];
+			Perk perks[2];
+
+			PerkData perksForSlaughSave[2];
 		};
 
 		/**

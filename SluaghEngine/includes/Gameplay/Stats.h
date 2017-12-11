@@ -22,7 +22,7 @@ namespace SE
 			float health = 100.f;
 			static const int MAX_HEALTH = 100;
 			float damage = 1.f;
-			static const int MAX_DAMAGE = 15;
+			static const int MAX_DAMAGE = 20;
 			float meleeMultiplier = 1.f;
 			float physicalResistance = -1.f;
 
@@ -30,9 +30,8 @@ namespace SE
 			float rangedDamage = 1.f;
 			float rangedMultiplier = 1.f;
 			float movementSpeed = 5.f;
-			float attackSpeed		= 5.f;
+			float attackSpeed		= 1.f;
 			float attackCooldown = 0.f;
-			//float healBonus			= 1.f;
 
 			//whi
 			float magicDamage = 1.f;
@@ -53,15 +52,15 @@ namespace SE
 			}
 			inline static int GetRandStr()
 			{
-				return std::rand() % (MAX_STR + 1) - MAX_STR;
+				return std::rand() % (MAX_STR + 1) - MAX_STR/2;
 			}
 			inline static int GetRandAgi()
 			{
-				return std::rand() % (MAX_AGI + 1) - MAX_AGI;
+				return std::rand() % (MAX_AGI + 1) - MAX_AGI/2;
 			}
 			inline static int GetRandWil()
 			{
-				return std::rand() % (MAX_WHI + 1) - MAX_WHI;
+				return std::rand() % (MAX_WHI + 1) - MAX_WHI/2;
 			}
 			inline static int GetRandHealth()
 			{

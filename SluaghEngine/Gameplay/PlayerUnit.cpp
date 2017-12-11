@@ -5,6 +5,8 @@
 #include "CoreInit.h"
 #include <KeyBindings.h>
 #include <Items.h>
+#include <Gameplay\PerkFactory.h>
+#include <Gameplay\perkConditionEnum.h>
 
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
@@ -425,22 +427,22 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	else if (input.two)
 	{
-		newItem = 1;;
+		newItem = 1;
 		ci = true;
 	}
 	else if (input.three)
 	{
-		newItem = 2;;
+		newItem = 2;
 		ci = true;
 	}
 	else if (input.four)
 	{
-		newItem = 3;;
+		newItem = 3;
 		ci = true;
 	}
 	else if (input.five)
 	{
-		newItem = 4;;
+		newItem = 4;
 		ci = true;
 	}
 	if (ci && input.showInfo)
@@ -490,6 +492,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 		}
 	}
+
 
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
@@ -666,6 +669,10 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		this->newStat.attackCooldown = 0.f;
 	}
 
+
+
+	handlePerks(dt, this, newProjectiles);
+
 	ResolveEvents(dt);
 	//ClearConditionEvents();
 	//ClearDamageEvents();
@@ -690,8 +697,6 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	if (godMode)
-		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		ClearNewStats();
@@ -704,50 +709,78 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		ClearDamageEvents();
 		ClearHealingEvents();
 	}
+	if (godMode)
+		health = GetMaxHealth();
 	StopProfile;
+}
+
+void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , std::vector<ProjectileData>& newProjectiles)
+{
+	int nrOf = newProjectiles.size();
+	bool cond = false;
+	for (auto& perk: perks)
+	{
+		cond = perk.checkConditions(newProjectiles,this);
+		for (auto& func: perk.perkFunctions)
+		{
+			func(this,newProjectiles,deltaTime,cond);
+		}
+	}
+
+
 }
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 	
-	if (!isSluagh)
+	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
 	{
-		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-
-		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-		if (isitem != -1)
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+		if (currentItem == slot)
 		{
-			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-			p.y = 0;
-			if (currentItem == slot)
-			{
-				auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-				if (ctype == ItemType::WEAPON)
-					Item::Unequip(items[currentItem], unitEntity);
-			}
-
-			Item::Drop(items[slot], p);
+			auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (pit == ItemType::WEAPON)
+				Item::Unequip(items[currentItem], unitEntity);
 
 		}
+
+		Item::Drop(items[slot], p);
+
+	}
+		
+	if (!isSluagh)
+	{
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
 		Item::Pickup(item);
 	}
+	else
+	{
+		Item::GodPickup(item);
+	}
 
 	items[slot] = item;
-	
-
+	if (itype == ItemType::WEAPON)
+	{
+		currentItem = slot;
+		Item::Equip(items[currentItem], unitEntity);
+		SetCurrentWeaponStats();
+	}
 	StopProfile;
 }
 
 void SE::Gameplay::PlayerUnit::calcBaseStrChanges()
 {
 	StartProfile;
-	if (baseStat.str > 5)
+	if (newStat.str > 5)
 	{
-		int increment = baseStat.str - 5;
-		newStat.health = baseStat.health * (1.f + (0.05f * increment));
-		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
+		int increment = newStat.str - 5;
+		newStat.health = newStat.health * (1.f + (0.05f * increment));
+		newStat.damage = newStat.damage * (1.f + (0.05f * increment));
 	}
 	else if (baseStat.str < 5)
 	{
@@ -984,7 +1017,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks,float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -996,7 +1029,22 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, void* perks, float xPos, flo
 	{
 		this->skills.push_back(skills[0]);
 		this->skills.push_back(skills[1]);
-		this->skills.push_back(skills[2]);
+		
+	}
+
+	if (importPerks != nullptr)
+	{
+		this->perks.push_back(importPerks[0]);
+		this->perks.push_back(importPerks[1]);
+
+		perkConditions myCond = static_cast<perkConditions>(this->perks[0].intToEnum);
+		perkConditions secondCond = static_cast<perkConditions>(this->perks[1].intToEnum);
+
+		this->perks[0].myCondition = myCond;
+		this->perks[1].myCondition = secondCond;
+		this->perks[0].slaughPerk = slaughPerks[0];
+		this->perks[1].slaughPerk = slaughPerks[1];
+
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
@@ -1044,11 +1092,19 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 
 	input.read((char*)&baseStat, sizeof(baseStat));
 	skills.resize(2);
+	/*Memset to avoid undefined behaviour*/
 	input.read((char*)&skills[0], sizeof(skills[0]));
+	memset(&skills[0].skillName, 0, sizeof(skills[0].skillName));
+	skills[0].skillName = std::string("");
 	input.read((char*)&skills[1], sizeof(skills[1]));
+	memset(&skills[1].skillName, 0, sizeof(skills[1].skillName));
+	skills[1].skillName = std::string("");
 
 	for (int i = 0; i < MAX_ITEMS; i++)
+	{
 		items[i] = Item::Create(input);
+
+	}
 
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
