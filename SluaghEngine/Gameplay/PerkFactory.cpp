@@ -1,6 +1,8 @@
 #include <Gameplay\PerkFactory.h>
 #include <Gameplay\PlayerUnit.h>
 #include "CoreInit.h"
+#include <Gameplay\Items.h>
+#include <Profiler.h>
 using namespace SE;
 using namespace Gameplay;
 PerkFaktory::PerkFaktory()
@@ -13,6 +15,7 @@ PerkFaktory::~PerkFaktory()
 
 std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> PerkFaktory::initiateFuncs(int value, int funcEnum)
 {
+	StartProfile;
 	float consecutiveValue = 0;
 	float timer = 0;
 	float duration = 5.f;
@@ -1006,6 +1009,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				meleeLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::PHYSICAL)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1029,6 +1054,27 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				rangeLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::RANGED)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+					}
+				}
 			}
 			else
 			{
@@ -1054,6 +1100,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				magicLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::MAGIC)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1079,6 +1147,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				waterLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::WATER)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1103,6 +1193,29 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				fireLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::FIRE)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if(player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1123,18 +1236,40 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer = duration;
 			}
-			else
+			
+			if (timer > 0)
 			{
-				if (timer > 0)
+				
+				timer -= deltaTime;
+				natureLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
 				{
-					timer -= deltaTime;
-					natureLock = true;
-				}
-				else
-				{
-					natureLock = false;
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::NATURE)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
 				}
 			}
+			else
+			{
+				natureLock = false;
+			}
+			
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureLockFunc = NatureLock;
 		return NatureLockFunc;
@@ -1163,4 +1298,81 @@ void PerkFaktory::iteratePerks()
 		perkFuncVector.push_back(perkBehavior);
 		perkBehavior.clear();
 	}
+}
+
+
+Perk PerkFaktory::ReadPerksForSlaugh(std::string perkName)
+{
+	perkName.append(".prk");
+
+	Utilz::GUID fileName = perkName;
+
+		PerkData tempData;
+	auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)fileName, [&tempData](auto guid, auto data, auto size)mutable
+	{
+		size_t head = 0;
+		int nameSize;
+
+		memcpy(&nameSize, data, sizeof(int));
+		head += sizeof(int);
+		char* tempName = new char[nameSize + 1];
+		tempName[nameSize] = 0;
+
+		memcpy(tempName, (char*)data + head, sizeof(char) * nameSize);
+		tempData.name = tempName;
+		head += sizeof(char) * nameSize;
+
+		memcpy(&tempData.checkSize, (char*)data + head, sizeof(int));
+		head += sizeof(int);
+
+		memcpy(&tempData.typeSize, (char*)data + head, sizeof(int));
+		head += sizeof(int);
+
+		memcpy(&tempData.condition, (char*)data + head, sizeof(int));
+		head += sizeof(int);
+
+		for (size_t i = 0; i < tempData.typeSize; i++)
+		{
+			int type = -1;
+			int value = -1;
+			memcpy(&type, (char*)data + head, sizeof(int));
+			head += sizeof(int);
+
+			memcpy(&value, (char*)data + head, sizeof(int));
+			head += sizeof(int);
+
+
+			tempData.types.push_back(type);
+			tempData.values.push_back(value);
+		}
+		for (size_t i = 0; i < tempData.checkSize; i++)
+		{
+			int check = -1;
+			memcpy(&check, (char*)data + head, sizeof(int));
+			head += sizeof(int);
+			tempData.checks.push_back(check);
+		}
+
+		
+		delete[] tempName;
+		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
+	});
+	PickedPerks.push_back(tempData);
+	iteratePerks();
+
+
+	Perk slaughPerk;
+	
+
+	perkConditions myCond = static_cast<perkConditions>(tempData.condition);
+	slaughPerk.myCondition = myCond;
+
+	for (auto& func : perkFuncVector)
+	{
+		slaughPerk.perkFunctions = func;
+	}
+	
+	
+	ProfileReturnConst(slaughPerk);
+	
 }

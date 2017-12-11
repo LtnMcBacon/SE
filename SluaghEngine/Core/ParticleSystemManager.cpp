@@ -244,7 +244,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 		p.opacity = 1.0f;
 
 		auto res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1_" + std::to_string(entity.id),
-																		 nullptr, 0, sizeof(Particle), 10000,
+																		 nullptr, 0, sizeof(Particle), 500,
 																		 Graphics::BufferFlags::BIND_VERTEX | Graphics::
 																		 BufferFlags::BIND_STREAMOUT);
 		if (res < 0)
@@ -252,7 +252,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 			throw std::exception("Failed to create OutStreamBuffer1");
 		}
 		res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2_" + std::to_string(entity.id), &p, 1,
-																	sizeof(Particle), 10000,
+																	sizeof(Particle), 500,
 																	Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags
 																	::BIND_STREAMOUT);
 		if (res < 0)

@@ -3,6 +3,7 @@
 #include <Items.h>
 #include <array>
 #include <Stats.h>
+#include <EventStructs.h>
 
 struct WeaponInfo
 {
@@ -18,12 +19,13 @@ struct WeaponInfo
 	DirectX::XMFLOAT3 equipPos;
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 equipRot;
+	SE::Gameplay::DamageType damageType;
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{ "Sword_black.png", "Sword2.png", "PhysicalPickup.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
-	{ "Crossbow_black.png", "Crossbow_silver.png", "RangedPickup.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
-	{ "Wand_black.png","Wand_silver.png", "MagicPickup.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
+	{ "Sword_black.png", "Sword2.png", "PhysicalPickup.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f }, SE::Gameplay::DamageType::PHYSICAL },
+	{ "Crossbow_black.png", "Crossbow_silver.png", "RangedPickup.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f }, SE::Gameplay::DamageType::RANGED },
+	{ "Wand_black.png","Wand_silver.png", "MagicPickup.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } , SE::Gameplay::DamageType::MAGIC }
 	} };
 
 struct ProjectileInfo
@@ -35,8 +37,8 @@ struct ProjectileInfo
 static const std::vector<std::vector<ProjectileInfo>> projectiles = 
 {
 	{
-		{ 1.0f, "playerMeleeProjectiles.SEP" },
-		{ 1.0f, "playerMeleeProjectiles.SEP" }
+		{ 2.0f, "playerMeleeProjectiles.SEP" },
+		{ 2.0f, "playerMeleeProjectiles.SEP" }
 	},
 
 	{
@@ -61,22 +63,23 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	auto wep = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(ItemType::WEAPON));
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(type));
-	CoreInit::managers.dataManager->SetValue(wep, "Health", Stats::GetRandHealth());
-	CoreInit::managers.dataManager->SetValue(wep, "Str", Stats::GetRandStr());
-	CoreInit::managers.dataManager->SetValue(wep, "Agi", Stats::GetRandAgi());
-	CoreInit::managers.dataManager->SetValue(wep, "Wis", Stats::GetRandWil());
+	CoreInit::managers.dataManager->SetValue(wep, "DamageType", int32_t(weaponInfo[size_t(type)].damageType));
+	CoreInit::managers.dataManager->SetValue(wep, "Health", base ? 0 : Stats::GetRandHealth());
+	CoreInit::managers.dataManager->SetValue(wep, "Str", base ? 0 : Stats::GetRandStr());
+	CoreInit::managers.dataManager->SetValue(wep, "Agi", base ? 0 : Stats::GetRandAgi());
+	CoreInit::managers.dataManager->SetValue(wep, "Wis", base ? 0 : Stats::GetRandWil());
 	
 	CoreInit::managers.dataManager->SetValue(wep, "Element", int32_t(Stats::GetRandomDamageType()));
 	CoreInit::managers.dataManager->SetValue(wep, "AttAnim", weaponInfo[size_t(type)].attAnim.id);
 	if (projectileID == -1)
 	{
 		auto randProjectile = std::rand() % projectiles[size_t(type)].size();
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 10 : Stats::GetRandDamage()) * projectiles[size_t(type)][randProjectile].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][randProjectile].projectile.id);
 	}
 	else
 	{
-		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 5 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
+		CoreInit::managers.dataManager->SetValue(wep, "Damage", int32_t((base ? 10 : Stats::GetRandDamage()) * projectiles[size_t(type)][projectileID].damageMod));
 		CoreInit::managers.dataManager->SetValue(wep, "AttProj", projectiles[size_t(type)][projectileID].projectile.id);
 	}
 	CreateMeta(wep);
@@ -100,7 +103,7 @@ void SE::Gameplay::Item::Weapon::CreateMeta(SE::Core::Entity wep)
 	icon.textureInfo.screenAnchor = { 0, 1 };
 	icon.textureInfo.posX = 10;
 	icon.textureInfo.posY = -60;
-	icon.textureInfo.layerDepth = 0.9;
+	icon.textureInfo.layerDepth = 0.1;
 
 	CoreInit::managers.guiManager->Create(wep, icon);
 }
@@ -128,6 +131,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	tci.info.scale = { 0.4f, 1.0f };
 	tci.info.height = textHeigth;
 	tci.info.text = L"Skada";
+	tci.info.layerDepth = 0.1;
 	auto textEnt = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.textManager->Create(textEnt, tci);
 	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
@@ -167,6 +171,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	CoreInit::managers.textManager->ToggleRenderableText(textEnt, true);
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
 	posY += textHeigth + 5;
+
 
 	auto agi = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Agi", 0));
 	auto agiCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Agi", 0));
@@ -212,6 +217,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	ciback.textureInfo.posY = 0;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0f, 0.5f };
+	ciback.textureInfo.layerDepth = 0.11;
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
 
