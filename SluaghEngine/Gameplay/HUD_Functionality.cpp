@@ -356,34 +356,34 @@ namespace SE
 					description += L"Alltid aktiv\n";
 					break;
 				case 1:
-					description += L"när slagen av fysisk skada\n";
+					description += L"nÃ¤r slagen av fysisk skada\n";
 					break;
 				case 2:
-					description += L"när slagen av vatten skada\n";
+					description += L"nÃ¤r slagen av vatten skada\n";
 					break;
 				case 3:
-					description += L"när slagen av natur skada\n";
+					description += L"nÃ¤r slagen av natur skada\n";
 					break;
 				case 4:
-					description += L"när slagen av magisk skada\n";
+					description += L"nÃ¤r slagen av magisk skada\n";
 					break;
 				case 5:
-					description += L"när slagen av eld skada\n";
+					description += L"nÃ¤r slagen av eld skada\n";
 					break;
 				case 6:
-					description += L"när slåendes med fysisk skada\n";
+					description += L"nÃ¤r slÃ¥endes med fysisk skada\n";
 					break;
 				case 7:
-					description += L"när slåendes med vatten skada\n";
+					description += L"nÃ¤r slÃ¥endes med vatten skada\n";
 					break;
 				case 8:
-					description += L"när slåendes med natur skada\n";
+					description += L"nÃ¤r slÃ¥endes med natur skada\n";
 					break;
 				case 9:
-					description += L"när slåendes med magisk skada\n";
+					description += L"nÃ¤r slÃ¥endes med magisk skada\n";
 					break;
 				case 10:
-					description += L"när slåendes med eld skada\n";
+					description += L"nÃ¤r slÃ¥endes med eld skada\n";
 					break;
 				default:
 					break;
@@ -393,7 +393,7 @@ namespace SE
 					switch (button.perk.types[i])
 					{
 					case 0:
-						description += L"Livs stjälande %: ";
+						description += L"Livs stjÃ¤lande %: ";
 						break;
 					case 1:
 						description += L"Fysisk resistans %: ";
@@ -423,7 +423,7 @@ namespace SE
 						description += L"Intelligens adderat: ";
 						break;
 					case 10:
-						description += L"Hälsa adderat: ";
+						description += L"HÃ¤lsa adderat: ";
 						break;
 					case 11:
 						description += L"Styrka % : ";
@@ -435,64 +435,64 @@ namespace SE
 						description += L"Smidighet % : ";
 						break;
 					case 14:
-						description += L"Hälsa % : ";
+						description += L"HÃ¤lsa % : ";
 						break;
 					case 15:
-						description += L"Skada % ökning: ";
+						description += L"Skada % Ã¶kning: ";
 						break;
 					case 16:
-						description += L"Närstrids längd % ökning: ";
+						description += L"NÃ¤rstrids lÃ¤ngd % Ã¶kning: ";
 						break;
 					case 17:
-						description += L"Närstrids skada % ökning: ";
+						description += L"NÃ¤rstrids skada % Ã¶kning: ";
 						break;
 					case 18:
-						description += L"Distans skada % ökning: ";
+						description += L"Distans skada % Ã¶kning: ";
 						break;
 					case 19:
-						description += L"Attack hastighet % ökning: ";
+						description += L"Attack hastighet % Ã¶kning: ";
 						break;
 					case 20:
-						description += L"Närstrids attack hastighet % ökning: ";
+						description += L"NÃ¤rstrids attack hastighet % Ã¶kning: ";
 						break;
 					case 21:
-						description += L"Skada % ökning per slag: ";
+						description += L"Skada % Ã¶kning per slag: ";
 						break;
 					case 22:
-						description += L"Attack hastighet % ökning per slag: ";
+						description += L"Attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 23:
-						description += L"Närstrids skada % ökning per slag: ";
+						description += L"NÃ¤rstrids skada % Ã¶kning per slag: ";
 						break;
 					case 24:
-						description += L"Distans skada % ökning per slag: ";
+						description += L"Distans skada % Ã¶kning per slag: ";
 						break;
 					case 25:
-						description += L"Närstrids attack hastighet % ökning per slag: ";
+						description += L"NÃ¤rstrids attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 26:
-						description += L"Distans attack hastighet % ökning per slag: ";
+						description += L"Distans attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 27:
 						description += L"inte aktuell!\n";
 						break;
 					case 28:
-						description += L"Förmåga nedkylning %: ";
+						description += L"FÃ¶rmÃ¥ga nedkylning %: ";
 						break;
 					case 29:
-						description += L"Förmåga nedkylning sekunder: ";
+						description += L"FÃ¶rmÃ¥ga nedkylning sekunder: ";
 						break;
 					case 30:
-						description += L"Förmåga skada % ökning: ";
+						description += L"FÃ¶rmÃ¥ga skada % Ã¶kning: ";
 						break;
 					case 31:
-						description += L"Momentum % ökning: ";
+						description += L"Momentum % Ã¶kning: ";
 						break;
 					case 32:
-						description += L"Max hälsa % helande: ";
+						description += L"Max hÃ¤lsa % helande: ";
 						break;
 					case 33:
-						description += L"Hälsa helande:\n";
+						description += L"HÃ¤lsa helande:\n";
 						break;
 					case 34:
 						description += L"Helande immun\n";
@@ -510,10 +510,10 @@ namespace SE
 						description += L"Natur immun\n";
 						break;
 					case 39:
-						description += L"Nedslöandes immun\n";
+						description += L"NedslÃ¶andes immun\n";
 						break;
 					case 40:
-						description += L"Bedövnings immun\n";
+						description += L"BedÃ¶vnings immun\n";
 						break;
 					case 41:
 						description += L"Magi immun\n";
@@ -522,22 +522,22 @@ namespace SE
 						description += L"Puttnings immun\n";
 						break;
 					case 43:
-						description += L"Närstrid Låst\n";
+						description += L"NÃ¤rstrid LÃ¥st\n";
 						break;
 					case 44:
-						description += L"Distans Låst\n";
+						description += L"Distans LÃ¥st\n";
 						break;
 					case 45:
-						description += L"Magi Låst\n";
+						description += L"Magi LÃ¥st\n";
 						break;
 					case 46:
-						description += L"Vatten Låst\n";
+						description += L"Vatten LÃ¥st\n";
 						break;
 					case 47:
-						description += L"Eld Låst\n";
+						description += L"Eld LÃ¥st\n";
 						break;
 					case 48:
-						description += L"Natur Låst\n";
+						description += L"Natur LÃ¥st\n";
 						break;
 					default:
 						break;
@@ -550,7 +550,7 @@ namespace SE
 					switch (button.perk.checks[i])
 					{
 					case 0:
-						description += L"Livs stjälande: ";
+						description += L"Livs stjÃ¤lande: ";
 						break;
 					case 1:
 						description += L"Fysisk resistans: ";
@@ -580,76 +580,76 @@ namespace SE
 						description += L"Intelligens adderat: ";
 						break;
 					case 10:
-						description += L"Hälsa adderat: ";
+						description += L"HÃ¤lsa adderat: ";
 						break;
 					case 11:
-						description += L"Styrka % ökning: ";
+						description += L"Styrka % Ã¶kning: ";
 						break;
 					case 12:
-						description += L"Smidighet % ökning: ";
+						description += L"Smidighet % Ã¶kning: ";
 						break;
 					case 13:
-						description += L"Intelligens % ökning: ";
+						description += L"Intelligens % Ã¶kning: ";
 						break;
 					case 14:
-						description += L"Hälsa % ökning: ";
+						description += L"HÃ¤lsa % Ã¶kning: ";
 						break;
 					case 15:
-						description += L"Skada % ökning: ";
+						description += L"Skada % Ã¶kning: ";
 						break;
 					case 16:
-						description += L"Närstrids längd % ökning: ";
+						description += L"NÃ¤rstrids lÃ¤ngd % Ã¶kning: ";
 						break;
 					case 17:
-						description += L"Närstrids skada % ökning: ";
+						description += L"NÃ¤rstrids skada % Ã¶kning: ";
 						break;
 					case 18:
-						description += L"Distans skada % ökning: ";
+						description += L"Distans skada % Ã¶kning: ";
 						break;
 					case 19:
-						description += L"Attack hastighet % ökning: ";
+						description += L"Attack hastighet % Ã¶kning: ";
 						break;
 					case 20:
-						description += L"Närstrids attack hastighet % ökning: ";
+						description += L"NÃ¤rstrids attack hastighet % Ã¶kning: ";
 						break;
 					case 21:
-						description += L"Skada % ökning per slag: ";
+						description += L"Skada % Ã¶kning per slag: ";
 						break;
 					case 22:
-						description += L"Attack hastighet % ökning per slag: ";
+						description += L"Attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 23:
-						description += L"Närstrids skada % ökning per slag: ";
+						description += L"NÃ¤rstrids skada % Ã¶kning per slag: ";
 						break;
 					case 24:
-						description += L"Distans skada % ökning per slag: ";
+						description += L"Distans skada % Ã¶kning per slag: ";
 						break;
 					case 25:
-						description += L"Närstrids attack hastighet % ökning per slag: ";
+						description += L"NÃ¤rstrids attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 26:
-						description += L"Distans attack hastighet % ökning per slag: ";
+						description += L"Distans attack hastighet % Ã¶kning per slag: ";
 						break;
 					case 27:
 						description += L"inte aktuell!\n";
 						break;
 					case 28:
-						description += L"Förmåga nedkylning %:";
+						description += L"FÃ¶rmÃ¥ga nedkylning %:";
 						break;
 					case 29:
-						description += L"Förmåga nedkylning sekunder: ";
+						description += L"FÃ¶rmÃ¥ga nedkylning sekunder: ";
 						break;
 					case 30:
-						description += L"Förmåga skada % ökning: ";
+						description += L"FÃ¶rmÃ¥ga skada % Ã¶kning: ";
 						break;
 					case 31:
-						description += L"Momentum % ökning: ";
+						description += L"Momentum % Ã¶kning: ";
 						break;
 					case 32:
-						description += L"Max hälsa % helande: ";
+						description += L"Max hÃ¤lsa % helande: ";
 						break;
 					case 33:
-						description += L"Hälsa helande: ";
+						description += L"HÃ¤lsa helande: ";
 						break;
 					case 34:
 						description += L"Helande immun\n";
@@ -667,10 +667,10 @@ namespace SE
 						description += L"Natur immun\n";
 						break;
 					case 39:
-						description += L"Nedslöandes immun\n";
+						description += L"NedslÃ¶andes immun\n";
 						break;
 					case 40:
-						description += L"Bedövnings immun\n";
+						description += L"BedÃ¶vnings immun\n";
 						break;
 					case 41:
 						description += L"Magi immun\n";
@@ -679,22 +679,22 @@ namespace SE
 						description += L"Puttnings immun\n";
 						break;
 					case 43:
-						description += L"Närstrid Låst\n";
+						description += L"NÃ¤rstrid LÃ¥st\n";
 						break;
 					case 44:
-						description += L"Distans Låst\n";
+						description += L"Distans LÃ¥st\n";
 						break;
 					case 45:
-						description += L"Magi Låst\n";
+						description += L"Magi LÃ¥st\n";
 						break;
 					case 46:
-						description += L"Vatten Låst\n";
+						description += L"Vatten LÃ¥st\n";
 						break;
 					case 47:
-						description += L"Eld Låst";
+						description += L"Eld LÃ¥st";
 						break;
 					case 48:
-						description += L"Natur Låst";
+						description += L"Natur LÃ¥st";
 						break;
 					default:
 						break;
@@ -828,10 +828,6 @@ namespace SE
 					{
 						// hovered;
 						auto& entity = ButtonEntityVec.at(button.EntityIndex);
-						if (button.rectName == "ResumeButton")
-						{
-							int a = 0;
-						}
 						if (button.hoverTex!="")
 						{
 							CoreInit::managers.guiManager->SetTexture(entity, button.hoverTex);
